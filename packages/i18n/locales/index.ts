@@ -1,6 +1,11 @@
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import path from "node:path";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export const en = join(__dirname, "./en.json");
+function join(locale: string) {
+    return path.join(__dirname, "../locales", `${locale}.json`);
+}
+
+export const en = join("en");
+export const es = join("es");

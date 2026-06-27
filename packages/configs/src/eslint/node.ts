@@ -2,7 +2,7 @@ import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import vitest from "@vitest/eslint-plugin";
-import stylistic from "@stylistic/eslint-plugin";
+import { jsoncConfig, stylisticConfig } from "./shared";
 
 const ignores = {
     ignores: ["**/dist", "**/coverage", "**/types", "**/*.d.ts", "*.config.ts"],
@@ -38,17 +38,6 @@ const vitestConfig = {
     settings: { vitest: { typecheck: true } },
 };
 
-export const stylisticConfig: object = {
-    ...stylistic.configs.recommended,
-
-    rules: {
-        ...stylistic.configs.recommended.rules,
-        "@stylistic/indent": ["error", 4],
-        "@stylistic/semi": ["error", "always"],
-        "@stylistic/quotes": ["error", "double"],
-    },
-};
-
 function createNodeConfig(): object[] {
     return [
         ignores,
@@ -57,6 +46,7 @@ function createNodeConfig(): object[] {
         nodeTs,
         vitestConfig,
         stylisticConfig,
+        jsoncConfig,
     ];
 }
 

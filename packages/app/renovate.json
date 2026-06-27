@@ -5,8 +5,8 @@
   },
   "packageRules": [
     {
-      "matchDepTypes": ["resolutions"],
-      "enabled": false
+      "enabled": false,
+      "matchDepTypes": ["resolutions"]
     }
   ],
   "postUpdateOptions": ["pnpmDedupe"]

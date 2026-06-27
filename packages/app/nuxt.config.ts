@@ -1,4 +1,4 @@
-import { en } from "@budget-forecast/i18n";
+import { en, es } from "@budget-forecast/i18n";
 
 export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
@@ -6,9 +6,12 @@ export default defineNuxtConfig({
     modules: ["@nuxtjs/i18n", "@nuxt/fonts"],
 
     i18n: {
-        defaultLocale: "en",
+        defaultLocale: "es",
         detectBrowserLanguage: false,
-        locales: [{ code: "en", name: "English", files: [en, "en.json"] }],
+        locales: [
+            { code: "en", name: "English", files: [en, "en.json"] },
+            { code: "es", name: "Spanish", files: [es, "es.json"] },
+        ],
     },
 
     fonts: {
