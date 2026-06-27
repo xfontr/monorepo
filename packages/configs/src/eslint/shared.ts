@@ -13,7 +13,7 @@ export const stylisticConfig: object = {
 };
 
 export const jsoncConfig: object = {
-    files: ["**/locales/*.json", "*/locales/**/*.json"],
+    files: ["**/locales/*.json", "**/locales/**/*.json"],
     plugins: { jsonc },
     language: "jsonc/x",
     rules: {
