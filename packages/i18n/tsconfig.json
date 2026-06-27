@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "lib": ["ES2022"],
+
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+
+        "rootDir": ".",
+        "outDir": "dist",
+
+        "strict": true,
+        "skipLibCheck": true,
+
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+
+        "forceConsistentCasingInFileNames": true,
+
+        "verbatimModuleSyntax": true
+    },
+    "include": ["src", "locales", "eslint.config.ts"]
+}

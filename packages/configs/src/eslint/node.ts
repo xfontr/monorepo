@@ -2,7 +2,7 @@ import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import vitest from "@vitest/eslint-plugin";
-import stylistic from "@stylistic/eslint-plugin";
+import { jsoncConfig, stylisticConfig } from "./shared";
 
 const ignores = {
     ignores: ["**/dist", "**/coverage", "**/types", "**/*.d.ts", "*.config.ts"],
@@ -10,10 +10,13 @@ const ignores = {
 
 const base = js.configs.recommended;
 
-const typescript = tseslint.configs.recommendedTypeChecked;
+const typescript = tseslint.configs.recommendedTypeChecked.map((config) => ({
+    ...config,
+    files: ["**/*.ts", "*.ts"],
+}));
 
 const nodeTs = {
-    files: ["**/*.ts"],
+    files: ["**/*.ts", "*.ts"],
     languageOptions: {
         ecmaVersion: 2022,
         sourceType: "module",
@@ -38,17 +41,6 @@ const vitestConfig = {
     settings: { vitest: { typecheck: true } },
 };
 
-export const stylisticConfig: object = {
-    ...stylistic.configs.recommended,
-
-    rules: {
-        ...stylistic.configs.recommended.rules,
-        "@stylistic/indent": ["error", 4],
-        "@stylistic/semi": ["error", "always"],
-        "@stylistic/quotes": ["error", "double"],
-    },
-};
-
 function createNodeConfig(): object[] {
     return [
         ignores,
@@ -57,6 +49,7 @@ function createNodeConfig(): object[] {
         nodeTs,
         vitestConfig,
         stylisticConfig,
+        jsoncConfig,
     ];
 }
 
