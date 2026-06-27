@@ -10,6 +10,9 @@ importers:
 
   packages/app:
     dependencies:
+      '@budget-forecast/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@nuxt/fonts':
         specifier: 0.14.0
         version: 0.14.0(db0@0.3.4)(ioredis@5.11.0)(magicast@0.5.3)(vite@7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))
@@ -68,6 +71,18 @@ importers:
       vue-eslint-parser:
         specifier: ^10.4.0
         version: 10.4.0(eslint@10.4.1(jiti@2.7.0))
+
+  packages/i18n:
+    devDependencies:
+      '@budget-forecast/configs':
+        specifier: workspace:*
+        version: link:../configs
+      '@types/node':
+        specifier: ^25.9.1
+        version: 25.9.1
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
 
 packages:
 

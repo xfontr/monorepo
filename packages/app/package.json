@@ -6,11 +6,11 @@
         "build": "nuxt build",
         "dev": "nuxt dev",
         "preview": "nuxt preview",
-        "postinstall": "nuxt prepare",
         "lint": "eslint .",
         "typecheck": "nuxt typecheck"
     },
     "dependencies": {
+        "@budget-forecast/i18n": "workspace:*",
         "@nuxt/fonts": "0.14.0",
         "@nuxtjs/i18n": "10.4.0",
         "nuxt": "^4.4.6"

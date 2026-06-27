@@ -1,0 +1,21 @@
+{
+    "name": "@budget-forecast/i18n",
+    "version": "0.0.1",
+    "description": "Shared translations",
+    "author": "Xifré Font",
+    "license": "ISC",
+    "type": "module",
+    "exports": {
+        ".": {
+            "import": "./src/index.ts"
+        }
+    },
+    "scripts": {
+        "lint": "eslint ."
+    },
+    "devDependencies": {
+        "@budget-forecast/configs": "workspace:*",
+        "@types/node": "^25.9.1",
+        "typescript": "^6.0.3"
+    }
+}
