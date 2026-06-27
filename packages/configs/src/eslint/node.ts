@@ -10,10 +10,13 @@ const ignores = {
 
 const base = js.configs.recommended;
 
-const typescript = tseslint.configs.recommendedTypeChecked;
+const typescript = tseslint.configs.recommendedTypeChecked.map((config) => ({
+    ...config,
+    files: ["**/*.ts", "*.ts"],
+}));
 
 const nodeTs = {
-    files: ["**/*.ts"],
+    files: ["**/*.ts", "*.ts"],
     languageOptions: {
         ecmaVersion: 2022,
         sourceType: "module",
