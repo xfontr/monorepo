@@ -12,7 +12,8 @@
     },
     "scripts": {
         "lint": "nx eslint:lint",
-        "test": "nx test"
+        "test": "vitest . --watch=false",
+        "test:dev": "vitest ."
     },
     "devDependencies": {
         "@budget-forecast/configs": "workspace:*",
