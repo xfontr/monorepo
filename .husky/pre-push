@@ -1,0 +1,101 @@
+#!/bin/sh
+
+# =========================
+# Colors
+# =========================
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+YELLOW="\033[1;33m"
+BLUE="\033[0;34m"
+BOLD="\033[1m"
+NC="\033[0m" # no color
+
+info() {
+  printf "${BLUE}➜ ${NC}%s\n" "$1"
+}
+
+success() {
+  printf "${GREEN}✔ ${NC}%s\n" "$1"
+}
+
+warn() {
+  printf "${YELLOW}⚠ ${NC}%s\n" "$1"
+}
+
+error() {
+  printf "${RED}✖ ${NC}%s\n" "$1"
+}
+
+# =========================
+# Get current branch
+# =========================
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+echo ""
+info "Current branch: $BRANCH"
+
+# =========================
+# Branch validation
+# =========================
+VALID_REGEX="^(hotfix|fix|feature|release)/.+"
+
+if ! echo "$BRANCH" | grep -Eq "$VALID_REGEX"; then
+  echo ""
+  error "Invalid branch name: $BRANCH"
+  echo "Allowed formats:"
+  echo "  hotfix/*"
+  echo "  fix/*"
+  echo "  feature/*"
+  echo "  release/*"
+  echo ""
+  exit 1
+fi
+
+success "Branch name is valid"
+
+# =========================
+# Run checks
+# =========================
+
+echo ""
+info "Running lint..."
+pnpm lint
+
+if [ $? -ne 0 ]; then
+  error "Lint failed"
+  exit 1
+fi
+
+echo ""
+success "Lint passed"
+
+echo ""
+info "Running tests..."
+pnpm test
+
+if [ $? -ne 0 ]; then
+  error "Tests failed"
+  exit 1
+fi
+
+echo ""
+success "Tests passed"
+
+echo ""
+info "Running typecheck..."
+pnpm typecheck
+
+if [ $? -ne 0 ]; then
+  error "Typecheck failed"
+  exit 1
+fi
+
+echo ""
+success "Typecheck passed"
+
+echo ""
+success "All checks passed. Pushing allowed 🚀"
+echo ""
+echo ""
+
+exit 0
