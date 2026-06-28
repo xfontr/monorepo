@@ -1,36 +1,36 @@
 {
-    "name": "@budget-forecast/ui",
-    "version": "0.0.2",
-    "private": true,
-    "type": "module",
-    "exports": {
-        ".": {
-            "import": "./lib/index.ts"
-        }
-    },
-    "scripts": {
-        "typecheck": "vue-tsc --build",
-        "lint": "nx eslint:lint",
-        "test": "vitest . --watch=false"
-    },
-    "dependencies": {
-        "vue": "catalog:"
-    },
-    "devDependencies": {
-        "@budget-forecast/configs": "workspace:*",
-        "@tsconfig/node24": "^24.0.4",
-        "@types/node": "catalog:",
-        "@vitejs/plugin-vue": "^6.0.7",
-        "@vue/test-utils": "^2.4.11",
-        "@vue/tsconfig": "^0.9.1",
-        "eslint": "catalog:",
-        "happy-dom": "^20.10.6",
-        "typescript": "catalog:",
-        "vite": "catalog:",
-        "vitest": "catalog:",
-        "vue-tsc": "catalog:"
-    },
-    "engines": {
-        "node": "^22.18.0 || >=24.12.0"
+  "name": "@budget-forecast/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./lib/index.ts"
     }
+  },
+  "scripts": {
+    "typecheck": "vue-tsc --build",
+    "lint": "nx eslint:lint",
+    "test": "vitest . --watch=false"
+  },
+  "dependencies": {
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "@budget-forecast/configs": "workspace:*",
+    "@tsconfig/node24": "^24.0.4",
+    "@types/node": "catalog:",
+    "@vitejs/plugin-vue": "^6.0.7",
+    "@vue/test-utils": "^2.4.11",
+    "@vue/tsconfig": "^0.9.1",
+    "eslint": "catalog:",
+    "happy-dom": "^20.10.6",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vue-tsc": "catalog:"
+  },
+  "engines": {
+    "node": "^22.18.0 || >=24.12.0"
+  }
 }
