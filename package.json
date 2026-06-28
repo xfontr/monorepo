@@ -14,10 +14,11 @@
         "release:dry": "nx release --dry-run"
     },
     "devDependencies": {
-        "@nx/nuxt": "23.0.1",
-        "@nx/vitest": "23.0.1",
         "@nx/eslint": "23.0.1",
+        "@nx/js": "23.0.1",
+        "@nx/nuxt": "23.0.1",
         "@nx/vite": "23.0.1",
+        "@nx/vitest": "23.0.1",
         "nx": "23.0.1"
     }
 }
