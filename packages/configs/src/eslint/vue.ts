@@ -3,7 +3,7 @@ import tseslint from "typescript-eslint";
 import vue from "eslint-plugin-vue";
 import vueParser from "vue-eslint-parser";
 
-import { stylisticConfig, jsoncConfig } from "./shared";
+import { stylistic, jsonc } from "./lib";
 
 const ignores = {
     ignores: [
@@ -61,8 +61,8 @@ function createVueConfig(): object[] {
             },
         },
 
-        stylisticConfig,
-        jsoncConfig,
+        stylistic,
+        jsonc,
     ];
 }
 

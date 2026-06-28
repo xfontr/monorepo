@@ -1,5 +1,5 @@
 {
-    "name": "@budget-forecast/app",
+    "name": "@budget-forecast/external",
     "private": true,
     "type": "module",
     "scripts": {
@@ -11,14 +11,14 @@
     },
     "dependencies": {
         "@budget-forecast/i18n": "workspace:*",
-        "@nuxt/fonts": "0.14.0",
-        "@nuxtjs/i18n": "10.4.0",
-        "nuxt": "^4.4.6"
+        "@nuxt/fonts": "catalog:",
+        "@nuxtjs/i18n": "catalog:",
+        "nuxt": "catalog:"
     },
     "devDependencies": {
         "@budget-forecast/configs": "workspace:*",
-        "typescript": "^6.0.3",
-        "vue-tsc": "^3.3.0"
+        "typescript": "catalog:",
+        "vue-tsc": "catalog:"
     },
     "packageManager": "pnpm@11.1.3"
 }
