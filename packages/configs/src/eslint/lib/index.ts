@@ -1,4 +1,4 @@
-import stylistic from "@stylistic/eslint-plugin";
-import jsonc from "eslint-plugin-jsonc";
+import stylistic from "./stylistic";
+import jsonc from "./jsonc";
 
 export { stylistic, jsonc };
