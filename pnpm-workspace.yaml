@@ -4,9 +4,9 @@ packages:
 
 catalog:
     # Frameworks
-    nuxt: ^4.4.6
     "@nuxt/fonts": 0.14.0
     "@nuxtjs/i18n": 10.4.0
+    nuxt: ^4.4.6
     vue-tsc: ^3.3.0
     vue: ^3.5.38
     vite: ^8.0.16
@@ -20,3 +20,11 @@ catalog:
 
     # Misc
     eslint: ^10.4.1
+
+catalogs:
+    nx:
+        "@nx/vite": 23.0.1
+        "@nx/eslint": "23.0.1"
+        "@nx/nuxt": "23.0.1"
+        "@nx/vitest": "23.0.1"
+        nx: "23.0.1"

@@ -1,21 +1,21 @@
 {
-    "name": "@budget-forecast/i18n",
-    "version": "0.0.1",
-    "description": "Shared translations",
-    "author": "Xifré Font",
-    "license": "ISC",
-    "type": "module",
-    "exports": {
-        ".": {
-            "import": "./src/index.ts"
-        }
-    },
-    "scripts": {
-        "lint": "eslint ."
-    },
-    "devDependencies": {
-        "@budget-forecast/configs": "workspace:*",
-        "@types/node": "catalog:",
-        "eslint": "catalog:"
+  "name": "@budget-forecast/i18n",
+  "version": "0.0.1",
+  "description": "Shared translations",
+  "author": "Xifré Font",
+  "license": "ISC",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
     }
+  },
+  "scripts": {
+    "lint": "nx eslint:lint"
+  },
+  "devDependencies": {
+    "@budget-forecast/configs": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:"
+  }
 }

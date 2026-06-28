@@ -12,7 +12,7 @@
         }
     },
     "scripts": {
-        "lint": "eslint ."
+        "lint": "nx eslint:lint"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",

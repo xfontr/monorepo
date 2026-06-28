@@ -9,9 +9,8 @@
         }
     },
     "scripts": {
-        "build": "run-p type-check \"build-only {@}\" --",
-        "type-check": "vue-tsc --build",
-        "lint": "eslint ."
+        "typecheck": "vue-tsc --build",
+        "lint": "nx eslint:lint"
     },
     "dependencies": {
         "vue": "catalog:"
@@ -22,7 +21,6 @@
         "@types/node": "catalog:",
         "@vitejs/plugin-vue": "^6.0.7",
         "@vue/tsconfig": "^0.9.1",
-        "npm-run-all2": "^9.0.2",
         "typescript": "catalog:",
         "vite": "catalog:",
         "vue-tsc": "catalog:",

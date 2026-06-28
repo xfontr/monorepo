@@ -3,10 +3,10 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "nuxt build",
-        "dev": "nuxt dev",
+        "build": "nx nuxt:build",
+        "dev": "nx serve",
         "preview": "nuxt preview",
-        "lint": "eslint .",
+        "lint": "nx eslint:lint",
         "typecheck": "nuxt typecheck"
     },
     "dependencies": {
@@ -19,6 +19,7 @@
     "devDependencies": {
         "@budget-forecast/configs": "workspace:*",
         "typescript": "catalog:",
+        "eslint": "catalog:",
         "vue-tsc": "catalog:"
     },
     "packageManager": "pnpm@11.1.3"

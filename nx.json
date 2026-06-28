@@ -1,0 +1,62 @@
+{
+    "$schema": "./node_modules/nx/schemas/nx-schema.json",
+    "targetDefaults": {
+        "lint": {
+            "dependsOn": ["^lint"],
+            "cache": true
+        },
+        "typecheck": {
+            "dependsOn": ["^typecheck"],
+            "cache": true
+        },
+        "build": {
+            "outputs": ["{projectRoot}/.output"],
+            "cache": true
+        }
+    },
+    "tui": {
+        "enabled": false
+    },
+    "defaultBase": "master",
+    "analytics": false,
+    "plugins": [
+        {
+            "plugin": "@nx/nuxt/plugin",
+            "options": {
+                "buildTargetName": "nuxt:build",
+                "serveTargetName": "serve",
+                "buildDepsTargetName": "build-deps",
+                "watchDepsTargetName": "watch-deps",
+                "serveStaticTargetName": "serve-static",
+                "buildStaticTargetName": "build-static"
+            }
+        },
+        {
+            "plugin": "@nx/eslint/plugin",
+            "options": {
+                "targetName": "eslint:lint"
+            }
+        },
+        {
+            "plugin": "@nx/vitest",
+            "options": {
+                "testTargetName": "test",
+                "ciTargetName": "test-ci",
+                "testMode": "watch"
+            }
+        },
+        {
+            "plugin": "@nx/vite/plugin",
+            "options": {
+                "buildTargetName": "build",
+                "serveTargetName": "serve",
+                "devTargetName": "dev",
+                "previewTargetName": "preview",
+                "serveStaticTargetName": "serve-static",
+                "typecheckTargetName": "vite:typecheck",
+                "buildDepsTargetName": "build-deps",
+                "watchDepsTargetName": "watch-deps"
+            }
+        }
+    ]
+}
