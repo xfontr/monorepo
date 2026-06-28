@@ -9,7 +9,9 @@
         "lint": "nx affected -t lint",
         "typecheck": "nx affected -t typecheck",
         "build": "nx affected -t build",
-        "graph": "nx graph"
+        "graph": "nx graph",
+        "release": "nx release",
+        "release:dry": "nx release --dry-run"
     },
     "devDependencies": {
         "@nx/nuxt": "23.0.1",
