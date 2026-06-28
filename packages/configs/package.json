@@ -1,33 +1,35 @@
 {
-  "name": "@budget-forecast/configs",
-  "version": "0.0.2",
-  "description": "",
-  "private": true,
-  "author": "Xifré Font",
-  "license": "ISC",
-  "type": "module",
-  "exports": {
-    ".": {
-      "import": "./src/index.ts"
+    "name": "@budget-forecast/configs",
+    "version": "0.0.2",
+    "description": "",
+    "private": true,
+    "author": "Xifré Font",
+    "license": "ISC",
+    "type": "module",
+    "types": "dist/src/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/src/index.js"
+        }
+    },
+    "scripts": {
+        "lint": "nx eslint:lint",
+        "build": "tsc"
+    },
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "@stylistic/eslint-plugin": "^5.10.0",
+        "@types/node": "catalog:",
+        "@typescript-eslint/utils": "^8.62.0",
+        "@vitest/eslint-plugin": "^1.6.18",
+        "eslint": "catalog:",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-jsonc": "^3.2.0",
+        "eslint-plugin-vue": "^10.9.1",
+        "globals": "^17.6.0",
+        "typescript": "catalog:",
+        "typescript-eslint": "^8.60.0",
+        "vitest": "catalog:",
+        "vue-eslint-parser": "^10.4.0"
     }
-  },
-  "scripts": {
-    "lint": "nx eslint:lint"
-  },
-  "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@stylistic/eslint-plugin": "^5.10.0",
-    "@types/node": "catalog:",
-    "@typescript-eslint/utils": "^8.62.0",
-    "@vitest/eslint-plugin": "^1.6.18",
-    "eslint": "catalog:",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-jsonc": "^3.2.0",
-    "eslint-plugin-vue": "^10.9.1",
-    "globals": "^17.6.0",
-    "typescript": "catalog:",
-    "typescript-eslint": "^8.60.0",
-    "vitest": "catalog:",
-    "vue-eslint-parser": "^10.4.0"
-  }
 }
