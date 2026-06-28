@@ -23,6 +23,9 @@
         "changelog": {
             "projectChangelogs": true,
             "workspaceChangelog": false
+        },
+        "git": {
+            "commitMessage": "chore(release): Publish"
         }
     },
     "defaultBase": "master",
