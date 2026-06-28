@@ -50,7 +50,6 @@ function createNodeConfig(): object[] {
         vitestConfig,
         stylistic,
         jsonc,
-        boundaries,
     ];
 }
 
