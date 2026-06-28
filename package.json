@@ -6,6 +6,15 @@
     "license": "ISC",
     "packageManager": "pnpm@10.7.1",
     "scripts": {
-        "lint": "pnpm -r lint"
+        "lint": "nx affected -t lint",
+        "typecheck": "nx affected -t typecheck",
+        "build": "nx affected -t build"
+    },
+    "devDependencies": {
+        "@nx/nuxt": "23.0.1",
+        "@nx/vitest": "23.0.1",
+        "@nx/eslint": "23.0.1",
+        "@nx/vite": "23.0.1",
+        "nx": "23.0.1"
     }
 }

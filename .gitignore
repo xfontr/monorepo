@@ -22,3 +22,12 @@ logs
 .env
 .env.*
 !.env.example
+
+# NX
+.nx/cache
+.nx/workspace-data
+.nx/migrate-runs
+.nx/polygraph
+
+vitest.config.*.timestamp*
+vite.config.*.timestamp*
