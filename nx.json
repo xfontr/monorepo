@@ -15,7 +15,7 @@
         }
     },
     "tui": {
-        "enabled": true
+        "enabled": false
     },
     "release": {
         "projects": ["packages/*"],
