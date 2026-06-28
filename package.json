@@ -6,10 +6,10 @@
     "license": "ISC",
     "packageManager": "pnpm@10.7.1",
     "scripts": {
-        "lint": "nx affected -t lint --base=master --head=HEAD",
-        "typecheck": "nx affected -t typecheck --base=master --head=HEAD",
-        "build": "nx affected -t build --base=master --head=HEAD",
-        "test": "nx affected -t test --base=master --head=HEAD",
+        "lint": "nx affected -t lint",
+        "typecheck": "nx affected -t typecheck",
+        "build": "nx affected -t build",
+        "test": "nx affected -t test",
         "graph": "nx graph",
         "release": "nx release",
         "release:dry": "nx release --dry-run"
