@@ -3,12 +3,15 @@
     "version": "0.0.1",
     "private": true,
     "type": "module",
+    "exports": {
+        ".": {
+            "import": "./lib/index.ts"
+        }
+    },
     "scripts": {
-        "dev": "vite",
         "build": "run-p type-check \"build-only {@}\" --",
-        "preview": "vite preview",
-        "build-only": "vite build",
-        "type-check": "vue-tsc --build"
+        "type-check": "vue-tsc --build",
+        "lint": "eslint ."
     },
     "dependencies": {
         "vue": "catalog:"
@@ -22,7 +25,8 @@
         "npm-run-all2": "^9.0.2",
         "typescript": "catalog:",
         "vite": "catalog:",
-        "vue-tsc": "catalog:"
+        "vue-tsc": "catalog:",
+        "eslint": "catalog:"
     },
     "engines": {
         "node": "^22.18.0 || >=24.12.0"
