@@ -17,23 +17,30 @@ const ignores = {
     ],
 };
 
-function createVueConfig(): object[] {
+function createVueConfig(isNuxt?: boolean): object[] {
     const vueBaseRaw = vue.configs["flat/strongly-recommended"];
 
     const vueBase = Array.isArray(vueBaseRaw) ? vueBaseRaw : [vueBaseRaw];
 
+    let base = [ignores, ...vueBase, ...tseslint.configs.recommended];
+
+    // FIXME: This is an antipattern and we'd prefer nuxt to be a separate export
+    if (!isNuxt) {
+        base = [...base, ...tseslint.configs.recommendedTypeChecked];
+    }
+
     return [
-        ignores,
-        ...vueBase,
-
+        ...base,
         {
-            files: ["**/*.ts"],
-            ...tseslint.configs.recommended,
-        },
+            files: ["**/*.ts", "*.ts"],
+            languageOptions: {
+                parser: tseslint.parser,
 
-        {
-            files: ["**/*.ts"],
-            ...tseslint.configs.recommendedTypeChecked,
+                parserOptions: {
+                    projectService: true,
+                    tsconfigRootDir: import.meta.dirname,
+                },
+            },
         },
 
         {
