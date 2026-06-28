@@ -3,7 +3,7 @@ import tseslint from "typescript-eslint";
 import vue from "eslint-plugin-vue";
 import vueParser from "vue-eslint-parser";
 
-import { stylistic, jsonc } from "./lib";
+import { stylistic, jsonc } from "./lib/index.js";
 
 const ignores = {
     ignores: [

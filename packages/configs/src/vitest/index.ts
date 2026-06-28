@@ -1,4 +1,4 @@
-import createNodeConfig from "./node";
-import createVueConfig from "./vue";
+import createNodeConfig from "./node.js";
+import createVueConfig from "./vue.js";
 
 export { createNodeConfig, createVueConfig };

@@ -2,7 +2,9 @@
     "explorer.fileNesting.enabled": true,
     "explorer.fileNesting.patterns": {
         "tsconfig.json": "tsconfig.*.json, env.d.ts, typed-router.d.ts",
-        "vite.config.*": "vitest.config.*",
-        "package.json": "pnpm*, .eslint*, eslint*, .editorconfig"
-    }
+        "package.json": "pnpm*, .eslint*, eslint*, vitest*, .editorconfig",
+        "*.ts": "${basename}.spec.ts",
+        "*.vue": "${basename}.spec.ts, ${basename}.stories.ts"
+    },
+    "explorer.fileNesting.expand": false
 }

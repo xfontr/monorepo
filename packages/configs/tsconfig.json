@@ -17,7 +17,9 @@
 
         "forceConsistentCasingInFileNames": true,
 
-        "verbatimModuleSyntax": true
+        "verbatimModuleSyntax": true,
+        "declaration": true,
+        "sourceMap": true
     },
     "include": ["src", "eslint.config.ts"]
 }

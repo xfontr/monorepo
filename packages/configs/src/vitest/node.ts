@@ -7,7 +7,7 @@ import {
 function createNodeConfig() {
     return defineConfig({
         test: {
-            globals: true,
+            globals: false,
             exclude: [...configDefaults.exclude, "dist/**/*"],
             coverage: {
                 provider: "v8",

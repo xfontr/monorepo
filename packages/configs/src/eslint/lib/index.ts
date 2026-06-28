@@ -1,4 +1,4 @@
-import stylistic from "./stylistic";
-import jsonc from "./jsonc";
+import stylistic from "./stylistic.js";
+import jsonc from "./jsonc.js";
 
 export { stylistic, jsonc };
