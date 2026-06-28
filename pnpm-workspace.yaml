@@ -20,11 +20,3 @@ catalog:
 
     # Misc
     eslint: ^10.4.1
-
-catalogs:
-    nx:
-        "@nx/vite": 23.0.1
-        "@nx/eslint": "23.0.1"
-        "@nx/nuxt": "23.0.1"
-        "@nx/vitest": "23.0.1"
-        nx: "23.0.1"
