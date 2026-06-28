@@ -8,7 +8,8 @@
     "scripts": {
         "lint": "nx affected -t lint",
         "typecheck": "nx affected -t typecheck",
-        "build": "nx affected -t build"
+        "build": "nx affected -t build",
+        "graph": "nx graph"
     },
     "devDependencies": {
         "@nx/nuxt": "23.0.1",

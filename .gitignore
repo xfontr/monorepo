@@ -24,6 +24,7 @@ logs
 !.env.example
 
 # NX
+.nx
 .nx/cache
 .nx/workspace-data
 .nx/migrate-runs
