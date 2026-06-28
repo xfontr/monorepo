@@ -36,41 +36,28 @@ catalogs:
     vue-tsc:
       specifier: ^3.3.0
       version: 3.3.5
-  nx:
-    '@nx/eslint':
-      specifier: 23.0.1
-      version: 23.0.1
-    '@nx/nuxt':
-      specifier: 23.0.1
-      version: 23.0.1
-    '@nx/vite':
-      specifier: 23.0.1
-      version: 23.0.1
-    '@nx/vitest':
-      specifier: 23.0.1
-      version: 23.0.1
-    nx:
-      specifier: 23.0.1
-      version: 23.0.1
 
 importers:
 
   .:
     devDependencies:
       '@nx/eslint':
-        specifier: catalog:nx
+        specifier: 23.0.1
         version: 23.0.1(@babel/traverse@7.29.7)(@zkochan/js-yaml@0.0.7)(eslint@10.4.1(jiti@2.7.0))(nx@23.0.1)
+      '@nx/js':
+        specifier: 23.0.1
+        version: 23.0.1(@babel/traverse@7.29.7)(nx@23.0.1)
       '@nx/nuxt':
-        specifier: catalog:nx
+        specifier: 23.0.1
         version: 23.0.1(067289e5772ab446cb2f52dc7ef8c000)
       '@nx/vite':
-        specifier: catalog:nx
+        specifier: 23.0.1
         version: 23.0.1(@babel/traverse@7.29.7)(@nx/eslint@23.0.1(@babel/traverse@7.29.7)(@zkochan/js-yaml@0.0.7)(eslint@10.4.1(jiti@2.7.0))(nx@23.0.1))(nx@23.0.1)(typescript@6.0.3)(vite@8.1.0(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(vitest@4.1.7(@types/node@25.9.1)(vite@8.1.0(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0)))
       '@nx/vitest':
-        specifier: catalog:nx
+        specifier: 23.0.1
         version: 23.0.1(@babel/traverse@7.29.7)(@nx/eslint@23.0.1(@babel/traverse@7.29.7)(@zkochan/js-yaml@0.0.7)(eslint@10.4.1(jiti@2.7.0))(nx@23.0.1))(nx@23.0.1)(typescript@6.0.3)(vite@8.1.0(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(vitest@4.1.7(@types/node@25.9.1)(vite@8.1.0(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0)))
       nx:
-        specifier: catalog:nx
+        specifier: 23.0.1
         version: 23.0.1
 
   apps/external:
@@ -7597,7 +7584,7 @@ snapshots:
       pathe: 2.0.3
       perfect-debounce: 2.1.0
       pkg-types: 2.3.1
-      semver: 7.8.1
+      semver: 7.8.5
       simple-git: 3.36.0
       sirv: 3.0.2
       structured-clone-es: 2.0.0
@@ -7638,7 +7625,7 @@ snapshots:
       pathe: 2.0.3
       perfect-debounce: 2.1.0
       pkg-types: 2.3.1
-      semver: 7.8.1
+      semver: 7.8.5
       simple-git: 3.36.0
       sirv: 3.0.2
       structured-clone-es: 2.0.0

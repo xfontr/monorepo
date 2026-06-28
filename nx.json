@@ -17,6 +17,14 @@
     "tui": {
         "enabled": true
     },
+    "release": {
+        "projects": ["packages/*"],
+        "projectsRelationship": "independent",
+        "changelog": {
+            "projectChangelogs": true,
+            "workspaceChangelog": false
+        }
+    },
     "defaultBase": "master",
     "analytics": false,
     "plugins": [
@@ -56,6 +64,20 @@
                 "typecheckTargetName": "vite:typecheck",
                 "buildDepsTargetName": "build-deps",
                 "watchDepsTargetName": "watch-deps"
+            }
+        },
+        {
+            "plugin": "@nx/js/typescript",
+            "options": {
+                "typecheck": {
+                    "targetName": "tsc:typecheck"
+                },
+                "build": {
+                    "targetName": "build",
+                    "configName": "tsconfig.lib.json",
+                    "buildDepsName": "build-deps",
+                    "watchDepsName": "watch-deps"
+                }
             }
         }
     ]
