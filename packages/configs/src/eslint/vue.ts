@@ -3,7 +3,7 @@ import tseslint from "typescript-eslint";
 import vue from "eslint-plugin-vue";
 import vueParser from "vue-eslint-parser";
 
-import { stylistic, jsonc } from "./lib/index.js";
+import { stylistic, jsonc, boundaries } from "./lib/index.ts";
 
 const ignores = {
     ignores: [
@@ -70,6 +70,7 @@ function createVueConfig(isNuxt?: boolean): object[] {
 
         stylistic,
         jsonc,
+        boundaries,
     ];
 }
 

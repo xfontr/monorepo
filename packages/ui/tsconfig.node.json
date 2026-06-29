@@ -8,6 +8,11 @@
         "module": "preserve",
         "moduleResolution": "bundler",
 
+        // Workspace configs (@budget-forecast/configs) are consumed as TS source
+        // and use explicit .ts specifiers (required by Node's native type-stripping
+        // loader that nx uses to evaluate vitest/eslint configs).
+        "allowImportingTsExtensions": true,
+
         // Include Node.js types and avoid accidentally including other `@types/*` packages.
         "types": ["node"],
 

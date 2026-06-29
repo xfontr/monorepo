@@ -9,6 +9,9 @@
         "lint": "nx eslint:lint",
         "typecheck": "nuxt typecheck"
     },
+    "nx": {
+        "tags": ["type:app", "scope:external"]
+    },
     "dependencies": {
         "@budget-forecast/i18n": "workspace:*",
         "@budget-forecast/ui": "workspace:*",
