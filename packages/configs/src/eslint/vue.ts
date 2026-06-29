@@ -3,31 +3,23 @@ import tseslint from "typescript-eslint";
 import vue from "eslint-plugin-vue";
 import vueParser from "vue-eslint-parser";
 
-import { stylistic, jsonc, boundaries } from "./lib/index.ts";
+import { stylistic, jsonc, boundaries, vitestConfig, baseIgnores } from "./lib/index.ts";
 
 const ignores = {
-    ignores: [
-        "**/dist",
-        "**/coverage",
-        "**/types",
-        "**/*.d.ts",
-        "*.config.ts",
-        ".nuxt/**",
-        ".output/**",
-    ],
+    ignores: [...baseIgnores, ".nuxt/**", ".output/**"],
 };
 
-function createVueConfig(isNuxt?: boolean): object[] {
+function createBaseVueConfig(typeChecked?: boolean): object[] {
     const vueBaseRaw = vue.configs["flat/strongly-recommended"];
 
     const vueBase = Array.isArray(vueBaseRaw) ? vueBaseRaw : [vueBaseRaw];
 
-    let base = [ignores, ...vueBase, ...tseslint.configs.recommended];
-
-    // FIXME: This is an antipattern and we'd prefer nuxt to be a separate export
-    if (!isNuxt) {
-        base = [...base, ...tseslint.configs.recommendedTypeChecked];
-    }
+    const base = [
+        ignores,
+        ...vueBase,
+        ...tseslint.configs.recommended,
+        ...(typeChecked ? tseslint.configs.recommendedTypeChecked : []),
+    ];
 
     return [
         ...base,
@@ -38,8 +30,11 @@ function createVueConfig(isNuxt?: boolean): object[] {
 
                 parserOptions: {
                     projectService: true,
-                    tsconfigRootDir: import.meta.dirname,
+                    tsconfigRootDir: process.cwd(),
                 },
+            },
+            rules: {
+                "@typescript-eslint/explicit-function-return-type": "off",
             },
         },
 
@@ -58,7 +53,7 @@ function createVueConfig(isNuxt?: boolean): object[] {
                     parser: tseslint.parser,
                     extraFileExtensions: [".vue"],
                     projectService: true,
-                    tsconfigRootDir: import.meta.dirname,
+                    tsconfigRootDir: process.cwd(),
                 },
             },
 
@@ -68,10 +63,17 @@ function createVueConfig(isNuxt?: boolean): object[] {
             },
         },
 
+        vitestConfig,
         stylistic,
         jsonc,
         boundaries,
     ];
 }
 
-export default createVueConfig;
+export function createVueConfig(): object[] {
+    return createBaseVueConfig(true);
+}
+
+export function createNuxtConfig(): object[] {
+    return createBaseVueConfig(false);
+}
