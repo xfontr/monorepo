@@ -13,6 +13,9 @@
     "lint": "nx eslint:lint",
     "test": "vitest . --watch=false"
   },
+  "nx": {
+    "tags": ["type:ui", "scope:shared"]
+  },
   "dependencies": {
     "vue": "catalog:"
   },

@@ -15,6 +15,9 @@
     "test": "vitest . --watch=false",
     "test:dev": "vitest ."
   },
+  "nx": {
+    "tags": ["type:i18n", "scope:shared"]
+  },
   "devDependencies": {
     "@budget-forecast/configs": "workspace:*",
     "@types/node": "catalog:",

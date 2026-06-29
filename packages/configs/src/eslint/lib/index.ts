@@ -1,4 +1,5 @@
-import stylistic from "./stylistic.js";
-import jsonc from "./jsonc.js";
+import stylistic from "./stylistic.ts";
+import jsonc from "./jsonc.ts";
+import boundaries from "./boundaries.ts";
 
-export { stylistic, jsonc };
+export { stylistic, jsonc, boundaries };

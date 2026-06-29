@@ -6,18 +6,24 @@
   "author": "Xifré Font",
   "license": "ISC",
   "type": "module",
-  "types": "dist/src/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/src/index.js"
+      "import": "./src/index.ts"
     }
   },
   "scripts": {
     "lint": "nx eslint:lint",
-    "build": "tsc"
+    "typecheck": "tsc --noEmit"
+  },
+  "nx": {
+    "tags": [
+      "type:config",
+      "scope:shared"
+    ]
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@nx/eslint-plugin": "23.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@types/node": "catalog:",
     "@typescript-eslint/utils": "^8.62.0",

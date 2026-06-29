@@ -2,7 +2,7 @@ import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import vitest from "@vitest/eslint-plugin";
-import { jsonc, stylistic } from "./lib/index.js";
+import { jsonc, stylistic, boundaries } from "./lib/index.ts";
 
 const ignores = {
     ignores: ["**/dist", "**/coverage", "**/types", "**/*.d.ts", "*.config.ts"],
@@ -50,6 +50,7 @@ function createNodeConfig(): object[] {
         vitestConfig,
         stylistic,
         jsonc,
+        boundaries,
     ];
 }
 
