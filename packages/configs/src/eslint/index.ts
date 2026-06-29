@@ -1,4 +1,4 @@
 import createNodeConfig from "./node.ts";
-import createVueConfig from "./vue.ts";
+import { createVueConfig, createNuxtConfig } from "./vue.ts";
 
-export { createNodeConfig, createVueConfig };
+export { createNodeConfig, createVueConfig, createNuxtConfig };

@@ -14,8 +14,6 @@ function createNodeConfig() {
                 exclude: [
                     ...coverageConfigDefaults.exclude,
                     "dist/**/*",
-                    "src/types/*",
-                    "src/configs/*",
                 ],
                 reporter: ["text", "html", "clover", "json", "lcov"],
             },
