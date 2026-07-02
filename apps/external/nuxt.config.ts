@@ -3,7 +3,7 @@ import { en, es } from "@budget-forecast/i18n";
 export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
 
-    modules: ["@nuxtjs/i18n", "@nuxt/fonts"],
+    modules: ["@nuxtjs/i18n", "@nuxt/fonts", "@nuxt/pinia"],
 
     i18n: {
         defaultLocale: "es",
@@ -18,5 +18,9 @@ export default defineNuxtConfig({
         defaults: {
             weights: [300, 600, 900],
         },
+    },
+
+    pinia: {
+        storesDirs: ["./app/stores/**", "./app/layers/**/app/stores/**"],
     },
 });
