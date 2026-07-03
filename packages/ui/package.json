@@ -11,16 +11,22 @@
   "scripts": {
     "typecheck": "vue-tsc --build",
     "lint": "nx eslint:lint",
-    "test": "vitest . --watch=false"
+    "test": "vitest . --watch=false",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "nx": {
-    "tags": ["type:ui", "scope:shared"]
+    "tags": [
+      "type:ui",
+      "scope:shared"
+    ]
   },
   "dependencies": {
     "vue": "catalog:"
   },
   "devDependencies": {
     "@budget-forecast/configs": "workspace:*",
+    "@storybook/vue3-vite": "^10.4.6",
     "@tsconfig/node24": "^24.0.4",
     "@types/node": "catalog:",
     "@vitejs/plugin-vue": "^6.0.7",
@@ -28,6 +34,7 @@
     "@vue/tsconfig": "^0.9.1",
     "eslint": "catalog:",
     "happy-dom": "^20.10.6",
+    "storybook": "^10.4.6",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
