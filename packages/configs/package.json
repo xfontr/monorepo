@@ -9,7 +9,8 @@
   "exports": {
     ".": {
       "import": "./src/index.ts"
-    }
+    },
+    "./tsconfig/*": "./src/tsconfig/*"
   },
   "scripts": {
     "lint": "nx eslint:lint",

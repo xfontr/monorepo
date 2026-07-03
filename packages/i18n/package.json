@@ -12,6 +12,7 @@
   },
   "scripts": {
     "lint": "nx eslint:lint",
+    "typecheck": "tsc --noEmit",
     "test": "vitest . --watch=false",
     "test:dev": "vitest ."
   },

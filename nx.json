@@ -12,6 +12,10 @@
         "build": {
             "outputs": ["{projectRoot}/.output"],
             "cache": true
+        },
+        "build-storybook": {
+            "outputs": ["{projectRoot}/storybook-static"],
+            "cache": true
         }
     },
     "tui": {
