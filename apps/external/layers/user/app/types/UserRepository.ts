@@ -1,5 +1,5 @@
 import type { User } from "./User";
 
 export interface UserRepository {
-    get(): Promise<User>;
+    get(): Promise<User | undefined>;
 }
