@@ -6,7 +6,7 @@ export default defineNuxtConfig({
     modules: ["@nuxtjs/i18n", "@nuxt/fonts", "@pinia/nuxt"],
 
     i18n: {
-        defaultLocale: "es",
+        defaultLocale: "en",
         detectBrowserLanguage: false,
         locales: [
             { code: "en", name: "English", files: [en, "en.json"] },
@@ -22,5 +22,11 @@ export default defineNuxtConfig({
 
     pinia: {
         storesDirs: ["./app/stores/**", "./app/layers/**/app/stores/**"],
+    },
+
+    nitro: {
+        compressPublicAssets: {
+            brotli: true,
+        }
     },
 });
