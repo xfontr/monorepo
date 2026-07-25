@@ -1,4 +1,4 @@
 {
     "extends": "@budget-forecast/configs/tsconfig/node.json",
-    "include": ["src", "locales", "eslint.config.ts"]
+    "include": ["src", "eslint.config.ts"]
 }
