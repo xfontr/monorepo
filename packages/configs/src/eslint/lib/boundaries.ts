@@ -1,17 +1,5 @@
 import nx from "@nx/eslint-plugin";
 
-// Enforces DDD-style layering across the workspace via project `tags`
-// (declared in each project's package.json under `nx.tags`).
-//
-//   type:app     apps — the composition/presentation layer
-//   type:feature feature modules wiring domain + ui together
-//   type:domain  framework-free domain logic (entities, use-cases)
-//   type:ui      shared presentational components
-//   type:i18n    shared translations
-//   type:config  leaf tooling config (depends on nothing internal)
-//
-// Config files (*.config.ts) are ignored upstream, so importing
-// @budget-forecast/configs from an eslint/vitest config never trips this.
 const boundaries: object = {
     files: ["**/*.ts", "**/*.tsx", "**/*.vue", "**/*.js"],
     plugins: { "@nx": nx },
@@ -50,6 +38,10 @@ const boundaries: object = {
                     },
                     {
                         sourceTag: "type:i18n",
+                        onlyDependOnLibsWithTags: ["type:config"],
+                    },
+                    {
+                        sourceTag: "type:infra",
                         onlyDependOnLibsWithTags: ["type:config"],
                     },
                     {
