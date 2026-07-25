@@ -22,8 +22,8 @@ first. Other tooling apps sit alongside it.
 
 | Method | Path | Returns |
 | ------ | ---- | ------- |
-| `GET` | `/v1/projects/:project/locales/:locale` | full message tree (all namespaces) |
-| `GET` | `/v1/projects/:project/locales/:locale?namespaces=shared,user` | only those namespaces |
+| `GET` | `/:locale/:project` | full message tree (all namespaces) |
+| `GET` | `/:locale/:project?namespaces=shared,user` | only those namespaces |
 
 Responses are CORS-open (`Access-Control-Allow-Origin: *`). Unknown locales
 return `404`; unsafe `:project`/`:locale` path segments return `400`.
