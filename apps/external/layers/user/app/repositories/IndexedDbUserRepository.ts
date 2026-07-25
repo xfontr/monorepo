@@ -7,6 +7,7 @@ class IndexedDbUserRepository implements UserRepository {
             email: "",
             id: "",
             name: "",
+            role: "advanced",
         };
     }
 }

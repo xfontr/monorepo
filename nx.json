@@ -1,5 +1,20 @@
 {
     "$schema": "./node_modules/nx/schemas/nx-schema.json",
+    "namedInputs": {
+        "default": ["{projectRoot}/**/*", "sharedGlobals"],
+        "production": [
+            "default",
+            "!{projectRoot}/**/*.spec.ts",
+            "!{projectRoot}/**/*.test.ts",
+            "!{projectRoot}/**/*.stories.@(js|jsx|ts|tsx)",
+            "!{projectRoot}/vitest.config.ts",
+            "!{projectRoot}/**/*.md"
+        ],
+        "sharedGlobals": [
+            "{workspaceRoot}/nx.json",
+            "{workspaceRoot}/pnpm-workspace.yaml"
+        ]
+    },
     "targetDefaults": {
         "lint": {
             "dependsOn": ["^lint"],
@@ -10,7 +25,19 @@
             "cache": true
         },
         "build": {
+            "dependsOn": ["^build"],
+            "inputs": ["production", "^production"],
             "outputs": ["{projectRoot}/.output"],
+            "cache": true
+        },
+        "build-storybook": {
+            "inputs": ["default", "^production"],
+            "outputs": ["{projectRoot}/storybook-static"],
+            "cache": true
+        },
+        "test": {
+            "inputs": ["default", "^production"],
+            "outputs": ["{projectRoot}/coverage"],
             "cache": true
         }
     },
@@ -74,12 +101,6 @@
             "options": {
                 "typecheck": {
                     "targetName": "tsc:typecheck"
-                },
-                "build": {
-                    "targetName": "build",
-                    "configName": "tsconfig.lib.json",
-                    "buildDepsName": "build-deps",
-                    "watchDepsName": "watch-deps"
                 }
             }
         }

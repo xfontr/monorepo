@@ -1,12 +1,17 @@
 // TSConfig for modules that run in Node.js environment via either transpilation or type-stripping.
 {
     "extends": "@tsconfig/node24/tsconfig.json",
-    "include": ["vite.config.*", "vitest.config.*", "eslint.config.*"],
+    "include": ["vite.config.*", "vitest.config.*", "eslint.config.*", ".storybook/**/*"],
     "compilerOptions": {
         // Most tools use transpilation instead of Node.js's native type-stripping.
         // Bundler mode provides a smoother developer experience.
         "module": "preserve",
         "moduleResolution": "bundler",
+
+        // Workspace configs (@budget-forecast/configs) are consumed as TS source
+        // and use explicit .ts specifiers (required by Node's native type-stripping
+        // loader that nx uses to evaluate vitest/eslint configs).
+        "allowImportingTsExtensions": true,
 
         // Include Node.js types and avoid accidentally including other `@types/*` packages.
         "types": ["node"],

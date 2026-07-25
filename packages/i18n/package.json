@@ -12,8 +12,12 @@
   },
   "scripts": {
     "lint": "nx eslint:lint",
+    "typecheck": "tsc --noEmit",
     "test": "vitest . --watch=false",
     "test:dev": "vitest ."
+  },
+  "nx": {
+    "tags": ["type:i18n", "scope:shared"]
   },
   "devDependencies": {
     "@budget-forecast/configs": "workspace:*",
