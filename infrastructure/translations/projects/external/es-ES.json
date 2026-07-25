@@ -1,0 +1,25 @@
+{
+    "shared": {
+        "health": "Salud"
+    },
+    "meta": {
+        "title": "Presupuesto Anual",
+        "description": "Calcula tus presupuestos para todo el año"
+    },
+    "user": {
+        "instructions": {
+            "title": "Instrucciones",
+            "content": "¡Soy un usuario normal!"
+        }
+    },
+    "user.admin": {
+        "instructions": {
+            "content": "¡Soy un administrador!"
+        }
+    },
+    "user.advanced": {
+        "instructions": {
+            "content": "¡Soy un usuario avanzado!"
+        }
+    }
+}
