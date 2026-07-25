@@ -1,0 +1,31 @@
+{
+  "name": "@budget-forecast/translations",
+  "version": "0.0.0",
+  "description": "Translations infrastructure — a mock TMS that serves the project locale files over HTTP",
+  "private": true,
+  "author": "Xifré Font",
+  "license": "ISC",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server/src/index.ts",
+    "serve": "node server/src/index.ts",
+    "lint": "nx eslint:lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest . --watch=false",
+    "test:dev": "vitest ."
+  },
+  "nx": {
+    "tags": ["type:infra", "scope:infra"]
+  },
+  "dependencies": {
+    "@hono/node-server": "catalog:",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@budget-forecast/configs": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
