@@ -61,3 +61,17 @@ pnpm exec nx serve @budget-forecast/external   # dev server
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org) (enforced by commitlint).
 - The pre-push hook runs `lint`, `test` and `typecheck` on affected projects.
 - CI (GitHub Actions) re-runs the same affected targets plus `build` on every PR and on `master`.
+
+## 🏷️ Versioning
+
+Versions and changelogs are derived from commit messages by `nx release` — no manual bumps.
+
+- Each `packages/*` project is versioned **independently**, from the commits that touched its files.
+- `feat` → minor, `fix` → patch; `chore`, `refactor`, `docs`, `test`, `ci` and `style` don't bump. A
+  `!` suffix or `BREAKING CHANGE:` footer → major.
+- While a package is on `0.x`, Nx downshifts bumps one level (breaking → minor, feat → patch).
+- Current versions come from git tags (`<projectName>@<version>`), falling back to `package.json`.
+- Packages depending on a bumped package get a patch bump and a "Updated Dependencies" entry.
+
+Run the **Release** workflow (`workflow_dispatch`) to cut versions. Leave `dry-run` on to preview;
+tick `first-release` only when a project has no git tag yet. Locally: `pnpm release:dry`.

@@ -14,8 +14,8 @@
         "build": "nx affected -t build",
         "test": "nx affected -t test",
         "graph": "nx graph",
-        "release": "nx release",
-        "release:dry": "nx release --dry-run"
+        "release": "nx release --skip-publish",
+        "release:dry": "nx release --skip-publish --dry-run"
     },
     "devDependencies": {
         "@commitlint/cli": "^21.1.0",
