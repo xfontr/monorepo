@@ -1,11 +1,10 @@
 import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
-import vitest from "@vitest/eslint-plugin";
-import { jsonc, stylistic } from "./lib/index.js";
+import { jsonc, stylistic, boundaries, vitestConfig, baseIgnores } from "./lib/index.ts";
 
 const ignores = {
-    ignores: ["**/dist", "**/coverage", "**/types", "**/*.d.ts", "*.config.ts"],
+    ignores: baseIgnores,
 };
 
 const base = js.configs.recommended;
@@ -15,33 +14,23 @@ const typescript = tseslint.configs.recommendedTypeChecked.map((config) => ({
     files: ["**/*.ts", "*.ts"],
 }));
 
-const nodeTs = {
-    files: ["**/*.ts", "*.ts"],
-    languageOptions: {
-        ecmaVersion: 2022,
-        sourceType: "module",
-        globals: { ...globals.node },
-        parserOptions: {
-            tsconfigRootDir: process.cwd(),
-            project: ["./tsconfig.json"],
-        },
-    },
-    rules: {
-        "@typescript-eslint/explicit-function-return-type": "off",
-    },
-};
-
-const vitestConfig = {
-    files: ["**/*.test.ts"],
-    plugins: { vitest },
-    rules: { ...vitest.configs.recommended.rules },
-    languageOptions: {
-        globals: { ...vitest.environments.env.globals },
-    },
-    settings: { vitest: { typecheck: true } },
-};
-
 function createNodeConfig(): object[] {
+    const nodeTs = {
+        files: ["**/*.ts", "*.ts"],
+        languageOptions: {
+            ecmaVersion: 2022,
+            sourceType: "module",
+            globals: { ...globals.node },
+            parserOptions: {
+                projectService: true,
+                tsconfigRootDir: process.cwd(),
+            },
+        },
+        rules: {
+            "@typescript-eslint/explicit-function-return-type": "off",
+        },
+    };
+
     return [
         ignores,
         base,
@@ -50,6 +39,7 @@ function createNodeConfig(): object[] {
         vitestConfig,
         stylistic,
         jsonc,
+        boundaries,
     ];
 }
 
