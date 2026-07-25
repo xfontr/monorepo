@@ -1,0 +1,4 @@
+{
+    "extends": "@budget-forecast/configs/tsconfig/node.json",
+    "include": ["server", "eslint.config.ts"]
+}
