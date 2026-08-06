@@ -1,11 +1,10 @@
-import { TranslationService, TranslationsServerProvider } from "@budget-forecast/i18n";
-import { OfetchHttpClient } from "../adapters/ofetchHttpClient";
+import type { TranslationMap } from "@budget-forecast/i18n";
+import { TRANSLATIONS_API_PATH } from "../config";
 
-export default defineI18nLocale((locale) => {
-    const { tmsBaseUrl } = useRuntimeConfig().public;
+export default defineI18nLocale(async (locale) => {
+    const { data, error } = await useFetch<TranslationMap>(`${TRANSLATIONS_API_PATH}/${locale}`);
 
-    const provider = new TranslationsServerProvider(new OfetchHttpClient(), tmsBaseUrl, "external");
-    const service = new TranslationService(provider);
+    if (error.value) throw createError(error.value);
 
-    return service.load(locale);
+    return data.value;
 });
