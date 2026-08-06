@@ -1,0 +1,15 @@
+name: budget-forecast
+
+services:
+    tms:
+        build:
+            context: ../../..
+            dockerfile: infrastructure/translations/docker/Dockerfile
+        image: budget-forecast/tms
+        # node runs as PID 1 and would ignore SIGTERM — without this, `down` waits 10s
+        init: true
+        restart: unless-stopped
+        ports:
+            - "127.0.0.1:4000:4000"
+        volumes:
+            - ../projects:/app/projects:ro
