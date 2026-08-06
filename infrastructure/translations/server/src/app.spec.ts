@@ -3,6 +3,14 @@ import { app } from "./app.ts";
 
 const get = (path: string) => app.request(path);
 
+describe("GET /health", () => {
+    it("reports the server as up", async () => {
+        const res = await get("/health");
+        expect(res.status).toBe(200);
+        await expect(res.json()).resolves.toEqual({ status: "ok" });
+    });
+});
+
 describe("GET /:locale/:project", () => {
     it("serves the full locale tree when no namespaces are requested", async () => {
         const res = await get("/en-EN/external");
