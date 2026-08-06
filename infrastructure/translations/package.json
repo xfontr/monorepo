@@ -9,6 +9,11 @@
   "scripts": {
     "dev": "node --watch server/src/index.ts",
     "serve": "node server/src/index.ts",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f tms",
+    "docker:rebuild": "docker compose up -d --build",
+    "docker:dev": "docker compose -f compose.yaml -f compose.dev.yaml up -d --build",
     "lint": "nx eslint:lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest . --watch=false",
