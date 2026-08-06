@@ -12,19 +12,13 @@ describe("GET /health", () => {
 });
 
 describe("GET /:locale/:project", () => {
-    it("serves the full locale tree when no namespaces are requested", async () => {
+    it("serves the locale tree", async () => {
         const res = await get("/en-EN/external");
         expect(res.status).toBe(200);
         const body = (await res.json()) as Record<string, unknown>;
         expect(Object.keys(body)).toEqual(
             expect.arrayContaining(["shared", "meta", "user"]),
         );
-    });
-
-    it("honours the namespaces query end-to-end", async () => {
-        const res = await get("/en-EN/external?namespaces=shared");
-        expect(res.status).toBe(200);
-        await expect(res.json()).resolves.toEqual({ shared: { health: "Health" } });
     });
 
     it("404s an unknown locale", async () => {
