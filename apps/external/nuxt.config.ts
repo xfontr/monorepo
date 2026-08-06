@@ -1,17 +1,24 @@
-import { en, es } from "@budget-forecast/i18n";
+import { DEFAULT_LOCALE, LOCALES } from "./i18n/config";
 
 export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
 
     modules: ["@nuxtjs/i18n", "@nuxt/fonts", "@pinia/nuxt"],
 
+    runtimeConfig: {
+        tmsBaseURL: process.env.TMS_BASE_URL ?? "http://localhost:4000",
+    },
+
+    devtools: false,
+
+    typescript: {
+        typeCheck: "build",
+    },
+
     i18n: {
-        defaultLocale: "en",
+        defaultLocale: DEFAULT_LOCALE,
         detectBrowserLanguage: false,
-        locales: [
-            { code: "en", name: "English", files: [en, "en.json"] },
-            { code: "es", name: "Spanish", files: [es, "es.json"] },
-        ],
+        locales: LOCALES,
     },
 
     fonts: {

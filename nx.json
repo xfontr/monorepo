@@ -47,6 +47,10 @@
     "release": {
         "projects": ["packages/*"],
         "projectsRelationship": "independent",
+        "version": {
+            "conventionalCommits": true,
+            "fallbackCurrentVersionResolver": "disk"
+        },
         "changelog": {
             "projectChangelogs": true,
             "workspaceChangelog": false

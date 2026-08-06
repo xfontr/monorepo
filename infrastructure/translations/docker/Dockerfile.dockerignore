@@ -1,0 +1,25 @@
+**/node_modules
+
+.git
+.github
+.husky
+.vscode
+.nx
+
+# Build / test outputs
+**/.output
+**/.nuxt
+**/.nitro
+**/.data
+**/.cache
+**/dist
+**/coverage
+**/storybook-static
+
+# Local secrets and noise
+**/.env*
+**/*.log
+**/.DS_Store
+
+**/*.md
+**/compose*.yaml

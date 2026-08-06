@@ -1,0 +1,25 @@
+{
+    "shared": {
+        "health": "Health"
+    },
+    "meta": {
+        "title": "Budget Forecast",
+        "description": "Forecast your budget for the upcoming year"
+    },
+    "user": {
+        "instructions": {
+            "title": "Instructions",
+            "content": "I'm a normal user!"
+        }
+    },
+    "user.admin": {
+        "instructions": {
+            "content": "I'm an admin user!"
+        }
+    },
+    "user.advanced": {
+        "instructions": {
+            "content": "I'm an advanced user!"
+        }
+    }
+}
