@@ -22,6 +22,7 @@ export default defineNuxtConfig({
             { code: "en-EN", name: "English (UK)" },
             { code: "es-ES", name: "Spanish (ES)" },
         ],
+        defaultLocale: "en-EN",
     },
 
     fonts: {

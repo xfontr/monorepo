@@ -6,8 +6,6 @@ export interface TestConfigProvider {
 }
 
 class TestProvider extends TranslationProvider<TestConfigProvider> {
-    public name = "test";
-
     override getTranslations(locale: Locale): Promise<TranslationMap> {
         return this.http.get<TranslationMap>(`${locale}/${this.project}/${this.options.id}`);
     }
