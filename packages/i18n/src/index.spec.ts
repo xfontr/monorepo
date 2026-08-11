@@ -7,6 +7,7 @@ describe("package entrypoint", () => {
             "OfetchHttpClient",
             "TranslationProvider",
             "TranslationService",
+            "TranslationsError",
             "TranslationsUnavailableError",
             "UndefinedLocaleError",
             "UndefinedVendorError",

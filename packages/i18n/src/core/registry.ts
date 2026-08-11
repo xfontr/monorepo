@@ -1,5 +1,6 @@
 import type { Vendor } from "./domain/Vendor";
 import type TranslationsProvider from "./ports/TranslationProvider";
+import { UndefinedVendorError } from "./errors";
 
 const registry = {
     internal: () => import("./adapters/TranslationsInternalProvider"),
@@ -21,7 +22,11 @@ export type VendorConfig = {
 type ProviderConstructor = new (vendor: VendorConfig) => TranslationsProvider;
 
 async function getVendor(vendor: VendorConfig): Promise<TranslationsProvider> {
-    const module = await registry[vendor.name]();
+    const load = registry[vendor?.name];
+
+    if (!load) throw new UndefinedVendorError(vendor?.name, Object.keys(registry));
+
+    const module = await load();
 
     const Provider = module.default as ProviderConstructor;
 

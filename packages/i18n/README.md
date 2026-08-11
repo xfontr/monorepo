@@ -23,8 +23,7 @@ src/
 │   ├── domain/
 │   │   ├── translations.ts                   # Locale, TranslationMap
 │   │   ├── Vendor.ts                         # vendor config shape
-│   │   ├── TranslationService.ts             # use case
-│   │   └── errors.ts
+│   │   └── TranslationService.ts             # use case
 │   ├── ports/
 │   │   ├── HttpClient.ts                     # driven port: the transport
 │   │   └── TranslationProvider.ts            # driven port: a vendor
@@ -32,6 +31,7 @@ src/
 │   │   ├── OfetchHttpClient.ts               # HttpClient over an injected ofetch instance
 │   │   ├── TranslationsInternalProvider.ts   # the `internal` vendor (our own mock TMS)
 │   │   └── TestProvider.ts                   # `test` vendor — exists to exercise vendor options
+│   ├── errors.ts                             # what can go wrong, with an HTTP status attached
 │   └── registry.ts                           # vendor name → provider, and the config type
 └── nuxt/                                     # the Nuxt module (separate entry point)
 ```
@@ -105,15 +105,21 @@ other consumer supplies its own.
 
 ## ⚠️ Errors
 
+All three extend `TranslationsError`, so one `instanceof` catches anything the package raises.
+
 | Error | `statusCode` | Raised when |
 | --- | --- | --- |
 | `UndefinedLocaleError` | 404 | the request carried no locale |
-| `UndefinedVendorError` | 500 | config names a vendor the registry doesn't have |
+| `UndefinedVendorError` | 500 | config names a vendor the registry doesn't have — raised by `getVendor`, and the message lists the registered names |
 | `TranslationsUnavailableError` | 502 | the vendor failed for that locale (original error in `cause`) |
 
 `statusCode` / `statusMessage` exist because the only consumer today is an H3 route, which
 maps them straight onto the response. A non-HTTP consumer should ignore both and read
 `message`.
+
+Nothing else is dressed up as one of these. A failure the package can't diagnose — a broken
+adapter, say — propagates as itself, so the route reports it as an unhandled 500 with its own
+stack rather than blaming the vendor.
 
 ## 🧭 Deliberately deferred
 
