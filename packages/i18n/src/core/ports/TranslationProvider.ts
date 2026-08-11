@@ -2,7 +2,7 @@ import type { Locale, TranslationMap } from "../domain/translations";
 import type { Vendor } from "../domain/Vendor";
 import type { HttpClient } from "./HttpClient";
 
-class TranslationsProvider<T extends object = object> implements Vendor<T> {
+class TranslationProvider<T extends object = object> implements Vendor<T> {
     protected http: HttpClient;
 
     baseURL: string;
@@ -25,4 +25,4 @@ class TranslationsProvider<T extends object = object> implements Vendor<T> {
     }
 }
 
-export default TranslationsProvider;
+export default TranslationProvider;
