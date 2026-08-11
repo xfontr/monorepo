@@ -15,8 +15,11 @@ export default defineNuxtConfig({
             { code: "en-EN", name: "English (UK)" },
             { code: "es-ES", name: "Spanish (ES)" },
         ],
-        vendor: "server",
-        tmsBaseURL: process.env.TMS_BASE_URL ?? "http://localhost:4000"
+        vendor: {
+            name: "test",
+            baseURL: process.env.TMS_BASE_URL ?? "http://localhost:4000"
+            id: process.env.TEST_ID ?? "kill-me",
+        },
     },
 
     fonts: {

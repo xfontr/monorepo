@@ -1,5 +1,6 @@
 import { addServerHandler, createResolver, defineNuxtModule, installModule } from "@nuxt/kit";
-import { TRANSLATIONS_API_PATH, type TranslationsRuntimeConfig } from "./shared";
+import { type TranslationsRuntimeConfig } from "./shared";
+import { TRANSLATIONS_API_PATH } from "./config";
 
 export default defineNuxtModule<TranslationsRuntimeConfig>({
     meta: { name: "@budget-forecast/i18n/nuxt", configKey: "translations" },

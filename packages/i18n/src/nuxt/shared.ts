@@ -1,19 +1,13 @@
 import type { LocaleObject } from "@nuxtjs/i18n";
 import type { NitroRuntimeConfig } from "nitropack/types";
-
-export const TRANSLATIONS_API_PATH = "/api/translations";
-
-export const HTTP_BAD_REQUEST = 400;
-export const HTTP_BAD_GATEWAY = 502;
-export const HTTP_INTERNAL_SERVER_ERROR = 500;
+import type { Vendor } from "../core/domain/Vendor";
+import type { TestConfigProvider } from "../core/adapters/TestProvider";
 
 export type RuntimeConfig = NitroRuntimeConfig & { translations: TranslationsRuntimeConfig };
 
 export interface TranslationsRuntimeConfig {
-    tmsBaseURL: string
-    project: string
     locales: LocaleObject[]
-    vendor: "server"
+    vendor: Vendor | Vendor<"", TestConfigProvider>
 }
 
 declare module "@nuxt/schema" {
