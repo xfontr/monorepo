@@ -7,7 +7,7 @@ import getVendor, { type VendorConfig } from "../../../core/registry";
 import { TranslationService } from "../../../core/domain/TranslationService";
 import type { TranslationMap } from "../../../core/domain/translations";
 import { OfetchHttpClient } from "../../../core/adapters/OfetchHttpClient";
-import { TranslationsUnavailableError, UndefinedLocaleError, UndefinedVendorError } from "../../../core/domain/errors";
+import { TranslationsError, TranslationsUnavailableError, UndefinedLocaleError } from "../../../core/errors";
 
 const cacheOptions: CachedEventHandlerOptions<TranslationMap> = {
     name: "translations",
@@ -24,36 +24,31 @@ export default defineCachedEventHandler(async (event) => {
 
     const { vendor } = useRuntimeConfig(event).translations as { vendor: VendorConfig };
 
-    const provider = await getVendor(vendor).catch(throwInternalServerError);
+    const provider = await getVendor(vendor).catch(rethrowAsHttpError);
 
     const service = new TranslationService(provider.setHttpClient(new OfetchHttpClient(ofetch.create({ baseURL: provider.baseURL }))));
 
     return service
         .load(locale)
-        .catch((cause) => throwBadGatewayError(cause, locale));
+        .catch((cause) => throwUnavailableError(cause, locale));
 }, cacheOptions);
 
 // #region utils
 function assertLocale(locale?: string): asserts locale is string {
     if (locale) return;
 
-    const error = new UndefinedLocaleError(locale);
-
-    throw createError(error);
+    throw createError(new UndefinedLocaleError(locale));
 }
 
-function throwBadGatewayError(cause: unknown, locale: string): never {
-    const error = new TranslationsUnavailableError(locale);
-    error.cause = cause;
+// Only our own diagnoses become an HTTP status; anything else keeps its stack and reports as unhandled
+function rethrowAsHttpError(cause: unknown): never {
+    if (cause instanceof TranslationsError) throw createError(cause);
 
-    throw createError(error);
+    throw cause;
 }
 
-function throwInternalServerError(cause: unknown): never {
-    const error = new UndefinedVendorError();
-    error.cause = cause;
-
-    throw createError(error);
+function throwUnavailableError(cause: unknown, locale: string): never {
+    throw createError(new TranslationsUnavailableError(locale, cause));
 }
 
 function getKey(event: H3Event<EventHandlerRequest>) {

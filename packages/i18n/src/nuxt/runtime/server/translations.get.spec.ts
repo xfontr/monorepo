@@ -58,6 +58,19 @@ describe("GET /api/translations/:locale", () => {
         await expect(handler(createEvent("en-EN"))).rejects.toMatchObject({ statusCode: 500 });
     });
 
+    it("lets a failure it cannot diagnose through untouched, rather than blaming the vendor", async () => {
+        const cause = new Error("adapter is broken");
+        vi.doMock("../../../core/registry", () => ({ default: () => Promise.reject(cause) }));
+        vi.resetModules();
+
+        const broken = (await import("./translations.get")).default as unknown as (event: H3Event<EventHandlerRequest>) => Promise<TranslationMap>;
+
+        await expect(broken(createEvent("en-EN"))).rejects.toBe(cause);
+
+        vi.doUnmock("../../../core/registry");
+        vi.resetModules();
+    });
+
     it("502s when the vendor is unreachable, keeping the failure as the cause", async () => {
         const cause = new Error("upstream down");
         ofetch.request.mockRejectedValue(cause);

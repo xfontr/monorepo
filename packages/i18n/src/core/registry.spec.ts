@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import getVendor, { type VendorConfig } from "./registry";
 import TranslationsInternalProvider from "./adapters/TranslationsInternalProvider";
 import TestProvider from "./adapters/TestProvider";
+import { UndefinedVendorError } from "./errors";
 
 describe("getVendor", () => {
     it("builds the internal provider from its config", async () => {
@@ -22,6 +23,11 @@ describe("getVendor", () => {
     it("rejects an unregistered vendor name instead of returning a broken provider", async () => {
         const vendor = { name: "nope", baseURL: "https://translations.test/", project: "external" } as unknown as VendorConfig;
 
-        await expect(getVendor(vendor)).rejects.toThrow();
+        await expect(getVendor(vendor)).rejects.toThrow(UndefinedVendorError);
+        await expect(getVendor(vendor)).rejects.toThrow(/"nope".*internal, test/);
+    });
+
+    it("rejects a missing vendor config the same way", async () => {
+        await expect(getVendor(undefined as unknown as VendorConfig)).rejects.toThrow(UndefinedVendorError);
     });
 });
