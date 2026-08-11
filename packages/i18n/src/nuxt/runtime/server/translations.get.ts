@@ -22,7 +22,9 @@ export default defineCachedEventHandler(async (event) => {
     const locale = getRouterParam(event, "locale");
     assertLocale(locale);
 
-    const provider = await getVendor(useRuntimeConfig(event).translations as TranslationsRuntimeConfig)
+    const { vendor } = useRuntimeConfig(event).translations as TranslationsRuntimeConfig;
+
+    const provider = await getVendor(vendor)
         .then((vendor) => vendor)
         .catch(throwInternalServerError);
 

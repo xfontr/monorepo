@@ -1,5 +1,5 @@
-export type Vendor<Name extends string = string, T extends object = object> = {
-    name: Name
+export type Vendor<T extends object = object> = {
+    name?: string
     project: string
     baseURL: string
     options: T
