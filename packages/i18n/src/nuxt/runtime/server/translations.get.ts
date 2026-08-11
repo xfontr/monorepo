@@ -1,12 +1,13 @@
 import type { EventHandlerRequest, H3Event } from "h3";
 import { createError, getRouterParam } from "h3";
 import { defineCachedEventHandler, useRuntimeConfig } from "nitropack/runtime";
-import { HTTP_BAD_GATEWAY, HTTP_BAD_REQUEST, HTTP_INTERNAL_SERVER_ERROR } from "../../shared";
 import type { CachedEventHandlerOptions } from "nitropack";
-import getVendor from "../../../core/vendors";
+import getVendor from "../../../core/registry";
 import { TranslationService } from "../../../core/domain/TranslationService";
 import type { TranslationMap } from "../../../core/domain/translations";
 import { OfetchHttpClient } from "../../../core/adapters/OfetchHttpClient";
+import { TranslationsUnavailableError, UndefinedLocaleError, UndefinedVendorError } from "../../../core/domain/errors";
+import type { TranslationsRuntimeConfig } from "../../shared";
 
 const cacheOptions: CachedEventHandlerOptions<Promise<TranslationMap>> = {
     name: "translations",
@@ -21,7 +22,7 @@ export default defineCachedEventHandler(async (event) => {
     const locale = getRouterParam(event, "locale");
     assertLocale(locale);
 
-    const provider = await getVendor(useRuntimeConfig(event))
+    const provider = await getVendor(useRuntimeConfig(event).translations as TranslationsRuntimeConfig)
         .then((vendor) => vendor)
         .catch(throwInternalServerError);
 
@@ -36,26 +37,23 @@ export default defineCachedEventHandler(async (event) => {
 function assertLocale(locale?: string): asserts locale is string {
     if (locale) return;
 
-    throw createError({
-        statusCode: HTTP_BAD_REQUEST,
-        statusMessage: "Undefined locale",
-    });
+    const error = new UndefinedLocaleError(locale);
+
+    throw createError(error);
 }
 
 function throwBadGatewayError(cause: unknown, locale: string): never {
-    throw createError({
-        statusCode: HTTP_BAD_GATEWAY,
-        statusMessage: `Translations unavailable for "${locale}"`,
-        cause,
-    });
+    const error = new TranslationsUnavailableError(locale);
+    error.cause = cause;
+
+    throw createError(error);
 }
 
 function throwInternalServerError(cause: unknown): never {
-    throw createError({
-        statusCode: HTTP_INTERNAL_SERVER_ERROR,
-        statusMessage: "The requested vendor does not exist",
-        cause,
-    });
+    const error = new UndefinedVendorError();
+    error.cause = cause;
+
+    throw createError(error);
 }
 
 function getKey(event: H3Event<EventHandlerRequest>) {

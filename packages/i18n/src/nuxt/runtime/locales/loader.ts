@@ -1,5 +1,5 @@
 import type { TranslationMap } from "../../../core/domain/translations";
-import { TRANSLATIONS_API_PATH } from "../../shared";
+import { TRANSLATIONS_API_PATH } from "../../config";
 
 export default defineI18nLocale(async (locale) => {
     const nuxtApp = useNuxtApp();
@@ -9,7 +9,7 @@ export default defineI18nLocale(async (locale) => {
     });
 
     if (error.value) {
-        nuxtApp.runWithContext(() => showError(error.value!));
+        return nuxtApp.runWithContext(() => showError(error.value!));
     }
 
     return data.value!;
