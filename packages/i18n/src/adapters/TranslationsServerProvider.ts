@@ -5,7 +5,7 @@ import type { TranslationProvider } from "../ports/TranslationProvider";
 /**
  * Adapter for `infrastructure/translations/server` (route: `/:locale/:project`).
  */
-export class TranslationsServerProvider implements TranslationProvider {
+class TranslationsServerProvider implements TranslationProvider {
     constructor(
         private readonly http: HttpClient,
         private readonly project: string,
@@ -15,3 +15,5 @@ export class TranslationsServerProvider implements TranslationProvider {
         return this.http.get<TranslationMap>(`${locale}/${this.project}`);
     }
 }
+
+export default TranslationsServerProvider;
