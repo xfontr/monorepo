@@ -1,6 +1,6 @@
 class TranslationsError extends Error {
     constructor(public readonly statusCode: number, public readonly statusMessage: string) {
-        super();
+        super(statusMessage);
     }
 }
 
@@ -12,7 +12,7 @@ export class TranslationsUnavailableError extends TranslationsError {
 
 export class UndefinedVendorError extends TranslationsError {
     constructor() {
-        super(404, "Requested vendor does not exist");
+        super(500, "Requested vendor does not exist");
     }
 }
 

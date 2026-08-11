@@ -15,7 +15,7 @@ type OptionsFieldOf<N extends VendorName> = [keyof ProviderOf<N>["options"]] ext
     : { options: ProviderOf<N>["options"] };
 
 export type VendorConfig = {
-    [N in VendorName]: Omit<Vendor, "name" | "options"> & { name: N } & OptionsFieldOf<N>
+    [N in VendorName]: Omit<Vendor, "options"> & { name: N } & OptionsFieldOf<N>
 }[VendorName];
 
 type ProviderConstructor = new (vendor: VendorConfig) => TranslationsProvider;

@@ -1,4 +1,4 @@
-import type { $Fetch } from "nitropack";
+import type { $Fetch } from "ofetch";
 import type { HttpClient } from "../ports/HttpClient";
 
 export class OfetchHttpClient implements HttpClient {

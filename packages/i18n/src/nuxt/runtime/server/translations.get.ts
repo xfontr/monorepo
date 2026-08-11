@@ -2,13 +2,14 @@ import type { EventHandlerRequest, H3Event } from "h3";
 import { createError, getRouterParam } from "h3";
 import { defineCachedEventHandler, useRuntimeConfig } from "nitropack/runtime";
 import type { CachedEventHandlerOptions } from "nitropack";
+import { ofetch } from "ofetch";
 import getVendor, { type VendorConfig } from "../../../core/registry";
 import { TranslationService } from "../../../core/domain/TranslationService";
 import type { TranslationMap } from "../../../core/domain/translations";
 import { OfetchHttpClient } from "../../../core/adapters/OfetchHttpClient";
 import { TranslationsUnavailableError, UndefinedLocaleError, UndefinedVendorError } from "../../../core/domain/errors";
 
-const cacheOptions: CachedEventHandlerOptions<Promise<TranslationMap>> = {
+const cacheOptions: CachedEventHandlerOptions<TranslationMap> = {
     name: "translations",
     group: "i18n",
     maxAge: 60 * 60,
@@ -23,11 +24,9 @@ export default defineCachedEventHandler(async (event) => {
 
     const { vendor } = useRuntimeConfig(event).translations as { vendor: VendorConfig };
 
-    const provider = await getVendor(vendor)
-        .then((vendor) => vendor)
-        .catch(throwInternalServerError);
+    const provider = await getVendor(vendor).catch(throwInternalServerError);
 
-    const service = new TranslationService(provider.setHttpClient(new OfetchHttpClient($fetch.create({ baseURL: provider.baseURL }))));
+    const service = new TranslationService(provider.setHttpClient(new OfetchHttpClient(ofetch.create({ baseURL: provider.baseURL }))));
 
     return service
         .load(locale)
@@ -60,6 +59,9 @@ function throwInternalServerError(cause: unknown): never {
 function getKey(event: H3Event<EventHandlerRequest>) {
     const locale = getRouterParam(event, "locale");
     assertLocale(locale);
-    return locale;
+
+    const { vendor } = useRuntimeConfig(event).translations as { vendor: VendorConfig };
+
+    return `${vendor.name}:${vendor.project}:${locale}`;
 }
 // #endregion

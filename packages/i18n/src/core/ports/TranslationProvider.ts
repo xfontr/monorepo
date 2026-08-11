@@ -9,8 +9,6 @@ class TranslationsProvider<T extends object = object> implements Vendor<T> {
     project: string;
     options: T;
 
-    name?: string;
-
     constructor({ baseURL, project, options }: Vendor<T>) {
         this.baseURL = baseURL;
         this.project = project;
