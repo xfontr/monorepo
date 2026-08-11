@@ -1,14 +1,20 @@
 import { addServerHandler, createResolver, defineNuxtModule, installModule } from "@nuxt/kit";
-import { type TranslationsRuntimeConfig } from "./shared";
+import type { Nuxt } from "@nuxt/schema";
+import type { LocaleObject } from "@nuxtjs/i18n";
 import { TRANSLATIONS_API_PATH } from "./config";
+import type { VendorConfig } from "../core/registry";
+
+interface TranslationsRuntimeConfig {
+    vendor: VendorConfig
+}
 
 export default defineNuxtModule<TranslationsRuntimeConfig>({
     meta: { name: "@budget-forecast/i18n/nuxt", configKey: "translations" },
 
-    async setup(resolvedOptions, { options, hook }) {
+    async setup(resolvedOptions, nuxt) {
         const resolver = createResolver(import.meta.url);
 
-        options.runtimeConfig.translations = resolvedOptions;
+        nuxt.options.runtimeConfig.translations = resolvedOptions;
 
         // BFF
         addServerHandler({
@@ -17,10 +23,10 @@ export default defineNuxtModule<TranslationsRuntimeConfig>({
         });
 
         // Locale loader
-        hook("i18n:registerModule", (register) => {
+        nuxt.hook("i18n:registerModule", (register) => {
             register({
                 langDir: resolver.resolve("./runtime/locales"),
-                locales: resolvedOptions.locales.map((locale) => ({ ...locale, file: "loader.ts" })),
+                locales: getLocaleCodes(nuxt).map((code) => ({ code, file: "loader.ts" })),
             });
         });
 
@@ -28,3 +34,8 @@ export default defineNuxtModule<TranslationsRuntimeConfig>({
         await installModule("@nuxtjs/i18n");
     },
 });
+
+function getLocaleCodes({ options }: Nuxt): string[] {
+    const locales = options._layers.flatMap<string | LocaleObject>((layer) => layer.config.i18n?.locales ?? []);
+    return [...new Set(locales.map((locale) => (typeof locale === "string" ? locale : locale.code)))];
+}
