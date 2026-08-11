@@ -8,6 +8,9 @@
   "exports": {
     ".": {
       "import": "./src/index.ts"
+    },
+    "./nuxt": {
+      "import": "./src/nuxt/module.ts"
     }
   },
   "scripts": {
@@ -17,12 +20,38 @@
     "test:dev": "vitest ."
   },
   "nx": {
-    "tags": ["type:i18n", "scope:shared"]
+    "tags": [
+      "type:i18n",
+      "scope:shared"
+    ]
+  },
+  "dependencies": {
+    "@nuxt/kit": "^4.5.0"
+  },
+  "peerDependencies": {
+    "@nuxtjs/i18n": "catalog:",
+    "h3": "^1.15.11",
+    "nitropack": "^2.13.4"
+  },
+  "peerDependenciesMeta": {
+    "@nuxtjs/i18n": {
+      "optional": true
+    },
+    "h3": {
+      "optional": true
+    },
+    "nitropack": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@budget-forecast/configs": "workspace:*",
+    "@nuxt/schema": "^4.5.0",
+    "@nuxtjs/i18n": "catalog:",
     "@types/node": "catalog:",
     "eslint": "catalog:",
+    "h3": "^1.15.11",
+    "nitropack": "^2.13.4",
     "vitest": "catalog:"
   }
 }
