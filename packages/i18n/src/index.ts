@@ -1,6 +1,2 @@
-export * from "./domain/translations";
-export * from "./ports/HttpClient";
-export * from "./ports/TranslationProvider";
-export * from "./adapters/OfetchHttpClient";
-export { default as TranslationsServerProvider } from "./adapters/TranslationsServerProvider";
-export * from "./application/TranslationService";
+export * from "./core/ports/HttpClient";
+export * from "./core/ports/TranslationProvider";

@@ -1,4 +1,4 @@
-import type { Locale, TranslationMap } from "../domain/translations";
+import type { Locale, TranslationMap } from "./translations";
 import type { TranslationProvider } from "../ports/TranslationProvider";
 
 export class TranslationService {

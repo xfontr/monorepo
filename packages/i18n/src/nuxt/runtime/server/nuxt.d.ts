@@ -1,7 +1,3 @@
-declare function defineI18nLocale<Messages>(
-    loader: (locale: string) => Promise<Messages>,
-): (locale: string) => Promise<Messages>;
-
 declare function useFetch<T>(url: string, options?: {
     key?: string
     server?: boolean
@@ -9,3 +5,11 @@ declare function useFetch<T>(url: string, options?: {
     data: { value: T | null }
     error: { value: Error | null }
 }>;
+
+declare function showError(error: Error) {}
+
+declare function useNuxtApp() {
+    return {
+        runWithContext: (callback: Function) => {}
+    }
+}

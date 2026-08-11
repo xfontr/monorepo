@@ -1,11 +1,12 @@
 import type { EventHandlerRequest, H3Event } from "h3";
 import { createError, getRouterParam } from "h3";
 import { defineCachedEventHandler, useRuntimeConfig } from "nitropack/runtime";
-import { TranslationService } from "../../../application/TranslationService";
 import { HTTP_BAD_GATEWAY, HTTP_BAD_REQUEST, HTTP_INTERNAL_SERVER_ERROR } from "../../shared";
 import type { CachedEventHandlerOptions } from "nitropack";
-import type { TranslationMap } from "../../../domain/translations";
-import getVendor from "../../../vendors";
+import getVendor from "../../../core/vendors";
+import { TranslationService } from "../../../core/domain/TranslationService";
+import type { TranslationMap } from "../../../core/domain/translations";
+import { OfetchHttpClient } from "../../../core/adapters/OfetchHttpClient";
 
 const cacheOptions: CachedEventHandlerOptions<Promise<TranslationMap>> = {
     name: "translations",
@@ -24,7 +25,7 @@ export default defineCachedEventHandler(async (event) => {
         .then((vendor) => vendor)
         .catch(throwInternalServerError);
 
-    const service = new TranslationService(provider);
+    const service = new TranslationService(provider.setHttpClient(new OfetchHttpClient($fetch)));
 
     return service
         .load(locale)
