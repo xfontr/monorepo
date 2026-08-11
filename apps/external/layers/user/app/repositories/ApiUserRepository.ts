@@ -1,7 +1,7 @@
 import type { User } from "../types/User";
 import type { UserRepository } from "../types/UserRepository";
 
-class IndexedDbUserRepository implements UserRepository {
+class ApiUserRepository implements UserRepository {
     async get(): Promise<User> {
         return {
             email: "",
@@ -12,4 +12,4 @@ class IndexedDbUserRepository implements UserRepository {
     }
 }
 
-export default IndexedDbUserRepository;
+export default ApiUserRepository;

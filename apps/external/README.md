@@ -13,9 +13,11 @@ Public-facing Nuxt 4 app. Presentation layer only — it composes shared package
 
 ## 🌍 i18n
 
-Each locale merges two layers (lazy-loaded by `@nuxtjs/i18n`):
+All of it comes from the `translations` block in [`nuxt.config.ts`](./nuxt.config.ts), handled
+by the `@budget-forecast/i18n/nuxt` module: it installs and configures `@nuxtjs/i18n`, registers
+the locale loader, and mounts the cached `/api/translations/:locale` route that proxies the TMS.
 
-1. **Shared** keys from `@budget-forecast/i18n` (the package exports absolute file paths).
-2. **App-local** keys from `i18n/locales/{en,es}.json`.
-
-Default locale is `es`; browser detection is disabled.
+Default locale is the first entry (`en-EN`); browser detection is disabled. Point `TMS_BASE_URL`
+at a running [`infrastructure/translations`](../../infrastructure/translations) server, or set
+`NUXT_TRANSLATIONS_TMS_BASE_URL` at deploy time. See the
+[package README](../../packages/i18n/README.md) for the options.
