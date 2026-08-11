@@ -69,8 +69,9 @@ $t("meta.title")
 Two things are fixed rather than configurable, because both are internal contracts between the
 halves: the API path (`/api/translations`) and the cache window (`maxAge` 1h, `staleMaxAge` 24h,
 bypassed in dev). Override the cache from `nuxt.config` with a nitro route rule if a deployment
-ever needs to. The cache key is `vendor:project:locale`, so changing vendor or project can't
-serve stale messages from the previous one.
+ever needs to. The cache key is `vendor:project:options:locale` — every input that picks the
+upstream document, so changing any of them can't serve stale messages from the previous one.
+`options` is omitted from the key for vendors that declare none.
 
 ## 🚫 Do not "fix" the loader
 

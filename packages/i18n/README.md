@@ -29,7 +29,7 @@ src/
 │   │   └── TranslationProvider.ts            # driven port: a vendor
 │   ├── adapters/
 │   │   ├── OfetchHttpClient.ts               # HttpClient over an injected ofetch instance
-│   │   ├── TranslationsInternalProvider.ts   # the `internal` vendor (our own mock TMS)
+│   │   ├── InternalProvider.ts               # the `internal` vendor (our own mock TMS)
 │   │   └── TestProvider.ts                   # `test` vendor — exists to exercise vendor options
 │   ├── errors.ts                             # what can go wrong, with an HTTP status attached
 │   └── registry.ts                           # vendor name → provider, and the config type
@@ -44,7 +44,7 @@ code cannot drift.
 
 ```ts
 const registry = {
-    internal: () => import("./adapters/TranslationsInternalProvider"),
+    internal: () => import("./adapters/InternalProvider"),
     test: () => import("./adapters/TestProvider"),
 };
 ```
@@ -61,7 +61,8 @@ needs none **forbids** them:
 Adding a vendor:
 
 1. Write `core/adapters/<Name>Provider.ts` extending `TranslationProvider`, overriding
-   `getTranslations` with that vendor's URL contract.
+   `getTranslations` with that vendor's URL contract. File, class and registry key all carry the
+   same `<Name>` — `internal` → `InternalProvider.ts` → `class InternalProvider`.
 2. Add one line to `registry`.
 3. Nothing else. Config typing, lazy loading and the Nuxt route follow automatically.
 
@@ -128,7 +129,6 @@ Sized for a small monorepo. When it grows:
 | Later need | What changes |
 | --- | --- |
 | An authenticated vendor | `HttpClient.get` takes no headers or params yet, and the transport is built by the consumer *before* the provider — so today the first paid TMS forces a change at the composition root. Fix that before adding vendor #2 |
-| Confidence when swapping vendors | There are no tests. `getVendor`, each provider's URL shape and the config typing are all pure and cheap to cover |
 | Runtime config validation | The typing above is compile-time only; deploy-time values arrive from env vars unchecked |
 | Locale fallback / merging local overrides | `TranslationService` is a pass-through today; it is where that belongs |
 

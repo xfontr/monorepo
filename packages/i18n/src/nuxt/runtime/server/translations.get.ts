@@ -57,6 +57,12 @@ function getKey(event: H3Event<EventHandlerRequest>) {
 
     const { vendor } = useRuntimeConfig(event).translations as { vendor: VendorConfig };
 
-    return `${vendor.name}:${vendor.project}:${locale}`;
+    return [vendor.name, vendor.project, serializeOptions(vendor.options), locale].filter(Boolean).join(":");
+}
+
+// Options pick which upstream document a vendor fetches, so two option sets must never share an entry
+// Percent-encoded because the key ends up as a cache storage path
+function serializeOptions(options?: object): string {
+    return options ? encodeURIComponent(JSON.stringify(options)) : "";
 }
 // #endregion

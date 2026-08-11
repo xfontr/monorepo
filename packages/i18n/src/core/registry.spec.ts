@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import getVendor, { type VendorConfig } from "./registry";
-import TranslationsInternalProvider from "./adapters/TranslationsInternalProvider";
+import InternalProvider from "./adapters/InternalProvider";
 import TestProvider from "./adapters/TestProvider";
 import { UndefinedVendorError } from "./errors";
 
@@ -8,7 +8,7 @@ describe("getVendor", () => {
     it("builds the internal provider from its config", async () => {
         const provider = await getVendor({ name: "internal", baseURL: "https://translations.test/", project: "external" });
 
-        expect(provider).toBeInstanceOf(TranslationsInternalProvider);
+        expect(provider).toBeInstanceOf(InternalProvider);
         expect(provider.baseURL).toBe("https://translations.test/");
         expect(provider.project).toBe("external");
     });

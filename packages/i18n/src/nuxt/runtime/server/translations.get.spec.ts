@@ -84,7 +84,22 @@ describe("translations cache", () => {
         expect(nitro.cache?.getKey?.(createEvent("en-EN"))).toBe("internal:external:en-EN");
 
         nitro.vendor = { name: "test", baseURL: "https://translations.test/", project: "internal", options: { id: "abc" } };
-        expect(nitro.cache?.getKey?.(createEvent("es-ES"))).toBe("test:internal:es-ES");
+        expect(nitro.cache?.getKey?.(createEvent("es-ES"))).toBe(`test:internal:${encodeURIComponent("{\"id\":\"abc\"}")}:es-ES`);
+    });
+
+    it("keys entries by vendor options too, since they pick which upstream document is fetched", () => {
+        nitro.vendor = { name: "test", baseURL: "https://translations.test/", project: "external", options: { id: "abc" } };
+        const abc = nitro.cache?.getKey?.(createEvent("en-EN"));
+
+        nitro.vendor = { name: "test", baseURL: "https://translations.test/", project: "external", options: { id: "xyz" } };
+
+        expect(nitro.cache?.getKey?.(createEvent("en-EN"))).not.toBe(abc);
+    });
+
+    it("keeps the key safe to use as a storage path", () => {
+        nitro.vendor = { name: "test", baseURL: "https://translations.test/", project: "external", options: { id: "a/b?c" } };
+
+        expect(nitro.cache?.getKey?.(createEvent("en-EN"))).toMatch(/^[\w%.:-]+$/);
     });
 
     it("caches outside of dev", () => {
