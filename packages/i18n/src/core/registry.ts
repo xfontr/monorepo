@@ -1,4 +1,4 @@
-import type { TranslationsRuntimeConfig } from "../nuxt/shared";
+import type { Vendor } from "./domain/Vendor";
 import type TranslationsProvider from "./ports/TranslationProvider";
 
 const registry = {
@@ -6,9 +6,26 @@ const registry = {
     test: () => import("./adapters/TestProvider"),
 };
 
-async function getVendor({ vendor }: TranslationsRuntimeConfig): Promise<TranslationsProvider> {
-    const Vendor = await registry[vendor.name as keyof typeof registry]().then((module) => module.default);
-    return new Vendor(vendor);
+export type VendorName = keyof typeof registry;
+
+type ProviderOf<N extends VendorName> = InstanceType<Awaited<ReturnType<(typeof registry)[N]>>["default"]>;
+
+type OptionsFieldOf<N extends VendorName> = [keyof ProviderOf<N>["options"]] extends [never]
+    ? { options?: never }
+    : { options: ProviderOf<N>["options"] };
+
+export type VendorConfig = {
+    [N in VendorName]: Omit<Vendor, "name" | "options"> & { name: N } & OptionsFieldOf<N>
+}[VendorName];
+
+type ProviderConstructor = new (vendor: VendorConfig) => TranslationsProvider;
+
+async function getVendor(vendor: VendorConfig): Promise<TranslationsProvider> {
+    const module = await registry[vendor.name]();
+
+    const Provider = module.default as ProviderConstructor;
+
+    return new Provider(vendor);
 }
 
 export default getVendor;

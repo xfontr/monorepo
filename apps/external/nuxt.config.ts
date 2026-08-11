@@ -10,15 +10,15 @@ export default defineNuxtConfig({
     },
 
     translations: {
-        project: "external",
         locales: [
             { code: "en-EN", name: "English (UK)" },
             { code: "es-ES", name: "Spanish (ES)" },
         ],
         vendor: {
             name: "test",
-            baseURL: process.env.TMS_BASE_URL ?? "http://localhost:4000"
-            id: process.env.TEST_ID ?? "kill-me",
+            project: "external",
+            baseURL: process.env.TMS_BASE_URL ?? "http://localhost:4000",
+            options: { id: process.env.TEST_ID ?? "" },
         },
     },
 
