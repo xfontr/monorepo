@@ -8,9 +8,9 @@ describe("InternalProvider", () => {
     it("asks the translations server for the project's locale tree", async () => {
         const get = vi.fn().mockResolvedValue(messages);
         const http: HttpClient = { get };
-        const provider = new InternalProvider({ baseURL: "https://translations.test/", project: "external", options: {} });
+        const provider = new InternalProvider({ baseURL: "https://translations.test/", project: "external", options: {} }, http);
 
-        await expect(provider.setHttpClient(http).getTranslations("en-EN")).resolves.toBe(messages);
+        await expect(provider.getTranslations("en-EN")).resolves.toBe(messages);
         expect(get).toHaveBeenCalledWith("en-EN/external");
     });
 });

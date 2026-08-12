@@ -7,7 +7,7 @@ export interface TestProviderOptions {
 
 class TestProvider extends TranslationProvider<TestProviderOptions> {
     override getTranslations(locale: Locale): Promise<TranslationMap> {
-        return this.http!.get<TranslationMap>(`${locale}/${this.project}/${this.options.id}`);
+        return this.http.get<TranslationMap>(`${locale}/${this.project}/${this.options.id}`);
     }
 }
 

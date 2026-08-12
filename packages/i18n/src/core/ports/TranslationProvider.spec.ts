@@ -1,26 +1,24 @@
 import { describe, expect, it, vi } from "vitest";
 import TranslationProvider from "./TranslationProvider";
 import type { HttpClient } from "./HttpClient";
+import type { TranslationMap } from "../domain/translations";
 
 const vendor = { baseURL: "https://translations.test/", project: "external", options: { id: "abc" } };
 
+// The port is abstract, so a vendor that forgets getTranslations fails to compile rather than at runtime
+class StubProvider extends TranslationProvider<{ id: string }> {
+    override getTranslations(): Promise<TranslationMap> {
+        return Promise.resolve({});
+    }
+}
+
 describe("TranslationProvider", () => {
     it("exposes the vendor configuration to its subclasses", () => {
-        const provider = new TranslationProvider(vendor);
+        const http: HttpClient = { get: vi.fn() };
+        const provider = new StubProvider(vendor, http);
 
         expect(provider.baseURL).toBe(vendor.baseURL);
         expect(provider.project).toBe(vendor.project);
         expect(provider.options).toEqual(vendor.options);
-    });
-
-    it("refuses to answer until a vendor implements the fetch", () => {
-        expect(() => new TranslationProvider(vendor).getTranslations("en-EN")).toThrow();
-    });
-
-    it("returns itself from setHttpClient so callers can chain", () => {
-        const provider = new TranslationProvider(vendor);
-        const http: HttpClient = { get: vi.fn() };
-
-        expect(provider.setHttpClient(http)).toBe(provider);
     });
 });

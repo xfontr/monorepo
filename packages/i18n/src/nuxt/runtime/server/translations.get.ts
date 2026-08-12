@@ -3,8 +3,10 @@ import { createError, getRouterParam } from "h3";
 import { defineCachedEventHandler, useRuntimeConfig } from "nitropack/runtime";
 import type { CachedEventHandlerOptions } from "nitropack";
 import { ofetch } from "ofetch";
-import getVendor, { type VendorConfig } from "../../../core/registry";
+import createProvider from "../../../core/registry";
+import type { TranslationsConfig } from "../../config";
 import type { TranslationMap } from "../../../core/domain/translations";
+import { translationsKey } from "../../../core/translationsKey";
 import { TranslationsError, TranslationsUnavailableError, UndefinedLocaleError } from "../../../core/errors";
 import { OfetchHttpClient } from "../../../core/adapters/clients/OfetchHttpClient";
 
@@ -21,13 +23,12 @@ export default defineCachedEventHandler(async (event) => {
     const locale = getRouterParam(event, "locale");
     assertLocale(locale);
 
-    const { vendor } = useRuntimeConfig(event).translations as { vendor: VendorConfig };
+    const { vendor } = useRuntimeConfig(event).translations as TranslationsConfig;
 
-    const provider = await getVendor(vendor).catch(rethrowAsHttpError);
-    const http = new OfetchHttpClient(ofetch.create({ baseURL: provider.baseURL }));
+    const http = new OfetchHttpClient(ofetch.create({ baseURL: vendor.baseURL }));
+    const provider = await createProvider(vendor, http).catch(rethrowAsHttpError);
 
     return provider
-        .setHttpClient(http)
         .getTranslations(locale)
         .catch((cause) => throwUnavailableError(cause, locale));
 }, cacheOptions);
@@ -54,14 +55,8 @@ function getKey(event: H3Event<EventHandlerRequest>) {
     const locale = getRouterParam(event, "locale");
     assertLocale(locale);
 
-    const { vendor } = useRuntimeConfig(event).translations as { vendor: VendorConfig };
+    const { vendor } = useRuntimeConfig(event).translations as TranslationsConfig;
 
-    return [vendor.name, vendor.project, serializeOptions(vendor.options), locale].filter(Boolean).join(":");
-}
-
-// Options pick which upstream document a vendor fetches, so two option sets must never share an entry
-// Percent-encoded because the key ends up as a cache storage path
-function serializeOptions(options?: object): string {
-    return options ? encodeURIComponent(JSON.stringify(options)) : "";
+    return translationsKey(vendor, locale);
 }
 // #endregion

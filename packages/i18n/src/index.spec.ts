@@ -10,7 +10,8 @@ describe("package entrypoint", () => {
             "TranslationsUnavailableError",
             "UndefinedLocaleError",
             "UndefinedVendorError",
-            "getVendor",
+            "createProvider",
+            "translationsKey",
         ]);
     });
 });
