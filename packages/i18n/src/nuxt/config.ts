@@ -1,4 +1,4 @@
-import type { VendorConfig } from "../core/registry";
+import type { VendorConfig } from "#core/registry";
 
 export const TRANSLATIONS_API_PATH = "/api/translations";
 

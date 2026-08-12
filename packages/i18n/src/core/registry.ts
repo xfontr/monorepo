@@ -1,6 +1,6 @@
 import type TranslationProvider from "./ports/TranslationProvider";
 import type { HttpClient } from "./ports/HttpClient";
-import { UndefinedVendorError } from "./errors";
+import { UndefinedVendorError } from "./domain/errors";
 import type { Vendor } from "./domain/Vendor";
 
 const providers = {

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import createProvider, { type VendorConfig } from "./registry";
 import InternalProvider from "./adapters/providers/InternalProvider";
 import TestProvider from "./adapters/providers/TestProvider";
-import { UndefinedVendorError } from "./errors";
+import { UndefinedVendorError } from "./domain/errors";
 import type { HttpClient } from "./ports/HttpClient";
 
 const http: HttpClient = { get: vi.fn() };

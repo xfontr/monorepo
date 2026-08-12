@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import TestProvider from "./TestProvider";
-import type { HttpClient } from "../../ports/HttpClient";
+import type { HttpClient } from "#core/ports/HttpClient";
 
 const messages = { shared: { health: "Health" } };
 

@@ -1,5 +1,5 @@
-import type { Locale, TranslationMap } from "../domain/translations";
-import type { Vendor } from "../domain/Vendor";
+import type { Locale, TranslationMap } from "#core/domain/translations";
+import type { Vendor } from "#core/domain/Vendor";
 import type { HttpClient } from "./HttpClient";
 
 abstract class TranslationProvider<T extends object = object> implements Vendor<T> {
