@@ -8,11 +8,17 @@ Two entry points, kept apart by the `exports` map:
 
 | Import | Contains | Depends on |
 | --- | --- | --- |
-| `@budget-forecast/i18n` | domain, ports, service, adapters, vendor registry | `ofetch` |
+| `@budget-forecast/i18n` | domain, ports, adapters, vendor registry | `ofetch` |
 | `@budget-forecast/i18n/nuxt` | the Nuxt module and its runtime files — see [src/nuxt/README.md](./src/nuxt/README.md) | `@nuxt/kit`, `@nuxtjs/i18n` |
 
 A React, Vue or plain Node consumer resolves the first and can never reach the second, so
 nothing framework-specific leaks. That is enforced by module resolution, not discipline.
+
+Everything the second entry point needs is an **optional peer dependency**, so resolving the
+first installs none of it. Only `ofetch` is a real dependency. If a non-Nuxt consumer ever
+ships to production, split the Nuxt half into its own package — a package that is a Nuxt
+module is allowed to depend on `@nuxt/kit` outright, and the optional-peer trick only holds
+while every consumer lives in this workspace.
 
 ## 🗂 Structure
 
@@ -22,15 +28,16 @@ src/
 ├── core/
 │   ├── domain/
 │   │   ├── translations.ts                   # Locale, TranslationMap
-│   │   ├── Vendor.ts                         # vendor config shape
-│   │   └── TranslationService.ts             # use case
+│   │   └── Vendor.ts                         # vendor config shape
 │   ├── ports/
 │   │   ├── HttpClient.ts                     # driven port: the transport
 │   │   └── TranslationProvider.ts            # driven port: a vendor
 │   ├── adapters/
-│   │   ├── OfetchHttpClient.ts               # HttpClient over an injected ofetch instance
-│   │   ├── InternalProvider.ts               # the `internal` vendor (our own mock TMS)
-│   │   └── TestProvider.ts                   # `test` vendor — exists to exercise vendor options
+│   │   ├── clients/
+│   │   │   └── OfetchHttpClient.ts           # HttpClient over an injected ofetch instance
+│   │   └── providers/
+│   │       ├── InternalProvider.ts           # the `internal` vendor (our own mock TMS)
+│   │       └── TestProvider.ts               # `test` vendor — exists to exercise vendor options
 │   ├── errors.ts                             # what can go wrong, with an HTTP status attached
 │   └── registry.ts                           # vendor name → provider, and the config type
 └── nuxt/                                     # the Nuxt module (separate entry point)
@@ -43,9 +50,9 @@ single source of truth: it drives both the runtime lookup and the config type, s
 code cannot drift.
 
 ```ts
-const registry = {
-    internal: () => import("./adapters/InternalProvider"),
-    test: () => import("./adapters/TestProvider"),
+const providers = {
+    internal: () => import("./adapters/providers/InternalProvider"),
+    test: () => import("./adapters/providers/TestProvider"),
 };
 ```
 
@@ -60,10 +67,10 @@ needs none **forbids** them:
 
 Adding a vendor:
 
-1. Write `core/adapters/<Name>Provider.ts` extending `TranslationProvider`, overriding
+1. Write `core/adapters/providers/<Name>Provider.ts` extending `TranslationProvider`, overriding
    `getTranslations` with that vendor's URL contract. File, class and registry key all carry the
    same `<Name>` — `internal` → `InternalProvider.ts` → `class InternalProvider`.
-2. Add one line to `registry`.
+2. Add one line to `providers`.
 3. Nothing else. Config typing, lazy loading and the Nuxt route follow automatically.
 
 ## 🔌 The ports
@@ -78,22 +85,27 @@ class TranslationProvider {
 }
 ```
 
-`TranslationService` knows only a `TranslationProvider`. A provider knows its vendor's URL
-contract but delegates all I/O to an injected `HttpClient`, so it binds to no transport.
-Composition happens at the edge — the consumer builds the client and injects it.
+A provider knows its vendor's URL contract but delegates all I/O to an injected `HttpClient`,
+so it binds to no transport. Composition happens at the edge — the consumer builds the client
+and injects it.
+
+There is no service layer on top of the provider port, deliberately: a class forwarding one
+call to one collaborator would add a name and a file without adding behaviour. Callers talk to
+the port directly. Wrap it in a service the day something real needs to live there — locale
+fallback, or merging local overrides.
 
 ## 🧩 Framework-agnostic use
 
 ```ts
 import { ofetch } from "ofetch";
-import { getVendor, OfetchHttpClient, TranslationService } from "@budget-forecast/i18n";
+import { getVendor, OfetchHttpClient } from "@budget-forecast/i18n";
 
 const baseURL = process.env.TMS_BASE_URL!;
 
 const provider = await getVendor({ name: "internal", project: "external", baseURL });
 provider.setHttpClient(new OfetchHttpClient(ofetch.create({ baseURL })));
 
-const messages = await new TranslationService(provider).load("en-EN");
+const messages = await provider.getTranslations("en-EN");
 ```
 
 `OfetchHttpClient` owns no transport config of its own: base URL, retries, headers and
@@ -130,7 +142,7 @@ Sized for a small monorepo. When it grows:
 | --- | --- |
 | An authenticated vendor | `HttpClient.get` takes no headers or params yet, and the transport is built by the consumer *before* the provider — so today the first paid TMS forces a change at the composition root. Fix that before adding vendor #2 |
 | Runtime config validation | The typing above is compile-time only; deploy-time values arrive from env vars unchecked |
-| Locale fallback / merging local overrides | `TranslationService` is a pass-through today; it is where that belongs |
+| Locale fallback / merging local overrides | Nothing sits between the caller and the provider port today. That is where a service belongs — add it when there is behaviour to put in it, not before |
 
 The `internal` vendor's translations live in the mock TMS at
 [`infrastructure/translations/`](../../infrastructure/translations).

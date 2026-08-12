@@ -6,7 +6,6 @@ describe("package entrypoint", () => {
         expect(Object.keys(api).sort()).toEqual([
             "OfetchHttpClient",
             "TranslationProvider",
-            "TranslationService",
             "TranslationsError",
             "TranslationsUnavailableError",
             "UndefinedLocaleError",
