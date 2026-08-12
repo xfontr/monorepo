@@ -5,6 +5,10 @@
   "author": "Xifré Font",
   "license": "ISC",
   "type": "module",
+  "imports": {
+    "#core/*": "./src/core/*.ts",
+    "#nuxt/*": "./src/nuxt/*.ts"
+  },
   "exports": {
     ".": {
       "import": "./src/index.ts"

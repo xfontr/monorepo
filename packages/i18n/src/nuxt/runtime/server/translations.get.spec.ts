@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { EventHandlerRequest, H3Event } from "h3";
 import type { CachedEventHandlerOptions } from "nitropack";
-import type { VendorConfig } from "../../../core/registry";
-import type { TranslationMap } from "../../../core/domain/translations";
-import { translationsKey } from "../../../core/translationsKey";
+import type { VendorConfig } from "#core/registry";
+import type { TranslationMap } from "#core/domain/translations";
+import { translationsKey } from "#core/translationsKey";
 
 const nitro = vi.hoisted(() => ({
     vendor: undefined as VendorConfig | undefined,
@@ -61,14 +61,14 @@ describe("GET /api/translations/:locale", () => {
 
     it("lets a failure it cannot diagnose through untouched, rather than blaming the vendor", async () => {
         const cause = new Error("adapter is broken");
-        vi.doMock("../../../core/registry", () => ({ default: () => Promise.reject(cause) }));
+        vi.doMock("#core/registry", () => ({ default: () => Promise.reject(cause) }));
         vi.resetModules();
 
         const broken = (await import("./translations.get")).default as unknown as (event: H3Event<EventHandlerRequest>) => Promise<TranslationMap>;
 
         await expect(broken(createEvent("en-EN"))).rejects.toBe(cause);
 
-        vi.doUnmock("../../../core/registry");
+        vi.doUnmock("#core/registry");
         vi.resetModules();
     });
 

@@ -1,5 +1,5 @@
-import type { Locale, TranslationMap } from "../../domain/translations";
-import TranslationProvider from "../../ports/TranslationProvider";
+import type { Locale, TranslationMap } from "#core/domain/translations";
+import TranslationProvider from "#core/ports/TranslationProvider";
 
 class InternalProvider extends TranslationProvider {
     override getTranslations(locale: Locale): Promise<TranslationMap> {

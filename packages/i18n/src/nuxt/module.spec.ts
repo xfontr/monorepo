@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Nuxt } from "@nuxt/schema";
 import type { LocaleObject } from "@nuxtjs/i18n";
 import { TRANSLATIONS_API_PATH } from "./config";
-import type { VendorConfig } from "../core/registry";
+import type { VendorConfig } from "#core/registry";
 
 const kit = vi.hoisted(() => ({
     addServerHandler: vi.fn(),

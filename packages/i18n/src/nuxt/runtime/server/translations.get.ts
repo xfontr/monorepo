@@ -3,12 +3,12 @@ import { createError, getRouterParam } from "h3";
 import { defineCachedEventHandler, useRuntimeConfig } from "nitropack/runtime";
 import type { CachedEventHandlerOptions } from "nitropack";
 import { ofetch } from "ofetch";
-import createProvider from "../../../core/registry";
-import type { TranslationsConfig } from "../../config";
-import type { TranslationMap } from "../../../core/domain/translations";
-import { translationsKey } from "../../../core/translationsKey";
-import { TranslationsError, TranslationsUnavailableError, UndefinedLocaleError } from "../../../core/errors";
-import { OfetchHttpClient } from "../../../core/adapters/clients/OfetchHttpClient";
+import createProvider from "#core/registry";
+import type { TranslationsConfig } from "#nuxt/config";
+import type { TranslationMap } from "#core/domain/translations";
+import { translationsKey } from "#core/translationsKey";
+import { TranslationsError, TranslationsUnavailableError, UndefinedLocaleError } from "#core/domain/errors";
+import { OfetchHttpClient } from "#core/adapters/clients/OfetchHttpClient";
 
 const cacheOptions: CachedEventHandlerOptions<TranslationMap> = {
     name: "translations",

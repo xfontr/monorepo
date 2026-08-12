@@ -1,5 +1,5 @@
-import type { TranslationMap } from "../../../core/domain/translations";
-import { TRANSLATIONS_API_PATH } from "../../config";
+import type { TranslationMap } from "#core/domain/translations";
+import { TRANSLATIONS_API_PATH } from "#nuxt/config";
 
 export default defineI18nLocale(async (locale) => {
     const nuxtApp = useNuxtApp();

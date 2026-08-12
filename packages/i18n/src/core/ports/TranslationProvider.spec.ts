@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import TranslationProvider from "./TranslationProvider";
 import type { HttpClient } from "./HttpClient";
-import type { TranslationMap } from "../domain/translations";
+import type { TranslationMap } from "#core/domain/translations";
 
 const vendor = { baseURL: "https://translations.test/", project: "external", options: { id: "abc" } };
 
