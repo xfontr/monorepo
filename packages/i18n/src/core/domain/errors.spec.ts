@@ -3,10 +3,10 @@ import { TranslationsError, TranslationsUnavailableError, UndefinedLocaleError, 
 
 describe("translation errors", () => {
     it("reports an unreachable vendor as a bad gateway", () => {
-        const error = new TranslationsUnavailableError("en-EN");
+        const error = new TranslationsUnavailableError("en-GB");
 
         expect(error.statusCode).toBe(502);
-        expect(error.statusMessage).toContain("en-EN");
+        expect(error.statusMessage).toContain("en-GB");
     });
 
     it("reports a misconfigured vendor as an internal error, naming the registered vendors", () => {
@@ -33,7 +33,7 @@ describe("translation errors", () => {
     });
 
     it.each([
-        new TranslationsUnavailableError("en-EN"),
+        new TranslationsUnavailableError("en-GB"),
         new UndefinedVendorError("nope", ["internal", "test"]),
         new UndefinedLocaleError("zz"),
     ])("is throwable through h3 as $statusCode", (error) => {
@@ -45,6 +45,6 @@ describe("translation errors", () => {
     it("keeps the original failure as the cause", () => {
         const cause = new Error("upstream down");
 
-        expect(new TranslationsUnavailableError("en-EN", cause).cause).toBe(cause);
+        expect(new TranslationsUnavailableError("en-GB", cause).cause).toBe(cause);
     });
 });

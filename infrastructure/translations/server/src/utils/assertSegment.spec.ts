@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import assertSegment from "./assertSegment";
 
 describe("assertSegment", () => {
-    it.each(["external", "en-EN", "es_ES", "abc123", "A-B_c-9"])(
+    it.each(["external", "en-GB", "es_ES", "abc123", "A-B_c-9"])(
         "accepts the safe segment %j",
         (segment) => {
             expect(assertSegment(segment)).toBe(true);
