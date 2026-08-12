@@ -1,0 +1,45 @@
+import { describe, expect, it, vi } from "vitest";
+import createProvider, { type VendorConfig } from "./registry";
+import InternalProvider from "./adapters/providers/InternalProvider";
+import TestProvider from "./adapters/providers/TestProvider";
+import { UndefinedVendorError } from "./domain/errors";
+import type { HttpClient } from "./ports/HttpClient";
+
+const http: HttpClient = { get: vi.fn() };
+
+describe("createProvider", () => {
+    it("builds the internal provider from its config", async () => {
+        const provider = await createProvider({ name: "internal", baseURL: "https://translations.test/", project: "external" }, http);
+
+        expect(provider).toBeInstanceOf(InternalProvider);
+        expect(provider.baseURL).toBe("https://translations.test/");
+        expect(provider.project).toBe("external");
+    });
+
+    it("hands vendor-specific options to the provider that declares them", async () => {
+        const provider = await createProvider({ name: "test", baseURL: "https://translations.test/", project: "external", options: { id: "abc" } }, http);
+
+        expect(provider).toBeInstanceOf(TestProvider);
+        expect(provider.options).toEqual({ id: "abc" });
+    });
+
+    it("hands the transport to the provider, so it can never be built unable to fetch", async () => {
+        const get = vi.fn();
+        const provider = await createProvider({ name: "internal", baseURL: "https://translations.test/", project: "external" }, { get });
+
+        await provider.getTranslations("en-EN");
+
+        expect(get).toHaveBeenCalledWith("en-EN/external");
+    });
+
+    it("rejects an unregistered vendor name instead of returning a broken provider", async () => {
+        const vendor = { name: "nope", baseURL: "https://translations.test/", project: "external" } as unknown as VendorConfig;
+
+        await expect(createProvider(vendor, http)).rejects.toThrow(UndefinedVendorError);
+        await expect(createProvider(vendor, http)).rejects.toThrow(/"nope".*internal, test/);
+    });
+
+    it("rejects a missing vendor config the same way", async () => {
+        await expect(createProvider(undefined as unknown as VendorConfig, http)).rejects.toThrow(UndefinedVendorError);
+    });
+});

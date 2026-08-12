@@ -5,9 +5,16 @@
   "author": "Xifré Font",
   "license": "ISC",
   "type": "module",
+  "imports": {
+    "#core/*": "./src/core/*.ts",
+    "#nuxt/*": "./src/nuxt/*.ts"
+  },
   "exports": {
     ".": {
       "import": "./src/index.ts"
+    },
+    "./nuxt": {
+      "import": "./src/nuxt/module.ts"
     }
   },
   "scripts": {
@@ -17,12 +24,43 @@
     "test:dev": "vitest ."
   },
   "nx": {
-    "tags": ["type:i18n", "scope:shared"]
+    "tags": [
+      "type:i18n",
+      "scope:shared"
+    ]
+  },
+  "dependencies": {
+    "ofetch": "^1.5.1"
+  },
+  "peerDependencies": {
+    "@nuxt/kit": "^4.5.0",
+    "@nuxtjs/i18n": "catalog:",
+    "h3": "^1.15.11",
+    "nitropack": "^2.13.4"
+  },
+  "peerDependenciesMeta": {
+    "@nuxt/kit": {
+      "optional": true
+    },
+    "@nuxtjs/i18n": {
+      "optional": true
+    },
+    "h3": {
+      "optional": true
+    },
+    "nitropack": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@budget-forecast/configs": "workspace:*",
+    "@nuxt/kit": "^4.5.0",
+    "@nuxt/schema": "^4.5.0",
+    "@nuxtjs/i18n": "catalog:",
     "@types/node": "catalog:",
     "eslint": "catalog:",
+    "h3": "^1.15.11",
+    "nitropack": "^2.13.4",
     "vitest": "catalog:"
   }
 }
