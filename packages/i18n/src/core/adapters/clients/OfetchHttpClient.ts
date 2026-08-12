@@ -4,7 +4,7 @@ import type { HttpClient } from "#core/ports/HttpClient";
 export class OfetchHttpClient implements HttpClient {
     constructor(private readonly $fetch: $Fetch) {}
 
-    public get<T>(url: string, options?: { headers: object }): Promise<T> {
+    public get<T>(url: string, options?: { headers: Record<string, string> }): Promise<T> {
         return this.$fetch<T>(url, {
             headers: options?.headers,
         });

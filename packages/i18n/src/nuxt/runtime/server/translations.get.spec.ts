@@ -45,7 +45,7 @@ describe("GET /api/translations/:locale", () => {
         await expect(handler(createEvent("en-GB"))).resolves.toBe(messages);
 
         expect(ofetch.create).toHaveBeenCalledWith({ baseURL: "https://translations.test/" });
-        expect(ofetch.request).toHaveBeenCalledWith("en-GB/external");
+        expect(ofetch.request).toHaveBeenCalledWith("en-GB/external", { headers: undefined });
     });
 
     it("404s a request without a locale", async () => {

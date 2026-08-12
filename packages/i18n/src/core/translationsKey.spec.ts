@@ -11,10 +11,10 @@ describe("translationsKey", () => {
     });
 
     it("keys by vendor options too, since they pick which upstream document is fetched", () => {
-        const abc: VendorConfig = { name: "test", baseURL, project: "external", options: { id: "abc" } };
-        const xyz: VendorConfig = { ...abc, options: { id: "xyz" } };
+        const abc: VendorConfig = { name: "tolgee", baseURL, project: "external", options: { token: "t", projectId: "abc" } };
+        const xyz: VendorConfig = { ...abc, options: { ...abc.options, projectId: "xyz" } };
 
-        expect(translationsKey(abc, "en-GB")).toContain(encodeURIComponent("{\"id\":\"abc\"}"));
+        expect(translationsKey(abc, "en-GB")).toContain(encodeURIComponent(JSON.stringify(abc.options)));
         expect(translationsKey(xyz, "en-GB")).not.toBe(translationsKey(abc, "en-GB"));
     });
 
@@ -25,7 +25,7 @@ describe("translationsKey", () => {
     });
 
     it("stays safe to use as a storage path", () => {
-        const vendor: VendorConfig = { name: "test", baseURL, project: "external", options: { id: "a/b?c" } };
+        const vendor: VendorConfig = { name: "tolgee", baseURL, project: "external", options: { token: "t", projectId: "a/b?c" } };
 
         expect(translationsKey(vendor, "en-GB")).toMatch(/^[\w%.:-]+$/);
     });
