@@ -13,7 +13,7 @@ describe("GET /health", () => {
 
 describe("GET /:locale/:project", () => {
     it("serves the locale tree", async () => {
-        const res = await get("/en-EN/external");
+        const res = await get("/en-GB/external");
         expect(res.status).toBe(200);
         const body = (await res.json()) as Record<string, unknown>;
         expect(Object.keys(body)).toEqual(

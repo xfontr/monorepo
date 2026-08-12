@@ -1,7 +1,7 @@
 import jsoncPlugin from "eslint-plugin-jsonc";
 
 const jsonc: object = {
-    files: ["**/locales/*.json", "**/locales/**/*.json"],
+    files: ["**/projects/*/*.json"],
     plugins: { jsonc: jsoncPlugin },
     language: "jsonc/x",
     rules: {
