@@ -54,7 +54,17 @@ describe("i18n nuxt module", () => {
 
         await setup({ vendor }, nuxt as unknown as Nuxt);
 
-        expect(nuxt.options.runtimeConfig.translations).toEqual({ vendor });
+        expect(nuxt.options.runtimeConfig.translations).toEqual({ vendor, locales: ["en-GB"] });
+    });
+
+    it("publishes the same locales it registers loaders for", async () => {
+        const nuxt = createNuxt(["en-GB", { code: "es-ES" }], ["en-GB"]);
+
+        await setup({ vendor }, nuxt as unknown as Nuxt);
+
+        const { locales } = nuxt.options.runtimeConfig.translations as { locales: string[] };
+
+        expect(locales).toEqual(registerLocales(nuxt).locales.map(({ code }) => code));
     });
 
     it("mounts the BFF route on the path the locale loader fetches", async () => {

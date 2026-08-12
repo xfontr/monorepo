@@ -8,8 +8,9 @@ export default defineNuxtModule<TranslationsConfig>({
 
     async setup(resolvedOptions, nuxt) {
         const resolver = createResolver(import.meta.url);
+        const locales = getLocaleCodes(nuxt);
 
-        nuxt.options.runtimeConfig.translations = resolvedOptions;
+        nuxt.options.runtimeConfig.translations = { ...resolvedOptions, locales };
 
         // BFF
         addServerHandler({
@@ -22,7 +23,7 @@ export default defineNuxtModule<TranslationsConfig>({
         nuxt.hook("i18n:registerModule", (register) => {
             register({
                 langDir: resolver.resolve("./runtime/locales"),
-                locales: getLocaleCodes(nuxt).map((code) => ({ code, file: "loader.ts" })),
+                locales: locales.map((code) => ({ code, file: "loader.ts" })),
             });
         });
 

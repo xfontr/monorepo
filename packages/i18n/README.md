@@ -133,12 +133,13 @@ the document (a branch, an export profile) belongs on `Vendor`, not in `options`
 
 ## ⚠️ Errors
 
-All three extend `TranslationsError`, so one `instanceof` catches anything the package raises.
+All of them extend `TranslationsError`, so one `instanceof` catches anything the package raises.
 
 | Error | `statusCode` | Raised when |
 | --- | --- | --- |
-| `UndefinedLocaleError` | 404 | the request carried no locale |
+| `UndefinedLocaleError` | 404 | the request carried no locale, or one the consumer never declared |
 | `UndefinedVendorError` | 500 | config names a vendor the registry doesn't have — raised by `createProvider`, and the message lists the registered names |
+| `UndefinedLocaleProviderError` | 500 | the vendor answered, but not for the locale asked of it — the config claims a locale the vendor doesn't hold |
 | `TranslationsUnavailableError` | 502 | the vendor failed for that locale (original error in `cause`) |
 
 Each error carries its own `statusCode` / `statusMessage`, so adding one never means editing a

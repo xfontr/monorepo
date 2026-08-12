@@ -2,11 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { EventHandlerRequest, H3Event } from "h3";
 import type { CachedEventHandlerOptions } from "nitropack";
 import type { VendorConfig } from "#core/registry";
-import type { TranslationMap } from "#core/domain/translations";
+import type { Locale, TranslationMap } from "#core/domain/translations";
 import { translationsKey } from "#core/translationsKey";
 
 const nitro = vi.hoisted(() => ({
     vendor: undefined as VendorConfig | undefined,
+    locales: [] as Locale[],
     cache: undefined as CachedEventHandlerOptions<TranslationMap> | undefined,
 }));
 
@@ -20,7 +21,7 @@ vi.mock("nitropack/runtime", () => ({
         nitro.cache = options;
         return handler;
     },
-    useRuntimeConfig: () => ({ translations: { vendor: nitro.vendor } }),
+    useRuntimeConfig: () => ({ translations: { vendor: nitro.vendor, locales: nitro.locales } }),
 }));
 
 vi.mock("ofetch", () => ({ ofetch: { create: ofetch.create } }));
@@ -36,6 +37,7 @@ function createEvent(locale?: string) {
 beforeEach(() => {
     vi.clearAllMocks();
     nitro.vendor = { name: "internal", baseURL: "https://translations.test/", project: "external" };
+    nitro.locales = ["en-GB", "es-ES"];
     ofetch.create.mockReturnValue(ofetch.request);
     ofetch.request.mockResolvedValue(messages);
 });
@@ -51,6 +53,17 @@ describe("GET /api/translations/:locale", () => {
     it("404s a request without a locale", async () => {
         await expect(handler(createEvent())).rejects.toMatchObject({ statusCode: 404 });
         expect(ofetch.request).not.toHaveBeenCalled();
+    });
+
+    it("404s a locale the app does not declare, without asking the vendor for it", async () => {
+        await expect(handler(createEvent("fr-FR"))).rejects.toMatchObject({ statusCode: 404 });
+        expect(ofetch.request).not.toHaveBeenCalled();
+    });
+
+    it("serves every declared locale, not just the first", async () => {
+        await expect(handler(createEvent("es-ES"))).resolves.toBe(messages);
+
+        expect(ofetch.request).toHaveBeenCalledWith("es-ES/external", { headers: undefined });
     });
 
     it("500s when the configured vendor does not exist", async () => {
@@ -88,6 +101,11 @@ describe("translations cache", () => {
 
     it("404s a key lookup without a locale, so a bad request cannot poison an entry", () => {
         expect(() => nitro.cache?.getKey?.(createEvent())).toThrow(expect.objectContaining({ statusCode: 404 }) as Error);
+    });
+
+    // The key is derived before the handler runs, so this is what bounds the keyspace to the declared locales
+    it("404s a key lookup for an undeclared locale, so it cannot mint an entry of its own", () => {
+        expect(() => nitro.cache?.getKey?.(createEvent("fr-FR"))).toThrow(expect.objectContaining({ statusCode: 404 }) as Error);
     });
 
     it("caches outside of dev", () => {

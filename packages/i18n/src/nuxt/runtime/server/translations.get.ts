@@ -21,9 +21,9 @@ const cacheOptions: CachedEventHandlerOptions<TranslationMap> = {
 
 export default defineCachedEventHandler(async (event) => {
     const locale = getRouterParam(event, "locale");
-    assertLocale(locale);
+    const { vendor, locales } = useRuntimeConfig(event).translations as TranslationsConfig;
 
-    const { vendor } = useRuntimeConfig(event).translations as TranslationsConfig;
+    assertLocale(locale, locales);
 
     const http = new OfetchHttpClient(ofetch.create({ baseURL: vendor.baseURL }));
     const provider = await createProvider(vendor, http).catch(rethrowAsHttpError);
@@ -34,8 +34,8 @@ export default defineCachedEventHandler(async (event) => {
 }, cacheOptions);
 
 // #region utils
-function assertLocale(locale?: string): asserts locale is string {
-    if (locale) return;
+function assertLocale(locale: string | undefined, locales: string[]): asserts locale is string {
+    if (locale && locales.includes(locale)) return;
 
     throw createError(new UndefinedLocaleError(locale));
 }
@@ -53,7 +53,9 @@ function throwUnavailableError(cause: unknown, locale: string): never {
 
 function getKey(event: H3Event<EventHandlerRequest>) {
     const locale = getRouterParam(event, "locale");
-    assertLocale(locale);
+    const { locales } = useRuntimeConfig(event).translations as TranslationsConfig;
+
+    assertLocale(locale, locales);
 
     const { vendor } = useRuntimeConfig(event).translations as TranslationsConfig;
 
