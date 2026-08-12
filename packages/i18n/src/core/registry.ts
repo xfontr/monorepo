@@ -5,7 +5,7 @@ import type { Vendor } from "./domain/Vendor";
 
 const providers = {
     internal: () => import("./adapters/providers/InternalProvider"),
-    test: () => import("./adapters/providers/TestProvider"),
+    tolgee: () => import("./adapters/providers/TolgeeProvider"),
 };
 
 export type VendorName = keyof typeof providers;

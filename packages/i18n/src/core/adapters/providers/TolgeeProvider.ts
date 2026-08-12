@@ -1,0 +1,24 @@
+import type { Locale, TranslationMap } from "#core/domain/translations";
+import TranslationProvider from "#core/ports/TranslationProvider";
+
+export interface TolgeeProviderOptions {
+    token: string
+    projectId: string
+}
+
+interface TolgeeTranslations {
+    [locale: Locale]: TranslationMap
+}
+
+class TolgeeProvider extends TranslationProvider<TolgeeProviderOptions> {
+    override async getTranslations(locale: Locale): Promise<TranslationMap> {
+        const response = await this.http.get<TolgeeTranslations>(
+            `/v2/projects/${this.options.projectId}/translations/${locale}`,
+            { headers: { "X-API-Key": this.options.token } },
+        );
+
+        return response[locale];
+    }
+}
+
+export default TolgeeProvider;
