@@ -64,6 +64,7 @@ describe("i18n nuxt module", () => {
 
         expect(kit.addServerHandler).toHaveBeenCalledWith({
             route: `${TRANSLATIONS_API_PATH}/:locale`,
+            method: "get",
             handler: "resolved(./runtime/server/translations.get)",
         });
     });

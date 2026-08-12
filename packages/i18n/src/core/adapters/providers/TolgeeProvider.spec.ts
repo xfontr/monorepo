@@ -9,7 +9,7 @@ describe("TolgeeProvider", () => {
         const get = vi.fn().mockResolvedValue({ "en-GB": messages });
         const http: HttpClient = { get };
         const provider = new TolgeeProvider(
-            { baseURL: "https://app.tolgee.io/", project: "external", options: { token: "abc", projectId: "1" } },
+            { baseURL: "https://app.tolgee.io/", project: "1", options: { token: "abc" } },
             http,
         );
 

@@ -4,7 +4,6 @@ import TranslationProvider from "#core/ports/TranslationProvider";
 
 export interface TolgeeProviderOptions {
     token: string
-    projectId: string
 }
 
 interface TolgeeTranslations {
@@ -14,7 +13,7 @@ interface TolgeeTranslations {
 class TolgeeProvider extends TranslationProvider<TolgeeProviderOptions> {
     override async getTranslations(locale: Locale): Promise<TranslationMap> {
         const response = await this.http.get<TolgeeTranslations>(
-            `/v2/projects/${this.options.projectId}/translations/${locale}`,
+            `/v2/projects/${this.project}/translations/${locale}`,
             { headers: { "X-API-Key": this.options.token } },
         );
 

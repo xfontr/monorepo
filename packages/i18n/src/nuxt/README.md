@@ -78,10 +78,10 @@ Two things are fixed rather than configurable, because both are internal contrac
 halves: the API path (`/api/translations`) and the cache window (`maxAge` 1h, `staleMaxAge` 24h,
 bypassed in dev). Override the cache from `nuxt.config` with a nitro route rule if a deployment
 ever needs to. The cache key comes from `translationsKey` in the core, not from this route —
-`vendor:project:baseURL:options:locale`, every input that picks the upstream document, so changing
-any of them can't serve stale messages from the previous one (`options` is omitted for vendors that
-declare none). It lives in the core so a non-Nuxt consumer caching the same documents keys them
-the same way instead of reinventing it.
+`vendor:project:baseURL:locale`, every input that picks the upstream document, so changing any of
+them can't serve stale messages from the previous one (vendor `options` are credentials, not
+identity, and are deliberately excluded). It lives in the core so a non-Nuxt consumer caching the
+same documents keys them the same way instead of reinventing it.
 
 ## 🚫 Do not "fix" the loader
 
