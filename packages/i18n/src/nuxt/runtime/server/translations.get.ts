@@ -4,10 +4,9 @@ import { defineCachedEventHandler, useRuntimeConfig } from "nitropack/runtime";
 import type { CachedEventHandlerOptions } from "nitropack";
 import { ofetch } from "ofetch";
 import getVendor, { type VendorConfig } from "../../../core/registry";
-import { TranslationService } from "../../../core/domain/TranslationService";
 import type { TranslationMap } from "../../../core/domain/translations";
-import { OfetchHttpClient } from "../../../core/adapters/OfetchHttpClient";
 import { TranslationsError, TranslationsUnavailableError, UndefinedLocaleError } from "../../../core/errors";
+import { OfetchHttpClient } from "../../../core/adapters/clients/OfetchHttpClient";
 
 const cacheOptions: CachedEventHandlerOptions<TranslationMap> = {
     name: "translations",
@@ -25,11 +24,11 @@ export default defineCachedEventHandler(async (event) => {
     const { vendor } = useRuntimeConfig(event).translations as { vendor: VendorConfig };
 
     const provider = await getVendor(vendor).catch(rethrowAsHttpError);
+    const http = new OfetchHttpClient(ofetch.create({ baseURL: provider.baseURL }));
 
-    const service = new TranslationService(provider.setHttpClient(new OfetchHttpClient(ofetch.create({ baseURL: provider.baseURL }))));
-
-    return service
-        .load(locale)
+    return provider
+        .setHttpClient(http)
+        .getTranslations(locale)
         .catch((cause) => throwUnavailableError(cause, locale));
 }, cacheOptions);
 

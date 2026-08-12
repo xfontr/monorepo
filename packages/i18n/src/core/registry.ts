@@ -1,7 +1,11 @@
-import type { Vendor } from "./domain/Vendor";
 import type TranslationProvider from "./ports/TranslationProvider";
 import { UndefinedVendorError } from "./errors";
-import providers from "./adapters/providers";
+import type { Vendor } from "./domain/Vendor";
+
+const providers = {
+    internal: () => import("./adapters/providers/InternalProvider"),
+    test: () => import("./adapters/providers/TestProvider"),
+};
 
 export type VendorName = keyof typeof providers;
 

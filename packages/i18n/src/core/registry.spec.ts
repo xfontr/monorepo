@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import getVendor, { type VendorConfig } from "./registry";
-import InternalProvider from "./adapters/InternalProvider";
-import TestProvider from "./adapters/TestProvider";
+import InternalProvider from "./adapters/providers/InternalProvider";
+import TestProvider from "./adapters/providers/TestProvider";
 import { UndefinedVendorError } from "./errors";
 
 describe("getVendor", () => {
