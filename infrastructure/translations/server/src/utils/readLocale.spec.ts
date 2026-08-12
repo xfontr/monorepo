@@ -3,7 +3,7 @@ import readLocale from "./readLocale";
 
 describe("readLocale", () => {
     it("reads and parses a project's locale file from the source-of-truth tree", async () => {
-        const messages = await readLocale("external", "en-EN");
+        const messages = await readLocale("external", "en-GB");
         expect(Object.keys(messages)).toEqual(
             expect.arrayContaining(["shared", "meta", "user"]),
         );

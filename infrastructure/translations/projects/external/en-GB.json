@@ -1,15 +1,15 @@
 {
+    "meta": {
+        "description": "Forecast your budget for the upcoming year",
+        "title": "Budget Forecast"
+    },
     "shared": {
         "health": "Health"
     },
-    "meta": {
-        "title": "Budget Forecast",
-        "description": "Forecast your budget for the upcoming year"
-    },
     "user": {
         "instructions": {
-            "title": "Instructions",
-            "content": "I'm a normal user!"
+            "content": "I'm a normal user!",
+            "title": "Instructions"
         }
     },
     "user.admin": {

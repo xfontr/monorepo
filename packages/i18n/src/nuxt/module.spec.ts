@@ -50,7 +50,7 @@ beforeEach(() => {
 
 describe("i18n nuxt module", () => {
     it("publishes the vendor config where the server handler reads it back", async () => {
-        const nuxt = createNuxt(["en-EN"]);
+        const nuxt = createNuxt(["en-GB"]);
 
         await setup({ vendor }, nuxt as unknown as Nuxt);
 
@@ -58,7 +58,7 @@ describe("i18n nuxt module", () => {
     });
 
     it("mounts the BFF route on the path the locale loader fetches", async () => {
-        const nuxt = createNuxt(["en-EN"]);
+        const nuxt = createNuxt(["en-GB"]);
 
         await setup({ vendor }, nuxt as unknown as Nuxt);
 
@@ -69,14 +69,14 @@ describe("i18n nuxt module", () => {
     });
 
     it("registers the loader for every locale declared across layers, without duplicates", async () => {
-        const nuxt = createNuxt(["en-EN", { code: "es-ES" }], ["en-EN"], undefined);
+        const nuxt = createNuxt(["en-GB", { code: "es-ES" }], ["en-GB"], undefined);
 
         await setup({ vendor }, nuxt as unknown as Nuxt);
         const registered = registerLocales(nuxt);
 
         expect(registered.langDir).toBe("resolved(./runtime/locales)");
         expect(registered.locales).toEqual([
-            { code: "en-EN", file: "loader.ts" },
+            { code: "en-GB", file: "loader.ts" },
             { code: "es-ES", file: "loader.ts" },
         ]);
     });
@@ -90,7 +90,7 @@ describe("i18n nuxt module", () => {
     });
 
     it("installs @nuxtjs/i18n so the registered loader is picked up", async () => {
-        const nuxt = createNuxt(["en-EN"]);
+        const nuxt = createNuxt(["en-GB"]);
 
         await setup({ vendor }, nuxt as unknown as Nuxt);
 

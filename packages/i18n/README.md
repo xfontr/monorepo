@@ -109,7 +109,7 @@ const baseURL = process.env.TMS_BASE_URL!;
 const http = new OfetchHttpClient(ofetch.create({ baseURL }));
 const provider = await createProvider({ name: "internal", project: "external", baseURL }, http);
 
-const messages = await provider.getTranslations("en-EN");
+const messages = await provider.getTranslations("en-GB");
 ```
 
 The transport is a constructor argument, so a provider cannot exist without one. Build it from
@@ -122,8 +122,10 @@ only thing the core needs.
 
 Caching itself is **not** in the core — the Nuxt integration caches at its BFF route, and any
 other consumer supplies its own. What *is* in the core is `translationsKey(vendor, locale)`:
-the identity of the upstream document, covering every input that picks it. Feed it to whatever
-cache you use, so two vendors, projects, option sets or locales can never share an entry.
+the identity of the upstream document, covering every input that picks it — vendor, project, base
+URL, options, locale. Feed it to whatever cache you use, so no two of those can share an entry.
+Base URL is in there so that a cache shared across environments cannot serve staging messages in
+production.
 
 ## ⚠️ Errors
 
