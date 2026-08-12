@@ -1,4 +1,5 @@
 import type TranslationProvider from "./ports/TranslationProvider";
+import type { HttpClient } from "./ports/HttpClient";
 import { UndefinedVendorError } from "./errors";
 import type { Vendor } from "./domain/Vendor";
 
@@ -19,9 +20,9 @@ export type VendorConfig = {
     [N in VendorName]: Omit<Vendor, "options"> & { name: N } & OptionsFieldOf<N>
 }[VendorName];
 
-type ProviderConstructor = new (vendor: VendorConfig) => TranslationProvider;
+type ProviderConstructor = new (vendor: VendorConfig, http: HttpClient) => TranslationProvider;
 
-async function getVendor(vendor: VendorConfig): Promise<TranslationProvider> {
+async function createProvider(vendor: VendorConfig, http: HttpClient): Promise<TranslationProvider> {
     const load = providers[vendor?.name];
 
     if (!load) throw new UndefinedVendorError(vendor?.name, Object.keys(providers));
@@ -30,7 +31,7 @@ async function getVendor(vendor: VendorConfig): Promise<TranslationProvider> {
 
     const Provider = module.default as ProviderConstructor;
 
-    return new Provider(vendor);
+    return new Provider(vendor, http);
 }
 
-export default getVendor;
+export default createProvider;

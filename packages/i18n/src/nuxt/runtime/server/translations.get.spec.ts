@@ -3,6 +3,7 @@ import type { EventHandlerRequest, H3Event } from "h3";
 import type { CachedEventHandlerOptions } from "nitropack";
 import type { VendorConfig } from "../../../core/registry";
 import type { TranslationMap } from "../../../core/domain/translations";
+import { translationsKey } from "../../../core/translationsKey";
 
 const nitro = vi.hoisted(() => ({
     vendor: undefined as VendorConfig | undefined,
@@ -79,27 +80,14 @@ describe("GET /api/translations/:locale", () => {
     });
 });
 
+// Key derivation itself lives in core and is covered by core/translationsKey.spec.ts
 describe("translations cache", () => {
-    it("keys entries by vendor, project and locale so tenants never share a payload", () => {
-        expect(nitro.cache?.getKey?.(createEvent("en-EN"))).toBe("internal:external:en-EN");
-
-        nitro.vendor = { name: "test", baseURL: "https://translations.test/", project: "internal", options: { id: "abc" } };
-        expect(nitro.cache?.getKey?.(createEvent("es-ES"))).toBe(`test:internal:${encodeURIComponent("{\"id\":\"abc\"}")}:es-ES`);
+    it("keys entries off the configured vendor and the requested locale", () => {
+        expect(nitro.cache?.getKey?.(createEvent("en-EN"))).toBe(translationsKey(nitro.vendor!, "en-EN"));
     });
 
-    it("keys entries by vendor options too, since they pick which upstream document is fetched", () => {
-        nitro.vendor = { name: "test", baseURL: "https://translations.test/", project: "external", options: { id: "abc" } };
-        const abc = nitro.cache?.getKey?.(createEvent("en-EN"));
-
-        nitro.vendor = { name: "test", baseURL: "https://translations.test/", project: "external", options: { id: "xyz" } };
-
-        expect(nitro.cache?.getKey?.(createEvent("en-EN"))).not.toBe(abc);
-    });
-
-    it("keeps the key safe to use as a storage path", () => {
-        nitro.vendor = { name: "test", baseURL: "https://translations.test/", project: "external", options: { id: "a/b?c" } };
-
-        expect(nitro.cache?.getKey?.(createEvent("en-EN"))).toMatch(/^[\w%.:-]+$/);
+    it("404s a key lookup without a locale, so a bad request cannot poison an entry", () => {
+        expect(() => nitro.cache?.getKey?.(createEvent())).toThrow(expect.objectContaining({ statusCode: 404 }) as Error);
     });
 
     it("caches outside of dev", () => {

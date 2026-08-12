@@ -46,7 +46,7 @@ route needs per request. Override the base URL per deployment with
 
 ```
 module.ts                       # build-time: runs in Node during the consumer's build (@nuxt/kit)
-config.ts                       # the API path — the contract between both halves
+config.ts                       # the contract between both halves: the API path and the config shape
 runtime/
 ├── locales/loader.ts            # the @nuxtjs/i18n locale loader, compiled by the consumer's Vite
 └── server/translations.get.ts   # the cached BFF route, compiled by the consumer's Nitro
@@ -56,22 +56,32 @@ runtime/
 `import type` — anything shared at value level (like `TRANSLATIONS_API_PATH`) goes in
 `config.ts`.
 
+`TranslationsConfig` lives there too, and is the module's options type *and* the shape the route
+asserts on `runtimeConfig`. The route has to assert it: Nuxt regenerates
+`runtimeConfig.translations` from the literal in `nuxt.config`, widening `name` from
+`"internal"` to `string` and losing the discriminated union. A `declare module "nitropack/types"`
+inside this package does not fix that — the consumer's Nitro build never imports `config.ts`, so
+the augmentation isn't in its program. Closing it properly means `addTypeTemplate` in `setup()`,
+writing the augmentation into the consumer's `.nuxt/`.
+
 ## 🔁 The request path
 
 ```
 $t("meta.title")
   → @nuxtjs/i18n calls runtime/locales/loader.ts
     → GET /api/translations/:locale          (runtime/server/translations.get.ts, cached)
-      → getVendor(vendor) → provider.getTranslations(locale)
+      → createProvider(vendor, http) → provider.getTranslations(locale)
         → GET :baseURL/:locale/:project      (the TMS)
 ```
 
 Two things are fixed rather than configurable, because both are internal contracts between the
 halves: the API path (`/api/translations`) and the cache window (`maxAge` 1h, `staleMaxAge` 24h,
 bypassed in dev). Override the cache from `nuxt.config` with a nitro route rule if a deployment
-ever needs to. The cache key is `vendor:project:options:locale` — every input that picks the
-upstream document, so changing any of them can't serve stale messages from the previous one.
-`options` is omitted from the key for vendors that declare none.
+ever needs to. The cache key comes from `translationsKey` in the core, not from this route —
+`vendor:project:options:locale`, every input that picks the upstream document, so changing any
+of them can't serve stale messages from the previous one (`options` is omitted for vendors that
+declare none). It lives in the core so a non-Nuxt consumer caching the same documents keys them
+the same way instead of reinventing it.
 
 ## 🚫 Do not "fix" the loader
 

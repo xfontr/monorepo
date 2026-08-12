@@ -2,27 +2,18 @@ import type { Locale, TranslationMap } from "../domain/translations";
 import type { Vendor } from "../domain/Vendor";
 import type { HttpClient } from "./HttpClient";
 
-class TranslationProvider<T extends object = object> implements Vendor<T> {
-    protected http: HttpClient | undefined;
-
+abstract class TranslationProvider<T extends object = object> implements Vendor<T> {
     baseURL: string;
     project: string;
     options: T;
 
-    constructor({ baseURL, project, options }: Vendor<T>) {
+    constructor({ baseURL, project, options }: Vendor<T>, protected readonly http: HttpClient) {
         this.baseURL = baseURL;
         this.project = project;
         this.options = options;
     }
 
-    public getTranslations(locale: Locale): Promise<TranslationMap> {
-        throw new Error(`Method not implemented. Could not get translations for ${locale}`);
-    }
-
-    public setHttpClient(http: HttpClient): this {
-        this.http = http;
-        return this;
-    }
+    public abstract getTranslations(locale: Locale): Promise<TranslationMap>;
 }
 
 export default TranslationProvider;

@@ -1,14 +1,9 @@
 import { addServerHandler, createResolver, defineNuxtModule, installModule } from "@nuxt/kit";
 import type { Nuxt } from "@nuxt/schema";
 import type { LocaleObject } from "@nuxtjs/i18n";
-import { TRANSLATIONS_API_PATH } from "./config";
-import type { VendorConfig } from "../core/registry";
+import { TRANSLATIONS_API_PATH, type TranslationsConfig } from "./config";
 
-interface TranslationsRuntimeConfig {
-    vendor: VendorConfig
-}
-
-export default defineNuxtModule<TranslationsRuntimeConfig>({
+export default defineNuxtModule<TranslationsConfig>({
     meta: { name: "@budget-forecast/i18n/nuxt", configKey: "translations" },
 
     async setup(resolvedOptions, nuxt) {

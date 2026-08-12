@@ -39,6 +39,7 @@ src/
 │   │       ├── InternalProvider.ts           # the `internal` vendor (our own mock TMS)
 │   │       └── TestProvider.ts               # `test` vendor — exists to exercise vendor options
 │   ├── errors.ts                             # what can go wrong, with an HTTP status attached
+│   ├── translationsKey.ts                    # which upstream document a request resolves to
 │   └── registry.ts                           # vendor name → provider, and the config type
 └── nuxt/                                     # the Nuxt module (separate entry point)
 ```
@@ -80,14 +81,17 @@ interface HttpClient {
     get<T>(url: string): Promise<T>
 }
 
-class TranslationProvider {
-    getTranslations(locale: Locale): Promise<TranslationMap>
+abstract class TranslationProvider {
+    abstract getTranslations(locale: Locale): Promise<TranslationMap>
 }
 ```
 
 A provider knows its vendor's URL contract but delegates all I/O to an injected `HttpClient`,
 so it binds to no transport. Composition happens at the edge — the consumer builds the client
 and injects it.
+
+`TranslationProvider` is abstract, so a vendor that forgets `getTranslations` fails to compile
+instead of throwing at request time.
 
 There is no service layer on top of the provider port, deliberately: a class forwarding one
 call to one collaborator would add a name and a file without adding behaviour. Callers talk to
@@ -98,23 +102,28 @@ fallback, or merging local overrides.
 
 ```ts
 import { ofetch } from "ofetch";
-import { getVendor, OfetchHttpClient } from "@budget-forecast/i18n";
+import { createProvider, OfetchHttpClient } from "@budget-forecast/i18n";
 
 const baseURL = process.env.TMS_BASE_URL!;
 
-const provider = await getVendor({ name: "internal", project: "external", baseURL });
-provider.setHttpClient(new OfetchHttpClient(ofetch.create({ baseURL })));
+const http = new OfetchHttpClient(ofetch.create({ baseURL }));
+const provider = await createProvider({ name: "internal", project: "external", baseURL }, http);
 
 const messages = await provider.getTranslations("en-EN");
 ```
+
+The transport is a constructor argument, so a provider cannot exist without one. Build it from
+the config you already hold — never from the provider you are about to create.
 
 `OfetchHttpClient` owns no transport config of its own: base URL, retries, headers and
 interceptors all come from the instance you inject. On a transport that is not ofetch (axios,
 plain `fetch`), write the five-line `HttpClient` for it in your own app — `HttpClient` is the
 only thing the core needs.
 
-Note that caching is **not** in the core. The Nuxt integration caches at its BFF route; any
-other consumer supplies its own.
+Caching itself is **not** in the core — the Nuxt integration caches at its BFF route, and any
+other consumer supplies its own. What *is* in the core is `translationsKey(vendor, locale)`:
+the identity of the upstream document, covering every input that picks it. Feed it to whatever
+cache you use, so two vendors, projects, option sets or locales can never share an entry.
 
 ## ⚠️ Errors
 
@@ -123,12 +132,12 @@ All three extend `TranslationsError`, so one `instanceof` catches anything the p
 | Error | `statusCode` | Raised when |
 | --- | --- | --- |
 | `UndefinedLocaleError` | 404 | the request carried no locale |
-| `UndefinedVendorError` | 500 | config names a vendor the registry doesn't have — raised by `getVendor`, and the message lists the registered names |
+| `UndefinedVendorError` | 500 | config names a vendor the registry doesn't have — raised by `createProvider`, and the message lists the registered names |
 | `TranslationsUnavailableError` | 502 | the vendor failed for that locale (original error in `cause`) |
 
-`statusCode` / `statusMessage` exist because the only consumer today is an H3 route, which
-maps them straight onto the response. A non-HTTP consumer should ignore both and read
-`message`.
+Each error carries its own `statusCode` / `statusMessage`, so adding one never means editing a
+mapping somewhere else — the route just hands it to `createError`. A non-HTTP consumer ignores
+both and reads `message`.
 
 Nothing else is dressed up as one of these. A failure the package can't diagnose — a broken
 adapter, say — propagates as itself, so the route reports it as an unhandled 500 with its own
@@ -140,7 +149,7 @@ Sized for a small monorepo. When it grows:
 
 | Later need | What changes |
 | --- | --- |
-| An authenticated vendor | `HttpClient.get` takes no headers or params yet, and the transport is built by the consumer *before* the provider — so today the first paid TMS forces a change at the composition root. Fix that before adding vendor #2 |
+| An authenticated vendor | `HttpClient.get` takes no headers or params yet, so credentials can only reach the vendor baked into the transport at the composition root. Widen the port before adding vendor #2 |
 | Runtime config validation | The typing above is compile-time only; deploy-time values arrive from env vars unchecked |
 | Locale fallback / merging local overrides | Nothing sits between the caller and the provider port today. That is where a service belongs — add it when there is behaviour to put in it, not before |
 
