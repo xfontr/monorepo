@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import createProvider, { type VendorConfig } from "./registry";
 import InternalProvider from "./adapters/providers/InternalProvider";
-import TestProvider from "./adapters/providers/TestProvider";
+import TolgeeProvider from "./adapters/providers/TolgeeProvider";
 import { UndefinedVendorError } from "./domain/errors";
 import type { HttpClient } from "./ports/HttpClient";
 
@@ -17,10 +17,11 @@ describe("createProvider", () => {
     });
 
     it("hands vendor-specific options to the provider that declares them", async () => {
-        const provider = await createProvider({ name: "test", baseURL: "https://translations.test/", project: "external", options: { id: "abc" } }, http);
+        const options = { token: "abc", projectId: "1" };
+        const provider = await createProvider({ name: "tolgee", baseURL: "https://translations.test/", project: "external", options }, http);
 
-        expect(provider).toBeInstanceOf(TestProvider);
-        expect(provider.options).toEqual({ id: "abc" });
+        expect(provider).toBeInstanceOf(TolgeeProvider);
+        expect(provider.options).toEqual(options);
     });
 
     it("hands the transport to the provider, so it can never be built unable to fetch", async () => {
@@ -36,7 +37,7 @@ describe("createProvider", () => {
         const vendor = { name: "nope", baseURL: "https://translations.test/", project: "external" } as unknown as VendorConfig;
 
         await expect(createProvider(vendor, http)).rejects.toThrow(UndefinedVendorError);
-        await expect(createProvider(vendor, http)).rejects.toThrow(/"nope".*internal, test/);
+        await expect(createProvider(vendor, http)).rejects.toThrow(/"nope".*internal, tolgee/);
     });
 
     it("rejects a missing vendor config the same way", async () => {

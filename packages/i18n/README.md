@@ -37,7 +37,7 @@ src/
 │   │   │   └── OfetchHttpClient.ts           # HttpClient over an injected ofetch instance
 │   │   └── providers/
 │   │       ├── InternalProvider.ts           # the `internal` vendor (our own mock TMS)
-│   │       └── TestProvider.ts               # `test` vendor — exists to exercise vendor options
+│   │       └── TolgeeProvider.ts             # the `tolgee` vendor
 │   ├── errors.ts                             # what can go wrong, with an HTTP status attached
 │   ├── translationsKey.ts                    # which upstream document a request resolves to
 │   └── registry.ts                           # vendor name → provider, and the config type
@@ -53,7 +53,7 @@ code cannot drift.
 ```ts
 const providers = {
     internal: () => import("./adapters/providers/InternalProvider"),
-    test: () => import("./adapters/providers/TestProvider"),
+    tolgee: () => import("./adapters/providers/TolgeeProvider"),
 };
 ```
 
@@ -62,8 +62,8 @@ class, so a vendor that needs options makes them **required** in config, and a v
 needs none **forbids** them:
 
 ```ts
-{ name: "internal", project: "external", baseURL }              // options not allowed
-{ name: "test", project: "external", baseURL, options: { id } } // options required
+{ name: "internal", project: "external", baseURL }                              // options not allowed
+{ name: "tolgee", project: "external", baseURL, options: { token, projectId } } // options required
 ```
 
 Adding a vendor:
@@ -78,7 +78,7 @@ Adding a vendor:
 
 ```ts
 interface HttpClient {
-    get<T>(url: string): Promise<T>
+    get<T>(url: string, options?: { headers: Record<string, string> }): Promise<T>
 }
 
 abstract class TranslationProvider {
@@ -104,7 +104,7 @@ fallback, or merging local overrides.
 import { ofetch } from "ofetch";
 import { createProvider, OfetchHttpClient } from "@budget-forecast/i18n";
 
-const baseURL = process.env.TMS_BASE_URL!;
+const baseURL = process.env.TRANSLATIONS_VENDOR_BASE_URL!;
 
 const http = new OfetchHttpClient(ofetch.create({ baseURL }));
 const provider = await createProvider({ name: "internal", project: "external", baseURL }, http);
@@ -151,7 +151,7 @@ Sized for a small monorepo. When it grows:
 
 | Later need | What changes |
 | --- | --- |
-| An authenticated vendor | `HttpClient.get` takes no headers or params yet, so credentials can only reach the vendor baked into the transport at the composition root. Widen the port before adding vendor #2 |
+| A vendor authenticated some other way (query param, signed URL) | `HttpClient.get` only carries headers today — `tolgee` covers itself with an API key header. Widen the options bag again when a vendor needs more |
 | Runtime config validation | The typing above is compile-time only; deploy-time values arrive from env vars unchecked |
 | Locale fallback / merging local overrides | Nothing sits between the caller and the provider port today. That is where a service belongs — add it when there is behaviour to put in it, not before |
 

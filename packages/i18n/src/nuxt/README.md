@@ -14,7 +14,7 @@ export default defineNuxtConfig({
         vendor: {
             name: "internal",
             project: "external",
-            baseURL: process.env.TMS_BASE_URL ?? "http://localhost:4000",
+            baseURL: process.env.TRANSLATIONS_VENDOR_BASE_URL ?? "http://localhost:4000",
         },
     },
 
