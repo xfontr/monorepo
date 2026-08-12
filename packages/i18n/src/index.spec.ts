@@ -9,6 +9,7 @@ describe("package entrypoint", () => {
             "TranslationsError",
             "TranslationsUnavailableError",
             "UndefinedLocaleError",
+            "UndefinedLocaleProviderError",
             "UndefinedVendorError",
             "createProvider",
             "translationsKey",

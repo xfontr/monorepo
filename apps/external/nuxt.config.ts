@@ -9,23 +9,17 @@ export default defineNuxtConfig({
         typeCheck: "build",
     },
 
+    i18n: { locales: ["en-GB", "es-ES"], defaultLocale: "en-GB" },
+
     translations: {
         vendor: {
             name: "tolgee",
-            project: process.env.TRANSLATIONS_VENDOR_PROJECT ?? "external",
-            baseURL: process.env.TRANSLATIONS_VENDOR_BASE_URL ?? "http://localhost:4000",
+            project: process.env.TRANSLATIONS_VENDOR_PROJECT ?? "",
+            baseURL: process.env.TRANSLATIONS_VENDOR_BASE_URL ?? "",
             options: {
                 token: process.env.TRANSLATIONS_VENDOR_OPTIONS_TOKEN ?? "",
             }
         },
-    },
-
-    i18n: {
-        locales: [
-            { code: "en-GB", name: "English (UK)" },
-            { code: "es-ES", name: "Spanish (ES)" },
-        ],
-        defaultLocale: "en-GB",
     },
 
     fonts: {
