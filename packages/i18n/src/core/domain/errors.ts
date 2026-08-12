@@ -22,3 +22,9 @@ export class UndefinedLocaleError extends TranslationsError {
         super(404, `Requested locale "${locale ?? null}" does not exist`);
     }
 }
+
+export class UndefinedLocaleProviderError extends TranslationsError {
+    constructor(locale: string, vendorName: string) {
+        super(500, `Requested locale "${locale}" does not exist for ${vendorName}`);
+    }
+}

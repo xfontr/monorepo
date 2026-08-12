@@ -1,3 +1,4 @@
+import { UndefinedLocaleProviderError } from "#core/domain/errors";
 import type { Locale, TranslationMap } from "#core/domain/translations";
 import TranslationProvider from "#core/ports/TranslationProvider";
 
@@ -16,6 +17,10 @@ class TolgeeProvider extends TranslationProvider<TolgeeProviderOptions> {
             `/v2/projects/${this.options.projectId}/translations/${locale}`,
             { headers: { "X-API-Key": this.options.token } },
         );
+
+        if (!response[locale]) {
+            throw new UndefinedLocaleProviderError(locale, "Tolgee");
+        }
 
         return response[locale];
     }
