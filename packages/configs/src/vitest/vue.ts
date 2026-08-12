@@ -1,7 +1,7 @@
-import { mergeConfig, type ViteUserConfig } from "vitest/config";
+import { mergeConfig } from "vitest/config";
 import createNodeVitestConfig from "./node.ts";
 
-function createVueConfig(viteConfig: ViteUserConfig) {
+function createVueConfig(viteConfig: object) {
     return mergeConfig(
         viteConfig,
         mergeConfig(createNodeVitestConfig(), {

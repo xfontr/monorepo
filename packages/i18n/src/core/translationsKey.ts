@@ -6,5 +6,11 @@ function serializeOptions(options?: object): string {
 }
 
 export function translationsKey(vendor: VendorConfig, locale: Locale): string {
-    return [vendor.name, vendor.project, serializeOptions(vendor.options), locale].filter(Boolean).join(":");
+    return [
+        vendor.name,
+        vendor.project,
+        encodeURIComponent(vendor.baseURL),
+        serializeOptions(vendor.options),
+        locale,
+    ].filter(Boolean).join(":");
 }

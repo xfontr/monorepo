@@ -24,5 +24,5 @@ Point `TMS_BASE_URL` at a running
 [module README](../../packages/i18n/src/nuxt/README.md) for the options and gotchas.
 
 `i18n.defaultLocale` is currently unset, so `@nuxtjs/i18n` falls back to its
-`prefix_except_default` strategy with no unprefixed locale: pages live at `/en-EN` and `/es-ES`,
+`prefix_except_default` strategy with no unprefixed locale: pages live at `/en-GB` and `/es-ES`,
 and `/` returns a 404.

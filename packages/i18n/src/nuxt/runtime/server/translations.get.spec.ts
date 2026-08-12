@@ -42,10 +42,10 @@ beforeEach(() => {
 
 describe("GET /api/translations/:locale", () => {
     it("serves the locale tree fetched from the configured vendor", async () => {
-        await expect(handler(createEvent("en-EN"))).resolves.toBe(messages);
+        await expect(handler(createEvent("en-GB"))).resolves.toBe(messages);
 
         expect(ofetch.create).toHaveBeenCalledWith({ baseURL: "https://translations.test/" });
-        expect(ofetch.request).toHaveBeenCalledWith("en-EN/external");
+        expect(ofetch.request).toHaveBeenCalledWith("en-GB/external");
     });
 
     it("404s a request without a locale", async () => {
@@ -56,7 +56,7 @@ describe("GET /api/translations/:locale", () => {
     it("500s when the configured vendor does not exist", async () => {
         nitro.vendor = { name: "nope", baseURL: "https://translations.test/", project: "external" } as unknown as VendorConfig;
 
-        await expect(handler(createEvent("en-EN"))).rejects.toMatchObject({ statusCode: 500 });
+        await expect(handler(createEvent("en-GB"))).rejects.toMatchObject({ statusCode: 500 });
     });
 
     it("lets a failure it cannot diagnose through untouched, rather than blaming the vendor", async () => {
@@ -66,7 +66,7 @@ describe("GET /api/translations/:locale", () => {
 
         const broken = (await import("./translations.get")).default as unknown as (event: H3Event<EventHandlerRequest>) => Promise<TranslationMap>;
 
-        await expect(broken(createEvent("en-EN"))).rejects.toBe(cause);
+        await expect(broken(createEvent("en-GB"))).rejects.toBe(cause);
 
         vi.doUnmock("#core/registry");
         vi.resetModules();
@@ -76,14 +76,14 @@ describe("GET /api/translations/:locale", () => {
         const cause = new Error("upstream down");
         ofetch.request.mockRejectedValue(cause);
 
-        await expect(handler(createEvent("en-EN"))).rejects.toMatchObject({ statusCode: 502, cause });
+        await expect(handler(createEvent("en-GB"))).rejects.toMatchObject({ statusCode: 502, cause });
     });
 });
 
 // Key derivation itself lives in core and is covered by core/translationsKey.spec.ts
 describe("translations cache", () => {
     it("keys entries off the configured vendor and the requested locale", () => {
-        expect(nitro.cache?.getKey?.(createEvent("en-EN"))).toBe(translationsKey(nitro.vendor!, "en-EN"));
+        expect(nitro.cache?.getKey?.(createEvent("en-GB"))).toBe(translationsKey(nitro.vendor!, "en-GB"));
     });
 
     it("404s a key lookup without a locale, so a bad request cannot poison an entry", () => {
@@ -91,6 +91,6 @@ describe("translations cache", () => {
     });
 
     it("caches outside of dev", () => {
-        expect(nitro.cache?.shouldBypassCache?.(createEvent("en-EN"))).toBe(false);
+        expect(nitro.cache?.shouldBypassCache?.(createEvent("en-GB"))).toBe(false);
     });
 });

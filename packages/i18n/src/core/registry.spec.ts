@@ -27,9 +27,9 @@ describe("createProvider", () => {
         const get = vi.fn();
         const provider = await createProvider({ name: "internal", baseURL: "https://translations.test/", project: "external" }, { get });
 
-        await provider.getTranslations("en-EN");
+        await provider.getTranslations("en-GB");
 
-        expect(get).toHaveBeenCalledWith("en-EN/external");
+        expect(get).toHaveBeenCalledWith("en-GB/external");
     });
 
     it("rejects an unregistered vendor name instead of returning a broken provider", async () => {

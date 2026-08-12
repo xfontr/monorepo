@@ -23,15 +23,15 @@ describe("locale loader", () => {
     it("loads the messages from the BFF, deduplicating the request per locale", async () => {
         useFetch.mockResolvedValue({ data: { value: messages }, error: { value: null } });
 
-        await expect(load("en-EN")).resolves.toBe(messages);
-        expect(useFetch).toHaveBeenCalledWith(`${TRANSLATIONS_API_PATH}/en-EN`, { key: "translations:en-EN" });
+        await expect(load("en-GB")).resolves.toBe(messages);
+        expect(useFetch).toHaveBeenCalledWith(`${TRANSLATIONS_API_PATH}/en-GB`, { key: "translations:en-GB" });
     });
 
     it("surfaces a failed load through the Nuxt error page, inside the app context", async () => {
         const error = new Error("Translations unavailable");
         useFetch.mockResolvedValue({ data: { value: null }, error: { value: error } });
 
-        await load("en-EN");
+        await load("en-GB");
 
         expect(runWithContext).toHaveBeenCalled();
         expect(showError).toHaveBeenCalledWith(error);

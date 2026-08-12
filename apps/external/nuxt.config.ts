@@ -19,10 +19,10 @@ export default defineNuxtConfig({
 
     i18n: {
         locales: [
-            { code: "en-EN", name: "English (UK)" },
+            { code: "en-GB", name: "English (UK)" },
             { code: "es-ES", name: "Spanish (ES)" },
         ],
-        defaultLocale: "en-EN",
+        defaultLocale: "en-GB",
     },
 
     fonts: {

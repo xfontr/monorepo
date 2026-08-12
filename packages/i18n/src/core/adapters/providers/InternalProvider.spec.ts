@@ -10,7 +10,7 @@ describe("InternalProvider", () => {
         const http: HttpClient = { get };
         const provider = new InternalProvider({ baseURL: "https://translations.test/", project: "external", options: {} }, http);
 
-        await expect(provider.getTranslations("en-EN")).resolves.toBe(messages);
-        expect(get).toHaveBeenCalledWith("en-EN/external");
+        await expect(provider.getTranslations("en-GB")).resolves.toBe(messages);
+        expect(get).toHaveBeenCalledWith("en-GB/external");
     });
 });

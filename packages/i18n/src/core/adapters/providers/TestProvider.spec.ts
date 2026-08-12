@@ -10,7 +10,7 @@ describe("TestProvider", () => {
         const http: HttpClient = { get };
         const provider = new TestProvider({ baseURL: "https://translations.test/", project: "external", options: { id: "abc" } }, http);
 
-        await expect(provider.getTranslations("en-EN")).resolves.toBe(messages);
-        expect(get).toHaveBeenCalledWith("en-EN/external/abc");
+        await expect(provider.getTranslations("en-GB")).resolves.toBe(messages);
+        expect(get).toHaveBeenCalledWith("en-GB/external/abc");
     });
 });
