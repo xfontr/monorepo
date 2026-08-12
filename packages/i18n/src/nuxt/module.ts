@@ -14,6 +14,7 @@ export default defineNuxtModule<TranslationsConfig>({
         // BFF
         addServerHandler({
             route: `${TRANSLATIONS_API_PATH}/:locale`,
+            method: "get",
             handler: resolver.resolve("./runtime/server/translations.get"),
         });
 

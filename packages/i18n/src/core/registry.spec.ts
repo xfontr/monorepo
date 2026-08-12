@@ -17,8 +17,8 @@ describe("createProvider", () => {
     });
 
     it("hands vendor-specific options to the provider that declares them", async () => {
-        const options = { token: "abc", projectId: "1" };
-        const provider = await createProvider({ name: "tolgee", baseURL: "https://translations.test/", project: "external", options }, http);
+        const options = { token: "abc" };
+        const provider = await createProvider({ name: "tolgee", baseURL: "https://translations.test/", project: "1", options }, http);
 
         expect(provider).toBeInstanceOf(TolgeeProvider);
         expect(provider.options).toEqual(options);

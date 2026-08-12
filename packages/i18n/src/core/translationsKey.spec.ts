@@ -10,12 +10,11 @@ describe("translationsKey", () => {
         expect(translationsKey(internal, "en-GB")).toBe(`internal:external:${encodeURIComponent(baseURL)}:en-GB`);
     });
 
-    it("keys by vendor options too, since they pick which upstream document is fetched", () => {
-        const abc: VendorConfig = { name: "tolgee", baseURL, project: "external", options: { token: "t", projectId: "abc" } };
-        const xyz: VendorConfig = { ...abc, options: { ...abc.options, projectId: "xyz" } };
+    it("ignores vendor options, so a rotated credential neither leaks into the key nor busts the cache", () => {
+        const vendor: VendorConfig = { name: "tolgee", baseURL, project: "1", options: { token: "secret" } };
 
-        expect(translationsKey(abc, "en-GB")).toContain(encodeURIComponent(JSON.stringify(abc.options)));
-        expect(translationsKey(xyz, "en-GB")).not.toBe(translationsKey(abc, "en-GB"));
+        expect(translationsKey(vendor, "en-GB")).not.toContain("secret");
+        expect(translationsKey({ ...vendor, options: { token: "rotated" } }, "en-GB")).toBe(translationsKey(vendor, "en-GB"));
     });
 
     it("keys by base URL, so two environments sharing one cache cannot serve each other's messages", () => {
@@ -25,7 +24,7 @@ describe("translationsKey", () => {
     });
 
     it("stays safe to use as a storage path", () => {
-        const vendor: VendorConfig = { name: "tolgee", baseURL, project: "external", options: { token: "t", projectId: "a/b?c" } };
+        const vendor: VendorConfig = { name: "tolgee", baseURL, project: "a/b?c", options: { token: "t" } };
 
         expect(translationsKey(vendor, "en-GB")).toMatch(/^[\w%.:-]+$/);
     });

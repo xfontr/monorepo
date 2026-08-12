@@ -62,8 +62,8 @@ class, so a vendor that needs options makes them **required** in config, and a v
 needs none **forbids** them:
 
 ```ts
-{ name: "internal", project: "external", baseURL }                              // options not allowed
-{ name: "tolgee", project: "external", baseURL, options: { token, projectId } } // options required
+{ name: "internal", project: "external", baseURL }        // options not allowed
+{ name: "tolgee", project: "1234", baseURL, options: { token } } // options required
 ```
 
 Adding a vendor:
@@ -123,9 +123,13 @@ only thing the core needs.
 Caching itself is **not** in the core — the Nuxt integration caches at its BFF route, and any
 other consumer supplies its own. What *is* in the core is `translationsKey(vendor, locale)`:
 the identity of the upstream document, covering every input that picks it — vendor, project, base
-URL, options, locale. Feed it to whatever cache you use, so no two of those can share an entry.
-Base URL is in there so that a cache shared across environments cannot serve staging messages in
-production.
+URL, locale. Feed it to whatever cache you use, so no two of those can share an entry. Base URL is
+in there so that a cache shared across environments cannot serve staging messages in production.
+
+`options` is deliberately **not** in the key: it carries credentials, and credentials are not
+identity — two tokens for the same project fetch the same document, so they should share an entry,
+and a secret has no business in a cache storage path. A future vendor whose options genuinely pick
+the document (a branch, an export profile) belongs on `Vendor`, not in `options`.
 
 ## ⚠️ Errors
 

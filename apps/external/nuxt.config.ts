@@ -12,11 +12,10 @@ export default defineNuxtConfig({
     translations: {
         vendor: {
             name: "tolgee",
-            project: "external",
+            project: process.env.TRANSLATIONS_VENDOR_PROJECT ?? "external",
             baseURL: process.env.TRANSLATIONS_VENDOR_BASE_URL ?? "http://localhost:4000",
             options: {
                 token: process.env.TRANSLATIONS_VENDOR_OPTIONS_TOKEN ?? "",
-                projectId: process.env.TRANSLATIONS_VENDOR_OPTIONS_PROJECT_ID ?? "",
             }
         },
     },
