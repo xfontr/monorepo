@@ -72,6 +72,18 @@ describe("GET /api/translations/:locale", () => {
         await expect(handler(createEvent("en-GB"))).rejects.toMatchObject({ statusCode: 500 });
     });
 
+    // Unset env vars used to reach the vendor as an empty base URL and come back as a 502
+    it("500s unset vendor config, naming what is missing instead of blaming the vendor", async () => {
+        nitro.vendor = { name: "tolgee", baseURL: "", project: "", options: { token: "" } };
+
+        await expect(handler(createEvent("en-GB"))).rejects.toMatchObject({
+            statusCode: 500,
+            statusMessage: expect.stringContaining("options.token is empty") as unknown as string,
+        });
+
+        expect(ofetch.request).not.toHaveBeenCalled();
+    });
+
     it("lets a failure it cannot diagnose through untouched, rather than blaming the vendor", async () => {
         const cause = new Error("adapter is broken");
         vi.doMock("#core/registry", () => ({ default: () => Promise.reject(cause) }));

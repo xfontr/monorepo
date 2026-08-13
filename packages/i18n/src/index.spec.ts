@@ -4,6 +4,7 @@ import * as api from "./index";
 describe("package entrypoint", () => {
     it("exports everything consumers build against", () => {
         expect(Object.keys(api).sort()).toEqual([
+            "MisconfiguredVendorError",
             "OfetchHttpClient",
             "TranslationProvider",
             "TranslationsError",

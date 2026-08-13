@@ -1,11 +1,11 @@
-name: budget-forecast
+name: monorepo
 
 services:
     tms:
         build:
             context: ../../..
             dockerfile: infrastructure/translations/docker/Dockerfile
-        image: budget-forecast/tms
+        image: monorepo/tms
         # node runs as PID 1 and would ignore SIGTERM — without this, `down` waits 10s
         init: true
         restart: unless-stopped

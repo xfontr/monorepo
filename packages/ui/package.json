@@ -1,5 +1,5 @@
 {
-  "name": "@budget-forecast/ui",
+  "name": "@monorepo/ui",
   "version": "0.1.1",
   "private": true,
   "type": "module",
@@ -25,7 +25,7 @@
     "vue": "catalog:"
   },
   "devDependencies": {
-    "@budget-forecast/configs": "workspace:*",
+    "@monorepo/configs": "workspace:*",
     "@storybook/vue3-vite": "^10.4.6",
     "@tsconfig/node24": "^24.0.4",
     "@types/node": "catalog:",

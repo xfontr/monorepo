@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
 
-    modules: ["@budget-forecast/i18n/nuxt", "@nuxt/fonts", "@pinia/nuxt"],
+    modules: ["@monorepo/i18n/nuxt", "@nuxt/fonts", "@pinia/nuxt"],
 
     devtools: false,
 

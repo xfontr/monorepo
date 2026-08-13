@@ -1,5 +1,5 @@
 {
-  "name": "@budget-forecast/translations",
+  "name": "@monorepo/translations",
   "version": "0.0.0",
   "description": "Translations infrastructure — a mock TMS that serves the project locale files over HTTP",
   "private": true,
@@ -25,7 +25,7 @@
     "hono": "catalog:"
   },
   "devDependencies": {
-    "@budget-forecast/configs": "workspace:*",
+    "@monorepo/configs": "workspace:*",
     "@types/node": "catalog:",
     "eslint": "catalog:",
     "typescript": "catalog:",

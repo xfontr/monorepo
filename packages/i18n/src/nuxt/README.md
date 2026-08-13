@@ -1,6 +1,6 @@
-# 🟢 @budget-forecast/i18n/nuxt
+# 🟢 @monorepo/i18n/nuxt
 
-The Nuxt integration for [`@budget-forecast/i18n`](../../README.md). One config block installs
+The Nuxt integration for [`@monorepo/i18n`](../../README.md). One config block installs
 and configures `@nuxtjs/i18n`, registers a locale loader, and mounts a cached BFF route that
 proxies the vendor — so the TMS base URL (and, later, its credentials) never reach the client.
 
@@ -8,7 +8,7 @@ proxies the vendor — so the TMS base URL (and, later, its credentials) never r
 
 ```ts
 export default defineNuxtConfig({
-    modules: ["@budget-forecast/i18n/nuxt"],
+    modules: ["@monorepo/i18n/nuxt"],
 
     translations: {
         vendor: {
@@ -113,5 +113,8 @@ types suggests otherwise, the types are the thing that's wrong.
   `prefix_except_default` strategy, so without it every path is prefixed and `/` returns 404.
 - **`:locale` is matched exactly against the declared locales.** `en-gb` is not `en-GB` — it 404s.
   The loader always sends the codes you declared, so this only bites a hand-written request.
-- **The vendor config isn't checked at build time.** Omit `translations` and the failure shows up
-  as a `500` from the route at request time rather than a build error.
+- **The vendor config is checked at request time, not build time.** It has to be: `baseURL` can be
+  replaced at runtime by `NUXT_TRANSLATIONS_VENDOR_BASE_URL`, so the values present during the build
+  are not necessarily the deployed ones. Unset config fails on the first translation request with a
+  `500` naming what is missing — see [validation](../../README.md#-validation) — rather than at
+  build time.
