@@ -1,39 +1,31 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TRANSLATIONS_API_PATH } from "#nuxt/config";
-import type { TranslationMap } from "#core/domain/translations";
 
 const messages = { shared: { health: "Health" } };
 
-const useFetch = vi.fn();
-const showError = vi.fn((error: Error) => error);
-const runWithContext = vi.fn(<T>(callback: () => T) => callback());
+const $fetch = vi.fn();
 
 vi.stubGlobal("defineI18nLocale", (loader: unknown) => loader);
-vi.stubGlobal("useNuxtApp", () => ({ runWithContext }));
-vi.stubGlobal("useFetch", useFetch);
-vi.stubGlobal("showError", showError);
+vi.stubGlobal("$fetch", $fetch);
 
-const load = (await import("./loader")).default as (locale: string) => Promise<TranslationMap>;
+const load = (await import("./loader")).default;
 
 beforeEach(() => {
     vi.clearAllMocks();
 });
 
 describe("locale loader", () => {
-    it("loads the messages from the BFF, deduplicating the request per locale", async () => {
-        useFetch.mockResolvedValue({ data: { value: messages }, error: { value: null } });
+    it("loads the messages from the BFF", async () => {
+        $fetch.mockResolvedValue(messages);
 
         await expect(load("en-GB")).resolves.toBe(messages);
-        expect(useFetch).toHaveBeenCalledWith(`${TRANSLATIONS_API_PATH}/en-GB`, { key: "translations:en-GB" });
+        expect($fetch).toHaveBeenCalledWith(`${TRANSLATIONS_API_PATH}/en-GB`);
     });
 
-    it("surfaces a failed load through the Nuxt error page, inside the app context", async () => {
-        const error = new Error("Translations unavailable");
-        useFetch.mockResolvedValue({ data: { value: null }, error: { value: error } });
+    it("lets failures through, as i18n turns them into a failed messages request", async () => {
+        const cause = new Error("BFF is down");
+        $fetch.mockRejectedValue(cause);
 
-        await load("en-GB");
-
-        expect(runWithContext).toHaveBeenCalled();
-        expect(showError).toHaveBeenCalledWith(error);
+        await expect(load("en-GB")).rejects.toBe(cause);
     });
 });
