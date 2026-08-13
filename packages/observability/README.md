@@ -18,6 +18,10 @@ That is the whole package — [`src/index.ts`](./src/index.ts). It is a wrapper 
 `initializeFaro`, not an abstraction over telemetry vendors: no ports, no adapters, no registry.
 Faro is the vendor we use, and the config is whatever Faro takes.
 
+For a worked example, [`@monorepo/external`](../../apps/external) calls it from
+`app/plugins/observability.client.ts`, feeding it `runtimeConfig.public.observability` and skipping
+the call entirely when no collector URL is set — so local dev sends nothing without needing a flag.
+
 ## 📥 What you get for free
 
 `getWebInstrumentations()` covers errors, unhandled rejections, web vitals, console and session
