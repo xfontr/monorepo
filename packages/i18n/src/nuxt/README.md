@@ -91,19 +91,6 @@ them can't serve stale messages from the previous one (vendor `options` are cred
 identity, and are deliberately excluded). It lives in the core so a non-Nuxt consumer caching the
 same documents keys them the same way instead of reinventing it.
 
-## 🚫 Do not "fix" the loader
-
-[`runtime/locales/loader.ts`](./runtime/locales/loader.ts) is correct as written. Two parts of
-it read as suspicious and are not:
-
-- **`useFetch`** — it works here, including production SSR inside Nitro. Do not swap it for
-  `$fetch`.
-- **the `showError` error branch** — it returns `showError(...)` rather than throwing. This has
-  been "corrected" repeatedly and each time it was wrong. Leave it.
-
-Both are load-bearing behaviour confirmed against a real deployment. If a static reading of the
-types suggests otherwise, the types are the thing that's wrong.
-
 ## ⚠️ Gotchas
 
 - **Don't list `@nuxtjs/i18n` in `modules` yourself.** This module installs it, *after*

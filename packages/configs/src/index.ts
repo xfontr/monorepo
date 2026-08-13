@@ -1,4 +1,2 @@
-import * as eslint from "./eslint/index.ts";
-import * as vitest from "./vitest/index.ts";
-
-export { eslint, vitest };
+export * as eslint from "./eslint/index.ts";
+export * as vitest from "./vitest/index.ts";

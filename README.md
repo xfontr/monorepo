@@ -1,34 +1,46 @@
 # Budget Forecast
 
 [![CI](https://github.com/xfontr/monorepo/actions/workflows/ci.yml/badge.svg)](https://github.com/xfontr/monorepo/actions/workflows/ci.yml)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=xfontr_monorepo&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=xfontr_monorepo)
 
-Personal budget forecasting app. A pnpm + Nx monorepo hosting the Nuxt frontend(s) and the shared packages they build on.
+Personal budget forecasting app. A pnpm + Nx monorepo hosting the Nuxt frontend(s), the shared packages they build on, and the internal tooling that supports them.
 
 ## 🗂️ Workspace layout
 
 ```
 apps/
-    external/       @monorepo/external — public-facing Nuxt 4 app
+    external/         @monorepo/external — public-facing Nuxt 4 app
 packages/
-    configs/        @monorepo/configs — shared ESLint, Vitest and tsconfig presets
-    i18n/           @monorepo/i18n — shared translations (locale file paths)
-    ui/             @monorepo/ui — shared Vue 3 component library
+    configs/          @monorepo/configs — shared ESLint, Vitest and tsconfig presets
+    i18n/             @monorepo/i18n — translations core + a Nuxt module
+    observability/    @monorepo/observability — Grafana Faro browser telemetry
+    ui/               @monorepo/ui — shared Vue 3 component library
+infrastructure/
+    translations/     @monorepo/translations — mock TMS serving the locale files
 ```
+
+`packages/*` is shared product code and the only thing `nx release` versions.
+`infrastructure/*` is internal tooling — it supports development but never ships inside an app.
+Every project has its own README; start there for anything specific to it.
 
 ## 🧱 Architecture & boundaries
 
 Projects are layered with Nx tags (declared in each `package.json` under `nx.tags`) and enforced by `@nx/enforce-module-boundaries` at lint time:
 
-| Tag | May depend on |
-| --- | --- |
-| `type:app` | `type:feature`, `type:domain`, `type:ui`, `type:i18n`, `type:config` |
-| `type:feature` | `type:domain`, `type:ui`, `type:i18n`, `type:config` |
-| `type:domain` | `type:domain`, `type:config` |
-| `type:ui` | `type:ui`, `type:config` |
-| `type:i18n` | `type:config` |
-| `type:config` | nothing |
+| Tag | May depend on | Who has it |
+| --- | --- | --- |
+| `type:app` | `type:feature`, `type:domain`, `type:ui`, `type:i18n`, `type:observability`, `type:config` | `external` |
+| `type:feature` | `type:domain`, `type:ui`, `type:i18n`, `type:config` | — |
+| `type:domain` | `type:domain`, `type:config` | — |
+| `type:ui` | `type:ui`, `type:config` | `ui` |
+| `type:i18n` | `type:config` | `i18n` |
+| `type:observability` | `type:config` | `observability` |
+| `type:infra` | `type:config` | `translations` |
+| `type:config` | nothing | `configs` |
 
-`type:feature` and `type:domain` are reserved for upcoming packages; no project uses them yet.
+The rule of thumb: apps compose, everything else stays a leaf. `type:feature` and `type:domain`
+are reserved for upcoming packages; no project uses them yet. The constraints live in
+[`packages/configs/src/eslint/lib/boundaries.ts`](./packages/configs/src/eslint/lib/boundaries.ts).
 
 ## 🔧 Tooling conventions
 
@@ -46,6 +58,13 @@ pnpm install
 pnpm exec nx serve @monorepo/external   # dev server
 ```
 
+The app fetches its translations from a TMS at runtime, so it needs `TRANSLATIONS_VENDOR_*` set
+before any page renders — see [`apps/external`](./apps/external/README.md) for which vars, and for
+how to serve them locally instead.
+
+Every command below runs against **affected** projects only (what changed since `master`), which is
+also what CI runs. For the whole workspace instead, use `pnpm exec nx run-many -t <target>`.
+
 | Command | What it does |
 | --- | --- |
 | `pnpm lint` | Lint affected projects |
@@ -57,7 +76,8 @@ pnpm exec nx serve @monorepo/external   # dev server
 
 ## 🌿 Git conventions
 
-- Branches must match `^(hotfix|fix|feature|release)/.+` (enforced on push).
+- Branches must match `^(hotfix|fix|feature|release)/.+` (enforced on push) — which also means you
+  can't push straight to `master`.
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org) (enforced by commitlint).
 - The pre-push hook runs `lint`, `test` and `typecheck` on affected projects.
 - CI (GitHub Actions) re-runs the same affected targets plus `build` on every PR and on `master`.
