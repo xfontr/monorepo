@@ -4,7 +4,7 @@ import type { LocaleObject } from "@nuxtjs/i18n";
 import { TRANSLATIONS_API_PATH, type TranslationsConfig } from "./config";
 
 export default defineNuxtModule<TranslationsConfig>({
-    meta: { name: "@budget-forecast/i18n/nuxt", configKey: "translations" },
+    meta: { name: "@monorepo/i18n/nuxt", configKey: "translations" },
 
     async setup(resolvedOptions, nuxt) {
         const resolver = createResolver(import.meta.url);

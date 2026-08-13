@@ -1,6 +1,6 @@
 # Budget Forecast
 
-[![CI](https://github.com/xfontr/budget-forecast/actions/workflows/ci.yml/badge.svg)](https://github.com/xfontr/budget-forecast/actions/workflows/ci.yml)
+[![CI](https://github.com/xfontr/monorepo/actions/workflows/ci.yml/badge.svg)](https://github.com/xfontr/monorepo/actions/workflows/ci.yml)
 
 Personal budget forecasting app. A pnpm + Nx monorepo hosting the Nuxt frontend(s) and the shared packages they build on.
 
@@ -8,11 +8,11 @@ Personal budget forecasting app. A pnpm + Nx monorepo hosting the Nuxt frontend(
 
 ```
 apps/
-    external/       @budget-forecast/external — public-facing Nuxt 4 app
+    external/       @monorepo/external — public-facing Nuxt 4 app
 packages/
-    configs/        @budget-forecast/configs — shared ESLint, Vitest and tsconfig presets
-    i18n/           @budget-forecast/i18n — shared translations (locale file paths)
-    ui/             @budget-forecast/ui — shared Vue 3 component library
+    configs/        @monorepo/configs — shared ESLint, Vitest and tsconfig presets
+    i18n/           @monorepo/i18n — shared translations (locale file paths)
+    ui/             @monorepo/ui — shared Vue 3 component library
 ```
 
 ## 🧱 Architecture & boundaries
@@ -35,7 +35,7 @@ Projects are layered with Nx tags (declared in each `package.json` under `nx.tag
 - **pnpm catalog** — shared framework versions (nuxt, vue, vite, typescript, vitest, eslint…) are pinned once in `pnpm-workspace.yaml` and referenced as `catalog:` from each package.
 - **Nx inferred targets** — there are no `project.json` files. Targets come from Nx plugins (`@nx/nuxt`, `@nx/eslint`, `@nx/vitest`, `@nx/vite`) and package scripts; project metadata lives in each `package.json` `nx` block.
 - **Raw source packages** — internal packages export TypeScript/Vue source directly (no build step). Consumers (Nuxt/Vite) compile them.
-- **Centralized configs** — every project's `eslint.config.ts` / `vitest.config.ts` / `tsconfig.json` is a thin wrapper around a factory or preset from `@budget-forecast/configs`.
+- **Centralized configs** — every project's `eslint.config.ts` / `vitest.config.ts` / `tsconfig.json` is a thin wrapper around a factory or preset from `@monorepo/configs`.
 
 ## 🚀 Getting started
 
@@ -43,7 +43,7 @@ Requires the Node version in `.nvmrc` and pnpm (version pinned via `packageManag
 
 ```sh
 pnpm install
-pnpm exec nx serve @budget-forecast/external   # dev server
+pnpm exec nx serve @monorepo/external   # dev server
 ```
 
 | Command | What it does |

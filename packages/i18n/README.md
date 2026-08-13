@@ -1,4 +1,4 @@
-# 📦 @budget-forecast/i18n
+# 📦 @monorepo/i18n
 
 Shared translations. A framework-agnostic core that fetches locale messages from a vendor
 (a TMS), built as ports & adapters, plus an optional Nuxt module that wires it up in one
@@ -8,8 +8,8 @@ Two entry points, kept apart by the `exports` map:
 
 | Import | Contains | Depends on |
 | --- | --- | --- |
-| `@budget-forecast/i18n` | domain, ports, adapters, vendor registry | `ofetch` |
-| `@budget-forecast/i18n/nuxt` | the Nuxt module and its runtime files — see [src/nuxt/README.md](./src/nuxt/README.md) | `@nuxt/kit`, `@nuxtjs/i18n` |
+| `@monorepo/i18n` | domain, ports, adapters, vendor registry | `ofetch` |
+| `@monorepo/i18n/nuxt` | the Nuxt module and its runtime files — see [src/nuxt/README.md](./src/nuxt/README.md) | `@nuxt/kit`, `@nuxtjs/i18n` |
 
 A React, Vue or plain Node consumer resolves the first and can never reach the second, so
 nothing framework-specific leaks. That is enforced by module resolution, not discipline.
@@ -27,18 +27,18 @@ src/
 ├── index.ts                                  # the public API — the only surface consumers import
 ├── core/
 │   ├── domain/
+│   │   ├── errors.ts                         # what can go wrong, with an HTTP status attached
 │   │   ├── translations.ts                   # Locale, TranslationMap
 │   │   └── Vendor.ts                         # vendor config shape
 │   ├── ports/
 │   │   ├── HttpClient.ts                     # driven port: the transport
-│   │   └── TranslationProvider.ts            # driven port: a vendor
+│   │   └── TranslationProvider.ts            # driven port: a vendor, and its config checks
 │   ├── adapters/
 │   │   ├── clients/
 │   │   │   └── OfetchHttpClient.ts           # HttpClient over an injected ofetch instance
 │   │   └── providers/
 │   │       ├── InternalProvider.ts           # the `internal` vendor (our own mock TMS)
 │   │       └── TolgeeProvider.ts             # the `tolgee` vendor
-│   ├── errors.ts                             # what can go wrong, with an HTTP status attached
 │   ├── translationsKey.ts                    # which upstream document a request resolves to
 │   └── registry.ts                           # vendor name → provider, and the config type
 └── nuxt/                                     # the Nuxt module (separate entry point)
@@ -71,8 +71,10 @@ Adding a vendor:
 1. Write `core/adapters/providers/<Name>Provider.ts` extending `TranslationProvider`, overriding
    `getTranslations` with that vendor's URL contract. File, class and registry key all carry the
    same `<Name>` — `internal` → `InternalProvider.ts` → `class InternalProvider`.
-2. Add one line to `providers`.
-3. Nothing else. Config typing, lazy loading and the Nuxt route follow automatically.
+2. If it takes `options`, override `optionProblems()` to say when they are unusable — see
+   [validation](#-validation).
+3. Add one line to `providers`.
+4. Nothing else. Config typing, lazy loading and the Nuxt route follow automatically.
 
 ## 🔌 The ports
 
@@ -83,6 +85,7 @@ interface HttpClient {
 
 abstract class TranslationProvider {
     abstract getTranslations(locale: Locale): Promise<TranslationMap>
+    protected optionProblems(): string[]
 }
 ```
 
@@ -98,11 +101,39 @@ call to one collaborator would add a name and a file without adding behaviour. C
 the port directly. Wrap it in a service the day something real needs to live there — locale
 fallback, or merging local overrides.
 
+## ✅ Validation
+
+The registry types the config at compile time, but deploy-time values arrive from env vars, and
+`process.env.WHATEVER ?? ""` typechecks fine. So a provider validates itself **in its
+constructor**: it cannot exist misconfigured, the same way it cannot exist without a transport.
+Every construction path is covered, not just `createProvider`.
+
+Two halves, because only one of them is knowable in the core:
+
+| Checked | Where | Rule |
+| --- | --- | --- |
+| `project` | `TranslationProvider` | non-empty |
+| `baseURL` | `TranslationProvider` | parses as an absolute URL, so a missing scheme (`app.tolgee.io`) is caught rather than silently becoming a relative fetch |
+| `options` | the provider, via `optionProblems()` | whatever that vendor needs — `tolgee` requires a non-empty token |
+
+`optionProblems()` returns problems rather than throwing, so one `MisconfiguredVendorError` lists
+**all** of them at once: fixing a deployment one restart per missing variable is the thing worth
+avoiding. A vendor without options overrides nothing.
+
+This is deliberately hand-written rather than a schema library. What is missing at runtime is
+*value* checks on four strings you wrote yourself — the *shape* is already guaranteed by
+`VendorConfig`. Adding a validation dependency to a package whose only real dependency is
+`ofetch` would cost more than it closes. See [deferred](#-deliberately-deferred) for when that
+changes.
+
+Because it is a `TranslationsError`, it needs no wiring at the edge: it reports as a `500` naming
+what is unset, instead of the vendor being blamed with a `502` for config that never arrived.
+
 ## 🧩 Framework-agnostic use
 
 ```ts
 import { ofetch } from "ofetch";
-import { createProvider, OfetchHttpClient } from "@budget-forecast/i18n";
+import { createProvider, OfetchHttpClient } from "@monorepo/i18n";
 
 const baseURL = process.env.TRANSLATIONS_VENDOR_BASE_URL!;
 
@@ -139,6 +170,7 @@ All of them extend `TranslationsError`, so one `instanceof` catches anything the
 | --- | --- | --- |
 | `UndefinedLocaleError` | 404 | the request carried no locale, or one the consumer never declared |
 | `UndefinedVendorError` | 500 | config names a vendor the registry doesn't have — raised by `createProvider`, and the message lists the registered names |
+| `MisconfiguredVendorError` | 500 | the vendor exists but its config cannot work — raised while constructing the provider, and `problems` lists every reason |
 | `UndefinedLocaleProviderError` | 500 | the vendor answered, but not for the locale asked of it — the config claims a locale the vendor doesn't hold |
 | `TranslationsUnavailableError` | 502 | the vendor failed for that locale (original error in `cause`) |
 
@@ -157,7 +189,7 @@ Sized for a small monorepo. When it grows:
 | Later need | What changes |
 | --- | --- |
 | A vendor authenticated some other way (query param, signed URL) | `HttpClient.get` only carries headers today — `tolgee` covers itself with an API key header. Widen the options bag again when a vendor needs more |
-| Runtime config validation | The typing above is compile-time only; deploy-time values arrive from env vars unchecked |
+| Schema validation of vendor config or TMS responses | Construction checks values, not shapes, by hand — see [validation](#-validation). Reach for a schema library the day you validate what the TMS *sends back*: that is third-party JSON with a shape you don't control, which is a different problem from four strings you wrote yourself |
 | Locale fallback / merging local overrides | Nothing sits between the caller and the provider port today. That is where a service belongs — add it when there is behaviour to put in it, not before |
 
 The `internal` vendor's translations live in the mock TMS at

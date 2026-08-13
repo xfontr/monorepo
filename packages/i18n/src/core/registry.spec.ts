@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import createProvider, { type VendorConfig } from "./registry";
 import InternalProvider from "./adapters/providers/InternalProvider";
 import TolgeeProvider from "./adapters/providers/TolgeeProvider";
-import { UndefinedVendorError } from "./domain/errors";
+import { MisconfiguredVendorError, UndefinedVendorError } from "./domain/errors";
 import type { HttpClient } from "./ports/HttpClient";
 
 const http: HttpClient = { get: vi.fn() };
@@ -42,5 +42,12 @@ describe("createProvider", () => {
 
     it("rejects a missing vendor config the same way", async () => {
         await expect(createProvider(undefined as unknown as VendorConfig, http)).rejects.toThrow(UndefinedVendorError);
+    });
+
+    it("rejects a registered vendor whose config cannot work, rather than returning it", async () => {
+        const vendor: VendorConfig = { name: "tolgee", baseURL: "", project: "", options: { token: "" } };
+
+        await expect(createProvider(vendor, http)).rejects.toThrow(MisconfiguredVendorError);
+        await expect(createProvider(vendor, http)).rejects.toThrow(/project is empty.*baseURL.*options\.token is empty/);
     });
 });
