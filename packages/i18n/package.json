@@ -1,6 +1,6 @@
 {
   "name": "@monorepo/i18n",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Shared translations",
   "author": "Xifré Font",
   "license": "ISC",
