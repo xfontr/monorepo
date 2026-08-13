@@ -22,6 +22,19 @@ export default defineNuxtConfig({
         },
     },
 
+    runtimeConfig: {
+        public: {
+            observability: {
+                url: "",
+                app: {
+                    name: "@monorepo/external",
+                    version: "0.0.0",
+                    environment: "development",
+                },
+            },
+        },
+    },
+
     fonts: {
         defaults: {
             weights: [300, 600, 900],
