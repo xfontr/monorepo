@@ -1,3 +1,13 @@
+## 0.0.7 (2026-08-13)
+
+### 🩹 Fixes
+
+- No access to real Nuxt instance ([bcfb32a](https://github.com/xfontr/monorepo/commit/bcfb32a))
+
+### ❤️ Thank You
+
+- Xifré Font @xfont-dogfy
+
 ## 0.0.6 (2026-08-13)
 
 ### 🚀 Features
