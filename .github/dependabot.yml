@@ -1,0 +1,16 @@
+version: 2
+
+updates:
+    - package-ecosystem: github-actions
+      directory: /
+      schedule:
+          interval: weekly
+      # Keeps changelog parsing happy: nx release reads conventional commits,
+      # and `chore` is not a releasing type, so action bumps never version a package.
+      commit-message:
+          prefix: chore
+      # One PR for all action bumps instead of one per action.
+      groups:
+          github-actions:
+              patterns:
+                  - "*"
