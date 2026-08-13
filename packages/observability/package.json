@@ -1,6 +1,6 @@
 {
   "name": "@monorepo/observability",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Shared telemetry",
   "author": "Xifré Font",
   "license": "ISC",
