@@ -1,4 +1,4 @@
-# 🌐 @budget-forecast/translations
+# 🌐 @monorepo/translations
 
 Translations **infrastructure** — a self-contained internal tooling app that
 emulates a TMS (Translation Management System). It owns the source-of-truth
@@ -33,7 +33,7 @@ return `404`; unsafe `:project`/`:locale` path segments return `400`.
 
 Start it once and forget it — it comes back after a crash or a reboot, so you
 never need a second terminal for translations again. Run from this package
-(`pnpm --filter @budget-forecast/translations <script>`, or `cd` here):
+(`pnpm --filter @monorepo/translations <script>`, or `cd` here):
 
 ```bash
 pnpm docker:up      # build + start in the background

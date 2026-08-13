@@ -77,10 +77,10 @@ importers:
 
   apps/external:
     dependencies:
-      '@budget-forecast/i18n':
+      '@monorepo/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
-      '@budget-forecast/ui':
+      '@monorepo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@nuxt/fonts':
@@ -102,7 +102,7 @@ importers:
         specifier: ^3.0.4
         version: 3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3))
     devDependencies:
-      '@budget-forecast/configs':
+      '@monorepo/configs':
         specifier: workspace:*
         version: link:../../packages/configs
       eslint:
@@ -124,7 +124,7 @@ importers:
         specifier: 'catalog:'
         version: 4.12.32
     devDependencies:
-      '@budget-forecast/configs':
+      '@monorepo/configs':
         specifier: workspace:*
         version: link:../../packages/configs
       '@types/node':
@@ -184,11 +184,14 @@ importers:
 
   packages/i18n:
     dependencies:
+      '@tolgee/vue':
+        specifier: ^7.1.3
+        version: 7.1.3(vue@3.5.39(typescript@6.0.3))
       ofetch:
         specifier: ^1.5.1
         version: 1.5.1
     devDependencies:
-      '@budget-forecast/configs':
+      '@monorepo/configs':
         specifier: workspace:*
         version: link:../configs
       '@nuxt/kit':
@@ -222,7 +225,7 @@ importers:
         specifier: 'catalog:'
         version: 3.5.39(typescript@6.0.3)
     devDependencies:
-      '@budget-forecast/configs':
+      '@monorepo/configs':
         specifier: workspace:*
         version: link:../configs
       '@storybook/vue3-vite':
@@ -3124,6 +3127,17 @@ packages:
     engines: {node: '>=12', npm: '>=6'}
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
+
+  '@tolgee/core@7.1.3':
+    resolution: {integrity: sha512-/OLZpSNNj3aaePXgA9wzzT8xi0ZRU7f5Sx/7FD2+XUQ/p4FEs71futoptEP78w6NJ9ORlA0SN12PDdM9e3BIXQ==}
+
+  '@tolgee/vue@7.1.3':
+    resolution: {integrity: sha512-obGWLYO7L8qXk/3rv+7X2le1gs09amvM8d8TyTmUVGbxi1mYeyJDYIug2uet+vIe72/imG1vAXJONgnjXKKJRw==}
+    peerDependencies:
+      vue: ^3.0.0
+
+  '@tolgee/web@7.1.3':
+    resolution: {integrity: sha512-nsoHEm+tvbndXx9IppSe0nr6PmqekyqHWMYwSTAGgB+mhBFH5rLQdxZ6OFvZomMd6Jsgu4eRkgKKVrwxMARS3A==}
 
   '@tsconfig/node24@24.0.4':
     resolution: {integrity: sha512-2A933l5P5oCbv6qSxHs7ckKwobs8BDAe9SJ/Xr2Hy+nDlwmLE1GhFh/g/vXGRZWgxBg9nX/5piDtHR9Dkw/XuA==}
@@ -10459,6 +10473,17 @@ snapshots:
   '@testing-library/user-event@14.6.1(@testing-library/dom@10.4.1)':
     dependencies:
       '@testing-library/dom': 10.4.1
+
+  '@tolgee/core@7.1.3': {}
+
+  '@tolgee/vue@7.1.3(vue@3.5.39(typescript@6.0.3))':
+    dependencies:
+      '@tolgee/web': 7.1.3
+      vue: 3.5.39(typescript@6.0.3)
+
+  '@tolgee/web@7.1.3':
+    dependencies:
+      '@tolgee/core': 7.1.3
 
   '@tsconfig/node24@24.0.4': {}
 

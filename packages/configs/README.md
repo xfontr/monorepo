@@ -1,4 +1,4 @@
-# 📦 @budget-forecast/configs
+# 📦 @monorepo/configs
 
 Shared tooling presets for the whole workspace: ESLint flat configs, Vitest configs and tsconfig bases. Exported as raw TypeScript source; each project consumes it through a thin wrapper file.
 
@@ -7,7 +7,7 @@ Shared tooling presets for the whole workspace: ESLint flat configs, Vitest conf
 **ESLint** — `eslint.config.ts`:
 
 ```ts
-import { eslint } from "@budget-forecast/configs";
+import { eslint } from "@monorepo/configs";
 
 export default eslint.createNodeConfig();  // or createVueConfig() / createNuxtConfig()
 ```
@@ -15,7 +15,7 @@ export default eslint.createNodeConfig();  // or createVueConfig() / createNuxtC
 **Vitest** — `vitest.config.ts`:
 
 ```ts
-import { vitest } from "@budget-forecast/configs";
+import { vitest } from "@monorepo/configs";
 
 export default vitest.createNodeConfig();  // or createVueConfig(viteConfig)
 ```
@@ -24,7 +24,7 @@ export default vitest.createNodeConfig();  // or createVueConfig(viteConfig)
 
 ```json
 {
-    "extends": "@budget-forecast/configs/tsconfig/base.json",
+    "extends": "@monorepo/configs/tsconfig/base.json",
     "include": ["src"]
 }
 ```

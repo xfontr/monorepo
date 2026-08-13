@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { TranslationsError, TranslationsUnavailableError, UndefinedLocaleError, UndefinedVendorError } from "./errors";
+import { MisconfiguredVendorError, TranslationsError, TranslationsUnavailableError, UndefinedLocaleError, UndefinedVendorError } from "./errors";
 
 describe("translation errors", () => {
     it("reports an unreachable vendor as a bad gateway", () => {
@@ -21,6 +21,14 @@ describe("translation errors", () => {
         expect(new UndefinedVendorError(undefined, ["internal"]).statusCode).toBe(500);
     });
 
+    it("reports unusable vendor config as an internal error, listing every problem", () => {
+        const error = new MisconfiguredVendorError("TolgeeProvider", ["project is empty", "options.token is empty"]);
+
+        expect(error.statusCode).toBe(500);
+        expect(error.statusMessage).toBe("TolgeeProvider is misconfigured: project is empty, options.token is empty");
+        expect(error.problems).toHaveLength(2);
+    });
+
     it("reports an unknown locale as not found", () => {
         const error = new UndefinedLocaleError("zz");
 
@@ -35,6 +43,7 @@ describe("translation errors", () => {
     it.each([
         new TranslationsUnavailableError("en-GB"),
         new UndefinedVendorError("nope", ["internal", "test"]),
+        new MisconfiguredVendorError("TolgeeProvider", ["project is empty"]),
         new UndefinedLocaleError("zz"),
     ])("is throwable through h3 as $statusCode", (error) => {
         expect(error).toBeInstanceOf(TranslationsError);

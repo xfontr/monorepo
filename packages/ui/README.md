@@ -1,11 +1,11 @@
-# 📦 @budget-forecast/ui
+# 📦 @monorepo/ui
 
 Shared Vue 3 component library. Exports raw `.vue`/`.ts` source (no build step) — the consuming app compiles it.
 
 ## 🚀 Usage
 
 ```ts
-import { Button } from "@budget-forecast/ui";
+import { Button } from "@monorepo/ui";
 ```
 
 ## 🛠️ Development
@@ -18,4 +18,4 @@ import { Button } from "@budget-forecast/ui";
 | --- | --- |
 | `pnpm test` | Run unit tests once |
 | `pnpm typecheck` | `vue-tsc --build` |
-| `pnpm lint` | ESLint (Vue config from `@budget-forecast/configs`) |
+| `pnpm lint` | ESLint (Vue config from `@monorepo/configs`) |

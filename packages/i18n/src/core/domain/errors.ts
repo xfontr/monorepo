@@ -17,8 +17,20 @@ export class UndefinedVendorError extends TranslationsError {
     }
 }
 
+export class MisconfiguredVendorError extends TranslationsError {
+    constructor(vendor: string, public readonly problems: string[]) {
+        super(500, `${vendor} is misconfigured: ${problems.join(", ")}`);
+    }
+}
+
 export class UndefinedLocaleError extends TranslationsError {
     constructor(locale?: string) {
         super(404, `Requested locale "${locale ?? null}" does not exist`);
+    }
+}
+
+export class UndefinedLocaleProviderError extends TranslationsError {
+    constructor(locale: string, vendorName: string) {
+        super(500, `Requested locale "${locale}" does not exist for ${vendorName}`);
     }
 }
