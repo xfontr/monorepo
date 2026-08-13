@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
 
-    modules: ["@budget-forecast/i18n/nuxt", "@nuxt/fonts", "@pinia/nuxt"],
+    modules: ["@monorepo/i18n/nuxt", "@nuxt/fonts", "@pinia/nuxt"],
 
     devtools: false,
 
@@ -9,20 +9,17 @@ export default defineNuxtConfig({
         typeCheck: "build",
     },
 
+    i18n: { locales: ["en-GB", "es-ES"], defaultLocale: "en-GB" },
+
     translations: {
         vendor: {
-            name: "internal",
-            project: "external",
-            baseURL: process.env.TMS_BASE_URL ?? "http://localhost:4000",
+            name: "tolgee",
+            project: process.env.TRANSLATIONS_VENDOR_PROJECT ?? "",
+            baseURL: process.env.TRANSLATIONS_VENDOR_BASE_URL ?? "",
+            options: {
+                token: process.env.TRANSLATIONS_VENDOR_OPTIONS_TOKEN ?? "",
+            }
         },
-    },
-
-    i18n: {
-        locales: [
-            { code: "en-GB", name: "English (UK)" },
-            { code: "es-ES", name: "Spanish (ES)" },
-        ],
-        defaultLocale: "en-GB",
     },
 
     fonts: {

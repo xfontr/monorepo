@@ -7,7 +7,15 @@ describe("OfetchHttpClient", () => {
         const $fetch = vi.fn().mockResolvedValue({ shared: {} }) as unknown as $Fetch;
 
         await expect(new OfetchHttpClient($fetch).get("en-GB/external")).resolves.toEqual({ shared: {} });
-        expect($fetch).toHaveBeenCalledWith("en-GB/external");
+        expect($fetch).toHaveBeenCalledWith("en-GB/external", { headers: undefined });
+    });
+
+    it("forwards headers, so vendors that need auth can be reached", async () => {
+        const $fetch = vi.fn().mockResolvedValue({ shared: {} }) as unknown as $Fetch;
+
+        await new OfetchHttpClient($fetch).get("en-GB/external", { headers: { "X-API-Key": "abc" } });
+
+        expect($fetch).toHaveBeenCalledWith("en-GB/external", { headers: { "X-API-Key": "abc" } });
     });
 
     it("rejects when the request fails", async () => {

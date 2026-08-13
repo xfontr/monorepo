@@ -1,3 +1,3 @@
-import { vitest } from "@budget-forecast/configs";
+import { vitest } from "@monorepo/configs";
 
 export default vitest.createNodeConfig();

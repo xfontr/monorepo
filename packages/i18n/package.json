@@ -1,5 +1,5 @@
 {
-  "name": "@budget-forecast/i18n",
+  "name": "@monorepo/i18n",
   "version": "0.0.5",
   "description": "Shared translations",
   "author": "Xifré Font",
@@ -53,7 +53,7 @@
     }
   },
   "devDependencies": {
-    "@budget-forecast/configs": "workspace:*",
+    "@monorepo/configs": "workspace:*",
     "@nuxt/kit": "^4.5.0",
     "@nuxt/schema": "^4.5.0",
     "@nuxtjs/i18n": "catalog:",
