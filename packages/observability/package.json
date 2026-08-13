@@ -1,0 +1,36 @@
+{
+  "name": "@monorepo/observability",
+  "version": "0.0.1",
+  "description": "Shared telemetry",
+  "author": "Xifré Font",
+  "license": "ISC",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "lint": "nx eslint:lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest . --watch=false",
+    "test:dev": "vitest ."
+  },
+  "nx": {
+    "tags": [
+      "type:observability",
+      "scope:shared"
+    ]
+  },
+  "dependencies": {
+    "@grafana/faro-web-sdk": "^2.9.0",
+    "@grafana/faro-web-tracing": "^2.9.0"
+  },
+  "devDependencies": {
+    "@monorepo/configs": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
