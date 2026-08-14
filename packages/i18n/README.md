@@ -37,7 +37,7 @@ src/
 │   │   ├── clients/
 │   │   │   └── OfetchHttpClient.ts           # HttpClient over an injected ofetch instance
 │   │   └── providers/
-│   │       ├── InternalProvider.ts           # the `internal` vendor (our own mock TMS)
+│   │       ├── InternalProvider.ts           # the `internal` vendor (our own TMS)
 │   │       └── TolgeeProvider.ts             # the `tolgee` vendor
 │   ├── translationsKey.ts                    # which upstream document a request resolves to
 │   └── registry.ts                           # vendor name → provider, and the config type
@@ -192,5 +192,5 @@ Sized for a small monorepo. When it grows:
 | Schema validation of vendor config or TMS responses | Construction checks values, not shapes, by hand — see [validation](#-validation). Reach for a schema library the day you validate what the TMS *sends back*: that is third-party JSON with a shape you don't control, which is a different problem from four strings you wrote yourself |
 | Locale fallback / merging local overrides | Nothing sits between the caller and the provider port today. That is where a service belongs — add it when there is behaviour to put in it, not before |
 
-The `internal` vendor's translations live in the mock TMS at
+The `internal` vendor's translations live in the TMS at
 [`infrastructure/translations/`](../../infrastructure/translations).

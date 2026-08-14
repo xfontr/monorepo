@@ -3,7 +3,7 @@
 [![CI](https://github.com/xfontr/monorepo/actions/workflows/ci.yml/badge.svg)](https://github.com/xfontr/monorepo/actions/workflows/ci.yml)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=xfontr_monorepo&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=xfontr_monorepo)
 
-Personal budget forecasting app. A pnpm + Nx monorepo hosting the Nuxt frontend(s), the shared packages they build on, and the internal tooling that supports them.
+Personal budget forecasting app. A pnpm + Nx monorepo hosting the Nuxt frontend(s), the shared packages they build on, and the supporting services they depend on.
 
 ## 🗂️ Workspace layout
 
@@ -13,14 +13,16 @@ apps/
 packages/
     configs/          @monorepo/configs — shared ESLint, Vitest and tsconfig presets
     i18n/             @monorepo/i18n — translations core + a Nuxt module
-    observability/    @monorepo/observability — Grafana Faro browser telemetry
+    observability/    @monorepo/observability — Grafana Faro in the browser, OpenTelemetry on the server
     ui/               @monorepo/ui — shared Vue 3 component library
 infrastructure/
-    translations/     @monorepo/translations — mock TMS serving the locale files
+    translations/     @monorepo/translations — TMS serving the locale files over HTTP
 ```
 
 `packages/*` is shared product code and the only thing `nx release` versions.
-`infrastructure/*` is internal tooling — it supports development but never ships inside an app.
+`apps/*` are the user-facing products. `infrastructure/*` holds the services that back them —
+things an app talks to over the network rather than imports, each deployable on its own.
+Translations is the first; a content backend would live here too.
 Every project has its own README; start there for anything specific to it.
 
 ## 🧱 Architecture & boundaries
