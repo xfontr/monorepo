@@ -23,6 +23,12 @@ export default defineNuxtConfig({
     },
 
     runtimeConfig: {
+        observability: {
+            url: "",
+            instanceId: "",
+            token: "",
+        },
+
         public: {
             observability: {
                 url: "",
