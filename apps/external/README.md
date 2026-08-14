@@ -74,10 +74,12 @@ each skipped entirely when its URL is unset — which is why local dev ships not
 | Nitro | [`server/plugins/observability.ts`](./server/plugins/observability.ts) | `NUXT_OBSERVABILITY_URL` |
 
 The server plugin opens the request span itself, by wrapping `nitroApp.h3App.handler`. It has to:
-Nitro imports `node:http` before any plugin runs, so OpenTelemetry's HTTP instrumentation finds
-nothing left to patch and no inbound span ever gets created. Wrapping the handler also means
-internal `$fetch` calls nest under the request that made them, and an incoming `traceparent`
-continues the browser's trace rather than starting a second one.
+OpenTelemetry's HTTP instrumentation cannot patch `node:http` here — the build is ESM, which needs a
+loader preloaded with `--import`, and Nitro has imported the module before any plugin runs either
+way. So the package does not ship that instrumentation at all and no inbound span would exist
+without this wrapper. Wrapping the handler also means internal `$fetch` calls nest under the request
+that made them, and an incoming `traceparent` continues the browser's trace rather than starting a
+second one.
 
 Both halves read `app.version` and `app.environment` from the same public runtime config, so one
 `NUXT_PUBLIC_OBSERVABILITY_APP_VERSION` stamps browser and server alike. It defaults to `0.0.0` —

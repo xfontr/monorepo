@@ -21,7 +21,7 @@ export default defineNitroPlugin((nitroApp) => {
 
     if (!observability.url) return;
 
-    const sdk = startNodeTelemetry({ ...observability, app, ignoreUrl: isUntraced });
+    const provider = startNodeTelemetry({ ...observability, app });
     const tracer = trace.getTracer(app.name, app.version);
     const handle = nitroApp.h3App.handler;
 
@@ -51,7 +51,7 @@ export default defineNitroPlugin((nitroApp) => {
         trace.getActiveSpan()?.recordException(error);
     });
 
-    nitroApp.hooks.hook("close", () => sdk.shutdown());
+    nitroApp.hooks.hook("close", () => provider.shutdown());
 });
 
 // #region utils
