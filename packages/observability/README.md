@@ -18,7 +18,7 @@ faro.api.pushError(new Error("boom"));
 ```ts
 import { startNodeTelemetry } from "@monorepo/observability/node";
 
-const sdk = startNodeTelemetry({
+const provider = startNodeTelemetry({
     url: "https://otlp-gateway-<zone>.grafana.net/otlp",
     instanceId: "123456",
     token: "glc_…",
@@ -28,10 +28,11 @@ const sdk = startNodeTelemetry({
 
 That is the whole package — [`src/index.ts`](./src/index.ts) and [`src/node.ts`](./src/node.ts).
 Both are wrappers over their vendor, not an abstraction over telemetry vendors: no ports, no
-adapters, no registry. The config is whatever Faro and the Node SDK take.
+adapters, no registry. The config is whatever Faro and the OpenTelemetry SDK take.
 
-The two entries must stay apart. Faro touches `window`; the Node SDK pulls in `node:http` and a
-protobuf exporter. Importing one from the other would drag either set into the wrong bundle.
+The two entries must stay apart. Faro touches `window`; the Node one pulls in `diagnostics_channel`,
+`node:async_hooks` and a protobuf exporter. Importing one from the other would drag either set into
+the wrong bundle.
 
 For a worked example, [`@monorepo/external`](../../apps/external) calls both — the browser one from
 `app/plugins/observability.client.ts`, the Node one from `server/plugins/observability.ts` — and
@@ -45,25 +46,26 @@ session tracking. `TracingInstrumentation` adds fetch/XHR spans and registers a 
 tracer provider, so a caller that wants manual spans can install `@opentelemetry/api` and use
 `trace.getTracer()` without this package being involved.
 
-**Server.** Inbound HTTP spans, outbound `fetch` spans (via undici), and `traceparent` propagation
-in both directions — an incoming header continues the browser's trace, an outgoing request carries
-ours. Every span is stamped with `service.name`, `service.version` and
-`deployment.environment.name` from `app`. `ignoreUrl` keeps the noise out; the caller decides what
-noise means.
+**Server.** Outbound `fetch` spans (via undici) and `traceparent` propagation in both directions —
+an incoming header continues the browser's trace, an outgoing request carries ours. Every span is
+stamped with `service.name`, `service.version` and `deployment.environment.name` from `app`.
+`provider.register()` installs the W3C propagator and the async context manager, so a caller can
+`trace.getTracer()` and open its own spans without this package being involved.
+
+The inbound span is *not* included — see the gotcha below.
 
 ## ⚠️ Gotchas
 
 - **Browser only for the default entry.** Faro touches `window` while initializing, so it must not
   run during SSR — in Nuxt that means a `.client` plugin.
-- **The inbound span is not free under Nitro.** `HttpInstrumentation` patches `node:http` when the
-  SDK starts, and Nitro has already imported it by the time a server plugin runs, so nothing gets
-  patched: outbound fetches report as their own root traces and no request span exists to hang them
-  on. The caller opens that span itself — see [`@monorepo/external`](../../apps/external/server/plugins/observability.ts),
-  which wraps `nitroApp.h3App.handler`. A plain Node service that starts the SDK before its server
-  is not affected.
-- **Traces only.** The Node SDK would otherwise start a metrics and a logs exporter of its own,
-  aimed at a collector on localhost, so `startNodeTelemetry` disables both unless
-  `OTEL_METRICS_EXPORTER` / `OTEL_LOGS_EXPORTER` already say otherwise.
+- **No inbound span. The caller opens it.** `HttpInstrumentation` is deliberately not installed,
+  because it cannot work here: patching `node:http` under ESM needs
+  `--import @opentelemetry/instrumentation/hook.mjs` preloaded, and under Nitro the module is
+  imported before any server plugin runs anyway. Shipping it would only add a dependency and a
+  startup warning. So outbound fetches would report as their own root traces unless the caller
+  opens a request span to hang them on — see [`@monorepo/external`](../../apps/external/server/plugins/observability.ts),
+  which wraps `nitroApp.h3App.handler`. `UndiciInstrumentation` is unaffected by all of this: it
+  listens on `diagnostics_channel` rather than patching a module.
 - **`app.version` is the caller's to supply.** Telemetry stamped `0.0.0` cannot be attributed to a
   release.
 - **Stack traces arrive minified.** De-obfuscating them needs source maps uploaded from the caller's
@@ -90,9 +92,11 @@ browser calls another origin directly, that origin has to be passed as Faro's
 halves. Add the option when there is a caller for it, not before.
 
 **Metrics.** `service.name` is on every span already, so RED metrics can be derived in Grafana
-without shipping a second signal. A `metricReader` (plus `@opentelemetry/instrumentation-runtime-node`
-for event-loop and GC) is the day someone wants heap and lag graphs.
+without shipping a second signal. The `./node` entry builds a `NodeTracerProvider` — traces and
+nothing else — so metrics mean adding a `MeterProvider` alongside it (plus
+`@opentelemetry/instrumentation-runtime-node` for event-loop and GC) the day someone wants heap and
+lag graphs.
 
 **Node telemetry for [`infrastructure/translations`](../../infrastructure/translations).** The
-`./node` entry fits it as-is: Hono runs on `node:http`, and that service starts its SDK before its
-server, so it gets inbound spans without the Nitro workaround.
+`./node` entry fits it as-is, with the same caveat as any ESM service: it gets outbound fetch spans
+and propagation, but the inbound span is the caller's to open.
