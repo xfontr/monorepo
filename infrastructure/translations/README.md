@@ -1,29 +1,28 @@
 # 🌐 @monorepo/translations
 
-A stand-in TMS (Translation Management System). It holds locale files as plain
-JSON and serves them over HTTP, so an app talks to it exactly as it would talk to
-a hosted provider — while you edit the messages in your editor, for free, offline.
+A TMS (Translation Management System). It holds locale files as plain JSON and
+serves them over HTTP, so an app talks to it exactly as it would talk to a hosted
+provider — no vendor account, no API key, and the messages stay in the repo.
 
 ```
 infrastructure/translations/
   projects/<project>/<locale>.json   ← the messages (hand-editable)
   server/                            ← the HTTP API over that JSON
-  docker/                            ← image + compose for running it detached
+  docker/                            ← image + compose for running it, locally or deployed
 ```
 
-`infrastructure/` is the home for internal tooling — things that support
-development but never ship inside an app. `translations/` is the first of them.
+`infrastructure/` is the home for the services that back the apps — things an app
+talks to over the network rather than imports. `translations/` is the first of them.
 
 ## 🔌 Who uses it
 
 It backs the `internal` vendor in [`@monorepo/i18n`](../../packages/i18n). Any app
-can switch to it by naming that vendor and pointing `baseURL` here; it takes no
-API key, which is the point — you get working translations with nothing to set up.
+can point at it by naming that vendor and setting `baseURL`; it takes no API key.
 
-[`@monorepo/external`](../../apps/external) ships against Tolgee rather than this,
-so this server is for offline work and for trying locale changes without touching
-the hosted project. Swapping between the two is a vendor name and a base URL —
-see the [app README](../../apps/external/README.md#-i18n).
+[`@monorepo/external`](../../apps/external) is currently configured against Tolgee.
+Which vendor it ends up on isn't settled — swapping is a vendor name and a base
+URL, and the app never learns which one it got. See the
+[app README](../../apps/external/README.md#-i18n).
 
 ## 📡 Endpoints
 
@@ -45,9 +44,10 @@ return `404`; unsafe `:project`/`:locale` path segments return `400`.
 
 ## 🐳 Run in Docker (recommended)
 
-Start it once and forget it — it comes back after a crash or a reboot, so you
-never need a second terminal for translations again. Run from this package
-(`pnpm --filter @monorepo/translations <script>`, or `cd` here):
+The image is the deployable artifact: multi-stage, production dependencies only,
+non-root, `restart: unless-stopped`. The same build runs locally, where you start
+it once and forget it — it comes back after a crash or a reboot. Run from this
+package (`pnpm --filter @monorepo/translations <script>`, or `cd` here):
 
 ```bash
 pnpm docker:up      # build + start in the background
@@ -82,6 +82,6 @@ already taken and you'll get `EADDRINUSE`. Run one or the other, not both.
 is Hono, so the tests call `app.request()` directly and never bind a port — they
 run fine with the container up.
 
-Tagged `type:infra`, so it may only depend on `@monorepo/configs`. It is deliberately
-outside `packages/*` and therefore outside `nx release`: nothing here is versioned
-or published, because nothing here ships.
+Tagged `type:infra`, so it may only depend on `@monorepo/configs`. Like `apps/*`, it
+sits outside `packages/*` and therefore outside `nx release` — it is deployed, not
+published, so it has no consumer that needs a version to resolve against.

@@ -16,7 +16,7 @@
 
 ### ❤️ Thank You
 
-- Xifré Font @xfont-dogfy
+- Xifré Font @xfontr
 
 ## 0.1.1 (2026-08-12)
 
@@ -36,7 +36,7 @@
 
 ### ❤️ Thank You
 
-- Xifré Font @xfont-dogfy
+- Xifré Font @xfontr
 
 ## 0.1.0 (2026-06-28)
 

@@ -8,6 +8,9 @@
   "exports": {
     ".": {
       "import": "./src/index.ts"
+    },
+    "./node": {
+      "import": "./src/node.ts"
     }
   },
   "scripts": {
@@ -24,7 +27,14 @@
   },
   "dependencies": {
     "@grafana/faro-web-sdk": "^2.9.0",
-    "@grafana/faro-web-tracing": "^2.9.0"
+    "@grafana/faro-web-tracing": "^2.9.0",
+    "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/exporter-trace-otlp-proto": "^0.221.0",
+    "@opentelemetry/instrumentation-http": "^0.221.0",
+    "@opentelemetry/instrumentation-undici": "^0.31.0",
+    "@opentelemetry/resources": "^2.10.0",
+    "@opentelemetry/sdk-node": "^0.221.0",
+    "@opentelemetry/semantic-conventions": "^1.43.0"
   },
   "devDependencies": {
     "@monorepo/configs": "workspace:*",
