@@ -10,4 +10,6 @@ export default defineNuxtPlugin((nuxtApp) => {
     nuxtApp.hook("vue:error", (error) => {
         faro.api.pushError(error as Error);
     });
+
+    return { provide: { faro } };
 });
