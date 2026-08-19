@@ -4,11 +4,11 @@ import type { Vendor } from "#core/domain/Vendor";
 import type { HttpClient } from "./HttpClient";
 
 abstract class TranslationProvider<T extends object = object> implements Vendor<T> {
-    baseURL: string;
-    project: string;
-    options: T;
+    readonly baseURL: string;
+    readonly project: string;
+    readonly options: T;
 
-    constructor({ baseURL, project, options }: Vendor<T>, protected readonly http: HttpClient) {
+    constructor({ baseURL, project, options = {} as T }: Vendor<T>, protected readonly http: HttpClient) {
         this.baseURL = baseURL;
         this.project = project;
         this.options = options;
