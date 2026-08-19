@@ -22,15 +22,24 @@ export default defineNuxtConfig({
 ```vue
 <script setup lang="ts">
 const { listEntries } = useContent();
+const page = computed(() => Number(useRoute().query.page ?? 1));
 
-const { data } = await useAsyncData("articles", () => listEntries("posts", { perPage: 6 }));
+const { data, error } = await listEntries("posts", () => ({ page: page.value, perPage: 6 }));
 </script>
 ```
 
-`useContent` is auto-imported and returns four thin fetchers — `listEntries`, `getEntry`,
-`listTerms`, `getTerm` — that hit this module's own routes. They are **not** `useAsyncData`
-wrappers, deliberately: the caller keeps its own key, caching and SSR strategy, which is the
-half that differs per page. Pass a key you control, as above.
+`useContent` is auto-imported and returns four `useAsyncData` wrappers — `listEntries`, `getEntry`,
+`listTerms`, `getTerm` — that hit this module's own routes. The SSR strategy is not per-page: the
+key is derived from the resource and the query, and the query (or a `getEntry`/`getTerm` slug or
+locale) is a getter rather than a plain value so that a change to it — a page number, a route
+param — is picked up and refetched the same way a `watch` option would, without the caller wiring
+one. A static call needs no getter ceremony beyond the arrow function itself: `getEntry("posts", ()
+=> "hello-world")`.
+
+`error` still carries whatever the route answered — a miss is the server's real 404, not one
+invented client-side — so a page decides for itself whether that is a soft failure (fall back to
+"not found") or a fatal one (`throw createError(...)`); see
+[`apps/external/app/pages/articles`](../../../../apps/external/app/pages/articles) for both.
 
 ### Options
 
@@ -53,7 +62,8 @@ it stays a literal.
 module.ts                          # build-time: runs in Node during the consumer's build (@nuxt/kit)
 config.ts                          # the contract between both halves: the API path, the windows, the config shape
 runtime/
-├── composables/useContent.ts       # the client-side fetchers, compiled by the consumer's Vite
+├── composables/useContent.ts       # the client-side useAsyncData wrappers, compiled by the consumer's Vite
+├── composables/nuxt.d.ts           # declares `useAsyncData`, which this package's own tsc never sees
 └── server/
     ├── content.get.ts              # cached BFF route: a list
     ├── contentItem.get.ts          # cached BFF route: one document
