@@ -1,3 +1,9 @@
+## 0.1.3 (2026-08-19)
+
+### 🧱 Updated Dependencies
+
+- Updated @monorepo/configs to 0.0.7
+
 ## 0.1.2 (2026-08-13)
 
 ### 🚀 Features

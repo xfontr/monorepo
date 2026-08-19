@@ -1,3 +1,18 @@
+## 0.0.8 (2026-08-19)
+
+### 🩹 Fixes
+
+- Pass env vars only through the env file, install content ([22919df](https://github.com/xfontr/monorepo/commit/22919df))
+- Add warnings, improve error handling ([d20e336](https://github.com/xfontr/monorepo/commit/d20e336))
+
+### 🧱 Updated Dependencies
+
+- Updated @monorepo/configs to 0.0.7
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.7 (2026-08-13)
 
 ### 🩹 Fixes
