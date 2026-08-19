@@ -11,8 +11,8 @@ infrastructure/translations/
   docker/                            ← image + compose for running it, locally or deployed
 ```
 
-`infrastructure/` is the home for the services that back the apps — things an app
-talks to over the network rather than imports. `translations/` is the first of them.
+The first of the services under `infrastructure/` — see the
+[root README](../../README.md#-workspace-layout) for what belongs there.
 
 ## 🔌 Who uses it
 
