@@ -27,6 +27,9 @@ logs
 .env.*
 !.env.example
 
+# Claude Code personal overrides (the shared config is committed)
+.claude/settings.local.json
+
 # NX
 .nx
 .nx/cache
