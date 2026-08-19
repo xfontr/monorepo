@@ -1,5 +1,5 @@
 export type Vendor<T extends object = object> = {
-    project: string
+    project: string | number
     baseURL: string
     options: T
 };

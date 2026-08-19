@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
 
-    modules: ["@monorepo/i18n/nuxt", "@nuxt/fonts", "@pinia/nuxt"],
+    modules: ["@monorepo/i18n/nuxt", "@monorepo/content/nuxt", "@nuxt/fonts", "@pinia/nuxt"],
 
     devtools: false,
 
@@ -14,11 +14,18 @@ export default defineNuxtConfig({
     translations: {
         vendor: {
             name: "tolgee",
-            project: process.env.TRANSLATIONS_VENDOR_PROJECT ?? "",
-            baseURL: process.env.TRANSLATIONS_VENDOR_BASE_URL ?? "",
+            project: "",
+            baseURL: "",
             options: {
-                token: process.env.TRANSLATIONS_VENDOR_OPTIONS_TOKEN ?? "",
-            }
+                token: "",
+            },
+        },
+    },
+
+    content: {
+        vendor: {
+            name: "wordpress",
+            baseURL: "",
         },
     },
 

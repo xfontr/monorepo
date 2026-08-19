@@ -7,12 +7,15 @@
         "dev": "nx serve",
         "preview": "nuxt preview",
         "lint": "nx eslint:lint",
-        "typecheck": "nuxt typecheck"
+        "typecheck": "nuxt typecheck",
+        "test": "vitest . --watch=false",
+        "test:dev": "vitest ."
     },
     "nx": {
         "tags": ["type:app", "scope:external"]
     },
     "dependencies": {
+        "@monorepo/content": "workspace:*",
         "@monorepo/i18n": "workspace:*",
         "@monorepo/observability": "workspace:*",
         "@monorepo/ui": "workspace:*",
@@ -29,6 +32,7 @@
         "@monorepo/configs": "workspace:*",
         "eslint": "catalog:",
         "typescript": "catalog:",
+        "vitest": "catalog:",
         "vue-tsc": "catalog:"
     }
 }
