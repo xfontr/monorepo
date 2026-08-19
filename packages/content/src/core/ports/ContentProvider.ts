@@ -22,17 +22,17 @@ abstract class ContentProvider<T extends object = object> {
     public async getEntry(resource: EntryResource, slug: string, locale?: Locale): Promise<Entry> {
         const { items } = await this.listEntries(resource, { slug, perPage: 1, locale });
 
-        return items[0] ?? this.throwNotFound(resource, slug);
+        if (!items[0]) throw new NotFoundError(resource, slug);
+
+        return items[0];
     }
 
     public async getTerm(resource: TermResource, slug: string, locale?: Locale): Promise<Term> {
         const { items } = await this.listTerms(resource, { slug, perPage: 1, locale });
 
-        return items[0] ?? this.throwNotFound(resource, slug);
-    }
+        if (!items[0]) throw new NotFoundError(resource, slug);
 
-    private throwNotFound(resource: string, slug: string): never {
-        throw new NotFoundError(resource, slug);
+        return items[0];
     }
 
     private assertConfigured(): void {
