@@ -16,6 +16,7 @@ const boundaries: object = {
                             "type:domain",
                             "type:ui",
                             "type:i18n",
+                            "type:content",
                             "type:observability",
                             "type:config",
                         ],
@@ -26,6 +27,7 @@ const boundaries: object = {
                             "type:domain",
                             "type:ui",
                             "type:i18n",
+                            "type:content",
                             "type:config",
                         ],
                     },
@@ -39,6 +41,10 @@ const boundaries: object = {
                     },
                     {
                         sourceTag: "type:i18n",
+                        onlyDependOnLibsWithTags: ["type:config"],
+                    },
+                    {
+                        sourceTag: "type:content",
                         onlyDependOnLibsWithTags: ["type:config"],
                     },
                     {
