@@ -48,16 +48,16 @@ function rethrowAsHttpError(cause: unknown): never {
 }
 
 function throwUnavailableError(cause: unknown, locale: string): never {
+    if (cause instanceof TranslationsError) throw createError(cause);
+
     throw createError(new TranslationsUnavailableError(locale, cause));
 }
 
 function getKey(event: H3Event<EventHandlerRequest>) {
     const locale = getRouterParam(event, "locale");
-    const { locales } = useRuntimeConfig(event).translations as TranslationsConfig;
+    const { vendor, locales } = useRuntimeConfig(event).translations as TranslationsConfig;
 
     assertLocale(locale, locales);
-
-    const { vendor } = useRuntimeConfig(event).translations as TranslationsConfig;
 
     return translationsKey(vendor, locale);
 }

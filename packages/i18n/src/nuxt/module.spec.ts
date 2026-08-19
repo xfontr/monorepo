@@ -35,6 +35,14 @@ function createNuxt(...layers: LayerLocales[]) {
     };
 }
 
+type Layer = ReturnType<typeof createNuxt>["options"]["_layers"][number];
+
+function declareDefaultLocale(nuxt: ReturnType<typeof createNuxt>, defaultLocale: string) {
+    nuxt.options._layers.push({ config: { i18n: { defaultLocale } } } as unknown as Layer);
+
+    return nuxt;
+}
+
 function registerLocales(nuxt: ReturnType<typeof createNuxt>) {
     const register = vi.fn();
     const hook = nuxt.hook.mock.calls.find(([name]) => name === "i18n:registerModule")?.[1];
@@ -92,12 +100,39 @@ describe("i18n nuxt module", () => {
         ]);
     });
 
-    it("registers nothing when no layer declares locales", async () => {
+    it("says so when no layer declares locales, instead of registering nothing in silence", async () => {
+        const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
         const nuxt = createNuxt(undefined);
 
         await setup({ vendor }, nuxt as unknown as Nuxt);
 
         expect(registerLocales(nuxt).locales).toEqual([]);
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining("No locales declared"));
+
+        warn.mockRestore();
+    });
+
+    // @nuxtjs/i18n prefixes every path when the default is not a declared locale, so `/` 404s
+    it("says so when the default locale is not one of the declared ones", async () => {
+        const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+        const nuxt = declareDefaultLocale(createNuxt(["en-GB"]), "fr-FR");
+
+        await setup({ vendor }, nuxt as unknown as Nuxt);
+
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining("\"fr-FR\""));
+
+        warn.mockRestore();
+    });
+
+    it("stays quiet when the default locale is declared", async () => {
+        const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+        const nuxt = declareDefaultLocale(createNuxt(["en-GB"]), "en-GB");
+
+        await setup({ vendor }, nuxt as unknown as Nuxt);
+
+        expect(warn).not.toHaveBeenCalled();
+
+        warn.mockRestore();
     });
 
     it("installs @nuxtjs/i18n so the registered loader is picked up", async () => {

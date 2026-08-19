@@ -84,6 +84,27 @@ describe("GET /api/translations/:locale", () => {
         expect(ofetch.request).not.toHaveBeenCalled();
     });
 
+    // The vendor answered, so it did not fail — flattening this into a 502 used to blame it for a
+    // locale our own config claimed
+    it("keeps the status of a failure it diagnosed, rather than reporting it as a vendor failure", async () => {
+        nitro.vendor = { name: "tolgee", baseURL: "https://app.tolgee.io/", project: "1", options: { token: "abc" } };
+        ofetch.request.mockResolvedValue({ "es-ES": messages });
+
+        await expect(handler(createEvent("en-GB"))).rejects.toMatchObject({
+            statusCode: 500,
+            statusMessage: expect.stringContaining("does not exist for Tolgee") as unknown as string,
+        });
+    });
+
+    it("502s when the vendor is unreachable, keeping the failure as the cause", async () => {
+        const cause = new Error("upstream down");
+        ofetch.request.mockRejectedValue(cause);
+
+        await expect(handler(createEvent("en-GB"))).rejects.toMatchObject({ statusCode: 502, cause });
+    });
+
+    // Last: it resets the module registry, so the providers a later test loads lazily would no longer
+    // share an error class with the handler imported above
     it("lets a failure it cannot diagnose through untouched, rather than blaming the vendor", async () => {
         const cause = new Error("adapter is broken");
         vi.doMock("#core/registry", () => ({ default: () => Promise.reject(cause) }));
@@ -95,13 +116,6 @@ describe("GET /api/translations/:locale", () => {
 
         vi.doUnmock("#core/registry");
         vi.resetModules();
-    });
-
-    it("502s when the vendor is unreachable, keeping the failure as the cause", async () => {
-        const cause = new Error("upstream down");
-        ofetch.request.mockRejectedValue(cause);
-
-        await expect(handler(createEvent("en-GB"))).rejects.toMatchObject({ statusCode: 502, cause });
     });
 });
 
