@@ -8,14 +8,15 @@ Two entry points, kept apart by the `exports` map:
 
 | Import | Contains | Depends on |
 | --- | --- | --- |
-| `@monorepo/i18n` | domain, ports, adapters, vendor registry | `ofetch` |
-| `@monorepo/i18n/nuxt` | the Nuxt module and its runtime files — see [src/nuxt/README.md](./src/nuxt/README.md) | `@nuxt/kit`, `@nuxtjs/i18n` |
+| `@monorepo/i18n` | domain, ports, adapters, vendor registry | `ofetch`, `ohash` |
+| `@monorepo/i18n/nuxt` | the Nuxt module and its runtime files — see [`src/nuxt/README.md`](./src/nuxt/README.md) | `@nuxt/kit`, `@nuxtjs/i18n`, `h3`, `nitropack` |
 
 A React, Vue or plain Node consumer resolves the first and can never reach the second, so
 nothing framework-specific leaks. That is enforced by module resolution, not discipline.
 
 Everything the second entry point needs is an **optional peer dependency**, so resolving the
-first installs none of it. Only `ofetch` is a real dependency. If a non-Nuxt consumer ever
+first installs none of it. Only `ofetch` and `ohash` are real dependencies — the second because a
+cache key has to survive Nitro stripping it, see [caching](#-framework-agnostic-use). If a non-Nuxt consumer ever
 ships to production, split the Nuxt half into its own package — a package that is a Nuxt
 module is allowed to depend on `@nuxt/kit` outright, and the optional-peer trick only holds
 while every consumer lives in this workspace.
@@ -43,6 +44,10 @@ src/
 │   └── registry.ts                           # vendor name → provider, and the config type
 └── nuxt/                                     # the Nuxt module (separate entry point)
 ```
+
+Nothing under `core/` imports `@nuxt/kit` or `@nuxtjs/i18n`, and `core/domain/` imports nothing at
+all. That is the invariant worth keeping: the day it breaks, the core stops being portable and the
+ports stop being worth their indirection.
 
 ## 🏷 Vendors
 
@@ -83,11 +88,15 @@ interface HttpClient {
     get<T>(url: string, options?: { headers: Record<string, string> }): Promise<T>
 }
 
-abstract class TranslationProvider {
+abstract class TranslationProvider<T extends object = object> implements Vendor<T> {
     abstract getTranslations(locale: Locale): Promise<TranslationMap>
-    protected optionProblems(): string[]
+    protected optionProblems(): string[]      // [] unless the vendor has options to check
 }
 ```
+
+The generic is load-bearing, not decoration: `registry.ts` reads it back off the class to decide
+whether `options` is required in config or forbidden, which is what makes an invalid pair fail to
+typecheck rather than fail at boot. A vendor with no options leaves it at the default.
 
 A provider knows its vendor's URL contract but delegates all I/O to an injected `HttpClient`,
 so it binds to no transport. Composition happens at the edge — the consumer builds the client
@@ -121,10 +130,9 @@ Two halves, because only one of them is knowable in the core:
 avoiding. A vendor without options overrides nothing.
 
 This is deliberately hand-written rather than a schema library. What is missing at runtime is
-*value* checks on four strings you wrote yourself — the *shape* is already guaranteed by
-`VendorConfig`. Adding a validation dependency to a package whose only real dependency is
-`ofetch` would cost more than it closes. See [deferred](#-deliberately-deferred) for when that
-changes.
+*value* checks on the two or three strings you wrote yourself — the *shape* is already guaranteed by
+`VendorConfig`. This package has two dependencies and neither is a validator; a third would cost
+more than it closes. See [deferred](#-deliberately-deferred) for when that changes.
 
 Because it is a `TranslationsError`, it needs no wiring at the edge: it reports as a `500` naming
 what is unset, instead of the vendor being blamed with a `502` for config that never arrived.
@@ -156,6 +164,11 @@ other consumer supplies its own. What *is* in the core is `translationsKey(vendo
 the identity of the upstream document, covering every input that picks it — vendor, project, base
 URL, locale. Feed it to whatever cache you use, so no two of those can share an entry. Base URL is
 in there so that a cache shared across environments cannot serve staging messages in production.
+
+Those inputs are hashed rather than listed, behind a readable `vendor:locale:` prefix. Nitro strips
+every non-word character from a cached handler's key, so separators and percent-encoding do not reach
+the cache and cannot be what keeps two documents apart — a base64url hash does reach it. Anything
+consuming the key gets the same guarantee for free.
 
 `options` is deliberately **not** in the key: it carries credentials, and credentials are not
 identity — two tokens for the same project fetch the same document, so they should share an entry,
@@ -189,7 +202,7 @@ Sized for a small monorepo. When it grows:
 | Later need | What changes |
 | --- | --- |
 | A vendor authenticated some other way (query param, signed URL) | `HttpClient.get` only carries headers today — `tolgee` covers itself with an API key header. Widen the options bag again when a vendor needs more |
-| Schema validation of vendor config or TMS responses | Construction checks values, not shapes, by hand — see [validation](#-validation). Reach for a schema library the day you validate what the TMS *sends back*: that is third-party JSON with a shape you don't control, which is a different problem from four strings you wrote yourself |
+| Schema validation of vendor config or TMS responses | Construction checks values, not shapes, by hand — see [validation](#-validation). Reach for a schema library the day you validate what the TMS *sends back*: that is third-party JSON with a shape you don't control, which is a different problem from the handful of strings you wrote yourself |
 | Locale fallback / merging local overrides | Nothing sits between the caller and the provider port today. That is where a service belongs — add it when there is behaviour to put in it, not before |
 
 The `internal` vendor's translations live in the TMS at

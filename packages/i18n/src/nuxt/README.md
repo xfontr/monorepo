@@ -14,7 +14,7 @@ export default defineNuxtConfig({
         vendor: {
             name: "internal",
             project: "external",
-            baseURL: process.env.TRANSLATIONS_VENDOR_BASE_URL ?? "http://localhost:4000",
+            baseURL: "", // filled at startup from NUXT_TRANSLATIONS_VENDOR_BASE_URL — see below
         },
     },
 
@@ -40,8 +40,14 @@ invalid combination fails to typecheck in `nuxt.config`.
 
 `runtimeConfig` (server-side, not `public`) carries what the BFF route needs per request: `vendor`,
 plus the `locales` the module derived from `i18n.locales` so the route can reject anything else.
-Override the base URL per deployment with `NUXT_TRANSLATIONS_VENDOR_BASE_URL`. Everything else is
-resolved at build time.
+
+Because `vendor` lands in `runtimeConfig`, every field of it is overridable per deployment with the
+`NUXT_`-prefixed form — `NUXT_TRANSLATIONS_VENDOR_BASE_URL`, `NUXT_TRANSLATIONS_VENDOR_PROJECT`,
+`NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN`. **Prefer that to reading `process.env` in `nuxt.config`**:
+a value read there is resolved at build time and baked into the output, which for a token means the
+artifact carries it. Declare the field empty instead — the key has to exist for Nuxt to override it —
+and let the environment fill it at startup. `name` is the exception: it picks the vendor and its type,
+so it stays a literal.
 
 You do not write `locales` yourself — it is derived. It sits on `TranslationsConfig`, which is also
 the module's options type, so it *appears* settable in `nuxt.config`; the module overwrites it with
@@ -54,6 +60,7 @@ module.ts                       # build-time: runs in Node during the consumer's
 config.ts                       # the contract between both halves: the API path and the config shape
 runtime/
 ├── locales/loader.ts            # the @nuxtjs/i18n locale loader, compiled by the consumer's Vite
+├── locales/i18n.d.ts            # declares defineI18nLocale, which @nuxtjs/i18n auto-imports
 └── server/translations.get.ts   # the cached BFF route, compiled by the consumer's Nitro
 ```
 
@@ -86,10 +93,14 @@ Two things are fixed rather than configurable, because both are internal contrac
 halves: the API path (`/api/translations`) and the cache window (`maxAge` 1h, `staleMaxAge` 24h,
 bypassed in dev). Override the cache from `nuxt.config` with a nitro route rule if a deployment
 ever needs to. The cache key comes from `translationsKey` in the core, not from this route —
-`vendor:project:baseURL:locale`, every input that picks the upstream document, so changing any of
-them can't serve stale messages from the previous one (vendor `options` are credentials, not
-identity, and are deliberately excluded). It lives in the core so a non-Nuxt consumer caching the
-same documents keys them the same way instead of reinventing it.
+`vendor:locale:hash(vendor, project, baseURL, locale)`, every input that picks the upstream
+document, so changing any of them can't serve stale messages from the previous one (vendor
+`options` are credentials, not identity, and are deliberately excluded). It lives in the core so a
+non-Nuxt consumer caching the same documents keys them the same way instead of reinventing it.
+
+Nitro passes a custom key through `String(key).replace(/\W/g, "")` before storing it, which is why
+identity is hashed rather than spelled out: the `:` separators and any percent-encoding are gone by
+the time the key is a storage path, so they cannot be load-bearing.
 
 ## ⚠️ Gotchas
 
@@ -97,7 +108,10 @@ same documents keys them the same way instead of reinventing it.
   registering the loader — installing it first would let its defaults win over the derived
   locale config.
 - **Set `i18n.defaultLocale`.** The module doesn't. `@nuxtjs/i18n` defaults to the
-  `prefix_except_default` strategy, so without it every path is prefixed and `/` returns 404.
+  `prefix_except_default` strategy, so without it every path is prefixed and `/` returns 404. The
+  module warns during `setup()` if you set one that is not among the declared locales, and if no layer
+  declares locales at all — both build fine and leave an app that cannot translate, so they are worth
+  a line on the console rather than silence.
 - **`:locale` is matched exactly against the declared locales.** `en-gb` is not `en-GB` — it 404s.
   The loader always sends the codes you declared, so this only bites a hand-written request.
 - **The vendor config is checked at request time, not build time.** It has to be: `baseURL` can be
