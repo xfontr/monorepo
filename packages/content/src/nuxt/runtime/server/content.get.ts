@@ -5,7 +5,7 @@ import { contentKey } from "#core/contentKey";
 import type { Entry, Page, Term } from "#core/domain/content";
 import { isEntryResource } from "#core/domain/content";
 import { LIST_MAX_AGE, LIST_STALE_MAX_AGE } from "#nuxt/config";
-import { parseQuery, parseResource, readVendor, resolveProvider, throwUnavailableError } from "./request";
+import { parseQuery, parseResource, readVendor, resolveProvider, throwUnavailableError } from "./utils/request";
 
 type ContentPage = Page<Entry> | Page<Term>;
 

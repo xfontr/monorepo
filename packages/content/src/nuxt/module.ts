@@ -9,9 +9,6 @@ export default defineNuxtModule<ContentConfig>({
     setup(resolvedOptions, nuxt) {
         const resolver = createResolver(import.meta.url);
 
-        // An absent or unknown vendor fails the build instead of throwing on the first request.
-        // baseURL is deliberately not checked here: NUXT_CONTENT_VENDOR_BASE_URL can still replace it
-        // at boot, so the provider is the one that validates it.
         if (!isVendorName(resolvedOptions.vendor?.name)) {
             throw new UndefinedVendorError(resolvedOptions.vendor?.name, VENDOR_NAMES);
         }
@@ -31,6 +28,7 @@ export default defineNuxtModule<ContentConfig>({
             handler: resolver.resolve("./runtime/server/contentItem.get"),
         });
 
+        // Nuxt magic (autoimports)
         addImports({
             name: "useContent",
             from: resolver.resolve("./runtime/composables/useContent"),

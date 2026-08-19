@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { EventHandlerRequest, H3Event } from "h3";
-import { MAX_PAGE, MAX_PER_PAGE, MAX_SEARCH_LENGTH } from "#core/domain/content";
-import { ContentError, MalformedQueryError, NotFoundError, UpstreamError } from "#core/domain/errors";
+import { MAX_PAGE, MAX_PER_PAGE } from "#core/domain/content";
+import { ContentError, NotFoundError, UpstreamError } from "#core/domain/errors";
 import WordpressProvider from "#core/adapters/providers/wordpress/WordpressProvider";
 import type { VendorConfig } from "#core/registry";
 
@@ -31,15 +31,11 @@ beforeEach(() => {
 });
 
 describe("parseResource", () => {
-    it.each(["posts", "pages", "categories", "tags"])("accepts %s", (resource) => {
-        expect(parseResource(createEvent({ resource }))).toBe(resource);
+    it("reads the resource off the route", () => {
+        expect(parseResource(createEvent({ resource: "posts" }))).toBe("posts");
     });
 
-    it.each(["media", "users", "POSTS", ""])("404s %o, naming every resource that exists", (resource) => {
-        expect(() => parseResource(createEvent({ resource }))).toThrow(expect.objectContaining({ statusCode: 404 }) as Error);
-        expect(() => parseResource(createEvent({ resource }))).toThrow(/posts, pages, categories, tags/);
-    });
-
+    // Full acceptance/rejection shape lives in parsing.spec.ts's toResource
     it("404s a request with no resource at all", () => {
         expect(() => parseResource(createEvent())).toThrow(expect.objectContaining({ statusCode: 404 }) as Error);
     });
@@ -51,7 +47,8 @@ describe("parseSlug", () => {
     });
 
     // A router param is the raw path segment. Left encoded, it reaches the vendor encoded a second
-    // time and matches nothing.
+    // time and matches nothing. This is `request.ts`'s own concern — `{ decode: true }` is passed
+    // here, not inside toSlug.
     it.each([
         ["programaci%C3%B3n", "programación"],
         ["hello%20world", "hello world"],
@@ -68,41 +65,15 @@ describe("parseSlug", () => {
     it.each(["100%", "%", "%zz", "%C3"])("survives %o, which is not a valid escape", (slug) => {
         expect(parseSlug(createEvent({ slug }))).toBe(slug);
     });
-
-    it.each([undefined, "", "   "])("400s %o", (slug) => {
-        const event = createEvent(slug === undefined ? {} : { slug });
-
-        expect(() => parseSlug(event)).toThrow(expect.objectContaining({ statusCode: 400 }) as Error);
-    });
-
-    it("trims a slug, so whitespace cannot mint a cache entry of its own", () => {
-        expect(parseSlug(createEvent({ slug: "  hello-world  " }))).toBe("hello-world");
-    });
 });
 
 describe("parseLocale", () => {
+    it("reads the locale off the query string", () => {
+        expect(parseLocale(createEvent({}, "?locale=en-GB"))).toBe("en-GB");
+    });
+
     it("is absent when nothing asked for one", () => {
         expect(parseLocale(createEvent())).toBeUndefined();
-        expect(parseLocale(createEvent({}, "?locale="))).toBeUndefined();
-    });
-
-    it.each(["en", "en-GB", "es-ES", "zh-Hans-CN"])("accepts %s", (locale) => {
-        expect(parseLocale(createEvent({}, `?locale=${locale}`))).toBe(locale);
-    });
-
-    // The vendor is the authority on which locales it serves — this only keeps free text out of a key
-    it.each(["en_GB", "english", "e", "<script>", "en-", "en-toolongsubtag", "12-GB"])("400s %o", (locale) => {
-        const event = createEvent({}, `?locale=${encodeURIComponent(locale)}`);
-
-        expect(() => parseLocale(event)).toThrow(expect.objectContaining({ statusCode: 400 }) as Error);
-    });
-
-    // Extension and variant chains are allowed, so the axis is bounded by shape rather than by length.
-    // Worth knowing before a vendor that actually serves locales is added.
-    it("accepts a chain of subtags, however long", () => {
-        const chained = `en${"-ab".repeat(20)}`;
-
-        expect(parseLocale(createEvent({}, `?locale=${chained}`))).toBe(chained);
     });
 });
 
@@ -137,29 +108,12 @@ describe("parseQuery", () => {
         });
     });
 
+    // Pins that each field is wired to its own ceiling — MAX_PAGE and MAX_PER_PAGE are far enough
+    // apart (1000 vs 50) that a swap would throw here instead of silently passing
     it("accepts the ceilings themselves", () => {
         const query = parseQuery(createEvent({}, `?page=${MAX_PAGE}&perPage=${MAX_PER_PAGE}`), "posts");
 
         expect(query).toMatchObject({ page: MAX_PAGE, perPage: MAX_PER_PAGE });
-    });
-
-    // Out of range is rejected, not clamped: a caller asking for page 10000 wants a page that does
-    // not exist, and silently answering with a different one is worse than saying so
-    it.each([
-        ["page", "0"],
-        ["page", "-1"],
-        ["page", "1.5"],
-        ["page", "abc"],
-        ["page", String(MAX_PAGE + 1)],
-        ["perPage", "0"],
-        ["perPage", String(MAX_PER_PAGE + 1)],
-    ])("400s %s=%s", (param, value) => {
-        const event = createEvent({}, `?${param}=${value}`);
-
-        expect(() => parseQuery(event, "posts")).toThrow(expect.objectContaining({
-            statusCode: 400,
-            cause: expect.any(MalformedQueryError) as unknown,
-        }) as Error);
     });
 
     it("trims text, so whitespace cannot mint a cache entry of its own", () => {
@@ -167,16 +121,6 @@ describe("parseQuery", () => {
             slug: "hello",
             search: "budget",
         });
-    });
-
-    // Bounding a search is not the same as bounding the key space, but it is what keeps one request
-    // from minting an unbounded key
-    it("accepts a search at the ceiling and 400s one past it", () => {
-        const atCeiling = "a".repeat(MAX_SEARCH_LENGTH);
-
-        expect(parseQuery(createEvent({}, `?search=${atCeiling}`), "posts")).toMatchObject({ search: atCeiling });
-        expect(() => parseQuery(createEvent({}, `?search=${atCeiling}a`), "posts"))
-            .toThrow(expect.objectContaining({ statusCode: 400 }) as Error);
     });
 
     describe("the term filter", () => {
@@ -188,20 +132,6 @@ describe("parseQuery", () => {
 
         it("is not an axis a term list has", () => {
             expect(parseQuery(createEvent({}, "?term=categories:12"), "categories").term).toBeUndefined();
-        });
-
-        it.each(["categories", "categories:", "12"])("400s %o, which names no id", (term) => {
-            const event = createEvent({}, `?term=${encodeURIComponent(term)}`);
-
-            expect(() => parseQuery(event, "posts")).toThrow(expect.objectContaining({ statusCode: 400 }) as Error);
-        });
-
-        // A typo cannot silently return the unfiltered list
-        it.each(["authors:12", ":12"])("404s %o, which names a taxonomy the domain does not have", (term) => {
-            const event = createEvent({}, `?term=${encodeURIComponent(term)}`);
-
-            expect(() => parseQuery(event, "posts")).toThrow(expect.objectContaining({ statusCode: 404 }) as Error);
-            expect(() => parseQuery(event, "posts")).toThrow(/categories, tags/);
         });
     });
 });

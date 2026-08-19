@@ -5,7 +5,7 @@ import { contentKey } from "#core/contentKey";
 import type { Entry, Term } from "#core/domain/content";
 import { isEntryResource } from "#core/domain/content";
 import { ITEM_MAX_AGE, ITEM_STALE_MAX_AGE } from "#nuxt/config";
-import { parseLocale, parseResource, parseSlug, readVendor, resolveProvider, throwUnavailableError } from "./request";
+import { parseLocale, parseResource, parseSlug, readVendor, resolveProvider, throwUnavailableError } from "./utils/request";
 
 const cacheOptions: CachedEventHandlerOptions<Entry | Term> = {
     name: "content-item",
