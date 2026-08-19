@@ -7,7 +7,7 @@ consuming app compiles it, so there is nothing to rebuild while you work on a co
 import { Button } from "@monorepo/ui";
 ```
 
-## 🛠️ Development
+## 🚀 Development
 
 Components live in [`lib/components`](./lib/components) and are re-exported from
 [`lib/index.ts`](./lib/index.ts) — a component that isn't listed there doesn't exist as far as
