@@ -5,7 +5,7 @@ import type { HttpClient } from "./HttpClient";
 
 abstract class TranslationProvider<T extends object = object> implements Vendor<T> {
     readonly baseURL: string;
-    readonly project: string;
+    readonly project: string | number;
     readonly options: T;
 
     constructor({ baseURL, project, options = {} as T }: Vendor<T>, protected readonly http: HttpClient) {
@@ -24,7 +24,7 @@ abstract class TranslationProvider<T extends object = object> implements Vendor<
 
     private assertConfigured(): void {
         const problems = [
-            !this.project?.trim() ? "project is empty" : "",
+            !this.project ? "project is empty" : "",
             !URL.canParse(this.baseURL) ? "baseURL is not an absolute URL" : "",
             ...this.optionProblems(),
         ].filter(Boolean);

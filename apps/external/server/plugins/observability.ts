@@ -69,7 +69,8 @@ function requestAttributes(event: H3Event) {
 }
 
 function end(span: Span, event: H3Event, status: number) {
-    const route = event.context.matchedRoute?.path ?? event.path;
+    const [path] = event.path.split("?");
+    const route = event.context.matchedRoute?.path ?? path;
 
     span.updateName(`${event.method} ${route}`);
     span.setAttributes({ [ATTR_HTTP_ROUTE]: route, [ATTR_HTTP_RESPONSE_STATUS_CODE]: status });

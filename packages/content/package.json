@@ -1,0 +1,62 @@
+{
+  "name": "@monorepo/content",
+  "version": "0.0.1",
+  "description": "Content ports",
+  "author": "Xifré Font",
+  "license": "ISC",
+  "type": "module",
+  "imports": {
+    "#core/*": "./src/core/*.ts",
+    "#nuxt/*": "./src/nuxt/*.ts"
+  },
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    },
+    "./nuxt": {
+      "import": "./src/nuxt/module.ts"
+    }
+  },
+  "scripts": {
+    "lint": "nx eslint:lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest . --watch=false",
+    "test:dev": "vitest ."
+  },
+  "nx": {
+    "tags": [
+      "type:content",
+      "scope:shared"
+    ]
+  },
+  "dependencies": {
+    "ofetch": "^1.5.1",
+    "ohash": "^2.0.11"
+  },
+  "peerDependencies": {
+    "@nuxt/kit": "^4.5.0",
+    "h3": "^1.15.11",
+    "nitropack": "^2.13.4"
+  },
+  "peerDependenciesMeta": {
+    "@nuxt/kit": {
+      "optional": true
+    },
+    "h3": {
+      "optional": true
+    },
+    "nitropack": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@monorepo/configs": "workspace:*",
+    "@nuxt/kit": "^4.5.0",
+    "@nuxt/schema": "^4.5.0",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "h3": "^1.15.11",
+    "nitropack": "^2.13.4",
+    "vitest": "catalog:"
+  }
+}
