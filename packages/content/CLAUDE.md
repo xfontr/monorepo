@@ -15,8 +15,9 @@ The invariants worth losing a build over:
 - `configProblems()` is called from the base constructor, so an override may only read `config` — a
   subclass's own field initialisers have not run yet. `core/ports/ContentProvider.spec.ts` pins it.
 - A vendor's shapes never leave its adapter. Ids are strings, always.
-- A query axis the vendor can't serve throws `UnsupportedQueryError`. Never drop it silently: the
-  result would be cached under the value that was asked for.
+- A query axis the vendor can't serve is refused with a 400, never dropped silently: the result
+  would be cached under the value that was asked for. No axis needs this today, so there is no
+  error class for it — add one with the axis.
 - Apply the `MAX_PAGE` / `MAX_PER_PAGE` / `MAX_SEARCH_LENGTH` ceilings **before** building a cache
   key, so a crafted query can't mint unbounded entries.
 - `statusMessage` reaches the client, so no error message may repeat the vendor's URL or the

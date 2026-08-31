@@ -47,9 +47,11 @@ the only vendor, so it *is* the pattern.
 ## The domain is not negotiable
 
 A vendor's shapes never leave its adapter. Map to `Entry`, `Term` and `Page` in the provider; ids
-are strings even when the vendor numbers them. If the vendor cannot serve a query axis, throw
-`UnsupportedQueryError` — never silently drop it, because the result gets cached under the value
-that was asked for. A transport failure surfaces as `UpstreamError` and nothing else; anything
+are strings even when the vendor numbers them. If the vendor cannot serve a query axis, refuse it
+with a 400 naming the vendor and the parameter — never silently drop it, because the result gets
+cached under the value that was asked for. There is no error class for that yet, since every axis
+in `Query` is one WordPress serves; write one beside the axis that needs it. A transport failure
+surfaces as `UpstreamError` and nothing else; anything
 other than a 400 or 404 becomes a 502, since an upstream 401 means *our* credentials are wrong.
 
 If the vendor needs a resource family the domain doesn't have, that is a change to

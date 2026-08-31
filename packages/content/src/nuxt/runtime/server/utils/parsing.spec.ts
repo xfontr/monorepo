@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { MAX_PAGE, MAX_SEARCH_LENGTH } from "#core/domain/content";
 import { MalformedQueryError } from "#core/domain/errors";
-import { toBoundedInteger, toLocale, toResource, toSearch, toSlug, toTerm, toText } from "./parsing";
+import { toBoundedInteger, toResource, toSearch, toSlug, toTerm, toText } from "./parsing";
 
 describe("toResource", () => {
     it.each(["posts", "pages", "categories", "tags"])("accepts %s", (resource) => {
@@ -29,30 +29,6 @@ describe("toSlug", () => {
 
     it("trims a slug, so whitespace cannot mint a cache entry of its own", () => {
         expect(toSlug("  hello-world  ")).toBe("hello-world");
-    });
-});
-
-describe("toLocale", () => {
-    it("is absent when nothing asked for one", () => {
-        expect(toLocale(undefined)).toBeUndefined();
-        expect(toLocale("")).toBeUndefined();
-    });
-
-    it.each(["en", "en-GB", "es-ES", "zh-Hans-CN"])("accepts %s", (locale) => {
-        expect(toLocale(locale)).toBe(locale);
-    });
-
-    // The vendor is the authority on which locales it serves — this only keeps free text out of a key
-    it.each(["en_GB", "english", "e", "<script>", "en-", "en-toolongsubtag", "12-GB"])("400s %o", (locale) => {
-        expect(() => toLocale(locale)).toThrow(expect.objectContaining({ statusCode: 400 }) as Error);
-    });
-
-    // Extension and variant chains are allowed, so the axis is bounded by shape rather than by length.
-    // Worth knowing before a vendor that actually serves locales is added.
-    it("accepts a chain of subtags, however long", () => {
-        const chained = `en${"-ab".repeat(20)}`;
-
-        expect(toLocale(chained)).toBe(chained);
     });
 });
 

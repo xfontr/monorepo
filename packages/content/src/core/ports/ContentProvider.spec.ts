@@ -90,15 +90,7 @@ describe("ContentProvider", () => {
             listEntries.mockResolvedValue(page(entry));
 
             await expect(build().getEntry("posts", "hello")).resolves.toBe(entry);
-            expect(listEntries).toHaveBeenCalledWith("posts", { slug: "hello", perPage: 1, locale: undefined });
-        });
-
-        it("passes the locale down, so the lookup resolves the same document the caller asked for", async () => {
-            listEntries.mockResolvedValue(page(entry));
-
-            await build().getEntry("posts", "hello", "es-ES");
-
-            expect(listEntries).toHaveBeenCalledWith("posts", { slug: "hello", perPage: 1, locale: "es-ES" });
+            expect(listEntries).toHaveBeenCalledWith("posts", { slug: "hello", perPage: 1 });
         });
 
         it("404s a slug that matches nothing, rather than returning undefined", async () => {
@@ -122,7 +114,7 @@ describe("ContentProvider", () => {
             listTerms.mockResolvedValue(page(term));
 
             await expect(build().getTerm("categories", "news")).resolves.toBe(term);
-            expect(listTerms).toHaveBeenCalledWith("categories", { slug: "news", perPage: 1, locale: undefined });
+            expect(listTerms).toHaveBeenCalledWith("categories", { slug: "news", perPage: 1 });
         });
 
         it("404s a slug that matches nothing", async () => {

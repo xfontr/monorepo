@@ -35,7 +35,7 @@ describe("contentKey", () => {
 
     // Nitro strips every non-word character out of the key, so anything else here is silently lost
     it("is word characters only, so the key that is stored is the key that was built", () => {
-        const query = { slug: "a/b?c#d", search: "100% of it", locale: "en-GB" };
+        const query = { slug: "a/b?c#d", search: "100% of it" };
         const key = contentKey(vendor, "posts", query);
 
         expect(key).toMatch(/^\w+$/);
@@ -58,7 +58,6 @@ describe("contentKey", () => {
             ["perPage", { perPage: 10 }, { perPage: 20 }],
             ["slug", { slug: "a" }, { slug: "b" }],
             ["search", { search: "a" }, { search: "b" }],
-            ["locale", { locale: "en-GB" }, { locale: "es-ES" }],
         ])("separates entries by %s, so changing it cannot serve the previous one's page", (_, left, right) => {
             expect(contentKey(vendor, "posts", left)).not.toBe(contentKey(vendor, "posts", right));
         });

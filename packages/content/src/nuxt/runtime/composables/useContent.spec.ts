@@ -9,7 +9,6 @@ const noQuery = {
     perPage: undefined,
     slug: undefined,
     search: undefined,
-    locale: undefined,
     term: undefined,
 };
 
@@ -55,23 +54,23 @@ describe("useContent", () => {
         expect(keyOne).not.toBe(keyTwo);
     });
 
+    // The slug is the whole address of a document, so the route needs no query at all
     it("asks for a single entry by slug, with nothing a document has no use for", async () => {
         await useContent().getEntry("posts", () => "hello-world");
 
-        expect($fetch).toHaveBeenCalledWith(`${CONTENT_API_PATH}/posts/hello-world`, { query: { locale: undefined } });
+        expect($fetch).toHaveBeenCalledWith(`${CONTENT_API_PATH}/posts/hello-world`);
     });
 
     it("asks for a single term the same way", async () => {
-        await useContent().getTerm("categories", () => "news", () => "es-ES");
+        await useContent().getTerm("categories", () => "news");
 
-        expect($fetch).toHaveBeenCalledWith(`${CONTENT_API_PATH}/categories/news`, { query: { locale: "es-ES" } });
+        expect($fetch).toHaveBeenCalledWith(`${CONTENT_API_PATH}/categories/news`);
     });
 
-    // A document's identity includes its locale, so a key that dropped it would serve one
-    // language's entry back under another's key
-    it("keys an item by its slug and locale, not just its resource", async () => {
-        const { key: keyOne } = await useContent().getEntry("posts", () => "hello-world", () => "en-US") as { key: string };
-        const { key: keyTwo } = await useContent().getEntry("posts", () => "hello-world", () => "es-ES") as { key: string };
+    // A key that stopped at the resource would serve one document back under every other's key
+    it("keys an item by its slug, not just its resource", async () => {
+        const { key: keyOne } = await useContent().getEntry("posts", () => "hello-world") as { key: string };
+        const { key: keyTwo } = await useContent().getEntry("posts", () => "other") as { key: string };
 
         expect(keyOne).not.toBe(keyTwo);
     });
@@ -84,7 +83,7 @@ describe("useContent", () => {
     ])("encodes %o into the path as %s", async (slug, encoded) => {
         await useContent().getEntry("posts", () => slug);
 
-        expect($fetch).toHaveBeenCalledWith(`${CONTENT_API_PATH}/posts/${encoded}`, { query: { locale: undefined } });
+        expect($fetch).toHaveBeenCalledWith(`${CONTENT_API_PATH}/posts/${encoded}`);
     });
 
     // A NotFoundError thrown in the browser carries a status nothing reads and will not render an

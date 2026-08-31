@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import WordpressProvider from "./WordpressProvider";
 import type { HttpClient } from "#core/ports/HttpClient";
-import { MisconfiguredVendorError, UnsupportedQueryError } from "#core/domain/errors";
+import { MisconfiguredVendorError } from "#core/domain/errors";
 
 const get = vi.fn();
 const http: HttpClient = { get };
@@ -89,19 +89,6 @@ describe("WordpressProvider", () => {
     it.each(["", "   ", "wp.test", "/blog"])("refuses to exist with %o as its base URL", (baseURL) => {
         expect(() => build(baseURL)).toThrow(MisconfiguredVendorError);
         expect(() => build(baseURL)).toThrow(/baseURL is not an absolute URL/);
-    });
-
-    // Core WordPress has no locale axis. A silently dropped one is cached under the locale that was
-    // asked for and then serves the wrong language, so refusing beats ignoring.
-    describe("the locale axis", () => {
-        it.each([
-            ["listEntries", (provider: WordpressProvider) => provider.listEntries("posts", { locale: "es-ES" })],
-            ["listTerms", (provider: WordpressProvider) => provider.listTerms("categories", { locale: "es-ES" })],
-        ])("refuses a locale on %s without asking WordPress for one", async (_, call) => {
-            await expect(call(build())).rejects.toThrow(UnsupportedQueryError);
-            await expect(call(build())).rejects.toMatchObject({ statusCode: 400 });
-            expect(get).not.toHaveBeenCalled();
-        });
     });
 
     // A thin smoke test that the query and the response are actually wired through WordpressHelpers —

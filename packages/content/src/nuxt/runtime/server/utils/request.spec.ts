@@ -12,7 +12,6 @@ vi.mock("nitropack/runtime", () => ({
 }));
 
 const {
-    parseLocale,
     parseQuery,
     parseResource,
     parseSlug,
@@ -67,16 +66,6 @@ describe("parseSlug", () => {
     });
 });
 
-describe("parseLocale", () => {
-    it("reads the locale off the query string", () => {
-        expect(parseLocale(createEvent({}, "?locale=en-GB"))).toBe("en-GB");
-    });
-
-    it("is absent when nothing asked for one", () => {
-        expect(parseLocale(createEvent())).toBeUndefined();
-    });
-});
-
 describe("parseQuery", () => {
     // Resolved here rather than left undefined, so `?page=1` and no page at all are one cache entry
     it("resolves the defaults every ceiling is then applied to", () => {
@@ -85,7 +74,6 @@ describe("parseQuery", () => {
             perPage: 10,
             slug: undefined,
             search: undefined,
-            locale: undefined,
             term: undefined,
         });
     });
@@ -103,7 +91,6 @@ describe("parseQuery", () => {
             perPage: 10,
             slug: undefined,
             search: undefined,
-            locale: undefined,
             term: undefined,
         });
     });
