@@ -1,6 +1,6 @@
 ---
 name: new-vendor
-description: Add a TMS vendor to @monorepo/i18n — a TranslationProvider subclass, its options type, optionProblems() and one registry line. Use when adding or changing a translations vendor such as Phrase, Crowdin, Lokalise or another Tolgee-like API.
+description: Add a TMS vendor to @monorepo/i18n — a TranslationProvider subclass, its options type, configProblems() and one registry line. Use when adding or changing a translations vendor such as Phrase, Crowdin, Lokalise or another Tolgee-like API.
 ---
 
 # Adding a translations vendor
@@ -26,7 +26,7 @@ without.
    }
 
    class PhraseProvider extends TranslationProvider<PhraseProviderOptions> {
-       protected override optionProblems(): string[] { … }
+       protected override configProblems(): string[] { … }
 
        override async getTranslations(locale: Locale): Promise<TranslationMap> { … }
    }
@@ -38,12 +38,12 @@ without.
    class for every vendor, and only `options` is per-vendor. Don't re-declare them. Overrides carry
    the `override` keyword.
 
-3. **`optionProblems()`, not `configProblems()`** — and it is optional, defaulting to no problems.
-   It is called from the base constructor via `assertConfigured()`, so an override may only read
-   `this.options`; the subclass's own field initialisers have not run. Return every problem as a
-   string, never throw: one `MisconfiguredVendorError` listing all of them beats one restart per
-   missing env var. `project` non-empty and `baseURL` absolute are already checked in the base — do
-   not repeat them.
+3. **`configProblems()` covers `options` only, and is optional here.** Same name as the hook in
+   `@monorepo/content`, narrower job: `project` non-empty and `baseURL` absolute are already checked
+   in the base for every vendor, so a vendor with no options overrides nothing. It is called from the
+   base constructor via `assertConfigured()`, so an override may only read `this.options`; the
+   subclass's own field initialisers have not run. Return every problem as a string, never throw: one
+   `MisconfiguredVendorError` listing all of them beats one restart per missing env var.
 
 4. **The registry import stays lazy.** One line, `() => import(…)`. A static import ships every
    vendor to every deployment.
@@ -53,6 +53,11 @@ without.
 `getTranslations` returns a `TranslationMap` — the vendor's response shape never leaves the
 adapter. All I/O goes through the injected `HttpClient`; a provider that imports `ofetch` directly
 has bound itself to a transport.
+
+A failed request arrives as an `UpstreamError` already, reporting 502 whatever the vendor answered —
+the locale was checked against the declared list before the request, so nothing upstream reports is
+the caller's fault. Read its `upstreamStatus` if a vendor needs to tell one failure from another, but
+do not relay it as a status. (`@monorepo/content` does relay 400 and 404; its slug is caller input.)
 
 The URLs here are **relative**: the consumer builds the client with `ofetch.create({ baseURL })`, so
 a provider passes a path. (`@monorepo/content` is the opposite — absolute URLs, no base URL on the

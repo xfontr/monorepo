@@ -12,7 +12,10 @@ describe("package entrypoint", () => {
             "UndefinedLocaleError",
             "UndefinedLocaleProviderError",
             "UndefinedVendorError",
+            "UpstreamError",
+            "VENDOR_NAMES",
             "createProvider",
+            "isVendorName",
             "translationsKey",
         ]);
     });

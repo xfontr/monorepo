@@ -4,6 +4,7 @@ import type { CachedEventHandlerOptions } from "nitropack";
 import type { VendorConfig } from "#core/registry";
 import type { Locale, TranslationMap } from "#core/domain/translations";
 import { translationsKey } from "#core/translationsKey";
+import { TRANSLATIONS_MAX_AGE, TRANSLATIONS_STALE_MAX_AGE } from "#nuxt/config";
 
 const nitro = vi.hoisted(() => ({
     vendor: undefined as VendorConfig | undefined,
@@ -24,7 +25,11 @@ vi.mock("nitropack/runtime", () => ({
     useRuntimeConfig: () => ({ translations: { vendor: nitro.vendor, locales: nitro.locales } }),
 }));
 
-vi.mock("ofetch", () => ({ ofetch: { create: ofetch.create } }));
+// Only the instance is replaced: FetchError stays real, since that is what the client maps a status off
+vi.mock("ofetch", async (importOriginal) => ({
+    ...await importOriginal<typeof import("ofetch")>(),
+    ofetch: { create: ofetch.create },
+}));
 
 const handler = (await import("./translations.get")).default as unknown as (event: H3Event<EventHandlerRequest>) => Promise<TranslationMap>;
 
@@ -136,5 +141,15 @@ describe("translations cache", () => {
 
     it("caches outside of dev", () => {
         expect(nitro.cache?.shouldBypassCache?.(createEvent("en-GB"))).toBe(false);
+    });
+
+    it("holds a locale tree for the window the config declares, and serves it stale for longer", () => {
+        expect(nitro.cache).toMatchObject({
+            name: "translations",
+            group: "i18n",
+            maxAge: TRANSLATIONS_MAX_AGE,
+            staleMaxAge: TRANSLATIONS_STALE_MAX_AGE,
+        });
+        expect(TRANSLATIONS_STALE_MAX_AGE).toBeGreaterThan(TRANSLATIONS_MAX_AGE);
     });
 });

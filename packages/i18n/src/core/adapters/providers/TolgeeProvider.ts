@@ -11,7 +11,7 @@ interface TolgeeTranslations {
 }
 
 class TolgeeProvider extends TranslationProvider<TolgeeProviderOptions> {
-    protected override optionProblems(): string[] {
+    protected override configProblems(): string[] {
         return this.options?.token?.trim() ? [] : ["options.token is empty"];
     }
 

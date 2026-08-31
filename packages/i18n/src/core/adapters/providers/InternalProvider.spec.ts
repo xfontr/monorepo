@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import InternalProvider from "./InternalProvider";
 import type { HttpClient } from "#core/ports/HttpClient";
-import type { Vendor } from "#core/domain/Vendor";
+import type { Vendor } from "#core/domain/vendor";
 
 const messages = { shared: { health: "Health" } };
 

@@ -1,6 +1,6 @@
 import { MisconfiguredVendorError } from "#core/domain/errors";
 import type { Locale, TranslationMap } from "#core/domain/translations";
-import type { Vendor } from "#core/domain/Vendor";
+import type { Vendor } from "#core/domain/vendor";
 import type { HttpClient } from "./HttpClient";
 
 abstract class TranslationProvider<T extends object = object> implements Vendor<T> {
@@ -18,7 +18,8 @@ abstract class TranslationProvider<T extends object = object> implements Vendor<
 
     public abstract getTranslations(locale: Locale): Promise<TranslationMap>;
 
-    protected optionProblems(): string[] {
+    // Only the `options` half: `project` and `baseURL` are checked below for every vendor
+    protected configProblems(): string[] {
         return [];
     }
 
@@ -26,7 +27,7 @@ abstract class TranslationProvider<T extends object = object> implements Vendor<
         const problems = [
             !this.project ? "project is empty" : "",
             !URL.canParse(this.baseURL) ? "baseURL is not an absolute URL" : "",
-            ...this.optionProblems(),
+            ...this.configProblems(),
         ].filter(Boolean);
 
         if (problems.length) throw new MisconfiguredVendorError(this.constructor.name, problems);

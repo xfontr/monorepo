@@ -1,6 +1,8 @@
 import { addServerHandler, createResolver, defineNuxtModule, installModule } from "@nuxt/kit";
 import type { Nuxt } from "@nuxt/schema";
 import type { LocaleObject } from "@nuxtjs/i18n";
+import { UndefinedVendorError } from "#core/domain/errors";
+import { isVendorName, VENDOR_NAMES } from "#core/registry";
 import { TRANSLATIONS_API_PATH, type TranslationsConfig } from "./config";
 
 export default defineNuxtModule<TranslationsConfig>({
@@ -8,6 +10,11 @@ export default defineNuxtModule<TranslationsConfig>({
 
     async setup(resolvedOptions, nuxt) {
         const resolver = createResolver(import.meta.url);
+        const name = resolvedOptions.vendor?.name;
+
+        // Failing the build beats throwing on the first request, which is a page nobody is watching
+        if (!isVendorName(name)) throw new UndefinedVendorError(name, VENDOR_NAMES);
+
         const locales = getLocaleCodes(nuxt);
 
         warnAboutLocales(locales, nuxt);

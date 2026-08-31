@@ -5,6 +5,15 @@ export class TranslationsError extends Error {
     }
 }
 
+// Always a gateway failure: the only caller-supplied axis is the locale, and that is checked against
+// the declared list before the request, so no upstream status is the caller's fault. The status is
+// carried for diagnosis rather than to pick one.
+export class UpstreamError extends TranslationsError {
+    constructor(public readonly upstreamStatus: number | undefined, cause?: unknown) {
+        super(502, "Upstream request failed", { cause });
+    }
+}
+
 export class TranslationsUnavailableError extends TranslationsError {
     constructor(locale: string, cause?: unknown) {
         super(502, `Translations unavailable for "${locale}"`, { cause });
@@ -12,7 +21,7 @@ export class TranslationsUnavailableError extends TranslationsError {
 }
 
 export class UndefinedVendorError extends TranslationsError {
-    constructor(name: string | undefined, available: string[]) {
+    constructor(name: string | undefined, available: readonly string[]) {
         super(500, `Requested vendor "${name ?? null}" does not exist. Available: ${available.join(", ")}`);
     }
 }

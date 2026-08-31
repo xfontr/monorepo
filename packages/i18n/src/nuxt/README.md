@@ -90,17 +90,20 @@ $t("meta.title")
 ```
 
 Two things are fixed rather than configurable, because both are internal contracts between the
-halves: the API path (`/api/translations`) and the cache window (`maxAge` 1h, `staleMaxAge` 24h,
-bypassed in dev). Override the cache from `nuxt.config` with a nitro route rule if a deployment
-ever needs to. The cache key comes from `translationsKey` in the core, not from this route —
-`vendor:locale:hash(vendor, project, baseURL, locale)`, every input that picks the upstream
-document, so changing any of them can't serve stale messages from the previous one (vendor
-`options` are credentials, not identity, and are deliberately excluded). It lives in the core so a
-non-Nuxt consumer caching the same documents keys them the same way instead of reinventing it.
+halves: the API path (`/api/translations`) and the cache window (`TRANSLATIONS_MAX_AGE` 1h,
+`TRANSLATIONS_STALE_MAX_AGE` 24h, bypassed in dev). Both live in [`config.ts`](../config.ts)
+alongside the path, so the route reads them rather than spelling them out where a second route would
+not see them. Override the cache from `nuxt.config` with a nitro route rule if a deployment ever
+needs to. The cache key comes from `translationsKey` in the core, not from this route —
+`vendor_locale_hash(vendor)`, every input that picks the upstream document, so changing any of them
+can't serve stale messages from the previous one (vendor `options` are credentials, not identity, and
+are deliberately excluded). It lives in the core so a non-Nuxt consumer caching the same documents
+keys them the same way instead of reinventing it.
 
 Nitro passes a custom key through `String(key).replace(/\W/g, "")` before storing it, which is why
-identity is hashed rather than spelled out: the `:` separators and any percent-encoding are gone by
-the time the key is a storage path, so they cannot be load-bearing.
+identity is hashed rather than spelled out, and why the readable prefix is escaped down to word
+characters: percent-encoding and punctuation are gone by the time the key is a storage path, so they
+cannot be load-bearing.
 
 ## ⚠️ Gotchas
 
