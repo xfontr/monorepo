@@ -1,10 +1,8 @@
-import type { Entry, EntryQuery, EntryResource, Locale, Page, Query, Term, TermResource } from "#core/domain/content";
+import type { Entry, EntryQuery, EntryResource, Page, Query, Term, TermResource } from "#core/domain/content";
 import { MisconfiguredVendorError, NotFoundError } from "#core/domain/errors";
 import type { HttpClient } from "./HttpClient";
 
 abstract class ContentProvider<T extends object = object> {
-    // `config` is public because the registry reads each vendor's config type off it. There is no
-    // shared config shape to inherit: what a content vendor needs to be reached differs per vendor.
     constructor(public readonly config: T, protected readonly http: HttpClient) {
         this.assertConfigured();
     }
@@ -13,25 +11,20 @@ abstract class ContentProvider<T extends object = object> {
 
     public abstract listTerms(resource: TermResource, query?: Query): Promise<Page<Term>>;
 
-    // Called from this constructor, so an override may only read `config` — a subclass's own field
-    // initialisers have not run yet
     protected abstract configProblems(): string[];
 
-    // A slug lookup is a one-item list on every CMS, so a vendor only overrides these if it has a
-    // native single-document endpoint
-    public async getEntry(resource: EntryResource, slug: string, locale?: Locale): Promise<Entry> {
-        const { items } = await this.listEntries(resource, { slug, perPage: 1, locale });
+    // It's an one-item list on every CMS, override these if CMS has a single-document endpoint
+    public async getEntry(resource: EntryResource, slug: string): Promise<Entry> {
+        const { items } = await this.listEntries(resource, { slug, perPage: 1 });
 
         if (!items[0]) throw new NotFoundError(resource, slug);
-
         return items[0];
     }
 
-    public async getTerm(resource: TermResource, slug: string, locale?: Locale): Promise<Term> {
-        const { items } = await this.listTerms(resource, { slug, perPage: 1, locale });
+    public async getTerm(resource: TermResource, slug: string): Promise<Term> {
+        const { items } = await this.listTerms(resource, { slug, perPage: 1 });
 
         if (!items[0]) throw new NotFoundError(resource, slug);
-
         return items[0];
     }
 

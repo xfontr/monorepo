@@ -1,5 +1,5 @@
 import { createError } from "h3";
-import type { EntryQuery, Locale, Resource } from "#core/domain/content";
+import type { EntryQuery, Resource } from "#core/domain/content";
 import {
     ENTRY_RESOURCES,
     isEntryResource,
@@ -8,9 +8,6 @@ import {
     TERM_RESOURCES,
 } from "#core/domain/content";
 import { MalformedQueryError, UndefinedResourceError } from "#core/domain/errors";
-
-// BCP-47
-const LOCALE_PATTERN = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
 
 export function toResource(resource: string | undefined): Resource {
     if (!isEntryResource(resource) && !isTermResource(resource)) {
@@ -26,16 +23,6 @@ export function toSlug(slug: string | undefined): string {
     if (!text) throw createError(new MalformedQueryError("slug", "a non-empty string"));
 
     return text;
-}
-
-export function toLocale(value: unknown): Locale | undefined {
-    const locale = toText(value);
-
-    if (locale === undefined) return undefined;
-
-    if (!LOCALE_PATTERN.test(locale)) throw createError(new MalformedQueryError("locale", "a BCP-47 tag, e.g. en-GB"));
-
-    return locale;
 }
 
 // Out of range is rejected, not clamped

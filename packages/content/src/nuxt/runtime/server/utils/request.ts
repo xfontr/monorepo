@@ -3,14 +3,14 @@ import { createError, getQuery, getRouterParam } from "h3";
 import { useRuntimeConfig } from "nitropack/runtime";
 import { ofetch } from "ofetch";
 import { OfetchHttpClient } from "#core/adapters/clients/OfetchHttpClient";
-import type { EntryQuery, Locale, Resource } from "#core/domain/content";
+import type { EntryQuery, Resource } from "#core/domain/content";
 import { DEFAULT_PER_PAGE, isEntryResource, MAX_PAGE, MAX_PER_PAGE } from "#core/domain/content";
 import { ContentError, ContentUnavailableError } from "#core/domain/errors";
 import type ContentProvider from "#core/ports/ContentProvider";
 import type { VendorConfig } from "#core/registry";
 import createProvider from "#core/registry";
 import type { ContentConfig } from "#nuxt/config";
-import { toBoundedInteger, toLocale, toResource, toSearch, toSlug, toTerm, toText } from "./parsing";
+import { toBoundedInteger, toResource, toSearch, toSlug, toTerm, toText } from "./parsing";
 
 export function readVendor(event: H3Event<EventHandlerRequest>): VendorConfig {
     const { vendor } = useRuntimeConfig(event).content as ContentConfig;
@@ -40,10 +40,6 @@ export function parseSlug(event: H3Event<EventHandlerRequest>): string {
     return toSlug(getRouterParam(event, "slug", { decode: true }));
 }
 
-export function parseLocale(event: H3Event<EventHandlerRequest>): Locale | undefined {
-    return toLocale(getQuery(event).locale);
-}
-
 // Defaults are resolved here rather than left undefined, so `?page=1` and no page at all produce one
 // cache key instead of two, and every ceiling is applied before the key is built.
 export function parseQuery(event: H3Event<EventHandlerRequest>, resource: Resource): EntryQuery {
@@ -54,7 +50,6 @@ export function parseQuery(event: H3Event<EventHandlerRequest>, resource: Resour
         perPage: toBoundedInteger(query.perPage, "perPage", MAX_PER_PAGE) ?? DEFAULT_PER_PAGE,
         slug: toText(query.slug),
         search: toSearch(query.search),
-        locale: parseLocale(event),
         term: isEntryResource(resource) ? toTerm(query.term) : undefined,
     };
 }

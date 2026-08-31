@@ -49,12 +49,6 @@ export class MalformedQueryError extends ContentError {
     }
 }
 
-export class UnsupportedQueryError extends ContentError {
-    constructor(vendor: string, param: string) {
-        super(400, `${vendor} does not support the "${param}" query parameter`);
-    }
-}
-
 export class NotFoundError extends ContentError {
     constructor(resource: string, slug: string) {
         super(404, `No "${resource}" found with slug "${slug}"`);

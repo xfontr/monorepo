@@ -5,7 +5,6 @@ export type {
     Entry,
     EntryQuery,
     EntryResource,
-    Locale,
     Page,
     Query,
     Resource,
