@@ -94,3 +94,12 @@ export const createIssue = ({ title, body, label, project }: NewIssue): string =
         ...(label ? ["--label", label] : []),
         ...(project ? ["--project", project] : []),
     );
+
+/**
+ * `gh issue develop` over `git checkout -b`: the branch it creates is linked on the issue's
+ * Development panel, which a branch name alone never is, no matter how it's formatted. No `--base`
+ * means it comes off the repo's default branch rather than whatever's checked out — see the
+ * deferred table in the README for the one workflow that trades away.
+ */
+export const developBranch = (issue: number, branch: string): void =>
+    void gh("issue", "develop", String(issue), "--name", branch, "--checkout");

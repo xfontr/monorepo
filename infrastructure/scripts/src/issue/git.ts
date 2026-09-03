@@ -13,5 +13,3 @@ export const branchForIssue = (issue: number): string | undefined =>
         .find((name) => new RegExp(`^[^/]+/${issue}-`).test(name));
 
 export const checkout = (branch: string): void => void git("checkout", branch);
-
-export const createBranch = (branch: string): void => void git("checkout", "-b", branch);

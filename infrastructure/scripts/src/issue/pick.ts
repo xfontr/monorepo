@@ -1,7 +1,7 @@
 import { confirm, intro, log, note, outro, select, spinner, text } from "@clack/prompts";
 import { branchName, BRANCH_TYPES, slugify } from "./branch.ts";
-import { branchForIssue, checkout, createBranch } from "./git.ts";
-import { assignToMe, listIssues, listProjects, type Issue } from "./gh.ts";
+import { branchForIssue, checkout } from "./git.ts";
+import { assignToMe, developBranch, listIssues, listProjects, type Issue } from "./gh.ts";
 import { orExit } from "./prompts.ts";
 
 const CANCELLED = "Cancelled — still on the same branch.";
@@ -119,12 +119,12 @@ export const pick = async (): Promise<void> => {
     note(issue.url, branch);
 
     try {
-        createBranch(branch);
+        developBranch(issue.number, branch);
         assign(issue.number);
         outro(branch);
     }
     catch (error) {
-        log.error("git checkout -b failed.");
+        log.error("gh issue develop failed.");
         throw error;
     }
 };
