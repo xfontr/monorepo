@@ -1,41 +1,41 @@
 import type { Entry, EntryQuery, EntryResource, Page, Query, Term, TermResource } from "#core/domain/content";
 import { CONTENT_API_PATH } from "#nuxt/config";
 
+function listEntries(resource: EntryResource, query?: () => EntryQuery) {
+    const requestQuery = toRequestQuery(query?.());
+
+    return useAsyncData(
+        () => listKey(resource, requestQuery),
+        () => getList<Entry>(resource, requestQuery),
+    );
+}
+
+function listTerms(resource: TermResource, query?: () => Query) {
+    const requestQuery = toRequestQuery(query?.());
+
+    return useAsyncData(
+        () => listKey(resource, requestQuery),
+        () => getList<Term>(resource, requestQuery),
+    );
+}
+
+// A miss is the server's 404, not one invented here: useAsyncData captures it in `error`
+// rather than throwing, so the caller still decides whether that's a soft or a fatal failure
+function getEntry(resource: EntryResource, slug: () => string) {
+    return useAsyncData(
+        () => itemKey(resource, slug()),
+        () => $fetch<Entry>(itemPath(resource, slug())),
+    );
+}
+
+function getTerm(resource: TermResource, slug: () => string) {
+    return useAsyncData(
+        () => itemKey(resource, slug()),
+        () => $fetch<Term>(itemPath(resource, slug())),
+    );
+}
+
 export function useContent() {
-    function listEntries(resource: EntryResource, query?: () => EntryQuery) {
-        const requestQuery = toRequestQuery(query?.());
-
-        return useAsyncData(
-            () => listKey(resource, requestQuery),
-            () => getList<Entry>(resource, requestQuery),
-        );
-    }
-
-    function listTerms(resource: TermResource, query?: () => Query) {
-        const requestQuery = toRequestQuery(query?.());
-
-        return useAsyncData(
-            () => listKey(resource, requestQuery),
-            () => getList<Term>(resource, requestQuery),
-        );
-    }
-
-    // A miss is the server's 404, not one invented here: useAsyncData captures it in `error`
-    // rather than throwing, so the caller still decides whether that's a soft or a fatal failure
-    function getEntry(resource: EntryResource, slug: () => string) {
-        return useAsyncData(
-            () => itemKey(resource, slug()),
-            () => $fetch<Entry>(itemPath(resource, slug())),
-        );
-    }
-
-    function getTerm(resource: TermResource, slug: () => string) {
-        return useAsyncData(
-            () => itemKey(resource, slug()),
-            () => $fetch<Term>(itemPath(resource, slug())),
-        );
-    }
-
     return { listEntries, getEntry, listTerms, getTerm };
 }
 
