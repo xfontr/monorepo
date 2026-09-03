@@ -15,7 +15,8 @@
     "lint": "nx eslint:lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest . --watch=false",
-    "test:dev": "vitest ."
+    "test:dev": "vitest .",
+    "test:coverage": "vitest . --watch=false --coverage"
   },
   "nx": {
     "tags": ["type:infra", "scope:infra"]
@@ -27,6 +28,7 @@
   "devDependencies": {
     "@monorepo/configs": "workspace:*",
     "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

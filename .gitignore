@@ -39,3 +39,5 @@ logs
 
 vitest.config.*.timestamp*
 vite.config.*.timestamp*
+
+coverage/

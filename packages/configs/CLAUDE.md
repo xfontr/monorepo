@@ -2,8 +2,11 @@
 
 See [README.md](./README.md) for what the factories bundle.
 
-**Every edit here lands in every project at once.** Run `pnpm exec nx run-many -t lint` after
-changing a rule, not just the affected set — that is the point of the package and also the risk.
+**Every edit here lands in every project at once.** That is the point of the package and also the
+risk, so `lint` and `typecheck` declare `^production` in their
+[`targetDefaults`](../../nx.json) — a rule change here enters every consumer's hash, and the
+affected set that `pnpm lint` and CI run is already the whole workspace. Don't remove those
+`inputs` and go back to telling people to run `run-many` by hand.
 
 - A rule for everyone goes in [`src/eslint/lib`](./src/eslint/lib). A rule for one flavour goes in
   the factory that composes it (`node.ts`, `vue.ts`, or the nuxt config). Putting a flavour rule in
