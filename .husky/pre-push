@@ -80,7 +80,7 @@ while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
 
   HITS=$(git diff "$BASE".."$LOCAL_SHA" | awk '
     /^\+\+\+ b\// { file = substr($0, 7); next }
-    /^\+/ && /TODO|FIXME/ { print "  " file ":  " substr($0, 2) }
+    /^\+/ && /\/\/[ ]{1,2}(TODO|FIXME)/ { print "  " file ":  " substr($0, 2) }
   ')
 
   FLAGGED="$FLAGGED$HITS"
