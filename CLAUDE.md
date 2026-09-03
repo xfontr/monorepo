@@ -55,14 +55,16 @@ changed since `master`, same as CI and the pre-push hook.
 | Why something rebuilt | `pnpm graph` |
 
 Branches must match `^(hotfix|fix|feature|release)/.+` and `master` is not pushable, so start any
-work on a branch. Commits are [Conventional Commits](https://www.conventionalcommits.org) —
+work on a branch. `pnpm issue:pick` is the shortest way to one — pick an open issue off a project
+board and it creates `<type>/<issue number>-<slug>`, which is the naming the number-first branches
+here come from. Commits are [Conventional Commits](https://www.conventionalcommits.org) —
 commitlint rejects anything else, and the type decides the next version. Two rules beyond the
 convention, both in [`commitlint.config.mjs`](./commitlint.config.mjs) and neither obvious from a
 rejection message: the **type is lower-case** and the **subject is sentence case**, so
 `feat: Add the thing` passes and `feat: add the thing` does not.
 
 The pre-push hook runs lint, test and typecheck on affected projects. CI runs those **plus `build`**,
-so a green push is not yet a green pipeline — `apps/external` typechecks on build, which is where
+so a green push is not yet a green pipeline — `apps/huella-legal` typechecks on build, which is where
 most of that difference shows up. Note also that `husky` has no `prepare` script to install itself,
 because lifecycle scripts are banned here; a fresh clone gets no hooks until `core.hooksPath` is
 pointed at `.husky`.
@@ -73,7 +75,8 @@ The Nx tag table is written twice: the enforced copy in
 [`boundaries.ts`](./packages/configs/src/eslint/lib/boundaries.ts) and the readable copy in the
 [root README](./README.md#-architecture--boundaries). Changing one without the other is the
 standing failure mode in this repo. Same for the workspace-layout block in the root README when a
-project is added.
+project is added, and for a new file under [`docs/reviews/`](./docs/reviews/README.md) and the
+history table in that directory's README.
 
 ## 🛠️ Skills
 
@@ -83,6 +86,9 @@ project is added.
 | `nuxt-module-route` | Adding a BFF route or composable to a package's `src/nuxt/runtime` |
 | `writing-tests` | Adding or changing any `*.spec.ts` |
 | `house-docs` | Writing or editing any markdown |
+| `github-issue` | Filing an issue *for* the user — the three templates. They file their own with `pnpm issue:add`, which is deliberately template-free |
+| `decision-record` | A spike issue is resolved and the outcome needs to outlive the issue |
+| `repo-review` | Rating, scoring or auditing the repo as a whole — the seven cards in [`docs/reviews/SCORECARDS.md`](./docs/reviews/SCORECARDS.md), not the current diff |
 | `content:new-vendor` | Adding a CMS vendor to `@monorepo/content` |
 | `i18n:new-vendor` | Adding a TMS vendor to `@monorepo/i18n` |
 | `ui:new-component` | Adding a component to `@monorepo/ui` |

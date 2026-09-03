@@ -13,7 +13,10 @@
         "typecheck": "nx affected -t typecheck",
         "build": "nx affected -t build",
         "test": "nx affected -t test",
+        "test:coverage": "nx affected -t test:coverage",
         "graph": "nx graph",
+        "issue:add": "pnpm --filter @monorepo/scripts run issue:add",
+        "issue:pick": "pnpm --filter @monorepo/scripts run issue:pick",
         "release": "nx release --skip-publish",
         "release:dry": "nx release --skip-publish --dry-run"
     },

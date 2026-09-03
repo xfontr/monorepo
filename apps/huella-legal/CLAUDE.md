@@ -1,4 +1,4 @@
-# 🤖 @monorepo/external
+# 🤖 @monorepo/huella-legal
 
 See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry setup.
 
@@ -9,10 +9,11 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   promotable. Declare the key empty and let the `NUXT_`-prefixed var fill it at startup. The vendor
   `name` fields are the exception: they select a config type, so they stay literals. New config goes
   in `.env.example` with a row in the README table, and nowhere else.
-- Feature code goes in a **Nuxt layer** under [`layers/`](./layers), one directory per domain, each
-  with its own README. Layers auto-register by being there — never add an `extends` array.
-- `app/` is the shell and stays thin: a layout, an entry page, an error page, client plugins. If
-  something has domain logic, it belongs in a layer.
+- **There is no `app/layers/` directory today.** `app/` holds the whole front end and stays thin: a
+  layout, an entry page, an error page, client plugins, and pages that carry no domain logic of
+  their own. If feature code with real domain logic lands, it goes in a **Nuxt layer** under
+  `app/layers/`, one directory per domain — layers auto-register by being there, so never add an
+  `extends` array, and that is the path `pinia.storesDirs` is already widened for.
 - Typechecking runs on build (`typescript.typeCheck: "build"`), so `pnpm build` is slow and already
   covers what `pnpm typecheck` would.
 - The ESLint config is the nuxt flavour, which is **not** type-checked. Don't switch it.

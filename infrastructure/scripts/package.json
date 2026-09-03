@@ -1,0 +1,32 @@
+{
+  "name": "@monorepo/scripts",
+  "version": "0.0.0",
+  "description": "Repo-local dev tooling, one folder per script",
+  "private": true,
+  "author": "Xifré Font",
+  "license": "ISC",
+  "type": "module",
+  "scripts": {
+    "issue:add": "node src/issue/index.ts add",
+    "issue:pick": "node src/issue/index.ts pick",
+    "lint": "nx eslint:lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest . --watch=false --passWithNoTests",
+    "test:dev": "vitest .",
+    "test:coverage": "vitest . --watch=false --coverage --passWithNoTests"
+  },
+  "nx": {
+    "tags": ["type:tooling", "scope:tooling"]
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.7.0"
+  },
+  "devDependencies": {
+    "@monorepo/configs": "workspace:*",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

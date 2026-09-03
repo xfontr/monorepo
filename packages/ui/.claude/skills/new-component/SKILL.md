@@ -48,7 +48,7 @@ a component library:
 - No translations — a component takes its strings as props.
 - No app-specific business rules or feature flags.
 
-Anything needing those belongs in an app layer (`apps/external/layers/<domain>`) instead. If a
+Anything needing those belongs in an app layer (`apps/huella-legal/app/layers/<domain>`) instead. If a
 component "needs" a store, the prop it should have taken is the thing to find.
 
 ## Verify

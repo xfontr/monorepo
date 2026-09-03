@@ -37,6 +37,20 @@ case "$rel" in
         ;;
 esac
 
+# A review whose row never lands in the history table is a review nobody will ever compare against.
+# This one clears itself: the check only fires while the row is genuinely missing
+case "$rel" in
+    docs/reviews/[0-9]*.md)
+        name=$(basename "$rel")
+        if ! grep -q "$name" "$root/docs/reviews/README.md" 2>/dev/null; then
+            echo "$rel has no row in the history table in docs/reviews/README.md." >&2
+            echo "Add it now — ratings only, one column per card plus the total and the rubric" >&2
+            echo "version. A review that isn't in the table can't be compared to the next one." >&2
+            exit 2
+        fi
+        ;;
+esac
+
 # A package.json git has never seen means a new project, and step 5 of new-package is the one skipped
 case "$rel" in
     packages/*/package.json|apps/*/package.json|infrastructure/*/package.json)

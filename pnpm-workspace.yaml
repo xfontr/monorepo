@@ -17,7 +17,11 @@ catalog:
     "@types/node": ^25.9.1
 
     # Testing
+    # @vitest/coverage-v8 declares an exact peer on vitest, so a caret range on both still lets
+    # pnpm resolve each independently to its own latest and land on two different patches. Pinned
+    # to the exact version vitest is on; bump both together, never one alone.
     vitest: ^4.1.7
+    "@vitest/coverage-v8": 4.1.7
 
     # Misc
     eslint: ^10.4.1

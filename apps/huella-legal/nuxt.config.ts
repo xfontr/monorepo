@@ -40,7 +40,7 @@ export default defineNuxtConfig({
             observability: {
                 url: "",
                 app: {
-                    name: "@monorepo/external",
+                    name: "@monorepo/huella-legal",
                     version: "0.0.0",
                     environment: "development",
                 },

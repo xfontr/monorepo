@@ -7,12 +7,13 @@ description: Add a CMS vendor to @monorepo/content — a ContentProvider subclas
 
 The steps are in the [Vendors section](../../../README.md#-vendors) of the package README. Follow
 them; this file is what the prose can't enforce. Read
-[`WordpressProvider.ts`](../../../src/core/adapters/providers/WordpressProvider.ts) first — it is
-the only vendor, so it *is* the pattern.
+[`wordpress/`](../../../src/core/adapters/providers/wordpress) first — it is the only vendor, so it
+*is* the pattern, including the split into a provider, its constants, its mapping helpers and its
+response types.
 
 ## The five things that go wrong
 
-1. **One `<Name>`, three places.** `contentful` → `ContentfulProvider.ts` →
+1. **One `<Name>`, four places.** `contentful` → `contentful/` → `ContentfulProvider.ts` →
    `class ContentfulProvider` → `contentful:` in the registry. The registry key is what appears in
    `nuxt.config.ts`, so a mismatch is a config that can't be typed.
 

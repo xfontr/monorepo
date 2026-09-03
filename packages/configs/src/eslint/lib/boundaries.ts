@@ -56,6 +56,10 @@ const boundaries: object = {
                         onlyDependOnLibsWithTags: ["type:config"],
                     },
                     {
+                        sourceTag: "type:tooling",
+                        onlyDependOnLibsWithTags: ["type:config"],
+                    },
+                    {
                         sourceTag: "type:config",
                         onlyDependOnLibsWithTags: [],
                     },

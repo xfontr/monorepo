@@ -18,10 +18,12 @@
     "targetDefaults": {
         "lint": {
             "dependsOn": ["^lint"],
+            "inputs": ["default", "^production"],
             "cache": true
         },
         "typecheck": {
             "dependsOn": ["^typecheck"],
+            "inputs": ["default", "^production"],
             "cache": true
         },
         "build": {
@@ -36,6 +38,10 @@
             "cache": true
         },
         "test": {
+            "inputs": ["default", "^production"],
+            "cache": true
+        },
+        "test:coverage": {
             "inputs": ["default", "^production"],
             "outputs": ["{projectRoot}/coverage"],
             "cache": true

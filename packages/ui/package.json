@@ -12,6 +12,7 @@
     "typecheck": "vue-tsc --build",
     "lint": "nx eslint:lint",
     "test": "vitest . --watch=false",
+    "test:coverage": "vitest . --watch=false --coverage",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
@@ -30,6 +31,7 @@
     "@tsconfig/node24": "^24.0.4",
     "@types/node": "catalog:",
     "@vitejs/plugin-vue": "^6.0.7",
+    "@vitest/coverage-v8": "catalog:",
     "@vue/test-utils": "^2.4.11",
     "@vue/tsconfig": "^0.9.1",
     "eslint": "catalog:",

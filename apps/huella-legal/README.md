@@ -1,14 +1,14 @@
-# 📦 @monorepo/external
+# 📦 @monorepo/huella-legal
 
-The public-facing Nuxt 4 app. It composes the shared packages (`@monorepo/ui`, `@monorepo/i18n`,
-`@monorepo/content`, `@monorepo/observability`) and keeps its own feature code in
-[layers](#-layers).
+Huella Legal — a work in progress redesigning a law blog. It's a Nuxt 4 app that composes the
+shared packages (`@monorepo/ui`, `@monorepo/i18n`, `@monorepo/content`, `@monorepo/observability`)
+and keeps its own feature code in [layers](#-structure).
 
 ## 🚀 Development
 
 ```sh
-pnpm exec nx serve @monorepo/external   # from anywhere in the workspace
-pnpm dev                                # or from this directory
+pnpm exec nx serve @monorepo/huella-legal   # from anywhere in the workspace
+pnpm dev                                    # or from this directory
 ```
 
 | Command | What it does |
@@ -62,11 +62,11 @@ never reach the browser.
 
 The vendor is currently `tolgee`. The other option is the TMS in
 [`infrastructure/translations`](../../infrastructure/translations), which holds the hand-editable
-locale JSON for the `external` project: run it with `pnpm docker:up`, set `translations.vendor.name`
-to `"internal"` in `nuxt.config.ts`, and point the env at it —
+locale JSON for the `huella-legal` project: run it with `pnpm docker:up`, set
+`translations.vendor.name` to `"internal"` in `nuxt.config.ts`, and point the env at it —
 `NUXT_TRANSLATIONS_VENDOR_BASE_URL=http://localhost:4000/` with
-`NUXT_TRANSLATIONS_VENDOR_PROJECT=external`. `internal` takes no token. Only `name` is a code change:
-it selects the vendor's config type, so it cannot come from the environment.
+`NUXT_TRANSLATIONS_VENDOR_PROJECT=huella-legal`. `internal` takes no token. Only `name` is a code
+change: it selects the vendor's config type, so it cannot come from the environment.
 
 See the [module README](../../packages/i18n/src/nuxt/README.md) for the options and the gotchas.
 
@@ -92,17 +92,18 @@ CMS is first-party. See the [package README](../../packages/content/README.md#-d
 See the [module README](../../packages/content/src/nuxt/README.md) for the options, the cache windows
 and the gotchas.
 
-## 🧩 Layers
+## 🧩 Structure
 
-Feature code lives in Nuxt layers under [`layers/`](./layers), one directory per domain, each with
-its own README. Nuxt auto-registers them — there is no `extends` to maintain.
+[`app/`](./app) is the whole front end and stays thin: a layout, an error page, two client plugins
+(Faro telemetry, and a dev-only console filter for a known Nuxt/Vue warning), and three pages — an
+entry page and the two [article pages](#-content). Server code is just as thin: one Nitro plugin,
+for telemetry.
 
-- [`layers/user`](./layers/user) — the current user, their role, and the feature flags derived from it
-
-The app shell itself (`app/`) stays thin: a layout, an error page, two client plugins (Faro
-telemetry, and a dev-only console filter for a known Nuxt/Vue warning), and three pages — an entry
-page and the two [article pages](#-content). Server code outside the layers is just as thin: one
-Nitro plugin, for telemetry.
+There is no `app/layers/` directory. Every page here is the shell's own reading surface and carries
+no domain logic, so splitting them into Nuxt layers would be a directory per feature with nothing in
+it. When feature code with real domain logic does land, it goes in a layer under `app/layers/`, one
+directory per domain — Nuxt auto-registers them by their presence, so there is no `extends` array to
+add and adding one is the mistake. That is the path `pinia.storesDirs` above is already widened for.
 
 ## 📡 Telemetry
 

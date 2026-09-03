@@ -38,7 +38,7 @@ up and refetched the same way a `watch` option would, without the caller wiring 
 `error` still carries whatever the route answered — a miss is the server's real 404, not one
 invented client-side — so a page decides for itself whether that is a soft failure (fall back to
 "not found") or a fatal one (`throw createError(...)`); see
-[`apps/external/app/pages/articles`](../../../../apps/external/app/pages/articles) for both.
+[`apps/huella-legal/app/pages/articles`](../../../../apps/huella-legal/app/pages/articles) for both.
 
 ### Options
 

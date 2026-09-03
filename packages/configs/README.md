@@ -4,9 +4,9 @@ The ESLint, Vitest and TypeScript setup for the workspace, in one place. A proje
 file of its own, but that file is a one-liner calling a factory from here — so a rule change lands
 everywhere at once instead of drifting across a copy per project.
 
-Only the ESLint half reaches all of them. `apps/external` and this package have no
+Only the ESLint half reaches all of them. `apps/huella-legal` and this package have no
 `vitest.config.ts` at all, and two projects extend no tsconfig preset: `packages/ui` is a solution
-file whose `tsconfig.app.json` extends `@vue/tsconfig`, and `apps/external` only references the four
+file whose `tsconfig.app.json` extends `@vue/tsconfig`, and `apps/huella-legal` only references the four
 `.nuxt/tsconfig.*.json` Nuxt generates. Both are the framework's own layout rather than drift — but
 worth knowing, because a compiler option added here does not reach either one.
 
@@ -36,6 +36,13 @@ compilation your build already does is the same compilation the tests get. It al
 happy-dom. Both presets report coverage in `text`, `html`, `clover`, `json` and `lcov` — the wide
 spread is there so external coverage tooling can pick a format it understands.
 
+Coverage is collected on `test:coverage`, a separate script from `test`, so the pre-push hook and CI's
+default run stay on the fast, uninstrumented path. A consuming project needs `@vitest/coverage-v8`
+in its own `devDependencies` (`catalog:`) — the provider is a peer of `vitest`, not a transitive
+dependency of this package. Both presets also declare an explicit `include`: v8 otherwise only
+instruments files a test actually imported, so an untested file would vanish from the report instead
+of counting as 0%.
+
 **TypeScript** — `tsconfig.json`:
 
 ```json
@@ -64,6 +71,11 @@ types even in a package that otherwise doesn't.
 - `@nx/enforce-module-boundaries` — the layering rules. [`lib/boundaries.ts`](./src/eslint/lib/boundaries.ts)
   is the enforced copy; the readable one is the tag table in the
   [root README](../../README.md#-architecture--boundaries). Change both, or they drift
+- `no-restricted-imports` under `**/src/core/**`, from
+  [`lib/coreIsolation.ts`](./src/eslint/lib/coreIsolation.ts) — the framework-agnostic half of a
+  package may not import `@nuxt/*`, `@nuxtjs/*`, `nitropack`, `h3` or `#nuxt/*`. That invariant is
+  stated in the `content` and `i18n` CLAUDE.md files, and the tag rule above cannot reach it: it
+  reasons about project-to-project edges, never subpaths inside one project
 
 The shared pieces live in [`src/eslint/lib`](./src/eslint/lib) and are composed by
 [`node.ts`](./src/eslint/node.ts) and [`vue.ts`](./src/eslint/vue.ts). If you're adding a rule for

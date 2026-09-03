@@ -12,7 +12,11 @@
             "Bash(git diff:*)",
             "Bash(git log:*)",
             "Bash(git show:*)",
-            "Bash(git ls-files:*)"
+            "Bash(git ls-files:*)",
+            "Bash(git grep:*)",
+            "Bash(git rev-list:*)",
+            "Bash(gh issue list:*)",
+            "Bash(.claude/skills/repo-review/collect-facts.sh:*)"
         ],
         "deny": [
             "Edit(**/CHANGELOG.md)",

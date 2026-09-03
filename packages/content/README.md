@@ -35,7 +35,11 @@ src/
 │   │   ├── clients/
 │   │   │   └── OfetchHttpClient.ts           # HttpClient over an injected ofetch instance
 │   │   └── providers/
-│   │       └── WordpressProvider.ts          # the `wordpress` vendor (WP REST API v2)
+│   │       └── wordpress/                    # one directory per vendor, named for its registry key
+│   │           ├── WordpressProvider.ts      # the `wordpress` vendor (WP REST API v2)
+│   │           ├── WordpressConfigs.ts       # API path, the vendor's own page ceiling, taxonomies
+│   │           ├── WordpressHelpers.ts       # query mapping, payload mapping, `x-wp-total` parsing
+│   │           └── WordpressTypes.ts         # the WP REST shapes, and the config type
 │   ├── contentKey.ts                         # which upstream document a request resolves to
 │   └── registry.ts                           # vendor name → provider, and the config type
 └── nuxt/                                     # the Nuxt module (separate entry point)
@@ -98,10 +102,14 @@ invent — and the transport is built without a base URL for the same reason.
 
 Adding a vendor:
 
-1. Write `core/adapters/providers/<Name>Provider.ts` extending `ContentProvider<YourConfig>`,
+1. Write `core/adapters/providers/<name>/<Name>Provider.ts` extending `ContentProvider<YourConfig>`,
    overriding `listEntries` and `listTerms` with that vendor's URL contract, and exporting its
-   config type. File, class and registry key all carry the same `<Name>` — `wordpress` →
-   `WordpressProvider.ts` → `class WordpressProvider`.
+   config type. One directory per vendor, named for its registry key, and directory, file, class and
+   key all carry the same name — `wordpress` → `wordpress/WordpressProvider.ts` →
+   `class WordpressProvider`. Constants, mapping helpers and the vendor's own response types move
+   into siblings in that directory as soon as the provider stops fitting in one file, which keeps
+   the shapes that must not leave the adapter from being importable from anywhere else;
+   [`wordpress/`](./src/core/adapters/providers/wordpress) is the worked example.
 2. Override `configProblems()` to say when its config is unusable — see
    [validation](#-validation).
 3. Add one line to `providers`.

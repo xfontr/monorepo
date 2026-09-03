@@ -9,7 +9,7 @@ import { startWebTelemetry } from "@monorepo/observability";
 
 const faro = startWebTelemetry({
     url: "https://faro-collector-<region>.grafana.net/collect/<app-key>",
-    app: { name: "@monorepo/external", version: "1.0.0", environment: "production" },
+    app: { name: "@monorepo/huella-legal", version: "1.0.0", environment: "production" },
 });
 
 faro.api.pushError(new Error("boom"));
@@ -22,7 +22,7 @@ const provider = startNodeTelemetry({
     url: "https://otlp-gateway-<zone>.grafana.net/otlp",
     instanceId: "123456",
     token: "glc_…",
-    app: { name: "@monorepo/external", version: "1.0.0", environment: "production" },
+    app: { name: "@monorepo/huella-legal", version: "1.0.0", environment: "production" },
 });
 ```
 
@@ -34,7 +34,7 @@ The two entries must stay apart. Faro touches `window`; the Node one pulls in `d
 `node:async_hooks` and a protobuf exporter. Importing one from the other would drag either set into
 the wrong bundle.
 
-For a worked example, [`@monorepo/external`](../../apps/external) calls both — the browser one from
+For a worked example, [`@monorepo/huella-legal`](../../apps/huella-legal) calls both — the browser one from
 `app/plugins/observability.client.ts`, the Node one from `server/plugins/observability.ts` — and
 skips the call entirely when no collector URL is set, so local dev sends nothing without needing a
 flag.
@@ -63,7 +63,7 @@ The inbound span is *not* included — see the gotcha below.
   `--import @opentelemetry/instrumentation/hook.mjs` preloaded, and under Nitro the module is
   imported before any server plugin runs anyway. Shipping it would only add a dependency and a
   startup warning. So outbound fetches would report as their own root traces unless the caller
-  opens a request span to hang them on — see [`@monorepo/external`](../../apps/external/server/plugins/observability.ts),
+  opens a request span to hang them on — see [`@monorepo/huella-legal`](../../apps/huella-legal/server/plugins/observability.ts),
   which wraps `nitroApp.h3App.handler`. `UndiciInstrumentation` is unaffected by all of this: it
   listens on `diagnostics_channel` rather than patching a module.
 - **`app.version` is the caller's to supply.** Telemetry stamped `0.0.0` cannot be attributed to a
