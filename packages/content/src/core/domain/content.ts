@@ -9,8 +9,6 @@ export type TermResource = typeof TERM_RESOURCES[number];
 
 export type Resource = EntryResource | TermResource;
 
-export type Locale = string;
-
 // Contract ceilings, distinct from any vendor's own limits: they bound the cache key space of a
 // public route, so a crafted query cannot mint an unlimited number of cache entries.
 export const MAX_PAGE = 1000;
@@ -67,9 +65,6 @@ export type Query = {
     perPage?: number
     slug?: string
     search?: string
-    // Part of a document's identity, so it is in the contract and the cache key from the start —
-    // a key that gains an axis later serves the wrong language until every entry expires
-    locale?: Locale
 };
 
 export type EntryQuery = Query & {

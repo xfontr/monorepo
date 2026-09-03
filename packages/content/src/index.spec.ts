@@ -21,7 +21,6 @@ describe("package entrypoint", () => {
             "TERM_RESOURCES",
             "UndefinedResourceError",
             "UndefinedVendorError",
-            "UnsupportedQueryError",
             "UpstreamError",
             "VENDOR_NAMES",
             "contentKey",

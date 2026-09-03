@@ -176,7 +176,6 @@ describe("the list cache", () => {
             perPage: 6,
             slug: undefined,
             search: undefined,
-            locale: undefined,
             term: undefined,
         }));
     });

@@ -10,13 +10,20 @@ The invariants worth losing a build over:
   dependency**. Never promote one.
 - Use the `#core/*` and `#nuxt/*` subpath imports, never `../../`.
 - `baseURL` and `project` are validated in `TranslationProvider` for every vendor. A provider only
-  overrides `optionProblems()`, only for its own `options`, and only reading `this.options` — it runs
-  from the base constructor, before the subclass's field initialisers.
+  overrides `configProblems()`, only for its own `options`, and only reading `this.options` — it runs
+  from the base constructor, before the subclass's field initialisers. The name matches
+  `@monorepo/content`'s hook; the scope does not, and that is the whole difference.
 - Problems are returned as strings and collected, never thrown one at a time. Fixing a deployment one
   restart per missing env var is the thing being avoided.
 - Validation is hand-written on purpose. Adding a schema library to a package with two dependencies
   costs more than it closes — the README argues it out; read that before reaching for zod.
 - URLs are relative here: the consumer builds the client with `ofetch.create({ baseURL })`.
+- A transport failure leaves the client as an `UpstreamError` and nothing else, and every upstream
+  status becomes a 502 — the locale is checked against the declared list before the request, so
+  nothing the vendor answers is the caller's fault. `@monorepo/content` relays 400 and 404 because
+  its slug *is* caller input; don't copy that here.
+- `statusMessage` reaches the client, so no error message may repeat the vendor's URL or the
+  transport's own message.
 - No service layer over the port. Locale fallback or merging local overrides would be the day that
   changes.
 

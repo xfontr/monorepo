@@ -105,16 +105,6 @@ describe("GET /api/content/:resource/:slug", () => {
         expect(transport.raw).not.toHaveBeenCalled();
     });
 
-    // A silently dropped locale is cached under the locale that was asked for
-    it("400s a locale this vendor cannot serve, without asking it", async () => {
-        await expect(handler(createEvent("hello-world", "posts", "?locale=es-ES"))).rejects.toMatchObject({ statusCode: 400 });
-        expect(transport.raw).not.toHaveBeenCalled();
-    });
-
-    it("400s a malformed locale before the vendor is ever chosen", async () => {
-        await expect(handler(createEvent("hello-world", "posts", "?locale=english"))).rejects.toMatchObject({ statusCode: 400 });
-    });
-
     it("502s when the vendor cannot be reached, keeping the failure as the cause", async () => {
         const cause = new Error("connect ECONNREFUSED");
         transport.raw.mockRejectedValue(cause);
@@ -124,16 +114,16 @@ describe("GET /api/content/:resource/:slug", () => {
 });
 
 describe("the item cache", () => {
-    // Slug and locale are the whole identity of a single document
+    // The slug is the whole identity of a single document
     it("keys entries off the vendor, the resource and the slug", () => {
         const key = nitro.cache?.getKey?.(createEvent("hello-world"));
 
-        expect(key).toBe(contentKey(nitro.vendor!, "posts", { slug: "hello-world", locale: undefined }));
+        expect(key).toBe(contentKey(nitro.vendor!, "posts", { slug: "hello-world" }));
     });
 
     it("keys the decoded slug, so the entry matches the document that was fetched", () => {
         expect(nitro.cache?.getKey?.(createEvent("programaci%C3%B3n")))
-            .toBe(contentKey(nitro.vendor!, "posts", { slug: "programación", locale: undefined }));
+            .toBe(contentKey(nitro.vendor!, "posts", { slug: "programación" }));
     });
 
     // Page size cannot fragment a document that has only one of itself

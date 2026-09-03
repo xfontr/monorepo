@@ -30,7 +30,7 @@ src/
 │   ├── domain/
 │   │   ├── errors.ts                         # what can go wrong, with an HTTP status attached
 │   │   ├── translations.ts                   # Locale, TranslationMap
-│   │   └── Vendor.ts                         # vendor config shape
+│   │   └── vendor.ts                         # vendor config shape
 │   ├── ports/
 │   │   ├── HttpClient.ts                     # driven port: the transport
 │   │   └── TranslationProvider.ts            # driven port: a vendor, and its config checks
@@ -76,7 +76,7 @@ Adding a vendor:
 1. Write `core/adapters/providers/<Name>Provider.ts` extending `TranslationProvider`, overriding
    `getTranslations` with that vendor's URL contract. File, class and registry key all carry the
    same `<Name>` — `internal` → `InternalProvider.ts` → `class InternalProvider`.
-2. If it takes `options`, override `optionProblems()` to say when they are unusable — see
+2. If it takes `options`, override `configProblems()` to say when they are unusable — see
    [validation](#-validation).
 3. Add one line to `providers`.
 4. Nothing else. Config typing, lazy loading and the Nuxt route follow automatically.
@@ -90,7 +90,7 @@ interface HttpClient {
 
 abstract class TranslationProvider<T extends object = object> implements Vendor<T> {
     abstract getTranslations(locale: Locale): Promise<TranslationMap>
-    protected optionProblems(): string[]      // [] unless the vendor has options to check
+    protected configProblems(): string[]      // [] unless the vendor has options to check
 }
 ```
 
@@ -101,6 +101,11 @@ typecheck rather than fail at boot. A vendor with no options leaves it at the de
 A provider knows its vendor's URL contract but delegates all I/O to an injected `HttpClient`,
 so it binds to no transport. Composition happens at the edge — the consumer builds the client
 and injects it.
+
+One thing the port deliberately hides: a failed request surfaces as an `UpstreamError`, never as a
+transport-specific one. Without that the domain cannot tell "upstream said no" from "the network is
+down", and a `FetchError` reaching the edge would put the vendor's URL into a `statusMessage` the
+client reads.
 
 `TranslationProvider` is abstract, so a vendor that forgets `getTranslations` fails to compile
 instead of throwing at request time.
@@ -123,9 +128,9 @@ Two halves, because only one of them is knowable in the core:
 | --- | --- | --- |
 | `project` | `TranslationProvider` | non-empty |
 | `baseURL` | `TranslationProvider` | parses as an absolute URL, so a missing scheme (`app.tolgee.io`) is caught rather than silently becoming a relative fetch |
-| `options` | the provider, via `optionProblems()` | whatever that vendor needs — `tolgee` requires a non-empty token |
+| `options` | the provider, via `configProblems()` | whatever that vendor needs — `tolgee` requires a non-empty token |
 
-`optionProblems()` returns problems rather than throwing, so one `MisconfiguredVendorError` lists
+`configProblems()` returns problems rather than throwing, so one `MisconfiguredVendorError` lists
 **all** of them at once: fixing a deployment one restart per missing variable is the thing worth
 avoiding. A vendor without options overrides nothing.
 
@@ -160,15 +165,17 @@ plain `fetch`), write the five-line `HttpClient` for it in your own app — `Htt
 only thing the core needs.
 
 Caching itself is **not** in the core — the Nuxt integration caches at its BFF route, and any
-other consumer supplies its own. What *is* in the core is `translationsKey(vendor, locale)`:
-the identity of the upstream document, covering every input that picks it — vendor, project, base
-URL, locale. Feed it to whatever cache you use, so no two of those can share an entry. Base URL is
-in there so that a cache shared across environments cannot serve staging messages in production.
+other consumer supplies its own. What *is* in the core is `translationsKey(vendor, locale)`: the
+identity of the upstream document — the whole vendor config bar `options`, and the locale. Feed it to
+whatever cache you use, so no two of those can share an entry. The vendor is hashed whole rather than
+field by field, so a field added to `Vendor` cannot be forgotten here; base URL being one of them is
+what stops a cache shared across environments serving staging messages in production.
 
-Those inputs are hashed rather than listed, behind a readable `vendor:locale:` prefix. Nitro strips
-every non-word character from a cached handler's key, so separators and percent-encoding do not reach
-the cache and cannot be what keeps two documents apart — a base64url hash does reach it. Anything
-consuming the key gets the same guarantee for free.
+Those inputs are hashed rather than listed, behind a readable `vendor_locale_` prefix. Nitro strips
+every non-word character from a cached handler's key, so the key is built from word characters only —
+`_` separates the parts, and both it and the `-` of base64url are escaped (`_u`, `_d`) so distinct
+parts stay distinct. The key that is stored is the key that was built, and anything consuming it gets
+that guarantee for free.
 
 `options` is deliberately **not** in the key: it carries credentials, and credentials are not
 identity — two tokens for the same project fetch the same document, so they should share an entry,
@@ -185,7 +192,8 @@ All of them extend `TranslationsError`, so one `instanceof` catches anything the
 | `UndefinedVendorError` | 500 | config names a vendor the registry doesn't have — raised by `createProvider`, and the message lists the registered names |
 | `MisconfiguredVendorError` | 500 | the vendor exists but its config cannot work — raised while constructing the provider, and `problems` lists every reason |
 | `UndefinedLocaleProviderError` | 500 | the vendor answered, but not for the locale asked of it — the config claims a locale the vendor doesn't hold |
-| `TranslationsUnavailableError` | 502 | the vendor failed for that locale (original error in `cause`) |
+| `UpstreamError` | 502 | the transport failed. `upstreamStatus` keeps what the vendor answered, for diagnosis rather than to serve: the only caller-supplied axis is the locale and it is checked against the declared list first, so nothing upstream reports is the caller's fault. (`@monorepo/content` relays a 400 or 404 for exactly that reason — its slug *is* caller input) |
+| `TranslationsUnavailableError` | 502 | the vendor failed for that locale in a way the transport did not diagnose — a broken mapping, say (original error in `cause`) |
 
 Each error carries its own `statusCode` / `statusMessage`, so adding one never means editing a
 mapping somewhere else — the route just hands it to `createError`. A non-HTTP consumer ignores

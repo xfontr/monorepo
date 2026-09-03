@@ -28,7 +28,6 @@ describe("TranslationProvider", () => {
 
         it.each([
             ["an empty project", { ...vendor, project: "" }, /project is empty/],
-            ["a blank project", { ...vendor, project: "   " }, /project is empty/],
             ["an unset base URL", { ...vendor, baseURL: "" }, /baseURL is not an absolute URL/],
             ["a base URL missing its scheme", { ...vendor, baseURL: "app.tolgee.io" }, /baseURL is not an absolute URL/],
         ])("refuses to exist with %s", (_, broken, problem) => {

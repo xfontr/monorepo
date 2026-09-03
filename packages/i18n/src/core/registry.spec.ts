@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import createProvider, { type VendorConfig } from "./registry";
+import createProvider, { isVendorName, VENDOR_NAMES, type VendorConfig } from "./registry";
 import InternalProvider from "./adapters/providers/InternalProvider";
 import TolgeeProvider from "./adapters/providers/TolgeeProvider";
 import { MisconfiguredVendorError, UndefinedVendorError } from "./domain/errors";
@@ -49,5 +49,20 @@ describe("createProvider", () => {
 
         await expect(createProvider(vendor, http)).rejects.toThrow(MisconfiguredVendorError);
         await expect(createProvider(vendor, http)).rejects.toThrow(/project is empty.*baseURL.*options\.token is empty/);
+    });
+});
+
+// The registry drives both the runtime lookup and the config type, so these cannot be allowed to drift
+describe("the registered vendors", () => {
+    it("are the ones the config type offers", () => {
+        expect(VENDOR_NAMES).toEqual(["internal", "tolgee"]);
+    });
+
+    it.each(VENDOR_NAMES)("recognise %s as a vendor name", (name) => {
+        expect(isVendorName(name)).toBe(true);
+    });
+
+    it.each([undefined, "", "  ", "TOLGEE", "tolge", "phrase"])("do not recognise %o", (name) => {
+        expect(isVendorName(name)).toBe(false);
     });
 });

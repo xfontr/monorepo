@@ -11,11 +11,7 @@ const route = useRoute();
 // and a second copy of those bounds is a second place for them to drift
 const page = computed(() => Number(route.query.page ?? 1));
 
-const { data, error, status } = await useAsyncData(
-    () => `articles:${page.value}`,
-    () => listEntries("posts", { page: page.value, perPage: PER_PAGE }),
-    { watch: [page] },
-);
+const { data, error, status } = await listEntries("posts", () => ({ page: page.value, perPage: PER_PAGE }));
 
 function raiseIfMissing(): void {
     if (!error.value) return;

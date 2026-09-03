@@ -4,7 +4,7 @@ import { defineCachedEventHandler, useRuntimeConfig } from "nitropack/runtime";
 import type { CachedEventHandlerOptions } from "nitropack";
 import { ofetch } from "ofetch";
 import createProvider from "#core/registry";
-import type { TranslationsConfig } from "#nuxt/config";
+import { TRANSLATIONS_MAX_AGE, TRANSLATIONS_STALE_MAX_AGE, type TranslationsConfig } from "#nuxt/config";
 import type { TranslationMap } from "#core/domain/translations";
 import { translationsKey } from "#core/translationsKey";
 import { TranslationsError, TranslationsUnavailableError, UndefinedLocaleError } from "#core/domain/errors";
@@ -13,8 +13,8 @@ import { OfetchHttpClient } from "#core/adapters/clients/OfetchHttpClient";
 const cacheOptions: CachedEventHandlerOptions<TranslationMap> = {
     name: "translations",
     group: "i18n",
-    maxAge: 60 * 60,
-    staleMaxAge: 60 * 60 * 24,
+    maxAge: TRANSLATIONS_MAX_AGE,
+    staleMaxAge: TRANSLATIONS_STALE_MAX_AGE,
     getKey,
     shouldBypassCache: () => import.meta.dev === true,
 };

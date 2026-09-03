@@ -5,11 +5,7 @@ const route = useRoute();
 
 const slug = computed(() => String(route.params.slug));
 
-const { data: entry, error, status } = await useAsyncData(
-    () => `article:${slug.value}`,
-    () => getEntry("posts", slug.value),
-    { watch: [slug] },
-);
+const { data: entry, error, status } = await getEntry("posts", () => slug.value);
 
 // The BFF answers a miss with a real 404, so hand it to error.vue instead of printing it inline
 if (error.value) {

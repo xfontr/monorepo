@@ -7,7 +7,6 @@ import {
     NotFoundError,
     UndefinedResourceError,
     UndefinedVendorError,
-    UnsupportedQueryError,
     UpstreamError,
 } from "./errors";
 
@@ -103,15 +102,6 @@ describe("content errors", () => {
         expect(error.statusMessage).toContain("an integer between 1 and 1000");
     });
 
-    // A silently dropped parameter is cached under the value that was asked for, so refusing is the point
-    it("reports a parameter the vendor cannot serve as the caller's fault, naming both", () => {
-        const error = new UnsupportedQueryError("WordPress", "locale");
-
-        expect(error.statusCode).toBe(400);
-        expect(error.statusMessage).toContain("WordPress");
-        expect(error.statusMessage).toContain("locale");
-    });
-
     it("reports a slug that matches nothing as not found", () => {
         const error = new NotFoundError("posts", "hello-world");
 
@@ -130,7 +120,6 @@ describe("every error", () => {
         new MisconfiguredVendorError("WordpressProvider", ["baseURL is not an absolute URL"]),
         new UndefinedResourceError("media", ["posts"]),
         new MalformedQueryError("page", "an integer"),
-        new UnsupportedQueryError("WordPress", "locale"),
         new NotFoundError("posts", "hello-world"),
     ])("is throwable through h3 as $statusCode", (error) => {
         expect(error).toBeInstanceOf(ContentError);

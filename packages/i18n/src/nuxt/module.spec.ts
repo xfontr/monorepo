@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Nuxt } from "@nuxt/schema";
 import type { LocaleObject } from "@nuxtjs/i18n";
 import { TRANSLATIONS_API_PATH } from "./config";
+import { UndefinedVendorError } from "#core/domain/errors";
 import type { VendorConfig } from "#core/registry";
 
 const kit = vi.hoisted(() => ({
@@ -141,5 +142,21 @@ describe("i18n nuxt module", () => {
         await setup({ vendor }, nuxt as unknown as Nuxt);
 
         expect(kit.installModule).toHaveBeenCalledWith("@nuxtjs/i18n");
+    });
+
+    // Failing the build beats throwing on the first request, which is a page nobody is watching
+    describe("when the configured vendor does not exist", () => {
+        it.each([
+            ["an unregistered name", { name: "phrase", baseURL: "https://translations.test/", project: "external" }],
+            ["no name at all", { baseURL: "https://translations.test/", project: "external" }],
+            ["no vendor at all", undefined],
+        ])("fails the build for %s", async (_, broken) => {
+            const nuxt = createNuxt(["en-GB"]);
+            const options = { vendor: broken } as unknown as { vendor: VendorConfig };
+
+            await expect(setup(options, nuxt as unknown as Nuxt)).rejects.toThrow(UndefinedVendorError);
+            await expect(setup(options, nuxt as unknown as Nuxt)).rejects.toThrow(/internal, tolgee/);
+            expect(kit.addServerHandler).not.toHaveBeenCalled();
+        });
     });
 });

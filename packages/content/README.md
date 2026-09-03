@@ -123,8 +123,8 @@ abstract class ContentProvider<T extends object = object> {
     abstract listTerms(resource: TermResource, query?: Query): Promise<Page<Term>>
     protected abstract configProblems(): string[]
 
-    getEntry(resource, slug, locale?): Promise<Entry>   // a one-item list, unless overridden
-    getTerm(resource, slug, locale?): Promise<Term>
+    getEntry(resource, slug): Promise<Entry>   // a one-item list, unless overridden
+    getTerm(resource, slug): Promise<Term>
 }
 ```
 
@@ -213,8 +213,6 @@ Four decisions in there:
   stored — and it bounds the length, which a driver turning it into a filename cares about. The
   cost is that the query half is no longer readable in a cache listing; the vendor and the
   resource still are.
-- **`locale` is in the key from the start**, even though no vendor here serves one yet. A key
-  that gains an axis later serves the wrong language until every entry expires.
 
 The ceilings in the domain — `MAX_PAGE`, `MAX_PER_PAGE`, `MAX_SEARCH_LENGTH` — are contract
 limits, distinct from any vendor's own. They exist so a public route's key space is finite and a
@@ -228,7 +226,6 @@ All of them extend `ContentError`, so one `instanceof` catches anything the pack
 | Error | `statusCode` | Raised when |
 | --- | --- | --- |
 | `MalformedQueryError` | 400 | a query parameter is unparseable or out of range — the message says what was expected |
-| `UnsupportedQueryError` | 400 | the parameter is valid but this vendor cannot serve it (WordPress and `locale`). Refusing beats ignoring: a dropped axis is cached under the value that was asked for |
 | `UndefinedResourceError` | 404 | the request names a resource, or a taxonomy, the domain does not have — the message lists the ones it does |
 | `NotFoundError` | 404 | the vendor answered, with nothing under that slug |
 | `UpstreamError` | 400 / 404 / 502 | the transport failed. A 400 or 404 relays the answer to the request that was actually made; **everything else is a 502**, because an upstream 401 or 403 means *our* credentials are wrong and must never invite the client to retry with different ones |
@@ -255,6 +252,7 @@ Sized for a small monorepo. When it grows:
 | A `title` that is not HTML | `Entry.title` is a bare `string` holding whatever the vendor rendered, so a consumer has to know to `v-html` it while `body` and `excerpt` say so in their own type. Decode entities in the mapper (making it genuinely plain text) or type it `RichText` — the inconsistency is the bug, not the choice |
 | Untrusted authors in the CMS | nothing sanitises the HTML in `body`. That is fine while the CMS is first-party, and a documented assumption rather than an oversight — a vendor whose authors are not trusted needs sanitising where it is rendered |
 | A vendor with more than one document family | `Resource` is two closed unions. A vendor with custom post types needs them opened up, and `TAXONOMIES` in the WordPress adapter is where the mapping between its names and ours already lives |
-| A vendor that actually serves locales | `Query.locale` is in the contract and in the cache key already; WordPress refuses it outright rather than dropping it. A Polylang- or WPML-aware provider maps it to that plugin's `lang` parameter. Bound the axis then: the pattern allows arbitrarily long subtag chains |
+| A vendor that actually serves locales | Nothing here has a locale axis — not `Query`, not the cache key, not the routes. Adding one is a single change across all three, and it has to be: a key that gains an axis *after* entries exist serves the wrong language until every one of them expires. A Polylang- or WPML-aware provider maps it to that plugin's `lang` parameter, and the route validating a tag should bound it — a BCP-47 pattern allows arbitrarily long subtag chains |
+| A query axis one vendor serves and another can't | There is no error for it, because there is no such axis today. Add one — a 400 naming the vendor and the parameter — rather than letting a provider drop the axis: a dropped one is cached under the value that was asked for, which is worse than refusing |
 | Structured content | `RichText` already carries a `blocks` format, so a Contentful or Sanity provider is not a breaking change for consumers |
 | Tracing the upstream call | nothing here emits a span, and it cannot: the boundary rules let `type:content` depend on `type:config` only, and the Nuxt route builds its own transport. Instrument at the Nitro level from the app, or make the client injectable — but only when there is something to swap |
