@@ -14,7 +14,7 @@ this skill exists — a scaffold that forgets step 5 lints clean until someone i
 | --- | --- | --- |
 | `packages/` | Shared product code an app imports | Yes — `nx.json` sets `release.projects: ["packages/*"]` |
 | `apps/` | A user-facing product | No — mark it `"private": true` |
-| `infrastructure/` | A service apps reach **over the network**, deployable on its own | No — mark it `"private": true` |
+| `infrastructure/` | A service apps reach **over the network** (`translations`), or repo-local dev tooling nothing imports (`scripts`) — either way, deployable/runnable on its own | No — mark it `"private": true` |
 
 The directory name is the package name: `packages/foo` → `@monorepo/foo`. Infrastructure is not
 separately namespaced (`infrastructure/translations` → `@monorepo/translations`).
@@ -39,12 +39,14 @@ with two entry points and optional peers. 2-space indent, because pnpm rewrites 
     "lint": "nx eslint:lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest . --watch=false",
-    "test:dev": "vitest ."
+    "test:dev": "vitest .",
+    "test:coverage": "vitest . --watch=false --coverage"
   },
   "nx": { "tags": ["type:<kind>", "scope:<area>"] },
   "devDependencies": {
     "@monorepo/configs": "workspace:*",
     "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
