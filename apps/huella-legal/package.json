@@ -1,5 +1,6 @@
 {
-    "name": "@monorepo/external",
+    "name": "@monorepo/huella-legal",
+    "description": "Huella Legal — a WIP redesign of a law blog",
     "private": true,
     "type": "module",
     "scripts": {
@@ -13,7 +14,7 @@
         "test:coverage": "vitest . --watch=false --coverage"
     },
     "nx": {
-        "tags": ["type:app", "scope:external"]
+        "tags": ["type:app", "scope:huella-legal"]
     },
     "dependencies": {
         "@monorepo/content": "workspace:*",

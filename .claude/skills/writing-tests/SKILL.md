@@ -55,7 +55,7 @@ beforeEach(() => {
 | A cached server route | `nitropack/runtime` + `ofetch` | [`translations.get.spec.ts`](../../../packages/i18n/src/nuxt/runtime/server/translations.get.spec.ts) |
 | A composable | `vi.stubGlobal("$fetch", …)` | [`useContent.spec.ts`](../../../packages/content/src/nuxt/runtime/composables/useContent.spec.ts) |
 | A provider | nothing — inject a fake `HttpClient` through the port | [`TolgeeProvider.spec.ts`](../../../packages/i18n/src/core/adapters/providers/TolgeeProvider.spec.ts) |
-| A Nitro plugin | one `vi.stubGlobal` per Nitro auto-import | [`observability.spec.ts`](../../../apps/external/server/plugins/observability.spec.ts) |
+| A Nitro plugin | one `vi.stubGlobal` per Nitro auto-import | [`observability.spec.ts`](../../../apps/huella-legal/server/plugins/observability.spec.ts) |
 
 A Nitro plugin is the one subject that needs globals rather than module mocks: Nitro auto-imports
 `defineNitroPlugin`, `useRuntimeConfig`, `getRequestHeaders` and the rest at build time, so the file
@@ -88,7 +88,7 @@ pnpm exec nx test @monorepo/<name>
 pnpm exec nx run-many -t test              # the whole workspace
 ```
 
-Every project has a `test` target, `apps/external` included — its `vitest.config.ts` is the same
+Every project has a `test` target, `apps/huella-legal` included — its `vitest.config.ts` is the same
 two-line wrapper, on the node preset, because the only thing specced there is the Nitro plugin. A
 spec for anything under `app/` would need the vue preset and a `vite.config.ts` to merge, which the
 app does not have yet.

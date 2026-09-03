@@ -1,14 +1,14 @@
-# 📦 @monorepo/external
+# 📦 @monorepo/huella-legal
 
-The public-facing Nuxt 4 app. It composes the shared packages (`@monorepo/ui`, `@monorepo/i18n`,
-`@monorepo/content`, `@monorepo/observability`) and keeps its own feature code in
-[layers](#-layers).
+Huella Legal — a work in progress redesigning a law blog. It's a Nuxt 4 app that composes the
+shared packages (`@monorepo/ui`, `@monorepo/i18n`, `@monorepo/content`, `@monorepo/observability`)
+and keeps its own feature code in [layers](#-structure).
 
 ## 🚀 Development
 
 ```sh
-pnpm exec nx serve @monorepo/external   # from anywhere in the workspace
-pnpm dev                                # or from this directory
+pnpm exec nx serve @monorepo/huella-legal   # from anywhere in the workspace
+pnpm dev                                    # or from this directory
 ```
 
 | Command | What it does |
@@ -62,11 +62,11 @@ never reach the browser.
 
 The vendor is currently `tolgee`. The other option is the TMS in
 [`infrastructure/translations`](../../infrastructure/translations), which holds the hand-editable
-locale JSON for the `external` project: run it with `pnpm docker:up`, set `translations.vendor.name`
-to `"internal"` in `nuxt.config.ts`, and point the env at it —
+locale JSON for the `huella-legal` project: run it with `pnpm docker:up`, set
+`translations.vendor.name` to `"internal"` in `nuxt.config.ts`, and point the env at it —
 `NUXT_TRANSLATIONS_VENDOR_BASE_URL=http://localhost:4000/` with
-`NUXT_TRANSLATIONS_VENDOR_PROJECT=external`. `internal` takes no token. Only `name` is a code change:
-it selects the vendor's config type, so it cannot come from the environment.
+`NUXT_TRANSLATIONS_VENDOR_PROJECT=huella-legal`. `internal` takes no token. Only `name` is a code
+change: it selects the vendor's config type, so it cannot come from the environment.
 
 See the [module README](../../packages/i18n/src/nuxt/README.md) for the options and the gotchas.
 

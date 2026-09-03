@@ -42,7 +42,7 @@ vi.mock("@opentelemetry/api", async (importOriginal) => ({
 
 vi.mock("@monorepo/observability/node", () => ({ startNodeTelemetry: telemetry.startNodeTelemetry }));
 
-const APP = { name: "@monorepo/external", version: "1.4.0", environment: "production" };
+const APP = { name: "@monorepo/huella-legal", version: "1.4.0", environment: "production" };
 
 const COLLECTOR = "https://otlp-gateway-prod-eu-west-0.grafana.net/otlp";
 
@@ -63,7 +63,7 @@ vi.stubGlobal("defineNitroPlugin", (plugin: unknown) => plugin);
 vi.stubGlobal("defineEventHandler", (handler: unknown) => handler);
 vi.stubGlobal("useRuntimeConfig", () => runtimeConfig);
 vi.stubGlobal("getRequestHeaders", () => ({ traceparent: TRACEPARENT }));
-vi.stubGlobal("getRequestHost", () => "external.test");
+vi.stubGlobal("getRequestHost", () => "huella-legal.test");
 vi.stubGlobal("getRequestHeader", (_event: unknown, name: string) => (name === "user-agent" ? USER_AGENT : undefined));
 vi.stubGlobal("getRequestIP", () => CLIENT_IP);
 vi.stubGlobal("getResponseStatus", () => responseStatus);
@@ -233,7 +233,7 @@ describe("the nitro observability plugin", () => {
             [ATTR_HTTP_REQUEST_METHOD]: "GET",
             [ATTR_URL_PATH]: "/articles",
             [ATTR_URL_QUERY]: "page=2",
-            [ATTR_SERVER_ADDRESS]: "external.test",
+            [ATTR_SERVER_ADDRESS]: "huella-legal.test",
             [ATTR_USER_AGENT_ORIGINAL]: USER_AGENT,
             [ATTR_CLIENT_ADDRESS]: CLIENT_IP,
         });

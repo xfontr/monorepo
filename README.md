@@ -1,16 +1,16 @@
-# Budget Forecast
+# Monorepo
 
 [![CI](https://github.com/xfontr/monorepo/actions/workflows/ci.yml/badge.svg)](https://github.com/xfontr/monorepo/actions/workflows/ci.yml)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=xfontr_monorepo&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=xfontr_monorepo)
 
-Personal budget forecasting app. A pnpm + Nx monorepo hosting the Nuxt frontend(s), the shared
-packages they build on, and the supporting services they depend on.
+A pnpm + Nx monorepo hosting personal projects: Nuxt frontend(s), the shared packages they build
+on, and the supporting services they depend on.
 
 ## 🗂 Workspace layout
 
 ```
 apps/
-    external/         @monorepo/external — public-facing Nuxt 4 app
+    huella-legal/     @monorepo/huella-legal — Huella Legal, a WIP law blog redesign (Nuxt 4)
 packages/
     configs/          @monorepo/configs — shared ESLint, Vitest and tsconfig presets
     content/          @monorepo/content — CMS entries and taxonomies + a Nuxt module
@@ -41,7 +41,7 @@ Projects are layered with Nx tags (declared in each `package.json` under `nx.tag
 
 | Tag | May depend on | Who has it |
 | --- | --- | --- |
-| `type:app` | `type:feature`, `type:domain`, `type:ui`, `type:i18n`, `type:content`, `type:observability`, `type:config` | `external` |
+| `type:app` | `type:feature`, `type:domain`, `type:ui`, `type:i18n`, `type:content`, `type:observability`, `type:config` | `huella-legal` |
 | `type:feature` | `type:domain`, `type:ui`, `type:i18n`, `type:content`, `type:config` | — |
 | `type:domain` | `type:domain`, `type:config` | — |
 | `type:ui` | `type:ui`, `type:config` | `ui` |
@@ -78,7 +78,7 @@ Requires the Node version in `.nvmrc` and pnpm (version pinned via `packageManag
 ```sh
 pnpm install
 git config core.hooksPath .husky        # git hooks — a fresh clone has none until you do this
-pnpm exec nx serve @monorepo/external   # dev server
+pnpm exec nx serve @monorepo/huella-legal   # dev server
 ```
 
 That second line is not optional and nothing runs it for you. Husky normally installs itself from a
@@ -89,8 +89,8 @@ fire, which looks like a repo with no rules rather than a clone that isn't set u
 
 The app fetches both its translations and its articles over the network at runtime, so it needs
 `NUXT_TRANSLATIONS_VENDOR_*` set before any page renders, and `NUXT_CONTENT_VENDOR_BASE_URL` before
-`/articles` does. See [`apps/external`](./apps/external/README.md) for which vars, and for how to
-serve the translations locally instead.
+`/articles` does. See [`apps/huella-legal`](./apps/huella-legal/README.md) for which vars, and for
+how to serve the translations locally instead.
 
 Every command below runs against **affected** projects only (what changed since `master`), which is
 also what CI runs. For the whole workspace instead, use `pnpm exec nx run-many -t <target>`.

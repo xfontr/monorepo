@@ -4,9 +4,9 @@ The ESLint, Vitest and TypeScript setup for the workspace, in one place. A proje
 file of its own, but that file is a one-liner calling a factory from here — so a rule change lands
 everywhere at once instead of drifting across a copy per project.
 
-Only the ESLint half reaches all of them. `apps/external` and this package have no
+Only the ESLint half reaches all of them. `apps/huella-legal` and this package have no
 `vitest.config.ts` at all, and two projects extend no tsconfig preset: `packages/ui` is a solution
-file whose `tsconfig.app.json` extends `@vue/tsconfig`, and `apps/external` only references the four
+file whose `tsconfig.app.json` extends `@vue/tsconfig`, and `apps/huella-legal` only references the four
 `.nuxt/tsconfig.*.json` Nuxt generates. Both are the framework's own layout rather than drift — but
 worth knowing, because a compiler option added here does not reach either one.
 

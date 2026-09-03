@@ -64,7 +64,7 @@ rejection message: the **type is lower-case** and the **subject is sentence case
 `feat: Add the thing` passes and `feat: add the thing` does not.
 
 The pre-push hook runs lint, test and typecheck on affected projects. CI runs those **plus `build`**,
-so a green push is not yet a green pipeline — `apps/external` typechecks on build, which is where
+so a green push is not yet a green pipeline — `apps/huella-legal` typechecks on build, which is where
 most of that difference shows up. Note also that `husky` has no `prepare` script to install itself,
 because lifecycle scripts are banned here; a fresh clone gets no hooks until `core.hooksPath` is
 pointed at `.husky`.

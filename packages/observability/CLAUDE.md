@@ -15,7 +15,7 @@ The invariants worth losing a build over:
 - **`HttpInstrumentation` is absent on purpose.** It cannot patch `node:http` in this ESM build, and
   under Nitro the module is imported before any server plugin runs. Adding it back buys a dependency
   and a startup warning. The inbound span is the caller's to open — see the hand-rolled wrapper in
-  [`apps/external/server/plugins/observability.ts`](../../apps/external/server/plugins/observability.ts).
+  [`apps/huella-legal/server/plugins/observability.ts`](../../apps/huella-legal/server/plugins/observability.ts).
 - Config is whatever Faro and the OpenTelemetry SDK take. There is no validation layer here, so an
   unset collector URL is the caller's job to check — which is how both halves no-op in local dev.
   Keep that property when adding instrumentation.

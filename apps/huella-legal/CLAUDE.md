@@ -1,4 +1,4 @@
-# 🤖 @monorepo/external
+# 🤖 @monorepo/huella-legal
 
 See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry setup.
 

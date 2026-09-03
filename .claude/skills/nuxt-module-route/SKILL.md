@@ -144,7 +144,7 @@ leave the other alone.
 
 ```sh
 pnpm exec nx run-many -t lint typecheck test --projects @monorepo/content
-pnpm exec nx serve @monorepo/external      # the route only exists once a real app registers the module
+pnpm exec nx serve @monorepo/huella-legal  # the route only exists once a real app registers the module
 ```
 
 A route that 404s in the app but passes its spec is almost always step 3 — the handler was written
