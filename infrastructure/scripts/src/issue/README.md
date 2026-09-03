@@ -21,8 +21,8 @@ exits `1`. Ctrl+C at any prompt exits without creating an issue or touching the 
 index.ts     dispatch on argv[2] — add | pick
 add.ts       the filing flow
 pick.ts      the pick-an-issue-and-branch flow
-gh.ts        the gh calls — repo owner, projects, labels, open issues, create
-git.ts       the git calls — find a branch for an issue, checkout, create
+gh.ts        the gh calls — repo owner, projects, labels, open issues, create, develop branch
+git.ts       the git calls — find a branch for an issue, checkout
 branch.ts    slug and branch-name building, the only real logic here
 cache.ts     the 24h file cache wrapped around gh.ts's projects and labels calls
 prompts.ts   orExit, shared by both flows
@@ -66,7 +66,11 @@ number and hand-type a branch name.
 | Resume | Only if a branch for that issue already exists — *yes* checks it out and stops here |
 | Branch type | `feature`, `fix`, `hotfix`, `release` |
 | Branch title | Free text, pre-filled with the issue title; slugified, so edit it down to something short |
-| — | `git checkout -b <type>/<number>-<slug>`, then `gh issue edit --add-assignee @me` |
+| — | `gh issue develop <number> --name <type>/<number>-<slug> --checkout`, then `gh issue edit --add-assignee @me` |
+
+`gh issue develop` over `git checkout -b`: the branch it creates is linked on the issue's
+Development panel, the same link the "Create a branch" button on the issue would give you, and a
+branch name alone — however it's formatted — never gets you.
 
 The issue URL sits in the select's hint so the terminal can turn it into a link — that's the "let me
 read the ticket before I commit to it" escape hatch, and the reason the prompt shows nothing else
@@ -77,7 +81,7 @@ about the issue.
 `feature/28-set-up-main-layouts`. The prefix satisfies the `^(hotfix|fix|feature|release)/.+` gate
 in [`.husky/pre-push`](../../../../.husky/pre-push), and the number immediately after the slash is
 what `branchForIssue` in `git.ts` matches on. That lookup is why picking the same issue twice offers
-the existing branch instead of dying on `git checkout -b`. Renaming a branch by hand to drop the
+the existing branch instead of dying on `gh issue develop`'s "branch already exists". Renaming a branch by hand to drop the
 number costs you the resume, nothing else.
 
 Answering *no* to the resume prompt still creates a new branch — a `fix/` on top of a `feature/` for
@@ -156,6 +160,6 @@ scope, but a read-only collaborator still can't self-assign. That path warns and
 | `pick` moving the issue to *In Progress* | `gh project item-edit`, which needs the item id and the field id — the two things `listIssues` deliberately doesn't fetch. It would belong next to the assignment, and fail the same way: warn, keep the branch |
 | Assigning someone other than yourself | `--add-assignee` takes any login, but then it needs a prompt fed by `gh api repos/{owner}/{repo}/assignees`; `@me` exists so this doesn't |
 | Hiding issues already assigned to someone else | `listIssues` would fetch `assignees` and filter — worth it on a shared board, pointless on a solo one |
-| Branching from something other than the current HEAD | `createBranch` takes a start point and `pick` prompts for it, or defaults to `master`; today it branches from wherever you're standing |
+| Branching from something other than the default branch | `developBranch` takes a `--base`, and `pick` prompts for it; today `gh issue develop` always bases off the repo's default branch. That's also the one thing lost versus plain `git checkout -b`: stacking a `fix/` branch on an unpushed `feature/` branch no longer works, because `--base` names a *remote* branch |
 | A dirty working tree when `pick` runs | `git checkout -b` carries the changes over silently, which is usually what you want; a `git status --porcelain` guard would be the alternative |
 | Choosing a repo other than the one you're in | `gh` infers it from the working directory today; every call would need `--repo` and a prompt to feed it |

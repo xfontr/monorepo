@@ -40,16 +40,9 @@ export { Button, Card };
 
 ## What must not go in here
 
-`@monorepo/ui` is tagged `type:ui`, which may depend only on other `type:ui` projects and on
-`@monorepo/configs`. That is enforced by `@nx/enforce-module-boundaries`, and it is what keeps this
-a component library:
-
-- No store, no Pinia, no `useFetch`, no data fetching of any kind.
-- No translations — a component takes its strings as props.
-- No app-specific business rules or feature flags.
-
-Anything needing those belongs in an app layer (`apps/huella-legal/app/layers/<domain>`) instead. If a
-component "needs" a store, the prop it should have taken is the thing to find.
+The boundary rule is in [README.md](../../../README.md#-boundaries) (`type:ui`, enforced by
+`@nx/enforce-module-boundaries`) — this skill doesn't restate it. If a component "needs" a store, a
+fetch, or a translation, the prop it should have taken is the thing to find instead.
 
 ## Verify
 

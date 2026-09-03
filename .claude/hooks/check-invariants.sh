@@ -51,7 +51,8 @@ case "$rel" in
         ;;
 esac
 
-# A package.json git has never seen means a new project, and step 5 of new-package is the one skipped
+# A package.json git has never seen means a new project, and step 5 of new-package is the one skipped.
+# One it has seen before gets a different check: `version` is nx release's alone to move
 case "$rel" in
     packages/*/package.json|apps/*/package.json|infrastructure/*/package.json)
         if ! git -C "$root" ls-files --error-unmatch "$rel" >/dev/null 2>&1; then
@@ -60,6 +61,39 @@ case "$rel" in
             echo "  2. depConstraints in packages/configs/src/eslint/lib/boundaries.ts, plus the tag" >&2
             echo "     added to every consumer's onlyDependOnLibsWithTags" >&2
             echo "  3. the tag table and the workspace-layout block in README.md" >&2
+            exit 2
+        fi
+
+        old_version=$(git -C "$root" show "HEAD:$rel" 2>/dev/null | jq -r '.version // empty')
+        new_version=$(jq -r '.version // empty' "$file" 2>/dev/null)
+        if [ -n "$old_version" ] && [ "$old_version" != "$new_version" ]; then
+            echo "$rel's version moved from $old_version to $new_version by hand." >&2
+            echo "nx release derives version from Conventional Commits — never hand-edit it, here or" >&2
+            echo "in any CHANGELOG.md." >&2
+            exit 2
+        fi
+        ;;
+esac
+
+# "Never write a real endpoint, URL, token or instance ID into the repo" (CLAUDE.md).A blanket https?://
+# grep isn't the fix — it fires on "$schema" in settings.json/nx.json,
+# on tsconfig.json's doc-link comment, and on every *.spec.ts that hardcodes a fake vendor URL as a
+# fixture (that's the norm here, not the violation) — so this skips specs/stories, comments, $schema
+# and localhost, and looks only at the source/config a real endpoint would actually land in
+case "$rel" in
+    *.spec.ts|*.spec.vue|*.stories.ts)
+        ;;
+    *.ts|*.vue|*.json)
+        hit=$(grep -nE 'https?://' "$file" 2>/dev/null \
+            | grep -viE '://localhost' \
+            | grep -vE '"\$schema"' \
+            | grep -vE '^[0-9]+:[[:space:]]*(//|/\*|\*)' \
+            | head -1)
+
+        if [ -n "$hit" ]; then
+            echo "$rel: $hit" >&2
+            echo "Endpoints, tokens and instance IDs are env vars with no default (CLAUDE.md)." >&2
+            echo "Add the name to .env.example and read the value at runtime instead." >&2
             exit 2
         fi
         ;;
