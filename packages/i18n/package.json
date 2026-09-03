@@ -21,7 +21,8 @@
     "lint": "nx eslint:lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest . --watch=false",
-    "test:dev": "vitest ."
+    "test:dev": "vitest .",
+    "test:coverage": "vitest . --watch=false --coverage"
   },
   "nx": {
     "tags": [
@@ -59,6 +60,7 @@
     "@nuxt/schema": "^4.5.0",
     "@nuxtjs/i18n": "catalog:",
     "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
     "h3": "^1.15.11",
     "nitropack": "^2.13.4",

@@ -36,6 +36,13 @@ compilation your build already does is the same compilation the tests get. It al
 happy-dom. Both presets report coverage in `text`, `html`, `clover`, `json` and `lcov` — the wide
 spread is there so external coverage tooling can pick a format it understands.
 
+Coverage is collected on `test:coverage`, a separate script from `test`, so the pre-push hook and CI's
+default run stay on the fast, uninstrumented path. A consuming project needs `@vitest/coverage-v8`
+in its own `devDependencies` (`catalog:`) — the provider is a peer of `vitest`, not a transitive
+dependency of this package. Both presets also declare an explicit `include`: v8 otherwise only
+instruments files a test actually imported, so an untested file would vanish from the report instead
+of counting as 0%.
+
 **TypeScript** — `tsconfig.json`:
 
 ```json
