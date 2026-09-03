@@ -54,6 +54,53 @@ fi
 success "Branch name is valid"
 
 # =========================
+# Flagged comments (TODO/FIXME)
+# =========================
+# Diffs only the commits being pushed, never the working tree: grepping the tree would fail
+# every push forever the moment one TODO exists anywhere. git hands this hook one
+# "local_ref local_sha remote_ref remote_sha" line per ref on stdin —
+# see https://git-scm.com/docs/githooks#_pre_push.
+
+echo ""
+info "Scanning pushed commits for TODO/FIXME..."
+
+ZERO_SHA="0000000000000000000000000000000000000000"
+EMPTY_TREE_SHA="4b825dc642cb6eb9a060e54bf8d69288fbee4904" # every repo has it; the base for a branch's first push
+FLAGGED=""
+
+while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
+  if [ "$LOCAL_SHA" = "$ZERO_SHA" ]; then
+    continue # deleting a branch pushes nothing to scan
+  fi
+
+  BASE="$REMOTE_SHA"
+  if [ "$REMOTE_SHA" = "$ZERO_SHA" ]; then
+    BASE="$EMPTY_TREE_SHA"
+  fi
+
+  HITS=$(git diff "$BASE".."$LOCAL_SHA" | awk '
+    /^\+\+\+ b\// { file = substr($0, 7); next }
+    /^\+/ && /TODO|FIXME/ { print "  " file ":  " substr($0, 2) }
+  ')
+
+  FLAGGED="$FLAGGED$HITS"
+done
+
+if [ -n "$FLAGGED" ]; then
+  echo ""
+  error "Push blocked: TODO/FIXME comments aren't allowed in pushed code"
+  echo "$FLAGGED"
+  echo ""
+  echo "File each one as an issue, then remove the comment:"
+  echo ""
+  echo "  pnpm issue:add"
+  echo ""
+  exit 1
+fi
+
+success "No flagged comments found"
+
+# =========================
 # Run checks
 # =========================
 

@@ -1,1 +1,27 @@
-npx commitlint --edit $1
+#!/bin/sh
+
+MSG_FILE="$1"
+
+# =========================
+# Ticket number injection
+# =========================
+# `pnpm issue:pick` names branches <type>/<number>-<slug> (see branch.ts). Thread that
+# number into the subject as "type: [NUMBER] description" so every commit carries its
+# ticket without anyone typing it by hand. No number on the branch -> leave the message alone.
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+NUMBER=$(echo "$BRANCH" | grep -Eo "^(hotfix|fix|feature|release)/[0-9]+" | grep -Eo "[0-9]+$")
+
+if [ -n "$NUMBER" ]; then
+  FIRST_LINE=$(head -n 1 "$MSG_FILE")
+  # The optional "(\[$NUMBER\] )?" group swallows a tag already there, so re-running on
+  # an amend (same branch, same number) is a no-op instead of stacking "[25] [25] ...".
+  TAGGED_LINE=$(echo "$FIRST_LINE" | sed -E "s/^([a-z]+(\([^)]+\))?!?): (\[$NUMBER\] )?(.*)\$/\1: [$NUMBER] \4/")
+
+  if [ "$TAGGED_LINE" != "$FIRST_LINE" ]; then
+    REST=$(tail -n +2 "$MSG_FILE")
+    printf '%s\n%s\n' "$TAGGED_LINE" "$REST" > "$MSG_FILE"
+  fi
+fi
+
+npx commitlint --edit "$MSG_FILE"
