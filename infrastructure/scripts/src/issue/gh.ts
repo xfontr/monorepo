@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { cached } from "./cache.ts";
 
 const gh = (...args: string[]): string => execFileSync("gh", args, { encoding: "utf8" }).trim();
 
@@ -35,7 +36,7 @@ const repoOwner = (): string => gh("repo", "view", "--json", "owner", "--jq", ".
  * OAuth scope, which a plain `gh auth login` doesn't grant. Swallowing that is deliberate —
  * missing the scope should cost you the project prompt, not the whole issue.
  */
-export const listProjects = (): Project[] => {
+export const listProjects = (): Project[] => cached("projects", () => {
     try {
         const { projects } = JSON.parse(gh("project", "list", "--owner", repoOwner(), "--format", "json")) as {
             projects: (Project & { closed: boolean })[]
@@ -46,9 +47,10 @@ export const listProjects = (): Project[] => {
     catch {
         return [];
     }
-};
+});
 
-export const listLabels = (): Label[] => JSON.parse(gh("label", "list", "--json", "name,description")) as Label[];
+export const listLabels = (): Label[] => cached("labels", () =>
+    JSON.parse(gh("label", "list", "--json", "name,description")) as Label[]);
 
 /**
  * The repo's open issues that sit on the given project. Filtering client-side off

@@ -8,6 +8,8 @@ back apart means duplicating all three.
 ```sh
 pnpm issue:add     # node src/issue/index.ts add
 pnpm issue:pick    # node src/issue/index.ts pick
+
+pnpm issue:add --refresh   # skip the 24h project/label cache for this run
 ```
 
 `index.ts` is a dispatcher and nothing else; an unknown or missing subcommand prints the usage and
@@ -22,6 +24,7 @@ pick.ts      the pick-an-issue-and-branch flow
 gh.ts        the gh calls — repo owner, projects, labels, open issues, create
 git.ts       the git calls — find a branch for an issue, checkout, create
 branch.ts    slug and branch-name building, the only real logic here
+cache.ts     the 24h file cache wrapped around gh.ts's projects and labels calls
 prompts.ts   orExit, shared by both flows
 ```
 
@@ -98,10 +101,33 @@ on top of the `gh project list` call already made. `gh issue list --json project
 open-only by definition, and the project filter is a `some()` on the result. It caps at 100 issues,
 which is roughly 90 more than this board will ever hold.
 
+## 🗄 Caching projects and labels
+
+Both flows ask `gh` for the same two things — open projects, repo labels — and both change on the
+order of quarters, not per run. [`cache.ts`](./cache.ts) wraps `listProjects` and `listLabels` in a
+24h file cache at `node_modules/.cache/@monorepo/scripts/`, so most runs skip both `gh` round trips
+entirely. It sits under `node_modules` on purpose: already gitignored, already per-clone, and a
+`pnpm install` clears it for free without another invalidation path to maintain.
+
+`listIssues` is deliberately not cached — that one is read fresh every `pick`, because a stale
+answer there is the one thing this script exists to avoid.
+
+`--refresh` on either command bypasses the read and overwrites the file, for the one time a day the
+24h window is wrong (a project just got created, a label just got renamed):
+
+```sh
+pnpm issue:pick --refresh
+```
+
+A cache write failing (read-only `node_modules`, no space) only costs you the cache, the same
+fail-open stance the missing `project` scope already gets in `listProjects` — see
+[`gh.ts`](./gh.ts).
+
 ## ✅ Tests
 
-[`branch.spec.ts`](./branch.spec.ts) covers `slugify` and `branchName` — the only thing in this
-folder that isn't a prompt or a subprocess call, per
+[`branch.spec.ts`](./branch.spec.ts) covers `slugify` and `branchName`, and
+[`cache.spec.ts`](./cache.spec.ts) covers the TTL and the `--refresh` bypass — the two things in
+this folder that aren't a prompt or a subprocess call, per
 [`writing-tests`](../../../../.claude/skills/writing-tests/SKILL.md).
 
 ## 🔑 Requirements
