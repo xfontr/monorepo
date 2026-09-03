@@ -71,6 +71,11 @@ types even in a package that otherwise doesn't.
 - `@nx/enforce-module-boundaries` — the layering rules. [`lib/boundaries.ts`](./src/eslint/lib/boundaries.ts)
   is the enforced copy; the readable one is the tag table in the
   [root README](../../README.md#-architecture--boundaries). Change both, or they drift
+- `no-restricted-imports` under `**/src/core/**`, from
+  [`lib/coreIsolation.ts`](./src/eslint/lib/coreIsolation.ts) — the framework-agnostic half of a
+  package may not import `@nuxt/*`, `@nuxtjs/*`, `nitropack`, `h3` or `#nuxt/*`. That invariant is
+  stated in the `content` and `i18n` CLAUDE.md files, and the tag rule above cannot reach it: it
+  reasons about project-to-project edges, never subpaths inside one project
 
 The shared pieces live in [`src/eslint/lib`](./src/eslint/lib) and are composed by
 [`node.ts`](./src/eslint/node.ts) and [`vue.ts`](./src/eslint/vue.ts). If you're adding a rule for
