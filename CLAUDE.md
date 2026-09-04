@@ -98,4 +98,5 @@ history table in that directory's README.
 | `repo-review` | Rating, scoring or auditing the repo as a whole — the seven cards in [`docs/reviews/SCORECARDS.md`](./docs/reviews/SCORECARDS.md), not the current diff |
 | `content:new-vendor` | Adding a CMS vendor to `@monorepo/content` |
 | `i18n:new-vendor` | Adding a TMS vendor to `@monorepo/i18n` |
+| `scripts:new-script` | Adding a repo-local CLI under `infrastructure/scripts` |
 | `ui:new-component` | Adding a component to `@monorepo/ui` |

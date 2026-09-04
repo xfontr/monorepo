@@ -1,16 +1,8 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import { run } from "../shared/exec.ts";
-import type { Doc, ProjectScripts } from "./capabilities.ts";
-
-/**
- * `pnpm docs:map` runs with cwd set to this package's directory (`pnpm --filter` changes into it
- * first), so every path here resolves against the repo root explicitly — same reason
- * [`drift/git.ts`](../drift/git.ts) does it.
- */
-export const REPO_ROOT = run("git", ["rev-parse", "--show-toplevel"]);
-
-const at = (...parts: string[]): string => join(REPO_ROOT, ...parts);
+import { at, repoRoot } from "../../shared/adapters/git.ts";
+import { PROJECT_ROOTS } from "../../shared/domain/layout.ts";
+import type { Doc, ProjectScripts } from "../domain/capabilities.ts";
 
 const read = (path: string): string => readFileSync(path, "utf8");
 
@@ -42,9 +34,6 @@ const filesIn = (path: string): string[] => {
         return [];
     }
 };
-
-/** The three directories every project in this repo lives directly under — see the `new-package` skill. */
-const PROJECT_ROOTS = ["packages", "apps", "infrastructure"];
 
 export const rootScripts = (): string[] => scriptNames(readJson(at("package.json")));
 
@@ -113,7 +102,7 @@ const walkMarkdown = (dir: string, found: string[] = []): string[] => {
             walkMarkdown(join(dir, entry.name), found);
         }
         else if (entry.isFile() && entry.name.endsWith(".md")) {
-            found.push(relative(REPO_ROOT, join(dir, entry.name)));
+            found.push(relative(repoRoot(), join(dir, entry.name)));
         }
     }
     return found;
@@ -128,7 +117,7 @@ export const MAP_PATH = "docs/FEATURES.md";
  * not to explain it; and the map itself lists every capability, so it would document all of them.
  */
 export const docs = (): Doc[] =>
-    walkMarkdown(REPO_ROOT)
+    walkMarkdown(repoRoot())
         .filter(
             (path) =>
                 !path.endsWith("CHANGELOG.md") && !path.startsWith("docs/reviews/") && path !== MAP_PATH,

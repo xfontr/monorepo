@@ -6,7 +6,7 @@ Two subcommands over `gh`, either side of the same tracker: `add` files an issue
 because they share the project prompt, the cancel handling, and now that direct call between them —
 splitting them back apart means duplicating both. The `gh` wrapper, the file cache and the cancel
 helper itself moved out to [`../shared/`](../shared/) once [`drift/`](../drift/README.md) needed
-them too; `issue/gh.ts` still holds everything genuinely specific to filing and picking issues
+them too; `issue/adapters/gh.ts` still holds everything genuinely specific to filing and picking issues
 (`listProjects`, `listLabels`, `listIssues`, `assignToMe`, `developBranch`).
 
 ```sh
@@ -22,17 +22,21 @@ exits `1`. Ctrl+C at any prompt exits without creating an issue or touching the 
 ## 🗂 Structure
 
 ```
-index.ts     dispatch on argv[2] — add | pick
-add.ts       the filing flow, offering a pick when it finishes on master
-pick.ts      the pick-an-issue-and-branch flow, cache-backed when gh is unreachable
-gh.ts        the issue-specific gh calls — repo owner, connectivity, projects, labels, open issues, assign, develop branch
-git.ts       the git calls — current branch, find a branch for an issue, checkout
-branch.ts    slug and branch-name building, the only real logic here
+index.ts               hands { add, pick } to run(), which dispatches on the first argument
+add.ts                 the filing flow, offering a pick when it finishes on master
+pick.ts                the pick-an-issue-and-branch flow, cache-backed when gh is unreachable
+adapters/gh.ts         repo owner, connectivity, projects, labels, open issues, assign, develop branch
+adapters/git.ts        current branch, find a branch for an issue, checkout
+adapters/prompts.ts    this folder's prompt vocabulary — the option lists, the none option, the missing-scope hint
+domain/branch.ts       slug and branch-name building, the only real logic here
 ```
 
-`gh.ts`'s own `gh()` wrapper and `createIssue`, the file cache, and `orExit` now live in
-[`../shared/`](../shared/) — see that folder's note in the
-[top-level README](../../README.md#-adding-a-script) for why.
+This is the one folder with two commands, so it's also the one where `index.ts` passes a record
+rather than a single `main` — an unknown or missing subcommand prints the usage on stderr and exits
+1, which `run` does for every script rather than each one hand-rolling it.
+
+`gh.ts`'s own `gh()` wrapper and `createIssue`, the file cache, `orExit`, the output surface and
+`git()` itself live in [`../shared/`](../shared/README.md) — see that folder's README for why.
 
 ## 🚀 `pnpm issue:add`
 
@@ -95,7 +99,7 @@ about the issue.
 
 `pick` tries the normal, cache-backed path first — free when the 24h project cache is still warm,
 since `cached()` never touches the network on a hit, same as `issue:add`'s project prompt. The
-`gh api rate_limit` round trip (`isOnline` in [`gh.ts`](./gh.ts)) only runs when that comes back
+`gh api rate_limit` round trip (`isOnline` in [`gh.ts`](./adapters/gh.ts)) only runs when that comes back
 empty, to tell "gh is actually unreachable" apart from `listProjects` swallowing a missing `project`
 scope to mean something unrelated — paying for that probe only when there's an empty result to
 explain, instead of on every run. A confirmed-offline project stage prints a warning and switches
@@ -138,7 +142,7 @@ which is roughly 90 more than this board will ever hold.
 
 ## 🗄 Caching projects, labels and issues
 
-Projects and labels change on the order of quarters, not per run. [`../shared/cache.ts`](../shared/cache.ts)
+Projects and labels change on the order of quarters, not per run. [`../shared/adapters/cache.ts`](../shared/adapters/cache.ts)
 wraps `listProjects` and `listLabels` in a 24h file cache at `node_modules/.cache/@monorepo/scripts/`, so
 most runs skip both `gh` round trips entirely. It sits under `node_modules` on purpose: already
 gitignored, already per-clone, and a `pnpm install` clears it for free without another invalidation
@@ -159,13 +163,13 @@ pnpm issue:pick --refresh
 
 A cache write failing (read-only `node_modules`, no space) only costs you the cache, the same
 fail-open stance the missing `project` scope already gets in `listProjects` — see
-[`gh.ts`](./gh.ts).
+[`gh.ts`](./adapters/gh.ts).
 
 ## ✅ Tests
 
-[`branch.spec.ts`](./branch.spec.ts) covers `slugify` and `branchName` — the only real logic left in
+[`domain/branch.spec.ts`](./domain/branch.spec.ts) covers `slugify` and `branchName` — the only real logic left in
 this folder, per [`writing-tests`](../../../../.claude/skills/writing-tests/SKILL.md).
-[`../shared/cache.spec.ts`](../shared/cache.spec.ts) covers the TTL and `--refresh` bypass in
+[`../shared/adapters/cache.spec.ts`](../shared/adapters/cache.spec.ts) covers the TTL and `--refresh` bypass in
 `cached`, plus the TTL-free reads and writes in `readCache`/`writeCache`. `isOnline` and the offline
 branches of `listProjects`/`listIssues` are `gh` calls and cache reads respectively, both already
 covered by the functions underneath them, so they get no spec of their own.
