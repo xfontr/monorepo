@@ -101,6 +101,20 @@ fi
 success "No flagged comments found"
 
 # =========================
+# Docs drift heuristic
+# =========================
+# A nudge, not a gate — never fails the push. $BASE/$LOCAL_SHA are whatever the loop above last
+# set, so this reuses the exact range being pushed instead of recomputing a merge-base. Skipped on
+# a branch deletion (no LOCAL_SHA) and left to print-and-return on a non-interactive push, inside
+# the script itself, since there's nobody here to answer its prompt.
+
+if [ -n "$LOCAL_SHA" ] && [ "$LOCAL_SHA" != "$ZERO_SHA" ]; then
+  echo ""
+  info "Checking for possible docs drift..."
+  DOCS_DRIFT_BASE="$BASE" DOCS_DRIFT_HEAD="$LOCAL_SHA" pnpm docs:drift || true
+fi
+
+# =========================
 # Run checks
 # =========================
 

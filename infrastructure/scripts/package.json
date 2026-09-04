@@ -9,6 +9,7 @@
   "scripts": {
     "issue:add": "node src/issue/index.ts add",
     "issue:pick": "node src/issue/index.ts pick",
+    "docs:drift": "node src/drift/index.ts",
     "lint": "nx eslint:lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest . --watch=false --passWithNoTests",

@@ -1,8 +1,8 @@
 import { confirm, intro, log, note, outro, select, spinner, text } from "@clack/prompts";
+import { orExit } from "../shared/prompts.ts";
 import { branchName, BRANCH_TYPES, slugify } from "./branch.ts";
 import { branchForIssue, checkout } from "./git.ts";
 import { assignToMe, developBranch, isOnline, listIssues, listProjects, type Issue } from "./gh.ts";
-import { orExit } from "./prompts.ts";
 
 const CANCELLED = "Cancelled — still on the same branch.";
 

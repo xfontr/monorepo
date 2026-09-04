@@ -121,6 +121,9 @@ also what CI runs. For the whole workspace instead, use `pnpm exec nx run-many -
   way: pick an open issue off a project board and it creates and checks out
   `<type>/<issue number>-<slug>` for you and assigns you the issue, which is where the branch names
   in this repo come from.
+- The hook also runs [`pnpm docs:drift`](./infrastructure/scripts/src/drift/README.md), which never
+  fails the push: it warns when a changed project's docs look stale or the change is big, and offers
+  to file an issue.
 - Opening a PR from a branch that convention built triggers
   [`pr-metadata.yml`](./.github/workflows/pr-metadata.yml): it reads the issue number back out of
   the branch name and copies that issue's title, assignees and project onto the PR, so a PR never
