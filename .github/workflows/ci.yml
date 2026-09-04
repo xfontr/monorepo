@@ -30,3 +30,8 @@ jobs:
                   main-branch-name: master
 
             - run: pnpm exec nx affected -t lint typecheck test build
+
+            # Not an Nx target and deliberately not `affected`: the map indexes every project at
+            # once, so "nothing changed here" is never a reason to skip it. Adding a script, hook,
+            # workflow or skill without re-rendering fails this step.
+            - run: pnpm docs:map --check

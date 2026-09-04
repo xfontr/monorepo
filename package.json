@@ -18,6 +18,7 @@
         "issue:add": "pnpm --filter @monorepo/scripts run issue:add",
         "issue:pick": "pnpm --filter @monorepo/scripts run issue:pick",
         "docs:drift": "pnpm --filter @monorepo/scripts run docs:drift",
+        "docs:map": "pnpm --filter @monorepo/scripts run docs:map",
         "release": "nx release --skip-publish",
         "release:dry": "nx release --skip-publish --dry-run"
     },

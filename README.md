@@ -28,7 +28,13 @@ pipeline and isn't user-facing either: services an app talks to over the network
 imports (translations), and repo-local dev tooling that isn't imported by anything at all
 (scripts) — both `private: true`, each usable on its own. Note that `@monorepo/content` does *not*
 belong here: it is a client for a CMS, and the CMS it talks to is hosted elsewhere.
-Every project has its own README; start there for anything specific to it.
+Every project has its own README; start there for anything specific to it, and at
+[`docs/`](./docs/README.md) for anything that spans projects — including
+[`docs/FEATURES.md`](./docs/FEATURES.md), the generated index of every command, hook, workflow and
+skill in the repo, which is the shortest answer to "what is in here".
+[`docs/concepts/`](./docs/concepts/README.md) holds the *why* behind a model that spans projects —
+the boundary table above is one; [`docs/guides/`](./docs/guides/README.md) holds the cross-project
+procedures, first hour in the repo included.
 [`docs/spikes/`](./docs/spikes/README.md) holds the answer once a spike issue gets one — the
 issue is where the question lived, not where the outcome should have to survive.
 [`docs/reviews/`](./docs/reviews/README.md) scores the whole tree against a fixed rubric, one dated
@@ -100,8 +106,10 @@ also what CI runs. For the whole workspace instead, use `pnpm exec nx run-many -
 | `pnpm lint` | Lint affected projects |
 | `pnpm typecheck` | Typecheck affected projects |
 | `pnpm test` | Test affected projects |
+| `pnpm test:coverage` | Test affected projects with a V8 coverage report |
 | `pnpm build` | Build affected projects |
 | `pnpm graph` | Open the Nx project graph |
+| `pnpm docs:map` | Re-render [`docs/FEATURES.md`](./docs/FEATURES.md); `--check` asserts it is current |
 | `pnpm release:dry` | Preview a release (versioning + changelogs) |
 
 ## 🌿 Git conventions
@@ -112,6 +120,11 @@ also what CI runs. For the whole workspace instead, use `pnpm exec nx run-many -
   commitlint), with two extra rules from
   [`commitlint.config.mjs`](./commitlint.config.mjs): the type is lower-case and the subject is
   sentence-case, so `feat: add thing` is rejected and `feat: Add thing` is not.
+- The [`commit-msg`](./.husky/commit-msg) hook reads the issue number back out of the branch name
+  and rewrites the subject to carry it, so `feat: Add thing` on `feature/50-slug` is committed as
+  `feat: [50] Add thing`. Nobody types the tag, and re-running on an amend is a no-op instead of
+  stacking a second one; a branch with no number in it is left alone. This is why the log here is
+  number-first without anyone maintaining that.
 - The pre-push hook runs `lint`, `test` and `typecheck` on affected projects, and rejects a push
   that adds a `TODO`/`FIXME` comment. It diffs only the commits being pushed, so a marker already
   in the tree never blocks you; the rejection points at
@@ -148,5 +161,6 @@ Versions and changelogs are derived from commit messages by `nx release` — no 
 - Current versions come from git tags (`<projectName>@<version>`), falling back to `package.json`.
 - Packages depending on a bumped package get a patch bump and a "Updated Dependencies" entry.
 
-Run the **Release** workflow (`workflow_dispatch`) to cut versions. Leave `dry-run` on to preview;
+Run the **Release** workflow ([`release.yml`](./.github/workflows/release.yml), `workflow_dispatch`)
+to cut versions. Leave `dry-run` on to preview;
 tick `first-release` only when a project has no git tag yet. Locally: `pnpm release:dry`.

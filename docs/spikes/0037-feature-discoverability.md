@@ -55,10 +55,20 @@ where it lives, which doc explains it, and nothing else. The *why* stays in the 
 the map has no hand-written column to clobber on the next render. It enumerates what already
 declares the surface: each `package.json`'s `scripts` and `nx.tags`, `.github/workflows/`,
 `.husky/*` and `.claude/skills/*`, from a new folder under
-[`infrastructure/scripts/src/`](../../infrastructure/scripts/README.md#-adding-a-script). Wired into
-the `docs:check` gate 0040 adopted, its second assertion — every capability resolves to a doc that
-mentions it — fails today on the `commit-msg` injection, on `pnpm test:coverage`, on Storybook in
-`packages/ui` and on the skills corpus, none of which the root README mentions at all.
+[`infrastructure/scripts/src/`](../../infrastructure/scripts/README.md#-adding-a-script).
+
+Implementing it settled one thing this record had wrong. The intended check was two assertions —
+the map matches its render, *and* every capability resolves to a doc — but the second one has to be
+a column rather than a gate: `pnpm release` is undocumented deliberately, because releases run from
+the Release workflow and never locally, and a gate demanding a doc for it demands the wrong thing.
+So [`docs:map --check`](../../infrastructure/scripts/src/map/README.md) asserts the exact match
+only, and a `—` row stays visible for a human to judge. The forcing function survives intact: a new
+script, hook, workflow or skill changes the render and fails CI until the map is regenerated.
+
+The first render found four capabilities no doc mentioned — the `commit-msg` subject rewriting,
+`pnpm test:coverage`, the `Release` workflow file and the `doc-drift-check` skill, which was missing
+from the root `CLAUDE.md` skills table. All four were closed by writing into the doc that should
+have had them, not into a new file, which is the behaviour the rule below is meant to produce.
 
 AI carries the extraction and the audit on all three: enumerating the surface, diffing a render
 against what is checked in, and reporting which cross-project subject has no doc.
