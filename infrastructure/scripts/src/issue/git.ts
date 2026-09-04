@@ -13,3 +13,5 @@ export const branchForIssue = (issue: number): string | undefined =>
         .find((name) => new RegExp(`^[^/]+/${issue}-`).test(name));
 
 export const checkout = (branch: string): void => void git("checkout", branch);
+
+export const currentBranch = (): string => git("branch", "--show-current");

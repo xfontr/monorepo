@@ -1,5 +1,7 @@
-import { cancel, confirm, intro, log, note, outro, select, spinner, text } from "@clack/prompts";
+import { cancel, confirm, intro, isCancel, log, note, outro, select, spinner, text } from "@clack/prompts";
 import { createIssue, listLabels, listProjects, type Label, type Project } from "./gh.ts";
+import { currentBranch } from "./git.ts";
+import { pick } from "./pick.ts";
 import { NONE, orExit } from "./prompts.ts";
 
 const CANCELLED = "Cancelled — no issue created.";
@@ -84,4 +86,20 @@ export const add = async (): Promise<void> => {
         creating.stop("gh issue create failed.");
         throw error;
     }
+
+    await offerPick();
+};
+
+/**
+ * Filing an issue from `master` is the moment you're most likely about to start work on one — so
+ * ask, and if yes, hand off to the same `pick` this exports for `pnpm issue:pick`, instead of
+ * making that a separate command to remember to run.
+ */
+const offerPick = async (): Promise<void> => {
+    if (currentBranch() !== "master") return;
+
+    const wantsPick = await confirm({ message: "You're on master — pick an issue now?" });
+    if (isCancel(wantsPick) || !wantsPick) return;
+
+    await pick();
 };

@@ -42,3 +42,31 @@ export const cached = <T>(key: string, fetch: () => T): T => {
 
     return data;
 };
+
+/**
+ * The read half of `cached`, minus the TTL gate: offline mode wants whatever's on disk, however
+ * old, instead of `cached`'s fresh-or-nothing answer — there's no fetch to fall back to.
+ */
+export const readCache = <T>(key: string): T | undefined => {
+    try {
+        return (JSON.parse(readFileSync(pathFor(key), "utf8")) as { data: T }).data;
+    }
+    catch {
+        return undefined;
+    }
+};
+
+/**
+ * The write half, exported on its own for callers that need to update the cache on every run
+ * rather than only on a TTL miss — `listIssues` does, because a stale issue list is the one
+ * answer this whole flow exists to avoid.
+ */
+export const writeCache = <T>(key: string, data: T): void => {
+    try {
+        mkdirSync(dirname(pathFor(key)), { recursive: true });
+        writeFileSync(pathFor(key), JSON.stringify({ fetchedAt: Date.now(), data }));
+    }
+    catch {
+        // Same fail-open stance as `cached`'s write.
+    }
+};

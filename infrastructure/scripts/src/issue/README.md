@@ -1,9 +1,10 @@
 # 📝 issue
 
 Two subcommands over `gh`, either side of the same tracker: `add` files an issue from the terminal,
-`pick` takes one off a project board and puts you on a branch for it. They live in one folder
-because they share the project prompt, the cancel handling and the `gh` wrapper — splitting them
-back apart means duplicating all three.
+`pick` takes one off a project board and puts you on a branch for it — and, once `add` succeeds from
+`master`, calls `pick` directly instead of telling you to run it separately. They live in one folder
+because they share the project prompt, the cancel handling, the `gh` wrapper, and now that direct
+call between them — splitting them back apart means duplicating all four.
 
 ```sh
 pnpm issue:add     # node src/issue/index.ts add
@@ -19,12 +20,12 @@ exits `1`. Ctrl+C at any prompt exits without creating an issue or touching the 
 
 ```
 index.ts     dispatch on argv[2] — add | pick
-add.ts       the filing flow
-pick.ts      the pick-an-issue-and-branch flow
-gh.ts        the gh calls — repo owner, projects, labels, open issues, create, develop branch
-git.ts       the git calls — find a branch for an issue, checkout
+add.ts       the filing flow, offering a pick when it finishes on master
+pick.ts      the pick-an-issue-and-branch flow, cache-backed when gh is unreachable
+gh.ts        the gh calls — repo owner, connectivity, projects, labels, open issues, create, develop branch
+git.ts       the git calls — current branch, find a branch for an issue, checkout
 branch.ts    slug and branch-name building, the only real logic here
-cache.ts     the 24h file cache wrapped around gh.ts's projects and labels calls
+cache.ts     the file cache backing gh.ts's projects, labels and issues calls
 prompts.ts   orExit, shared by both flows
 ```
 
@@ -42,6 +43,15 @@ GitHub afterwards.
 | Description | Free text, required — one line, becomes the whole issue body |
 | Draft | Shows title, body, label and project |
 | Confirm | *No* cancels and files nothing; *yes* runs `gh issue create` and prints the issue URL |
+| Pick? | Only asked if you're now on `master` — *yes* runs `pick` in-process, same as `pnpm issue:pick` |
+
+### 🪝 Filing from `master` offers a pick
+
+The issue most worth filing from `master` is the one you're about to start — so once `gh issue
+create` succeeds, `offerPick` in [`add.ts`](./add.ts) checks `currentBranch()` and, if it's
+`master`, asks. *Yes* calls the same `pick` this package exports for `pnpm issue:pick` directly,
+rather than telling you to run it yourself as a second command. The check runs after the issue is
+already filed, so a `No` or a cancelled prompt here never costs you the issue — only the branch.
 
 ### 📐 No template
 
@@ -76,6 +86,16 @@ The issue URL sits in the select's hint so the terminal can turn it into a link 
 read the ticket before I commit to it" escape hatch, and the reason the prompt shows nothing else
 about the issue.
 
+### 📴 Falling back to cache when `gh` is unreachable
+
+`pick` opens with one `gh api rate_limit` round trip (`isOnline` in [`gh.ts`](./gh.ts)), not a read
+of `listProjects`'s own failure — that one already swallows a missing `project` scope to mean
+something unrelated, so offline needed a signal of its own. A failed round trip prints a warning and
+switches `listProjects` and `listIssues` to reading the file cache directly, however old it is,
+instead of paying for a `gh` call already known to fail. `developBranch` and the assignment still go
+over the network same as ever, so an offline pick gets you as far as choosing a branch name and then
+fails there if `gh` is still unreachable — the fallback is for browsing, not for filing offline.
+
 ### 🔢 Why the number comes first
 
 `feature/28-set-up-main-layouts`. The prefix satisfies the `^(hotfix|fix|feature|release)/.+` gate
@@ -105,16 +125,19 @@ on top of the `gh project list` call already made. `gh issue list --json project
 open-only by definition, and the project filter is a `some()` on the result. It caps at 100 issues,
 which is roughly 90 more than this board will ever hold.
 
-## 🗄 Caching projects and labels
+## 🗄 Caching projects, labels and issues
 
-Both flows ask `gh` for the same two things — open projects, repo labels — and both change on the
-order of quarters, not per run. [`cache.ts`](./cache.ts) wraps `listProjects` and `listLabels` in a
-24h file cache at `node_modules/.cache/@monorepo/scripts/`, so most runs skip both `gh` round trips
-entirely. It sits under `node_modules` on purpose: already gitignored, already per-clone, and a
-`pnpm install` clears it for free without another invalidation path to maintain.
+Projects and labels change on the order of quarters, not per run. [`cache.ts`](./cache.ts) wraps
+`listProjects` and `listLabels` in a 24h file cache at `node_modules/.cache/@monorepo/scripts/`, so
+most runs skip both `gh` round trips entirely. It sits under `node_modules` on purpose: already
+gitignored, already per-clone, and a `pnpm install` clears it for free without another invalidation
+path to maintain.
 
-`listIssues` is deliberately not cached — that one is read fresh every `pick`, because a stale
-answer there is the one thing this script exists to avoid.
+`listIssues` is a different shape of caching, not that TTL: a stale issue list is the one answer
+this script exists to avoid, so online it fetches and overwrites the cache on *every* `pick`, no
+24h gate at all. The cache exists purely for offline mode — the one case where there's no fresh
+fetch to prefer over it, `cache.ts`'s `readCache`/`writeCache` skip the TTL check entirely and hand
+back whatever's on disk, however old.
 
 `--refresh` on either command bypasses the read and overwrites the file, for the one time a day the
 24h window is wrong (a project just got created, a label just got renamed):
@@ -130,9 +153,12 @@ fail-open stance the missing `project` scope already gets in `listProjects` — 
 ## ✅ Tests
 
 [`branch.spec.ts`](./branch.spec.ts) covers `slugify` and `branchName`, and
-[`cache.spec.ts`](./cache.spec.ts) covers the TTL and the `--refresh` bypass — the two things in
-this folder that aren't a prompt or a subprocess call, per
-[`writing-tests`](../../../../.claude/skills/writing-tests/SKILL.md).
+[`cache.spec.ts`](./cache.spec.ts) covers the TTL and `--refresh` bypass in `cached`, plus the
+TTL-free reads and writes in `readCache`/`writeCache` — the things in this folder that aren't a
+prompt or a subprocess call, per
+[`writing-tests`](../../../../.claude/skills/writing-tests/SKILL.md). `isOnline` and the offline
+branches of `listProjects`/`listIssues` are `gh` calls and cache reads respectively, both already
+covered by the functions underneath them, so they get no spec of their own.
 
 ## 🔑 Requirements
 
@@ -163,3 +189,5 @@ scope, but a read-only collaborator still can't self-assign. That path warns and
 | Branching from something other than the default branch | `developBranch` takes a `--base`, and `pick` prompts for it; today `gh issue develop` always bases off the repo's default branch. That's also the one thing lost versus plain `git checkout -b`: stacking a `fix/` branch on an unpushed `feature/` branch no longer works, because `--base` names a *remote* branch |
 | A dirty working tree when `pick` runs | `git checkout -b` carries the changes over silently, which is usually what you want; a `git status --porcelain` guard would be the alternative |
 | Choosing a repo other than the one you're in | `gh` infers it from the working directory today; every call would need `--repo` and a prompt to feed it |
+| A default branch other than `master` | `offerPick` in `add.ts` checks `currentBranch() === "master"` literally, matching this repo; a `gh repo view --json defaultBranchRef` call would replace the literal if this ever runs somewhere else |
+| Filing an issue while offline | `createIssue` still needs a live `gh`; the offline fallback only covers browsing cached projects and issues in `pick`, not `add` |

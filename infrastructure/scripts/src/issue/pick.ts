@@ -1,21 +1,23 @@
 import { confirm, intro, log, note, outro, select, spinner, text } from "@clack/prompts";
 import { branchName, BRANCH_TYPES, slugify } from "./branch.ts";
 import { branchForIssue, checkout } from "./git.ts";
-import { assignToMe, developBranch, listIssues, listProjects, type Issue } from "./gh.ts";
+import { assignToMe, developBranch, isOnline, listIssues, listProjects, type Issue } from "./gh.ts";
 import { orExit } from "./prompts.ts";
 
 const CANCELLED = "Cancelled — still on the same branch.";
 
 const or = <T>(value: T | symbol): T => orExit(value, CANCELLED);
 
-const pickProject = async (): Promise<string | undefined> => {
+const pickProject = async (offline: boolean): Promise<string | undefined> => {
     const loading = spinner();
-    loading.start("Asking gh what's available...");
-    const projects = listProjects();
+    loading.start(offline ? "Reading cached projects..." : "Asking gh what's available...");
+    const projects = listProjects(offline);
     loading.stop("Ready.");
 
     if (projects.length === 0) {
-        log.warn("No open projects. If you expected some, the `project` scope is missing: gh auth refresh -s project");
+        log.warn(offline
+            ? "No cached projects to fall back to — run pick again once you're back online."
+            : "No open projects. If you expected some, the `project` scope is missing: gh auth refresh -s project");
         return undefined;
     }
 
@@ -27,10 +29,10 @@ const pickProject = async (): Promise<string | undefined> => {
     );
 };
 
-const pickIssue = async (project: string): Promise<Issue | undefined> => {
+const pickIssue = async (project: string, offline: boolean): Promise<Issue | undefined> => {
     const loading = spinner();
-    loading.start(`Reading ${project}...`);
-    const issues = listIssues(project);
+    loading.start(offline ? `Reading cached issues for ${project}...` : `Reading ${project}...`);
+    const issues = listIssues(project, offline);
     loading.stop(`${issues.length} open issue${issues.length === 1 ? "" : "s"}.`);
 
     if (issues.length === 0) return undefined;
@@ -103,10 +105,13 @@ const promptBranch = async (issue: Issue): Promise<string> => {
 export const pick = async (): Promise<void> => {
     intro("🌱 Pick an issue");
 
-    const project = await pickProject();
+    const offline = !isOnline();
+    if (offline) log.warn("gh is unreachable — showing cached projects and issues, which may be outdated.");
+
+    const project = await pickProject(offline);
     if (!project) return;
 
-    const issue = await pickIssue(project);
+    const issue = await pickIssue(project, offline);
 
     if (!issue) {
         log.warn("Nothing open on that project. `pnpm issue:add` fixes that.");
