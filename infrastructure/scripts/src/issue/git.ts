@@ -1,6 +1,4 @@
-import { run } from "../shared/exec.ts";
-
-const git = (...args: string[]): string => run("git", args);
+import { git } from "../shared/git.ts";
 
 /**
  * The first local branch already named after this issue, if any. Branch names start with the issue

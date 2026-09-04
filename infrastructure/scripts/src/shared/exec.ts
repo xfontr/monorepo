@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
+import { ExpectedError } from "./errors.ts";
 
 /**
  * `execFileSync` never spawns a shell, so args can't smuggle in shell metacharacters — but a bare
@@ -27,7 +28,7 @@ export const run = (command: string, args: string[]): string =>
  */
 export const assertNotFlagLike = (value: string, field: string): string => {
     if (value.startsWith("-")) {
-        throw new Error(`${field} can't start with "-" — gh would read it as a flag, not a value: "${value}"`);
+        throw new ExpectedError(`${field} can't start with "-" — gh would read it as a flag, not a value: "${value}"`);
     }
     return value;
 };

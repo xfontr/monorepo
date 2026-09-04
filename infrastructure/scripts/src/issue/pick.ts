@@ -1,8 +1,10 @@
-import { confirm, intro, log, note, outro, select, spinner, text } from "@clack/prompts";
+import { confirm, select, text } from "@clack/prompts";
+import { out } from "../shared/io.ts";
 import { orExit } from "../shared/prompts.ts";
 import { branchName, BRANCH_TYPES, slugify } from "./branch.ts";
 import { branchForIssue, checkout } from "./git.ts";
 import { assignToMe, developBranch, isOnline, listIssues, listProjects, type Issue } from "./gh.ts";
+import { projectOptions, PROJECT_SCOPE_HINT } from "./prompts.ts";
 
 const CANCELLED = "Cancelled — still on the same branch.";
 
@@ -21,7 +23,7 @@ type Picked<T> = {
  * That keeps the common case — online, warm cache — as instant as `issue:add`'s project prompt.
  */
 const pickProject = async (): Promise<Picked<string>> => {
-    const loading = spinner();
+    const loading = out.spinner();
     loading.start("Asking gh what's available...");
 
     let projects = listProjects();
@@ -34,19 +36,19 @@ const pickProject = async (): Promise<Picked<string>> => {
     }
 
     loading.stop("Ready.");
-    if (offline) log.warn("gh is unreachable — showing cached projects and issues, which may be outdated.");
+    if (offline) out.warn("gh is unreachable — showing cached projects and issues, which may be outdated.");
 
     if (projects.length === 0) {
-        log.warn(offline
+        out.warn(offline
             ? "No cached projects to fall back to — run pick again once you're back online."
-            : "No open projects. If you expected some, the `project` scope is missing: gh auth refresh -s project");
+            : PROJECT_SCOPE_HINT);
         return { value: undefined, offline };
     }
 
     const value = or(
         await select({
             message: "Project",
-            options: projects.map(({ title }) => ({ value: title, label: title })),
+            options: projectOptions(projects),
         }),
     );
 
@@ -61,7 +63,7 @@ const pickProject = async (): Promise<Picked<string>> => {
  * `isOnline()` round trip on every run.
  */
 const pickIssue = async (project: string, knownOffline: boolean): Promise<Issue | undefined> => {
-    const loading = spinner();
+    const loading = out.spinner();
     loading.start(knownOffline ? `Reading cached issues for ${project}...` : `Reading ${project}...`);
 
     let issues: Issue[];
@@ -99,10 +101,10 @@ const pickIssue = async (project: string, knownOffline: boolean): Promise<Issue 
 const assign = (issue: number): void => {
     try {
         assignToMe(issue);
-        log.success(`#${issue} assigned to you.`);
+        out.success(`#${issue} assigned to you.`);
     }
     catch {
-        log.warn(`Couldn't assign #${issue} to you — the branch is still yours.`);
+        out.warn(`Couldn't assign #${issue} to you — the branch is still yours.`);
     }
 };
 
@@ -118,7 +120,7 @@ const resumeBranch = async (issue: number): Promise<boolean> => {
 
     checkout(existing);
     assign(issue);
-    outro(existing);
+    out.end(existing);
 
     return true;
 };
@@ -143,7 +145,7 @@ const promptBranch = async (issue: Issue): Promise<string> => {
 };
 
 export const pick = async (): Promise<void> => {
-    intro("🌱 Pick an issue");
+    out.begin("🌱 Pick an issue");
 
     const { value: project, offline } = await pickProject();
     if (!project) return;
@@ -151,22 +153,22 @@ export const pick = async (): Promise<void> => {
     const issue = await pickIssue(project, offline);
 
     if (!issue) {
-        log.warn("Nothing open on that project. `pnpm issue:add` fixes that.");
+        out.warn("Nothing open on that project. `pnpm issue:add` fixes that.");
         return;
     }
 
     if (await resumeBranch(issue.number)) return;
 
     const branch = await promptBranch(issue);
-    note(issue.url, branch);
+    out.note(issue.url, branch);
 
     try {
         developBranch(issue.number, branch);
         assign(issue.number);
-        outro(branch);
+        out.end(branch);
     }
     catch (error) {
-        log.error("gh issue develop failed.");
+        out.error("gh issue develop failed.");
         throw error;
     }
 };

@@ -1,7 +1,5 @@
 import { createHash } from "node:crypto";
-
-/** Every project in this repo lives directly under one of these three — see the `new-package` skill. */
-export const PROJECT_ROOTS = ["packages", "apps", "infrastructure"];
+import { PROJECT_ROOTS } from "../shared/layout.ts";
 
 /**
  * A file at the repo root (README.md, CLAUDE.md, package.json) maps to no project, which is

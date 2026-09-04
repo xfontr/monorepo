@@ -16,9 +16,13 @@ answered "what is in here". See
 ```
 capabilities.ts   what counts as a capability, and which doc explains one — pure
 render.ts         capabilities + docs → the markdown — pure
-read.ts           the filesystem and git side
-index.ts          entry point, and --check
+files.ts          the filesystem and git side
+main.ts           render, then write it or assert it with --check
+index.ts          entry point: hands main to run()
 ```
+
+The `--check` contract below is unchanged by that split — it still exits 1 on a stale map and 0 on
+a current one, only now through the exit convention every script here shares.
 
 ## 🔍 What it finds
 

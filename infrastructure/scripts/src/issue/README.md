@@ -22,17 +22,21 @@ exits `1`. Ctrl+C at any prompt exits without creating an issue or touching the 
 ## 🗂 Structure
 
 ```
-index.ts     dispatch on argv[2] — add | pick
-add.ts       the filing flow, offering a pick when it finishes on master
-pick.ts      the pick-an-issue-and-branch flow, cache-backed when gh is unreachable
+branch.ts    slug and branch-name building, the only real logic here, and pure
 gh.ts        the issue-specific gh calls — repo owner, connectivity, projects, labels, open issues, assign, develop branch
 git.ts       the git calls — current branch, find a branch for an issue, checkout
-branch.ts    slug and branch-name building, the only real logic here
+prompts.ts   this folder's prompt vocabulary: the option lists, the none option, the missing-scope hint
+add.ts       the filing flow, offering a pick when it finishes on master
+pick.ts      the pick-an-issue-and-branch flow, cache-backed when gh is unreachable
+index.ts     entry point: hands { add, pick } to run(), which dispatches on the first argument
 ```
 
-`gh.ts`'s own `gh()` wrapper and `createIssue`, the file cache, and `orExit` now live in
-[`../shared/`](../shared/) — see that folder's note in the
-[top-level README](../../README.md#-adding-a-script) for why.
+This is the one folder with two commands, so it's also the one where `index.ts` passes a record
+rather than a single `main` — an unknown or missing subcommand prints the usage on stderr and exits
+1, which `run` does for every script rather than each one hand-rolling it.
+
+`gh.ts`'s own `gh()` wrapper and `createIssue`, the file cache, `orExit`, the output surface and
+`git()` itself live in [`../shared/`](../shared/README.md) — see that folder's README for why.
 
 ## 🚀 `pnpm issue:add`
 

@@ -3,10 +3,10 @@ import type { ProjectTarget } from "./discover.ts";
 
 const TARGET = "test:coverage";
 
-interface NxProject {
-    root: string;
-    targets: Record<string, { outputs?: string[] }>;
-}
+type NxProject = {
+    root: string
+    targets: Record<string, { outputs?: string[] }>
+};
 
 /**
  * Nx, not a glob, is the source of truth for what to merge — see the spike. Reading each project's

@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
-import process from "node:process";
+import { flag } from "./cli.ts";
 
 const CACHE_DIR = "node_modules/.cache/@monorepo/scripts";
 // A day, not a session: labels and projects change on the order of quarters, so this is a
@@ -9,8 +9,9 @@ const TTL_MS = 24 * 60 * 60 * 1000;
 
 const pathFor = (key: string): string => `${CACHE_DIR}/${key}.json`;
 
-// Read once per process rather than per call, so nothing downstream has to thread the flag through.
-const refreshRequested = process.argv.includes("--refresh");
+// Read per call rather than at module load — nothing downstream has to thread the flag through,
+// and importing this module no longer decides the answer before the command has even started.
+const refreshRequested = (): boolean => flag("refresh");
 
 /**
  * Wraps a `gh` call that barely ever changes (projects, labels) in a 24h file cache, keyed by
@@ -20,7 +21,7 @@ const refreshRequested = process.argv.includes("--refresh");
 export const cached = <T>(key: string, fetch: () => T): T => {
     const file = pathFor(key);
 
-    if (!refreshRequested) {
+    if (!refreshRequested()) {
         try {
             const { fetchedAt, data } = JSON.parse(readFileSync(file, "utf8")) as { fetchedAt: number, data: T };
             if (Date.now() - fetchedAt < TTL_MS) return data;

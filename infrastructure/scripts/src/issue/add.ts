@@ -1,9 +1,11 @@
-import { cancel, confirm, intro, isCancel, log, note, outro, select, spinner, text } from "@clack/prompts";
+import { confirm, isCancel, select, text } from "@clack/prompts";
 import { createIssue } from "../shared/gh.ts";
-import { NONE, orExit } from "../shared/prompts.ts";
+import { out } from "../shared/io.ts";
+import { orExit } from "../shared/prompts.ts";
 import { listLabels, listProjects, type Label, type Project } from "./gh.ts";
 import { currentBranch } from "./git.ts";
 import { pick } from "./pick.ts";
+import { labelOptions, NONE_OPTION, PROJECT_SCOPE_HINT, projectOptions } from "./prompts.ts";
 
 const CANCELLED = "Cancelled — no issue created.";
 
@@ -11,17 +13,14 @@ const or = <T>(value: T | symbol): T => orExit(value, CANCELLED);
 
 const pickProject = async (projects: Project[]): Promise<string | undefined> => {
     if (projects.length === 0) {
-        log.warn("No open projects. If you expected some, the `project` scope is missing: gh auth refresh -s project");
+        out.warn(PROJECT_SCOPE_HINT);
         return undefined;
     }
 
     const picked = or(
         await select({
             message: "Project",
-            options: [
-                ...projects.map(({ title }) => ({ value: title, label: title })),
-                { value: NONE, label: "— none —" },
-            ],
+            options: [...projectOptions(projects), NONE_OPTION],
         }),
     );
 
@@ -32,10 +31,7 @@ const pickLabel = async (labels: Label[]): Promise<string | undefined> => {
     const picked = or(
         await select({
             message: "Label",
-            options: [
-                ...labels.map(({ name, description }) => ({ value: name, label: name, hint: description || undefined })),
-                { value: NONE, label: "— none —" },
-            ],
+            options: [...labelOptions(labels), NONE_OPTION],
         }),
     );
 
@@ -43,9 +39,9 @@ const pickLabel = async (labels: Label[]): Promise<string | undefined> => {
 };
 
 export const add = async (): Promise<void> => {
-    intro("📝 Add an issue");
+    out.begin("📝 Add an issue");
 
-    const loading = spinner();
+    const loading = out.spinner();
     loading.start("Asking gh what's available...");
     const projects = listProjects();
     const labels = listLabels();
@@ -68,20 +64,20 @@ export const add = async (): Promise<void> => {
         }),
     );
 
-    note(`${body}\n\nlabel: ${label ?? "—"}\nproject: ${project ?? "—"}`, title);
+    out.note(`${body}\n\nlabel: ${label ?? "—"}\nproject: ${project ?? "—"}`, title);
 
     if (!or(await confirm({ message: "Create it?" }))) {
-        cancel(CANCELLED);
+        out.cancelled(CANCELLED);
         return;
     }
 
-    const creating = spinner();
+    const creating = out.spinner();
     creating.start("Creating...");
 
     try {
         const url = createIssue({ title: title.trim(), body: body.trim(), label, project });
         creating.stop("Created.");
-        outro(url);
+        out.end(url);
     }
     catch (error) {
         creating.stop("gh issue create failed.");

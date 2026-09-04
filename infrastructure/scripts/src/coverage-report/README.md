@@ -15,7 +15,9 @@ this is a script on top of Istanbul's own libraries rather than the `nyc` CLI or
 discover.ts   nx's project + output shape → the coverage-final.json path per project — pure
 merge.ts      loaded reports → one CoverageMap, refusing a partial merge — pure
 nx.ts         asks nx which projects declare test:coverage, and where each writes its output
-index.ts      entry point: reads the files discover.ts names, merges, renders the HTML
+files.ts      reads one coverage-final.json off disk
+main.ts       loads the files discover.ts names, merges them, renders the HTML
+index.ts      entry point: hands main to run()
 ```
 
 ## ✅ What it refuses to do
@@ -23,7 +25,9 @@ index.ts      entry point: reads the files discover.ts names, merges, renders th
 Render a partial report. `nx.ts` asks Nx, not a glob, for the project list — `nx show projects
 --with-target test:coverage` — so an eighth project is picked up automatically. If any of those
 projects has no `coverage-final.json` on disk, `merge.ts`'s `assertComplete` throws naming it
-instead of rendering a report that's quietly missing a project. That's also why the root script
+instead of rendering a report that's quietly missing a project. It throws an `ExpectedError`, so
+what you get is that one line and exit 1 — the message already says to run `run-many`, and a stack
+trace above it would only bury the instruction. That's also why the root script
 runs `run-many`, never `affected`: a merge built from affected-only projects is the same silent gap
 from the other direction.
 
