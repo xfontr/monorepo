@@ -93,13 +93,19 @@ about the issue.
 
 ### 📴 Falling back to cache when `gh` is unreachable
 
-`pick` opens with one `gh api rate_limit` round trip (`isOnline` in [`gh.ts`](./gh.ts)), not a read
-of `listProjects`'s own failure — that one already swallows a missing `project` scope to mean
-something unrelated, so offline needed a signal of its own. A failed round trip prints a warning and
-switches `listProjects` and `listIssues` to reading the file cache directly, however old it is,
-instead of paying for a `gh` call already known to fail. `developBranch` and the assignment still go
-over the network same as ever, so an offline pick gets you as far as choosing a branch name and then
-fails there if `gh` is still unreachable — the fallback is for browsing, not for filing offline.
+`pick` tries the normal, cache-backed path first — free when the 24h project cache is still warm,
+since `cached()` never touches the network on a hit, same as `issue:add`'s project prompt. The
+`gh api rate_limit` round trip (`isOnline` in [`gh.ts`](./gh.ts)) only runs when that comes back
+empty, to tell "gh is actually unreachable" apart from `listProjects` swallowing a missing `project`
+scope to mean something unrelated — paying for that probe only when there's an empty result to
+explain, instead of on every run. A confirmed-offline project stage prints a warning and switches
+`listProjects` to reading the file cache directly, however old it is. `listIssues` is deliberately
+uncached online, though, so a warm project cache can leave the project stage never checking
+connectivity at all — `pickIssue` in [`pick.ts`](./pick.ts) covers that by trying the live fetch
+first and only falling back to the issue cache if that call actually throws. `developBranch` and the
+assignment still go over the network same as ever, so an offline pick gets you as far as choosing a
+branch name and then fails there if `gh` is still unreachable — the fallback is for browsing, not
+for filing offline.
 
 ### 🔢 Why the number comes first
 
