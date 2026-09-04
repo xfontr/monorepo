@@ -1,6 +1,6 @@
-import { execFileSync } from "node:child_process";
+import { assertNotFlagLike, run } from "./exec.ts";
 
-export const gh = (...args: string[]): string => execFileSync("gh", args, { encoding: "utf8" }).trim();
+export const gh = (...args: string[]): string => run("gh", args);
 
 export type NewIssue = {
     title: string
@@ -19,9 +19,9 @@ export const createIssue = ({ title, body, label, project }: NewIssue): string =
         "issue",
         "create",
         "--title",
-        title,
+        assertNotFlagLike(title, "title"),
         "--body",
-        body,
-        ...(label ? ["--label", label] : []),
-        ...(project ? ["--project", project] : []),
+        assertNotFlagLike(body, "body"),
+        ...(label ? ["--label", assertNotFlagLike(label, "label")] : []),
+        ...(project ? ["--project", assertNotFlagLike(project, "project")] : []),
     );

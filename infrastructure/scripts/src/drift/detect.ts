@@ -26,8 +26,10 @@ export const hasRename = (nameStatus: string[]): boolean =>
     nameStatus.some((line) => line.startsWith("R"));
 
 // A stable digest of a project's diff, so a second push with nothing new for that project reads
-// as "already warned" instead of nagging on every push until the docs actually get touched.
-export const fingerprint = (diff: string): string => createHash("sha1").update(diff).digest("hex");
+// as "already warned" instead of nagging on every push until the docs actually get touched. Not a
+// security use — collisions just mean a re-warn — but sha256 costs nothing extra here and avoids
+// flagging sha1 as a weak-hash finding for no reason.
+export const fingerprint = (diff: string): string => createHash("sha256").update(diff).digest("hex");
 
 // ~4 months: long enough that a package under active, well-documented development never trips it.
 export const STALE_DOCS_MS = 120 * 24 * 60 * 60 * 1000;

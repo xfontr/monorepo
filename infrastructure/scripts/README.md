@@ -13,7 +13,7 @@ src/
   issue/    pnpm issue:add | issue:pick — file a GitHub issue, or branch off one
   drift/    pnpm docs:drift — warn when a project's docs may be stale, offer to file an issue
   map/      pnpm docs:map — render docs/FEATURES.md, the index of everything this repo can do
-  shared/   gh.ts, cache.ts, prompts.ts — the pieces issue/ and drift/ both need
+  shared/   gh.ts, exec.ts, cache.ts, prompts.ts — the pieces issue/, drift/ and map/ all need
 ```
 
 | Script | Command | What it's for |
@@ -47,9 +47,10 @@ invocations — a spec can only assert those against a mock of itself. The excep
 real logic — a parser, a diff, a mapping — goes in its own file and gets a spec, per
 [`writing-tests`](../../.claude/skills/writing-tests/SKILL.md). Today that's
 [`issue/branch.ts`](./src/issue/branch.ts), which turns a typed title into a ref name,
-[`drift/detect.ts`](./src/drift/detect.ts), which turns a diff into a warn/don't-warn decision, and
+[`drift/detect.ts`](./src/drift/detect.ts), which turns a diff into a warn/don't-warn decision,
 [`map/capabilities.ts`](./src/map/capabilities.ts), which decides what counts as a capability and
-which doc explains one.
+which doc explains one, and [`shared/exec.ts`](./src/shared/exec.ts), which rejects a `gh`/`git`
+argument that would be read as a flag instead of the value it's supposed to be.
 
 ## 🔑 Requirements
 

@@ -1,6 +1,6 @@
-import { execFileSync } from "node:child_process";
+import { run } from "../shared/exec.ts";
 
-const git = (...args: string[]): string => execFileSync("git", args, { encoding: "utf8" }).trim();
+const git = (...args: string[]): string => run("git", args);
 
 /**
  * `pnpm docs:drift` runs with cwd set to this package's own directory (`pnpm --filter` changes

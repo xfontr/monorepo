@@ -1,6 +1,6 @@
-import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { run } from "../shared/exec.ts";
 import type { Doc, ProjectScripts } from "./capabilities.ts";
 
 /**
@@ -8,7 +8,7 @@ import type { Doc, ProjectScripts } from "./capabilities.ts";
  * first), so every path here resolves against the repo root explicitly — same reason
  * [`drift/git.ts`](../drift/git.ts) does it.
  */
-export const REPO_ROOT = execFileSync("git", ["rev-parse", "--show-toplevel"], { encoding: "utf8" }).trim();
+export const REPO_ROOT = run("git", ["rev-parse", "--show-toplevel"]);
 
 const at = (...parts: string[]): string => join(REPO_ROOT, ...parts);
 
