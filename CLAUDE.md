@@ -88,7 +88,7 @@ history table in that directory's README.
 | `house-docs` | Writing or editing any markdown |
 | `github-issue` | Filing an issue *for* the user — the three templates. They file their own with `pnpm issue:add`, which is deliberately template-free |
 | `start-issue` | Starting work on a specific issue — from the branch you're on, or from a number, link or description |
-| `spike-report` | A spike issue is resolved and the outcome needs to outlive the issue |
+| `spike-report` | "Do a spike on this" — research an architectural question and write the answer to `docs/spikes/`. Filing the *issue* is `github-issue` |
 | `repo-review` | Rating, scoring or auditing the repo as a whole — the seven cards in [`docs/reviews/SCORECARDS.md`](./docs/reviews/SCORECARDS.md), not the current diff |
 | `content:new-vendor` | Adding a CMS vendor to `@monorepo/content` |
 | `i18n:new-vendor` | Adding a TMS vendor to `@monorepo/i18n` |

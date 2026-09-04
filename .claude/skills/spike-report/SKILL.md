@@ -1,32 +1,65 @@
 ---
 name: spike-report
-description: Write up a resolved spike as a spike report under docs/spikes/. Use when a spike issue has its answer and the outcome needs to survive after the issue closes.
+description: Investigate an architectural question against this repo and write the answer up as a spike report under docs/spikes/. Use on "do a spike on this", "spike this", "write a spike" or "add a spike report" — and when a spike issue gets resolved and the outcome needs to survive after the issue closes. Filing a GitHub spike issue is the `github-issue` skill, not this one.
 ---
 
 # Writing a spike report
 
-A spike issue holds the question; `docs/spikes/` holds the answer. This skill turns a resolved
-spike into a spike report.
+A spike is a question that has to get answered before work can start. The question may live in a
+GitHub issue or may have come straight out of a conversation; either way the answer belongs in
+`docs/spikes/`, because an issue thread is unsearchable outside `gh` and gone from context the
+moment it closes.
 
-## 1. Gather what the spike settled
+**"Do a spike" means research plus a file.** It does not mean filing an issue — that's the
+`github-issue` skill, and the user will say so ("open a spike issue") when that's what they want.
+It also doesn't mean answering in chat: the response is the file, and a summary in the terminal is
+a courtesy on top of it, not a substitute.
 
-Read the issue for its framing — reuse it rather than re-deriving it:
+## 1. Answer the question first
+
+Usually nobody has done the investigation — do it now, against the actual repo, before writing a
+line of the report. Two failure modes to avoid:
+
+- **Don't argue from what a repo like this usually does.** Every claim in the report has to come
+  from a file you read. `grep` for the thing you're about to assert is undocumented; check the
+  boundary table before saying a new project fits somewhere; read the hook before describing what
+  it enforces. A report full of plausible generalities is worse than no report, because the next
+  person trusts it.
+- **Don't stop at the framing you were handed.** The useful spike result is often that the question
+  was the wrong shape — a content problem that's really a navigation problem, a build decision
+  that's really a boundary decision. Say so, then answer the question that's actually load-bearing.
+
+If a spike issue exists, read it for the framing rather than re-deriving it — its
+`Decision needed` / `Question` fields (see the `github-issue` skill) become the report's Context:
 
 ```sh
 gh issue view <n>
 ```
 
-The `Decision needed` / `Question` fields (see the `github-issue` skill) become this report's
-Context. Ask the user for what the issue doesn't already say: the actual result, the options that
-were on the table and why each lost, and the consequence of the call.
+Ask the user only for what the repo can't tell you: a preference between two options that are
+genuinely equivalent on the evidence, or a constraint that exists only in their head.
 
 ## 2. Write the file
 
 Copy [`docs/spikes/TEMPLATE.md`](../../../docs/spikes/TEMPLATE.md) to
 `docs/spikes/<issue-number, zero-padded to 4 digits>-<slug>.md` and fill in its four sections —
-[`docs/spikes/README.md`](../../../docs/spikes/README.md) says what each is for. Keep it as tight
-as the shortest sections in the `ui`/`content` package READMEs: this is a report of the outcome,
-not a design doc arguing for it.
+[`docs/spikes/README.md`](../../../docs/spikes/README.md) says what each is for.
+
+The number is the issue that **raised the question**, which is not always labelled `spike` — an
+enhancement issue whose thread turned out to hide a decision is the issue that raised it. If
+nothing filed it at all, say so and ask whether to file one or hang the report off the closest
+existing issue; don't invent a number.
+
+Two things the template's shape enforces that are easy to lose:
+
+- **Result states what was found, not what is recommended.** "Three layered checks are adopted" —
+  not "we should consider adopting". If the finding is that the question needs splitting, that's
+  the result.
+- **Options considered is a table of losers.** One row per option that was really on the table,
+  with the specific reason it lost. An option nobody would have picked is padding.
+
+Keep it as tight as the shortest sections in the `ui`/`content` package READMEs: this is a record
+of an outcome, not a design doc arguing for it. Follow `house-docs` like any other markdown here.
 
 ## 3. Close the loop
 
