@@ -101,7 +101,8 @@ real logic — a parser, a diff, a mapping — goes in its own file and gets a s
 [`issue/domain/branch.ts`](./src/issue/domain/branch.ts), which turns a typed title into a ref name,
 [`drift/domain/detect.ts`](./src/drift/domain/detect.ts), which turns a diff into a warn/don't-warn decision,
 [`map/domain/capabilities.ts`](./src/map/domain/capabilities.ts), which decides what counts as a capability and
-which doc explains one, [`shared/adapters/exec.ts`](./src/shared/adapters/exec.ts), which rejects a `gh`/`git`
+which doc explains one, [`map/domain/render.ts`](./src/map/domain/render.ts), which turns capabilities and docs
+into the map's markdown, [`shared/adapters/exec.ts`](./src/shared/adapters/exec.ts), which rejects a `gh`/`git`
 argument that would be read as a flag instead of the value it's supposed to be, and
 [`coverage-report/domain/discover.ts`](./src/coverage-report/domain/discover.ts) and
 [`coverage-report/domain/merge.ts`](./src/coverage-report/domain/merge.ts), which resolve each project's coverage
