@@ -25,10 +25,10 @@ listing and traceable back to the issue that raised the question.
 
 ## 🔗 Linking back
 
-The decision record is the artifact; the issue is the pointer. The spike issue gets a closing
-comment linking to the file, so anyone landing on the issue finds the answer without needing to
-know this directory exists. The `decision-record` skill does both ends — the write and the link —
-in one pass.
+The decision record is the artifact; the issue number in its filename is the link. Nothing gets
+commented on the issue — the PR that lands the record references it, and that trail is enough. A
+comment would be a second copy of the answer, free to drift from the file and notifying watchers
+to say so.
 
 ## 🧭 Deliberately deferred
 

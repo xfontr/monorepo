@@ -1,12 +1,12 @@
 ---
 name: decision-record
-description: Write up a resolved spike as a decision record under docs/decisions/, then link it back to the spike issue. Use when a spike issue has its answer and the outcome needs to survive after the issue closes.
+description: Write up a resolved spike as a decision record under docs/decisions/. Use when a spike issue has its answer and the outcome needs to survive after the issue closes.
 ---
 
 # Writing a decision record
 
 A spike issue holds the question; `docs/decisions/` holds the answer. This skill turns a resolved
-spike into a decision record and closes the loop with the issue that raised it.
+spike into a decision record.
 
 ## 1. Gather what the spike settled
 
@@ -28,14 +28,16 @@ Copy [`docs/decisions/TEMPLATE.md`](../../../docs/decisions/TEMPLATE.md) to
 tight as the shortest sections in the `ui`/`content` package READMEs: this is a record of the
 outcome, not a design doc arguing for it.
 
-## 3. Link it back
+## 3. Close the loop
 
-Two outward-facing actions — show the user the comment body and the close before running either:
+**Never comment on the issue.** The record is reachable without one: its filename carries the issue
+number, and the PR that lands it references the issue. An issue comment adds a notification and a
+second copy of the answer that can drift from the file.
+
+Closing is outward-facing, so show the user before running it, and only once they confirm the spike
+is fully resolved — a decision record can exist for a spike whose issue stays open for follow-up
+work. Usually the PR closes the issue anyway, which makes this unnecessary:
 
 ```sh
-gh issue comment <n> --body "Decided in docs/decisions/<file>."
 gh issue close <n>
 ```
-
-Only close the issue once the user confirms the spike is fully resolved — a decision record can
-exist for a spike whose issue stays open for follow-up work.
