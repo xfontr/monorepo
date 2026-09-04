@@ -19,19 +19,40 @@ to move `git.ts` and `gh.ts` into `shared/`, since two `git.ts` files exist toda
 
 The package is four files short of already being layered, and three of those four are `index.ts`.
 Classifying all 21 non-spec files leaves no residue: each is an **entry**, a **command**, an
-**adapter** or a pure **domain** module. So a layer vocabulary plus a one-way import rule is adopted
-instead of a folder-per-kind layout — **no new directories**.
+**adapter** or a pure **domain** module. Those four roles become the layout — `index.ts` and the
+command at a script folder's root, then `adapters/` and `domain/` beneath it:
 
-| Layer | What it is | Named | May import |
+```
+issue/                    drift/                   map/
+  index.ts                  index.ts                 index.ts
+  add.ts                    main.ts                  main.ts
+  pick.ts                   adapters/git.ts          adapters/files.ts
+  adapters/gh.ts            domain/detect.ts         domain/capabilities.ts
+  adapters/git.ts                                    domain/render.ts
+  adapters/prompts.ts
+  domain/branch.ts
+```
+
+| Layer | What it is | Where | May import |
 | --- | --- | --- | --- |
-| entry | `index.ts`. Hands its commands to `run` and nothing else | always `index.ts` | `shared/cli.ts` + its own commands |
-| command | One user-facing invocation: orchestration, prompts, output, exit meaning | `main.ts` when there's one, after the subcommand when there are several | anything in its own folder, `shared/*` |
-| adapter | Exactly one door out: subprocess, filesystem, network, terminal | **after the boundary it wraps** — `git.ts`, `gh.ts`, `nx.ts`, `cache.ts`, `files.ts`, `prompts.ts`, `io.ts` | domain, `shared/*` |
-| domain | Pure functions and the types they operate on | after the noun it computes — `branch`, `detect`, `capabilities`, `render`, `merge` | other domain, `shared/errors.ts`, pure stdlib |
+| entry | Hands its commands to `run` and nothing else | always `index.ts` | `shared/cli.ts` + its own commands |
+| command | One user-facing invocation: orchestration, prompts, output, exit meaning | the folder root — `main.ts`, or one file per subcommand | anything in its own folder, `shared/*` |
+| adapter | Exactly one door out: subprocess, filesystem, network, terminal | `adapters/`, **named after the boundary it wraps** — `git.ts`, `gh.ts`, `nx.ts`, `cache.ts`, `files.ts`, `prompts.ts`, `io.ts` | domain, `shared/*` |
+| domain | Pure functions and the types they operate on | `domain/`, named after the noun it computes — `branch`, `detect`, `capabilities`, `render`, `merge` | other domain, `shared/errors.ts`, pure stdlib |
 
 Direction: **entry → command → adapter → domain, never back up and never sideways between script
 folders.** One scoped exception — a command may import another command in the *same* folder, which
 is what keeps `add.ts` → `pick.ts` legal rather than pushing that prompt into the dispatcher.
+
+The four roles were first adopted as a **naming convention on a flat tree**, documented in the
+package README, on the grounds that nine directories for 21 files was poor economics and three of
+them would hold a single file. That was reversed on review, and the reason is worth keeping: the
+complaint being answered was *"I open the folder and it's a mess"*, and a flat `add.ts branch.ts
+gh.ts git.ts index.ts pick.ts prompts.ts` answers none of "what can I run", "what talks to the
+outside", "what's pure" until you open all seven. A README table that carries structure the
+filesystem could carry is a table nobody reads. Directory economics is the wrong axis when
+legibility-without-docs is the requirement — and once the folders exist, the README's layer table
+becomes redundant, which is the test of whether the layout works.
 
 The load-bearing half is the adapter naming rule, because it resolves the question that prompted the
 spike: **two `git.ts` files are correct.** They share one line and have zero export overlap — five of
@@ -45,8 +66,7 @@ same three lines and retires the `COMMANDS` dispatch constant without a barrel; 
 (`ExpectedError`, `CancelledError`); and `io.ts`, where `isTTY && !CI` picks clack or plain lines
 behind one `out.*` surface with failures on stderr in both modes.
 
-The uniformity is real but it is **+8 files and one rename, not 17 files across 12 directories** —
-and the runner turns out to fix four defects that read as style until you look: `coverage`'s
+The runner turns out to fix four defects that read as style until you look: `coverage`'s
 actionable "run `nx run-many -t test:coverage` first" reaches the user as an unhandled-rejection
 stack trace, `issue`'s usage error goes to *stdout* while exiting 1, `map/index.ts` calls
 `process.exit(0)` immediately after a stdout write that a pipe can truncate, and `shared/cache.ts`
@@ -61,9 +81,10 @@ that folder is the only one using `interface` and semicolon delimiters. The fold
 
 | Option | Why not |
 | --- | --- |
-| `commands/` per script | Three of the four scripts have exactly one command — a directory holding one file, three times over |
+| The same four layers as a naming convention on a flat tree | Adopted first, then reversed — see the last paragraph of the Result. It leaves the directory listing saying nothing, which was the original complaint |
+| `commands/` per script | Three of the four scripts have exactly one command, so it would be a directory holding one file three times. The command sits at the folder root instead, which reads the same and costs nothing: root = what you can run, subdirectories = support |
 | A `commands/index.ts` barrel | Buys nothing `run({ add, pick })` doesn't: it renames the dispatch constant rather than removing it, and `add.ts` importing the barrel instead of `./pick.ts` is a cycle in a graph whose entry uses top-level `await` |
-| `types/` folder | `**/types` is in `baseIgnores` too, so it would be silently unlinted repo-wide — the exact failure `src/coverage/` demonstrates, re-created deliberately |
+| `types/` folder | `**/types` is in `baseIgnores` too, so it would be silently unlinted repo-wide — the exact failure `src/coverage/` demonstrates, re-created deliberately. It's why the pure layer is `domain/` |
 | `types.ts` per script | All 14 exported types sit with the function that produces them. `BranchType` is `typeof BRANCH_TYPES[number]` from two lines above it; `import type { Doc } from "./capabilities.ts"` says `Doc` is what the capabilities layer speaks, where `from "./types.ts"` says nothing |
 | `constants.ts` | Exactly one constant had two homes, and it moves to `shared/repo.ts`. `CANCELLED` exists in `add.ts` and `pick.ts` with *different* values, so centralising invites merging them and making one message a lie; `drift/README.md` cites three thresholds by file; `SECTIONS` is 30 lines of hard-wrapped prose |
 | `configs/environment.ts` | Two env vars, read on adjacent lines of one file. Also confusing next to `@monorepo/configs`. The real defect was `cache.ts`'s module-load `argv` read |

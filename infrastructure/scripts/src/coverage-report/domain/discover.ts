@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { ExpectedError } from "../shared/errors.ts";
+import { ExpectedError } from "../../shared/errors.ts";
 
 export type ProjectTarget = {
     name: string

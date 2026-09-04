@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
-import { flag } from "./cli.ts";
+import { flag } from "../cli.ts";
 
 const CACHE_DIR = "node_modules/.cache/@monorepo/scripts";
 // A day, not a session: labels and projects change on the order of quarters, so this is a

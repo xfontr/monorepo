@@ -1,8 +1,8 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import { at, repoRoot } from "../shared/git.ts";
-import { PROJECT_ROOTS } from "../shared/layout.ts";
-import type { Doc, ProjectScripts } from "./capabilities.ts";
+import { at, repoRoot } from "../../shared/adapters/git.ts";
+import { PROJECT_ROOTS } from "../../shared/domain/layout.ts";
+import type { Doc, ProjectScripts } from "../domain/capabilities.ts";
 
 const read = (path: string): string => readFileSync(path, "utf8");
 

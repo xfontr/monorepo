@@ -16,10 +16,10 @@ pushed, so a manual run and the hook's run answer the same question two differen
 ## 🗂 Structure
 
 ```
-detect.ts    the warn/don't-warn decision — the only real logic here, and pure
-git.ts       the git calls — merge-base, changed files, a project's diff stats and diff text, last markdown commit
-main.ts      the range, the per-project loop, the prompt and gh issue create
-index.ts     entry point: hands main to run()
+index.ts            hands main to run()
+main.ts             the range, the per-project loop, the prompt and gh issue create
+adapters/git.ts     merge-base, changed files, a project's diff stats and diff text, last markdown commit
+domain/detect.ts    the warn/don't-warn decision — the only real logic here
 ```
 
 `createIssue`, the file cache, `orExit`, the output surface and `git` itself come from

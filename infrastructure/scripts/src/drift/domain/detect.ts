@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { PROJECT_ROOTS } from "../shared/layout.ts";
+import { PROJECT_ROOTS } from "../../shared/domain/layout.ts";
 
 /**
  * A file at the repo root (README.md, CLAUDE.md, package.json) maps to no project, which is

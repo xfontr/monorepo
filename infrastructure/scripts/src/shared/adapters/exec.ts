@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { ExpectedError } from "./errors.ts";
+import { ExpectedError } from "../errors.ts";
 
 /**
  * `execFileSync` never spawns a shell, so args can't smuggle in shell metacharacters — but a bare

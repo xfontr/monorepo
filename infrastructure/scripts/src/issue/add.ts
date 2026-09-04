@@ -1,11 +1,11 @@
 import { confirm, isCancel, select, text } from "@clack/prompts";
-import { createIssue } from "../shared/gh.ts";
-import { out } from "../shared/io.ts";
-import { orExit } from "../shared/prompts.ts";
-import { listLabels, listProjects, type Label, type Project } from "./gh.ts";
-import { currentBranch } from "./git.ts";
+import { createIssue } from "../shared/adapters/gh.ts";
+import { out } from "../shared/adapters/io.ts";
+import { orExit } from "../shared/adapters/prompts.ts";
+import { listLabels, listProjects, type Label, type Project } from "./adapters/gh.ts";
+import { currentBranch } from "./adapters/git.ts";
+import { labelOptions, NONE_OPTION, PROJECT_SCOPE_HINT, projectOptions } from "./adapters/prompts.ts";
 import { pick } from "./pick.ts";
-import { labelOptions, NONE_OPTION, PROJECT_SCOPE_HINT, projectOptions } from "./prompts.ts";
 
 const CANCELLED = "Cancelled — no issue created.";
 

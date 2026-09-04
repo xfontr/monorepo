@@ -1,9 +1,10 @@
 import { confirm } from "@clack/prompts";
 import process from "node:process";
-import { readCache, writeCache } from "../shared/cache.ts";
-import { createIssue } from "../shared/gh.ts";
-import { isInteractive, out } from "../shared/io.ts";
-import { orExit } from "../shared/prompts.ts";
+import { readCache, writeCache } from "../shared/adapters/cache.ts";
+import { createIssue } from "../shared/adapters/gh.ts";
+import { isInteractive, out } from "../shared/adapters/io.ts";
+import { orExit } from "../shared/adapters/prompts.ts";
+import { changedFiles, diffNameStatus, diffNumstat, diffText, lastMdCommitEpochSeconds, mergeBase } from "./adapters/git.ts";
 import {
     displayName,
     fingerprint,
@@ -11,8 +12,7 @@ import {
     parseLinesChanged,
     projectRootsFor,
     shouldWarn,
-} from "./detect.ts";
-import { changedFiles, diffNameStatus, diffNumstat, diffText, lastMdCommitEpochSeconds, mergeBase } from "./git.ts";
+} from "./domain/detect.ts";
 
 // The board this repo actually files drift issues onto — see `gh project list`. There's no picker
 // here on purpose: this flow exists specifically to skip `issue:add`'s prompts.

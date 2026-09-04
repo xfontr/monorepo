@@ -1,7 +1,7 @@
 import { relative } from "node:path";
 import process from "node:process";
 import { CancelledError, ExpectedError } from "./errors.ts";
-import { out } from "./io.ts";
+import { out } from "./adapters/io.ts";
 
 export type Args = {
     flags: ReadonlySet<string>

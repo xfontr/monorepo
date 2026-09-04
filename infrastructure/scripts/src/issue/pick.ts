@@ -1,10 +1,10 @@
 import { confirm, select, text } from "@clack/prompts";
-import { out } from "../shared/io.ts";
-import { orExit } from "../shared/prompts.ts";
-import { branchName, BRANCH_TYPES, slugify } from "./branch.ts";
-import { branchForIssue, checkout } from "./git.ts";
-import { assignToMe, developBranch, isOnline, listIssues, listProjects, type Issue } from "./gh.ts";
-import { projectOptions, PROJECT_SCOPE_HINT } from "./prompts.ts";
+import { out } from "../shared/adapters/io.ts";
+import { orExit } from "../shared/adapters/prompts.ts";
+import { assignToMe, developBranch, isOnline, listIssues, listProjects, type Issue } from "./adapters/gh.ts";
+import { branchForIssue, checkout } from "./adapters/git.ts";
+import { projectOptions, PROJECT_SCOPE_HINT } from "./adapters/prompts.ts";
+import { branchName, BRANCH_TYPES, slugify } from "./domain/branch.ts";
 
 const CANCELLED = "Cancelled — still on the same branch.";
 

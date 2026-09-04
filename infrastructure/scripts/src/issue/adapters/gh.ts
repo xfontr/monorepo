@@ -1,6 +1,6 @@
-import { cached, readCache, writeCache } from "../shared/cache.ts";
-import { gh } from "../shared/gh.ts";
-import { slugify } from "./branch.ts";
+import { cached, readCache, writeCache } from "../../shared/adapters/cache.ts";
+import { gh } from "../../shared/adapters/gh.ts";
+import { slugify } from "../domain/branch.ts";
 
 export type Project = {
     title: string

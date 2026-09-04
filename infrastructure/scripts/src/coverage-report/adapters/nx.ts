@@ -1,5 +1,5 @@
-import { run } from "../shared/exec.ts";
-import type { ProjectTarget } from "./discover.ts";
+import { run } from "../../shared/adapters/exec.ts";
+import type { ProjectTarget } from "../domain/discover.ts";
 
 const TARGET = "test:coverage";
 

@@ -1,11 +1,11 @@
-import { assertNotFlagLike } from "../shared/exec.ts";
-import { at, git } from "../shared/git.ts";
+import { assertNotFlagLike } from "../../shared/adapters/exec.ts";
+import { at, git } from "../../shared/adapters/git.ts";
 
 /**
  * `base`/`head` end up embedded inside one `base..head` token rather than passed as their own
  * args, so a leading `-` on either would otherwise reach `git` unnoticed — checking the joined
  * range wouldn't catch it, since `..` always sits before whatever `head` contributed. Both come
- * from `DOCS_DRIFT_BASE`/`DOCS_DRIFT_HEAD` in [`drift/index.ts`](./index.ts), which is process env
+ * from `DOCS_DRIFT_BASE`/`DOCS_DRIFT_HEAD` in [`drift/main.ts`](../main.ts), which is process env
  * rather than a hardcoded ref, so this is the one spot in this file that isn't purely internal.
  */
 const range = (base: string, head: string): string =>

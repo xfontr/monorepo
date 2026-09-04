@@ -1,7 +1,7 @@
 import { isAbsolute } from "node:path";
 import type { CoverageMap, CoverageMapData } from "istanbul-lib-coverage";
 import libCoverage from "istanbul-lib-coverage";
-import { ExpectedError } from "../shared/errors.ts";
+import { ExpectedError } from "../../shared/errors.ts";
 
 export type LoadedReport = {
     name: string

@@ -1,4 +1,4 @@
-import { git } from "../shared/git.ts";
+import { git } from "../../shared/adapters/git.ts";
 
 /**
  * The first local branch already named after this issue, if any. Branch names start with the issue

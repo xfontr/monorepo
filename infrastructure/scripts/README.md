@@ -10,11 +10,20 @@ One folder per script under `src/`, each with its own README. This one only cove
 
 ```
 src/
-  issue/           pnpm issue:add | issue:pick — file a GitHub issue, or branch off one
-  drift/           pnpm docs:drift — warn when a project's docs may be stale, offer to file an issue
-  map/             pnpm docs:map — render docs/FEATURES.md, the index of everything this repo can do
-  coverage-report/ pnpm test:coverage (root) — merge every project's coverage-final.json into one browsable report
-  shared/          the doors out — git, gh, exec, cache, io, prompts — and the runner every entry point uses
+  issue/            pnpm issue:add | issue:pick — file a GitHub issue, or branch off one
+  drift/            pnpm docs:drift — warn when a project's docs may be stale, offer to file an issue
+  map/              pnpm docs:map — render docs/FEATURES.md, the index of everything this repo can do
+  coverage-report/  pnpm test:coverage (root) — merge every project's coverage-final.json into one report
+  shared/           whatever more than one script needs, laid out the same way
+```
+
+Every one of them has the same four things inside, which is the whole layout rule:
+
+```
+index.ts     the entry point. Hands its commands to run() and does nothing else
+main.ts      the command — or one file per subcommand, named after it, the way issue/ has add + pick
+adapters/    one file per boundary out: git.ts, gh.ts, nx.ts, files.ts, prompts.ts, io.ts
+domain/      pure functions and their types. No fs, no subprocess, no clack, no process
 ```
 
 | Script | Command | What it's for |
@@ -25,40 +34,39 @@ src/
 | [`map`](./src/map/README.md) | `pnpm docs:map` | Rendering the feature index, and asserting in CI that it's current |
 | [`coverage-report`](./src/coverage-report/README.md) | `pnpm test:coverage` (root) | Merging every project's coverage into one browsable HTML report |
 
-## 🧱 The four layers
+## 🧱 Which way imports go
 
-Every file here is one of four things. The names are the point: they're what tells you where a new
-function goes without anyone having to invent a `helpers/` folder to absorb the question.
+**index.ts → the command → `adapters/` → `domain/`.** Never back up, and never sideways into another
+script's folder. One scoped exception: a command may import another command *in the same folder*,
+which is what keeps `add.ts` calling `pick.ts` legal — the alternative puts that prompt in the
+dispatcher. `shared/` is reachable from anywhere and reaches nothing.
 
-| Layer | What it is | Named | May import |
-| --- | --- | --- | --- |
-| **entry** | Hands its commands to `run` and does nothing else | always `index.ts` | `shared/cli.ts` and its own commands |
-| **command** | One invocation someone actually types: orchestration, prompts, output, what an exit code means | `main.ts` when there's one, after the subcommand when there are several | anything in its own folder, `shared/*` |
-| **adapter** | Exactly one door out — a subprocess, the filesystem, the network, the terminal | **after the boundary it wraps**: `git.ts`, `gh.ts`, `nx.ts`, `files.ts`, `prompts.ts`, `io.ts` | domain, `shared/*` adapters |
-| **domain** | Pure functions and the types they operate on. No fs, no subprocess, no clack, no `process` | after the noun it computes: `branch.ts`, `detect.ts`, `capabilities.ts`, `merge.ts` | other domain, `shared/errors.ts`, `shared/layout.ts`, pure stdlib |
+Two things that follow from it and are worth saying out loud:
 
-**entry → command → adapter → domain, never back up, and never sideways between script folders.**
-One scoped exception: a command may import another command *in the same folder*, which is what
-keeps `add.ts` calling `pick.ts` legal — the alternative puts that prompt in the dispatcher.
+- **An adapter is named after the boundary it wraps**, which is why `git.ts` exists in `issue/`, in
+  `drift/` **and** in `shared/` and none of them is a duplicate. The shared one is `git` itself plus
+  the repo root; each script's is the handful of questions that script asks. The two script-level
+  ones share one line of code and no exports — folding them together produces an eight-export
+  module where every caller uses half of it.
+- **`adapters/` is where every side effect in this package lives.** "Does this touch the network"
+  is answerable from a directory listing, and a `domain/` file that reaches for `node:fs` is in the
+  wrong folder rather than merely doing something questionable.
 
-That the adapter is named after its boundary is the half that does the work. It's why `git.ts`
-exists in `issue/`, in `drift/` **and** in `shared/` and none of them is a duplicate: the shared one
-is `git` itself plus the repo root, and each script's is the handful of questions that script asks.
-The two script-level ones share exactly one line of code and no exports at all — folding them
-together would produce an eight-export module where every caller uses half of it.
-
-The layer rule is convention, not lint, today — see
+The direction is convention, not lint, today — the folders make it a generic glob rather than a
+hardcoded file list, so enforcing it is now cheap. See
 [`0048-scripts-architecture.md`](../../docs/spikes/0048-scripts-architecture.md) for what was
-weighed, including the folder-per-kind layout this was chosen over.
+weighed on the way here, including the flat layout this replaced.
 
 ## 🚀 Adding a script
 
-A new script is a folder under `src/` with a three-line `index.ts`, a `main.ts`, and a `README.md`,
-plus a line in this package's `scripts` and a row in the table above. There is no barrel, and
-scripts don't import each other. A folder may expose more than one command when they genuinely share
-code, the way `issue/` does — `add` and `pick` share the project options, the cancel handling and the
-`gh` wrapper — in which case `index.ts` passes a record and `run` dispatches on the first argument.
-Two unrelated scripts get two folders.
+A new script is a folder under `src/` shaped like the block above — `index.ts`, a `main.ts`,
+`adapters/`, `domain/` and a `README.md` — plus a line in this package's `scripts` and a row in the
+table above. Create `adapters/` and `domain/` even if one of them starts with a single file: the
+point is that the listing answers "what runs, what talks to the outside, what's pure" before you
+open anything. There is no barrel, and scripts don't import each other. A folder may expose more
+than one command when they genuinely share code, the way `issue/` does — `add` and `pick` share the
+project options, the cancel handling and the `gh` wrapper — in which case `index.ts` passes a record
+and `run` dispatches on the first argument. Two unrelated scripts get two folders.
 
 Every entry point is the same five lines, which is the point of `run`:
 
@@ -102,8 +110,9 @@ output and refuse to merge a set that's missing one.
 Note that the folder is `coverage-report/`, not `coverage/`: `**/coverage` is in
 [`baseIgnores`](../../packages/configs/src/eslint/lib/ignores.ts), so a folder by that name is
 invisible to ESLint. It went unlinted long enough to drift to `interface` and semicolon delimiters
-while the rest of the package used `type`. `**/types` is on that list too — worth knowing before
-naming a directory.
+while the rest of the package used `type`. `**/types` is on that list too, which is one reason the
+pure layer here is `domain/` and not `types/` — a directory by that name would be unlinted
+everywhere in the workspace.
 
 ## 🔑 Requirements
 

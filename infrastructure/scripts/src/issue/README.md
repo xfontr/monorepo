@@ -22,13 +22,13 @@ exits `1`. Ctrl+C at any prompt exits without creating an issue or touching the 
 ## 🗂 Structure
 
 ```
-branch.ts    slug and branch-name building, the only real logic here, and pure
-gh.ts        the issue-specific gh calls — repo owner, connectivity, projects, labels, open issues, assign, develop branch
-git.ts       the git calls — current branch, find a branch for an issue, checkout
-prompts.ts   this folder's prompt vocabulary: the option lists, the none option, the missing-scope hint
-add.ts       the filing flow, offering a pick when it finishes on master
-pick.ts      the pick-an-issue-and-branch flow, cache-backed when gh is unreachable
-index.ts     entry point: hands { add, pick } to run(), which dispatches on the first argument
+index.ts               hands { add, pick } to run(), which dispatches on the first argument
+add.ts                 the filing flow, offering a pick when it finishes on master
+pick.ts                the pick-an-issue-and-branch flow, cache-backed when gh is unreachable
+adapters/gh.ts         repo owner, connectivity, projects, labels, open issues, assign, develop branch
+adapters/git.ts        current branch, find a branch for an issue, checkout
+adapters/prompts.ts    this folder's prompt vocabulary — the option lists, the none option, the missing-scope hint
+domain/branch.ts       slug and branch-name building, the only real logic here
 ```
 
 This is the one folder with two commands, so it's also the one where `index.ts` passes a record

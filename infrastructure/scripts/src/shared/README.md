@@ -6,21 +6,24 @@ the folder everything ends up in.
 
 ## 🗂 What's here
 
-| File | Layer | The door it is |
-| --- | --- | --- |
-| [`cli.ts`](./cli.ts) | entry support | `run` — argv parsed once, one command or a record of them, and one meaning per exit code. Also `fail` and `flag` |
-| [`errors.ts`](./errors.ts) | leaf | `ExpectedError` and `CancelledError`, the two throws `run` treats as answers rather than bugs |
-| [`io.ts`](./io.ts) | adapter | the terminal. `out.*` in clack when someone's watching, plain lines when nobody is |
-| [`exec.ts`](./exec.ts) | adapter | subprocesses — `run`, and the `assertNotFlagLike` guard for values that would otherwise read as flags |
-| [`git.ts`](./git.ts) | adapter | `git` itself, plus `repoRoot()` and `at()` for resolving against the repo rather than cwd |
-| [`gh.ts`](./gh.ts) | adapter | `gh`, and `createIssue` on top of it |
-| [`cache.ts`](./cache.ts) | adapter | the file cache under `node_modules/.cache/@monorepo/scripts` |
-| [`prompts.ts`](./prompts.ts) | adapter | `orExit`, so a cancelled prompt anywhere unwinds to `run` |
-| [`layout.ts`](./layout.ts) | domain | `PROJECT_ROOTS` — repo layout as data, with no way to read the repo |
+Same shape as a script folder, minus the command — the two files at the root are what every entry
+point stands on, and the rest is sorted by whether it can reach the outside world.
 
-`layout.ts` is separate from `git.ts` for one reason: `drift/detect.ts` is pure and needs
-`PROJECT_ROOTS`, so keeping that constant in a module that shells out to `git` would drag a
-subprocess into a file whose whole value is having no side effects.
+| File | The door it is |
+| --- | --- |
+| [`cli.ts`](./cli.ts) | `run` — argv parsed once, one command or a record of them, and one meaning per exit code. Also `fail` and `flag` |
+| [`errors.ts`](./errors.ts) | `ExpectedError` and `CancelledError`, the two throws `run` treats as answers rather than bugs |
+| [`adapters/io.ts`](./adapters/io.ts) | the terminal. `out.*` in clack when someone's watching, plain lines when nobody is |
+| [`adapters/exec.ts`](./adapters/exec.ts) | subprocesses — `run`, and the `assertNotFlagLike` guard for values that would otherwise read as flags |
+| [`adapters/git.ts`](./adapters/git.ts) | `git` itself, plus `repoRoot()` and `at()` for resolving against the repo rather than cwd |
+| [`adapters/gh.ts`](./adapters/gh.ts) | `gh`, and `createIssue` on top of it |
+| [`adapters/cache.ts`](./adapters/cache.ts) | the file cache under `node_modules/.cache/@monorepo/scripts` |
+| [`adapters/prompts.ts`](./adapters/prompts.ts) | `orExit`, so a cancelled prompt anywhere unwinds to `run` |
+| [`domain/layout.ts`](./domain/layout.ts) | `PROJECT_ROOTS` — repo layout as data, with no way to read the repo |
+
+`layout.ts` is in `domain/` rather than next to `git.ts` for one reason: `drift/domain/detect.ts` is
+pure and needs `PROJECT_ROOTS`, so keeping that constant in a module that shells out to `git` would
+drag a subprocess into a file whose whole value is having no side effects.
 
 ## 📥 What moves here
 
