@@ -99,14 +99,15 @@ The app fetches both its translations and its articles over the network at runti
 how to serve the translations locally instead.
 
 Every command below runs against **affected** projects only (what changed since `master`), which is
-also what CI runs. For the whole workspace instead, use `pnpm exec nx run-many -t <target>`.
+also what CI runs, except `pnpm test:coverage` — see its row below. For the whole workspace instead,
+use `pnpm exec nx run-many -t <target>`.
 
 | Command | What it does |
 | --- | --- |
 | `pnpm lint` | Lint affected projects |
 | `pnpm typecheck` | Typecheck affected projects |
 | `pnpm test` | Test affected projects |
-| `pnpm test:coverage` | Test affected projects with a V8 coverage report |
+| `pnpm test:coverage` | Test the **whole workspace** with a V8 coverage report, then merge every project's into one browsable [`coverage/index.html`](./infrastructure/scripts/src/coverage/README.md) |
 | `pnpm build` | Build affected projects |
 | `pnpm graph` | Open the Nx project graph |
 | `pnpm docs:map` | Re-render [`docs/FEATURES.md`](./docs/FEATURES.md); `--check` asserts it is current |
@@ -117,12 +118,13 @@ also what CI runs. For the whole workspace instead, use `pnpm exec nx run-many -
 - Branches must match `^(hotfix|fix|feature|release)/.+` (enforced on push) — which also means you
   can't push straight to `master`.
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org) (enforced by
-  commitlint), with two extra rules from
-  [`commitlint.config.mjs`](./commitlint.config.mjs): the type is lower-case and the subject is
-  sentence-case, so `feat: add thing` is rejected and `feat: Add thing` is not.
+  commitlint via [`commitlint.config.mjs`](./commitlint.config.mjs), which just extends
+  `@commitlint/config-conventional`): the type must be lower-case and the subject must not be
+  sentence-case, start-case, Pascal-case or upper-case, so `feat: Add thing` is rejected and
+  `feat: add thing` is not.
 - The [`commit-msg`](./.husky/commit-msg) hook reads the issue number back out of the branch name
-  and rewrites the subject to carry it, so `feat: Add thing` on `feature/50-slug` is committed as
-  `feat: [50] Add thing`. Nobody types the tag, and re-running on an amend is a no-op instead of
+  and rewrites the subject to carry it, so `feat: add thing` on `feature/50-slug` is committed as
+  `feat: [50] add thing`. Nobody types the tag, and re-running on an amend is a no-op instead of
   stacking a second one; a branch with no number in it is left alone. This is why the log here is
   number-first without anyone maintaining that.
 - The pre-push hook runs `lint`, `test` and `typecheck` on affected projects, and rejects a push

@@ -13,6 +13,7 @@ src/
   issue/    pnpm issue:add | issue:pick — file a GitHub issue, or branch off one
   drift/    pnpm docs:drift — warn when a project's docs may be stale, offer to file an issue
   map/      pnpm docs:map — render docs/FEATURES.md, the index of everything this repo can do
+  coverage/ pnpm test:coverage (root) — merge every project's coverage-final.json into one browsable report
   shared/   gh.ts, exec.ts, cache.ts, prompts.ts — the pieces issue/, drift/ and map/ all need
 ```
 
@@ -22,6 +23,7 @@ src/
 | [`issue pick`](./src/issue/README.md#-pnpm-issuepick) | `pnpm issue:pick` | Picking an open issue off a project board, then branching off it and self-assigning |
 | [`drift`](./src/drift/README.md) | `pnpm docs:drift` | Warning when a changed project's docs look stale, and offering to file it |
 | [`map`](./src/map/README.md) | `pnpm docs:map` | Rendering the feature index, and asserting in CI that it's current |
+| [`coverage`](./src/coverage/README.md) | `pnpm test:coverage` (root) | Merging every project's coverage into one browsable HTML report |
 
 A folder may expose more than one command, the way `issue/` does: its `index.ts` dispatches on
 `argv[2]`. That's for subcommands that genuinely share code — `add` and `pick` share the project
@@ -49,8 +51,11 @@ real logic — a parser, a diff, a mapping — goes in its own file and gets a s
 [`issue/branch.ts`](./src/issue/branch.ts), which turns a typed title into a ref name,
 [`drift/detect.ts`](./src/drift/detect.ts), which turns a diff into a warn/don't-warn decision,
 [`map/capabilities.ts`](./src/map/capabilities.ts), which decides what counts as a capability and
-which doc explains one, and [`shared/exec.ts`](./src/shared/exec.ts), which rejects a `gh`/`git`
-argument that would be read as a flag instead of the value it's supposed to be.
+which doc explains one, [`shared/exec.ts`](./src/shared/exec.ts), which rejects a `gh`/`git`
+argument that would be read as a flag instead of the value it's supposed to be, and
+[`coverage/discover.ts`](./src/coverage/discover.ts) and
+[`coverage/merge.ts`](./src/coverage/merge.ts), which resolve each project's coverage output and
+refuse to merge a set that's missing one.
 
 ## 🔑 Requirements
 

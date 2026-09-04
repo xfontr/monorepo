@@ -11,6 +11,7 @@
     "issue:pick": "node src/issue/index.ts pick",
     "docs:drift": "node src/drift/index.ts",
     "docs:map": "node src/map/index.ts",
+    "coverage": "node src/coverage/index.ts",
     "lint": "nx eslint:lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest . --watch=false --passWithNoTests",
@@ -18,13 +19,22 @@
     "test:coverage": "vitest . --watch=false --coverage --passWithNoTests"
   },
   "nx": {
-    "tags": ["type:tooling", "scope:tooling"]
+    "tags": [
+      "type:tooling",
+      "scope:tooling"
+    ]
   },
   "dependencies": {
-    "@clack/prompts": "^1.7.0"
+    "@clack/prompts": "^1.7.0",
+    "istanbul-lib-coverage": "^3.2.2",
+    "istanbul-lib-report": "^3.0.1",
+    "istanbul-reports": "^3.2.0"
   },
   "devDependencies": {
     "@monorepo/configs": "workspace:*",
+    "@types/istanbul-lib-coverage": "^2.0.6",
+    "@types/istanbul-lib-report": "^3.0.3",
+    "@types/istanbul-reports": "^3.0.4",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
