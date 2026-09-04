@@ -8,31 +8,71 @@ const CANCELLED = "Cancelled — still on the same branch.";
 
 const or = <T>(value: T | symbol): T => orExit(value, CANCELLED);
 
-const pickProject = async (offline: boolean): Promise<string | undefined> => {
+type Picked<T> = {
+    value: T | undefined
+    offline: boolean
+};
+
+/**
+ * Tries the normal, cache-backed online path first — free when the 24h project cache is still
+ * warm, since `cached()` never touches the network on a hit. `isOnline()`'s own round trip only
+ * runs when that comes back empty, to tell "gh is actually unreachable" apart from "no open
+ * projects" or "missing the `project` scope" before paying for a fallback read of the file cache.
+ * That keeps the common case — online, warm cache — as instant as `issue:add`'s project prompt.
+ */
+const pickProject = async (): Promise<Picked<string>> => {
     const loading = spinner();
-    loading.start(offline ? "Reading cached projects..." : "Asking gh what's available...");
-    const projects = listProjects(offline);
+    loading.start("Asking gh what's available...");
+
+    let projects = listProjects();
+    let offline = false;
+
+    if (projects.length === 0 && !isOnline()) {
+        offline = true;
+        loading.message("Reading cached projects...");
+        projects = listProjects(true);
+    }
+
     loading.stop("Ready.");
+    if (offline) log.warn("gh is unreachable — showing cached projects and issues, which may be outdated.");
 
     if (projects.length === 0) {
         log.warn(offline
             ? "No cached projects to fall back to — run pick again once you're back online."
             : "No open projects. If you expected some, the `project` scope is missing: gh auth refresh -s project");
-        return undefined;
+        return { value: undefined, offline };
     }
 
-    return or(
+    const value = or(
         await select({
             message: "Project",
             options: projects.map(({ title }) => ({ value: title, label: title })),
         }),
     );
+
+    return { value, offline };
 };
 
-const pickIssue = async (project: string, offline: boolean): Promise<Issue | undefined> => {
+/**
+ * `knownOffline` short-circuits straight to the cache when `pickProject` already proved gh
+ * unreachable. Otherwise this still tries the live fetch first — `listIssues` is deliberately
+ * uncached online, so a warm project cache can leave `pickProject` never checking connectivity at
+ * all — and only falls back to the cache if that live call actually throws, instead of a second
+ * `isOnline()` round trip on every run.
+ */
+const pickIssue = async (project: string, knownOffline: boolean): Promise<Issue | undefined> => {
     const loading = spinner();
-    loading.start(offline ? `Reading cached issues for ${project}...` : `Reading ${project}...`);
-    const issues = listIssues(project, offline);
+    loading.start(knownOffline ? `Reading cached issues for ${project}...` : `Reading ${project}...`);
+
+    let issues: Issue[];
+    try {
+        issues = listIssues(project, knownOffline);
+    }
+    catch {
+        loading.message(`Reading cached issues for ${project}...`);
+        issues = listIssues(project, true);
+    }
+
     loading.stop(`${issues.length} open issue${issues.length === 1 ? "" : "s"}.`);
 
     if (issues.length === 0) return undefined;
@@ -105,10 +145,7 @@ const promptBranch = async (issue: Issue): Promise<string> => {
 export const pick = async (): Promise<void> => {
     intro("🌱 Pick an issue");
 
-    const offline = !isOnline();
-    if (offline) log.warn("gh is unreachable — showing cached projects and issues, which may be outdated.");
-
-    const project = await pickProject(offline);
+    const { value: project, offline } = await pickProject();
     if (!project) return;
 
     const issue = await pickIssue(project, offline);
