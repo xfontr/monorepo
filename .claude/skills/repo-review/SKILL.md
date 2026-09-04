@@ -90,5 +90,5 @@ isn't there yet, so this step is not optional and the reminder clears itself onc
 
 Give the user the totals table and the "what would move the total" rows. Offer to file the top
 findings as issues (`pnpm issue:add`, or the `github-issue` skill) and to turn any architectural
-fork the review exposed into a [decision record](../decision-record/SKILL.md) — but file nothing
+fork the review exposed into a [spike report](../spike-report/SKILL.md) — but file nothing
 without being asked. The review is the deliverable.

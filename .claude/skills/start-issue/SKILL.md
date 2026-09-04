@@ -62,15 +62,15 @@ it points at:
 - **`Blocked by #<n>`** (the `github-issue` skill's task template) — `gh issue view <n>` for that
   issue too. You need to know what it settled, not just that it's closed.
 - **A spike or a past decision mentioned in the text** — a resolved spike lives in
-  `docs/decisions/`, filed as `<issue number, zero-padded to 4 digits>-<slug>.md`
-  (see the `decision-record` skill). If the issue references one, find it:
+  `docs/spikes/`, filed as `<issue number, zero-padded to 4 digits>-<slug>.md`
+  (see the `spike-report` skill). If the issue references one, find it:
 
   ```sh
-  ls docs/decisions/ | grep <padded number>
+  ls docs/spikes/ | grep <padded number>
   ```
 
-  Read the file's Decision and Consequences sections before writing any code that touches the same
-  ground — that's the whole reason the record exists instead of a comment.
+  Read the file's Result and Consequences sections before writing any code that touches the same
+  ground — that's the whole reason the report exists instead of a comment.
 
 ## 4. Confirm before diving in
 

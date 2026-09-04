@@ -21,6 +21,8 @@
         "deny": [
             "Edit(**/CHANGELOG.md)",
             "Write(**/CHANGELOG.md)",
+            "Edit(docs/FEATURES.md)",
+            "Write(docs/FEATURES.md)",
             "Bash(pnpm exec nx release:*)",
             "Bash(nx release:*)",
             "Bash(pnpm release:*)",

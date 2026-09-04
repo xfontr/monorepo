@@ -1,8 +1,6 @@
-import { execFileSync } from "node:child_process";
+import { cached, readCache, writeCache } from "../shared/cache.ts";
+import { gh } from "../shared/gh.ts";
 import { slugify } from "./branch.ts";
-import { cached, readCache, writeCache } from "./cache.ts";
-
-const gh = (...args: string[]): string => execFileSync("gh", args, { encoding: "utf8" }).trim();
 
 export type Project = {
     title: string
@@ -12,13 +10,6 @@ export type Project = {
 export type Label = {
     name: string
     description: string
-};
-
-export type NewIssue = {
-    title: string
-    body: string
-    label?: string
-    project?: string
 };
 
 export type Issue = {
@@ -110,23 +101,6 @@ export const listIssues = (project: string, offline = false): Issue[] => {
  */
 export const assignToMe = (issue: number): void =>
     void gh("issue", "edit", String(issue), "--add-assignee", "@me");
-
-/**
- * Shells out to `gh` rather than talking to the GitHub API, so this inherits whatever account is
- * already logged in locally instead of needing a token of its own. Returns the new issue's URL,
- * which is all `gh issue create` prints on success.
- */
-export const createIssue = ({ title, body, label, project }: NewIssue): string =>
-    gh(
-        "issue",
-        "create",
-        "--title",
-        title,
-        "--body",
-        body,
-        ...(label ? ["--label", label] : []),
-        ...(project ? ["--project", project] : []),
-    );
 
 /**
  * `gh issue develop` over `git checkout -b`: the branch it creates is linked on the issue's

@@ -1,15 +1,15 @@
-# 🧭 <Decision title>
+# 🧭 <Spike title>
 
 Spike: #<issue number>
 
 ## Context
 
-<What was in tension, and what was planned or assumed that made a decision necessary — the spike
+<What was in tension, and what was planned or assumed that made the spike necessary — the spike
 issue's own "Decision needed" framing, reused rather than rewritten.>
 
-## Decision
+## Result
 
-<The outcome, stated plainly. The call that was made, not a recommendation.>
+<The outcome, stated plainly. What the spike found, not a recommendation.>
 
 ## Options considered
 

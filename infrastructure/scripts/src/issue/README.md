@@ -3,8 +3,11 @@
 Two subcommands over `gh`, either side of the same tracker: `add` files an issue from the terminal,
 `pick` takes one off a project board and puts you on a branch for it — and, once `add` succeeds from
 `master`, calls `pick` directly instead of telling you to run it separately. They live in one folder
-because they share the project prompt, the cancel handling, the `gh` wrapper, and now that direct
-call between them — splitting them back apart means duplicating all four.
+because they share the project prompt, the cancel handling, and now that direct call between them —
+splitting them back apart means duplicating both. The `gh` wrapper, the file cache and the cancel
+helper itself moved out to [`../shared/`](../shared/) once [`drift/`](../drift/README.md) needed
+them too; `issue/gh.ts` still holds everything genuinely specific to filing and picking issues
+(`listProjects`, `listLabels`, `listIssues`, `assignToMe`, `developBranch`).
 
 ```sh
 pnpm issue:add     # node src/issue/index.ts add
@@ -22,12 +25,14 @@ exits `1`. Ctrl+C at any prompt exits without creating an issue or touching the 
 index.ts     dispatch on argv[2] — add | pick
 add.ts       the filing flow, offering a pick when it finishes on master
 pick.ts      the pick-an-issue-and-branch flow, cache-backed when gh is unreachable
-gh.ts        the gh calls — repo owner, connectivity, projects, labels, open issues, create, develop branch
+gh.ts        the issue-specific gh calls — repo owner, connectivity, projects, labels, open issues, assign, develop branch
 git.ts       the git calls — current branch, find a branch for an issue, checkout
 branch.ts    slug and branch-name building, the only real logic here
-cache.ts     the file cache backing gh.ts's projects, labels and issues calls
-prompts.ts   orExit, shared by both flows
 ```
+
+`gh.ts`'s own `gh()` wrapper and `createIssue`, the file cache, and `orExit` now live in
+[`../shared/`](../shared/) — see that folder's note in the
+[top-level README](../../README.md#-adding-a-script) for why.
 
 ## 🚀 `pnpm issue:add`
 
@@ -127,8 +132,8 @@ which is roughly 90 more than this board will ever hold.
 
 ## 🗄 Caching projects, labels and issues
 
-Projects and labels change on the order of quarters, not per run. [`cache.ts`](./cache.ts) wraps
-`listProjects` and `listLabels` in a 24h file cache at `node_modules/.cache/@monorepo/scripts/`, so
+Projects and labels change on the order of quarters, not per run. [`../shared/cache.ts`](../shared/cache.ts)
+wraps `listProjects` and `listLabels` in a 24h file cache at `node_modules/.cache/@monorepo/scripts/`, so
 most runs skip both `gh` round trips entirely. It sits under `node_modules` on purpose: already
 gitignored, already per-clone, and a `pnpm install` clears it for free without another invalidation
 path to maintain.
@@ -136,8 +141,8 @@ path to maintain.
 `listIssues` is a different shape of caching, not that TTL: a stale issue list is the one answer
 this script exists to avoid, so online it fetches and overwrites the cache on *every* `pick`, no
 24h gate at all. The cache exists purely for offline mode — the one case where there's no fresh
-fetch to prefer over it, `cache.ts`'s `readCache`/`writeCache` skip the TTL check entirely and hand
-back whatever's on disk, however old.
+fetch to prefer over it, `cache.ts`'s `readCache`/`writeCache` (also what `drift/` uses for its own
+dedup key) skip the TTL check entirely and hand back whatever's on disk, however old.
 
 `--refresh` on either command bypasses the read and overwrites the file, for the one time a day the
 24h window is wrong (a project just got created, a label just got renamed):
@@ -152,11 +157,10 @@ fail-open stance the missing `project` scope already gets in `listProjects` — 
 
 ## ✅ Tests
 
-[`branch.spec.ts`](./branch.spec.ts) covers `slugify` and `branchName`, and
-[`cache.spec.ts`](./cache.spec.ts) covers the TTL and `--refresh` bypass in `cached`, plus the
-TTL-free reads and writes in `readCache`/`writeCache` — the things in this folder that aren't a
-prompt or a subprocess call, per
-[`writing-tests`](../../../../.claude/skills/writing-tests/SKILL.md). `isOnline` and the offline
+[`branch.spec.ts`](./branch.spec.ts) covers `slugify` and `branchName` — the only real logic left in
+this folder, per [`writing-tests`](../../../../.claude/skills/writing-tests/SKILL.md).
+[`../shared/cache.spec.ts`](../shared/cache.spec.ts) covers the TTL and `--refresh` bypass in
+`cached`, plus the TTL-free reads and writes in `readCache`/`writeCache`. `isOnline` and the offline
 branches of `listProjects`/`listIssues` are `gh` calls and cache reads respectively, both already
 covered by the functions underneath them, so they get no spec of their own.
 

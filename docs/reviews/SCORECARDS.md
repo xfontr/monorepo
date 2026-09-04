@@ -177,19 +177,19 @@ encodes what a README already says (it should link, not restate); the `deny` lis
 
 ### 📋 7. Process & delivery — weight 10
 
-Whether the work is traceable without asking the author. Issues for what's known, decision records
+Whether the work is traceable without asking the author. Issues for what's known, spike reports
 for the forks that got resolved, commit messages whose type matches what the commit did, and a
 release trail that was derived rather than typed.
 
 Look at: `gh issue list` and `gh issue list --state closed --label spike` against
-[`docs/decisions/`](../decisions/README.md); `git log --oneline -40` for types that don't match their
+[`docs/spikes/`](../spikes/README.md); `git log --oneline -40` for types that don't match their
 diffs; whether the markers the [push gate](../../.husky/pre-push) rejects were filed as issues or
 just deleted; branches and versions against the [release rules](../../README.md#-versioning).
 
 | Caps the card at | When |
 | --- | --- |
 | 1 | A version or a `CHANGELOG.md` was edited by hand |
-| 3 | A resolved architectural fork has no decision record |
+| 3 | A resolved architectural fork has no spike report |
 | 3 | Commit types don't match their diffs, so the derived version is wrong |
 | 4 | Known work exists only in a branch name or in the author's head |
 

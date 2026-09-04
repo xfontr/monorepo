@@ -1,8 +1,9 @@
 import { cancel, confirm, intro, isCancel, log, note, outro, select, spinner, text } from "@clack/prompts";
-import { createIssue, listLabels, listProjects, type Label, type Project } from "./gh.ts";
+import { createIssue } from "../shared/gh.ts";
+import { NONE, orExit } from "../shared/prompts.ts";
+import { listLabels, listProjects, type Label, type Project } from "./gh.ts";
 import { currentBranch } from "./git.ts";
 import { pick } from "./pick.ts";
-import { NONE, orExit } from "./prompts.ts";
 
 const CANCELLED = "Cancelled — no issue created.";
 

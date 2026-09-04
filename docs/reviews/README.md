@@ -7,7 +7,7 @@ a review measures one tree state and starts expiring the moment that state chang
 A review is not a backlog and not a refactor plan. It scores what is here against
 [`SCORECARDS.md`](./SCORECARDS.md), cites the evidence behind every score, and stops. Findings worth
 acting on leave as issues (`pnpm issue:add`); architectural forks it exposes leave as
-[decision records](../decisions/README.md). **Nothing gets fixed inside the review itself** — a
+[spike reports](../spikes/README.md). **Nothing gets fixed inside the review itself** — a
 measurement that changes what it measures is worth nothing next quarter, and a review that turns
 into a refactor never gets finished.
 

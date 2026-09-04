@@ -45,8 +45,8 @@ surface, commits since the last review. Paste the figures, not the log.>
 
 | Action | Card | Points | Filed |
 | --- | --- | --- | --- |
-| <the change, small enough to start> | <card> | <realistic gain, e.g. +1 on Testing → +0.15 total> | <#issue, a decision record, or `—`> |
+| <the change, small enough to start> | <card> | <realistic gain, e.g. +1 on Testing → +0.15 total> | <#issue, a spike report, or `—`> |
 
 Ordered by points per unit of work. This table is a finding, not a tracker: anything worth doing
-gets filed (`pnpm issue:add`) or becomes a [decision record](../decisions/README.md), and the row
+gets filed (`pnpm issue:add`) or becomes a [spike report](../spikes/README.md), and the row
 records which.

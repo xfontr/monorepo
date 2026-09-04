@@ -14,7 +14,7 @@ What the workspace does already have is the input a merge needs. The shared pres
 [`vitest/node.ts`](../../packages/configs/src/vitest/node.ts) emits `json` and `lcov` from every
 project, so seven `coverage-final.json` files are sitting on disk with nothing consuming them.
 
-## Decision
+## Result
 
 Per-project runs stay as they are, and a merge step is added to
 [`@monorepo/scripts`](../../infrastructure/scripts/README.md), built on Istanbul's libraries

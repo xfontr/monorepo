@@ -24,6 +24,10 @@ invariants that span more than one file.
 - **Never add a lifecycle script** (`postinstall`, `prepare`, `prepublish`). Both CI workflows
   install with `--ignore-scripts`, so anything hung off one works locally and silently does nothing
   in CI. There are none in the workspace today; keep it that way.
+- **Never hand-edit [`docs/FEATURES.md`](./docs/FEATURES.md).** `pnpm docs:map` renders it and CI
+  runs `pnpm docs:map --check`, so an edit survives exactly until the next render. A capability with
+  no doc shows as `—`; the fix is to write the missing doc where it belongs, then re-render — never
+  to fill the cell in.
 - **Never hand-edit a `CHANGELOG.md` or a `version`.** `nx release` derives both from Conventional
   Commit messages. Releases run from the **Release** workflow (`workflow_dispatch`), never locally.
 - **Never write a real endpoint, URL, token or instance ID into the repo.** Every one of them is an
@@ -86,9 +90,10 @@ history table in that directory's README.
 | `nuxt-module-route` | Adding a BFF route or composable to a package's `src/nuxt/runtime` |
 | `writing-tests` | Adding or changing any `*.spec.ts` |
 | `house-docs` | Writing or editing any markdown |
+| `doc-drift-check` | A change altered a project's public surface — exports, CLI flags, config shape, documented commands |
 | `github-issue` | Filing an issue *for* the user — the three templates. They file their own with `pnpm issue:add`, which is deliberately template-free |
 | `start-issue` | Starting work on a specific issue — from the branch you're on, or from a number, link or description |
-| `decision-record` | A spike issue is resolved and the outcome needs to outlive the issue |
+| `spike-report` | "Do a spike on this" — research an architectural question and write the answer to `docs/spikes/`. Filing the *issue* is `github-issue` |
 | `repo-review` | Rating, scoring or auditing the repo as a whole — the seven cards in [`docs/reviews/SCORECARDS.md`](./docs/reviews/SCORECARDS.md), not the current diff |
 | `content:new-vendor` | Adding a CMS vendor to `@monorepo/content` |
 | `i18n:new-vendor` | Adding a TMS vendor to `@monorepo/i18n` |
