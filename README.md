@@ -126,7 +126,12 @@ also what CI runs. For the whole workspace instead, use `pnpm exec nx run-many -
   the branch name and copies that issue's title, assignees and project onto the PR, so a PR never
   ships with GitHub's bare defaults. It runs on a `PROJECTS_TOKEN` PAT (`repo` + `project` scopes)
   because moving a PR onto a Projects (v2) board needs the `project` scope that `GITHUB_TOKEN`
-  doesn't have.
+  doesn't have. That secret isn't provisioned by anything — a repo without it fails the workflow
+  with `gh`'s "set the GH_TOKEN environment variable" error on the first PR anyone opens. To fix it:
+  generate a classic PAT ([github.com/settings/tokens](https://github.com/settings/tokens) →
+  **Generate new token (classic)**) scoped to `repo` and `project`, then add it as
+  `gh secret set PROJECTS_TOKEN --repo xfontr/monorepo` (or Settings → Secrets and variables →
+  Actions in the browser). Re-run the failed workflow run once it's set — no new PR needed.
 - CI (GitHub Actions) re-runs the same affected targets plus `build` on every PR and on `master`.
 
 ## 🏷 Versioning
