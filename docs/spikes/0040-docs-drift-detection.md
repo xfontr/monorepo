@@ -13,7 +13,7 @@ time. Nothing runs in CI or the pre-push hook, nothing checks relative links bet
 nothing catches a human PR, a multi-file edit, or a kind of drift the hook doesn't already know
 about.
 
-## Decision
+## Result
 
 No single mechanism covers every class of drift, so three layered checks are adopted, each scoped
 to the failure mode only it catches:

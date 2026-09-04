@@ -29,7 +29,7 @@ imports (translations), and repo-local dev tooling that isn't imported by anythi
 (scripts) — both `private: true`, each usable on its own. Note that `@monorepo/content` does *not*
 belong here: it is a client for a CMS, and the CMS it talks to is hosted elsewhere.
 Every project has its own README; start there for anything specific to it.
-[`docs/decisions/`](./docs/decisions/README.md) holds the answer once a spike issue gets one — the
+[`docs/spikes/`](./docs/spikes/README.md) holds the answer once a spike issue gets one — the
 issue is where the question lived, not where the outcome should have to survive.
 [`docs/reviews/`](./docs/reviews/README.md) scores the whole tree against a fixed rubric, one dated
 file per review, so that "is this getting better" has an answer that isn't a feeling.
