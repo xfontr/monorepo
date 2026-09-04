@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { cached } from "./cache.ts";
+import { slugify } from "./branch.ts";
+import { cached, readCache, writeCache } from "./cache.ts";
 
 const gh = (...args: string[]): string => execFileSync("gh", args, { encoding: "utf8" }).trim();
 
@@ -32,22 +33,42 @@ export type Issue = {
 const repoOwner = (): string => gh("repo", "view", "--json", "owner", "--jq", ".owner.login");
 
 /**
- * Returns the owner's open projects, or nothing at all: `gh project list` needs the `project`
- * OAuth scope, which a plain `gh auth login` doesn't grant. Swallowing that is deliberate —
- * missing the scope should cost you the project prompt, not the whole issue.
+ * A cheap, scope-free round trip used only to tell "gh is unreachable" apart from "missing the
+ * `project` scope" — `listProjects` already swallows the latter to mean something else, so offline
+ * detection needs its own signal rather than reading that catch.
  */
-export const listProjects = (): Project[] => cached("projects", () => {
+export const isOnline = (): boolean => {
     try {
-        const { projects } = JSON.parse(gh("project", "list", "--owner", repoOwner(), "--format", "json")) as {
-            projects: (Project & { closed: boolean })[]
-        };
-
-        return projects.filter(({ closed }) => !closed);
+        gh("api", "rate_limit");
+        return true;
     }
     catch {
-        return [];
+        return false;
     }
-});
+};
+
+/**
+ * Returns the owner's open projects. Online, `gh project list` failing (most often the missing
+ * `project` scope, which a plain `gh auth login` doesn't grant) is swallowed to an empty list —
+ * that should cost you the project prompt, not the whole issue. Offline, there's no fetch to fall
+ * back from failing, so this reads the cache directly instead of paying for a doomed round trip.
+ */
+export const listProjects = (offline = false): Project[] => {
+    if (offline) return readCache<Project[]>("projects") ?? [];
+
+    return cached("projects", () => {
+        try {
+            const { projects } = JSON.parse(gh("project", "list", "--owner", repoOwner(), "--format", "json")) as {
+                projects: (Project & { closed: boolean })[]
+            };
+
+            return projects.filter(({ closed }) => !closed);
+        }
+        catch {
+            return [];
+        }
+    });
+};
 
 export const listLabels = (): Label[] => cached("labels", () =>
     JSON.parse(gh("label", "list", "--json", "name,description")) as Label[]);
@@ -56,8 +77,16 @@ export const listLabels = (): Label[] => cached("labels", () =>
  * The repo's open issues that sit on the given project. Filtering client-side off
  * `--json projectItems` rather than asking `gh project item-list` is one call instead of two, and
  * it gets open-only for free — a project's item list happily hands back closed and draft items.
+ *
+ * Deliberately not behind `cached`'s TTL: online, this fetches and overwrites the cache on every
+ * call, because a stale issue list is the one answer this flow exists to avoid. Offline, that same
+ * cache is the only answer there is.
  */
-export const listIssues = (project: string): Issue[] => {
+export const listIssues = (project: string, offline = false): Issue[] => {
+    const key = `issues-${slugify(project)}`;
+
+    if (offline) return readCache<Issue[]>(key) ?? [];
+
     const issues = JSON.parse(gh("issue", "list", "--state", "open", "--limit", "100", "--json", "number,title,url,labels,projectItems")) as {
         number: number
         title: string
@@ -66,9 +95,13 @@ export const listIssues = (project: string): Issue[] => {
         projectItems: { title: string }[]
     }[];
 
-    return issues
+    const forProject = issues
         .filter(({ projectItems }) => projectItems.some(({ title }) => title === project))
         .map(({ number, title, url, labels }) => ({ number, title, url, labels: labels.map(({ name }) => name) }));
+
+    writeCache(key, forProject);
+
+    return forProject;
 };
 
 /**

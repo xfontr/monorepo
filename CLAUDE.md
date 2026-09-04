@@ -87,6 +87,7 @@ history table in that directory's README.
 | `writing-tests` | Adding or changing any `*.spec.ts` |
 | `house-docs` | Writing or editing any markdown |
 | `github-issue` | Filing an issue *for* the user — the three templates. They file their own with `pnpm issue:add`, which is deliberately template-free |
+| `start-issue` | Starting work on a specific issue — from the branch you're on, or from a number, link or description |
 | `decision-record` | A spike issue is resolved and the outcome needs to outlive the issue |
 | `repo-review` | Rating, scoring or auditing the repo as a whole — the seven cards in [`docs/reviews/SCORECARDS.md`](./docs/reviews/SCORECARDS.md), not the current diff |
 | `content:new-vendor` | Adding a CMS vendor to `@monorepo/content` |

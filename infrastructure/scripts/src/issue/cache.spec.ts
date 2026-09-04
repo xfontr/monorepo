@@ -14,6 +14,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 // `cache.ts` reads `--refresh` off argv once, at module load, so a test that flips it has to
 // reset the module registry too — otherwise it's asserting against the first import's flag.
 const importCached = async () => (await import("./cache.ts")).cached;
+const importReadCache = async () => (await import("./cache.ts")).readCache;
+const importWriteCache = async () => (await import("./cache.ts")).writeCache;
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -73,5 +75,45 @@ describe("cached", () => {
         const cached = await importCached();
 
         expect(cached("projects", () => "fresh")).toBe("fresh");
+    });
+});
+
+describe("readCache", () => {
+    it("returns the stored data regardless of how old the entry is", async () => {
+        fs.readFileSync.mockReturnValue(JSON.stringify({ fetchedAt: Date.now() - DAY_MS * 30, data: "stale" }));
+        const readCache = await importReadCache();
+
+        expect(readCache("issues-foo")).toBe("stale");
+    });
+
+    it("returns undefined instead of throwing when there's no cache file yet", async () => {
+        fs.readFileSync.mockImplementation(() => {
+            throw new Error("ENOENT");
+        });
+        const readCache = await importReadCache();
+
+        expect(readCache("issues-foo")).toBeUndefined();
+    });
+});
+
+describe("writeCache", () => {
+    it("writes the data under the given key", async () => {
+        const writeCache = await importWriteCache();
+
+        writeCache("issues-foo", ["one"]);
+
+        expect(fs.writeFileSync).toHaveBeenCalledOnce();
+        const [path, contents] = fs.writeFileSync.mock.calls[0] as [string, string];
+        expect(path).toContain("issues-foo.json");
+        expect(JSON.parse(contents)).toMatchObject({ data: ["one"] });
+    });
+
+    it("swallows a write failure instead of throwing, same as `cached`'s write", async () => {
+        fs.writeFileSync.mockImplementation(() => {
+            throw new Error("EROFS");
+        });
+        const writeCache = await importWriteCache();
+
+        expect(() => writeCache("issues-foo", ["one"])).not.toThrow();
     });
 });

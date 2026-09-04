@@ -1,0 +1,86 @@
+name: PR metadata
+
+# Fills in what GitHub's own PR defaults leave crappy: title, assignees and
+# project are copied from the issue the branch is linked to (see
+# infrastructure/scripts/src/issue, pnpm issue:pick), so a PR opened from
+# `<type>/<issue number>-<slug>` always carries the same metadata as its
+# issue, no matter how the PR itself got opened.
+on:
+    pull_request:
+        types: [opened, reopened]
+
+# Everything below runs against a PAT, not the default token: adding a PR
+# to a Projects (v2) board needs the `project` scope, which GITHUB_TOKEN
+# never has. The same PAT also edits title/assignees, so there's only one
+# secret to hold — PROJECTS_TOKEN, a classic PAT with `repo` + `project`.
+permissions: {}
+
+jobs:
+    sync-from-issue:
+        # A fork's PR doesn't share this repo's issues or projects, and a
+        # fork's workflow run shouldn't get a write-scoped PAT anyway.
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        runs-on: ubuntu-latest
+        env:
+            GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
+        steps:
+            - name: Extract issue number from branch name
+              id: issue
+              env:
+                  HEAD_REF: ${{ github.head_ref }}
+              run: |
+                  # Same pattern .husky/commit-msg uses to recover the issue
+                  # number from a branch built by `pnpm issue:pick`.
+                  number=$(printf '%s' "$HEAD_REF" \
+                      | grep -Eo '^(hotfix|fix|feature|release)/[0-9]+' \
+                      | grep -Eo '[0-9]+$' || true)
+
+                  if [ -z "$number" ]; then
+                      echo "No issue number in branch '$HEAD_REF' — nothing to sync." >&2
+                      echo "found=false" >> "$GITHUB_OUTPUT"
+                      exit 0
+                  fi
+
+                  echo "found=true" >> "$GITHUB_OUTPUT"
+                  echo "number=$number" >> "$GITHUB_OUTPUT"
+
+            - name: Read the linked issue
+              if: steps.issue.outputs.found == 'true'
+              id: linked
+              env:
+                  ISSUE_NUMBER: ${{ steps.issue.outputs.number }}
+              run: |
+                  gh issue view "$ISSUE_NUMBER" --repo "${{ github.repository }}" \
+                      --json title,assignees,projectItems > issue.json
+
+                  {
+                      echo "title<<TITLE_EOF"
+                      jq -r '.title' issue.json
+                      echo "TITLE_EOF"
+                      echo "assignees=$(jq -r '[.assignees[].login] | join(",")' issue.json)"
+                      echo "projects=$(jq -r '[.projectItems[].title] | join(",")' issue.json)"
+                  } >> "$GITHUB_OUTPUT"
+
+            - name: Copy title, assignees and project onto the PR
+              if: steps.issue.outputs.found == 'true'
+              env:
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  ISSUE_TITLE: ${{ steps.linked.outputs.title }}
+                  ISSUE_ASSIGNEES: ${{ steps.linked.outputs.assignees }}
+                  ISSUE_PROJECTS: ${{ steps.linked.outputs.projects }}
+              run: |
+                  args=(--title "$ISSUE_TITLE")
+
+                  IFS=',' read -ra logins <<< "$ISSUE_ASSIGNEES"
+                  for login in "${logins[@]}"; do
+                      [ -n "$login" ] && args+=(--add-assignee "$login")
+                  done
+
+                  IFS=',' read -ra projects <<< "$ISSUE_PROJECTS"
+                  for project in "${projects[@]}"; do
+                      [ -n "$project" ] && args+=(--add-project "$project")
+                  done
+
+                  # Re-adding an existing assignee/project, or resetting an
+                  # unchanged title, is a no-op — safe to run again on reopen.
+                  gh pr edit "$PR_NUMBER" --repo "${{ github.repository }}" "${args[@]}"
