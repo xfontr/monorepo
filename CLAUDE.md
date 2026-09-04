@@ -62,10 +62,11 @@ Branches must match `^(hotfix|fix|feature|release)/.+` and `master` is not pusha
 work on a branch. `pnpm issue:pick` is the shortest way to one — pick an open issue off a project
 board and it creates `<type>/<issue number>-<slug>`, which is the naming the number-first branches
 here come from. Commits are [Conventional Commits](https://www.conventionalcommits.org) —
-commitlint rejects anything else, and the type decides the next version. Two rules beyond the
-convention, both in [`commitlint.config.mjs`](./commitlint.config.mjs) and neither obvious from a
-rejection message: the **type is lower-case** and the **subject is sentence case**, so
-`feat: Add the thing` passes and `feat: add the thing` does not.
+commitlint rejects anything else, and the type decides the next version.
+[`commitlint.config.mjs`](./commitlint.config.mjs) just extends `@commitlint/config-conventional`
+with no overrides, and two of that preset's rules aren't obvious from a rejection message: the
+**type is lower-case** and the **subject is not** sentence-case, start-case, Pascal-case or
+upper-case — so `feat: add the thing` passes and `feat: Add the thing` does not.
 
 The pre-push hook runs lint, test and typecheck on affected projects. CI runs those **plus `build`**,
 so a green push is not yet a green pipeline — `apps/huella-legal` typechecks on build, which is where

@@ -40,14 +40,22 @@ serves `projects/huella-legal/en-GB.json`. Adding a locale means adding a file �
 there is nothing to register.
 
 Responses are CORS-open (`Access-Control-Allow-Origin: *`). Unknown locales
-return `404`; unsafe `:project`/`:locale` path segments return `400`.
+return `404`; unsafe `:project`/`:locale` path segments return `400`; a locale
+file that exists but fails to read (bad JSON, permissions) returns `500`.
 
 ## 🐳 Run in Docker (recommended)
 
 The image is the deployable artifact: multi-stage, production dependencies only,
 non-root, `restart: unless-stopped`. The same build runs locally, where you start
-it once and forget it — it comes back after a crash or a reboot. Run from this
-package (`pnpm --filter @monorepo/translations <script>`, or `cd` here):
+it once and forget it — it comes back after a crash or a reboot. "Production
+dependencies only" is `pnpm --filter=@monorepo/translations deploy --legacy
+--prod --frozen-lockfile /out` in the [`Dockerfile`](./docker/Dockerfile) —
+`deploy` writes a self-contained `node_modules` for just this package,
+`--legacy` because the workspace isn't set up as `deploy`'s non-legacy mode
+expects. The build context itself is trimmed by
+[`Dockerfile.dockerignore`](./docker/Dockerfile.dockerignore) (no `.git`,
+`node_modules`, build outputs, or markdown). Run from this package
+(`pnpm --filter @monorepo/translations <script>`, or `cd` here):
 
 ```bash
 pnpm docker:up      # build + start in the background

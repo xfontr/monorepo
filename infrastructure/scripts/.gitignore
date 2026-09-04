@@ -1,0 +1,5 @@
+# The root .gitignore's `coverage/` rule matches any directory named "coverage" at any depth,
+# which also catches this project's own script source folder, not just its generated vitest
+# output — negating by directory name alone would re-include both. Scoping to the exact path
+# keeps `coverage/` (the generated report) ignored and `src/coverage/` (the script) tracked.
+!src/coverage/
