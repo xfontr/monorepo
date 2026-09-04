@@ -98,13 +98,13 @@ imports use the explicit `.ts` extension** — `./gh.ts`, not `./gh`.
 invocations — a spec can only assert those against a mock of itself. The exception is the rule:
 real logic — a parser, a diff, a mapping — goes in its own file and gets a spec, per
 [`writing-tests`](../../.claude/skills/writing-tests/SKILL.md). Today that's
-[`issue/branch.ts`](./src/issue/branch.ts), which turns a typed title into a ref name,
-[`drift/detect.ts`](./src/drift/detect.ts), which turns a diff into a warn/don't-warn decision,
-[`map/capabilities.ts`](./src/map/capabilities.ts), which decides what counts as a capability and
-which doc explains one, [`shared/exec.ts`](./src/shared/exec.ts), which rejects a `gh`/`git`
+[`issue/domain/branch.ts`](./src/issue/domain/branch.ts), which turns a typed title into a ref name,
+[`drift/domain/detect.ts`](./src/drift/domain/detect.ts), which turns a diff into a warn/don't-warn decision,
+[`map/domain/capabilities.ts`](./src/map/domain/capabilities.ts), which decides what counts as a capability and
+which doc explains one, [`shared/adapters/exec.ts`](./src/shared/adapters/exec.ts), which rejects a `gh`/`git`
 argument that would be read as a flag instead of the value it's supposed to be, and
-[`coverage-report/discover.ts`](./src/coverage-report/discover.ts) and
-[`coverage-report/merge.ts`](./src/coverage-report/merge.ts), which resolve each project's coverage
+[`coverage-report/domain/discover.ts`](./src/coverage-report/domain/discover.ts) and
+[`coverage-report/domain/merge.ts`](./src/coverage-report/domain/merge.ts), which resolve each project's coverage
 output and refuse to merge a set that's missing one.
 
 Note that the folder is `coverage-report/`, not `coverage/`: `**/coverage` is in

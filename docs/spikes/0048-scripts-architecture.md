@@ -57,19 +57,21 @@ becomes redundant, which is the test of whether the layout works.
 The load-bearing half is the adapter naming rule, because it resolves the question that prompted the
 spike: **two `git.ts` files are correct.** They share one line and have zero export overlap — five of
 the eight functions have a single caller in `drift`, three have a single caller in `issue`. What is
-genuinely shared is the repo itself, so `shared/repo.ts` takes `git()`, a memoised lazy `repoRoot()`
-and `PROJECT_ROOTS`, retiring three `git rev-parse --show-toplevel` subprocesses and the only
-constant in the package that had two homes.
+genuinely shared is `git` itself, so `shared/adapters/git.ts` takes `git()`, a memoised lazy
+`repoRoot()` and `at()`, retiring three `git rev-parse --show-toplevel` subprocesses. `PROJECT_ROOTS`
+— the only constant in the package that had two homes — goes to `shared/domain/layout.ts` rather
+than alongside it, because `drift/domain/detect.ts` is pure and needs it, and a pure file importing
+the module that shells out to `git` would defeat the point of the layer.
 
 Three modules land in `shared/`: `cli.ts` (`run`, `fail`, `flag`), which makes every `index.ts` the
 same three lines and retires the `COMMANDS` dispatch constant without a barrel; `errors.ts`
-(`ExpectedError`, `CancelledError`); and `io.ts`, where `isTTY && !CI` picks clack or plain lines
-behind one `out.*` surface with failures on stderr in both modes.
+(`ExpectedError`, `CancelledError`); and `adapters/io.ts`, where `isTTY && !CI` picks clack or plain
+lines behind one `out.*` surface with failures on stderr in both modes.
 
 The runner turns out to fix four defects that read as style until you look: `coverage`'s
 actionable "run `nx run-many -t test:coverage` first" reaches the user as an unhandled-rejection
 stack trace, `issue`'s usage error goes to *stdout* while exiting 1, `map/index.ts` calls
-`process.exit(0)` immediately after a stdout write that a pipe can truncate, and `shared/cache.ts`
+`process.exit(0)` immediately after a stdout write that a pipe can truncate, and `shared/adapters/cache.ts`
 reads `--refresh` from `argv` at module load, so its behaviour depends on module-registry state.
 
 One finding is independent of the layout question: `src/coverage/` **has never been linted.**
@@ -86,28 +88,29 @@ that folder is the only one using `interface` and semicolon delimiters. The fold
 | A `commands/index.ts` barrel | Buys nothing `run({ add, pick })` doesn't: it renames the dispatch constant rather than removing it, and `add.ts` importing the barrel instead of `./pick.ts` is a cycle in a graph whose entry uses top-level `await` |
 | `types/` folder | `**/types` is in `baseIgnores` too, so it would be silently unlinted repo-wide — the exact failure `src/coverage/` demonstrates, re-created deliberately. It's why the pure layer is `domain/` |
 | `types.ts` per script | All 14 exported types sit with the function that produces them. `BranchType` is `typeof BRANCH_TYPES[number]` from two lines above it; `import type { Doc } from "./capabilities.ts"` says `Doc` is what the capabilities layer speaks, where `from "./types.ts"` says nothing |
-| `constants.ts` | Exactly one constant had two homes, and it moves to `shared/repo.ts`. `CANCELLED` exists in `add.ts` and `pick.ts` with *different* values, so centralising invites merging them and making one message a lie; `drift/README.md` cites three thresholds by file; `SECTIONS` is 30 lines of hard-wrapped prose |
+| `constants.ts` | Exactly one constant had two homes, and it moves to `shared/domain/layout.ts`. `CANCELLED` exists in `add.ts` and `pick.ts` with *different* values, so centralising invites merging them and making one message a lie; `drift/README.md` cites three thresholds by file; `SECTIONS` is 30 lines of hard-wrapped prose |
 | `configs/environment.ts` | Two env vars, read on adjacent lines of one file. Also confusing next to `@monorepo/configs`. The real defect was `cache.ts`'s module-load `argv` read |
 | `helpers/` | Every candidate is private to its file with one to three call sites. "Helper" isn't a role — it names the author's uncertainty, and the four layers classify every file without it |
 | Merging both `git.ts` into `shared/` | Produces an eight-export module where each caller uses half — the junk drawer this package's CLAUDE.md warns about |
 | Unifying `add`/`pick`'s project prompt | Different return types and different jobs: `add` offers a *none* option, `pick` has the offline fallback. They share one string, which is what gets extracted |
-| `domain/` directories | One or two files each. Their only real gain is a lint rule generic enough to live in `@monorepo/configs` — revisit if a script folder passes ~10 files |
 
 ## Consequences
 
-Unlocks a shape a new script is written into rather than around: one `main.ts`, adapters named after
-what they talk to, and a `README` rule that answers "where does this go" without a `helpers/`
-folder to absorb the uncertainty. `map/` and `coverage-report/` also become importable without a git
-checkout once `repoRoot()` is lazy, which is what makes their entry points testable later.
+Unlocks a shape a new script is written into rather than around, and one a stranger can read off a
+directory listing: the root says what you can run, `adapters/` is every side effect in the package,
+`domain/` is what a spec can call without a mock. `map/` and `coverage-report/` also become
+importable without a git checkout once `repoRoot()` is lazy, which is what makes their entry points
+testable at all.
 
-Forecloses little, since nothing moves between folders — but it does mean the layer rule is
-**convention only** for now. Machine enforcement is a follow-up: a package-local
-`no-restricted-imports` block with a declared adapter list, so a new file under a script folder is
-domain by default and fails lint the moment it reaches for `node:fs` or `@clack/prompts`. It was
-deferred because it costs this package's `eslint.config.ts` its status as a thin factory wrapper, and
-the rule can't move into `@monorepo/configs` without `configs` learning the names `add.ts` and
-`pick.ts`.
+The direction is still **convention, not lint** — but the folders change what enforcing it costs.
+The rule was originally deferred because, on a flat tree, it needed a hand-maintained list of which
+filenames are adapters, which meant a 40-line block in this package's own `eslint.config.ts` and no
+path into `@monorepo/configs` without `configs` learning the names `add.ts` and `pick.ts`. Against
+directories it is a generic glob — `**/domain/**` may not import `node:fs`, `node:child_process` or
+`@clack/prompts` — which is the same shape as the existing
+[`coreIsolation.ts`](../../packages/configs/src/eslint/lib/coreIsolation.ts) rule and can live
+beside it. That's the follow-up.
 
-Revisit the folder question if a single script folder passes roughly ten files — that is the point
-where `domain/` starts paying for itself, and where the lint rule above would become generic enough
-to share.
+Forecloses the flat layout, and costs nine directories, three of which hold a single file. That is
+the price of the listing being the documentation, and it is the right way round: the README's layer
+table was deleted when the folders landed.

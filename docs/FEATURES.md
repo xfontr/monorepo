@@ -77,3 +77,4 @@ shortest statement of how a task is meant to go here.
 | `/content:new-vendor` | [`packages/content/.claude/skills/new-vendor/SKILL.md`](../packages/content/.claude/skills/new-vendor/SKILL.md) | [`infrastructure/scripts/src/map/README.md`](../infrastructure/scripts/src/map/README.md) |
 | `/i18n:new-vendor` | [`packages/i18n/.claude/skills/new-vendor/SKILL.md`](../packages/i18n/.claude/skills/new-vendor/SKILL.md) | [`packages/i18n/CLAUDE.md`](../packages/i18n/CLAUDE.md) |
 | `/ui:new-component` | [`packages/ui/.claude/skills/new-component/SKILL.md`](../packages/ui/.claude/skills/new-component/SKILL.md) | [`packages/ui/CLAUDE.md`](../packages/ui/CLAUDE.md) |
+| `/scripts:new-script` | [`infrastructure/scripts/.claude/skills/new-script/SKILL.md`](../infrastructure/scripts/.claude/skills/new-script/SKILL.md) | [`infrastructure/scripts/CLAUDE.md`](../infrastructure/scripts/CLAUDE.md) |

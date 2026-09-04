@@ -1,24 +1,26 @@
 # 🤖 @monorepo/scripts
 
-See [README.md](./README.md) for the layout rule and the per-script docs it links to.
+See [README.md](./README.md) for the layout rule and the per-script docs it links to. Use the
+`scripts:new-script` skill when adding a script.
 
 - **This is a service, not a library.** Nothing in the workspace imports it — scripts are run as
   CLIs, which is also why it's `infrastructure/` rather than `packages/`, same reasoning as
   [`translations`](../translations/CLAUDE.md).
 - `private: true` and outside `nx release`'s `packages/*`, so it has **no `CHANGELOG.md` and no
   version to bump**.
-- **One folder per script under `src/`, each with a three-line `index.ts` that calls `run` from
-  [`shared/cli.ts`](./src/shared/cli.ts), a `main.ts`, and a `README.md`.** Don't add loose files at
-  the top of `src/`, and don't add a shared helper folder for a single caller. A folder may expose
-  subcommands (`issue/` does: `add`, `pick`) when they share real code — `index.ts` passes a record
-  and `run` dispatches. Otherwise it's two folders.
-- **Four layers: entry → command → adapter → domain, one way only, never sideways between script
-  folders.** The table is in the [README](./README.md#-the-four-layers) and the reasoning is in
-  [`0048`](../../docs/spikes/0048-scripts-architecture.md). Two rules get got wrong: an **adapter is
-  named after the boundary it wraps**, so `git.ts` living in three folders at once is correct rather
-  than duplication; and a **domain file is pure**, so a threshold or a parser never reaches for
-  `node:fs`. There is no `helpers/`, no `types/` and no `constants.ts` here — 0048 says why each was
-  rejected, so don't re-add one.
+- **One folder per script under `src/`, and every one has the same four things in it**: a three-line
+  `index.ts` that calls `run` from [`shared/cli.ts`](./src/shared/cli.ts), a `main.ts` (or one file
+  per subcommand — `issue/` has `add` and `pick`, and `index.ts` passes a record), `adapters/` and
+  `domain/`. Create both directories even when one starts with a single file; the point is that the
+  listing answers "what runs, what talks to the outside, what's pure" before anyone opens a file.
+  Don't add loose files at the top of `src/`.
+- **entry → command → `adapters/` → `domain/`, one way only, never sideways between script folders.**
+  The reasoning is in [`0048`](../../docs/spikes/0048-scripts-architecture.md). Two rules get got
+  wrong: an **adapter is named after the boundary it wraps**, so `git.ts` living in three folders at
+  once is correct rather than duplication; and a **`domain/` file is pure** — no `node:fs`, no
+  subprocess, no clack, no `process`. There is no `helpers/`, no `types/` and no `constants.ts` here
+  — 0048 says why each was rejected, so don't re-add one. (`types/` also can't work: `**/types` is
+  in `baseIgnores`, so ESLint would never see it.)
 - **No side effects at module scope.** No `run()`, `git()` or `readFileSync` at the top level of a
   file, and read `process.argv`/`process.env` inside a command (or via `flag()`), never into a
   module-level const. Both rules exist because breaking them made two modules unimportable outside a

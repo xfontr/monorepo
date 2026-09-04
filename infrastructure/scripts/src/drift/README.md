@@ -35,8 +35,8 @@ is enough on its own:
 
 | Condition | Threshold | Why |
 | --- | --- | --- |
-| Docs are stale | No markdown file under the project has been touched in ≥4 months (`STALE_DOCS_MS` in [`detect.ts`](./detect.ts)) | A small change landing on docs nobody's looked at in a while is still worth a glance |
-| The change is big | ≥200 changed lines, ≥8 changed files, or any rename (`BIG_CHANGE_LINES`/`BIG_CHANGE_FILES` in [`detect.ts`](./detect.ts)) | A big change with same-week docs is still worth a look — size alone is signal regardless of doc age |
+| Docs are stale | No markdown file under the project has been touched in ≥4 months (`STALE_DOCS_MS` in [`detect.ts`](./domain/detect.ts)) | A small change landing on docs nobody's looked at in a while is still worth a glance |
+| The change is big | ≥200 changed lines, ≥8 changed files, or any rename (`BIG_CHANGE_LINES`/`BIG_CHANGE_FILES` in [`detect.ts`](./domain/detect.ts)) | A big change with same-week docs is still worth a look — size alone is signal regardless of doc age |
 
 Both are proxies, not a semantic check — a 200-line refactor with no behavior change warns the same
 as a 200-line rewrite that actually invalidates the README. See
@@ -46,7 +46,7 @@ what's deferred past it.
 ## 🔁 Not re-warning for the same diff
 
 Each project's fingerprint — a hash of `git diff base..head -- <root>`'s full text — is stored under
-the `drift-fingerprints` cache key via `../shared/cache.ts`'s `readCache`/`writeCache`, the same file
+the `drift-fingerprints` cache key via `../shared/adapters/cache.ts`'s `readCache`/`writeCache`, the same file
 cache `issue/` uses for projects and labels. It's written *before* the prompt runs, so a Ctrl+C
 mid-run still counts that diff as seen. A second push with nothing new for a project reads the same
 fingerprint and skips it entirely, warned or not, said yes or no. The trade-off is the same one
@@ -63,7 +63,7 @@ to put the project back in front of a human, not to pre-judge what changed, so w
 reads the diff themselves.
 
 `<Name>` is the project root's last path segment, kebab-case turned to Title Case — `apps/huella-legal`
-becomes `Huella Legal` (`displayName` in [`detect.ts`](./detect.ts)).
+becomes `Huella Legal` (`displayName` in [`detect.ts`](./domain/detect.ts)).
 
 ## 🧭 Deliberately deferred
 
