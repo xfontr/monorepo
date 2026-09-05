@@ -19,7 +19,7 @@ const cacheOptions: CachedEventHandlerOptions<TranslationMap> = {
     shouldBypassCache: () => import.meta.dev === true,
 };
 
-export default defineCachedEventHandler(async (event) => {
+export default defineCachedEventHandler<EventHandlerRequest, Promise<TranslationMap>>(async (event) => {
     const locale = getRouterParam(event, "locale");
     const { vendor, locales } = useRuntimeConfig(event).translations as TranslationsConfig;
 

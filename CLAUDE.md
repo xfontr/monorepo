@@ -33,6 +33,11 @@ invariants that span more than one file.
 - **Never write a real endpoint, URL, token or instance ID into the repo.** Every one of them is an
   env var with no default; `.env.example` documents the names and nothing else. "It's a public URL"
   is not a reason — vendor endpoints stay out.
+- **Never raise git.** Branching, committing, pushing, PRs and releases belong to the user and they
+  do not want them suggested, offered, prepared for or asked about. Answer the question or change
+  the code and stop there — an unprompted "want me to branch off and apply this?" is noise, not
+  helpfulness. Act on any of it only when asked in those words; the branch and commit rules under
+  [⌨️ Commands](#️-commands) are reference for when that happens, not a prompt to bring it up.
 ## 📦 Dependencies
 
 - **Adding a validation or utility library is a check-in, not a ban.** Say what it buys you and lay
@@ -59,10 +64,11 @@ changed since `master`, same as CI and the pre-push hook.
 | What targets a project has | `pnpm exec nx show project @monorepo/<name>` |
 | Why something rebuilt | `pnpm graph` |
 
-Branches must match `^(hotfix|fix|feature|release)/.+` and `master` is not pushable, so start any
-work on a branch. `pnpm issue:pick` is the shortest way to one — pick an open issue off a project
-board and it creates `<type>/<issue number>-<slug>`, which is the naming the number-first branches
-here come from. Commits are [Conventional Commits](https://www.conventionalcommits.org) —
+The rest of this section is reference for when the user asks for it, not licence to offer it.
+Branches must match `^(hotfix|fix|feature|release)/.+` and `master` is not pushable. `pnpm
+issue:pick` is the shortest way to a branch — pick an open issue off a project board and it creates
+`<type>/<issue number>-<slug>`, which is the naming the number-first branches here come from.
+Commits are [Conventional Commits](https://www.conventionalcommits.org) —
 commitlint rejects anything else, and the type decides the next version.
 [`commitlint.config.mjs`](./commitlint.config.mjs) just extends `@commitlint/config-conventional`
 with no overrides, and two of that preset's rules aren't obvious from a rejection message: the
