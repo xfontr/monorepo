@@ -140,8 +140,9 @@ use `pnpm exec nx run-many -t <target>`.
   fails the push: it warns when a changed project's docs look stale or the change is big, and offers
   to file an issue.
 - Opening a PR from a branch that convention built triggers
-  [`pr-metadata.yml`](./.github/workflows/pr-metadata.yml): it reads the issue number back out of
-  the branch name and copies that issue's title, assignees and project onto the PR, so a PR never
+  [`pr-metadata.yml`](./.github/workflows/pr-metadata.yml): it reads the branch type and issue
+  number back out of the branch name, copies the issue's assignees and project onto the PR as-is,
+  and tags the title with that type and number (`feature: [48] <issue title>`), so a PR never
   ships with GitHub's bare defaults. It runs on a `PROJECTS_TOKEN` PAT (`repo` + `project` scopes)
   because moving a PR onto a Projects (v2) board needs the `project` scope that `GITHUB_TOKEN`
   doesn't have. That secret isn't provisioned by anything — a repo without it fails the workflow

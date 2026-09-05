@@ -41,9 +41,11 @@ whole working tree):
 ## 4. Open the PR
 
 Opening a PR from a branch that steps 1–3 built triggers
-[`pr-metadata.yml`](../../.github/workflows/pr-metadata.yml): it reads the issue number back out of
-`head_ref`, reads that issue's title, assignees and project via `gh`, and copies all three onto the
-PR — so the PR never ships with GitHub's bare "same as branch name" defaults. This runs on a
+[`pr-metadata.yml`](../../.github/workflows/pr-metadata.yml): it reads the branch type and issue
+number back out of `head_ref`, reads that issue's title, assignees and project via `gh`, and copies
+assignees and project onto the PR as-is while tagging the title with the branch type and issue
+number (`feature: [48] <issue title>`) — so the PR never ships with GitHub's bare "same as branch
+name" defaults. This runs on a
 `PROJECTS_TOKEN` classic PAT (`repo` + `project` scopes) rather than the default `GITHUB_TOKEN`,
 because adding a PR to a Projects (v2) board needs the `project` scope the default token never
 carries, and forks never get this PAT at all — the workflow no-ops on a fork's PR.
