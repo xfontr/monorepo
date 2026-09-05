@@ -36,6 +36,7 @@ quietly until it exists.
 | Review | Commit | Arch | Impl | Test | DX | Docs | AI | Proc | Total | Rubric |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [2026-09-04](./2026-09-04-c1025f3.md) | `c1025f3` | 5 | 4 | 4 | 4 | 4 | 3 | 4 | 4.1 | v1 |
+| [2026-09-05](./2026-09-05-abcb17d.md) | `abcb17d` | 5 | 4 | 4 | 4 | 4 | 4 | 4 | 4.2 | v1 |
 
 ## 🧭 Deliberately deferred
 

@@ -33,11 +33,12 @@ invariants that span more than one file.
 - **Never write a real endpoint, URL, token or instance ID into the repo.** Every one of them is an
   env var with no default; `.env.example` documents the names and nothing else. "It's a public URL"
   is not a reason — vendor endpoints stay out.
-- **Don't reach for a validation or utility library** in a package whose dependency list is one or
-  two entries. Both `content` and `i18n` argue this out in their READMEs; the bar is high.
-
 ## 📦 Dependencies
 
+- **Adding a validation or utility library is a check-in, not a ban.** Say what it buys you and lay
+  out the hand-rolled alternative, then let the answer decide — don't just add it, especially in a
+  package whose dependency list is one or two entries. `content` and `i18n` show what the reasoning
+  looks like once it's settled: see their `✅ Validation` sections.
 - Internal: `"@monorepo/x": "workspace:*"`. Every project also has `@monorepo/configs` in
   `devDependencies`.
 - Shared third-party (nuxt, vue, vite, typescript, vitest, eslint, node types, hono): `"catalog:"`,

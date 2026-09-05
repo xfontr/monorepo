@@ -166,3 +166,14 @@ Versions and changelogs are derived from commit messages by `nx release` — no 
 Run the **Release** workflow ([`release.yml`](./.github/workflows/release.yml), `workflow_dispatch`)
 to cut versions. Leave `dry-run` on to preview;
 tick `first-release` only when a project has no git tag yet. Locally: `pnpm release:dry`.
+
+The workflow's final push runs as `github-actions[bot]` via `GITHUB_TOKEN`, which the `master`
+branch ruleset's PR and required-status-check rules don't exempt — that push needs a
+`RELEASE_TOKEN` PAT belonging to an account the ruleset's bypass list covers (an admin, today).
+That secret isn't provisioned by anything — a repo without it gets the release commit and tags
+built locally, then `git push --follow-tags` rejected with GitHub's "Changes must be made through
+a pull request" error. To fix it: generate a classic PAT
+([github.com/settings/tokens](https://github.com/settings/tokens) → **Generate new token
+(classic)**) on an account with bypass rights, scoped to `repo`, then add it as
+`gh secret set RELEASE_TOKEN --repo xfontr/monorepo` (or Settings → Secrets and variables →
+Actions in the browser). Re-run the failed workflow run once it's set.
