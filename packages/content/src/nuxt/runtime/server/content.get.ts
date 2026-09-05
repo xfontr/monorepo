@@ -18,7 +18,7 @@ const cacheOptions: CachedEventHandlerOptions<ContentPage> = {
     shouldBypassCache: () => import.meta.dev === true,
 };
 
-export default defineCachedEventHandler(async (event) => {
+export default defineCachedEventHandler<EventHandlerRequest, Promise<ContentPage>>(async (event) => {
     const resource = parseResource(event);
     const query = parseQuery(event, resource);
     const provider = await resolveProvider(readVendor(event));

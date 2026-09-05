@@ -18,7 +18,7 @@ const cacheOptions: CachedEventHandlerOptions<Entry | Term> = {
 
 // The slug lookup lives on the server rather than in the composable, so a miss answers with a real
 // 404 and a vendor with a native single-document endpoint can serve it without a list round-trip
-export default defineCachedEventHandler(async (event) => {
+export default defineCachedEventHandler<EventHandlerRequest, Promise<Entry | Term>>(async (event) => {
     const resource = parseResource(event);
     const slug = parseSlug(event);
     const provider = await resolveProvider(readVendor(event));
