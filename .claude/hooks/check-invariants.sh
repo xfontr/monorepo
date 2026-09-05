@@ -22,18 +22,32 @@ if [ "$rel" = "packages/configs/src/eslint/lib/boundaries.ts" ]; then
 fi
 
 case "$rel" in
-    packages/*/package.json)
-        # No build step and no lifecycle scripts: packages export raw source, and both CI workflows
-        # install with --ignore-scripts, so a lifecycle script works locally and silently does nothing
-        # where it matters
-        found=$(jq -r '.scripts // {} | keys[] | select(. == "build" or . == "postinstall" or . == "prepare" or . == "prepublish" or . == "prepublishOnly")' "$file" 2>/dev/null | tr '\n' ' ')
+    packages/*/package.json|apps/*/package.json|infrastructure/*/package.json)
+        # Lifecycle scripts are banned workspace-wide (CLAUDE.md), not just under packages/*: both CI
+        # workflows install with --ignore-scripts everywhere, so one works locally and silently does
+        # nothing where it matters, regardless of which root it's added under
+        lifecycle=$(jq -r '.scripts // {} | keys[] | select(. == "postinstall" or . == "prepare" or . == "prepublish" or . == "prepublishOnly")' "$file" 2>/dev/null | tr '\n' ' ')
 
-        if [ -n "$found" ]; then
-            echo "$rel declares: $found" >&2
-            echo "packages/* export raw TypeScript/Vue source — no build script, no dist/, no main/types." >&2
-            echo "Lifecycle scripts are worse: CI installs with --ignore-scripts, so they do nothing there." >&2
+        if [ -n "$lifecycle" ]; then
+            echo "$rel declares: $lifecycle" >&2
+            echo "Lifecycle scripts are banned here: CI installs with --ignore-scripts, so they do" >&2
+            echo "nothing there while still working locally." >&2
             exit 2
         fi
+
+        # The no-build-step rule is packages/*-only: apps and infrastructure projects are consumed
+        # directly, never published, so they're allowed a real build script
+        case "$rel" in
+            packages/*/package.json)
+                build=$(jq -r '.scripts // {} | keys[] | select(. == "build")' "$file" 2>/dev/null)
+
+                if [ -n "$build" ]; then
+                    echo "$rel declares a build script." >&2
+                    echo "packages/* export raw TypeScript/Vue source — no build script, no dist/, no main/types." >&2
+                    exit 2
+                fi
+                ;;
+        esac
         ;;
 esac
 

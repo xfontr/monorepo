@@ -4,7 +4,8 @@ name: PR metadata
 # project are copied from the issue the branch is linked to (see
 # infrastructure/scripts/src/issue, pnpm issue:pick), so a PR opened from
 # `<type>/<issue number>-<slug>` always carries the same metadata as its
-# issue, no matter how the PR itself got opened.
+# issue, no matter how the PR itself got opened. The title is also tagged
+# with that branch type and issue number, e.g. `feature: [48] <issue title>`.
 on:
     pull_request:
         types: [opened, reopened]
@@ -24,25 +25,25 @@ jobs:
         env:
             GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
         steps:
-            - name: Extract issue number from branch name
+            - name: Extract issue type and number from branch name
               id: issue
               env:
                   HEAD_REF: ${{ github.head_ref }}
               run: |
                   # Same pattern .husky/commit-msg uses to recover the issue
                   # number from a branch built by `pnpm issue:pick`.
-                  number=$(printf '%s' "$HEAD_REF" \
-                      | grep -Eo '^(hotfix|fix|feature|release)/[0-9]+' \
-                      | grep -Eo '[0-9]+$' || true)
+                  match=$(printf '%s' "$HEAD_REF" \
+                      | grep -Eo '^(hotfix|fix|feature|release)/[0-9]+' || true)
 
-                  if [ -z "$number" ]; then
+                  if [ -z "$match" ]; then
                       echo "No issue number in branch '$HEAD_REF' — nothing to sync." >&2
                       echo "found=false" >> "$GITHUB_OUTPUT"
                       exit 0
                   fi
 
                   echo "found=true" >> "$GITHUB_OUTPUT"
-                  echo "number=$number" >> "$GITHUB_OUTPUT"
+                  echo "type=${match%%/*}" >> "$GITHUB_OUTPUT"
+                  echo "number=${match##*/}" >> "$GITHUB_OUTPUT"
 
             - name: Read the linked issue
               if: steps.issue.outputs.found == 'true'
@@ -65,11 +66,13 @@ jobs:
               if: steps.issue.outputs.found == 'true'
               env:
                   PR_NUMBER: ${{ github.event.pull_request.number }}
+                  ISSUE_TYPE: ${{ steps.issue.outputs.type }}
+                  ISSUE_NUMBER: ${{ steps.issue.outputs.number }}
                   ISSUE_TITLE: ${{ steps.linked.outputs.title }}
                   ISSUE_ASSIGNEES: ${{ steps.linked.outputs.assignees }}
                   ISSUE_PROJECTS: ${{ steps.linked.outputs.projects }}
               run: |
-                  args=(--title "$ISSUE_TITLE")
+                  args=(--title "$ISSUE_TYPE: [$ISSUE_NUMBER] $ISSUE_TITLE")
 
                   IFS=',' read -ra logins <<< "$ISSUE_ASSIGNEES"
                   for login in "${logins[@]}"; do
