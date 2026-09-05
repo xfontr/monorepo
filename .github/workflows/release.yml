@@ -26,6 +26,10 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:
                   fetch-depth: 0
+                  # GITHUB_TOKEN pushes as github-actions[bot], which the master ruleset's
+                  # pull_request/required_status_checks rules don't exempt. RELEASE_TOKEN is a
+                  # classic PAT on an admin account, whose bypass covers this push instead.
+                  token: ${{ secrets.RELEASE_TOKEN }}
 
             - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
 
