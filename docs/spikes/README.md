@@ -24,6 +24,29 @@ Copy [`TEMPLATE.md`](./TEMPLATE.md). Four sections, all of them short:
 Filename is `<issue-number>-<slug>.md`, zero-padded to four digits — sortable in a directory
 listing and traceable back to the issue that raised the question.
 
+## 🚦 Status
+
+A `Status:` line sits right under `Spike: #<issue number>`, and it is the one line in the file
+expected to change after the report is written — every other section is a record of what was found,
+this is what happened since:
+
+| Value | Means |
+| --- | --- |
+| `To implement` | The decision is made; the work it calls for hasn't landed in the repo yet |
+| `Implemented` | That work is done, in the repo today |
+| `Won't implement` | Decided against, deliberately — not a report waiting on follow-up |
+
+Whoever lands the follow-up work flips the line in the same PR, the way `CHANGELOG.md` gets touched
+by the change it describes rather than by a separate bookkeeping pass. A spike whose status never
+moves off `To implement` is either still waiting or forgotten, and there is no third option this
+line can express — that ambiguity is deliberate, the same read a stale changelog gets.
+
+This is why the value lives in the file rather than in the file's own location: a folder per status
+would make every one of those flips a `git mv`, and nothing here enforces that the move happens.
+[`apps/dashboard`](../../apps/dashboard/README.md) parses the line the same way it already parses
+`## 🧭 Deliberately deferred`, and shows it next to every spike in its wiki nav — so this is the one
+field in a spike report with a reader other than a human on GitHub.
+
 ## 🔗 Linking back
 
 The spike report is the artifact; the issue number in its filename is the link. Nothing gets

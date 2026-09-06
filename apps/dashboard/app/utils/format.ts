@@ -1,3 +1,5 @@
+import type { SpikeStatus } from "../../shared/types.ts";
+
 /**
  * One place decides how a number looks. The palette behind these three classes was validated
  * against both surfaces (see `assets/css/main.css`); a fourth or fifth band would not pass, which
@@ -44,10 +46,32 @@ const KIND_ICONS: Record<string, string> = {
     skill: "i-lucide-wand-sparkles",
     doc: "i-lucide-book-open",
     review: "i-lucide-clipboard-check",
+    spike: "i-lucide-compass",
 };
 
 export function kindIcon(kind: string): string {
     return KIND_ICONS[kind] ?? "i-lucide-file-text";
+}
+
+const SPIKE_STATUS_LABELS: Record<SpikeStatus, string> = {
+    "to-implement": "To implement",
+    "implemented": "Implemented",
+    "wont-implement": "Won't implement",
+};
+
+export function spikeStatusLabel(status: SpikeStatus): string {
+    return SPIKE_STATUS_LABELS[status];
+}
+
+/** Reuses the same validated three-tone palette everything else on this page uses for a verdict. */
+const SPIKE_STATUS_TONES: Record<SpikeStatus, Tone> = {
+    "to-implement": "warn",
+    "implemented": "good",
+    "wont-implement": "neutral",
+};
+
+export function spikeStatusTone(status: SpikeStatus): Tone {
+    return SPIKE_STATUS_TONES[status];
 }
 
 /** "3 hours ago" beats a timestamp for the one question a report page has to answer. */

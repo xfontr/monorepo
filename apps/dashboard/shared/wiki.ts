@@ -100,6 +100,7 @@ export function stripLeadingEmoji(title: string): string {
 function kindOf(path: string): DocKind {
     if (path.endsWith("/skill")) return "skill";
     if (path.endsWith("/claude") || path === "/claude") return "claude";
+    if (/^\/docs\/spikes\/\d{4}-/.test(path)) return "spike";
     if (path.startsWith("/docs/")) return "doc";
 
     return "readme";

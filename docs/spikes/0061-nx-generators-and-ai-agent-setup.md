@@ -1,6 +1,7 @@
 # 🧭 Nx generators, the MCP server and `nx migrate`
 
 Spike: #61
+Status: Implemented
 
 ## Context
 

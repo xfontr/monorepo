@@ -1,6 +1,7 @@
 # 🧭 <Spike title>
 
 Spike: #<issue number>
+Status: <To implement | Implemented | Won't implement>
 
 ## Context
 

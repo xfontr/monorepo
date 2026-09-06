@@ -106,10 +106,16 @@ export interface DocLink {
 }
 
 /**
- * `doc` and `review` are the two that live under `docs/`, which is where anything spanning more
- * than one project belongs. The rest are colocated with the code they describe.
+ * `doc`, `review` and `spike` are the ones that live under `docs/`, which is where anything
+ * spanning more than one project belongs. The rest are colocated with the code they describe.
  */
-export type DocKind = "readme" | "claude" | "changelog" | "skill" | "doc" | "review";
+export type DocKind = "readme" | "claude" | "changelog" | "skill" | "doc" | "review" | "spike";
+
+/**
+ * A spike report's own outcome, not the decision it argues for — `docs/spikes/README.md` calls
+ * this out as the one line in the file expected to change after the report is written.
+ */
+export type SpikeStatus = "to-implement" | "implemented" | "wont-implement";
 
 export interface DocPage {
     path: string
@@ -121,6 +127,8 @@ export interface DocPage {
     updatedAt: string | null
     /** Whether the doc carries a `## 🧭 Deliberately deferred` section. */
     deferred: boolean
+    /** Parsed from a spike report's `Status:` line; null for anything that isn't one. */
+    spikeStatus: SpikeStatus | null
     brokenLinks: DocLink[]
 }
 

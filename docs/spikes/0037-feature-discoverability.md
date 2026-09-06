@@ -1,6 +1,7 @@
 # 🧭 Making the repo's feature surface discoverable
 
 Spike: #37
+Status: Implemented
 
 ## Context
 

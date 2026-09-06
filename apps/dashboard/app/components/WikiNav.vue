@@ -1,7 +1,13 @@
 <script setup lang="ts">
+import type { SpikeStatus } from "../../shared/types.ts";
 import type { WikiGroup, WikiSection } from "../../shared/wiki.ts";
 
-const { sections, current = "" } = defineProps<{ sections: WikiSection[], current?: string }>();
+const { sections, current = "", spikeStatuses = {} } = defineProps<{
+    sections: WikiSection[]
+    current?: string
+    /** Keyed by path — the one thing this component needs that a path alone can't tell it. */
+    spikeStatuses?: Record<string, SpikeStatus>
+}>();
 
 function holdsCurrent(group: WikiGroup): boolean {
     return group.entries.some((entry) => entry.path === current);
@@ -41,6 +47,23 @@ function toggle(section: WikiSection, group: WikiGroup): void {
     else next.add(key);
 
     toggled.value = next;
+}
+
+function statusOf(path: string): SpikeStatus | null {
+    return spikeStatuses[path] ?? null;
+}
+
+/** `tone-neutral` renders nothing in `main.css`, so "won't implement" reads as an unfilled dot on purpose. */
+function statusToneClass(status: SpikeStatus | null): string {
+    if (!status) return "";
+
+    const tone = spikeStatusTone(status);
+
+    return tone === "neutral" ? "" : `tone-${tone}`;
+}
+
+function statusTitle(status: SpikeStatus | null): string | undefined {
+    return status ? spikeStatusLabel(status) : undefined;
 }
 </script>
 
@@ -104,7 +127,13 @@ function toggle(section: WikiSection, group: WikiGroup): void {
                         :name="kindIcon(entry.kind)"
                         class="size-3.5 shrink-0 text-dimmed"
                     />
-                    <span class="truncate">{{ entry.label }}</span>
+                    <span class="truncate flex-1">{{ entry.label }}</span>
+                    <span
+                        v-if="statusOf(entry.path)"
+                        class="size-1.5 rounded-full shrink-0 bg-current"
+                        :class="statusToneClass(statusOf(entry.path)) || 'text-dimmed'"
+                        :title="statusTitle(statusOf(entry.path))"
+                    />
                 </NuxtLink>
             </div>
         </div>

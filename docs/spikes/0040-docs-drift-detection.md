@@ -1,6 +1,7 @@
 # 🧭 Layered detection for docs drift
 
 Spike: #40
+Status: Implemented
 
 ## Context
 

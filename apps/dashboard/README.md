@@ -69,6 +69,13 @@ Labels are the one thing not taken verbatim: under a group already called `packa
 titled `📦 @monorepo/ui` says the name three times and the subject none, so it reads `Overview`. The
 real title is still the page's own heading.
 
+A spike carries one more thing the tree alone can't show: a coloured dot next to it in the nav, and
+a pill on its own page, for the `Status:` line [`docs/spikes/README.md`](../../docs/spikes/README.md)
+defines — good for `Implemented`, warn for `To implement`, neutral for `Won't implement`. That value
+comes from the collected snapshot, not from the path, so `shared/wiki.ts` stays derived from nothing
+but what `@nuxt/content` found; [`useSpikeStatuses`](./app/composables/useSpikeStatuses.ts) is the
+one place the two get joined, by path.
+
 ## 🐙 Issues come from GitHub, not from here
 
 The Issues page runs `gh issue list --json` on the server and renders what comes back. There is no

@@ -1,6 +1,7 @@
 # 🧭 Parallel dev environments across worktrees
 
 Spike: #38
+Status: To implement
 
 ## Context
 

@@ -1,6 +1,7 @@
 # 🧭 One architecture for the scripts package
 
 Spike: #48
+Status: Implemented
 
 ## Context
 
