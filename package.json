@@ -17,6 +17,7 @@
         "graph": "nx graph",
         "issue:add": "pnpm --filter @monorepo/scripts run issue:add",
         "issue:pick": "pnpm --filter @monorepo/scripts run issue:pick",
+        "issue:ship": "pnpm --filter @monorepo/scripts run issue:ship",
         "docs:drift": "pnpm --filter @monorepo/scripts run docs:drift",
         "docs:map": "pnpm --filter @monorepo/scripts run docs:map",
         "release": "nx release --skip-publish",

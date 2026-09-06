@@ -139,6 +139,11 @@ use `pnpm exec nx run-many -t <target>`.
   way: pick an open issue off a project board and it creates and checks out
   `<type>/<issue number>-<slug>` for you and assigns you the issue, which is where the branch names
   in this repo come from.
+- [`pnpm issue:ship`](./infrastructure/scripts/src/ship/README.md) is the other end of `pick`: it
+  pushes the current branch, opens or reuses its PR, arms GitHub's auto-merge, then blocks until
+  every check concludes and reports whether the PR merged or a check failed. Auto-merge and
+  delete-branch-on-merge are both on for this repo, and there's no branch protection on `master`
+  requiring reviews, so nothing gates the merge besides CI passing.
 - The hook also runs [`pnpm docs:drift`](./infrastructure/scripts/src/drift/README.md), which never
   fails the push: it warns when a changed project's docs look stale or the change is big, and offers
   to file an issue.

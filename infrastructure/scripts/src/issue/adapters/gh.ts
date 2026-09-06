@@ -4,6 +4,7 @@ import { slugify } from "../domain/branch.ts";
 
 export type Project = {
     title: string
+    number: number
     url: string
 };
 
@@ -110,3 +111,13 @@ export const assignToMe = (issue: number): void =>
  */
 export const developBranch = (issue: number, branch: string): void =>
     void gh("issue", "develop", String(issue), "--name", branch, "--checkout");
+
+/**
+ * Addressed by name — project number, issue URL, field name, option name — rather than by node ID:
+ * the node-ID form needs a `field-list` round trip first to resolve the field and option IDs, which
+ * `item-edit` already does server-side when given names instead. Assumes the default GitHub
+ * Projects template's "Status"/"In Progress" naming; a board that renamed either fails here the same
+ * way a missing field would anywhere else, and is swallowed the same way as the assignment.
+ */
+export const moveToInProgress = (project: Project, issue: Issue): void =>
+    void gh("project", "item-edit", String(project.number), "--owner", repoOwner(), "--url", issue.url, "--field", "Status", "--value", "In Progress");
