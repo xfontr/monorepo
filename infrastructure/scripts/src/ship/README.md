@@ -17,7 +17,7 @@ There's no flag and no prompt — the branch you're on is the only input, same a
 index.ts            hands main to run()
 main.ts              the push → PR → auto-merge → watch → report sequence
 adapters/git.ts      current branch, push
-adapters/gh.ts       find or create the PR, arm auto-merge, watch checks, read merged state
+adapters/gh.ts       find or create the PR, arm auto-merge, watch checks, wait for the merge
 domain/report.ts     turns (checks passed, merged) into the one line printed at the end
 domain/checks.ts     recognizes gh's "no checks reported yet" message
 ```
@@ -48,15 +48,27 @@ create` on a branch that already has one just errors.
 setting on every run to matter; a constant is one line to change the day this repo switches to
 squash or rebase merges instead.
 
-## ⏳ Retrying past the just-pushed check-registration race
+## ⏳ Two races this waits out instead of misreporting
 
-Right after `push`, GitHub can take a few seconds to attach any check run at all to the new commit.
-`gh pr checks --watch` doesn't wait that out — it errors immediately with "no checks reported",
-which is otherwise indistinguishable from a genuine failing check once all `watchChecks` in
-[`adapters/gh.ts`](./adapters/gh.ts) has to go on is a process exit code. [`domain/checks.ts`](./domain/checks.ts)
-names that one message so a few retries a few seconds apart can cover the registration lag instead
-of reporting it as "a check failed" — a real failure never carries this message, so it still returns
-on the first try.
+`watchChecks` and `waitForMerge` in [`adapters/gh.ts`](./adapters/gh.ts) each poll a bounded window
+rather than trusting a single `gh` call, because a single call catches two different GitHub delays
+mid-flight and reports them as if they were done:
+
+- **Right after `push`**, GitHub can take a while to attach even the *first* check run to the new
+  commit — this repo alone fans a PR out to GH Actions, a second "PR metadata" workflow, two
+  SonarCloud checks and four Netlify ones. `gh pr checks --watch` doesn't wait that out; it errors
+  immediately with "no checks reported", indistinguishable from a genuine failing check by exit code
+  alone. [`domain/checks.ts`](./domain/checks.ts) names that one message so `watchChecks` retries
+  for up to a minute instead of reporting it as "a check failed" — a real failure never carries that
+  message, so it still returns on the first try.
+- **Right after checks conclude**, `gh pr merge --auto` has only *queued* the merge — GitHub takes a
+  further beat to actually execute it. Reading the PR's state exactly once at that instant routinely
+  still sees `"OPEN"`, which is what used to skip the checkout below even on a run that genuinely
+  passed. `waitForMerge` polls for up to 45s before giving up and reporting "merge queued" instead.
+
+Both budgets are generous rather than tight on purpose: reporting a false failure (or skipping the
+checkout) costs more than the script blocking a few extra seconds on a run that was always going to
+succeed.
 
 ## ✅ Tests
 
