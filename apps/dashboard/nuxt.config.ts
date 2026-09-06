@@ -50,6 +50,14 @@ export default defineNuxtConfig({
         },
     },
 
+    // @nuxtjs/color-mode ships as a dependency of @nuxt/ui rather than a listed module, so its
+    // defaults are otherwise invisible here. `fallback` only matters pre-hydration/no-JS; the
+    // toggle and system preference both still override it.
+    colorMode: {
+        preference: "system",
+        fallback: "dark",
+    },
+
     runtimeConfig: {
         public: {
             repoUrl: "",

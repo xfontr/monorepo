@@ -3,6 +3,7 @@ import type { NavigationMenuItem } from "@nuxt/ui";
 
 const { data: issues } = useIssues();
 const { data: reviews } = await useReviewPages();
+const { public: { repoUrl } } = useRuntimeConfig();
 
 const open = computed(() => issues.value.issues.length);
 
@@ -87,6 +88,28 @@ const searchGroups = computed(() => [{
                     :collapsed="collapsed"
                     orientation="vertical"
                 />
+            </template>
+
+            <template #footer="{ collapsed }">
+                <div class="flex items-center gap-1.5 w-full">
+                    <UColorModeButton
+                        :block="!collapsed"
+                        :label="collapsed ? undefined : 'Theme'"
+                        class="flex-1"
+                    />
+
+                    <UButton
+                        v-if="!collapsed"
+                        :to="repoUrl"
+                        target="_blank"
+                        icon="i-simple-icons-github"
+                        color="neutral"
+                        variant="ghost"
+                        size="sm"
+                        square
+                        aria-label="View source on GitHub"
+                    />
+                </div>
             </template>
         </UDashboardSidebar>
 

@@ -5,6 +5,13 @@
     --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
 }
 
+/* Tailwind v4 preflight leaves native <button> at the browser default (`cursor: default`) rather
+   than resetting it to a pointer, and Nuxt UI's clickable components — UButton included — render
+   as <button> underneath. Without this every button in the app looks unclickable on hover. */
+button:not(:disabled) {
+    cursor: pointer;
+}
+
 /**
  * Status roles, not colours. Every number in this app that carries a verdict — a coverage
  * percentage, an unreleased-commit count — is written against these three, so the light/dark steps
