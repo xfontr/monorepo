@@ -1,3 +1,15 @@
+## 0.0.8 (2026-09-06)
+
+### 🚀 Features
+
+- [59] add linting rule, update docs, add review ([55f5a0f](https://github.com/xfontr/monorepo/commit/55f5a0f))
+- [36] add core isolution rule for nuxt modules ([c1025f3](https://github.com/xfontr/monorepo/commit/c1025f3))
+- [36] implement coverage, add new scripts ([3d14aba](https://github.com/xfontr/monorepo/commit/3d14aba))
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.7 (2026-08-19)
 
 This was a version bump only for @monorepo/configs to align it with other projects, there were no code changes.

@@ -1,3 +1,17 @@
+## 0.0.4 (2026-09-06)
+
+### 🚀 Features
+
+- [36] implement coverage, add new scripts ([3d14aba](https://github.com/xfontr/monorepo/commit/3d14aba))
+
+### 🧱 Updated Dependencies
+
+- Updated @monorepo/configs to 0.0.8
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.3 (2026-08-19)
 
 ### 🚀 Features
