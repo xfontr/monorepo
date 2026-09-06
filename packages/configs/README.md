@@ -33,8 +33,11 @@ export default vitest.createNodeConfig();  // or createVueConfig(viteConfig)
 
 `createVueConfig` takes the project's own Vite config and merges into it, so the component
 compilation your build already does is the same compilation the tests get. It also swaps in
-happy-dom. Both presets report coverage in `text`, `html`, `clover`, `json` and `lcov` — the wide
-spread is there so external coverage tooling can pick a format it understands.
+happy-dom. Both presets report coverage in `text`, `html`, `clover`, `json`, `json-summary` and
+`lcov`, and each format has a named consumer: the terminal, a human, external tooling, the merge in
+[`@monorepo/scripts`](../../infrastructure/scripts/src/coverage-report/README.md) — which reads
+`coverage-final.json` — and [`@monorepo/tech-docs`](../../apps/tech-docs/README.md), which reads
+`coverage-summary.json` and nothing else.
 
 Coverage is collected on `test:coverage`, a separate script from `test`, so the pre-push hook and CI's
 default run stay on the fast, uninstrumented path. A consuming project needs `@vitest/coverage-v8`

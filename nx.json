@@ -45,6 +45,9 @@
             "inputs": ["default", "^production"],
             "outputs": ["{projectRoot}/coverage"],
             "cache": true
+        },
+        "collect": {
+            "cache": false
         }
     },
     "tui": {

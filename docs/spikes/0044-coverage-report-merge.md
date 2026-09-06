@@ -1,6 +1,7 @@
 # 🧭 One coverage report, merged from the per-project runs
 
 Spike: #44
+Status: Implemented
 
 ## Context
 

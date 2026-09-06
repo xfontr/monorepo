@@ -1,0 +1,7 @@
+{
+    // The collectors are plain Node scripts run with `node --experimental-strip-types`, so they sit
+    // outside every tsconfig Nuxt generates. Without this project ESLint's type-aware rules refuse
+    // the whole `tools/` tree with "not found by the project service".
+    "extends": "@monorepo/configs/tsconfig/node.json",
+    "include": ["tools/**/*.ts", "shared/**/*.ts"]
+}

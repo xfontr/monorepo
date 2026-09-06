@@ -42,8 +42,12 @@ genuinely equivalent on the evidence, or a constraint that exists only in their 
 ## 2. Write the file
 
 Copy [`docs/spikes/TEMPLATE.md`](../../../docs/spikes/TEMPLATE.md) to
-`docs/spikes/<issue-number, zero-padded to 4 digits>-<slug>.md` and fill in its four sections —
-[`docs/spikes/README.md`](../../../docs/spikes/README.md) says what each is for.
+`docs/spikes/<issue-number, zero-padded to 4 digits>-<slug>.md` and fill in its four sections and
+its `Status:` line — [`docs/spikes/README.md`](../../../docs/spikes/README.md) says what each is
+for. Status is almost always `To implement` on the day the report is written: the report records
+that a decision was made, not that the work is done. Set it to `Implemented` only if the change it
+calls for is already in the same PR, and to `Won't implement` only when the finding itself is a
+decision not to act.
 
 The number is the issue that **raised the question**, which is not always labelled `spike` — an
 enhancement issue whose thread turned out to hide a decision is the issue that raised it. If
@@ -62,6 +66,11 @@ Keep it as tight as the shortest sections in the `ui`/`content` package READMEs:
 of an outcome, not a design doc arguing for it. Follow `house-docs` like any other markdown here.
 
 ## 3. Close the loop
+
+**When the follow-up work lands (or is dropped), flip the `Status:` line in the same PR.** That's
+the one line in a spike report expected to change after the fact — it's how
+[Technical Docs](../../../apps/tech-docs/README.md) shows, at a glance, which spikes are still owed
+work.
 
 **Never comment on the issue.** The report is reachable without one: its filename carries the issue
 number, and the PR that lands it references the issue. An issue comment adds a notification and a

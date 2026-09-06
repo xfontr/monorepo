@@ -1,0 +1,34 @@
+{
+  "name": "@monorepo/tech-docs",
+  "description": "Local dashboard over the workspace",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "lint": "nx eslint:lint",
+    "typecheck": "nuxt typecheck",
+    "test": "vitest . --watch=false",
+    "test:dev": "vitest .",
+    "test:coverage": "vitest . --watch=false --coverage",
+    "collect": "node tools/collect/index.ts"
+  },
+  "nx": {
+    "tags": ["type:app", "scope:internal"]
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.128",
+    "@nuxt/content": "^3.16.0",
+    "@nuxt/ui": "^4.11.0",
+    "nuxt": "catalog:",
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "@monorepo/configs": "workspace:*",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vue-tsc": "catalog:"
+  }
+}

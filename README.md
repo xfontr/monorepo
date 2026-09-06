@@ -11,6 +11,7 @@ on, and the supporting services they depend on.
 ```
 apps/
     huella-legal/     @monorepo/huella-legal — Huella Legal, a WIP law blog redesign (Nuxt 4)
+    tech-docs/        @monorepo/tech-docs — local-only dashboard over this repo's docs and metrics
 packages/
     configs/          @monorepo/configs — shared ESLint, Vitest and tsconfig presets
     content/          @monorepo/content — CMS entries and taxonomies + a Nuxt module
@@ -47,7 +48,7 @@ Projects are layered with Nx tags (declared in each `package.json` under `nx.tag
 
 | Tag | May depend on | Who has it |
 | --- | --- | --- |
-| `type:app` | `type:feature`, `type:domain`, `type:ui`, `type:i18n`, `type:content`, `type:observability`, `type:config` | `huella-legal` |
+| `type:app` | `type:feature`, `type:domain`, `type:ui`, `type:i18n`, `type:content`, `type:observability`, `type:config` | `huella-legal`, `tech-docs` |
 | `type:feature` | `type:domain`, `type:ui`, `type:i18n`, `type:content`, `type:config` | — |
 | `type:domain` | `type:domain`, `type:config` | — |
 | `type:ui` | `type:ui`, `type:config` | `ui` |
@@ -110,6 +111,8 @@ use `pnpm exec nx run-many -t <target>`.
 | `pnpm test:coverage` | Test the **whole workspace** with a V8 coverage report, then merge every project's into one browsable [`coverage/index.html`](./infrastructure/scripts/src/coverage-report/README.md) |
 | `pnpm build` | Build affected projects |
 | `pnpm graph` | Open the Nx project graph |
+| `pnpm tech-docs` | Start [`@monorepo/tech-docs`](./apps/tech-docs/README.md), the local dashboard over this repo's markdown, coverage, graph and issues |
+| `pnpm tech-docs:collect` | Rebuild the snapshot that tech-docs reads |
 | `pnpm docs:map` | Re-render [`docs/FEATURES.md`](./docs/FEATURES.md); `--check` asserts it is current |
 | `pnpm release:dry` | Preview a release (versioning + changelogs) |
 
