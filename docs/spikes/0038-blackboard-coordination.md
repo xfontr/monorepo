@@ -19,7 +19,7 @@ decouple.
 **The pattern already exists here, unnamed, in two places**, which is the first finding: OpenTelemetry's
 `traceparent` propagation in [`@monorepo/observability`](../../packages/observability/README.md) lets
 a browser span and a server span agree on one trace with no call between them, and
-[`apps/dashboard`](../../apps/dashboard/README.md)'s `.report/` snapshot lets `tools/collect` write
+[`apps/tech-docs`](../../apps/tech-docs/README.md)'s `.report/` snapshot lets `tools/collect` write
 once and every page, composable and `server/api/` route read a slice, with neither side calling the
 other.
 

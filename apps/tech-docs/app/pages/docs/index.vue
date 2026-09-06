@@ -132,7 +132,7 @@ const broken = computed(() => pages.value.filter((page) => page.brokenLinks.leng
                             v-if="recent.length === 0"
                             class="p-8 text-center text-sm text-muted"
                         >
-                            Nothing collected yet — run <code class="font-mono">pnpm dashboard:collect</code>.
+                            Nothing collected yet — run <code class="font-mono">pnpm tech-docs:collect</code>.
                         </div>
 
                         <div

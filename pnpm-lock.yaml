@@ -78,46 +78,6 @@ importers:
         specifier: 23.2.0
         version: 23.2.0
 
-  apps/dashboard:
-    dependencies:
-      '@iconify-json/lucide':
-        specifier: ^1.2.128
-        version: 1.2.129
-      '@nuxt/content':
-        specifier: ^3.16.0
-        version: 3.16.0(@oxc-project/types@0.140.0)(@valibot/to-json-schema@1.7.1(valibot@1.4.2(typescript@6.0.3)))(esbuild@0.28.1)(magic-string@1.2.3)(magicast@0.5.3)(oxc-parser@0.139.0)(rolldown@1.2.0)(rollup@4.62.2)(valibot@1.4.2(typescript@6.0.3))(vite@8.1.5(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
-      '@nuxt/ui':
-        specifier: ^4.11.0
-        version: 4.11.0(aa4768842825ca54db51ce99fbd85b02)
-      nuxt:
-        specifier: 'catalog:'
-        version: 4.5.0(@babel/plugin-proposal-decorators@7.29.7(@babel/core@7.29.7))(@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7))(@oxc-project/types@0.140.0)(@parcel/watcher@2.5.6)(@types/node@25.9.1)(@vitejs/devtools-kit@0.4.8(cac@7.0.0)(srvx@0.12.4)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0)))(@vue/compiler-sfc@3.5.40)(cac@7.0.0)(db0@0.4.1)(esbuild@0.28.1)(eslint@10.4.1(jiti@2.7.0))(ioredis@5.11.1)(lightningcss@1.32.0)(magicast@0.5.3)(meow@13.2.0)(optionator@0.9.4)(oxc-parser@0.139.0)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(rollup-plugin-visualizer@7.0.1(rolldown@1.2.0)(rollup@4.62.2))(rollup@4.62.2)(srvx@0.12.4)(terser@5.48.0)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@6.0.3))(yaml@2.9.0)
-      vue:
-        specifier: 'catalog:'
-        version: 3.5.39(typescript@6.0.3)
-    devDependencies:
-      '@monorepo/configs':
-        specifier: workspace:*
-        version: link:../../packages/configs
-      '@types/node':
-        specifier: 'catalog:'
-        version: 25.9.1
-      '@vitest/coverage-v8':
-        specifier: 'catalog:'
-        version: 4.1.7(vitest@4.1.7)
-      eslint:
-        specifier: 'catalog:'
-        version: 10.4.1(jiti@2.7.0)
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.10.6)(vite@8.1.5(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
-      vue-tsc:
-        specifier: 'catalog:'
-        version: 3.3.5(typescript@6.0.3)
-
   apps/huella-legal:
     dependencies:
       '@monorepo/content':
@@ -160,6 +120,46 @@ importers:
       '@monorepo/configs':
         specifier: workspace:*
         version: link:../../packages/configs
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 4.1.7(vitest@4.1.7)
+      eslint:
+        specifier: 'catalog:'
+        version: 10.4.1(jiti@2.7.0)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.10.6)(vite@8.1.5(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
+      vue-tsc:
+        specifier: 'catalog:'
+        version: 3.3.5(typescript@6.0.3)
+
+  apps/tech-docs:
+    dependencies:
+      '@iconify-json/lucide':
+        specifier: ^1.2.128
+        version: 1.2.129
+      '@nuxt/content':
+        specifier: ^3.16.0
+        version: 3.16.0(@oxc-project/types@0.140.0)(@valibot/to-json-schema@1.7.1(valibot@1.4.2(typescript@6.0.3)))(esbuild@0.28.1)(magic-string@1.2.3)(magicast@0.5.3)(oxc-parser@0.139.0)(rolldown@1.2.0)(rollup@4.62.2)(valibot@1.4.2(typescript@6.0.3))(vite@8.1.5(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
+      '@nuxt/ui':
+        specifier: ^4.11.0
+        version: 4.11.0(aa4768842825ca54db51ce99fbd85b02)
+      nuxt:
+        specifier: 'catalog:'
+        version: 4.5.0(@babel/plugin-proposal-decorators@7.29.7(@babel/core@7.29.7))(@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7))(@oxc-project/types@0.140.0)(@parcel/watcher@2.5.6)(@types/node@25.9.1)(@vitejs/devtools-kit@0.4.8(cac@7.0.0)(srvx@0.12.4)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0)))(@vue/compiler-sfc@3.5.40)(cac@7.0.0)(db0@0.4.1)(esbuild@0.28.1)(eslint@10.4.1(jiti@2.7.0))(ioredis@5.11.1)(lightningcss@1.32.0)(magicast@0.5.3)(meow@13.2.0)(optionator@0.9.4)(oxc-parser@0.139.0)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(rollup-plugin-visualizer@7.0.1(rolldown@1.2.0)(rollup@4.62.2))(rollup@4.62.2)(srvx@0.12.4)(terser@5.48.0)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@6.0.3))(yaml@2.9.0)
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.39(typescript@6.0.3)
+    devDependencies:
+      '@monorepo/configs':
+        specifier: workspace:*
+        version: link:../../packages/configs
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.9.1
       '@vitest/coverage-v8':
         specifier: 'catalog:'
         version: 4.1.7(vitest@4.1.7)

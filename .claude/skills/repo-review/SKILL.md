@@ -79,7 +79,7 @@ Copy [`TEMPLATE.md`](../../../docs/reviews/TEMPLATE.md) to
 against the previous review's row, or `—` on the first. Follow `house-docs`: prose that says why the
 score is what it is, tables for the findings, no closing summary.
 
-The `## 🧮 Scores` table is machine-read, not only human-read: `@monorepo/dashboard`'s scorecards page
+The `## 🧮 Scores` table is machine-read, not only human-read: `@monorepo/tech-docs`'s scorecards page
 parses it straight out of the file. Keep it byte-for-byte the shape `TEMPLATE.md` has — the same seven
 cards in the same order, each a bare `n/5` in the Score column, the total as `**n.n/5**` in a
 `**Total**` row. Never rename a card, reorder one, or write a score as anything but `n/5` (no `n/10`,

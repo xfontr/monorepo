@@ -6,7 +6,7 @@ Status: To implement
 ## Context
 
 Running multiple git worktrees at once (multiple branches, or multiple agents) means running this
-repo's dev servers side by side. Four projects can be run locally: `dashboard` (Nuxt dev),
+repo's dev servers side by side. Four projects can be run locally: `tech-docs` (Nuxt dev),
 `huella-legal` (Nuxt dev, plus `preview` after a build), `translations` (`pnpm dev`/`serve`, plus
 `docker:up`), and `@monorepo/ui`'s Storybook — up to 7 ports per worktree, one of them
 (`translations`) also reachable by `huella-legal` over HTTP rather than run standalone. None of the

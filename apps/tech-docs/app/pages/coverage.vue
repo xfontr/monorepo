@@ -153,7 +153,7 @@ const metrics = ["lines", "statements", "functions", "branches"] as const;
                     variant="subtle"
                     icon="i-lucide-info"
                     title="No HTML report copied in"
-                    description="Run pnpm test:coverage from the workspace root, then pnpm dashboard:collect."
+                    description="Run pnpm test:coverage from the workspace root, then pnpm tech-docs:collect."
                 />
             </div>
         </template>

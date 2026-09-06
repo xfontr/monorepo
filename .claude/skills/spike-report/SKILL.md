@@ -69,7 +69,7 @@ of an outcome, not a design doc arguing for it. Follow `house-docs` like any oth
 
 **When the follow-up work lands (or is dropped), flip the `Status:` line in the same PR.** That's
 the one line in a spike report expected to change after the fact — it's how
-[the dashboard](../../../apps/dashboard/README.md) shows, at a glance, which spikes are still owed
+[Technical Docs](../../../apps/tech-docs/README.md) shows, at a glance, which spikes are still owed
 work.
 
 **Never comment on the issue.** The report is reachable without one: its filename carries the issue

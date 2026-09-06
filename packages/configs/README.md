@@ -36,7 +36,7 @@ compilation your build already does is the same compilation the tests get. It al
 happy-dom. Both presets report coverage in `text`, `html`, `clover`, `json`, `json-summary` and
 `lcov`, and each format has a named consumer: the terminal, a human, external tooling, the merge in
 [`@monorepo/scripts`](../../infrastructure/scripts/src/coverage-report/README.md) — which reads
-`coverage-final.json` — and [`@monorepo/dashboard`](../../apps/dashboard/README.md), which reads
+`coverage-final.json` — and [`@monorepo/tech-docs`](../../apps/tech-docs/README.md), which reads
 `coverage-summary.json` and nothing else.
 
 Coverage is collected on `test:coverage`, a separate script from `test`, so the pre-push hook and CI's

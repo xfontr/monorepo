@@ -1,11 +1,11 @@
-# 🩺 @monorepo/dashboard
+# 🩺 @monorepo/tech-docs
 
 The repo's own dashboard. It renders every markdown file in the workspace as a wiki — READMEs,
 `CLAUDE.md`s, the [`docs/`](../../docs/README.md) tree, the reviews, the changelogs — beside the
 things that are not written down anywhere: coverage, the project graph, the open GitHub issues,
 which two files have stopped agreeing.
 
-It runs locally only — `pnpm dashboard` — and is never built or deployed. It reads the working tree
+It runs locally only — `pnpm tech-docs` — and is never built or deployed. It reads the working tree
 and shells out to `git` and `gh`.
 
 ## 🗂 Structure
@@ -93,7 +93,7 @@ list that was exactly that mistake.
 ## 💾 One store, and it is disposable
 
 `.report/` holds the collected snapshot — coverage, metrics, docs, the graph, the scorecards — is
-gitignored, and is rebuilt by `pnpm dashboard:collect` in seconds. A snapshot that gets committed is
+gitignored, and is rebuilt by `pnpm tech-docs:collect` in seconds. A snapshot that gets committed is
 a report that goes stale silently. Nothing else here is stored at all: the docs, the reviews and the
 changelogs are files in the tree read where they live, and the issues are read live off GitHub. If
 you delete every derived file in this project, one command puts it back.
@@ -102,8 +102,8 @@ you delete every derived file in this project, one command puts it back.
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dashboard` | Start the dashboard |
-| `pnpm dashboard:collect` | Rebuild the snapshot — graph, coverage, metrics, docs, scorecards |
+| `pnpm tech-docs` | Start Technical Docs |
+| `pnpm tech-docs:collect` | Rebuild the snapshot — graph, coverage, metrics, docs, scorecards |
 
 The collector reads each project's `coverage/coverage-summary.json` and copies in the merged report
 `pnpm test:coverage` renders at the workspace root, so both are only as fresh as the last run of it.
@@ -155,5 +155,5 @@ nothing and so violates nothing.
 | Writing to GitHub from here — closing an issue, moving a card | Every write is a `gh` subcommand away, but a dashboard that writes needs an undo story, an optimistic-update story and a permission story. Reading is the whole value; `pnpm issue:add` and `pnpm issue:pick` already cover filing and starting |
 | Closed issues, or issues from another repo | `gh issue list --state open` on the repo you are standing in. Both are one flag; neither has a question this page is asked yet |
 | Ordering "What's next" by board column | `gh` reports a column's *name*, not its position, and the names are per project — nothing here can know which of them means next. Sorted by last touched instead |
-| Collecting on demand from the UI | `pnpm dashboard:collect` shells out to `nx graph` and `eslint` and takes tens of seconds. A button means a run state to poll and a way to cancel — the terminal already has both |
+| Collecting on demand from the UI | `pnpm tech-docs:collect` shells out to `nx graph` and `eslint` and takes tens of seconds. A button means a run state to poll and a way to cancel — the terminal already has both |
 | Serving this anywhere | Nothing here is authenticated and every path it prints is a local file. It is a `nuxt dev` tool on purpose; deploying it is a different project |

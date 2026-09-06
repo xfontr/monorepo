@@ -43,7 +43,7 @@ line can express — that ambiguity is deliberate, the same read a stale changel
 
 This is why the value lives in the file rather than in the file's own location: a folder per status
 would make every one of those flips a `git mv`, and nothing here enforces that the move happens.
-[`apps/dashboard`](../../apps/dashboard/README.md) parses the line the same way it already parses
+[`apps/tech-docs`](../../apps/tech-docs/README.md) parses the line the same way it already parses
 `## 🧭 Deliberately deferred`, and shows it next to every spike in its wiki nav — so this is the one
 field in a spike report with a reader other than a human on GitHub.
 

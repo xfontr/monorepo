@@ -29,7 +29,7 @@ export default defineNuxtConfig({
     },
 
     nitro: {
-        // The collectors reach outside `apps/dashboard` on purpose, and the two vendored report
+        // The collectors reach outside `apps/tech-docs` on purpose, and the two vendored report
         // trees under `public/` are thousands of files the dev server has no reason to watch.
         watchOptions: {
             ignored: ["**/.report/**", "**/public/embed/**"],
@@ -66,7 +66,7 @@ export default defineNuxtConfig({
 
     app: {
         head: {
-            title: "Repo dashboard",
+            title: "Technical Docs",
             meta: [{ name: "robots", content: "noindex" }],
         },
     },

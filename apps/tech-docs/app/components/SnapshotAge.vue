@@ -22,7 +22,7 @@ const failed = computed(() => status.value?.ok === false);
         />
 
         <template v-if="!manifest">
-            Never collected — run <code class="font-mono text-default">pnpm dashboard:collect</code>
+            Never collected — run <code class="font-mono text-default">pnpm tech-docs:collect</code>
         </template>
 
         <template v-else-if="failed">

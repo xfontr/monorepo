@@ -1,6 +1,6 @@
 /**
  * This app stores nothing. Everything down to `DocsArtifact` is **derived** — `pnpm
- * dashboard:collect` rebuilds it from the repo in seconds, so `.report/` is gitignored and a stale
+ * tech-docs:collect` rebuilds it from the repo in seconds, so `.report/` is gitignored and a stale
  * copy costs one command. `Issue` is **somebody else's record**, read live off GitHub through `gh`
  * and never written down here; so are the docs, the reviews and the changelogs, which are files in
  * the tree read where they live.

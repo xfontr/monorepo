@@ -1,5 +1,5 @@
 {
-  "name": "@monorepo/dashboard",
+  "name": "@monorepo/tech-docs",
   "description": "Local dashboard over the workspace",
   "private": true,
   "type": "module",
