@@ -21,8 +21,6 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm test` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm test:coverage` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm graph` | [`package.json`](../package.json) | [`README.md`](../README.md) |
-| `pnpm tech-docs` | [`package.json`](../package.json) | [`README.md`](../README.md) |
-| `pnpm tech-docs:collect` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm issue:add` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm issue:pick` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm docs:drift` | [`package.json`](../package.json) | [`README.md`](../README.md) |
