@@ -9,6 +9,7 @@
   "scripts": {
     "issue:add": "node src/issue/index.ts add",
     "issue:pick": "node src/issue/index.ts pick",
+    "issue:ship": "node src/ship/index.ts",
     "docs:drift": "node src/drift/index.ts",
     "docs:map": "node src/map/index.ts",
     "coverage": "node src/coverage-report/index.ts",

@@ -11,6 +11,7 @@ One folder per script under `src/`, each with its own README. This one only cove
 ```
 src/
   issue/            pnpm issue:add | issue:pick — file a GitHub issue, or branch off one
+  ship/             pnpm issue:ship — push, open or reuse the PR, arm auto-merge, watch checks
   drift/            pnpm docs:drift — warn when a project's docs may be stale, offer to file an issue
   map/              pnpm docs:map — render docs/FEATURES.md, the index of everything this repo can do
   coverage-report/  pnpm test:coverage (root) — merge every project's coverage-final.json into one report
@@ -30,6 +31,7 @@ domain/      pure functions and their types. No fs, no subprocess, no clack, no 
 | --- | --- | --- |
 | [`issue add`](./src/issue/README.md#-pnpm-issueadd) | `pnpm issue:add` | Picking a project and label, then filing an issue with `gh` |
 | [`issue pick`](./src/issue/README.md#-pnpm-issuepick) | `pnpm issue:pick` | Picking an open issue off a project board, then branching off it and self-assigning |
+| [`ship`](./src/ship/README.md) | `pnpm issue:ship` | Pushing the current branch, opening or reusing its PR, arming auto-merge, then blocking on checks |
 | [`drift`](./src/drift/README.md) | `pnpm docs:drift` | Warning when a changed project's docs look stale, and offering to file it |
 | [`map`](./src/map/README.md) | `pnpm docs:map` | Rendering the feature index, and asserting in CI that it's current |
 | [`coverage-report`](./src/coverage-report/README.md) | `pnpm test:coverage` (root) | Merging every project's coverage into one browsable HTML report |
@@ -117,9 +119,11 @@ everywhere in the workspace.
 
 ## 🔑 Requirements
 
-`gh` installed and authenticated (`gh auth status`) for `issue/` and `drift/`. They shell out to it
-rather than calling the GitHub API, so they inherit whatever account is already logged in instead
-of needing a token. `map/` needs neither, which is why it's the one that runs in CI.
+`gh` installed and authenticated (`gh auth status`) for `issue/`, `ship/` and `drift/`. They shell
+out to it rather than calling the GitHub API, so they inherit whatever account is already logged in
+instead of needing a token. `map/` needs neither, which is why it's the one that runs in CI. `ship/`
+additionally needs the repo's *Allow auto-merge* setting on — without it, `gh pr merge --auto` fails
+and the branch is left pushed with a PR open but nothing armed to merge it.
 
 ## 🧭 Deliberately deferred
 

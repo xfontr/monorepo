@@ -85,7 +85,7 @@ number and hand-type a branch name.
 | Resume | Only if a branch for that issue already exists — *yes* checks it out and stops here |
 | Branch type | `feature`, `fix`, `hotfix`, `release` |
 | Branch title | Free text, pre-filled with the issue title; slugified, so edit it down to something short |
-| — | `gh issue develop <number> --name <type>/<number>-<slug> --checkout`, then `gh issue edit --add-assignee @me` |
+| — | `gh issue develop <number> --name <type>/<number>-<slug> --checkout`, then `gh issue edit --add-assignee @me`, then `gh project item-edit --field Status --value "In Progress"` |
 
 `gh issue develop` over `git checkout -b`: the branch it creates is linked on the issue's
 Development panel, the same link the "Create a branch" button on the issue would give you, and a
@@ -131,6 +131,19 @@ re-adding an existing assignee is a no-op, so both round trips the check would n
 
 It runs on the resume path too. Re-picking an issue you already own is the no-op case, which is
 cheaper than reasoning about whether it is.
+
+### 📋 Moving the issue to *In Progress*
+
+Runs right after the assignment, same `try`-and-warn shape: `gh project item-edit <project number>
+--owner <owner> --url <issue url> --field "Status" --value "In Progress"`, addressed by name rather
+than by node ID. The node-ID form (`--id`, `--field-id`, `--project-id`,
+`--single-select-option-id`) needs a `gh project field-list` round trip first to resolve those IDs;
+`item-edit` already does that resolution server-side when handed names instead, so there's no second
+call to make or cache. This assumes the default GitHub Projects template's "Status" field and "In
+Progress" option — a board that renamed either fails the call, which is swallowed the same way as
+the assignment: a warning, and the branch and assignment stay.
+
+It runs on the resume path too, for the same reason the assignment does.
 
 ### 🔍 Why not `gh project item-list`
 
@@ -188,6 +201,8 @@ project prompt, not the issue; for `pick` there is nothing left to do, so it war
 
 `pick`'s assignment additionally needs write access to the repo — a plain `gh auth login` grants the
 scope, but a read-only collaborator still can't self-assign. That path warns and keeps the branch.
+Moving the issue to *In Progress* needs write access to the project itself, which the `project`
+scope above doesn't imply on its own; the same warn-and-keep-the-branch fallback covers it.
 
 ## 🧭 Deliberately deferred
 
@@ -197,7 +212,7 @@ scope, but a read-only collaborator still can't self-assign. That path warns and
 | More than one label | `select` becomes `multiselect` and `gh.ts` maps over `--label` instead of taking one |
 | Assignee, milestone, issue type | Each is another `gh issue create` flag and another prompt; add them only if you'd actually answer them every time |
 | Filtering `pick` by board status or label | `listIssues` already has both in hand — it's a second `select`, or a `--status` argument threaded through `index.ts` |
-| `pick` moving the issue to *In Progress* | `gh project item-edit`, which needs the item id and the field id — the two things `listIssues` deliberately doesn't fetch. It would belong next to the assignment, and fail the same way: warn, keep the branch |
+| A board with a renamed "Status" field or "In Progress" option | `moveToInProgress` assumes the default GitHub Projects template naming; a `field-list` lookup would replace the hardcoded names if a board ever renames them |
 | Assigning someone other than yourself | `--add-assignee` takes any login, but then it needs a prompt fed by `gh api repos/{owner}/{repo}/assignees`; `@me` exists so this doesn't |
 | Hiding issues already assigned to someone else | `listIssues` would fetch `assignees` and filter — worth it on a shared board, pointless on a solo one |
 | Branching from something other than the default branch | `developBranch` takes a `--base`, and `pick` prompts for it; today `gh issue develop` always bases off the repo's default branch. That's also the one thing lost versus plain `git checkout -b`: stacking a `fix/` branch on an unpushed `feature/` branch no longer works, because `--base` names a *remote* branch |
