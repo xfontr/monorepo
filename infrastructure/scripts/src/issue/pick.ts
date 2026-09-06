@@ -1,7 +1,7 @@
 import { confirm, select, text } from "@clack/prompts";
 import { out } from "../shared/adapters/io.ts";
 import { orExit } from "../shared/adapters/prompts.ts";
-import { assignToMe, developBranch, isOnline, listIssues, listProjects, type Issue } from "./adapters/gh.ts";
+import { assignToMe, developBranch, isOnline, listIssues, listProjects, moveToInProgress, type Issue, type Project } from "./adapters/gh.ts";
 import { branchForIssue, checkout } from "./adapters/git.ts";
 import { projectOptions, PROJECT_SCOPE_HINT } from "./adapters/prompts.ts";
 import { branchName, BRANCH_TYPES, slugify } from "./domain/branch.ts";
@@ -28,7 +28,7 @@ type Picked<T> = {
  * projects" or "missing the `project` scope" before paying for a fallback read of the file cache.
  * That keeps the common case — online, warm cache — as instant as `issue:add`'s project prompt.
  */
-const pickProject = async (): Promise<Picked<string>> => {
+const pickProject = async (): Promise<Picked<Project>> => {
     const loading = out.spinner();
     loading.start("Asking gh what's available...");
 
@@ -51,14 +51,14 @@ const pickProject = async (): Promise<Picked<string>> => {
         return { value: undefined, offline };
     }
 
-    const value = or(
+    const title = or(
         await select({
             message: "Project",
             options: projectOptions(projects),
         }),
     );
 
-    return { value, offline };
+    return { value: projects.find((project) => project.title === title), offline };
 };
 
 /**
@@ -68,17 +68,17 @@ const pickProject = async (): Promise<Picked<string>> => {
  * all — and only falls back to the cache if that live call actually throws, instead of a second
  * `isOnline()` round trip on every run.
  */
-const pickIssue = async (project: string, knownOffline: boolean): Promise<Issue | undefined | typeof BACK> => {
+const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue | undefined | typeof BACK> => {
     const loading = out.spinner();
-    loading.start(knownOffline ? `Reading cached issues for ${project}...` : `Reading ${project}...`);
+    loading.start(knownOffline ? `Reading cached issues for ${project.title}...` : `Reading ${project.title}...`);
 
     let issues: Issue[];
     try {
-        issues = listIssues(project, knownOffline);
+        issues = listIssues(project.title, knownOffline);
     }
     catch {
-        loading.message(`Reading cached issues for ${project}...`);
-        issues = listIssues(project, true);
+        loading.message(`Reading cached issues for ${project.title}...`);
+        issues = listIssues(project.title, true);
     }
 
     loading.stop(`${issues.length} open issue${issues.length === 1 ? "" : "s"}.`);
@@ -119,17 +119,32 @@ const assign = (issue: number): void => {
 };
 
 /**
+ * Runs right after the assignment and fails the same way: a project without a "Status" field (or
+ * one that renamed "In Progress") shouldn't undo the branch or the assignment either.
+ */
+const moveToBoard = (project: Project, issue: Issue): void => {
+    try {
+        moveToInProgress(project, issue);
+        out.success(`#${issue.number} moved to In Progress.`);
+    }
+    catch {
+        out.warn(`Couldn't move #${issue.number} to In Progress — the branch is still yours.`);
+    }
+};
+
+/**
  * Offers the branch this issue already has, if it has one. Answering no falls through to creating
  * another — a fix branch on top of a feature branch is a real thing, just not the common one.
  */
-const resumeBranch = async (issue: number): Promise<boolean> => {
-    const existing = branchForIssue(issue);
+const resumeBranch = async (project: Project, issue: Issue): Promise<boolean> => {
+    const existing = branchForIssue(issue.number);
     if (!existing) return false;
 
     if (!or(await confirm({ message: `Branch ${existing} already exists — check it out?` }))) return false;
 
     checkout(existing);
-    assign(issue);
+    assign(issue.number);
+    moveToBoard(project, issue);
     out.end(existing);
 
     return true;
@@ -171,7 +186,7 @@ export const pick = async (): Promise<void> => {
             return;
         }
 
-        if (await resumeBranch(issue.number)) return;
+        if (await resumeBranch(project, issue)) return;
 
         const branch = await promptBranch(issue);
         out.note(issue.url, branch);
@@ -179,6 +194,7 @@ export const pick = async (): Promise<void> => {
         try {
             developBranch(issue.number, branch);
             assign(issue.number);
+            moveToBoard(project, issue);
             out.end(branch);
         }
         catch (error) {
