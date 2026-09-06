@@ -15,8 +15,15 @@ const KNOWN_DIRS = ["/usr/bin", "/usr/local/bin", "/opt/homebrew/bin"];
 const resolve = (command: string): string =>
     KNOWN_DIRS.map((dir) => `${dir}/${command}`).find(existsSync) ?? command;
 
+/**
+ * `execFileSync` inherits the child's stderr straight to this process' own by default — every
+ * caller here already reads a failure back off the caught error (`gh.ts`'s comments say so
+ * explicitly), so an unconfigured `stdio` doubles every `git`/`gh` error as both that and raw,
+ * unformatted text leaking onto the terminal ahead of whatever this script goes on to print about
+ * it. Piping stdin too keeps a `gh` prompt from ever reading real keystrokes meant for this CLI.
+ */
 export const run = (command: string, args: string[]): string =>
-    execFileSync(resolve(command), args, { encoding: "utf8" }).trim();
+    execFileSync(resolve(command), args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
 
 /**
  * A value that starts with `-` would be read as a flag of its own rather than as the value of the
