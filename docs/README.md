@@ -30,5 +30,5 @@ under `concepts/` or `guides/`.
 
 | Later need | What changes |
 | --- | --- |
-| Rendering this tree as a browsable site | Deferred out of spike 0037 on purpose — it's a view over these same sources and needs its own boundary decision (`type:infra` widening, or a new `type:docs` tag) before any scaffolding starts |
+| Publishing this tree as a site anyone can reach | [`@monorepo/dashboard`](../apps/dashboard/README.md) renders it locally — `pnpm dashboard` — reading these files in place rather than copying them. Publishing is the different problem: nothing here is authenticated and every path it prints is a local file |
 | Consolidating project READMEs into this tree | Forecloses on purpose — the ownership rule cuts both ways, so a project's own docs stay in the project forever, subdividing in place as they grow rather than migrating here |

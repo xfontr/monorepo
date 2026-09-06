@@ -21,6 +21,8 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm test` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm test:coverage` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm graph` | [`package.json`](../package.json) | [`README.md`](../README.md) |
+| `pnpm dashboard` | [`package.json`](../package.json) | [`README.md`](../README.md) |
+| `pnpm dashboard:collect` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm issue:add` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm issue:pick` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm docs:drift` | [`package.json`](../package.json) | [`README.md`](../README.md) |
@@ -29,6 +31,8 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm release:dry` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm exec nx storybook @monorepo/ui` | [`packages/ui/package.json`](../packages/ui/package.json) | [`packages/ui/README.md`](../packages/ui/README.md) |
 | `pnpm exec nx build-storybook @monorepo/ui` | [`packages/ui/package.json`](../packages/ui/package.json) | [`packages/ui/README.md`](../packages/ui/README.md) |
+| `pnpm exec nx dev @monorepo/dashboard` | [`apps/dashboard/package.json`](../apps/dashboard/package.json) | [`apps/dashboard/README.md`](../apps/dashboard/README.md) |
+| `pnpm exec nx collect @monorepo/dashboard` | [`apps/dashboard/package.json`](../apps/dashboard/package.json) | [`apps/dashboard/README.md`](../apps/dashboard/README.md) |
 | `pnpm exec nx dev @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `pnpm exec nx preview @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `pnpm exec nx coverage @monorepo/scripts` | [`infrastructure/scripts/package.json`](../infrastructure/scripts/package.json) | [`infrastructure/scripts/README.md`](../infrastructure/scripts/README.md) |
@@ -70,7 +74,7 @@ shortest statement of how a task is meant to go here.
 | `/house-docs` | [`.claude/skills/house-docs/SKILL.md`](../.claude/skills/house-docs/SKILL.md) | [`docs/spikes/0037-feature-discoverability.md`](../docs/spikes/0037-feature-discoverability.md) |
 | `/new-package` | [`.claude/skills/new-package/SKILL.md`](../.claude/skills/new-package/SKILL.md) | [`infrastructure/scripts/src/drift/README.md`](../infrastructure/scripts/src/drift/README.md) |
 | `/nuxt-module-route` | [`.claude/skills/nuxt-module-route/SKILL.md`](../.claude/skills/nuxt-module-route/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
-| `/repo-review` | [`.claude/skills/repo-review/SKILL.md`](../.claude/skills/repo-review/SKILL.md) | [`.claude/agents/repo-review-card.md`](../.claude/agents/repo-review-card.md) |
+| `/repo-review` | [`.claude/skills/repo-review/SKILL.md`](../.claude/skills/repo-review/SKILL.md) | [`apps/dashboard/README.md`](../apps/dashboard/README.md) |
 | `/spike-report` | [`.claude/skills/spike-report/SKILL.md`](../.claude/skills/spike-report/SKILL.md) | [`docs/concepts/agent-setup.md`](../docs/concepts/agent-setup.md) |
 | `/start-issue` | [`.claude/skills/start-issue/SKILL.md`](../.claude/skills/start-issue/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/writing-tests` | [`.claude/skills/writing-tests/SKILL.md`](../.claude/skills/writing-tests/SKILL.md) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |

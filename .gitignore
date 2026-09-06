@@ -40,4 +40,6 @@ logs
 vitest.config.*.timestamp*
 vite.config.*.timestamp*
 
+*.tsbuildinfo
+
 coverage/
