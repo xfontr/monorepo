@@ -10,6 +10,12 @@ const CANCELLED = "Cancelled — still on the same branch.";
 
 const or = <T>(value: T | symbol): T => orExit(value, CANCELLED);
 
+/**
+ * A sentinel rather than `undefined`: `pickIssue` already uses `undefined` to mean "this project
+ * has nothing open", which should warn and exit, not loop back to the project prompt.
+ */
+const BACK = Symbol("back to project list");
+
 type Picked<T> = {
     value: T | undefined
     offline: boolean
@@ -62,7 +68,7 @@ const pickProject = async (): Promise<Picked<string>> => {
  * all — and only falls back to the cache if that live call actually throws, instead of a second
  * `isOnline()` round trip on every run.
  */
-const pickIssue = async (project: string, knownOffline: boolean): Promise<Issue | undefined> => {
+const pickIssue = async (project: string, knownOffline: boolean): Promise<Issue | undefined | typeof BACK> => {
     const loading = out.spinner();
     loading.start(knownOffline ? `Reading cached issues for ${project}...` : `Reading ${project}...`);
 
@@ -83,13 +89,17 @@ const pickIssue = async (project: string, knownOffline: boolean): Promise<Issue 
         await select({
             message: "Issue",
             maxItems: 12,
-            options: issues.map((issue) => ({
-                value: issue,
-                label: `#${issue.number} ${issue.title}`,
-                // The URL rides along in the hint so the terminal turns it into something clickable
-                // — that's the whole "let me read the issue before I commit to it" escape hatch.
-                hint: [issue.labels.join(", "), issue.url].filter(Boolean).join(" · "),
-            })),
+            options: [
+                { value: BACK as Issue | typeof BACK, label: "← Back to project list" },
+                ...issues.map((issue) => ({
+                    value: issue,
+                    label: `#${issue.number} ${issue.title}`,
+                    // The URL rides along in the hint so the terminal turns it into something
+                    // clickable — that's the whole "let me read the issue before I commit to it"
+                    // escape hatch.
+                    hint: [issue.labels.join(", "), issue.url].filter(Boolean).join(" · "),
+                })),
+            ],
         }),
     );
 };
@@ -147,28 +157,35 @@ const promptBranch = async (issue: Issue): Promise<string> => {
 export const pick = async (): Promise<void> => {
     out.begin("🌱 Pick an issue");
 
-    const { value: project, offline } = await pickProject();
-    if (!project) return;
+    // A loop rather than a single pass: choosing "← Back to project list" on the issue prompt
+    // re-runs `pickProject` instead of unwinding the whole command, which is what cancelling does.
+    for (;;) {
+        const { value: project, offline } = await pickProject();
+        if (!project) return;
 
-    const issue = await pickIssue(project, offline);
+        const issue = await pickIssue(project, offline);
+        if (issue === BACK) continue;
 
-    if (!issue) {
-        out.warn("Nothing open on that project. `pnpm issue:add` fixes that.");
+        if (!issue) {
+            out.warn("Nothing open on that project. `pnpm issue:add` fixes that.");
+            return;
+        }
+
+        if (await resumeBranch(issue.number)) return;
+
+        const branch = await promptBranch(issue);
+        out.note(issue.url, branch);
+
+        try {
+            developBranch(issue.number, branch);
+            assign(issue.number);
+            out.end(branch);
+        }
+        catch (error) {
+            out.error("gh issue develop failed.");
+            throw error;
+        }
+
         return;
-    }
-
-    if (await resumeBranch(issue.number)) return;
-
-    const branch = await promptBranch(issue);
-    out.note(issue.url, branch);
-
-    try {
-        developBranch(issue.number, branch);
-        assign(issue.number);
-        out.end(branch);
-    }
-    catch (error) {
-        out.error("gh issue develop failed.");
-        throw error;
     }
 };
