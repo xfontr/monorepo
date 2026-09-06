@@ -2,7 +2,7 @@ import process from "node:process";
 import { out } from "../shared/adapters/io.ts";
 import { ExpectedError } from "../shared/errors.ts";
 import { createPr, enableAutoMerge, prMerged, prUrlForBranch, watchChecks } from "./adapters/gh.ts";
-import { currentBranch, push } from "./adapters/git.ts";
+import { checkoutMaster, currentBranch, pullMaster, push } from "./adapters/git.ts";
 import { shipMessage } from "./domain/report.ts";
 
 /**
@@ -44,6 +44,12 @@ export const main = (): void => {
     if (!passed) out.note(output, "Checks");
 
     const merged = passed && prMerged(url);
+
+    if (merged) {
+        checkoutMaster();
+        pullMaster();
+    }
+
     out.end(shipMessage({ checksPassed: passed, merged }));
 
     if (!passed) process.exitCode = 1;

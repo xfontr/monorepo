@@ -12,3 +12,16 @@ export const currentBranch = (): string => git("rev-parse", "--abbrev-ref", "HEA
 export const push = (branch: string): void => {
     git("push", "-u", "origin", assertNotFlagLike(branch, "branch"));
 };
+
+/**
+ * Runs only once the PR has actually merged — leaves the now-merged branch and lands back on
+ * `master`, the same two commands a person would type by hand after watching a PR merge in the
+ * browser.
+ */
+export const checkoutMaster = (): void => {
+    git("checkout", "master");
+};
+
+export const pullMaster = (): void => {
+    git("pull", "origin", "master");
+};
