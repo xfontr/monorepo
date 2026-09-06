@@ -1,0 +1,41 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme static {
+    --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
+/**
+ * Status roles, not colours. Every number in this app that carries a verdict — a coverage
+ * percentage, an unreleased-commit count — is written against these three, so the light/dark steps
+ * swap in one place.
+ *
+ * They were validated as a set against each surface (lightness band, chroma floor, CVD separation,
+ * normal-vision separation, contrast) rather than picked by eye. Five bands were tried first and
+ * failed: an orange and a red land 7.1 apart on the normal-vision scale, which no amount of
+ * colourblind-safe intent fixes. Three steps pass, and every one of them sits beside the number it
+ * describes — nothing here is ever a colour alone.
+ */
+:root {
+    --tone-good: #008300;
+    --tone-warn: #eda100;
+    --tone-bad: #e34948;
+}
+
+.dark {
+    --tone-good: #199e70;
+    --tone-warn: #c98500;
+    --tone-bad: #e34948;
+}
+
+.tone-good { color: var(--tone-good); }
+.tone-warn { color: var(--tone-warn); }
+.tone-bad { color: var(--tone-bad); }
+
+/* The V8 coverage report and the Nx graph client are iframed in as-is. They bring their own
+   stylesheet and only render on white, so the frame declares that rather than letting a dark theme
+   half-apply to somebody else's HTML. */
+.embedded-report {
+    @apply w-full rounded-lg border border-default bg-white;
+    color-scheme: light;
+}
