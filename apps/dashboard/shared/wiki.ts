@@ -47,7 +47,10 @@ export interface WikiSection {
  */
 const EXCLUDED = [/\/changelog$/, /^\/docs\/reviews\/\d{4}-/, /\/template$/];
 
-const SECTION_ORDER = ["workspace", "docs", "projects", "agents"] as const;
+/** The workspace layout the root README enforces — three project areas, each its own wiki section. */
+const PROJECT_AREAS = ["apps", "packages", "infrastructure"] as const;
+
+const SECTION_ORDER = ["workspace", "docs", ...PROJECT_AREAS, "agents"] as const;
 
 type SectionId = typeof SECTION_ORDER[number];
 
@@ -62,10 +65,20 @@ const SECTIONS: Record<SectionId, { label: string, icon: string, blurb: string }
         icon: "i-lucide-library",
         blurb: "Subjects no single project owns — the models, the procedures, the answered spikes.",
     },
-    projects: {
-        label: "Projects",
-        icon: "i-lucide-boxes",
-        blurb: "Each project's own reference, colocated with its code so it changes in the same diff.",
+    apps: {
+        label: "Apps",
+        icon: "i-lucide-app-window",
+        blurb: "Each app's own reference, colocated with its code so it changes in the same diff.",
+    },
+    packages: {
+        label: "Packages",
+        icon: "i-lucide-package",
+        blurb: "Each package's own reference, colocated with its code so it changes in the same diff.",
+    },
+    infrastructure: {
+        label: "Infrastructure",
+        icon: "i-lucide-server",
+        blurb: "Each service's own reference, colocated with its code so it changes in the same diff.",
     },
     agents: {
         label: "Agent setup",
@@ -77,7 +90,20 @@ const SECTIONS: Record<SectionId, { label: string, icon: string, blurb: string }
 /** Ordered where the order carries meaning; anything new falls through to alphabetical. */
 const DOCS_GROUPS = ["concepts", "guides", "spikes", "reviews"];
 
-const PROJECT_AREAS = ["apps", "packages", "infrastructure"];
+/** A folder name is what the workspace calls a project; a reader wants its name, not its slug. */
+const NAME_OVERRIDES: Record<string, string> = {
+    ui: "UI",
+    i18n: "i18n",
+};
+
+export function toTitleCase(name: string): string {
+    if (NAME_OVERRIDES[name]) return NAME_OVERRIDES[name];
+
+    return name
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+}
 
 const GROUP_LABELS: Record<string, string> = {
     concepts: "Concepts",
@@ -170,12 +196,16 @@ function place(page: WikiPage): Placed {
         };
     }
 
+    // Anything left sits under apps/, packages/ or infrastructure/, so its own top segment names
+    // the section — the workspace layout is what keeps that assumption safe.
+    const area = segments[0] as SectionId;
+    const group = segments[1] ?? area;
     const root = `/${segments.slice(0, 2).join("/")}`;
 
     return {
-        section: "projects",
-        group: root.slice(1),
-        groupLabel: root.slice(1),
+        section: area,
+        group,
+        groupLabel: toTitleCase(group),
         entry: { path, label: labelWithin(root, path, title), kind },
     };
 }
@@ -196,12 +226,6 @@ function rankGroup(section: SectionId, key: string): number {
         const index = DOCS_GROUPS.indexOf(key);
 
         return index === -1 ? DOCS_GROUPS.length : index;
-    }
-
-    if (section === "projects") {
-        const index = PROJECT_AREAS.indexOf(key.split("/")[0] ?? "");
-
-        return index === -1 ? PROJECT_AREAS.length : index;
     }
 
     return 0;

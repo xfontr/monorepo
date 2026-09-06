@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildWiki, locate, stripLeadingEmoji, toCollectionPath } from "./wiki.ts";
+import { buildWiki, locate, stripLeadingEmoji, toCollectionPath, toTitleCase } from "./wiki.ts";
 
 const PAGES = [
     { path: "/readme", title: "Monorepo" },
@@ -31,11 +31,11 @@ function labelsIn(id: string, group: string): string[] {
 
 describe("buildWiki", () => {
     it("files a project's nested README under the project, not as a project of its own", () => {
-        expect(labelsIn("projects", "packages/content")).toEqual(["src/nuxt"]);
+        expect(labelsIn("packages", "content")).toEqual(["src/nuxt"]);
     });
 
     it("labels a project's own README 'Overview', because the group already carries the package name", () => {
-        expect(labelsIn("projects", "packages/ui")).toEqual(["Overview", "Agent notes", "Adding a UI component"]);
+        expect(labelsIn("packages", "ui")).toEqual(["Overview", "Agent notes", "Adding a UI component"]);
     });
 
     it("keeps a project's skill with that project rather than with the root agent setup", () => {
@@ -63,8 +63,12 @@ describe("buildWiki", () => {
         expect(sectionOf("docs")?.groups.map((group) => group.key)).toEqual(["docs", "concepts", "guides", "spikes", "reviews"]);
     });
 
-    it("orders projects apps-first, matching how the README lays the workspace out", () => {
-        expect(sectionOf("projects")?.groups.map((group) => group.key)).toEqual(["packages/content", "packages/ui"]);
+    it("files a package under its own 'Packages' section, not a shared 'Projects' one", () => {
+        expect(sectionOf("packages")?.groups.map((group) => group.key)).toEqual(["content", "ui"]);
+    });
+
+    it("labels a project group with its title-cased name, not its raw folder path", () => {
+        expect(sectionOf("packages")?.groups.map((group) => group.label)).toEqual(["Content", "UI"]);
     });
 
     it("drops a section nothing landed in instead of rendering an empty heading", () => {
@@ -86,6 +90,21 @@ describe("stripLeadingEmoji", () => {
 
     it("strips the emoji the house style opens every heading with", () => {
         expect(stripLeadingEmoji("🧱 Why the boundary system exists")).toBe("Why the boundary system exists");
+    });
+});
+
+describe("toTitleCase", () => {
+    it("title-cases a hyphenated project name", () => {
+        expect(toTitleCase("huella-legal")).toBe("Huella Legal");
+    });
+
+    it("keeps a single-word name capitalised rather than left as its folder slug", () => {
+        expect(toTitleCase("content")).toBe("Content");
+    });
+
+    it("overrides a name a hyphen split can't fix, like an acronym or an initialism", () => {
+        expect(toTitleCase("ui")).toBe("UI");
+        expect(toTitleCase("i18n")).toBe("i18n");
     });
 });
 

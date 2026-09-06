@@ -41,6 +41,13 @@ const around = computed(() => {
 });
 
 const meta = computed(() => snapshot.value?.docs?.pages.find((doc) => toCollectionPath(doc.path) === path.value) ?? null);
+
+const { public: { repoUrl } } = useRuntimeConfig();
+
+// The dashboard reads from the working tree, not a specific ref, so this always points at the
+// default branch — close enough for "go see this file on GitHub" and not worth threading the
+// actual commit through the snapshot just for a link.
+const githubUrl = computed(() => meta.value ? `${repoUrl}/blob/master/${meta.value.path}` : null);
 </script>
 
 <template>
@@ -61,6 +68,17 @@ const meta = computed(() => snapshot.value?.docs?.pages.find((doc) => toCollecti
                         class="text-xs text-muted"
                     >{{ meta.words }} words · updated {{ relativeTime(meta.updatedAt) }}</span>
                     <code class="text-xs text-dimmed font-mono">{{ meta?.path ?? `${path.slice(1)}.md` }}</code>
+                    <UButton
+                        v-if="githubUrl"
+                        :to="githubUrl"
+                        target="_blank"
+                        icon="i-simple-icons-github"
+                        color="neutral"
+                        variant="ghost"
+                        size="sm"
+                        square
+                        aria-label="View on GitHub"
+                    />
                 </template>
             </UDashboardNavbar>
         </template>

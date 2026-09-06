@@ -50,6 +50,12 @@ export default defineNuxtConfig({
         },
     },
 
+    runtimeConfig: {
+        public: {
+            repoUrl: "",
+        },
+    },
+
     app: {
         head: {
             title: "Repo dashboard",

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { toTitleCase } from "../../shared/wiki.ts";
+
 const { data: snapshot } = await useSnapshot();
 
 const { data: changelogs } = await useAsyncData("changelogs", () =>
@@ -19,9 +21,14 @@ const { data: page } = await useAsyncData(
     { watch: [selected] },
 );
 
-/** `packages/ui/CHANGELOG` → `packages/ui`, which is how metrics keys its projects. */
+/** `packages/ui/changelog` → `packages/ui`, which is how metrics keys its projects. */
 function rootOf(path: string): string {
-    return path.replace(/^\//, "").replace(/\/CHANGELOG$/, "");
+    return path.replace(/^\//, "").replace(/\/changelog$/i, "");
+}
+
+/** `packages/i18n` → `I18n` — the project's own name, not the area it lives under. */
+function displayName(root: string): string {
+    return toTitleCase(root.split("/").at(-1) ?? root);
 }
 
 const metrics = computed(() => snapshot.value?.metrics?.projects ?? []);
@@ -85,7 +92,7 @@ const conventional = computed(() => snapshot.value?.metrics?.conventionalCommitR
                                 @click="selected = entry.path"
                             >
                                 <div class="text-sm font-mono truncate">
-                                    {{ rootOf(entry.path) }}
+                                    {{ displayName(rootOf(entry.path)) }}
                                 </div>
                                 <div class="text-xs text-dimmed flex items-center gap-2">
                                     <span v-if="metricsFor(entry.path)?.currentVersion">v{{ metricsFor(entry.path)?.currentVersion }}</span>
@@ -104,7 +111,7 @@ const conventional = computed(() => snapshot.value?.metrics?.conventionalCommitR
                         variant="subtle"
                         icon="i-lucide-package-open"
                         title="Never released"
-                        :description="`${unreleased.map((project) => project.name).join(', ')} — commits since the last tag but no changelog.`"
+                        :description="`${unreleased.map((project) => displayName(project.root)).join(', ')} — commits since the last tag but no changelog.`"
                     />
 
                     <!-- Both changelogs and versions are derived from commit subjects, so a subject
