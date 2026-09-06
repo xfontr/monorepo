@@ -18,7 +18,8 @@ index.ts            hands main to run()
 main.ts              the push → PR → auto-merge → watch → report sequence
 adapters/git.ts      current branch, push
 adapters/gh.ts       find or create the PR, arm auto-merge, watch checks, read merged state
-domain/report.ts     turns (checks passed, merged) into the one line printed at the end — the only real logic here
+domain/report.ts     turns (checks passed, merged) into the one line printed at the end
+domain/checks.ts     recognizes gh's "no checks reported yet" message
 ```
 
 ## 🚦 Why this doesn't just call `gh pr merge`
@@ -47,11 +48,22 @@ create` on a branch that already has one just errors.
 setting on every run to matter; a constant is one line to change the day this repo switches to
 squash or rebase merges instead.
 
+## ⏳ Retrying past the just-pushed check-registration race
+
+Right after `push`, GitHub can take a few seconds to attach any check run at all to the new commit.
+`gh pr checks --watch` doesn't wait that out — it errors immediately with "no checks reported",
+which is otherwise indistinguishable from a genuine failing check once all `watchChecks` in
+[`adapters/gh.ts`](./adapters/gh.ts) has to go on is a process exit code. [`domain/checks.ts`](./domain/checks.ts)
+names that one message so a few retries a few seconds apart can cover the registration lag instead
+of reporting it as "a check failed" — a real failure never carries this message, so it still returns
+on the first try.
+
 ## ✅ Tests
 
-[`domain/report.spec.ts`](./domain/report.spec.ts) covers `shipMessage` — the only real logic here,
-per [`writing-tests`](../../../../.claude/skills/writing-tests/SKILL.md). Everything else is a `git`
-or `gh` call with nothing to assert but a mock of itself.
+[`domain/report.spec.ts`](./domain/report.spec.ts) covers `shipMessage`, and
+[`domain/checks.spec.ts`](./domain/checks.spec.ts) covers `isMissingChecksError` — the only real
+logic here, per [`writing-tests`](../../../../.claude/skills/writing-tests/SKILL.md). Everything
+else is a `git` or `gh` call with nothing to assert but a mock of itself.
 
 ## 🔑 Requirements
 
