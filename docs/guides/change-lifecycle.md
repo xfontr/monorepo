@@ -11,27 +11,29 @@ pnpm issue:pick
 ```
 
 Walks a project board, lists its open issues, and — once you pick one — creates
-`<type>/<issue number>-<slug>`, checks it out, and assigns you the issue. `<type>` is one of
-`hotfix`/`fix`/`feature`/`release`, the only prefixes the push gate in step 3 accepts. Everything
-downstream reads the issue number back out of this branch name, so a branch made by hand without
-one of these prefixes and a leading number opts out of steps 2 and 4 silently rather than failing
+`<type>/<project>/<issue number>-<slug>`, checks it out, and assigns you the issue. `<type>` is one
+of `hotfix`/`fix`/`feature`/`release`, the only prefixes the push gate in step 3 accepts, and
+`<project>` is the slugified title of the board you just walked. Everything downstream reads the
+issue number back out of this branch name, so a branch made by hand without one of these prefixes,
+a project segment and a following number opts out of steps 2 and 4 silently rather than failing
 loudly.
 
 ## 2. Commit
 
 The [`commit-msg`](../../.husky/commit-msg) hook runs before `commitlint` sees your message. It
 reads the issue number out of the current branch name and rewrites the subject to carry it —
-`feat: Add thing` on `feature/50-slug` becomes `feat: [50] Add thing` — then hands the result to
-`commitlint`, which enforces Conventional Commits plus two extra rules: the type is lower-case, the
-subject is sentence case. Amending the same commit on the same branch is a no-op rewrite, not a
-second tag stacking on the first.
+`feat: Add thing` on `feature/website/50-slug` becomes `feat: [50] Add thing` — then hands the
+result to `commitlint`, which enforces Conventional Commits plus two extra rules: the type is
+lower-case, the subject is sentence case. Amending the same commit on the same branch is a no-op
+rewrite, not a second tag stacking on the first.
 
 ## 3. Push
 
 [`pre-push`](../../.husky/pre-push) runs, in order, against only the commits being pushed (not the
 whole working tree):
 
-1. **Branch name** must match `^(hotfix|fix|feature|release)/.+`, or the push is rejected outright.
+1. **Branch name** must match `^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+`, or the push is
+   rejected outright.
 2. **TODO/FIXME scan** over the diff of what's being pushed — a new one blocks the push and points
    at `pnpm issue:add` to file it properly instead.
 3. **Docs drift check** (`pnpm docs:drift`) — a nudge, never a gate. It warns when the changed

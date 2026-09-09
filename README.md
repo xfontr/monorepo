@@ -118,18 +118,18 @@ use `pnpm exec nx run-many -t <target>`.
 
 ## 🌿 Git conventions
 
-- Branches must match `^(hotfix|fix|feature|release)/.+` (enforced on push) — which also means you
-  can't push straight to `master`.
+- Branches must match `^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+` (enforced on push) — which
+  also means you can't push straight to `master`.
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org) (enforced by
   commitlint via [`commitlint.config.mjs`](./commitlint.config.mjs), which just extends
   `@commitlint/config-conventional`): the type must be lower-case and the subject must not be
   sentence-case, start-case, Pascal-case or upper-case, so `feat: Add thing` is rejected and
   `feat: add thing` is not.
 - The [`commit-msg`](./.husky/commit-msg) hook reads the issue number back out of the branch name
-  and rewrites the subject to carry it, so `feat: add thing` on `feature/50-slug` is committed as
-  `feat: [50] add thing`. Nobody types the tag, and re-running on an amend is a no-op instead of
-  stacking a second one; a branch with no number in it is left alone. This is why the log here is
-  number-first without anyone maintaining that.
+  and rewrites the subject to carry it, so `feat: add thing` on `feature/website/50-slug` is
+  committed as `feat: [50] add thing`. Nobody types the tag, and re-running on an amend is a no-op
+  instead of stacking a second one; a branch with no number in it is left alone. This is why the log
+  here is number-first without anyone maintaining that.
 - The pre-push hook runs `lint`, `test` and `typecheck` on affected projects, and rejects a push
   that adds a `TODO`/`FIXME` comment. It diffs only the commits being pushed, so a marker already
   in the tree never blocks you; the rejection points at
@@ -137,8 +137,9 @@ use `pnpm exec nx run-many -t <target>`.
   few prompts so the comment can go.
 - [`pnpm issue:pick`](./infrastructure/scripts/src/issue/README.md#-pnpm-issuepick) goes the other
   way: pick an open issue off a project board and it creates and checks out
-  `<type>/<issue number>-<slug>` for you and assigns you the issue, which is where the branch names
-  in this repo come from.
+  `<type>/<project>/<issue number>-<slug>` for you and assigns you the issue — `<project>` is the
+  slugified title of the gh Project board the issue came from, which is where the branch names in
+  this repo come from.
 - [`pnpm issue:ship`](./infrastructure/scripts/src/ship/README.md) is the other end of `pick`: it
   pushes the current branch, opens or reuses its PR, arms GitHub's auto-merge, then blocks until
   every check concludes and reports whether the PR merged or a check failed. Auto-merge and

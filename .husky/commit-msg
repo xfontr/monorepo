@@ -5,12 +5,12 @@ MSG_FILE="$1"
 # =========================
 # Ticket number injection
 # =========================
-# `pnpm issue:pick` names branches <type>/<number>-<slug> (see branch.ts). Thread that
+# `pnpm issue:pick` names branches <type>/<project>/<number>-<slug> (see branch.ts). Thread that
 # number into the subject as "type: [NUMBER] description" so every commit carries its
 # ticket without anyone typing it by hand. No number on the branch -> leave the message alone.
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-NUMBER=$(echo "$BRANCH" | grep -Eo "^(hotfix|fix|feature|release)/[0-9]+" | grep -Eo "[0-9]+$")
+NUMBER=$(echo "$BRANCH" | grep -Eo "^(hotfix|fix|feature|release)/[^/]+/[0-9]+" | grep -Eo "[0-9]+$")
 
 if [ -n "$NUMBER" ]; then
   FIRST_LINE=$(head -n 1 "$MSG_FILE")

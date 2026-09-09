@@ -150,7 +150,7 @@ const resumeBranch = async (project: Project, issue: Issue): Promise<boolean> =>
     return true;
 };
 
-const promptBranch = async (issue: Issue): Promise<string> => {
+const promptBranch = async (project: Project, issue: Issue): Promise<string> => {
     const type = or(
         await select({
             message: "Branch type",
@@ -166,7 +166,7 @@ const promptBranch = async (issue: Issue): Promise<string> => {
         }),
     );
 
-    return branchName(type, issue.number, title);
+    return branchName(type, project.title, issue.number, title);
 };
 
 export const pick = async (): Promise<void> => {
@@ -188,7 +188,7 @@ export const pick = async (): Promise<void> => {
 
         if (await resumeBranch(project, issue)) return;
 
-        const branch = await promptBranch(issue);
+        const branch = await promptBranch(project, issue);
         out.note(issue.url, branch);
 
         try {

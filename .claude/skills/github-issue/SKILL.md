@@ -106,13 +106,16 @@ what it does by hand:
 
 1. Ask the branch type (`feature`, `fix`, `hotfix`, `release`) if it isn't obvious from the kind —
    `feature` for a task, `fix` for a bug; a spike is usually `feature` too, but ask if unsure.
-2. Build the branch name the same way the script does: `<type>/<issue number>-<slug>`, where
-   `<slug>` is a short, hyphenated summary of the title (lowercase, letters/digits/hyphens only).
+2. Build the branch name the same way the script does: `<type>/<project>/<issue number>-<slug>`,
+   where `<project>` is the project you filed the issue onto in step 4 above (slugified the same
+   way as the title — lowercase, letters/digits/hyphens only), and `<slug>` is a short, hyphenated
+   summary of the title. If step 4 dropped `--project`, ask which open project board this branch
+   should reference — `pnpm issue:pick`'s own Project prompt has no *none* option either.
 3. Create and link the branch in one call — this both creates the branch on the issue's Development
    panel and checks it out, same as the script:
 
    ```sh
-   gh issue develop <issue number> --name <type>/<issue number>-<slug> --checkout
+   gh issue develop <issue number> --name <type>/<project>/<issue number>-<slug> --checkout
    ```
 
 4. Assign the issue to the user: `gh issue edit <issue number> --add-assignee @me`. If it fails

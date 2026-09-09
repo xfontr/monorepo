@@ -85,7 +85,7 @@ number and hand-type a branch name.
 | Resume | Only if a branch for that issue already exists — *yes* checks it out and stops here |
 | Branch type | `feature`, `fix`, `hotfix`, `release` |
 | Branch title | Free text, pre-filled with the issue title; slugified, so edit it down to something short |
-| — | `gh issue develop <number> --name <type>/<number>-<slug> --checkout`, then `gh issue edit --add-assignee @me`, then `gh project item-edit --field Status --value "In Progress"` |
+| — | `gh issue develop <number> --name <type>/<project-slug>/<number>-<slug> --checkout`, then `gh issue edit --add-assignee @me`, then `gh project item-edit --field Status --value "In Progress"` |
 
 `gh issue develop` over `git checkout -b`: the branch it creates is linked on the issue's
 Development panel, the same link the "Create a branch" button on the issue would give you, and a
@@ -111,13 +111,16 @@ assignment still go over the network same as ever, so an offline pick gets you a
 branch name and then fails there if `gh` is still unreachable — the fallback is for browsing, not
 for filing offline.
 
-### 🔢 Why the number comes first
+### 🔢 Why the project slug sits between the type and the number
 
-`feature/28-set-up-main-layouts`. The prefix satisfies the `^(hotfix|fix|feature|release)/.+` gate
-in [`.husky/pre-push`](../../../../.husky/pre-push), and the number immediately after the slash is
-what `branchForIssue` in `git.ts` matches on. That lookup is why picking the same issue twice offers
-the existing branch instead of dying on `gh issue develop`'s "branch already exists". Renaming a branch by hand to drop the
-number costs you the resume, nothing else.
+`feature/website/28-set-up-main-layouts`. The prefix satisfies the
+`^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+` gate in
+[`.husky/pre-push`](../../../../.husky/pre-push). The project slug is `slugify`'d from the same
+board title the Project prompt above already picked — see [`domain/branch.ts`](./domain/branch.ts)
+— and the number right after it is what `branchForIssue` in `git.ts` matches on. That lookup is why
+picking the same issue twice offers the existing branch instead of dying on `gh issue develop`'s
+"branch already exists". Renaming a branch by hand to drop either segment costs you the resume,
+nothing else.
 
 Answering *no* to the resume prompt still creates a new branch — a `fix/` on top of a `feature/` for
 the same ticket is a real thing, just not the common one.

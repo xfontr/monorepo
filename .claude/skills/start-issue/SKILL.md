@@ -11,7 +11,7 @@ the thing instead of guessing at it.
 ## 1. Find the issue
 
 **Already on a branch for it.** Branch names from `pnpm issue:pick` (or step 2 below) look like
-`feature/46-offline-issue-picker` — `<type>/<number>-<slug>`. Read the number off
+`feature/website/46-offline-issue-picker` — `<type>/<project>/<number>-<slug>`. Read the number off
 `git branch --show-current` and confirm it with `gh issue view <number>` rather than trusting the
 slug; slugs get hand-edited, numbers don't.
 
@@ -34,10 +34,15 @@ hand — same procedure as the `github-issue` skill's "Offer to pick it" step:
 
 1. Pick the branch type from the issue's label (`enhancement` → `feature`, `bug` → `fix`) or ask if
    it's a `spike` or the label doesn't map cleanly.
-2. Build `<type>/<issue number>-<slug>`, slug lowercased and hyphenated from the title.
-3. `gh issue develop <number> --name <type>/<number>-<slug> --checkout` — links the branch on the
-   issue's Development panel and checks it out in one call.
-4. `gh issue edit <number> --add-assignee @me`. A failure here (no write access) only costs the
+2. Read the issue's project off `gh issue view <number> --json projectItems --jq
+   '.projectItems[0].title'` and slugify it the same way as the branch title (lowercase, accents
+   stripped, everything else collapsed to dashes — see `domain/branch.ts`). Ask which open project
+   board to use if the issue isn't on one; `pnpm issue:pick`'s own Project prompt has no *none*
+   option either.
+3. Build `<type>/<project>/<issue number>-<slug>`, slug lowercased and hyphenated from the title.
+4. `gh issue develop <number> --name <type>/<project>/<number>-<slug> --checkout` — links the
+   branch on the issue's Development panel and checks it out in one call.
+5. `gh issue edit <number> --add-assignee @me`. A failure here (no write access) only costs the
    assignment — warn and keep going, the branch is still checked out.
 
 Check `git status --porcelain` first if you're not sure the tree is clean: the checkout above

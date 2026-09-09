@@ -37,16 +37,16 @@ info "Current branch: $BRANCH"
 # =========================
 # Branch validation
 # =========================
-VALID_REGEX="^(hotfix|fix|feature|release)/.+"
+VALID_REGEX="^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+"
 
 if ! echo "$BRANCH" | grep -Eq "$VALID_REGEX"; then
   echo ""
   error "Invalid branch name: $BRANCH"
   echo "Allowed formats:"
-  echo "  hotfix/*"
-  echo "  fix/*"
-  echo "  feature/*"
-  echo "  release/*"
+  echo "  hotfix/<project>/<issue number>-<slug>"
+  echo "  fix/<project>/<issue number>-<slug>"
+  echo "  feature/<project>/<issue number>-<slug>"
+  echo "  release/<project>/<issue number>-<slug>"
   echo ""
   exit 1
 fi

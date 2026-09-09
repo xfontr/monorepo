@@ -18,9 +18,9 @@ describe("slugify", () => {
 });
 
 describe("branchName", () => {
-    // `.husky/pre-push` only accepts ^(hotfix|fix|feature|release)/.+, and the issue number in
-    // front is what git.ts matches on to find the branch again.
-    it("puts the type before the slash and the issue number first after it, so the push gate and the resume lookup both match", () => {
-        expect(branchName("feature", 42, "Add dashboards for spaces")).toBe("feature/42-add-dashboards-for-spaces");
+    // `.husky/pre-push` only accepts ^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+, and the
+    // issue number right after the project slug is what git.ts matches on to find the branch again.
+    it("puts the type first, the slugified project second, and the issue number first after that, so the push gate and the resume lookup both match", () => {
+        expect(branchName("feature", "Website", 42, "Add dashboards for spaces")).toBe("feature/website/42-add-dashboards-for-spaces");
     });
 });
