@@ -35,7 +35,7 @@ const CHECK_REGISTRATION_BUDGET_MS = 60_000;
 const CHECK_REGISTRATION_INTERVAL_MS = 5_000;
 
 /** Auto-merge only queues at this point — GitHub takes a further beat to actually execute the merge. */
-const MERGE_POLL_BUDGET_MS = 45_000;
+const MERGE_POLL_BUDGET_MS = 60_000;
 const MERGE_POLL_INTERVAL_MS = 3_000;
 
 /** Blocks the one thread that matters here — every other call in this script is synchronous top to

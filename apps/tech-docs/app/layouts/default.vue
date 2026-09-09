@@ -3,9 +3,11 @@ import type { NavigationMenuItem } from "@nuxt/ui";
 
 const { data: issues } = useIssues();
 const { data: reviews } = await useReviewPages();
+const { data: snapshot } = await useSnapshot();
 const { public: { repoUrl } } = useRuntimeConfig();
 
 const open = computed(() => issues.value.issues.length);
+const advisories = computed(() => snapshot.value?.deps?.advisories.length ?? 0);
 
 const links = computed<NavigationMenuItem[][]>(() => [
     [
@@ -22,6 +24,12 @@ const links = computed<NavigationMenuItem[][]>(() => [
     [
         { label: "Scorecards", icon: "i-lucide-target", to: "/scorecards" },
         { label: "Coverage", icon: "i-lucide-shield-check", to: "/coverage" },
+        {
+            label: "Dependencies",
+            icon: "i-lucide-shield-alert",
+            to: "/deps",
+            badge: advisories.value === 0 ? undefined : String(advisories.value),
+        },
         { label: "Graph", icon: "i-lucide-git-fork", to: "/graph" },
         {
             label: "Issues",

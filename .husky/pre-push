@@ -115,6 +115,19 @@ if [ -n "$LOCAL_SHA" ] && [ "$LOCAL_SHA" != "$ZERO_SHA" ]; then
 fi
 
 # =========================
+# Dependency audit
+# =========================
+# A nudge, not a gate — never fails the push. Whole-workspace, not diffed: this is a local
+# heads-up before you even push; the PR itself gets the real diff-based check from
+# actions/dependency-review-action in CI.
+
+if [ -n "$LOCAL_SHA" ] && [ "$LOCAL_SHA" != "$ZERO_SHA" ]; then
+  echo ""
+  info "Checking pnpm audit..."
+  pnpm audit || true
+fi
+
+# =========================
 # Run checks
 # =========================
 

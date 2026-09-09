@@ -64,7 +64,7 @@ mid-flight and reports them as if they were done:
 - **Right after checks conclude**, `gh pr merge --auto` has only *queued* the merge — GitHub takes a
   further beat to actually execute it. Reading the PR's state exactly once at that instant routinely
   still sees `"OPEN"`, which is what used to skip the checkout below even on a run that genuinely
-  passed. `waitForMerge` polls for up to 45s before giving up and reporting "merge queued" instead.
+  passed. `waitForMerge` polls for up to 60s before giving up and reporting "merge queued" instead.
 
 Both budgets are generous rather than tight on purpose: reporting a false failure (or skipping the
 checkout) costs more than the script blocking a few extra seconds on a run that was always going to

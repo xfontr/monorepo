@@ -1,6 +1,7 @@
 import { defineEventHandler } from "h3";
 import type {
     CoverageArtifact,
+    DepsArtifact,
     DocsArtifact,
     Manifest,
     MetricsArtifact,
@@ -14,6 +15,7 @@ export interface SnapshotResponse {
     projects: ProjectsArtifact | null
     coverage: CoverageArtifact | null
     metrics: MetricsArtifact | null
+    deps: DepsArtifact | null
     docs: DocsArtifact | null
     scorecards: ScorecardsArtifact | null
 }
@@ -24,14 +26,15 @@ export interface SnapshotResponse {
  * here means "not collected yet", which each page renders rather than treating as an error.
  */
 export default defineEventHandler(async (): Promise<SnapshotResponse> => {
-    const [manifest, projects, coverage, metrics, docs, scorecards] = await Promise.all([
+    const [manifest, projects, coverage, metrics, deps, docs, scorecards] = await Promise.all([
         readArtifact<Manifest>("manifest"),
         readArtifact<ProjectsArtifact>("projects"),
         readArtifact<CoverageArtifact>("coverage"),
         readArtifact<MetricsArtifact>("metrics"),
+        readArtifact<DepsArtifact>("deps"),
         readArtifact<DocsArtifact>("docs"),
         readArtifact<ScorecardsArtifact>("scorecards"),
     ]);
 
-    return { manifest, projects, coverage, metrics, docs, scorecards };
+    return { manifest, projects, coverage, metrics, deps, docs, scorecards };
 });

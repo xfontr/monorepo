@@ -15,6 +15,18 @@ const coverage = computed(() => snapshot.value?.coverage?.totals?.lines ?? null)
 const projects = computed(() => snapshot.value?.projects?.projects.length ?? 0);
 const docs = computed(() => snapshot.value?.docs ?? null);
 
+const deps = computed(() => snapshot.value?.deps ?? null);
+const advisories = computed(() => deps.value?.advisories.length ?? 0);
+
+/** The tile shows one number, so it takes the tone of the worst band rather than the total count. */
+const worstSeverity = computed(() => {
+    const counts = deps.value?.vulnerabilities;
+
+    if (!counts) return null;
+
+    return (["critical", "high", "moderate", "low", "info"] as const).find((severity) => counts[severity] > 0) ?? null;
+});
+
 const findings = computed(() => snapshot.value?.metrics?.invariantFindings ?? []);
 
 /** Only the pages that actually have one — a list of every doc with zero broken links is a wall. */
@@ -38,7 +50,7 @@ const next = computed(() => sortIssues(issues.value.issues).slice(0, 6));
 
         <template #body>
             <div class="flex flex-col gap-6">
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
                     <StatTile
                         label="Docs"
                         :value="docs?.pages.length ?? '—'"
@@ -78,6 +90,18 @@ const next = computed(() => sortIssues(issues.value.issues).slice(0, 6));
                         :tone="issues.error || unplaced > 0 ? 'warn' : 'neutral'"
                         icon="i-lucide-circle-dot"
                         to="/issues"
+                    />
+                    <StatTile
+                        label="Vulnerabilities"
+                        :value="deps?.vulnerabilities ? advisories : '—'"
+                        :hint="deps?.vulnerabilities
+                            ? advisories === 0
+                                ? 'none known'
+                                : `worst: ${worstSeverity}`
+                            : 'not collected'"
+                        :tone="worstSeverity ? severityTone(worstSeverity) : 'neutral'"
+                        icon="i-lucide-shield-alert"
+                        to="/deps"
                     />
                 </div>
 
