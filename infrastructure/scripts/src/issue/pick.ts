@@ -12,10 +12,6 @@ const CANCELLED = "Cancelled — still on the same branch.";
 
 const or = <T>(value: T | symbol): T => orExit(value, CANCELLED);
 
-/**
- * A sentinel rather than `undefined`: `pickIssue` already uses `undefined` to mean "this project
- * has nothing open", which loops back to the project prompt the same as this does, but warns first.
- */
 const BACK = Symbol("back to project list");
 
 type Picked<T> = {
@@ -56,7 +52,7 @@ const pickProject = async (): Promise<Picked<Project>> => {
     return { value: projects.find((project) => project.title === title), offline };
 };
 
-const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue | undefined | typeof BACK> => {
+const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue | typeof BACK> => {
     const loading = out.spinner();
     loading.start(knownOffline ? `Reading cached issues for ${project.title}...` : `Reading ${project.title}...`);
 
@@ -79,12 +75,12 @@ const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue
 
     loading.stop(`${issues.length} open issue${issues.length === 1 ? "" : "s"}.`);
 
-    if (issues.length === 0) return undefined;
+    if (issues.length === 0) out.warn("Nothing open on that project. `pnpm issue:add` fixes that.");
 
     return or(
         await autocomplete({
-            message: "Issue",
-            placeholder: "Type a number, a word from the title, or a label",
+            message: issues.length === 0 ? "No open issues" : "Issue",
+            placeholder: issues.length === 0 ? undefined : "Type a number, a word from the title, or a label",
             maxItems: 12,
             options: [
                 { value: BACK as Issue | typeof BACK, label: "← Back to project list" },
@@ -165,11 +161,6 @@ export const pick = async (): Promise<void> => {
 
         const issue = await pickIssue(project, offline);
         if (issue === BACK) continue;
-
-        if (!issue) {
-            out.warn("Nothing open on that project. `pnpm issue:add` fixes that.");
-            continue;
-        }
 
         if (await resumeBranch(project, issue)) return;
 
