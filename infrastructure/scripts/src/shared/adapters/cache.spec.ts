@@ -56,6 +56,14 @@ describe("cached", () => {
         expect(fetch).toHaveBeenCalledOnce();
     });
 
+    it("re-fetches a fresh entry whose cached value is an empty list, since that usually means a swallowed failure", () => {
+        fs.readFileSync.mockReturnValue(JSON.stringify({ fetchedAt: Date.now(), data: [] }));
+        const fetch = vi.fn(() => ["fresh"]);
+
+        expect(cached("projects", fetch)).toEqual(["fresh"]);
+        expect(fetch).toHaveBeenCalledOnce();
+    });
+
     it("still returns the fetched value when the cache write fails, so a read-only fs can't fail the command", () => {
         fs.readFileSync.mockImplementation(() => {
             throw new Error("ENOENT");
