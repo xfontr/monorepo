@@ -1,10 +1,4 @@
-/**
- * This app stores nothing. Everything down to `DocsArtifact` is **derived** — `pnpm
- * tech-docs:collect` rebuilds it from the repo in seconds, so `.report/` is gitignored and a stale
- * copy costs one command. `Issue` is **somebody else's record**, read live off GitHub through `gh`
- * and never written down here; so are the docs, the reviews and the changelogs, which are files in
- * the tree read where they live.
- */
+/** This app stores nothing — everything below is either derived from the repo or read live from elsewhere. */
 
 export interface ArtifactStatus {
     generatedAt: string
@@ -166,21 +160,14 @@ export interface ScorecardsArtifact {
     reviews: ReviewScorecard[]
 }
 
-/**
- * One open issue, as `gh issue list --json` hands it over. Nothing here is stored: the issue's
- * state lives on GitHub, and a copy kept in this repo would be a second answer to a question that
- * already has one — which is why the local todo list that used to sit here is gone.
- */
+/** One open issue, as `gh issue list --json` hands it over. */
 export interface Issue {
     number: number
     title: string
     /** Raw markdown. Clamped where it is rendered, so the page decides how much of it fits. */
     body: string
     url: string
-    /**
-     * Names only. GitHub's own label colours are arbitrary and this app's palette is three
-     * validated status roles — rendering one beside the other is how a page stops meaning anything.
-     */
+    /** Names only — this app's own label colours come from a separate validated palette, not GitHub's. */
     labels: string[]
     assignees: string[]
     /** The GitHub Project board the issue sits on, and its column there. Null when it is on none. */
@@ -192,11 +179,7 @@ export interface Issue {
 
 export interface IssuesArtifact {
     fetchedAt: string
-    /**
-     * Null when `gh` answered. A string when it did not — not installed, not authenticated, offline.
-     * Rendered as its own state rather than thrown: an unreachable GitHub is a fact about the
-     * machine, not a broken page.
-     */
+    /** Null when `gh` answered; a string (not installed, not authenticated, offline) when it didn't. */
     error: string | null
     issues: Issue[]
 }

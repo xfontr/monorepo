@@ -8,12 +8,6 @@ export type LoadedReport = {
     data: CoverageMapData | undefined // undefined when coverage-final.json wasn't found on disk
 };
 
-/**
- * A merge built from whatever happened to be on disk is a report that's silently missing a
- * project — the same failure `affected` would produce. Naming every gap at once, rather than
- * stopping at the first, is what makes the fix ("run test:coverage for the whole workspace")
- * obvious from a single error instead of a retry loop.
- */
 export const assertComplete = (reports: LoadedReport[]): void => {
     const missing = reports.filter((report) => report.data === undefined).map((report) => report.name);
     if (missing.length > 0) {
@@ -23,12 +17,6 @@ export const assertComplete = (reports: LoadedReport[]): void => {
     }
 };
 
-/**
- * Keys in `coverage-final.json` are absolute paths, which is what lets every project's files land
- * in the merged map without colliding. A project that ever emitted relative paths would fold two
- * different `src/index.ts` files into one silently wrong entry instead — checked rather than
- * trusted, per 0044.
- */
 export const assertAbsolutePaths = (name: string, data: CoverageMapData): void => {
     const relativePaths = Object.keys(data).filter((path) => !isAbsolute(path));
     if (relativePaths.length > 0) {

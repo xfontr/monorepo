@@ -19,12 +19,6 @@ const isInstalled = (): boolean => {
     }
 };
 
-/**
- * The fresh-clone path, and the reason it can't go through `out`: there is nothing installed to
- * print with yet, so this writes plain lines and installs before anything imports clack. `-C` pins
- * the install to the repo root, since `pnpm --filter` left cwd inside this package — without it a
- * first-time clone would install this one package and still be missing every other project's deps.
- */
 export const ensureInstalled = (): boolean => {
     if (isInstalled()) return true;
 

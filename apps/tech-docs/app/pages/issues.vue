@@ -20,8 +20,6 @@ const visible = computed(() => sortIssues(filterIssues(all.value, {
 const projectItems = computed(() => [
     { label: "Every project", value: "all" },
     ...projectsOf(all.value).map((name) => ({ label: name, value: name })),
-    // An issue on no board is the one thing a board-shaped filter cannot express, and it is exactly
-    // the set worth finding: work that was filed and never placed.
     { label: "On no board", value: NO_PROJECT },
 ]);
 
@@ -93,8 +91,6 @@ async function refresh(): Promise<void> {
 
         <template #body>
             <div class="flex flex-col gap-4">
-                <!-- `gh` failing is a fact about this machine — no token, no network — so it is
-                     rendered rather than thrown, with the CLI's own words. -->
                 <UAlert
                     v-if="issues.error"
                     color="warning"

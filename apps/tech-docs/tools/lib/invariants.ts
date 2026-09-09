@@ -10,13 +10,9 @@ const REVIEWS_DIR = "docs/reviews";
 const REVIEWS_README_PATH = `${REVIEWS_DIR}/README.md`;
 
 /**
- * These are the same cross-file rules `.claude/hooks/check-invariants.sh` enforces on edit. They are
- * duplicated rather than shelled out to, because that hook reads a Claude tool payload on stdin and
- * is not usable as a CLI — and because a pure function can be pinned by a spec, which the shell
- * script never could. The two copies stay honest via `invariants.spec.ts`.
- *
- * The hook only fires while an agent is editing. These run over the whole tree on every collect, so
- * drift introduced by hand shows up on the dashboard rather than waiting for the next edit.
+ * Duplicated from `.claude/hooks/check-invariants.sh` rather than shelled out to it: that hook reads
+ * a Claude tool payload on stdin, not usable as a CLI — and only a pure function can be pinned by a
+ * spec.
  */
 
 /** Every `sourceTag:` in the enforced copy of the tag table. */

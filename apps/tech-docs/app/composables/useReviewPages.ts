@@ -1,8 +1,4 @@
-/**
- * Reviews are markdown under `docs/reviews/`, written by the `repo-review` skill and read here in
- * place. `README.md`, `TEMPLATE.md` and `SCORECARDS.md` live in the same directory and are the
- * furniture around them, so the dated filename is what tells a review from its neighbours.
- */
+/** `README.md`, `TEMPLATE.md` and `SCORECARDS.md` share the directory but aren't reviews — filtered out by the dated-filename pattern below. */
 export function useReviewPages() {
     return useAsyncData("reviews", () =>
         queryCollection("docs")

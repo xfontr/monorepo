@@ -30,10 +30,6 @@ export const main = ({ flags }: Args): void => {
         docs(),
     );
 
-    // `--check` asserts only that the checked-in file matches this render, which is what makes
-    // adding a script without regenerating a CI failure. It deliberately does not fail on a `—`
-    // row: some capabilities are undocumented on purpose (`pnpm release` runs from the Release
-    // workflow, never locally), and a gate that fires on those gets switched off within a week.
     if (flags.has("check")) {
         if (readMap() !== rendered) {
             throw new ExpectedError(`${MAP_PATH} is out of date. Run \`pnpm docs:map\` and commit the result.`);

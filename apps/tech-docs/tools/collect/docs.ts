@@ -62,10 +62,6 @@ async function checkLink(fromFile: string, href: string): Promise<DocLink | null
     return { href, resolved: absolute.slice(WORKSPACE_ROOT.length + 1) };
 }
 
-/**
- * `doc`, `review` and `spike` are what `docs/` holds — the subjects no single project owns. The
- * rest are colocated with the code they describe, which is why these are worth telling apart at all.
- */
 function kindOf(path: string): DocKind {
     if (/^docs\/reviews\/\d{4}-/.test(path)) return "review";
     if (SPIKE_PATH.test(path)) return "spike";

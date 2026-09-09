@@ -28,13 +28,8 @@ const spellings = (projects: DevProject[]): string =>
     projects.map(({ name }) => name.replace("@monorepo/", "")).join(", ");
 
 /**
- * A searchable list rather than a plain `select`: it reads as the same picker until you type, and
- * scrolling stops being how you find things the moment this workspace has more than a screenful of
- * dev servers. `search` prefills the box with whatever name didn't match, so a near-miss lands on a
- * list already narrowed to it instead of the full one.
- *
  * The picker needs someone to answer it, so a non-interactive caller gets the list as an error
- * instead of a prompt nothing will ever type into — same split `drift/` makes for its confirm.
+ * instead of a prompt nothing will ever type into — same split `drift/` makes for its own confirm.
  */
 const choose = async (projects: DevProject[], search: string): Promise<DevProject> => {
     if (!isInteractive()) {
@@ -47,8 +42,6 @@ const choose = async (projects: DevProject[], search: string): Promise<DevProjec
             placeholder: "Type to search, ↑↓ to browse",
             initialUserInput: search,
             maxItems: VISIBLE_ROWS,
-            // The hint is the name `--filter` takes, on the row you're deciding about: the picker
-            // shows you what you could have typed before it shows you again on the way out.
             options: projects.map((project) => ({ value: project, label: rowFor(project), hint: project.name })),
             filter: (input, { value }) => matches(value, input),
         }),
@@ -73,8 +66,7 @@ export const main = async ({ positionals }: Args): Promise<void> => {
 
     out.end(`pnpm --filter ${project.name} run dev`);
 
-    // `null` is a signal, which for a dev server means Ctrl+C — the way you stop one, not a failure
-    // worth an exit code and pnpm's ELIFECYCLE noise on top of it.
+    // `null` means Ctrl+C, not a failure — avoids pnpm's ELIFECYCLE noise on top of a normal stop.
     const status = dev(project.name);
     if (status) process.exitCode = status;
 };

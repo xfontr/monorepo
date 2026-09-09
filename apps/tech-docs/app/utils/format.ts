@@ -1,10 +1,6 @@
 import type { SpikeStatus } from "../../shared/types.ts";
 
-/**
- * One place decides how a number looks. The palette behind these three classes was validated
- * against both surfaces (see `assets/css/main.css`); a fourth or fifth band would not pass, which
- * is why every tone is shown beside the figure it describes rather than instead of it.
- */
+/** The palette behind these three classes lives in `assets/css/main.css` and is shown beside the figure it describes, never instead of it. */
 export type Tone = "good" | "warn" | "bad" | "neutral";
 
 /** The one threshold pair in the app, so the overview tile and the coverage table cannot disagree. */

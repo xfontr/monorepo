@@ -14,8 +14,6 @@ import {
     shouldWarn,
 } from "./domain/detect.ts";
 
-// The board this repo actually files drift issues onto — see `gh project list`. There's no picker
-// here on purpose: this flow exists specifically to skip `issue:add`'s prompts.
 const PROJECT = "Monorepo";
 const CACHE_KEY = "drift-fingerprints";
 
@@ -44,8 +42,6 @@ const warnFor = async (root: string): Promise<void> => {
         return;
     }
 
-    // No description: the issue exists to get the project back in front of a human, not to
-    // pre-judge what changed. Whoever picks it up reads the diff themselves.
     const url = createIssue({ title: `Address documentation drift for ${name}`, body: "", project: PROJECT });
     out.end(url);
 };
@@ -65,8 +61,6 @@ export const main = async (): Promise<void> => {
         if (seen[root] === diffFingerprint) continue;
 
         seen[root] = diffFingerprint;
-        // Written before the prompt below, so a Ctrl+C mid-run still counts this diff as seen
-        // rather than warning again for the exact same change on the next push.
         writeCache(CACHE_KEY, seen);
 
         const numstat = diffNumstat(base, head, root);

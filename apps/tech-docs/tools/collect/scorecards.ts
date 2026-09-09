@@ -11,11 +11,9 @@ const REVIEWS_DIR = "docs/reviews";
 const FILENAME = /^(\d{4}-\d{2}-\d{2})-([0-9a-f]+)\.md$/;
 
 /**
- * Reads what `repo-review` already wrote rather than re-scoring anything: `total` and every card
- * score below are copied verbatim out of each review's `## 🧮 Scores` table. A review whose table
- * doesn't match `SCORECARDS.md`'s shape still gets an entry — `parseError` names why, and `cards`
- * holds whatever rows were still readable, the same "absent is its own state" the coverage collector
- * uses for a project with nothing collected.
+ * A review whose table doesn't match `SCORECARDS.md`'s shape still gets an entry — `parseError`
+ * names why, and `cards` holds whatever rows were still readable, the same "absent is its own
+ * state" the coverage collector uses for a project with nothing collected.
  */
 export async function collectScorecards(generatedAt: string): Promise<ScorecardsArtifact> {
     const files = await listReviewFiles();

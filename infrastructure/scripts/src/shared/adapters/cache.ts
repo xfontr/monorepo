@@ -9,8 +9,7 @@ const TTL_MS = 24 * 60 * 60 * 1000;
 
 const pathFor = (key: string): string => `${CACHE_DIR}/${key}.json`;
 
-// Read per call rather than at module load — nothing downstream has to thread the flag through,
-// and importing this module no longer decides the answer before the command has even started.
+// Read per call, not at module load, so nothing downstream has to thread the flag through.
 const refreshRequested = (): boolean => flag("refresh");
 
 /**

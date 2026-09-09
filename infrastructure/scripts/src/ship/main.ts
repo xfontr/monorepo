@@ -5,18 +5,8 @@ import { createPr, enableAutoMerge, prUrlForBranch, waitForMerge, watchChecks } 
 import { checkoutMaster, currentBranch, pullMaster, push } from "./adapters/git.ts";
 import { shipMessage } from "./domain/report.ts";
 
-/**
- * Matches this repo's `viewerDefaultMergeMethod` (`gh repo view --json viewerDefaultMergeMethod`).
- * A constant rather than a flag: nobody remembers to pass one every time, and the day this repo
- * switches to squash or rebase merges, this is the one line that needs to change.
- */
 const MERGE_METHOD = "merge";
 
-/**
- * Anything already open for this branch is reused rather than re-created — `gh pr create` errors on
- * a second PR for the same branch, and re-running `issue:ship` after a check failure is the normal
- * "fixed it, ship again" path, not a fresh one.
- */
 const prUrl = (branch: string): string => {
     const existing = prUrlForBranch(branch);
     if (existing) return existing;

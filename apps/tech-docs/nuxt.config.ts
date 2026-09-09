@@ -7,9 +7,6 @@ export default defineNuxtConfig({
 
     modules: ["@nuxt/ui", "@nuxt/content"],
 
-    // Local-only tool: it reads the working tree and shells out to git. There is deliberately no
-    // `build` script either, so `nx affected -t build` never tries to build something that has
-    // nowhere to deploy.
     ssr: true,
     devtools: false,
 

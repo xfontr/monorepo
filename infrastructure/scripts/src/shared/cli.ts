@@ -21,10 +21,7 @@ const parse = (argv: string[]): Args => ({
  */
 export const flag = (name: string): boolean => process.argv.includes(`--${name}`);
 
-/**
- * `process.exitCode` rather than `process.exit`: writes to a pipe are asynchronous in Node, so
- * exiting on the line after a write can truncate it — `pnpm docs:map --check | tee log` did.
- */
+// `pnpm docs:map --check | tee log` truncated with `process.exit` — a write to a pipe is async in Node.
 export const fail = (message: string): void => {
     out.error(message);
     process.exitCode = 1;

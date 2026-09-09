@@ -1,14 +1,6 @@
 import type { DocKind } from "./types.ts";
 
-/**
- * The shape of the wiki, derived from nothing but the paths `@nuxt/content` found. A hand-written
- * table of contents would be a fifth copy of the workspace layout to keep in step; this rearranges
- * the tree the repo already has, so a doc added anywhere appears in the nav on the next dev-server
- * reload without a line being written here.
- *
- * `@nuxt/content` lower-cases every path, so `packages/ui/README.md` is `/packages/ui/readme`.
- * Nothing below may compare against a capitalised path.
- */
+/** Nothing below may compare against a capitalised path — `@nuxt/content` lower-cases every path it finds. */
 
 export interface WikiPage {
     path: string
@@ -38,12 +30,9 @@ export interface WikiSection {
 }
 
 /**
- * Changelogs and dated reviews have a page of their own in this app — `/changelog` and `/reviews` —
- * and a wiki that also lists them is a second route to the same file that ages differently. The
- * reviews *rubric* and history stay: they are docs about the process, not the dated records
- * themselves. A `TEMPLATE.md` is scaffolding to copy, not a doc to read, and its placeholder heading
- * (`<Spike title>`, `<YYYY-MM-DD>`) is exactly the kind of markup `@nuxt/content` treats as raw HTML
- * and drops from the extracted title — nav entries built from it end up blank or truncated.
+ * The reviews *rubric* and history aren't excluded — they're docs about the process, not the dated
+ * records. A `TEMPLATE.md`'s placeholder heading (`<Spike title>`) is markup `@nuxt/content` treats
+ * as raw HTML and drops from the extracted title, so its nav entry would end up blank.
  */
 const EXCLUDED = [/\/changelog$/, /^\/docs\/reviews\/\d{4}-/, /\/template$/];
 
@@ -139,11 +128,7 @@ interface Placed {
     entry: WikiEntry
 }
 
-/**
- * A project's own README and CLAUDE.md are titled `📦 @monorepo/ui` and `🤖 @monorepo/ui`, which
- * under a group already labelled `packages/ui` says the name three times and the subject none. The
- * generic labels are what a wiki sidebar needs; the real title is still the page's heading.
- */
+/** Generic labels for README/CLAUDE.md — the group name already says the project; the real title is still the page's own heading. */
 function labelWithin(root: string, path: string, title: string): string {
     const rest = segmentsOf(path.slice(root.length));
     const file = rest.at(-1) ?? "";
@@ -162,8 +147,6 @@ function place(page: WikiPage): Placed {
     const segments = segmentsOf(path);
     const kind = kindOf(path);
 
-    // `.claude/` at the root is the agent setup; the same folder inside a project belongs to that
-    // project, because that is the only place its skills apply.
     if (segments[0] === ".claude") {
         const group = segments[1] ?? "skills";
 
@@ -257,11 +240,7 @@ export function buildWiki(pages: WikiPage[]): WikiSection[] {
         .filter((section) => section.groups.length > 0);
 }
 
-/**
- * `packages/ui/README.md` → `/packages/ui/readme`. The collector keys its pages by the repo path it
- * read; `@nuxt/content` keys the same file by a lower-cased, extension-less route. Anything joining
- * the two — a broken-link warning, an "updated 3 days ago" — has to cross here first.
- */
+/** `@nuxt/content` keys a page by a lower-cased, extension-less route; the collector keys it by the real repo path — anything joining the two must cross here first. */
 export function toCollectionPath(repoPath: string): string {
     return `/${repoPath.replace(/\.mdx?$/i, "").toLowerCase()}`;
 }

@@ -3,11 +3,6 @@ import { run } from "./exec.ts";
 
 export const git = (...args: string[]): string => run("git", args);
 
-/**
- * Resolved on first call rather than at module load. Two of the three places that needed the repo
- * root used to compute it while being imported, which meant importing them at all — from a spec,
- * say — spawned a subprocess and failed outside a git checkout.
- */
 let root: string | undefined;
 
 export const repoRoot = (): string => (root ??= git("rev-parse", "--show-toplevel"));

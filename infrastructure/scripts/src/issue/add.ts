@@ -99,11 +99,6 @@ export const add = async (): Promise<void> => {
     await offerPick();
 };
 
-/**
- * Filing an issue from `master` is the moment you're most likely about to start work on one — so
- * ask, and if yes, hand off to the same `pick` this exports for `pnpm issue:pick`, instead of
- * making that a separate command to remember to run.
- */
 const offerPick = async (): Promise<void> => {
     if (currentBranch() !== "master") return;
 

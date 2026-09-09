@@ -46,7 +46,7 @@ function formatDate(date: string): string {
                 {{ formatDate(entry.publishedAt) }}
             </time>
 
-            <!-- WordPress returns rendered HTML, entities and all, for every text field -->
+            <!-- Deliberate: WordPress already renders this field to HTML (README.md § Content) -->
             <h1
                 class="title"
                 v-html="entry.title"

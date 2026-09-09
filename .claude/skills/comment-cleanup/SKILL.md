@@ -21,7 +21,7 @@ This is a triage signal, not a target. Never delete a good comment to hit a numb
 
 ## The gauntlet
 
-Run every comment through these in order. First match wins.
+Run every comment through these in order. First match wins — the order is what decides whether a comment gets **deleted** or merely **shortened**, and skipping ahead to rule 6 is the most common way this pass underperforms. A paragraph that duplicates a README is rule 3 and goes away entirely; shortening it to one line leaves a third copy that is merely cheaper to ignore.
 
 **1. Narration.** Restates the adjacent line, the parameter names, the type, or the signature, or marks a block end. → Delete. This is the bulk of what you'll find. Both readers lose here: a human reads the line faster than a sentence about the line, and so does a model.
 
@@ -42,6 +42,16 @@ The trap: "carries a real why" and "is worded minimally" are separate judgments.
 **7. Stale.** Describes code or behavior that no longer exists. → Delete, or correct it if the point still holds. A wrong comment is worse than none.
 
 **8. Otherwise, keep.** The test is whether the next reader can reconstruct the fact from present state. Code, types and names they can — that is rule 1. History and outside constraint they cannot: what a scanner or a linter flagged, the bug behind a surprising line, the source of a copied algorithm, a contract the signature can't carry (units, ranges, side effects, failure modes), an edge case, a trap in a type. Don't reword comments that are already tight — churn on good comments is its own diff noise. But "already fine" means already minimal, not merely correct; a correct-but-bloated comment is a rule-6 target, not a keep.
+
+## Rewriting safely
+
+Shortening is where this pass does damage, because a rewrite looks like an edit and lands like a claim. Three rules, all learned from a sweep that broke each of them:
+
+**Never paraphrase a fact you haven't verified.** A sweep over this repo turned "`execFileSync` inherits the child's stderr by default" into "pipes it by default instead of inheriting it" — the opposite of the truth, and it made the rest of the comment incoherent. If a comment asserts something about an API, a tool or an external system: verify it (run it, read the docs) and then rewrite, or keep the sentence **verbatim** inside the shortened comment. Cutting a claim you can't check is safe. Rewording it is not.
+
+**When one clause survives, keep the failure mode, not the optimization.** Cutting to a single sentence forces a choice, and the vivid clause is usually the wrong one. Rank: what breaks > what it assumes > why this is faster > why it's shaped this way. The same sweep kept "`item-edit` resolves the field server-side instead of a `field-list` lookup" (an optimization nobody will undo) and dropped "assumes the default Projects template's Status/In Progress naming; a board that renamed either fails here" (the failure mode someone will hit).
+
+**One sentence still wraps.** The cap is on the sentence, not the line. A 150-character single-line comment is the same content with the line breaks deleted, and it reads worse than the wrapped version — nothing was saved. Wrap at ~100 columns, matching the prose everywhere else in the repo.
 
 ## Keep these — they look deletable and aren't
 

@@ -68,11 +68,6 @@ export function filterIssues(issues: Issue[], filter: IssueFilter): Issue[] {
     });
 }
 
-/**
- * Most recently touched first. A board column would be the better order, but the columns are named
- * per project and nothing here can know which of them means "next" — `gh` reports the name, not a
- * position.
- */
 export function sortIssues(issues: Issue[]): Issue[] {
     return issues.slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || b.number - a.number);
 }

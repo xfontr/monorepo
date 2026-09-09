@@ -5,8 +5,6 @@ export class TranslationsError extends Error {
     }
 }
 
-// Always a gateway failure: the locale is the only caller input, validated before the request, so no
-// upstream status is the caller's fault. `upstreamStatus` is diagnostic only — not what gets served.
 export class UpstreamError extends TranslationsError {
     constructor(public readonly upstreamStatus: number | undefined, cause?: unknown) {
         super(502, "Upstream request failed", { cause });

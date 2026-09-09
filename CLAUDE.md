@@ -37,7 +37,11 @@ how `infrastructure/scripts` reached one comment line per four lines of code.
   fact. Ticket IDs and stable README paths are fine as trailing breadcrumbs.
 - One sentence, two at most. A cap, not a target: nobody reads a five-line comment, and a fact that
   doesn't get read might as well not be written. A rationale with more than one part becomes several
-  short comments next to the lines each part governs, not one paragraph above all of them.
+  short comments next to the lines each part governs, not one paragraph above all of them. The cap
+  is on the sentence, not the line — wrap at ~100 columns like everything else here; a 150-character
+  one-liner is the same comment with the breaks deleted.
+- A comment asserting how an API or a tool behaves is a claim, and a wrong one is worse than none.
+  Verify it before writing or rewording it; if you can't, leave the existing wording alone.
 - One-line summary on a public function or endpoint: fine. TODOs: fine, no issue ID needed.
 
 `packages/content` and `apps/huella-legal` sit at 4–6% comment lines and are the calibration; a file

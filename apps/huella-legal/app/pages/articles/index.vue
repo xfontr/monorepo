@@ -7,8 +7,7 @@ const { listEntries } = useContent();
 const { locale } = useI18n();
 const route = useRoute();
 
-// Not validated here: the BFF already bounds `page` and answers anything out of range with a 400,
-// and a second copy of those bounds is a second place for them to drift
+// Deliberately unvalidated — the BFF already bounds `page` (README.md § Content)
 const page = computed(() => Number(route.query.page ?? 1));
 
 const { data, error, status } = await listEntries("posts", () => ({ page: page.value, perPage: PER_PAGE }));
@@ -16,8 +15,7 @@ const { data, error, status } = await listEntries("posts", () => ({ page: page.v
 function raiseIfMissing(): void {
     if (!error.value) return;
 
-    // A malformed page and one past the end both arrive as a 400 - treat either as "page not
-    // found" rather than surfacing the BFF's raw query complaint.
+    // A 400 here means "bad or past-the-end page", mapped to 404 (README.md § Content)
     if (error.value.statusCode === 400) {
         showError({ statusCode: 404, statusMessage: "Page not found", fatal: true });
 
@@ -93,7 +91,7 @@ function formatDate(date: string): string {
                         {{ formatDate(entry.publishedAt) }}
                     </time>
 
-                    <!-- WordPress returns rendered HTML, entities and all, for every text field -->
+                    <!-- Deliberate: WordPress already renders this field to HTML (README.md § Content) -->
                     <h2
                         class="entry__title"
                         v-html="entry.title"
