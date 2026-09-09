@@ -1,9 +1,10 @@
 import { autocomplete, confirm, select, text } from "@clack/prompts";
 import { out } from "../shared/adapters/io.ts";
 import { orExit } from "../shared/adapters/prompts.ts";
+import { ExpectedError } from "../shared/errors.ts";
 import { assignToMe, developBranch, isOnline, listIssues, listProjects, moveToInProgress, type Issue, type Project } from "./adapters/gh.ts";
 import { branchForIssue, checkout } from "./adapters/git.ts";
-import { projectOptions, PROJECT_SCOPE_HINT } from "./adapters/prompts.ts";
+import { ISSUE_SCOPE_HINT, projectOptions, PROJECT_SCOPE_HINT } from "./adapters/prompts.ts";
 import { branchName, BRANCH_TYPES, slugify } from "./domain/branch.ts";
 import { matchesIssue } from "./domain/search.ts";
 
@@ -64,6 +65,14 @@ const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue
         issues = listIssues(project.title, knownOffline);
     }
     catch {
+        // A throw here isn't necessarily offline — a scope/auth error throws the same way a
+        // dropped connection does, and only one of those should be served from stale cache.
+        if (!knownOffline && isOnline()) {
+            loading.stop("Couldn't read issues.");
+            throw new ExpectedError(ISSUE_SCOPE_HINT);
+        }
+
+        out.warn("gh is unreachable — showing cached issues, which may be outdated.");
         loading.message(`Reading cached issues for ${project.title}...`);
         issues = listIssues(project.title, true);
     }
