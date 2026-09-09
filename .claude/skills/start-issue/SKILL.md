@@ -44,6 +44,15 @@ hand — same procedure as the `github-issue` skill's "Offer to pick it" step:
    branch on the issue's Development panel and checks it out in one call.
 5. `gh issue edit <number> --add-assignee @me`. A failure here (no write access) only costs the
    assignment — warn and keep going, the branch is still checked out.
+6. Move the issue to *In Progress* on the board:
+
+   ```sh
+   gh project item-edit <project number> --owner <owner> --url <issue url> --field "Status" --value "In Progress"
+   ```
+
+   `<project number>` is the number from `gh project list`, not the title used to build the branch
+   above; `<owner>` is `gh repo view --json owner --jq .owner.login`. A failure here (renamed
+   "Status" field or option) only costs the board move — warn and keep going.
 
 Check `git status --porcelain` first if you're not sure the tree is clean: the checkout above
 carries uncommitted changes over silently, which is usually fine but worth flagging before it

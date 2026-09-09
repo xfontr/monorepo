@@ -14,7 +14,7 @@ const or = <T>(value: T | symbol): T => orExit(value, CANCELLED);
 
 /**
  * A sentinel rather than `undefined`: `pickIssue` already uses `undefined` to mean "this project
- * has nothing open", which should warn and exit, not loop back to the project prompt.
+ * has nothing open", which loops back to the project prompt the same as this does, but warns first.
  */
 const BACK = Symbol("back to project list");
 
@@ -168,7 +168,7 @@ export const pick = async (): Promise<void> => {
 
         if (!issue) {
             out.warn("Nothing open on that project. `pnpm issue:add` fixes that.");
-            return;
+            continue;
         }
 
         if (await resumeBranch(project, issue)) return;
