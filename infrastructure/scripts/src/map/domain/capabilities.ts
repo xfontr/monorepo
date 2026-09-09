@@ -1,10 +1,4 @@
-/**
- * A capability is one thing this repo can do that a newcomer could not have guessed was here: a
- * command, a git hook, a workflow, an agent skill. The map is an index of them, so every field
- * below has to be derivable from a file that already declares it — nothing here is hand-written,
- * because a hand-written column is a second copy of something and gets clobbered on the next
- * render.
- */
+/** One thing this repo can do that a newcomer could not have guessed was here. */
 export type Kind = "command" | "hook" | "workflow" | "skill";
 
 export type Capability = {
@@ -17,11 +11,7 @@ export type Capability = {
     token: string
 };
 
-/**
- * Every project declares these, and they're documented once in the root README's command table.
- * A row per project would be forty lines of `lint` and `typecheck` burying the eight commands
- * that are actually specific to something.
- */
+/** A row per project would be forty lines of `lint` and `typecheck` burying the eight commands that are actually specific to something. */
 export const STANDARD_TARGETS = ["lint", "typecheck", "test", "test:dev", "test:coverage", "build"];
 
 export type ProjectScripts = {
@@ -39,11 +29,7 @@ export const rootCommands = (scripts: string[]): Capability[] =>
         token: script,
     }));
 
-/**
- * A project script is only worth a row when the root doesn't already expose it: `issue:add` lives
- * in this package but you invoke it from the root, and listing both would document one capability
- * twice under two different invocations.
- */
+/** A project script is only worth a row when the root doesn't already expose it — `issue:add` lives in this package but you invoke it from the root. */
 export const projectCommands = (projects: ProjectScripts[], rootScripts: string[]): Capability[] =>
     projects.flatMap(({ root, name, scripts }) =>
         scripts

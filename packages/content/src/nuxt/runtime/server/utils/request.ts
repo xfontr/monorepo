@@ -18,8 +18,6 @@ export function readVendor(event: H3Event<EventHandlerRequest>): VendorConfig {
     return vendor;
 }
 
-// The transport is built with no baseURL: a provider composes its own absolute URLs, so nothing here
-// has to know how its vendor is addressed
 export async function resolveProvider(vendor: VendorConfig): Promise<ContentProvider> {
     try {
         return await createProvider(vendor, new OfetchHttpClient(ofetch));

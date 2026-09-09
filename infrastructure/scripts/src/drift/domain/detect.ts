@@ -1,11 +1,7 @@
 import { createHash } from "node:crypto";
 import { PROJECT_ROOTS } from "../../shared/domain/layout.ts";
 
-/**
- * A file at the repo root (README.md, CLAUDE.md, package.json) maps to no project, which is
- * correct here: those are the exact-duplication and structural-assertion cases the other two
- * layers in 0040 already cover, not this one.
- */
+/** A file at the repo root (README.md, CLAUDE.md, package.json) maps to no project on purpose. */
 export const projectRootFor = (file: string): string | undefined => {
     const [top, name] = file.split("/");
     return top && name && PROJECT_ROOTS.includes(top) ? `${top}/${name}` : undefined;
@@ -48,8 +44,6 @@ export const isStale = (lastMdCommitMs: number | undefined, now: number): boolea
 export const isBigChange = ({ linesChanged, filesChanged, renamed }: ChangeSize): boolean =>
     renamed || linesChanged >= BIG_CHANGE_LINES || filesChanged >= BIG_CHANGE_FILES;
 
-// Either condition is enough on its own: a big change with fresh docs is still worth a look, and
-// so is a small change landing on docs nobody has touched in months.
 export const shouldWarn = (size: ChangeSize, lastMdCommitMs: number | undefined, now = Date.now()): boolean =>
     isStale(lastMdCommitMs, now) || isBigChange(size);
 

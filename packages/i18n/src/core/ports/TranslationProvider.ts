@@ -18,7 +18,6 @@ abstract class TranslationProvider<T extends object = object> implements Vendor<
 
     public abstract getTranslations(locale: Locale): Promise<TranslationMap>;
 
-    // Only the `options` half: `project` and `baseURL` are checked below for every vendor
     protected configProblems(): string[] {
         return [];
     }

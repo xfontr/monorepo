@@ -8,10 +8,8 @@ import { git, runAllowFailure, tryRun } from "../lib/run.ts";
 const SPEC_SUFFIX = ".spec.ts";
 const SOURCE_PATTERN = /\.(ts|vue)$/;
 
-// commitlint's preset wants a lower-case type and a subject that is *not* sentence-case, and the
-// `commit-msg` hook then rewrites the subject to carry the branch's issue number — so a conforming
-// subject here reads `feat: [50] add thing`. The optional group is what keeps a commit made on a
-// branch with no number in it from counting as a miss.
+// The `commit-msg` hook rewrites a conforming subject to carry the branch's issue number — `feat:
+// [50] add thing` — so the optional group here keeps a numberless-branch commit from counting as a miss.
 const CONVENTIONAL = /^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([^)]+\))?!?: (\[\d+\] )?[a-z0-9]/;
 
 async function filesIn(root: string): Promise<string[]> {

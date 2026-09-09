@@ -11,10 +11,44 @@ invariants that span more than one file.
 - 4-space indent, double quotes, semicolons. `@stylistic` enforces it via `@monorepo/configs`, so
   `pnpm exec eslint --fix` settles any argument.
 - `package.json` files are 2-space because pnpm rewrites them that way. Leave them alone.
-- **Comments state the why, never the what.** A comment that restates the line below it gets
-  deleted. The comments already in `core/` are the model: they explain a constraint you would
-  otherwise break.
+- **A comment carries one fact that isn't in the code, in one sentence.** See
+  [💬 Comments](#-comments).
 - Same rule for docs. When writing or editing markdown, follow the `house-docs` skill.
+
+## 💬 Comments
+
+Default to none. **A comment carries one fact that isn't in the code, in one sentence.** The rule is
+not "a comment must justify its line" — that one is satisfied by writing a better argument, which is
+how `infrastructure/scripts` reached one comment line per four lines of code.
+[`0082`](./docs/spikes/0082-comment-discipline.md) has the measurement.
+
+- The keep-test is **whether the next reader can reconstruct it from present state.** History and
+  outside constraint can't be: what a scanner flagged, the bug behind a strange sort order, a trap
+  in a type, units a type can't express, "do not simplify this", cross-file sync obligations.
+- Never restate the code, the names, or the signature. No `// loop over users`, no `// end if`. A
+  human reads the line faster than the comment, and so does an agent.
+- Never argue. A comment informs the next reader; it does not persuade a critic that the decision
+  was right. That belongs in the PR or in a spike report.
+- Never repeat what a README, a `CLAUDE.md` or a spike already says. It's a third copy, free to
+  drift, and both readers reach the original anyway.
+- Never address the diff. "Updated to v2", "as requested" belong in the commit message. Every
+  comment must read correctly to someone opening the file cold in a year.
+- Never point at a moving target — a spec section, a design doc, or *another comment*. Encode the
+  fact. Ticket IDs and stable README paths are fine as trailing breadcrumbs.
+- One sentence, two at most. A cap, not a target: nobody reads a five-line comment, and a fact that
+  doesn't get read might as well not be written. A rationale with more than one part becomes several
+  short comments next to the lines each part governs, not one paragraph above all of them. The cap
+  is on the sentence, not the line — wrap at ~100 columns like everything else here; a 150-character
+  one-liner is the same comment with the breaks deleted.
+- A comment asserting how an API or a tool behaves is a claim, and a wrong one is worse than none.
+  Verify it before writing or rewording it; if you can't, leave the existing wording alone.
+- One-line summary on a public function or endpoint: fine.
+- **`TODO` and `FIXME` never survive a push** — [`.husky/pre-push`](./.husky/pre-push) fails on
+  any added one. Fine while you work; before pushing, file it with `pnpm issue:add` and delete the
+  comment. Never delete one without filing it.
+
+`packages/content` and `apps/huella-legal` sit at 4–6% comment lines and are the calibration; a file
+far outside that is worth opening. The `comment-cleanup` skill runs the pass.
 
 ## 🚫 Things that look reasonable and are wrong here
 
@@ -76,7 +110,8 @@ with no overrides, and two of that preset's rules aren't obvious from a rejectio
 **type is lower-case** and the **subject is not** sentence-case, start-case, Pascal-case or
 upper-case — so `feat: add the thing` passes and `feat: Add the thing` does not.
 
-The pre-push hook runs lint, test and typecheck on affected projects. CI runs those **plus `build`**,
+The pre-push hook validates the branch name, blocks added `TODO`/`FIXME` comments, nudges on
+docs drift, then runs lint, test and typecheck on affected projects. CI runs those **plus `build`**,
 so a green push is not yet a green pipeline — `apps/huella-legal` typechecks on build, which is where
 most of that difference shows up. Note also that `husky` has no `prepare` script to install itself,
 because lifecycle scripts are banned here; a fresh clone gets no hooks until `core.hooksPath` is
@@ -100,6 +135,7 @@ history table in that directory's README.
 | `writing-tests` | Adding or changing any `*.spec.ts` |
 | `house-docs` | Writing or editing any markdown |
 | `doc-drift-check` | A change altered a project's public surface — exports, CLI flags, config shape, documented commands |
+| `comment-cleanup` | Cleaning, pruning or auditing comments in a file, staged diff or PR before committing |
 | `github-issue` | Filing an issue *for* the user — the three templates. They file their own with `pnpm issue:add`, which is deliberately template-free |
 | `start-issue` | Starting work on a specific issue — from the branch you're on, or from a number, link or description |
 | `spike-report` | "Do a spike on this" — research an architectural question and write the answer to `docs/spikes/`. Filing the *issue* is `github-issue` |

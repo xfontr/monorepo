@@ -15,7 +15,6 @@ export default defineNuxtModule<ContentConfig>({
 
         nuxt.options.runtimeConfig.content = resolvedOptions;
 
-        // BFF
         addServerHandler({
             route: `${CONTENT_API_PATH}/:resource`,
             method: "get",
@@ -28,7 +27,6 @@ export default defineNuxtModule<ContentConfig>({
             handler: resolver.resolve("./runtime/server/contentItem.get"),
         });
 
-        // Nuxt magic (autoimports)
         addImports({
             name: "useContent",
             from: resolver.resolve("./runtime/composables/useContent"),

@@ -40,7 +40,6 @@ function assertLocale(locale: string | undefined, locales: string[]): asserts lo
     throw createError(new UndefinedLocaleError(locale));
 }
 
-// Only our own diagnoses become an HTTP status; anything else keeps its stack and reports as unhandled
 function rethrowAsHttpError(cause: unknown): never {
     if (cause instanceof TranslationsError) throw createError(cause);
 

@@ -30,24 +30,11 @@ export type ChecksResult = {
     output: string
 };
 
-/**
- * Right after a push, GitHub can take a while to attach even the *first* check run to the new
- * commit — this repo alone fans a PR out to GH Actions, a second "PR metadata" workflow, two
- * SonarCloud checks and four Netlify ones, each registering on its own schedule. `gh pr checks`
- * doesn't wait any of that out — it errors immediately with "no checks reported", which is
- * otherwise indistinguishable, at the process-exit-code level, from a genuine failing check. A
- * minute of retrying a few seconds apart covers that registration lag; a real failure never
- * carries this message, so it still returns on the first try regardless of the budget.
- */
+// ~7 checks across 3 services, each registering on its own schedule after a push
 const CHECK_REGISTRATION_BUDGET_MS = 60_000;
 const CHECK_REGISTRATION_INTERVAL_MS = 5_000;
 
-/**
- * Auto-merge only queues the moment checks conclude — GitHub takes a further beat to actually
- * execute the merge, and reading the PR's state exactly once at that instant just as often catches
- * it too early as not. Bounding the wait keeps a genuinely stuck merge (a second required check, an
- * out-of-date base — see the README's "Deliberately deferred" table) from hanging the script forever.
- */
+/** Auto-merge only queues at this point — GitHub takes a further beat to actually execute the merge. */
 const MERGE_POLL_BUDGET_MS = 45_000;
 const MERGE_POLL_INTERVAL_MS = 3_000;
 
@@ -63,10 +50,9 @@ const errorText = (error: unknown): string => {
 };
 
 /**
- * Blocks until every check on the PR concludes, same as running it by hand — the wait itself *is*
- * the "don't babysit the browser" part of `pnpm issue:ship`. `gh` exits non-zero the moment any
- * check fails or is cancelled, and its table of results is on `stdout` of that same failed process
- * — `run()` only returns stdout on success, so a failure has to read it back off the caught error.
+ * `gh` exits non-zero the moment any check fails or is cancelled, and its table of results is on
+ * `stdout` of that same failed process — `run()` only returns stdout on success, so a failure has
+ * to read it back off the caught error.
  */
 export const watchChecks = (url: string, deadline = Date.now() + CHECK_REGISTRATION_BUDGET_MS): ChecksResult => {
     try {
@@ -74,6 +60,8 @@ export const watchChecks = (url: string, deadline = Date.now() + CHECK_REGISTRAT
     }
     catch (error) {
         const output = errorText(error);
+        // "no checks reported" also means "hasn't registered yet" — indistinguishable from a real
+        // failure by exit code alone, which never carries this message, so retrying is safe
         if (isMissingChecksError(output) && Date.now() < deadline) {
             wait(CHECK_REGISTRATION_INTERVAL_MS);
             return watchChecks(url, deadline);
@@ -85,11 +73,7 @@ export const watchChecks = (url: string, deadline = Date.now() + CHECK_REGISTRAT
 const prState = (url: string): string =>
     gh("pr", "view", assertNotFlagLike(url, "PR url"), "--json", "state", "-q", ".state");
 
-/**
- * `waitForMerge` rather than a one-shot `prMerged`: called the instant `watchChecks` returns, the
- * PR is routinely still `"OPEN"` with the merge only queued, not yet executed — polling a bounded
- * window is what lets the checkout below fire on the same run instead of only on a lucky next one.
- */
+/** Polls a bounded window rather than reading state once, so the checkout below can fire on this same run instead of a lucky next one. */
 export const waitForMerge = (url: string, deadline = Date.now() + MERGE_POLL_BUDGET_MS): boolean => {
     if (prState(url) === "MERGED") return true;
     if (Date.now() >= deadline) return false;

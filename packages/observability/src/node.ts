@@ -35,7 +35,6 @@ export function startNodeTelemetry({ url, instanceId, token, app }: NodeTelemetr
         }))],
     });
 
-    // Also installs the W3C propagator and the async context manager the caller's spans need.
     provider.register();
 
     registerInstrumentations({ instrumentations: [new UndiciInstrumentation()] });

@@ -17,16 +17,11 @@ const show = (...args: string[]): string[] =>
     JSON.parse(run(nx(), ["show", "projects", "--with-target", TARGET, "--json", ...args])) as string[];
 
 /**
- * Nx, not a walk over every `package.json`, decides what's runnable — same reasoning as
- * [`coverage-report/adapters/nx.ts`](../../coverage-report/adapters/nx.ts) asking it about
- * `test:coverage`. It already knows which projects exist and what each declares, so a project added
- * next month appears here without this script learning its name.
- *
- * One query per project root rather than one for the lot, because `--projects` matches on directory
- * — so *which* query answered is the project's layer, with nothing to look up afterwards and no
- * assuming a package's name matches its directory. The alternative, `nx show project <name> --json`
- * per row, costs a subprocess per project and gets slower as the workspace grows; three queries
- * stay three, and a warm daemon answers all of them in about a second.
+ * Nx decides what's runnable, not a walk over every `package.json` — same reasoning as
+ * [`coverage-report/adapters/nx.ts`](../../coverage-report/adapters/nx.ts) asking about
+ * `test:coverage`. One query per project root, not one for the lot, because `--projects` matches on
+ * directory — cheaper than one `nx show project <name> --json` per row, and it never has to guess
+ * that a package's name matches its directory.
  */
 export const projectsWithDev = (): Runnable[] =>
     PROJECT_ROOTS.flatMap((root) => show("--projects", `${root}/*`).map((name) => ({ root, name })));

@@ -22,13 +22,6 @@ type Picked<T> = {
     offline: boolean
 };
 
-/**
- * Tries the normal, cache-backed online path first — free when the 24h project cache is still
- * warm, since `cached()` never touches the network on a hit. `isOnline()`'s own round trip only
- * runs when that comes back empty, to tell "gh is actually unreachable" apart from "no open
- * projects" or "missing the `project` scope" before paying for a fallback read of the file cache.
- * That keeps the common case — online, warm cache — as instant as `issue:add`'s project prompt.
- */
 const pickProject = async (): Promise<Picked<Project>> => {
     const loading = out.spinner();
     loading.start("Asking gh what's available...");
@@ -62,13 +55,6 @@ const pickProject = async (): Promise<Picked<Project>> => {
     return { value: projects.find((project) => project.title === title), offline };
 };
 
-/**
- * `knownOffline` short-circuits straight to the cache when `pickProject` already proved gh
- * unreachable. Otherwise this still tries the live fetch first — `listIssues` is deliberately
- * uncached online, so a warm project cache can leave `pickProject` never checking connectivity at
- * all — and only falls back to the cache if that live call actually throws, instead of a second
- * `isOnline()` round trip on every run.
- */
 const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue | undefined | typeof BACK> => {
     const loading = out.spinner();
     loading.start(knownOffline ? `Reading cached issues for ${project.title}...` : `Reading ${project.title}...`);
@@ -96,24 +82,16 @@ const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue
                 ...issues.map((issue) => ({
                     value: issue,
                     label: `#${issue.number} ${issue.title}`,
-                    // The URL rides along in the hint so the terminal turns it into something
-                    // clickable — that's the whole "let me read the issue before I commit to it"
-                    // escape hatch.
                     hint: [issue.labels.join(", "), issue.url].filter(Boolean).join(" · "),
                 })),
             ],
-            // A board is the one list here that grows without anyone deciding to grow it, so it's
-            // searchable rather than scrollable. The back row is navigation, not an issue: it
-            // belongs at the top of an unfiltered list and nowhere inside a search for one.
+            // The back row is navigation, not an issue: it belongs at the top of an unfiltered
+            // list and nowhere inside a search for one.
             filter: (search, { value }) => (value === BACK ? !search.trim() : matchesIssue(value, search)),
         }),
     );
 };
 
-/**
- * Runs last and swallows its own failure: the branch is the point of this script, and a repo where
- * you can't assign (or a `gh` without the scope) shouldn't undo one that's already checked out.
- */
 const assign = (issue: number): void => {
     try {
         assignToMe(issue);
@@ -124,10 +102,6 @@ const assign = (issue: number): void => {
     }
 };
 
-/**
- * Runs right after the assignment and fails the same way: a project without a "Status" field (or
- * one that renamed "In Progress") shouldn't undo the branch or the assignment either.
- */
 const moveToBoard = (project: Project, issue: Issue): void => {
     try {
         moveToInProgress(project, issue);
@@ -138,10 +112,6 @@ const moveToBoard = (project: Project, issue: Issue): void => {
     }
 };
 
-/**
- * Offers the branch this issue already has, if it has one. Answering no falls through to creating
- * another — a fix branch on top of a feature branch is a real thing, just not the common one.
- */
 const resumeBranch = async (project: Project, issue: Issue): Promise<boolean> => {
     const existing = branchForIssue(issue.number);
     if (!existing) return false;

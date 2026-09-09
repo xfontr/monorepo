@@ -50,7 +50,6 @@ export const projectScripts = (): ProjectScripts[] =>
         }),
     );
 
-/** `_` holds husky's own generated shim, which is not a hook anyone wrote. */
 export const hookNames = (): string[] => filesIn(at(".husky")).filter((name) => !name.startsWith("_"));
 
 export const workflowFiles = (): { file: string, name: string }[] =>
@@ -77,8 +76,6 @@ const skillsUnder = (dir: string, scope?: string): { source: string, name: strin
         })
         .map((source) => ({
             source,
-            // The frontmatter `name` is what the Skill tool dispatches on; the directory name only
-            // happens to match it today.
             name: /^name:\s*(.+)$/m.exec(read(at(source)))?.[1]?.trim() ?? source,
             scope,
         }));
@@ -116,12 +113,7 @@ const walkMarkdown = (dir: string, found: string[] = []): string[] => {
 
 export const MAP_PATH = "docs/FEATURES.md";
 
-/**
- * Every markdown file that could explain a capability. Three exclusions, each because a match
- * there would be a false positive rather than an answer: `CHANGELOG.md` is generated and names a
- * commit; `docs/reviews/` scores the repo at a point in time and mentions a capability to rate it,
- * not to explain it; and the map itself lists every capability, so it would document all of them.
- */
+/** Three deliberate exclusions from the markdown scan — see ./README.md#-picking-the-doc. */
 export const docs = (): Doc[] =>
     walkMarkdown(repoRoot())
         .filter(

@@ -56,11 +56,7 @@ function toIssue(issue: GhIssue): Issue {
     };
 }
 
-/**
- * `gh` takes about a second and every page that shows an issue would otherwise pay it on each
- * navigation. One minute is short enough that an issue closed in the browser disappears from here
- * on the next glance, and the page's refresh button skips the window outright.
- */
+/** One minute is short enough that an issue closed in the browser disappears from here on the next glance. */
 const TTL_MS = 60_000;
 
 let cache: { at: number, value: IssuesArtifact } | null = null;
@@ -78,8 +74,6 @@ async function fetchIssues(): Promise<IssuesArtifact> {
         return { fetchedAt, error: null, issues: (JSON.parse(stdout) as GhIssue[]).map(toIssue) };
     }
     catch (cause) {
-        // `gh` explains itself well ("gh auth login", "no default remote repository"), so its own
-        // first line is a better answer on the page than anything this could write instead.
         const message = cause instanceof Error ? cause.message : String(cause);
 
         return { fetchedAt, error: message.split("\n").find(Boolean)?.slice(0, 300) ?? "gh failed", issues: [] };

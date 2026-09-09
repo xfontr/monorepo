@@ -12,7 +12,7 @@ export default defineNuxtModule<TranslationsConfig>({
         const resolver = createResolver(import.meta.url);
         const name = resolvedOptions.vendor?.name;
 
-        // Failing the build beats throwing on the first request, which is a page nobody is watching
+        // Fails at build time rather than deferring to the first translation request
         if (!isVendorName(name)) throw new UndefinedVendorError(name, VENDOR_NAMES);
 
         const locales = getLocaleCodes(nuxt);
@@ -36,7 +36,6 @@ export default defineNuxtModule<TranslationsConfig>({
             });
         });
 
-        // Install i18n module
         await installModule("@nuxtjs/i18n");
     },
 });

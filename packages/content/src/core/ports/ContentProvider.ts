@@ -13,7 +13,6 @@ abstract class ContentProvider<T extends object = object> {
 
     protected abstract configProblems(): string[];
 
-    // It's an one-item list on every CMS, override these if CMS has a single-document endpoint
     public async getEntry(resource: EntryResource, slug: string): Promise<Entry> {
         const { items } = await this.listEntries(resource, { slug, perPage: 1 });
 

@@ -63,11 +63,6 @@ const section = (
     ];
 };
 
-/**
- * A `—` in the Explained-in column is the point of the file: it means a capability exists that no
- * doc mentions, which is how `commit-msg`'s subject rewriting and `packages/ui`'s Storybook stayed
- * invisible for as long as they did.
- */
 export const render = (capabilities: Capability[], docs: Doc[]): string =>
     [
         "# 🗺 Features",

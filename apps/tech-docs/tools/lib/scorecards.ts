@@ -1,12 +1,6 @@
 import type { ScoreRow } from "../../shared/types.ts";
 
-/**
- * The dashboard's scorecards page parses `docs/reviews/*.md` rather than recomputing anything: every
- * number it shows is copied out of the `## 🧮 Scores` table `repo-review` already wrote. That only
- * works because the table has one shape across every review — these seven cards, in this order, each
- * scored `n/5` — which is why `compareScorecardShape` in `invariants.ts` exists to catch the day one
- * review's table stops matching it.
- */
+/** The seven cards every review's `## 🧮 Scores` table must have, in this order — `compareScorecardShape` in `invariants.ts` catches drift. */
 export const SCORE_CARDS = [
     "🧱 Architecture",
     "🧩 Implementation",
