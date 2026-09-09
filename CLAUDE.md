@@ -11,23 +11,37 @@ invariants that span more than one file.
 - 4-space indent, double quotes, semicolons. `@stylistic` enforces it via `@monorepo/configs`, so
   `pnpm exec eslint --fix` settles any argument.
 - `package.json` files are 2-space because pnpm rewrites them that way. Leave them alone.
-- **Comments state the why, never the what.** See [💬 Comments](#-comments).
+- **A comment carries one fact that isn't in the code, in one sentence.** See
+  [💬 Comments](#-comments).
 - Same rule for docs. When writing or editing markdown, follow the `house-docs` skill.
 
 ## 💬 Comments
 
-Default to none. Code shows *how*; a comment exists only to carry *why*.
+Default to none. **A comment carries one fact that isn't in the code, in one sentence.** The rule is
+not "a comment must justify its line" — that one is satisfied by writing a better argument, which is
+how `infrastructure/scripts` reached one comment line per four lines of code.
+[`0082`](./docs/spikes/0082-comment-discipline.md) has the measurement.
 
-- Never restate the code, the names, or the signature. No `// loop over users`, no `// end if`.
-- Never address the diff. "Updated to v2", "as requested", "fixed the off-by-one" belong in the
-  commit message. Every comment must read correctly to someone opening the file cold in a year.
-- Never point at a moving target. Spec section numbers and design docs rot. Encode the fact, not
-  the pointer. Ticket IDs and stable README paths are fine as trailing breadcrumbs.
-- Keep: non-obvious constraints, workarounds and the bug behind them, units and ranges a type can't
-  express, "do not simplify this" warnings, cross-file sync obligations.
-- A kept comment still gets cut to the one fact needed at that line. Real rationale is not a
-  licence for five lines.
+- The keep-test is **whether the next reader can reconstruct it from present state.** History and
+  outside constraint can't be: what a scanner flagged, the bug behind a strange sort order, a trap
+  in a type, units a type can't express, "do not simplify this", cross-file sync obligations.
+- Never restate the code, the names, or the signature. No `// loop over users`, no `// end if`. A
+  human reads the line faster than the comment, and so does an agent.
+- Never argue. A comment informs the next reader; it does not persuade a critic that the decision
+  was right. That belongs in the PR or in a spike report.
+- Never repeat what a README, a `CLAUDE.md` or a spike already says. It's a third copy, free to
+  drift, and both readers reach the original anyway.
+- Never address the diff. "Updated to v2", "as requested" belong in the commit message. Every
+  comment must read correctly to someone opening the file cold in a year.
+- Never point at a moving target — a spec section, a design doc, or *another comment*. Encode the
+  fact. Ticket IDs and stable README paths are fine as trailing breadcrumbs.
+- One sentence, two at most. A cap, not a target: nobody reads a five-line comment, and a fact that
+  doesn't get read might as well not be written. A rationale with more than one part becomes several
+  short comments next to the lines each part governs, not one paragraph above all of them.
 - One-line summary on a public function or endpoint: fine. TODOs: fine, no issue ID needed.
+
+`packages/content` and `apps/huella-legal` sit at 4–6% comment lines and are the calibration; a file
+far outside that is worth opening. The `comment-cleanup` skill runs the pass.
 
 ## 🚫 Things that look reasonable and are wrong here
 

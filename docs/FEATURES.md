@@ -65,6 +65,7 @@ shortest statement of how a task is meant to go here.
 
 | Capability | Declared in | Explained in |
 | --- | --- | --- |
+| `/comment-cleanup` | [`.claude/skills/comment-cleanup/SKILL.md`](../.claude/skills/comment-cleanup/SKILL.md) | [`docs/spikes/0082-comment-discipline.md`](../docs/spikes/0082-comment-discipline.md) |
 | `/doc-drift-check` | [`.claude/skills/doc-drift-check/SKILL.md`](../.claude/skills/doc-drift-check/SKILL.md) | [`docs/spikes/0037-feature-discoverability.md`](../docs/spikes/0037-feature-discoverability.md) |
 | `/github-issue` | [`.claude/skills/github-issue/SKILL.md`](../.claude/skills/github-issue/SKILL.md) | [`infrastructure/scripts/src/issue/README.md`](../infrastructure/scripts/src/issue/README.md) |
 | `/house-docs` | [`.claude/skills/house-docs/SKILL.md`](../.claude/skills/house-docs/SKILL.md) | [`docs/spikes/0037-feature-discoverability.md`](../docs/spikes/0037-feature-discoverability.md) |
