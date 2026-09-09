@@ -120,3 +120,13 @@ what it does by hand:
 
 4. Assign the issue to the user: `gh issue edit <issue number> --add-assignee @me`. If it fails
    (no write access), warn and move on — the branch is still theirs.
+5. Move the issue to *In Progress* on the board, same as the script:
+
+   ```sh
+   gh project item-edit <project number> --owner <owner> --url <issue url> --field "Status" --value "In Progress"
+   ```
+
+   `<project number>` is the number from `gh project list` (not the title used above), `<owner>`
+   is `gh repo view --json owner --jq .owner.login`. This assumes the default GitHub Projects
+   template's "Status" field and "In Progress" option — if it fails, warn and move on, same as the
+   assignment.
