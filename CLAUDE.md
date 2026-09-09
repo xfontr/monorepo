@@ -11,10 +11,23 @@ invariants that span more than one file.
 - 4-space indent, double quotes, semicolons. `@stylistic` enforces it via `@monorepo/configs`, so
   `pnpm exec eslint --fix` settles any argument.
 - `package.json` files are 2-space because pnpm rewrites them that way. Leave them alone.
-- **Comments state the why, never the what.** A comment that restates the line below it gets
-  deleted. The comments already in `core/` are the model: they explain a constraint you would
-  otherwise break.
+- **Comments state the why, never the what.** See [💬 Comments](#-comments).
 - Same rule for docs. When writing or editing markdown, follow the `house-docs` skill.
+
+## 💬 Comments
+
+Default to none. Code shows *how*; a comment exists only to carry *why*.
+
+- Never restate the code, the names, or the signature. No `// loop over users`, no `// end if`.
+- Never address the diff. "Updated to v2", "as requested", "fixed the off-by-one" belong in the
+  commit message. Every comment must read correctly to someone opening the file cold in a year.
+- Never point at a moving target. Spec section numbers and design docs rot. Encode the fact, not
+  the pointer. Ticket IDs and stable README paths are fine as trailing breadcrumbs.
+- Keep: non-obvious constraints, workarounds and the bug behind them, units and ranges a type can't
+  express, "do not simplify this" warnings, cross-file sync obligations.
+- A kept comment still gets cut to the one fact needed at that line. Real rationale is not a
+  licence for five lines.
+- One-line summary on a public function or endpoint: fine. TODOs: fine, no issue ID needed.
 
 ## 🚫 Things that look reasonable and are wrong here
 
@@ -100,6 +113,7 @@ history table in that directory's README.
 | `writing-tests` | Adding or changing any `*.spec.ts` |
 | `house-docs` | Writing or editing any markdown |
 | `doc-drift-check` | A change altered a project's public surface — exports, CLI flags, config shape, documented commands |
+| `comment-cleanup` | Cleaning, pruning or auditing comments in a file, staged diff or PR before committing |
 | `github-issue` | Filing an issue *for* the user — the three templates. They file their own with `pnpm issue:add`, which is deliberately template-free |
 | `start-issue` | Starting work on a specific issue — from the branch you're on, or from a number, link or description |
 | `spike-report` | "Do a spike on this" — research an architectural question and write the answer to `docs/spikes/`. Filing the *issue* is `github-issue` |

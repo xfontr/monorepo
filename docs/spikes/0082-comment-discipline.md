@@ -1,7 +1,7 @@
 # 🧭 Comment discipline: policy and skill, not a per-edit LLM gate
 
 Spike: #82
-Status: To implement
+Status: Implemented
 
 ## Context
 
