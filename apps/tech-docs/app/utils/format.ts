@@ -21,6 +21,14 @@ export function scoreTone(score: number | null | undefined): Tone {
     return "bad";
 }
 
+/** `pnpm audit`'s own five-band scale, collapsed to the app's three tones. */
+export function severityTone(severity: "info" | "low" | "moderate" | "high" | "critical"): Tone {
+    if (severity === "critical" || severity === "high") return "bad";
+    if (severity === "moderate") return "warn";
+
+    return "neutral";
+}
+
 const CATEGORY_ICONS: Record<string, string> = {
     bug: "i-lucide-bug",
     feature: "i-lucide-sparkles",

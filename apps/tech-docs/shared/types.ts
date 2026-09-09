@@ -160,6 +160,40 @@ export interface ScorecardsArtifact {
     reviews: ReviewScorecard[]
 }
 
+export interface VulnerabilityAdvisory {
+    id: number
+    title: string
+    moduleName: string
+    severity: "info" | "low" | "moderate" | "high" | "critical"
+    vulnerableVersions: string
+    patchedVersions: string
+    url: string
+    /** `.>minimatch` notation — pnpm's own dependency chain, not a filesystem path. */
+    paths: string[]
+}
+
+export interface OutdatedPackage {
+    name: string
+    current: string
+    wanted: string
+    latest: string
+    dependencyType: string
+    isDeprecated: boolean
+    /** Repo-relative project roots — `pnpm outdated` itself reports an absolute filesystem path. */
+    dependents: string[]
+}
+
+export interface DepsArtifact {
+    generatedAt: string
+    /** Null when `pnpm audit` itself failed to run — distinct from every count being 0. */
+    vulnerabilities: { info: number, low: number, moderate: number, high: number, critical: number } | null
+    /** Null alongside `vulnerabilities` — same collection failure, not a separate one. */
+    totalDependencies: number | null
+    advisories: VulnerabilityAdvisory[]
+    /** Null when `pnpm outdated` itself failed to run — distinct from an empty array, which means nothing is outdated. */
+    outdated: OutdatedPackage[] | null
+}
+
 /** One open issue, as `gh issue list --json` hands it over. */
 export interface Issue {
     number: number

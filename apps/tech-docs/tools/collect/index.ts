@@ -2,6 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { ArtifactStatus, Manifest } from "../../shared/types.ts";
 import { collectCoverage } from "./coverage.ts";
+import { collectDeps } from "./deps.ts";
 import { collectDocs } from "./docs.ts";
 import { collectGraph } from "./graph.ts";
 import { collectMetrics } from "./metrics.ts";
@@ -70,6 +71,19 @@ async function main(): Promise<void> {
     else {
         artifacts.metrics = { generatedAt, ok: false, error: metrics.error };
         console.error(`✗ metrics — ${metrics.error}`);
+    }
+
+    // Independent of the project graph, so a failure here never blocks coverage or metrics.
+    const deps = await tryRun(() => collectDeps(generatedAt));
+
+    if (deps.ok) {
+        await write("deps", deps.value);
+        artifacts.deps = { generatedAt, ok: true };
+        console.log(`✓ deps — ${deps.value.advisories.length} advisories, ${deps.value.outdated?.length ?? 0} outdated`);
+    }
+    else {
+        artifacts.deps = { generatedAt, ok: false, error: deps.error };
+        console.error(`✗ deps — ${deps.error}`);
     }
 
     const docs = await tryRun(() => collectDocs(graph.value.projects.map((project) => project.root), generatedAt));
