@@ -117,7 +117,8 @@ argument that would be read as a flag instead of the value it's supposed to be, 
 [`coverage-report/domain/merge.ts`](./src/coverage-report/domain/merge.ts), which resolve each project's coverage
 output and refuse to merge a set that's missing one, and
 [`dev/domain/projects.ts`](./src/dev/domain/projects.ts), which turns Nx's project names into picker rows and
-matches a typed one back.
+matches a typed one back, and [`issue/domain/search.ts`](./src/issue/domain/search.ts), which decides what a
+search typed into a picker matches.
 
 Note that the folder is `coverage-report/`, not `coverage/`: `**/coverage` is in
 [`baseIgnores`](../../packages/configs/src/eslint/lib/ignores.ts), so a folder by that name is

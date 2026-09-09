@@ -66,8 +66,19 @@ a folder that skips a layer because it only needed one file breaks exactly that.
 
 Never `console.log`, and never `@clack/prompts`' `log`/`intro`/`outro`/`spinner` directly —
 [`shared/adapters/io.ts`](../../../src/shared/adapters/io.ts) picks clack or plain lines from
-`isTTY && !CI`, and sends `warn`/`error` to stderr in both. Import `confirm`, `select` and `text`
-from clack directly, since a prompt needs a terminal by definition; wrap every one in `orExit`.
+`isTTY && !CI`, and sends `warn`/`error` to stderr in both. Import `confirm`, `select`,
+`autocomplete` and `text` from clack directly, since a prompt needs a terminal by definition; wrap
+every one in `orExit`. A prompt can't run without a terminal at all, so a command that might be
+invoked by CI or a hook checks `isInteractive()` first and throws an `ExpectedError` naming the
+choices, the way [`dev/main.ts`](../../../src/dev/main.ts) does.
+
+**`select` or `autocomplete` is decided by the list, not by taste.** A list that grows with the repo
+— open issues, labels, projects with a dev server — is `autocomplete`, so it can be typed at instead
+of scrolled. A fixed taxonomy of a handful of values — the four branch types, the four boards — stays
+`select`, where a search box costs a keystroke and saves none. `autocomplete` takes the same
+`options` array, so the swap is the word plus a `filter`. Put the filter's predicate in `domain/`
+with a spec rather than inline: `#63` matching `63`, or a label matching its description, is real
+logic, and the prompt is the one place you can't see it go wrong in review.
 
 That split is not cosmetic: `map/` runs in CI and `drift/` runs from a pre-push hook a GUI git
 client can invoke with no terminal attached.

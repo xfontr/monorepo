@@ -1,10 +1,11 @@
-import { confirm, select, text } from "@clack/prompts";
+import { autocomplete, confirm, select, text } from "@clack/prompts";
 import { out } from "../shared/adapters/io.ts";
 import { orExit } from "../shared/adapters/prompts.ts";
 import { assignToMe, developBranch, isOnline, listIssues, listProjects, moveToInProgress, type Issue, type Project } from "./adapters/gh.ts";
 import { branchForIssue, checkout } from "./adapters/git.ts";
 import { projectOptions, PROJECT_SCOPE_HINT } from "./adapters/prompts.ts";
 import { branchName, BRANCH_TYPES, slugify } from "./domain/branch.ts";
+import { matchesIssue } from "./domain/search.ts";
 
 const CANCELLED = "Cancelled — still on the same branch.";
 
@@ -86,8 +87,9 @@ const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue
     if (issues.length === 0) return undefined;
 
     return or(
-        await select({
+        await autocomplete({
             message: "Issue",
+            placeholder: "Type a number, a word from the title, or a label",
             maxItems: 12,
             options: [
                 { value: BACK as Issue | typeof BACK, label: "← Back to project list" },
@@ -100,6 +102,10 @@ const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue
                     hint: [issue.labels.join(", "), issue.url].filter(Boolean).join(" · "),
                 })),
             ],
+            // A board is the one list here that grows without anyone deciding to grow it, so it's
+            // searchable rather than scrollable. The back row is navigation, not an issue: it
+            // belongs at the top of an unfiltered list and nowhere inside a search for one.
+            filter: (search, { value }) => (value === BACK ? !search.trim() : matchesIssue(value, search)),
         }),
     );
 };
