@@ -42,7 +42,10 @@ how `infrastructure/scripts` reached one comment line per four lines of code.
   one-liner is the same comment with the breaks deleted.
 - A comment asserting how an API or a tool behaves is a claim, and a wrong one is worse than none.
   Verify it before writing or rewording it; if you can't, leave the existing wording alone.
-- One-line summary on a public function or endpoint: fine. TODOs: fine, no issue ID needed.
+- One-line summary on a public function or endpoint: fine.
+- **`TODO` and `FIXME` never survive a push** — [`.husky/pre-push`](./.husky/pre-push) fails on
+  any added one. Fine while you work; before pushing, file it with `pnpm issue:add` and delete the
+  comment. Never delete one without filing it.
 
 `packages/content` and `apps/huella-legal` sit at 4–6% comment lines and are the calibration; a file
 far outside that is worth opening. The `comment-cleanup` skill runs the pass.
@@ -107,7 +110,8 @@ with no overrides, and two of that preset's rules aren't obvious from a rejectio
 **type is lower-case** and the **subject is not** sentence-case, start-case, Pascal-case or
 upper-case — so `feat: add the thing` passes and `feat: Add the thing` does not.
 
-The pre-push hook runs lint, test and typecheck on affected projects. CI runs those **plus `build`**,
+The pre-push hook validates the branch name, blocks added `TODO`/`FIXME` comments, nudges on
+docs drift, then runs lint, test and typecheck on affected projects. CI runs those **plus `build`**,
 so a green push is not yet a green pipeline — `apps/huella-legal` typechecks on build, which is where
 most of that difference shows up. Note also that `husky` has no `prepare` script to install itself,
 because lifecycle scripts are banned here; a fresh clone gets no hooks until `core.hooksPath` is

@@ -64,10 +64,6 @@ Shortening is where this pass does damage, because a rewrite looks like an edit 
 
 Wrongly deleting a real warning costs far more than leaving one mediocre comment behind. When unsure about a *why*, keep it and flag it. When unsure about a *how*, delete it.
 
-## TODOs
-
-Keep them; no issue ID required. Two exceptions: a TODO for work that's visibly been done is stale (rule 7), and a TODO that's deferral in disguise (`// TODO: handle errors` on a path that should already handle them) stays but gets flagged — deleting it would hide real incompleteness.
-
 ## Docstrings
 
 All eight rules apply inside docstrings, including rules 4 and 5 — a JSDoc block is where argument and doc-duplication collect, because the space above a declaration feels like it wants filling. A docstring that re-emits the function name and parameter types is narration. One that documents preconditions, boundary ownership or failure behavior is a contract — trimming it to a summary line deletes the contract. A one-line summary on a public function, endpoint or exported API is legitimate even when short.
@@ -77,7 +73,7 @@ All eight rules apply inside docstrings, including rules 4 and 5 — a JSDoc blo
 Keep it to a few lines:
 
 1. Counts per file: deleted / rewritten / kept.
-2. Flags: comments papering over unclear code, deferral TODOs, comments you couldn't verify and kept conservatively.
+2. Flags: comments papering over unclear code, comments you couldn't verify and kept conservatively.
 3. Borderline calls, one line each, so the user can overrule.
 
 Don't enumerate the deleted narration. That's the job, not news.
