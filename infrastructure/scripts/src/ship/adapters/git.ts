@@ -1,5 +1,6 @@
 import { assertNotFlagLike } from "../../shared/adapters/exec.ts";
 import { git } from "../../shared/adapters/git.ts";
+import { ExpectedError } from "../../shared/errors.ts";
 
 export const currentBranch = (): string => git("rev-parse", "--abbrev-ref", "HEAD");
 
@@ -10,7 +11,12 @@ export const currentBranch = (): string => git("rev-parse", "--abbrev-ref", "HEA
  * literal, so it goes through the same check a typed value would.
  */
 export const push = (branch: string): void => {
-    git("push", "-u", "origin", assertNotFlagLike(branch, "branch"));
+    try {
+        git("push", "-u", "origin", assertNotFlagLike(branch, "branch"));
+    }
+    catch {
+        throw new ExpectedError("Push rejected — ensure the code passes the push requirements (branch name, lint, test, typecheck) before shipping.");
+    }
 };
 
 /**
