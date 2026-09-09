@@ -111,12 +111,9 @@ const broken = computed(() => pages.value.filter((page) => page.brokenLinks.leng
                     </UAlert>
 
                     <!--
-                        The tree itself — every section, group and entry — is the sidebar's job, and
-                        it sits right next to this on every screen wide enough to show it. Repeating
-                        it here as a card grid was a second nav, not a second kind of information: it
-                        went stale the same moment the sidebar did, just less legibly. This card is
-                        the one thing the sidebar doesn't say — what changed recently — so it earns
-                        its place instead of duplicating one.
+                        The sidebar already shows every section, group and entry; repeating that here
+                        would just be a second nav that drifts. This card exists for the one thing the
+                        sidebar doesn't say — what changed recently.
                     -->
                     <UCard :ui="{ body: 'p-0 sm:p-0' }">
                         <template #header>

@@ -9,7 +9,7 @@ type NxProject = {
 };
 
 /**
- * Nx, not a glob, is the source of truth for what to merge — see the spike. Reading each project's
+ * Nx, not a glob, is the source of truth for what to merge (0044). Reading each project's
  * declared `outputs` here, instead of assuming `coverage/`, is what lets an eighth project or a
  * moved output directory carry this script with it instead of silently falling out of the merge.
  */

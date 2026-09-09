@@ -15,7 +15,7 @@ export type ProjectReport = {
 /**
  * `nx.json` declares `test:coverage`'s output as the template string `{projectRoot}/coverage`, not
  * a literal path. Resolving it here rather than hardcoding `coverage/` is what lets moving that
- * declaration carry this script with it for free, same argument the spike makes for discovering
+ * declaration carry this script with it for free, same argument 0044 makes for discovering
  * the project list itself.
  */
 const resolveOutput = (name: string, root: string, outputs: string[]): string => {

@@ -27,7 +27,7 @@ export const assertComplete = (reports: LoadedReport[]): void => {
  * Keys in `coverage-final.json` are absolute paths, which is what lets every project's files land
  * in the merged map without colliding. A project that ever emitted relative paths would fold two
  * different `src/index.ts` files into one silently wrong entry instead — checked rather than
- * trusted, per the spike.
+ * trusted, per 0044.
  */
 export const assertAbsolutePaths = (name: string, data: CoverageMapData): void => {
     const relativePaths = Object.keys(data).filter((path) => !isAbsolute(path));

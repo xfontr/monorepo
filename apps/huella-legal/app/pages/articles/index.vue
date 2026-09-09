@@ -16,9 +16,8 @@ const { data, error, status } = await listEntries("posts", () => ({ page: page.v
 function raiseIfMissing(): void {
     if (!error.value) return;
 
-    // A malformed page and a page past the end both arrive as a 400. Either way the URL asks for a
-    // page that does not exist, and the BFF's complaint about a query parameter is not something a
-    // reader should be shown.
+    // A malformed page and one past the end both arrive as a 400 - treat either as "page not
+    // found" rather than surfacing the BFF's raw query complaint.
     if (error.value.statusCode === 400) {
         showError({ statusCode: 404, statusMessage: "Page not found", fatal: true });
 

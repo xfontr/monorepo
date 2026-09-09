@@ -36,7 +36,6 @@ export default defineNuxtModule<TranslationsConfig>({
             });
         });
 
-        // Install i18n module
         await installModule("@nuxtjs/i18n");
     },
 });

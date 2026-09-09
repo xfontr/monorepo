@@ -63,8 +63,6 @@ describe("toPage", () => {
         expect(toPage({ data: [entry], headers: headers() }, undefined, toEntry)).toMatchObject({ page: 1, perPage: 10 });
     });
 
-    // WordPress returns a 400 above its own ceiling rather than clamping itself, so the perPage a
-    // Page reports has to be the clamped value, not whatever was asked for
     it("reports the clamped perPage rather than the one that was requested", () => {
         expect(toPage({ data: [entry], headers: headers() }, { perPage: 500 }, toEntry)).toMatchObject({ perPage: 100 });
     });
