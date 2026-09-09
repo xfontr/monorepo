@@ -153,6 +153,10 @@ use `pnpm exec nx run-many -t <target>`.
 - The hook also runs [`pnpm docs:drift`](./infrastructure/scripts/src/drift/README.md), which never
   fails the push: it warns when a changed project's docs look stale or the change is big, and offers
   to file an issue.
+- It runs `pnpm audit` too, same never-fails treatment — a local heads-up, not the real check. Every
+  PR additionally gets [`actions/dependency-review-action`](https://github.com/actions/dependency-review-action)
+  in `warn-only` mode, which comments with any vulnerability the PR's own diff introduces without
+  ever blocking the merge.
 - Opening a PR from a branch that convention built triggers
   [`pr-metadata.yml`](./.github/workflows/pr-metadata.yml): it reads the branch type and issue
   number back out of the branch name, copies the issue's assignees and project onto the PR as-is,

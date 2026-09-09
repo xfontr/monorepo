@@ -39,3 +39,19 @@ jobs:
             # once, so "nothing changed here" is never a reason to skip it. Adding a script, hook,
             # workflow or skill without re-rendering fails this step.
             - run: pnpm docs:map --check
+
+    # Needs a base ref to diff against, so it's meaningless on a push to master.
+    dependency-review:
+        if: github.event_name == 'pull_request'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            pull-requests: write
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+            # Nudge, not a gate: warn-only always succeeds, findings land as a PR comment instead.
+            - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+              with:
+                  warn-only: true
+                  comment-summary-in-pr: always
