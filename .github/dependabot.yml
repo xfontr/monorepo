@@ -14,3 +14,29 @@ updates:
           github-actions:
               patterns:
                   - "*"
+
+    - package-ecosystem: npm
+      directories:
+          - /
+          - /packages/*
+          - /apps/*
+          - /infrastructure/*
+      schedule:
+          interval: weekly
+      open-pull-requests-limit: 15
+      # Same reasoning as the github-actions block above: chore never versions a package via nx release.
+      commit-message:
+          prefix: chore
+      groups:
+          # Root pins every @nx/* plugin and nx itself to the same exact version; they must land together.
+          nx:
+              patterns:
+                  - "nx"
+                  - "@nx/*"
+          # Everything else that's a non-breaking bump batches into one PR instead of one per package.
+          dependencies:
+              patterns:
+                  - "*"
+              update-types:
+                  - "minor"
+                  - "patch"
