@@ -10,6 +10,7 @@ One folder per script under `src/`, each with its own README. This one only cove
 
 ```
 src/
+  dev/              pnpm dev — pick a project to start, installing the workspace first if it's a fresh clone
   issue/            pnpm issue:add | issue:pick — file a GitHub issue, or branch off one
   ship/             pnpm issue:ship — push, open or reuse the PR, arm auto-merge, watch checks
   drift/            pnpm docs:drift — warn when a project's docs may be stale, offer to file an issue
@@ -29,6 +30,7 @@ domain/      pure functions and their types. No fs, no subprocess, no clack, no 
 
 | Script | Command | What it's for |
 | --- | --- | --- |
+| [`dev`](./src/dev/README.md) | `pnpm dev` | Picking which project to start, and installing the workspace first on a fresh clone |
 | [`issue add`](./src/issue/README.md#-pnpm-issueadd) | `pnpm issue:add` | Picking a project and label, then filing an issue with `gh` |
 | [`issue pick`](./src/issue/README.md#-pnpm-issuepick) | `pnpm issue:pick` | Picking an open issue off a project board, then branching off it and self-assigning |
 | [`ship`](./src/ship/README.md) | `pnpm issue:ship` | Pushing the current branch, opening or reusing its PR, arming auto-merge, then blocking on checks |
@@ -80,7 +82,12 @@ import { main } from "./main.ts";
 await run(main);
 ```
 
-It parses argv once, and it fixes what an exit code means for all of them: a `CancelledError` exits
+[`dev/index.ts`](./src/dev/index.ts) is the one exception, and the only one this package should ever
+have: it runs on a clone with no `node_modules`, where a static import of `shared/cli.ts` reaches
+`@clack/prompts` and kills the process before it can say so — so it installs first and imports the
+rest dynamically. Anything that doesn't run before `pnpm install` gets the five lines.
+
+`run` parses argv once, and it fixes what an exit code means for all of them: a `CancelledError` exits
 0, an `ExpectedError` prints its message alone on stderr and exits 1, and anything else is a bug and
 gets its stack. Never call `process.exit` — `run` sets `process.exitCode`, because a write to a pipe
 is asynchronous and exiting on the next line can truncate it.
@@ -108,7 +115,9 @@ into the map's markdown, [`shared/adapters/exec.ts`](./src/shared/adapters/exec.
 argument that would be read as a flag instead of the value it's supposed to be, and
 [`coverage-report/domain/discover.ts`](./src/coverage-report/domain/discover.ts) and
 [`coverage-report/domain/merge.ts`](./src/coverage-report/domain/merge.ts), which resolve each project's coverage
-output and refuse to merge a set that's missing one.
+output and refuse to merge a set that's missing one, and
+[`dev/domain/projects.ts`](./src/dev/domain/projects.ts), which turns Nx's project names into picker rows and
+matches a typed one back.
 
 Note that the folder is `coverage-report/`, not `coverage/`: `**/coverage` is in
 [`baseIgnores`](../../packages/configs/src/eslint/lib/ignores.ts), so a folder by that name is

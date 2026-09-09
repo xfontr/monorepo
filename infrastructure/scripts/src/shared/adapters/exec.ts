@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { ExpectedError } from "../errors.ts";
 
@@ -24,6 +24,17 @@ const resolve = (command: string): string =>
  */
 export const run = (command: string, args: string[]): string =>
     execFileSync(resolve(command), args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+
+/**
+ * `run`'s opposite: a child that owns the terminal rather than answering a question — a
+ * `pnpm install` whose progress is the whole output, or a dev server that runs until someone stops
+ * it. Nothing comes back as a string, so the exit status is the entire result, and `null` means a
+ * signal ended the child rather than a failure — Ctrl+C out of a dev server, which is how you stop
+ * one. It lives here rather than in the one script that calls it because it has to agree with `run`
+ * on `resolve`: two answers to "which binary is `pnpm`" is the duplication that bites.
+ */
+export const inherit = (command: string, args: string[]): number | null =>
+    spawnSync(resolve(command), args, { stdio: "inherit" }).status;
 
 /**
  * A value that starts with `-` would be read as a flag of its own rather than as the value of the

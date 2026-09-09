@@ -9,11 +9,11 @@
     }
   },
   "scripts": {
+    "dev": "storybook dev -p 6006",
     "typecheck": "vue-tsc --build",
     "lint": "nx eslint:lint",
     "test": "vitest . --watch=false",
     "test:coverage": "vitest . --watch=false --coverage",
-    "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
   "nx": {

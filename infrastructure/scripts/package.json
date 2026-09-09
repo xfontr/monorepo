@@ -7,6 +7,7 @@
   "license": "ISC",
   "type": "module",
   "scripts": {
+    "dev": "node src/dev/index.ts",
     "issue:add": "node src/issue/index.ts add",
     "issue:pick": "node src/issue/index.ts pick",
     "issue:ship": "node src/ship/index.ts",

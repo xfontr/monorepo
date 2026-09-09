@@ -15,6 +15,7 @@ and are documented once in the [root README](../README.md#-getting-started).
 
 | Capability | Declared in | Explained in |
 | --- | --- | --- |
+| `pnpm dev` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm lint` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm typecheck` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm build` | [`package.json`](../package.json) | [`README.md`](../README.md) |
@@ -28,14 +29,10 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm docs:map` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm release` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm release:dry` | [`package.json`](../package.json) | [`README.md`](../README.md) |
-| `pnpm exec nx storybook @monorepo/ui` | [`packages/ui/package.json`](../packages/ui/package.json) | [`packages/ui/README.md`](../packages/ui/README.md) |
 | `pnpm exec nx build-storybook @monorepo/ui` | [`packages/ui/package.json`](../packages/ui/package.json) | [`packages/ui/README.md`](../packages/ui/README.md) |
-| `pnpm exec nx dev @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `pnpm exec nx preview @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
-| `pnpm exec nx dev @monorepo/tech-docs` | [`apps/tech-docs/package.json`](../apps/tech-docs/package.json) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
 | `pnpm exec nx collect @monorepo/tech-docs` | [`apps/tech-docs/package.json`](../apps/tech-docs/package.json) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
 | `pnpm exec nx coverage @monorepo/scripts` | [`infrastructure/scripts/package.json`](../infrastructure/scripts/package.json) | [`infrastructure/scripts/README.md`](../infrastructure/scripts/README.md) |
-| `pnpm exec nx dev @monorepo/translations` | [`infrastructure/translations/package.json`](../infrastructure/translations/package.json) | [`infrastructure/translations/README.md`](../infrastructure/translations/README.md) |
 | `pnpm exec nx serve @monorepo/translations` | [`infrastructure/translations/package.json`](../infrastructure/translations/package.json) | [`infrastructure/translations/README.md`](../infrastructure/translations/README.md) |
 | `pnpm exec nx docker:up @monorepo/translations` | [`infrastructure/translations/package.json`](../infrastructure/translations/package.json) | [`infrastructure/translations/README.md`](../infrastructure/translations/README.md) |
 | `pnpm exec nx docker:down @monorepo/translations` | [`infrastructure/translations/package.json`](../infrastructure/translations/package.json) | [`infrastructure/translations/README.md`](../infrastructure/translations/README.md) |

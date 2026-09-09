@@ -48,7 +48,7 @@ fetch, or a translation, the prop it should have taken is the thing to find inst
 
 ```sh
 pnpm exec nx run-many -t lint typecheck test --projects @monorepo/ui
-pnpm --filter @monorepo/ui storybook      # port 6006, the fastest way to see it
+pnpm dev ui                               # Storybook on port 6006, the fastest way to see it
 ```
 
 There is no build step — the consuming app compiles the raw `.vue` source, so nothing needs

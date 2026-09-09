@@ -85,8 +85,12 @@ Requires the Node version in `.nvmrc` and pnpm (version pinned via `packageManag
 ```sh
 pnpm install
 git config core.hooksPath .husky        # git hooks — a fresh clone has none until you do this
-pnpm exec nx serve @monorepo/huella-legal   # dev server
+pnpm dev                                # pick a project to start
 ```
+
+`pnpm dev` is the only one of those three that survives being run first: it installs the workspace
+itself if `node_modules` isn't there yet, then asks which project to start. See
+[`infrastructure/scripts/src/dev`](./infrastructure/scripts/src/dev/README.md).
 
 That second line is not optional and nothing runs it for you. Husky normally installs itself from a
 `prepare` script, and [lifecycle scripts are banned here](./CLAUDE.md) because both CI workflows
@@ -105,14 +109,15 @@ use `pnpm exec nx run-many -t <target>`.
 
 | Command | What it does |
 | --- | --- |
+| `pnpm dev` | Pick a project and start its dev server — `pnpm dev tech-docs` skips the picker. Installs the workspace first if this is a fresh clone |
 | `pnpm lint` | Lint affected projects |
 | `pnpm typecheck` | Typecheck affected projects |
 | `pnpm test` | Test affected projects |
 | `pnpm test:coverage` | Test the **whole workspace** with a V8 coverage report, then merge every project's into one browsable [`coverage/index.html`](./infrastructure/scripts/src/coverage-report/README.md) |
 | `pnpm build` | Build affected projects |
 | `pnpm graph` | Open the Nx project graph |
-| `pnpm tech-docs` | Start [`@monorepo/tech-docs`](./apps/tech-docs/README.md), the local dashboard over this repo's markdown, coverage, graph and issues |
-| `pnpm tech-docs:collect` | Rebuild the snapshot that tech-docs reads |
+| `pnpm dev tech-docs` | Start [`@monorepo/tech-docs`](./apps/tech-docs/README.md), the local dashboard over this repo's markdown, coverage, graph and issues |
+| `pnpm exec nx collect @monorepo/tech-docs` | Rebuild the snapshot that tech-docs reads |
 | `pnpm docs:map` | Re-render [`docs/FEATURES.md`](./docs/FEATURES.md); `--check` asserts it is current |
 | `pnpm release:dry` | Preview a release (versioning + changelogs) |
 
