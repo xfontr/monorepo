@@ -16,5 +16,10 @@ export const slugify = (title: string): string =>
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "");
 
-export const branchName = (type: BranchType, issue: number, title: string): string =>
-    `${type}/${issue}-${slugify(title)}`;
+/**
+ * `project` is the gh Project board title `pick` already asked for — slugified the same way as the
+ * title, so a multi-word board name still lands as one path segment and `.husky/pre-push`'s gate
+ * doesn't need to know real board names to accept it.
+ */
+export const branchName = (type: BranchType, project: string, issue: number, title: string): string =>
+    `${type}/${slugify(project)}/${issue}-${slugify(title)}`;

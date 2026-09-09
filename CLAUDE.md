@@ -65,9 +65,10 @@ changed since `master`, same as CI and the pre-push hook.
 | Why something rebuilt | `pnpm graph` |
 
 The rest of this section is reference for when the user asks for it, not licence to offer it.
-Branches must match `^(hotfix|fix|feature|release)/.+` and `master` is not pushable. `pnpm
-issue:pick` is the shortest way to a branch — pick an open issue off a project board and it creates
-`<type>/<issue number>-<slug>`, which is the naming the number-first branches here come from.
+Branches must match `^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+` and `master` is not pushable.
+`pnpm issue:pick` is the shortest way to a branch — pick an open issue off a project board and it
+creates `<type>/<project>/<issue number>-<slug>`, `<project>` being the slugified title of the gh
+Project board the issue came from, which is the naming the number-first branches here come from.
 Commits are [Conventional Commits](https://www.conventionalcommits.org) —
 commitlint rejects anything else, and the type decides the next version.
 [`commitlint.config.mjs`](./commitlint.config.mjs) just extends `@commitlint/config-conventional`

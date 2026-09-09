@@ -1,10 +1,11 @@
-import { confirm, isCancel, select, text } from "@clack/prompts";
+import { autocomplete, confirm, isCancel, select, text } from "@clack/prompts";
 import { createIssue } from "../shared/adapters/gh.ts";
 import { out } from "../shared/adapters/io.ts";
 import { orExit } from "../shared/adapters/prompts.ts";
 import { listLabels, listProjects, type Label, type Project } from "./adapters/gh.ts";
 import { currentBranch } from "./adapters/git.ts";
 import { labelOptions, NONE_OPTION, PROJECT_SCOPE_HINT, projectOptions } from "./adapters/prompts.ts";
+import { matchesLabel } from "./domain/search.ts";
 import { pick } from "./pick.ts";
 
 const CANCELLED = "Cancelled — no issue created.";
@@ -27,11 +28,22 @@ const pickProject = async (projects: Project[]): Promise<string | undefined> => 
     return picked || undefined;
 };
 
+/**
+ * Searchable where the project prompt above isn't: labels are a list this repo keeps adding to, and
+ * the one you want is one you can already name. *None* stays put while the box is empty and drops
+ * out the moment you type — having typed anything, you're looking for a label, not for nothing.
+ */
 const pickLabel = async (labels: Label[]): Promise<string | undefined> => {
     const picked = or(
-        await select({
+        await autocomplete({
             message: "Label",
+            placeholder: "Type a label or what it means",
+            maxItems: 12,
             options: [...labelOptions(labels), NONE_OPTION],
+            filter: (search, { value, hint }) =>
+                (value === NONE_OPTION.value
+                    ? !search.trim()
+                    : matchesLabel({ name: value, description: hint ?? "" }, search)),
         }),
     );
 

@@ -94,7 +94,13 @@ export const skillFiles = (): { source: string, name: string, scope?: string }[]
     ),
 ];
 
-const IGNORED_DIRS = ["node_modules", ".git", ".nx", "dist", ".output", ".nuxt"];
+/**
+ * `worktrees` is `.claude/worktrees`, where a linked git worktree is a second checkout of this
+ * whole repo — every doc in it matches every capability, and the map starts crediting the copy
+ * rather than the file. It renders differently depending on which branches happen to be checked
+ * out, which `docs:map --check` in CI (where there are none) then fails on.
+ */
+const IGNORED_DIRS = ["node_modules", ".git", ".nx", "dist", ".output", ".nuxt", "worktrees"];
 
 const walkMarkdown = (dir: string, found: string[] = []): string[] => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {

@@ -15,7 +15,7 @@ consumers are concerned. Each one sits next to its `*.spec.ts` and its `*.storie
 
 | Command | What it does |
 | --- | --- |
-| `pnpm storybook` | Storybook on port 6006 — the fastest way to work on a component |
+| `pnpm dev` | Storybook on port 6006 — the fastest way to work on a component, and what `pnpm dev` at the root offers as *UI* |
 | `pnpm test` | Unit tests once (`@vue/test-utils` + happy-dom) |
 | `pnpm typecheck` | `vue-tsc --build` |
 | `pnpm lint` | ESLint (Vue config from `@monorepo/configs`) |

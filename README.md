@@ -85,8 +85,12 @@ Requires the Node version in `.nvmrc` and pnpm (version pinned via `packageManag
 ```sh
 pnpm install
 git config core.hooksPath .husky        # git hooks — a fresh clone has none until you do this
-pnpm exec nx serve @monorepo/huella-legal   # dev server
+pnpm dev                                # pick a project to start
 ```
+
+`pnpm dev` is the only one of those three that survives being run first: it installs the workspace
+itself if `node_modules` isn't there yet, then asks which project to start. See
+[`infrastructure/scripts/src/dev`](./infrastructure/scripts/src/dev/README.md).
 
 That second line is not optional and nothing runs it for you. Husky normally installs itself from a
 `prepare` script, and [lifecycle scripts are banned here](./CLAUDE.md) because both CI workflows
@@ -105,31 +109,32 @@ use `pnpm exec nx run-many -t <target>`.
 
 | Command | What it does |
 | --- | --- |
+| `pnpm dev` | Pick a project and start its dev server — `pnpm dev tech-docs` skips the picker. Installs the workspace first if this is a fresh clone |
 | `pnpm lint` | Lint affected projects |
 | `pnpm typecheck` | Typecheck affected projects |
 | `pnpm test` | Test affected projects |
 | `pnpm test:coverage` | Test the **whole workspace** with a V8 coverage report, then merge every project's into one browsable [`coverage/index.html`](./infrastructure/scripts/src/coverage-report/README.md) |
 | `pnpm build` | Build affected projects |
 | `pnpm graph` | Open the Nx project graph |
-| `pnpm tech-docs` | Start [`@monorepo/tech-docs`](./apps/tech-docs/README.md), the local dashboard over this repo's markdown, coverage, graph and issues |
-| `pnpm tech-docs:collect` | Rebuild the snapshot that tech-docs reads |
+| `pnpm dev tech-docs` | Start [`@monorepo/tech-docs`](./apps/tech-docs/README.md), the local dashboard over this repo's markdown, coverage, graph and issues |
+| `pnpm exec nx collect @monorepo/tech-docs` | Rebuild the snapshot that tech-docs reads |
 | `pnpm docs:map` | Re-render [`docs/FEATURES.md`](./docs/FEATURES.md); `--check` asserts it is current |
 | `pnpm release:dry` | Preview a release (versioning + changelogs) |
 
 ## 🌿 Git conventions
 
-- Branches must match `^(hotfix|fix|feature|release)/.+` (enforced on push) — which also means you
-  can't push straight to `master`.
+- Branches must match `^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+` (enforced on push) — which
+  also means you can't push straight to `master`.
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org) (enforced by
   commitlint via [`commitlint.config.mjs`](./commitlint.config.mjs), which just extends
   `@commitlint/config-conventional`): the type must be lower-case and the subject must not be
   sentence-case, start-case, Pascal-case or upper-case, so `feat: Add thing` is rejected and
   `feat: add thing` is not.
 - The [`commit-msg`](./.husky/commit-msg) hook reads the issue number back out of the branch name
-  and rewrites the subject to carry it, so `feat: add thing` on `feature/50-slug` is committed as
-  `feat: [50] add thing`. Nobody types the tag, and re-running on an amend is a no-op instead of
-  stacking a second one; a branch with no number in it is left alone. This is why the log here is
-  number-first without anyone maintaining that.
+  and rewrites the subject to carry it, so `feat: add thing` on `feature/website/50-slug` is
+  committed as `feat: [50] add thing`. Nobody types the tag, and re-running on an amend is a no-op
+  instead of stacking a second one; a branch with no number in it is left alone. This is why the log
+  here is number-first without anyone maintaining that.
 - The pre-push hook runs `lint`, `test` and `typecheck` on affected projects, and rejects a push
   that adds a `TODO`/`FIXME` comment. It diffs only the commits being pushed, so a marker already
   in the tree never blocks you; the rejection points at
@@ -137,8 +142,9 @@ use `pnpm exec nx run-many -t <target>`.
   few prompts so the comment can go.
 - [`pnpm issue:pick`](./infrastructure/scripts/src/issue/README.md#-pnpm-issuepick) goes the other
   way: pick an open issue off a project board and it creates and checks out
-  `<type>/<issue number>-<slug>` for you and assigns you the issue, which is where the branch names
-  in this repo come from.
+  `<type>/<project>/<issue number>-<slug>` for you and assigns you the issue — `<project>` is the
+  slugified title of the gh Project board the issue came from, which is where the branch names in
+  this repo come from.
 - [`pnpm issue:ship`](./infrastructure/scripts/src/ship/README.md) is the other end of `pick`: it
   pushes the current branch, opens or reuses its PR, arms GitHub's auto-merge, then blocks until
   every check concludes and reports whether the PR merged or a check failed. Auto-merge and

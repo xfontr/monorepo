@@ -14,7 +14,7 @@ point stands on, and the rest is sorted by whether it can reach the outside worl
 | [`cli.ts`](./cli.ts) | `run` — argv parsed once, one command or a record of them, and one meaning per exit code. Also `fail` and `flag` |
 | [`errors.ts`](./errors.ts) | `ExpectedError` and `CancelledError`, the two throws `run` treats as answers rather than bugs |
 | [`adapters/io.ts`](./adapters/io.ts) | the terminal. `out.*` in clack when someone's watching, plain lines when nobody is |
-| [`adapters/exec.ts`](./adapters/exec.ts) | subprocesses — `run`, and the `assertNotFlagLike` guard for values that would otherwise read as flags |
+| [`adapters/exec.ts`](./adapters/exec.ts) | subprocesses — `run` for one that answers a question, `inherit` for one that owns the terminal, and the `assertNotFlagLike` guard for values that would otherwise read as flags |
 | [`adapters/git.ts`](./adapters/git.ts) | `git` itself, plus `repoRoot()` and `at()` for resolving against the repo rather than cwd |
 | [`adapters/gh.ts`](./adapters/gh.ts) | `gh`, and `createIssue` on top of it |
 | [`adapters/cache.ts`](./adapters/cache.ts) | the file cache under `node_modules/.cache/@monorepo/scripts` |

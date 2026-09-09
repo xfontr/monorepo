@@ -24,7 +24,12 @@ export const cached = <T>(key: string, fetch: () => T): T => {
     if (!refreshRequested()) {
         try {
             const { fetchedAt, data } = JSON.parse(readFileSync(file, "utf8")) as { fetchedAt: number, data: T };
-            if (Date.now() - fetchedAt < TTL_MS) return data;
+            // An empty list here is usually a swallowed failure (e.g. a missing gh scope), not a
+            // confirmed "there's nothing" — trusting it for a full day would keep hiding that
+            // failure from callers long after the actual cause is gone.
+            const emptyList = Array.isArray(data) && data.length === 0;
+
+            if (!emptyList && Date.now() - fetchedAt < TTL_MS) return data;
         }
         catch {
             // No cache yet, or it's corrupt — fall through to a real fetch.

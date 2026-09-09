@@ -28,7 +28,8 @@ pick.ts                the pick-an-issue-and-branch flow, cache-backed when gh i
 adapters/gh.ts         repo owner, connectivity, projects, labels, open issues, assign, develop branch
 adapters/git.ts        current branch, find a branch for an issue, checkout
 adapters/prompts.ts    this folder's prompt vocabulary — the option lists, the none option, the missing-scope hint
-domain/branch.ts       slug and branch-name building, the only real logic here
+domain/branch.ts       slug and branch-name building
+domain/search.ts       what a typed search matches, for the two prompts that have one
 ```
 
 This is the one folder with two commands, so it's also the one where `index.ts` passes a record
@@ -47,7 +48,7 @@ GitHub afterwards.
 | Step | What it does |
 | --- | --- |
 | Project | `gh project list` for the repo's owner, open projects only, plus a *none* option |
-| Label | `gh label list`, plus a *none* option |
+| Label | `gh label list`, plus a *none* option — searchable by name *or* description |
 | Title | Free text, required |
 | Description | Free text, required — one line, becomes the whole issue body |
 | Draft | Shows title, body, label and project |
@@ -81,19 +82,37 @@ number and hand-type a branch name.
 | Step | What it does |
 | --- | --- |
 | Project | `gh project list`, open projects only — no *none* here, the board is what's being read |
-| Issue | The project's **open** issues, `#number title` with the labels and the URL as a hint |
+| Issue | The project's **open** issues, `#number title` with the labels and the URL as a hint — searchable by number, title or label |
 | Resume | Only if a branch for that issue already exists — *yes* checks it out and stops here |
 | Branch type | `feature`, `fix`, `hotfix`, `release` |
 | Branch title | Free text, pre-filled with the issue title; slugified, so edit it down to something short |
-| — | `gh issue develop <number> --name <type>/<number>-<slug> --checkout`, then `gh issue edit --add-assignee @me`, then `gh project item-edit --field Status --value "In Progress"` |
+| — | `gh issue develop <number> --name <type>/<project-slug>/<number>-<slug> --checkout`, then `gh issue edit --add-assignee @me`, then `gh project item-edit --field Status --value "In Progress"` |
 
 `gh issue develop` over `git checkout -b`: the branch it creates is linked on the issue's
 Development panel, the same link the "Create a branch" button on the issue would give you, and a
 branch name alone — however it's formatted — never gets you.
 
-The issue URL sits in the select's hint so the terminal can turn it into a link — that's the "let me
+The issue URL sits in the picker's hint so the terminal can turn it into a link — that's the "let me
 read the ticket before I commit to it" escape hatch, and the reason the prompt shows nothing else
-about the issue.
+about the issue. clack draws a hint only for the row you're on, which is what keeps a column of
+URLs from burying the titles.
+
+### 🔎 Two of the four prompts are searchable
+
+`Issue` and `Label` are clack's `autocomplete`; `Project` and `Branch type` are a plain `select`.
+The line isn't the widget, it's the list:
+
+| Prompt | Why |
+| --- | --- |
+| Issue — searchable | A board grows without anyone deciding to grow it. Typing `63`, a word from the title, or `spike` beats arrowing through twenty rows, and `#` is optional because the picker prints it and nobody types it |
+| Label — searchable | Thirteen and counting, and you always know the one you want. The description is searched too: `wontfix` and `good first issue` are remembered by meaning, not spelling |
+| Project — plain | Four boards, and a fifth is a year away. A search box over four rows is an affordance that costs a keystroke and saves none |
+| Branch type — plain | Four values, fixed by the branch-name rule. Typing `fix` there would match `hotfix` too, so searching is worse than pointing |
+
+The predicates live in [`domain/search.ts`](./domain/search.ts) rather than inline in the prompt,
+which is what lets `#63` vs `63` and label-vs-description be pinned by a spec instead of discovered
+in front of a board. Both *back* and *none* rows drop out the moment you type: having typed
+anything, you're looking for a row, not for the way out.
 
 ### 📴 Falling back to cache when `gh` is unreachable
 
@@ -111,13 +130,16 @@ assignment still go over the network same as ever, so an offline pick gets you a
 branch name and then fails there if `gh` is still unreachable — the fallback is for browsing, not
 for filing offline.
 
-### 🔢 Why the number comes first
+### 🔢 Why the project slug sits between the type and the number
 
-`feature/28-set-up-main-layouts`. The prefix satisfies the `^(hotfix|fix|feature|release)/.+` gate
-in [`.husky/pre-push`](../../../../.husky/pre-push), and the number immediately after the slash is
-what `branchForIssue` in `git.ts` matches on. That lookup is why picking the same issue twice offers
-the existing branch instead of dying on `gh issue develop`'s "branch already exists". Renaming a branch by hand to drop the
-number costs you the resume, nothing else.
+`feature/website/28-set-up-main-layouts`. The prefix satisfies the
+`^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+` gate in
+[`.husky/pre-push`](../../../../.husky/pre-push). The project slug is `slugify`'d from the same
+board title the Project prompt above already picked — see [`domain/branch.ts`](./domain/branch.ts)
+— and the number right after it is what `branchForIssue` in `git.ts` matches on. That lookup is why
+picking the same issue twice offers the existing branch instead of dying on `gh issue develop`'s
+"branch already exists". Renaming a branch by hand to drop either segment costs you the resume,
+nothing else.
 
 Answering *no* to the resume prompt still creates a new branch — a `fix/` on top of a `feature/` for
 the same ticket is a real thing, just not the common one.
@@ -209,9 +231,9 @@ scope above doesn't imply on its own; the same warn-and-keep-the-branch fallback
 | Later need | What changes |
 | --- | --- |
 | A multi-line description | `@clack/prompts` `text` is single-line; this would need an `$EDITOR` handoff (`gh issue create --editor` already does exactly that, if you'd rather drop the prompt) |
-| More than one label | `select` becomes `multiselect` and `gh.ts` maps over `--label` instead of taking one |
+| More than one label | `autocomplete` becomes `autocompleteMultiselect` — same options, same filter — and `gh.ts` maps over `--label` instead of taking one |
 | Assignee, milestone, issue type | Each is another `gh issue create` flag and another prompt; add them only if you'd actually answer them every time |
-| Filtering `pick` by board status or label | `listIssues` already has both in hand — it's a second `select`, or a `--status` argument threaded through `index.ts` |
+| Filtering `pick` by board status | `listIssues` already has it in hand — a second prompt, or a `--status` argument threaded through `index.ts`. Filtering by *label* no longer needs either: the issue search matches labels, so typing `spike` is the filter |
 | A board with a renamed "Status" field or "In Progress" option | `moveToInProgress` assumes the default GitHub Projects template naming; a `field-list` lookup would replace the hardcoded names if a board ever renames them |
 | Assigning someone other than yourself | `--add-assignee` takes any login, but then it needs a prompt fed by `gh api repos/{owner}/{repo}/assignees`; `@me` exists so this doesn't |
 | Hiding issues already assigned to someone else | `listIssues` would fetch `assignees` and filter — worth it on a shared board, pointless on a solo one |
