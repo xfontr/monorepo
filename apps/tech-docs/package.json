@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nuxt dev",
     "lint": "nx eslint:lint",
+    "nuxt-prepare": "nuxi prepare",
     "typecheck": "nuxt typecheck",
     "test": "vitest . --watch=false",
     "test:dev": "vitest .",

@@ -19,6 +19,7 @@ pnpm dev                                    # or from this directory
 | `pnpm lint` | ESLint — the nuxt flavour, deliberately not type-checked |
 | `pnpm typecheck` | `nuxt typecheck`. Redundant before a build: `typescript.typeCheck: "build"` makes `pnpm build` do the same pass, which is why the build is slow |
 | `pnpm test` | Vitest, on the node preset. Covers the [Nitro telemetry plugin](#-telemetry) — see [Testing](#-testing) |
+| `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
 
 Two modules beyond the shared ones are installed here: `@nuxt/fonts`, and `@pinia/nuxt` with
 `pinia.storesDirs` widened to `./app/layers/**/app/stores/**`. That second path is load-bearing — a

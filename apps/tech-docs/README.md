@@ -104,6 +104,7 @@ you delete every derived file in this project, one command puts it back.
 | --- | --- |
 | `pnpm tech-docs` | Start Technical Docs |
 | `pnpm tech-docs:collect` | Rebuild the snapshot — graph, coverage, metrics, docs, scorecards |
+| `pnpm exec nx nuxt-prepare @monorepo/tech-docs` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
 
 The collector reads each project's `coverage/coverage-summary.json` and copies in the merged report
 `pnpm test:coverage` renders at the workspace root, so both are only as fresh as the last run of it.

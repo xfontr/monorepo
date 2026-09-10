@@ -17,11 +17,10 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
 - Typechecking runs on build (`typescript.typeCheck: "build"`), so `pnpm build` is slow and already
   covers what `pnpm typecheck` would.
 - [`tsconfig.json`](./tsconfig.json) only references `./.nuxt/tsconfig.*.json`, which `nuxi
-  prepare`/`build` generate and nothing commits — a machine that already ran either has them and
-  won't notice if they go stale. [`ci.yml`](../../.github/workflows/ci.yml) runs `nuxi prepare`
-  explicitly before the affected targets for exactly this reason: a fresh checkout with no lifecycle
-  scripts (both banned here) has no `.nuxt/` at all, so `typecheck`/`test`/`lint` fail with
-  "Tsconfig not found" without that step.
+  prepare`/`build` generate and nothing commits — a fresh checkout with no lifecycle scripts (both
+  banned here) has no `.nuxt/` at all, so `lint`/`typecheck`/`test` all fail without it. The
+  `nuxt-prepare` script and the root [`nx.json`](../../nx.json)'s `dependsOn` on it are what
+  regenerate `.nuxt` first — see [the root CLAUDE.md](../../CLAUDE.md#-the-two-places-that-must-agree).
 - The ESLint config is the nuxt flavour, which is **not** type-checked. Don't switch it.
 - Shared packages are composed here, never reached into: import from `@monorepo/x`, not from a path
   inside it.
