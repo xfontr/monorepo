@@ -31,7 +31,18 @@ function labelsIn(id: string, group: string): string[] {
 
 describe("buildWiki", () => {
     it("files a project's nested README under the project, not as a project of its own", () => {
-        expect(labelsIn("packages", "content")).toEqual(["src/nuxt"]);
+        expect(labelsIn("packages", "content")).toEqual(["nuxt"]);
+    });
+
+    it("drops the src/ prefix from a nested README's label, which names an implementation detail rather than a topic", () => {
+        const PAGES_WITH_SCRIPT = [
+            ...PAGES,
+            { path: "/infrastructure/scripts/src/drift/readme", title: "📚 drift" },
+        ];
+
+        expect(buildWiki(PAGES_WITH_SCRIPT).find((section) => section.id === "infrastructure")
+            ?.groups.find((group) => group.key === "scripts")
+            ?.entries.map((entry) => entry.label)).toEqual(["drift"]);
     });
 
     it("labels a project's own README 'Overview', because the group already carries the package name", () => {

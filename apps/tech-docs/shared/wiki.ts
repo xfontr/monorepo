@@ -130,7 +130,9 @@ interface Placed {
 
 /** Generic labels for README/CLAUDE.md — the group name already says the project; the real title is still the page's own heading. */
 function labelWithin(root: string, path: string, title: string): string {
-    const rest = segmentsOf(path.slice(root.length));
+    const raw = segmentsOf(path.slice(root.length));
+    // `src` is where the code lives, not a taxonomy a reader navigates by — a nested README's own directory names it.
+    const rest = raw[0] === "src" ? raw.slice(1) : raw;
     const file = rest.at(-1) ?? "";
     const directory = rest.slice(0, -1).join("/");
 
