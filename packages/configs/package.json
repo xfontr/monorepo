@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@nx/eslint-plugin": "23.0.1",
+    "@nx/eslint-plugin": "23.2.0",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@types/node": "catalog:",
     "@vitest/eslint-plugin": "^1.6.18",
