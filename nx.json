@@ -17,12 +17,12 @@
     },
     "targetDefaults": {
         "lint": {
-            "dependsOn": ["^lint"],
+            "dependsOn": ["^lint", "nuxt-prepare"],
             "inputs": ["default", "^production"],
             "cache": true
         },
         "typecheck": {
-            "dependsOn": ["^typecheck"],
+            "dependsOn": ["^typecheck", "nuxt-prepare"],
             "inputs": ["default", "^production"],
             "cache": true
         },
@@ -38,7 +38,13 @@
             "cache": true
         },
         "test": {
+            "dependsOn": ["nuxt-prepare"],
             "inputs": ["default", "^production"],
+            "cache": true
+        },
+        "nuxt-prepare": {
+            "inputs": ["default", "^production"],
+            "outputs": ["{projectRoot}/.nuxt"],
             "cache": true
         },
         "test:coverage": {
