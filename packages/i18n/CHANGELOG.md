@@ -1,3 +1,9 @@
+## 0.0.10 (2026-09-10)
+
+### 🧱 Updated Dependencies
+
+- Updated @monorepo/configs to 0.0.9
+
 ## 0.0.9 (2026-09-06)
 
 ### 🚀 Features

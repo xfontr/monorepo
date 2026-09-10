@@ -1,3 +1,17 @@
+## 0.1.5 (2026-09-10)
+
+### 🚀 Features
+
+- issue picker from root ([3764803](https://github.com/xfontr/monorepo/commit/3764803))
+
+### 🧱 Updated Dependencies
+
+- Updated @monorepo/configs to 0.0.9
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.1.4 (2026-09-06)
 
 ### 🚀 Features
