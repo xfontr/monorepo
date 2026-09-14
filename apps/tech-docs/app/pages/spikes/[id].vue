@@ -1,73 +1,67 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from "@nuxt/ui";
-import { locate, toCollectionPath } from "../../../shared/wiki.ts";
+import { sortSpikes } from "../../../shared/spikeReports.ts";
 
 const route = useRoute();
 
-const { data: snapshot } = await useSnapshot();
-const { data: sections } = await useWiki();
+const reports = useSpikeReports();
 
-const path = computed(() => `/${(route.params.slug as string[] | undefined ?? []).join("/")}`.toLowerCase());
+const id = computed(() => (route.params.id as string | undefined) ?? "");
+const path = computed(() => `/docs/spikes/${id.value}`);
 
 const { data: page } = await useAsyncData(
-    () => `doc-${path.value}`,
+    () => `spike-${id.value}`,
     () => queryCollection("docs").path(path.value).first(),
     { watch: [path] },
 );
 
-const here = computed(() => locate(sections.value, path.value));
+const report = computed(() => reports.value.find((candidate) => candidate.id === id.value) ?? null);
 
 const crumbs = computed<BreadcrumbItem[]>(() => [
-    { label: "Wiki", to: "/docs", icon: "i-lucide-library" },
-    ...(here.value
-        ? [
-            { label: here.value.section.label, icon: here.value.section.icon },
-            { label: here.value.group.label, class: "font-mono" },
-            { label: here.value.entry.label },
-        ]
-        : []),
+    { label: "Spikes", to: "/spikes", icon: "i-lucide-compass" },
+    { label: report.value?.number ?? id.value, class: "font-mono" },
 ]);
 
-/**
- * Neighbours within the group rather than the collection's alphabetical order: `packages/i18n`'s
- * README and `packages/observability`'s CLAUDE.md are adjacent on disk and unrelated to read.
- */
+/** Neighbours by number — the order the decisions were made, which one report reading on from another follows regardless of how the list was last sorted. */
 const around = computed(() => {
-    const entries = here.value?.group.entries ?? [];
-    const index = entries.findIndex((entry) => entry.path === path.value);
+    const ordered = sortSpikes(reports.value, "oldest");
+    const index = ordered.findIndex((candidate) => candidate.id === id.value);
 
-    return { previous: index > 0 ? entries[index - 1] : null, next: index === -1 ? null : entries[index + 1] ?? null };
+    return { previous: index > 0 ? ordered[index - 1] : null, next: index === -1 ? null : ordered[index + 1] ?? null };
 });
-
-const meta = computed(() => snapshot.value?.docs?.pages.find((doc) => toCollectionPath(doc.path) === path.value) ?? null);
 </script>
 
 <template>
-    <UDashboardPanel id="doc">
+    <UDashboardPanel id="spike">
         <template #header>
-            <UDashboardNavbar :title="here?.entry.label ?? page?.title ?? 'Not found'">
+            <UDashboardNavbar :title="report?.title ?? page?.title ?? 'Not found'">
                 <template #leading>
                     <UDashboardSidebarCollapse />
                 </template>
                 <template #right>
+                    <StatusPill
+                        v-if="report?.decision === 'superseded' && report.supersededBy"
+                        :label="spikeDecisionLabel(report.decision)"
+                        tone="bad"
+                        :to="`/spikes/${report.supersededBy.replace(/\.md$/, '')}`"
+                        :hint="`Superseded by ${report.supersededBy}`"
+                    />
+                    <StatusPill
+                        v-if="report?.status"
+                        :label="spikeStatusLabel(report.status)"
+                        :tone="spikeStatusTone(report.status)"
+                    />
                     <span
-                        v-if="meta"
+                        v-if="report"
                         class="text-xs text-muted"
-                    >{{ meta.words }} words · updated {{ relativeTime(meta.updatedAt) }}</span>
-                    <code class="text-xs text-dimmed font-mono">{{ meta?.path ?? `${path.slice(1)}.md` }}</code>
+                    >{{ report.words }} words · updated {{ relativeTime(report.updatedAt) }}</span>
+                    <code class="text-xs text-dimmed font-mono">{{ report?.path ?? `${path.slice(1)}.md` }}</code>
                 </template>
             </UDashboardNavbar>
         </template>
 
         <template #body>
             <div class="flex gap-6 items-start">
-                <aside class="hidden lg:block w-60 shrink-0 sticky top-0">
-                    <WikiNav
-                        :sections="sections"
-                        :current="path"
-                    />
-                </aside>
-
                 <div class="flex-1 min-w-0 flex flex-col gap-4">
                     <UBreadcrumb :items="crumbs" />
 
@@ -76,21 +70,11 @@ const meta = computed(() => snapshot.value?.docs?.pages.find((doc) => toCollecti
                         color="neutral"
                         variant="subtle"
                         icon="i-lucide-file-question"
-                        title="No such page"
-                        :description="`Nothing in the workspace matches ${path}. The wiki links only to files that exist, so this is a hand-typed or stale URL.`"
+                        title="No such report"
+                        :description="`Nothing under docs/spikes/ matches ${id}. Reports are numbered consecutively, so a gap is a report that was never filed.`"
                     />
 
                     <template v-else>
-                        <UAlert
-                            v-if="(meta?.brokenLinks.length ?? 0) > 0"
-                            color="warning"
-                            variant="subtle"
-                            icon="i-lucide-link-2-off"
-                            title="This page links to something that is not there"
-                            :description="meta?.brokenLinks.map((link) => link.href).join(', ')"
-                            :ui="{ description: 'text-xs font-mono' }"
-                        />
-
                         <UPageBody class="mt-0">
                             <ContentRenderer :value="page" />
                         </UPageBody>
@@ -100,7 +84,7 @@ const meta = computed(() => snapshot.value?.docs?.pages.find((doc) => toCollecti
                         <div class="grid sm:grid-cols-2 gap-3">
                             <NuxtLink
                                 v-if="around.previous"
-                                :to="`/docs${around.previous.path}`"
+                                :to="`/spikes/${around.previous.id}`"
                                 class="flex items-center gap-2 rounded-lg border border-default p-3 hover:bg-elevated/40 transition-colors"
                             >
                                 <UIcon
@@ -109,25 +93,25 @@ const meta = computed(() => snapshot.value?.docs?.pages.find((doc) => toCollecti
                                 />
                                 <div class="min-w-0">
                                     <div class="text-[11px] text-dimmed">
-                                        Previous in {{ here?.group.label }}
+                                        Decided before
                                     </div>
                                     <div class="text-sm truncate">
-                                        {{ around.previous.label }}
+                                        {{ around.previous.title }}
                                     </div>
                                 </div>
                             </NuxtLink>
 
                             <NuxtLink
                                 v-if="around.next"
-                                :to="`/docs${around.next.path}`"
+                                :to="`/spikes/${around.next.id}`"
                                 class="flex items-center justify-end gap-2 rounded-lg border border-default p-3 hover:bg-elevated/40 transition-colors sm:col-start-2"
                             >
                                 <div class="min-w-0 text-right">
                                     <div class="text-[11px] text-dimmed">
-                                        Next in {{ here?.group.label }}
+                                        Decided after
                                     </div>
                                     <div class="text-sm truncate">
-                                        {{ around.next.label }}
+                                        {{ around.next.title }}
                                     </div>
                                 </div>
                                 <UIcon
