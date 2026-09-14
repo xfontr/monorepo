@@ -40,7 +40,7 @@ is enough on its own:
 
 Both are proxies, not a semantic check — a 200-line refactor with no behavior change warns the same
 as a 200-line rewrite that actually invalidates the README. See
-[0040](../../../../docs/spikes/0040-docs-drift-detection.md) for where that ceiling sits and
+[0002](../../../../docs/spikes/0002-docs-drift-detection.md) for where that ceiling sits and
 what's deferred past it.
 
 ## 🔁 Not re-warning for the same diff

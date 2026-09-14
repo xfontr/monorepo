@@ -5,7 +5,7 @@ for the subject rather than numbered: there's no order to read these in, unlike
 [`docs/spikes/`](../spikes/README.md).
 
 A subject belongs here under one rule, from
-[spike 0037](../spikes/0037-feature-discoverability.md):
+[spike 0001](../spikes/0001-feature-discoverability.md):
 
 > A subject enters `docs/` only if no single project owns it.
 
@@ -30,5 +30,5 @@ the wrong folder.
 
 | Later need | What changes |
 | --- | --- |
-| A concept doc that mostly restates one project's README | Delete it and link to that README instead — restating is the drift class [0040](../spikes/0040-docs-drift-detection.md) exists to catch, and this tree is not exempt from it |
-| A subject that one project mostly owns but not entirely | Revisit the ownership rule per [spike 0037](../spikes/0037-feature-discoverability.md#consequences) rather than inventing a tie-breaker here — the spike is explicit that a per-document exception is how this tree starts absorbing prose that belongs next to the code |
+| A concept doc that mostly restates one project's README | Delete it and link to that README instead — restating is the drift class [0002](../spikes/0002-docs-drift-detection.md) exists to catch, and this tree is not exempt from it |
+| A subject that one project mostly owns but not entirely | Revisit the ownership rule per [spike 0001](../spikes/0001-feature-discoverability.md#consequences) rather than inventing a tie-breaker here — the spike is explicit that a per-document exception is how this tree starts absorbing prose that belongs next to the code |

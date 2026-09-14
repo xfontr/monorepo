@@ -34,6 +34,7 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `pnpm exec nx nuxt-prepare @monorepo/tech-docs` | [`apps/tech-docs/package.json`](../apps/tech-docs/package.json) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
 | `pnpm exec nx collect @monorepo/tech-docs` | [`apps/tech-docs/package.json`](../apps/tech-docs/package.json) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
+| `pnpm exec nx check-docs @monorepo/tech-docs` | [`apps/tech-docs/package.json`](../apps/tech-docs/package.json) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
 | `pnpm exec nx coverage @monorepo/scripts` | [`infrastructure/scripts/package.json`](../infrastructure/scripts/package.json) | [`infrastructure/scripts/README.md`](../infrastructure/scripts/README.md) |
 | `pnpm exec nx serve @monorepo/translations` | [`infrastructure/translations/package.json`](../infrastructure/translations/package.json) | [`infrastructure/translations/README.md`](../infrastructure/translations/README.md) |
 | `pnpm exec nx docker:up @monorepo/translations` | [`infrastructure/translations/package.json`](../infrastructure/translations/package.json) | [`infrastructure/translations/README.md`](../infrastructure/translations/README.md) |
@@ -67,10 +68,10 @@ shortest statement of how a task is meant to go here.
 
 | Capability | Declared in | Explained in |
 | --- | --- | --- |
-| `/comment-cleanup` | [`.claude/skills/comment-cleanup/SKILL.md`](../.claude/skills/comment-cleanup/SKILL.md) | [`docs/spikes/0082-comment-discipline.md`](../docs/spikes/0082-comment-discipline.md) |
-| `/doc-drift-check` | [`.claude/skills/doc-drift-check/SKILL.md`](../.claude/skills/doc-drift-check/SKILL.md) | [`docs/spikes/0037-feature-discoverability.md`](../docs/spikes/0037-feature-discoverability.md) |
+| `/comment-cleanup` | [`.claude/skills/comment-cleanup/SKILL.md`](../.claude/skills/comment-cleanup/SKILL.md) | [`docs/spikes/0009-comment-discipline.md`](../docs/spikes/0009-comment-discipline.md) |
+| `/doc-drift-check` | [`.claude/skills/doc-drift-check/SKILL.md`](../.claude/skills/doc-drift-check/SKILL.md) | [`docs/spikes/0001-feature-discoverability.md`](../docs/spikes/0001-feature-discoverability.md) |
 | `/github-issue` | [`.claude/skills/github-issue/SKILL.md`](../.claude/skills/github-issue/SKILL.md) | [`infrastructure/scripts/src/issue/README.md`](../infrastructure/scripts/src/issue/README.md) |
-| `/house-docs` | [`.claude/skills/house-docs/SKILL.md`](../.claude/skills/house-docs/SKILL.md) | [`docs/spikes/0037-feature-discoverability.md`](../docs/spikes/0037-feature-discoverability.md) |
+| `/house-docs` | [`.claude/skills/house-docs/SKILL.md`](../.claude/skills/house-docs/SKILL.md) | [`docs/spikes/0001-feature-discoverability.md`](../docs/spikes/0001-feature-discoverability.md) |
 | `/new-package` | [`.claude/skills/new-package/SKILL.md`](../.claude/skills/new-package/SKILL.md) | [`infrastructure/scripts/src/drift/README.md`](../infrastructure/scripts/src/drift/README.md) |
 | `/nuxt-module-route` | [`.claude/skills/nuxt-module-route/SKILL.md`](../.claude/skills/nuxt-module-route/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/repo-review` | [`.claude/skills/repo-review/SKILL.md`](../.claude/skills/repo-review/SKILL.md) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |

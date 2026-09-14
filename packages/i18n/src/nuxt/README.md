@@ -91,7 +91,7 @@ $t("meta.title")
 
 Two things are fixed rather than configurable, because both are internal contracts between the
 halves: the API path (`/api/translations`) and the cache window (`TRANSLATIONS_MAX_AGE` 1h,
-`TRANSLATIONS_STALE_MAX_AGE` 24h, bypassed in dev). Both live in [`config.ts`](../config.ts)
+`TRANSLATIONS_STALE_MAX_AGE` 24h, bypassed in dev). Both live in [`config.ts`](./config.ts)
 alongside the path, so the route reads them rather than spelling them out where a second route would
 not see them. Override the cache from `nuxt.config` with a nitro route rule if a deployment ever
 needs to. The cache key comes from `translationsKey` in the core, not from this route —

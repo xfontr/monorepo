@@ -14,8 +14,9 @@ tree and shells out to `git` and `gh`.
 | --- | --- |
 | `app/` | The Nuxt UI dashboard — pages and components |
 | `server/api/` | The two reads the pages make: the collected snapshot, and `gh issue list` |
-| `shared/` | Pure logic — the wiki's shape, the issue rules. Imported by app, server and tools alike |
+| `shared/` | Pure logic — the wiki's shape, the issue rules, the spike frontmatter rules. Imported by app, server and tools alike |
 | `tools/collect/` | Builds the derived snapshot: graph, coverage, metrics, docs, scorecards |
+| `tools/check-docs/` | The CI gate: the link check, the invariants and the spike rules, run over the whole tree and exit non-zero on a finding |
 | `tools/lib/` | Node-only helpers — paths, the `git` allowlist, the invariant checks |
 
 ## 📄 The markdown is read in place
@@ -70,11 +71,14 @@ titled `📦 @monorepo/ui` says the name three times and the subject none, so it
 real title is still the page's own heading.
 
 A spike carries one more thing the tree alone can't show: a coloured dot next to it in the nav, and
-a pill on its own page, for the `Status:` line [`docs/spikes/README.md`](../../docs/spikes/README.md)
-defines — good for `Implemented`, warn for `To implement`, neutral for `Won't implement`. That value
-comes from the collected snapshot, not from the path, so `shared/wiki.ts` stays derived from nothing
-but what `@nuxt/content` found; [`useSpikeStatuses`](./app/composables/useSpikeStatuses.ts) is the
-one place the two get joined, by path.
+a pill on its own page, for the `status:` frontmatter field
+[`docs/spikes/README.md`](../../docs/spikes/README.md#-status-and-decision) defines — good for
+`implemented`, warn for `to-implement`, neutral for `wont-implement`. A second, independent pill
+shows only when `decision: superseded`, linking to the report that replaced it. Both values come
+from the collected snapshot, not from the path, so `shared/wiki.ts` stays derived from nothing but
+what `@nuxt/content` found; [`useSpikeStatuses`](./app/composables/useSpikeStatuses.ts) is the one
+place the status half gets joined to a path, and the spike page reads its own `decision` straight
+off the snapshot.
 
 ## 🐙 Issues come from GitHub, not from here
 
@@ -104,6 +108,7 @@ live off GitHub. If you delete every derived file in this project, one command p
 | --- | --- |
 | `pnpm dev tech-docs` | Start Technical Docs |
 | `pnpm exec nx collect @monorepo/tech-docs` | Rebuild the snapshot — graph, coverage, metrics, docs, scorecards |
+| `pnpm exec nx check-docs @monorepo/tech-docs` | The CI gate — broken links, the mirrored invariants and malformed spike frontmatter, over every tracked doc; exits 1 on a finding |
 | `pnpm exec nx nuxt-prepare @monorepo/tech-docs` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
 
 The collector reads each project's `coverage/coverage-summary.json` and copies in the merged report
@@ -117,10 +122,21 @@ has nowhere to deploy.
 `tools/lib/invariants.ts` re-runs the cross-file rules
 [`check-invariants.sh`](../../.claude/hooks/check-invariants.sh) enforces on edit: the tag table
 written twice, the workspace-layout block, a review with no row in the history table. The hook only
-fires while an agent is editing a file; these run over the whole tree on every collect, so drift
-introduced by hand shows up on the dashboard instead of waiting for the next edit to trip over it.
+fires while an agent is editing a file; these run over the whole tree on every collect **and in
+CI**, via `pnpm exec nx check-docs @monorepo/tech-docs` (`ci.yml`), so drift introduced by hand or
+pushed without an agent in the loop fails the build instead of only showing up on the dashboard.
 The two copies are kept honest by [`invariants.spec.ts`](./tools/lib/invariants.spec.ts) — which is
 the entire reason they exist as pure functions rather than more shell.
+
+`check-docs` runs only what CI needs as a gate — the link check, the invariants and
+[`shared/spikes.ts`](./shared/spikes.ts)'s frontmatter rules, using `collectGraph` for real project
+roots — not the full `collect` pipeline's coverage, deps and scorecards, which stay dashboard-only
+reads with no pass/fail meaning.
+
+The spike rules live in `shared/` rather than `tools/` because the vocabulary they check against is
+the same `SPIKE_STATUSES`/`SPIKE_DECISIONS` the pages render from, and `shared/types.ts` derives
+`SpikeStatus` and `SpikeDecision` from it — one list, so a widened vocabulary can't reach the
+dashboard and miss the gate.
 
 One check here has no shell-hook twin: `compareScorecardShape` flags a review whose `## 🧮 Scores`
 table doesn't match `SCORECARDS.md`'s seven cards, in order, each `n/5` — the shape the scorecards

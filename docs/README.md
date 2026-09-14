@@ -2,7 +2,7 @@
 
 Everything here spans more than one project. Anything that doesn't — a project's own reference,
 its setup, its invariants — stays in that project's `README.md` and `CLAUDE.md` instead, from
-[spike 0037](./spikes/0037-feature-discoverability.md):
+[spike 0001](./spikes/0001-feature-discoverability.md):
 
 > A subject enters `docs/` only if no single project owns it.
 
