@@ -148,8 +148,17 @@ use `pnpm exec nx run-many -t <target>`.
 - [`pnpm issue:ship`](./infrastructure/scripts/src/ship/README.md) is the other end of `pick`: it
   pushes the current branch, opens or reuses its PR, arms GitHub's auto-merge, then blocks until
   every check concludes and reports whether the PR merged or a check failed. Auto-merge and
-  delete-branch-on-merge are both on for this repo, and there's no branch protection on `master`
-  requiring reviews, so nothing gates the merge besides CI passing.
+  delete-branch-on-merge are both on for this repo. The `master` ruleset requires one approving
+  review, but repo admins are a standing bypass actor, so a self-opened PR still only waits on CI.
+- Dependabot PRs get the same auto-merge treatment without anyone running `issue:ship`:
+  [`dependabot-auto-merge.yml`](./.github/workflows/dependabot-auto-merge.yml) arms auto-merge on
+  every non-major PR Dependabot opens; a major bump is left for a manual merge after approval.
+  Dependabot isn't a bypass actor, so unlike a self-opened PR, the merge waits on both CI and that
+  one required approval.
+- [`CODEOWNERS`](./.github/CODEOWNERS) requests review by path — using the same layout as the
+  workspace tree above — so the required approval has someone to land on automatically. Every path
+  resolves to the sole collaborator today; splitting them further only matters once a second one
+  joins.
 - The hook also runs [`pnpm docs:drift`](./infrastructure/scripts/src/drift/README.md), which never
   fails the push: it warns when a changed project's docs look stale or the change is big, and offers
   to file an issue.

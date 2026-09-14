@@ -1,0 +1,16 @@
+# Requests review by path, matching the workspace layout in the root README.
+# Last match wins, so the default up top is overridden by anything more specific below.
+
+*                           @xfontr
+
+/apps/huella-legal/        @xfontr
+/apps/tech-docs/           @xfontr
+
+/packages/configs/         @xfontr
+/packages/content/         @xfontr
+/packages/i18n/            @xfontr
+/packages/observability/   @xfontr
+/packages/ui/              @xfontr
+
+/infrastructure/translations/  @xfontr
+/infrastructure/scripts/       @xfontr

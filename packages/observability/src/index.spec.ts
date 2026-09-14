@@ -23,7 +23,7 @@ function start() {
 }
 
 function instrumentations() {
-    return (faro.initializeFaro.mock.calls[0][0] as { instrumentations: unknown[] }).instrumentations;
+    return (faro.initializeFaro.mock.calls[0]?.[0] as { instrumentations: unknown[] }).instrumentations;
 }
 
 beforeEach(() => {
