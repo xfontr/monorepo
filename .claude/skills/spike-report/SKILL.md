@@ -42,17 +42,22 @@ genuinely equivalent on the evidence, or a constraint that exists only in their 
 ## 2. Write the file
 
 Copy [`docs/spikes/TEMPLATE.md`](../../../docs/spikes/TEMPLATE.md) to
-`docs/spikes/<issue-number, zero-padded to 4 digits>-<slug>.md` and fill in its four sections and
-its `Status:` line — [`docs/spikes/README.md`](../../../docs/spikes/README.md) says what each is
-for. Status is almost always `To implement` on the day the report is written: the report records
-that a decision was made, not that the work is done. Set it to `Implemented` only if the change it
-calls for is already in the same PR, and to `Won't implement` only when the finding itself is a
-decision not to act.
+`docs/spikes/<NNNN>-<slug>.md` and fill in its frontmatter and its five sections —
+[`docs/spikes/README.md`](../../../docs/spikes/README.md) says what each is for.
+`status` is almost always `to-implement` on the day the report is written: the report records that
+a decision was made, not that the work is done. Set it to `implemented` only if the change it calls
+for is already in the same PR, and to `wont-implement` only when the finding itself is a decision
+not to act. `decision` is `accepted` unless this report is reversing an earlier one — see
+[docs/spikes/README.md](../../../docs/spikes/README.md#-superseding-a-decision) for what changes on
+the report being superseded.
 
-The number is the issue that **raised the question**, which is not always labelled `spike` — an
-enhancement issue whose thread turned out to hide a decision is the issue that raised it. If
-nothing filed it at all, say so and ask whether to file one or hang the report off the closest
-existing issue; don't invent a number.
+**`NNNN` is the next free number, not the issue's** — `ls docs/spikes/` and add one to the highest,
+zero-padded to four digits. Two reports may never share it; `check-docs` fails if they do.
+
+`issue` is the issue that **raised the question**, as a plain integer. It is not always labelled
+`spike` — an enhancement issue whose thread turned out to hide a decision is the issue that raised
+it. Two reports may share an `issue` when one issue raised two questions. If nothing filed it at
+all, say so and ask whether to file one rather than inventing a number.
 
 Two things the template's shape enforces that are easy to lose:
 
@@ -61,16 +66,22 @@ Two things the template's shape enforces that are easy to lose:
   the result.
 - **Options considered is a table of losers.** One row per option that was really on the table,
   with the specific reason it lost. An option nobody would have picked is padding.
+- **Confirmation names a check, not a hope.** A command, a test or a file whose presence or absence
+  would prove the claim — not "this should work". Write it even when `status` is `to-implement`:
+  describe how compliance *will* be verified once the work lands, the way the rest of the report
+  already describes what was found rather than what's wished for.
 
 Keep it as tight as the shortest sections in the `ui`/`content` package READMEs: this is a record
 of an outcome, not a design doc arguing for it. Follow `house-docs` like any other markdown here.
 
 ## 3. Close the loop
 
-**When the follow-up work lands (or is dropped), flip the `Status:` line in the same PR.** That's
-the one line in a spike report expected to change after the fact — it's how
+**When the follow-up work lands (or is dropped), flip the `status:` field in the same PR.** That's
+one of the two frontmatter fields expected to change after the fact — it's how
 [Technical Docs](../../../apps/tech-docs/README.md) shows, at a glance, which spikes are still owed
-work.
+work. If this report reverses an earlier one, also set that earlier report's `decision:` to
+`superseded` and its `supersededBy:` to this file — see
+[docs/spikes/README.md](../../../docs/spikes/README.md#-superseding-a-decision).
 
 **Never comment on the issue.** The report is reachable without one: its filename carries the issue
 number, and the PR that lands it references the issue. An issue comment adds a notification and a

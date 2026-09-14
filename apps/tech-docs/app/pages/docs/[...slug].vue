@@ -51,6 +51,14 @@ const meta = computed(() => snapshot.value?.docs?.pages.find((doc) => toCollecti
                     <UDashboardSidebarCollapse />
                 </template>
                 <template #right>
+                    <NuxtLink
+                        v-if="meta?.spikeDecision === 'superseded' && meta.spikeSupersededBy"
+                        :to="`/docs/docs/spikes/${meta.spikeSupersededBy.replace(/\.md$/, '')}`"
+                        class="text-xs font-medium px-1.5 py-0.5 rounded-full border border-current tone-bad"
+                        :title="`Superseded by ${meta.spikeSupersededBy}`"
+                    >
+{{ spikeDecisionLabel(meta.spikeDecision) }}
+</NuxtLink>
                     <span
                         v-if="meta?.spikeStatus"
                         class="text-xs font-medium px-1.5 py-0.5 rounded-full border border-current"

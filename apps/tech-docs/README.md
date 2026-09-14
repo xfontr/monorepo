@@ -129,14 +129,16 @@ The two copies are kept honest by [`invariants.spec.ts`](./tools/lib/invariants.
 the entire reason they exist as pure functions rather than more shell.
 
 `check-docs` runs only what CI needs as a gate — the link check, the invariants and
-[`shared/spikes.ts`](./shared/spikes.ts)'s frontmatter rules, using `collectGraph` for real project
-roots — not the full `collect` pipeline's coverage, deps and scorecards, which stay dashboard-only
-reads with no pass/fail meaning.
+[`tools/lib/spikes.ts`](./tools/lib/spikes.ts)'s frontmatter rules, using `collectGraph` for real
+project roots — not the full `collect` pipeline's coverage, deps and scorecards, which stay
+dashboard-only reads with no pass/fail meaning.
 
-The spike rules live in `shared/` rather than `tools/` because the vocabulary they check against is
-the same `SPIKE_STATUSES`/`SPIKE_DECISIONS` the pages render from, and `shared/types.ts` derives
-`SpikeStatus` and `SpikeDecision` from it — one list, so a widened vocabulary can't reach the
-dashboard and miss the gate.
+The rules parse with `yaml` rather than a regex, because `@nuxt/content` reads these same bytes as
+YAML to render the page — a checker that disagreed with it about what parses would fail reports the
+dashboard shows correctly. The split is deliberate: the vocabulary is
+[`shared/spikes.ts`](./shared/spikes.ts), which `shared/types.ts` derives `SpikeStatus` and
+`SpikeDecision` from and which client code can import; the parsing lives in `tools/` so a node-only
+dependency never reaches the browser bundle.
 
 One check here has no shell-hook twin: `compareScorecardShape` flags a review whose `## 🧮 Scores`
 table doesn't match `SCORECARDS.md`'s seven cards, in order, each `n/5` — the shape the scorecards

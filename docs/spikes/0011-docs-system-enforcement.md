@@ -66,9 +66,9 @@ construction and reads in decision order.
 | Consecutive `NNNN` numbering, issue as a separate field | **Take.** It costs every inbound link once, and buys uniqueness by construction plus a listing in decision order. The first draft of this report kept issue numbering on the grounds that the repo's existing links were worth more; that weighed a young experimental repo's conventions as if they were established practice, which is backwards |
 | Renumbering the twelve existing reports | **Take**, for the same reason — twelve files and ~20 relative links is the cheapest this migration will ever be |
 
-**How far the template itself follows MADR is not decided here.** The retrofit in change 6 rewrites
-all ten reports, so the migration cost that would normally settle this is being paid anyway, and
-the choice turns on discipline rather than effort:
+**The template goes MADR-compatible, not full MADR.** The retrofit in change 6 rewrites every
+report, so the migration cost that would normally settle this is paid either way, and the choice
+turned on discipline rather than effort:
 
 | Shape | Gains | Costs |
 | --- | --- | --- |
@@ -76,8 +76,10 @@ the choice turns on discipline rather than effort:
 | Full MADR sections — `Context and Problem Statement`, `Decision Drivers`, `Considered Options`, `Decision Outcome`, `Consequences`, `Confirmation`, `Pros and Cons of the Options` | Standard vocabulary and compatibility with MADR tooling | `Pros and Cons of the Options` invites a pro/con essay per option, which is what `Options considered` as a table of losers exists to prevent |
 | Frontmatter only — metadata block, everything else unchanged | Smallest change; still deletes the regex | Leaves supersession and the two-axis problem unsolved, so it does not close what this report opened |
 
-Deciding between them needs one thing this investigation did not do: read a real MADR corpus to see
-whether `Pros and Cons of the Options` stays short in practice or reliably bloats.
+The first row wins because it takes the machine-readable half of MADR without importing the section
+that this repo's `Options considered` table exists to prevent. Frontmatter also stops being
+hand-parsed: `@nuxt/content` already reads it as YAML to render the page, and the checker now uses
+`yaml` so both agree on what a valid report looks like.
 
 **Seven changes are adopted.** The first five close the enforcement gap; the last two close the
 reachability one — docs a teammate cannot read without running the app are not team docs.
@@ -162,7 +164,7 @@ than flipping.** Verified per change:
    `issue:` field. The check in 3 fails if a thirteenth report reuses a number.
 3. The same command fails on a malformed filename, an unrecognised `status:`/`decision:`, a missing
    `issue:`, or a `supersededBy:` naming a report that isn't filed — pinned by
-   [`shared/spikes.spec.ts`](../../apps/tech-docs/shared/spikes.spec.ts).
+   [`tools/lib/spikes.spec.ts`](../../apps/tech-docs/tools/lib/spikes.spec.ts).
 4. Every spike report's frontmatter is now followed by a `## Confirmation` section, this one
    included.
 5. `decision: superseded` plus `supersededBy:` is a parsed, validated frontmatter pair — see

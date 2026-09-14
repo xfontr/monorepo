@@ -59,7 +59,7 @@ declare module "@nuxt/schema" {
 ```
 
 Runtime reads it back through a cast, and
-[`request.ts`](../../../packages/content/src/nuxt/runtime/server/request.ts) explains why that cast
+[`request.ts`](../../../packages/content/src/nuxt/runtime/server/utils/request.ts) explains why that cast
 is load-bearing rather than decoration: the augmentation only lands inside a Nuxt project, so
 compiled standalone the value is `any`.
 

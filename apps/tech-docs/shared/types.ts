@@ -1,5 +1,7 @@
 /** This app stores nothing — everything below is either derived from the repo or read live from elsewhere. */
 
+import type { SpikeDecision, SpikeStatus } from "./spikes.ts";
+
 export interface ArtifactStatus {
     generatedAt: string
     ok: boolean
@@ -105,11 +107,8 @@ export interface DocLink {
  */
 export type DocKind = "readme" | "claude" | "changelog" | "skill" | "doc" | "review" | "spike";
 
-/**
- * A spike report's own outcome, not the decision it argues for — `docs/spikes/README.md` calls
- * this out as the one line in the file expected to change after the report is written.
- */
-export type SpikeStatus = "to-implement" | "implemented" | "wont-implement";
+/** Both derive from the value lists in `shared/spikes.ts`, which is also what the CI check reads — so there is no second copy to keep in step. */
+export type { SpikeDecision, SpikeStatus };
 
 export interface DocPage {
     path: string
@@ -121,8 +120,11 @@ export interface DocPage {
     updatedAt: string | null
     /** Whether the doc carries a `## 🧭 Deliberately deferred` section. */
     deferred: boolean
-    /** Parsed from a spike report's `Status:` line; null for anything that isn't one. */
+    /** Parsed from a spike report's frontmatter; null for anything that isn't one. */
     spikeStatus: SpikeStatus | null
+    spikeDecision: SpikeDecision | null
+    /** The file a superseded spike was replaced by; null unless `spikeDecision` is `"superseded"`. */
+    spikeSupersededBy: string | null
     brokenLinks: DocLink[]
 }
 

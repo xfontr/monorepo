@@ -54,6 +54,9 @@
         },
         "collect": {
             "cache": false
+        },
+        "check-docs": {
+            "cache": false
         }
     },
     "tui": {
