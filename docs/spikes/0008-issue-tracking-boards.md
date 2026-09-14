@@ -1,7 +1,10 @@
-# 🧭 One board per app, not one board with labels
+---
+issue: 72
+status: wont-implement
+decision: accepted
+---
 
-Spike: #72
-Status: Won't implement
+# 🧭 One board per app, not one board with labels
 
 ## Context
 
@@ -42,3 +45,9 @@ if that view turns out to matter, it's a fifth thing to add (a saved cross-repo 
 lightweight "now" board), not a reason to revisit this file. Revisit only if a fifth genuinely
 cross-cutting board keeps wanting to exist, or if the four ever stop mapping to the Nx tags they
 mirror today.
+
+## Confirmation
+
+Verified by the four GitHub Project boards still existing and by `issue:pick`'s first prompt still
+being a project select — a fifth board or a label-based rewrite of that prompt would be the signal
+this decision was reversed.

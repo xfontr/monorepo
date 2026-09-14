@@ -1,7 +1,10 @@
-# 🧭 One architecture for the scripts package
+---
+issue: 48
+status: implemented
+decision: accepted
+---
 
-Spike: #48
-Status: Implemented
+# 🧭 One architecture for the scripts package
 
 ## Context
 
@@ -56,7 +59,7 @@ legibility-without-docs is the requirement — and once the folders exist, the R
 becomes redundant, which is the test of whether the layout works.
 
 The load-bearing half is the adapter naming rule, because it resolves the question that prompted the
-spike: **two `git.ts` files are correct.** They share one line and have zero export overlap — five of
+issue: **two `git.ts` files are correct.** They share one line and have zero export overlap — five of
 the eight functions have a single caller in `drift`, three have a single caller in `issue`. What is
 genuinely shared is `git` itself, so `shared/adapters/git.ts` takes `git()`, a memoised lazy
 `repoRoot()` and `at()`, retiring three `git rev-parse --show-toplevel` subprocesses. `PROJECT_ROOTS`
@@ -115,3 +118,12 @@ beside it. That's the follow-up.
 Forecloses the flat layout, and costs nine directories, three of which hold a single file. That is
 the price of the listing being the documentation, and it is the right way round: the README's layer
 table was deleted when the folders landed.
+
+## Confirmation
+
+No automated check — this is the "convention, not lint" half of the Consequences above, and stays
+that way until the `eslint.config.ts` rule it names as a follow-up lands. Verified by the folder
+listing under `infrastructure/scripts/src/` matching the four-role shape (`index.ts`, `main.ts` or
+one file per subcommand, `adapters/`, `domain/`) for every script, and by
+[`new-script`](../../infrastructure/scripts/.claude/skills/new-script/SKILL.md)'s own verify steps
+running clean.

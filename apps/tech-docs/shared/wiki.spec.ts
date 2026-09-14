@@ -12,7 +12,7 @@ const PAGES = [
     { path: "/docs/reviews/scorecards", title: "🎯 Scorecards" },
     { path: "/docs/reviews/2026-09-05-abcb17d", title: "📊 Review — 2026-09-05" },
     { path: "/docs/spikes/template", title: "🧭" },
-    { path: "/docs/spikes/0037-feature-discoverability", title: "🧭 Making the repo's feature surface discoverable" },
+    { path: "/docs/spikes/0001-feature-discoverability", title: "🧭 Making the repo's feature surface discoverable" },
     { path: "/packages/ui/readme", title: "📦 @monorepo/ui" },
     { path: "/packages/ui/claude", title: "🤖 @monorepo/ui" },
     { path: "/packages/ui/changelog", title: "CHANGELOG" },
@@ -88,7 +88,7 @@ describe("buildWiki", () => {
 
     it("kinds a spike report 'spike' rather than the generic 'doc', so the nav icon tells the two apart", () => {
         const entry = sectionOf("docs")?.groups.find((group) => group.key === "spikes")
-            ?.entries.find((candidate) => candidate.path === "/docs/spikes/0037-feature-discoverability");
+            ?.entries.find((candidate) => candidate.path === "/docs/spikes/0001-feature-discoverability");
 
         expect(entry?.kind).toBe("spike");
     });

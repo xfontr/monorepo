@@ -1,7 +1,10 @@
-# 🧭 Parallel dev environments across worktrees
+---
+issue: 38
+status: to-implement
+decision: accepted
+---
 
-Spike: #38
-Status: To implement
+# 🧭 Parallel dev environments across worktrees
 
 ## Context
 
@@ -50,3 +53,10 @@ to a new script with its own maintenance surface and a "what identifies a worktr
 spike didn't need to make. The two options aren't mutually exclusive: nothing here forecloses
 starting with A and adding B's script later purely for the sibling-discovery half, once or if the
 `internal` i18n vendor becomes the default.
+
+## Confirmation
+
+Neither option is implemented. Once A lands: the same project started from two worktrees binds two
+different ports without a manually exported `PORT`. Once B lands: a script under
+`infrastructure/scripts` derives that port and rewrites `NUXT_TRANSLATIONS_VENDOR_BASE_URL` per
+worktree, checked by that script's own spec.

@@ -4,7 +4,7 @@ Renders [`docs/FEATURES.md`](../../../../docs/FEATURES.md): every command, git h
 agent skill in the repo, each with the doc that explains it. It exists because this repo's docs are
 all *reference* — a README answers "how does X work" for an X you already know about, and nothing
 answered "what is in here". See
-[`0037-feature-discoverability.md`](../../../../docs/spikes/0037-feature-discoverability.md).
+[`0001-feature-discoverability.md`](../../../../docs/spikes/0001-feature-discoverability.md).
 
 | Command | What it does |
 | --- | --- |

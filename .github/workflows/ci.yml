@@ -36,6 +36,10 @@ jobs:
             # workflow or skill without re-rendering fails this step.
             - run: pnpm docs:map --check
 
+            # The link check, the mirrored invariants and the spike frontmatter rules, over the
+            # whole tree rather than only the file a Claude Code edit happened to touch.
+            - run: pnpm exec nx check-docs @monorepo/tech-docs
+
     # Needs a base ref to diff against, so it's meaningless on a push to master.
     dependency-review:
         if: github.event_name == 'pull_request'

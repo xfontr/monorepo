@@ -1,7 +1,10 @@
-# 🧭 Token delegation: nothing in this repo is big enough for the hook to fire
+---
+issue: 101
+status: wont-implement
+decision: accepted
+---
 
-Spike: #101
-Status: Won't implement
+# 🧭 Token delegation: nothing in this repo is big enough for the hook to fire
 
 ## Context
 
@@ -170,3 +173,9 @@ If context cost does become a pain point before either happens, the measurement 
 work in: the static preamble first (nine times the size of the prize `shunt` chases, and the
 `--minimal=false` flag is a one-word fix), then `Bash` output volume, then within-session re-reads.
 All three are cheaper to address than a two-model router, and none needs a hook.
+
+## Confirmation
+
+`.claude/settings.json` carries no `PreToolUse` hook — only the two `PostToolUse` ones this report
+already counts. No `.claude/skills/` folder for delegation exists either. Both are the negative
+claim this record makes, so their absence is what verifies it.

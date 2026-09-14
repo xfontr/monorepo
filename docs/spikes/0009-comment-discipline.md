@@ -1,7 +1,10 @@
-# 🧭 Comment discipline: one fact per comment, enforced by a skill and not a hook
+---
+issue: 82
+status: to-implement
+decision: accepted
+---
 
-Spike: #82
-Status: To implement
+# 🧭 Comment discipline: one fact per comment, enforced by a skill and not a hook
 
 ## Context
 
@@ -105,3 +108,9 @@ Forecloses, for now, a real-time gate on every edit: the hook doesn't ship until
 against the `ok`/`reason` contract, `continueOnBlock: true` is set, and its false-positive rate is
 known. Revisit once the sweep shows whether an on-demand skill catches drift early enough on its
 own — the 24.7% figure is the baseline any future gate gets judged against.
+
+## Confirmation
+
+`infrastructure/scripts` and `apps/tech-docs` landing in the 4–6% comment-line-to-code-line band —
+the same count Result item 1 used — once the `comment-cleanup` sweep runs. Not yet checked, which is
+why `status` stays `to-implement`.

@@ -1,7 +1,10 @@
-# 🧭 One coverage report, merged from the per-project runs
+---
+issue: 44
+status: implemented
+decision: accepted
+---
 
-Spike: #44
-Status: Implemented
+# 🧭 One coverage report, merged from the per-project runs
 
 ## Context
 
@@ -79,3 +82,12 @@ above — or if the per-project vitest presets ever converge enough that a root 
 could keep `affected` intact.
 
 Implementation is a follow-up issue rather than part of this record; none has been filed yet.
+
+## Confirmation
+
+`pnpm test:coverage` (root) runs `nx run-many -t test:coverage` then the merge, and errors naming
+any project missing a `coverage-final.json` instead of rendering a partial report — pinned by
+[`coverage-report/domain/discover.ts`](../../infrastructure/scripts/src/coverage-report/domain/discover.ts)
+and
+[`coverage-report/domain/merge.ts`](../../infrastructure/scripts/src/coverage-report/domain/merge.ts)'s
+specs, which is also where the absolute-path assumption is checked.

@@ -20,7 +20,7 @@ invariants that span more than one file.
 Default to none. **A comment carries one fact that isn't in the code, in one sentence.** The rule is
 not "a comment must justify its line" — that one is satisfied by writing a better argument, which is
 how `infrastructure/scripts` reached one comment line per four lines of code.
-[`0082`](./docs/spikes/0082-comment-discipline.md) has the measurement.
+[`0009`](./docs/spikes/0009-comment-discipline.md) has the measurement.
 
 - The keep-test is **whether the next reader can reconstruct it from present state.** History and
   outside constraint can't be: what a scanner flagged, the bug behind a strange sort order, a trap
