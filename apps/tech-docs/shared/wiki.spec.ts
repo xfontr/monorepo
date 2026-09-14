@@ -11,6 +11,7 @@ const PAGES = [
     { path: "/docs/concepts/boundaries", title: "🧱 Why the boundary system exists" },
     { path: "/docs/reviews/scorecards", title: "🎯 Scorecards" },
     { path: "/docs/reviews/2026-09-05-abcb17d", title: "📊 Review — 2026-09-05" },
+    { path: "/docs/spikes/readme", title: "🧭 Spikes" },
     { path: "/docs/spikes/template", title: "🧭" },
     { path: "/docs/spikes/0001-feature-discoverability", title: "🧭 Making the repo's feature surface discoverable" },
     { path: "/packages/ui/readme", title: "📦 @monorepo/ui" },
@@ -53,11 +54,12 @@ describe("buildWiki", () => {
         expect(labelsIn("agents", "skills")).toEqual(["Writing docs here"]);
     });
 
-    it("drops the changelogs and the dated reviews, which have pages of their own in this app", () => {
+    it("drops the changelogs, the dated reviews and the spike reports, which have pages of their own in this app", () => {
         const paths = buildWiki(PAGES).flatMap((section) => section.groups.flatMap((group) => group.entries.map((entry) => entry.path)));
 
         expect(paths).not.toContain("/packages/ui/changelog");
         expect(paths).not.toContain("/docs/reviews/2026-09-05-abcb17d");
+        expect(paths).not.toContain("/docs/spikes/0001-feature-discoverability");
     });
 
     it("drops a TEMPLATE, whose placeholder heading survives @nuxt/content as a blank or truncated title", () => {
@@ -86,11 +88,8 @@ describe("buildWiki", () => {
         expect(buildWiki([{ path: "/readme", title: "Monorepo" }]).map((section) => section.id)).toEqual(["workspace"]);
     });
 
-    it("kinds a spike report 'spike' rather than the generic 'doc', so the nav icon tells the two apart", () => {
-        const entry = sectionOf("docs")?.groups.find((group) => group.key === "spikes")
-            ?.entries.find((candidate) => candidate.path === "/docs/spikes/0001-feature-discoverability");
-
-        expect(entry?.kind).toBe("spike");
+    it("keeps the spikes rubric, which is a doc about how a report is written rather than a report", () => {
+        expect(labelsIn("docs", "spikes")).toEqual(["Overview"]);
     });
 });
 

@@ -76,7 +76,7 @@ shortest statement of how a task is meant to go here.
 | `/new-package` | [`.claude/skills/new-package/SKILL.md`](../.claude/skills/new-package/SKILL.md) | [`infrastructure/scripts/src/drift/README.md`](../infrastructure/scripts/src/drift/README.md) |
 | `/nuxt-module-route` | [`.claude/skills/nuxt-module-route/SKILL.md`](../.claude/skills/nuxt-module-route/SKILL.md) | [`docs/spikes/0013-linter-coverage.md`](../docs/spikes/0013-linter-coverage.md) |
 | `/repo-review` | [`.claude/skills/repo-review/SKILL.md`](../.claude/skills/repo-review/SKILL.md) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
-| `/spike-report` | [`.claude/skills/spike-report/SKILL.md`](../.claude/skills/spike-report/SKILL.md) | [`docs/concepts/agent-setup.md`](../docs/concepts/agent-setup.md) |
+| `/spike-report` | [`.claude/skills/spike-report/SKILL.md`](../.claude/skills/spike-report/SKILL.md) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
 | `/start-issue` | [`.claude/skills/start-issue/SKILL.md`](../.claude/skills/start-issue/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/writing-tests` | [`.claude/skills/writing-tests/SKILL.md`](../.claude/skills/writing-tests/SKILL.md) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `/content:new-vendor` | [`packages/content/.claude/skills/new-vendor/SKILL.md`](../packages/content/.claude/skills/new-vendor/SKILL.md) | [`infrastructure/scripts/src/map/README.md`](../infrastructure/scripts/src/map/README.md) |

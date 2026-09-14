@@ -13,6 +13,7 @@ const links = computed<NavigationMenuItem[][]>(() => [
     [
         { label: "Overview", icon: "i-lucide-layout-dashboard", to: "/" },
         { label: "Wiki", icon: "i-lucide-library", to: "/docs" },
+        { label: "Spikes", icon: "i-lucide-compass", to: "/spikes" },
         {
             label: "Reviews",
             icon: "i-lucide-clipboard-check",

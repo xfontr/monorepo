@@ -14,7 +14,7 @@ tree and shells out to `git` and `gh`.
 | --- | --- |
 | `app/` | The Nuxt UI dashboard — pages and components |
 | `server/api/` | The two reads the pages make: the collected snapshot, and `gh issue list` |
-| `shared/` | Pure logic — the wiki's shape, the issue rules, the spike frontmatter rules. Imported by app, server and tools alike |
+| `shared/` | Pure logic — the wiki's shape, the issue rules, the spike vocabulary and the spike list's own filtering and counting. Imported by app, server and tools alike |
 | `tools/collect/` | Builds the derived snapshot: graph, coverage, metrics, docs, scorecards |
 | `tools/check-docs/` | The CI gate: the link check, the invariants and the spike rules, run over the whole tree and exit non-zero on a finding |
 | `tools/lib/` | Node-only helpers — paths, the `git` allowlist, the invariant checks |
@@ -28,6 +28,7 @@ same file this renders, so the two cannot drift, and a page's URL mirrors its pa
 | Page | Reads |
 | --- | --- |
 | Wiki | Every tracked `*.md`, arranged as a tree — see [🧭 The wiki](#-the-wiki) |
+| Spikes | `docs/spikes/NNNN-<slug>.md` — the files the `spike-report` skill writes, see [🔬 Spikes are their own section](#-spikes-are-their-own-section) |
 | Reviews | `docs/reviews/YYYY-MM-DD-<sha>.md` — the files the `repo-review` skill writes |
 | Changelog | Every `CHANGELOG.md`, beside its unreleased-commit count |
 
@@ -57,28 +58,40 @@ doc added anywhere appears in the nav on the next reload instead.
 | Section | What lands in it |
 | --- | --- |
 | Workspace | The two files at the root, plus the generated `docs/FEATURES.md` |
-| Docs | `docs/`, grouped by subdirectory: concepts, guides, spikes, the review rubric |
+| Docs | `docs/`, grouped by subdirectory: concepts, guides, the spike and review rubrics |
 | Projects | One group per project, holding its README, its `CLAUDE.md`, its nested READMEs and its own skills |
 | Agent setup | The root `.claude/` skills and subagents |
 
-Two things are deliberately **not** in the tree: `CHANGELOG.md`s and the dated reviews. Both already
-have a page of their own here, and a wiki that also lists them is a second route to the same file
-that ages differently. A project's `.claude/skills/` stays with that project rather than with the
+Three things are deliberately **not** in the tree: `CHANGELOG.md`s, the dated reviews and the
+numbered spike reports. Each already has a page of its own here, and a wiki that also lists them is a
+second route to the same file that ages differently. The `README.md` beside each of those — the
+review rubric, the spike template's rules — stays, because a doc about how a record is written is
+not one of the records. A project's `.claude/skills/` stays with that project rather than with the
 root agent setup, because that is the only place those skills apply.
 
 Labels are the one thing not taken verbatim: under a group already called `packages/ui`, a README
 titled `📦 @monorepo/ui` says the name three times and the subject none, so it reads `Overview`. The
 real title is still the page's own heading.
 
-A spike carries one more thing the tree alone can't show: a coloured dot next to it in the nav, and
-a pill on its own page, for the `status:` frontmatter field
-[`docs/spikes/README.md`](../../docs/spikes/README.md#-status-and-decision) defines — good for
-`implemented`, warn for `to-implement`, neutral for `wont-implement`. A second, independent pill
-shows only when `decision: superseded`, linking to the report that replaced it. Both values come
-from the collected snapshot, not from the path, so `shared/wiki.ts` stays derived from nothing but
-what `@nuxt/content` found; [`useSpikeStatuses`](./app/composables/useSpikeStatuses.ts) is the one
-place the status half gets joined to a path, and the spike page reads its own `decision` straight
-off the snapshot.
+## 🔬 Spikes are their own section
+
+The wiki nav is derived from paths alone, so the one question a reader brings to a list of spikes —
+which of these decisions have actually landed — is the one thing it cannot answer, and it gets worse
+with every report filed. [`/spikes`](./app/pages/spikes/index.vue) answers it instead: the counts per
+`status:`, filters over both frontmatter axes, and a sort by number, by last commit or by status.
+
+| Fact | Where it comes from |
+| --- | --- |
+| The `status:` and `decision:` values | Each report's own frontmatter, parsed by the collector into `docs.json` — never re-derived here |
+| The counts, the filters, the ordering | [`shared/spikeReports.ts`](./shared/spikeReports.ts), pure and specced beside itself |
+| Newest first | A string compare on the number, which the four-digit padding in [`docs/spikes/README.md`](../../docs/spikes/README.md#-numbering) makes a numeric one |
+| Prev/next on a report | The number again, so one report reads on to the next decision made rather than the next row of whatever sort was left on |
+
+`status` shows as a pill on a report and as a tone beside it in the list — good for `implemented`,
+warn for `to-implement`, neutral for `wont-implement`. A second, independent pill shows only when
+`decision: superseded`, linking to the report that replaced it. Both come from the collected
+snapshot, so a report filed since the last `collect` renders at its own URL but is missing from the
+list — which is the same staleness every other page here has, shown by the same timestamp.
 
 ## 🐙 Issues come from GitHub, not from here
 
@@ -172,6 +185,7 @@ nothing and so violates nothing.
 | --- | --- |
 | A time-series chart of review totals | The scorecards page already lists every review's total, newest first, parsed straight from each review file rather than from the hand-edited history table — so the objection that used to block this (a hand-edited row becoming a rendering bug) no longer applies. A chart still needs six or seven rows before it says anything a column of numbers doesn't |
 | Writing to GitHub from here — closing an issue, moving a card | Every write is a `gh` subcommand away, but a dashboard that writes needs an undo story, an optimistic-update story and a permission story. Reading is the whole value; `pnpm issue:add` and `pnpm issue:pick` already cover filing and starting |
+| A spike's `issue:` shown beside it, or filtered on | The collector parses that field already and keeps only `status`, `decision` and `supersededBy`; carrying it would be one more field on `DocPage` and a link out to GitHub. Every report states its issue in its own Context section, and two reports may share one — so it sorts and groups worse than the number the list already uses |
 | Closed issues, or issues from another repo | `gh issue list --state open` on the repo you are standing in. Both are one flag; neither has a question this page is asked yet |
 | Ordering "What's next" by board column | `gh` reports a column's *name*, not its position, and the names are per project — nothing here can know which of them means next. Sorted by last touched instead |
 | Collecting on demand from the UI | `pnpm exec nx collect @monorepo/tech-docs` shells out to `nx graph` and `eslint` and takes tens of seconds. A button means a run state to poll and a way to cancel — the terminal already has both |
