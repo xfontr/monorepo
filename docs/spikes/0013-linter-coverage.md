@@ -1,7 +1,10 @@
-# 🧭 New linters: the robustness gap is tsconfig and enforcement, not plugins
+---
+issue: 100
+status: to-implement
+decision: accepted
+---
 
-Spike: #100
-Status: To implement
+# 🧭 New linters: the robustness gap is tsconfig and enforcement, not plugins
 
 ## Context
 
@@ -139,7 +142,7 @@ and not injectable. This is the one category where the answer is that no tool is
 | `eslint-plugin-security` | 68 findings, 63 from `detect-object-injection` and `detect-non-literal-fs-filename`; its 3 real ones are a subset of `eslint-plugin-regexp`'s, which reports them without the noise |
 | `eslint-plugin-vuejs-accessibility` | 2 findings, both false positives on a `RouterLink` prop it cannot see. Costs two disables for zero defects; revisit when `packages/ui` grows past one component |
 | `eslint-plugin-no-secrets` | 4 findings, 4 false positives — it flagged `"onlyDependOnLibsWithTags:"` and `"DisallowedGitSubcommandError"` as high-entropy secrets. Entropy scoring on identifiers is the wrong instrument, and push protection already covers the real case |
-| `eslint-plugin-unicorn` | 480 findings, and the top three fight decisions this repo already made: `single-line-block-comment-style` (92) contradicts [`0082`](./0082-comment-discipline.md), `filename-case` (43) contradicts the camelCase filenames, `no-null` (49) contradicts `error: null` in the artifact types |
+| `eslint-plugin-unicorn` | 480 findings, and the top three fight decisions this repo already made: `single-line-block-comment-style` (92) contradicts [`0009`](./0009-comment-discipline.md), `filename-case` (43) contradicts the camelCase filenames, `no-null` (49) contradicts `error: null` in the artifact types |
 | `eslint-plugin-sonarjs` | 18 findings, 12 of them the same ReDoS sites `eslint-plugin-regexp` reports. A second plugin for one new signal (`no-floating-point-equality`, 2) |
 | `strictTypeChecked` wholesale | 127 findings, ~100 cosmetic. Buys `no-misused-spread` and `no-deprecated` at the cost of a 34-finding template-literal sweep and a rule that is unsafe before finding 3 lands |
 | `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature` | Measured at 4 and 7; the first's hits are all benign `undefined` passes into a third-party option bag, the second is a property-access style preference wearing a compiler flag |
@@ -167,3 +170,13 @@ excluded from type-aware linting, so it was invisible to a rule the workspace al
 Whether a `.ts`-only type-aware pass for the two Nuxt apps is worth its friction is a separate
 question from the one this spike answered, and it should be measured on `apps/tech-docs` first —
 38 findings there, one of them real — before `apps/huella-legal`, which typechecks only on build.
+
+## Confirmation
+
+`eslint-plugin-regexp` is in and applied — `pnpm exec nx lint @monorepo/configs` failing on a
+reintroduced ReDoS pattern is the check. The remaining three items are not yet built: once
+`noUncheckedIndexedAccess` lands in `base.json`, `pnpm exec nx run-many -t typecheck` failing on an
+unguarded index read is the check for it; the two GitHub toggles are confirmed by reading the
+repo's Settings → Code security page; and the link-checker decision is confirmed by
+`brokenLinkCount` either gating `pnpm docs:map --check` or staying documented as tile-only in
+[`docs/spikes/README.md`](./README.md).

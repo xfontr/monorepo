@@ -74,7 +74,7 @@ shortest statement of how a task is meant to go here.
 | `/github-issue` | [`.claude/skills/github-issue/SKILL.md`](../.claude/skills/github-issue/SKILL.md) | [`infrastructure/scripts/src/issue/README.md`](../infrastructure/scripts/src/issue/README.md) |
 | `/house-docs` | [`.claude/skills/house-docs/SKILL.md`](../.claude/skills/house-docs/SKILL.md) | [`docs/spikes/0001-feature-discoverability.md`](../docs/spikes/0001-feature-discoverability.md) |
 | `/new-package` | [`.claude/skills/new-package/SKILL.md`](../.claude/skills/new-package/SKILL.md) | [`infrastructure/scripts/src/drift/README.md`](../infrastructure/scripts/src/drift/README.md) |
-| `/nuxt-module-route` | [`.claude/skills/nuxt-module-route/SKILL.md`](../.claude/skills/nuxt-module-route/SKILL.md) | [`docs/spikes/0100-linter-coverage.md`](../docs/spikes/0100-linter-coverage.md) |
+| `/nuxt-module-route` | [`.claude/skills/nuxt-module-route/SKILL.md`](../.claude/skills/nuxt-module-route/SKILL.md) | [`docs/spikes/0013-linter-coverage.md`](../docs/spikes/0013-linter-coverage.md) |
 | `/repo-review` | [`.claude/skills/repo-review/SKILL.md`](../.claude/skills/repo-review/SKILL.md) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
 | `/spike-report` | [`.claude/skills/spike-report/SKILL.md`](../.claude/skills/spike-report/SKILL.md) | [`docs/concepts/agent-setup.md`](../docs/concepts/agent-setup.md) |
 | `/start-issue` | [`.claude/skills/start-issue/SKILL.md`](../.claude/skills/start-issue/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
