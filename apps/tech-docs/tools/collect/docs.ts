@@ -7,8 +7,8 @@ import { WORKSPACE_ROOT } from "../lib/paths.ts";
 import { git } from "../lib/run.ts";
 
 // Inline links only. Reference definitions and bare autolinks are not used anywhere in these docs.
-const LINK = /\[(?<text>[^\]]*)\]\((?<href>[^)\s]+)(?:\s+"[^"]*")?\)/g;
-const HEADING = /^(#{1,3})\s+(.+)$/gm;
+const LINK = /\[[^\]]*\]\((?<href>[^)\s]+)(?:\s+"[^"]*")?\)/g;
+const HEADING = /^#{1,3}[^\S\n]+(\S.*)$/gm;
 
 const DEFERRED = /^##\s+🧭\s/m;
 
@@ -20,7 +20,7 @@ const SPIKE_PATH = /^docs\/spikes\/\d{4}-/;
  * copied, so flagging its own instructions would make the count permanently non-zero.
  */
 function isRepoRelative(href: string): boolean {
-    return !/^([a-z]+:|\/\/|#|mailto:)/i.test(href) && !href.includes("<");
+    return !/^(?:[a-z]+:|\/\/|#)/i.test(href) && !href.includes("<");
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -43,7 +43,7 @@ async function checkLink(fromFile: string, href: string): Promise<DocLink | null
     // `#anchor` is one way to point inside a file; `:91-94` is the other, and the reviews cite
     // evidence that way throughout. Neither says anything about whether the file itself exists.
     const [target] = href.split("#");
-    const path = target?.replace(/:\d+(-\d+)?$/, "");
+    const path = target?.replace(/:\d+(?:-\d+)?$/, "");
 
     if (!path) return null;
 
@@ -107,7 +107,7 @@ export async function collectDocs(projectRoots: string[], generatedAt: string): 
     for (const path of tracked) {
         const source = await readFile(resolve(WORKSPACE_ROOT, path), "utf8");
 
-        const headings = [...source.matchAll(HEADING)].map((match) => (match[2] ?? "").trim());
+        const headings = [...source.matchAll(HEADING)].map((match) => (match[1] ?? "").trim());
         const brokenLinks: DocLink[] = [];
 
         for (const match of source.matchAll(LINK)) {

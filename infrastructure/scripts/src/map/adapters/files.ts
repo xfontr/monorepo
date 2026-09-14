@@ -59,7 +59,7 @@ export const workflowFiles = (): { file: string, name: string }[] =>
             file,
             // The `name:` a workflow gives itself is what GitHub's Actions tab shows, so it's the
             // name someone would search for, not the filename.
-            name: /^name:\s*(.+)$/m.exec(read(at(".github", "workflows", file)))?.[1]?.trim() ?? file,
+            name: /^name:[^\S\n]*(\S.*)$/m.exec(read(at(".github", "workflows", file)))?.[1]?.trim() ?? file,
         }));
 
 const skillsUnder = (dir: string, scope?: string): { source: string, name: string, scope?: string }[] =>
@@ -76,7 +76,7 @@ const skillsUnder = (dir: string, scope?: string): { source: string, name: strin
         })
         .map((source) => ({
             source,
-            name: /^name:\s*(.+)$/m.exec(read(at(source)))?.[1]?.trim() ?? source,
+            name: /^name:[^\S\n]*(\S.*)$/m.exec(read(at(source)))?.[1]?.trim() ?? source,
             scope,
         }));
 

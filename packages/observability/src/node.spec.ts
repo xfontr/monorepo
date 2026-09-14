@@ -33,11 +33,11 @@ function start(config: Partial<Config> = {}) {
 }
 
 function exporterOptions() {
-    return exporter.OTLPTraceExporter.mock.calls[0][0] as { url: string, headers: Record<string, string> };
+    return exporter.OTLPTraceExporter.mock.calls[0]?.[0] as { url: string, headers: Record<string, string> };
 }
 
 function providerOptions() {
-    return provider.NodeTracerProvider.mock.calls[0][0] as { resource: { attributes: Record<string, string> } };
+    return provider.NodeTracerProvider.mock.calls[0]?.[0] as { resource: { attributes: Record<string, string> } };
 }
 
 beforeEach(() => {
