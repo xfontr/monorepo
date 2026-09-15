@@ -15,6 +15,7 @@ src/
   ship/             pnpm issue:ship — push, open or reuse the PR, arm auto-merge, watch checks
   drift/            pnpm docs:drift — warn when a project's docs may be stale, offer to file an issue
   map/              pnpm docs:map — render docs/FEATURES.md, the index of everything this repo can do
+  review-version/   pnpm review:version — fingerprint the four artifacts that decide a repo review's score
   coverage-report/  pnpm test:coverage (root) — merge every project's coverage-final.json into one report
   shared/           whatever more than one script needs, laid out the same way
 ```
@@ -36,6 +37,7 @@ domain/      pure functions and their types. No fs, no subprocess, no clack, no 
 | [`ship`](./src/ship/README.md) | `pnpm issue:ship` | Pushing the current branch, opening or reusing its PR, arming auto-merge, then blocking on checks |
 | [`drift`](./src/drift/README.md) | `pnpm docs:drift` | Warning when a changed project's docs look stale, and offering to file it |
 | [`map`](./src/map/README.md) | `pnpm docs:map` | Rendering the feature index, and asserting in CI that it's current |
+| [`review-version`](./src/review-version/README.md) | `pnpm review:version` | Versioning the repo-review method, and asserting in CI that the version moved with it |
 | [`coverage-report`](./src/coverage-report/README.md) | `pnpm test:coverage` (root) | Merging every project's coverage into one browsable HTML report |
 
 ## 🧱 Which way imports go

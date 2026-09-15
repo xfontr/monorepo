@@ -13,6 +13,7 @@
     "issue:ship": "node src/ship/index.ts",
     "docs:drift": "node src/drift/index.ts",
     "docs:map": "node src/map/index.ts",
+    "review:version": "node src/review-version/index.ts",
     "coverage": "node src/coverage-report/index.ts",
     "lint": "nx eslint:lint",
     "typecheck": "tsc --noEmit",
