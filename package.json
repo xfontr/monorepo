@@ -21,6 +21,7 @@
         "issue:ship": "pnpm --filter @monorepo/scripts run issue:ship",
         "docs:drift": "pnpm --filter @monorepo/scripts run docs:drift",
         "docs:map": "pnpm --filter @monorepo/scripts run docs:map",
+        "review:version": "pnpm --filter @monorepo/scripts run review:version",
         "release": "nx release --skip-publish",
         "release:dry": "nx release --skip-publish --dry-run"
     },

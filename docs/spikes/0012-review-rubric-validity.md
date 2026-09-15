@@ -1,6 +1,6 @@
 ---
 issue: 106
-status: to-implement
+status: implemented
 decision: accepted
 ---
 
@@ -93,7 +93,8 @@ that its rubric column is honest. `SKILL.md` has been edited twice since v1 was 
 `112a414`), both times cosmetically, so the gap has not yet produced a wrong number — but the
 changes below would.
 
-**Five changes are adopted.**
+**Four changes are adopted.** None of them closes the judgement gap above; the one candidate that
+would have is rejected below, so every cap in the rubric stays a greppable predicate.
 
 1. **A cross-card reconciliation pass**, run after the seven agents report and before the total is
    computed, whose only job is the findings no single card owns. Card isolation stays — it is what
@@ -101,13 +102,10 @@ changes below would.
 2. **A test-density floor that caps 🧪 Testing**, expressed per project rather than repo-wide. At
    40 source files to 5 specs, `apps/tech-docs` would have capped the card at 3 in the 2026-09-10
    review instead of costing it one point for two named files.
-3. **A per-package attestation that caps 🧩 Implementation** — a named human recording that they
-   read the package at a given commit. Its presence is greppable, its truth is not, which is the
-   point: it is the one input to the rubric that a predicate cannot satisfy on its own.
-4. **The version covers the method, not the rubric document** — all four artifacts above — and the
+3. **The version covers the method, not the rubric document** — all four artifacts above — and the
    bump is enforced rather than remembered: a commit touching any of them without changing the
    version constant fails CI, the same shape as `docs:map --check`.
-5. **A method bump re-scores the previous review's commit** under the new method, once, and that
+4. **A method bump re-scores the previous review's commit** under the new method, once, and that
    row lands in the history table as a calibration point.
 
 ## Options considered
@@ -116,6 +114,7 @@ changes below would.
 | --- | --- |
 | Retune the caps and weights | Treats calibration as the fault. The Documentation swing was the rubric working as written, and so was Architecture's 5/5; the gap is that no rule fires on 4,201 lines written without supervision |
 | Add a "code quality" or "supervision" card | A seventh judgement card scored by the same read-only isolated agent under the same citation rule produces the same surface findings under a new heading |
+| A per-package attestation capping 🧩 Implementation — a named person recording that they read the package at a given commit | The one input a predicate could not satisfy, and the reason it is not implemented is who would sign it: this repo has **one collaborator**, so the row is its author vouching for their own work and certifies nothing a second reader would. It is also unmaintainable at nine projects — an attestation goes stale on that project's next commit, so the card would sit at its stale cap in perpetuity while nine rows get re-signed by hand — and no reviewing convention outside this repo asks for such a register, so a reader of the history table would have to be taught what the number means |
 | Give the card agents Bash | Helps Testing and Tooling, which need counts. It does not help Architecture, whose gap is synthesis across cards, not measurement |
 | Drop scoring, write prose reviews | Loses the one thing the current system does well — the history table is real data, and `Evidence or it didn't happen` is why these reviews are not flattery |
 | Score per package instead of per repo | Would surface `tech-docs`, but `reviews/README.md` already rejects partial reviews: a per-area review cannot produce a comparable total |
@@ -127,28 +126,29 @@ changes below would.
 ## Consequences
 
 Cards 1 and 2 carry 40 points on the stated grounds that *"those two are what a rewrite costs"*.
-Until a card can move on judgement, that weighting is asserted rather than earned, and the three
-existing totals should be read as a measure of surface hygiene rather than of architecture.
+Until a card can move on judgement, that weighting is asserted rather than earned, and every total
+— the three existing ones and every one after this spike — should be read as a measure of surface
+hygiene rather than of architecture. Rejecting the attestation leaves that gap open rather than
+narrowing it, which is the price of not putting a person in the loop.
 
-Change 5 buys the thing a version alone cannot: two rows at the same sha under two versions
+Change 4 buys the thing a version alone cannot: two rows at the same sha under two versions
 separate the policy delta from the repo delta, which is what the history table is read for. It sits
 in tension with `SCORECARDS.md`'s *"quietly re-scoring history is worse than a gap in it"* — the
 word doing the work is *quietly*, and one labelled row at a known sha is the opposite of a silent
 rewrite. The three v1 rows stay untouched.
 
-The cost is that a review stops being reproducible from the repo alone: change 3 puts a human in
-the loop, so a review can no longer be regenerated on demand, and a stale attestation becomes a new
-thing that can drift. Change 2 also makes a card movable by adding spec files, which is the
-feature-count scoring `SCORECARDS.md` warns against — the floor is a cap, never a bonus, for that
-reason.
+A review stays reproducible from the repo alone, which is what dropping the attestation preserves:
+no step waits on a person, and nothing in the method can go stale between reviews. The cost lands
+on change 2 instead — it makes a card movable by adding spec files, which is the feature-count
+scoring `SCORECARDS.md` warns against, and the floor is a cap rather than a bonus for that reason.
 
-All five bump the method to version 2, so the calibration re-score is owed in the same pass.
-Revisit if a review ever scores below 4 on a card no predicate fired for: that would mean judgement
-is reaching the total on its own and the attestation has become ceremony.
+All four bump the method to version 2, so the calibration re-score is owed in the same pass.
+Revisit the attestation when the repo has a second collaborator: the objection is the headcount and
+the upkeep, not the mechanism, and a signature means something once the signer isn't the author.
 
 ## Confirmation
 
-None of the five changes is built yet. Once they are: a CI step fails a commit that edits
+The four changes are built. What confirms them: a CI step fails a commit that edits
 `SCORECARDS.md`, `repo-review/SKILL.md`, `repo-review-card.md` or `collect-facts.sh` without
 bumping the shared method-version constant — the same shape as `docs:map --check` — and
 `docs/reviews/README.md`'s history table carries the version-2 calibration row at the same sha as
