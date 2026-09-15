@@ -36,6 +36,10 @@ jobs:
             # workflow or skill without re-rendering fails this step.
             - run: pnpm docs:map --check
 
+            # The four artifacts that decide a review's score carry no version between them, so a
+            # change to one moves every future score while the history table reads the old number.
+            - run: pnpm review:version --check
+
             # The link check, the mirrored invariants and the spike frontmatter rules, over the
             # whole tree rather than only the file a Claude Code edit happened to touch.
             - run: pnpm exec nx check-docs @monorepo/tech-docs
