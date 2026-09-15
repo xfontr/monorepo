@@ -174,9 +174,10 @@ question from the one this spike answered, and it should be measured on `apps/te
 ## Confirmation
 
 `eslint-plugin-regexp` is in and applied — `pnpm exec nx lint @monorepo/configs` failing on a
-reintroduced ReDoS pattern is the check. The remaining three items are not yet built: once
-`noUncheckedIndexedAccess` lands in `base.json`, `pnpm exec nx run-many -t typecheck` failing on an
-unguarded index read is the check for it; the two GitHub toggles are confirmed by reading the
-repo's Settings → Code security page; and the link-checker decision is confirmed by
-`brokenLinkCount` either gating `pnpm docs:map --check` or staying documented as tile-only in
-[`docs/spikes/README.md`](./README.md).
+reintroduced ReDoS pattern is the check. The link-checker decision is settled by #103:
+`brokenLinkCount` gates CI through `pnpm exec nx check-docs @monorepo/tech-docs`, which landed under
+#106 rather than the `docs:map --check` mechanism this spike anticipated; `#anchor` links stay
+unverified, a deliberate exclusion since none of the four breaks found here were anchor breaks. The
+remaining two items are not yet built: once `noUncheckedIndexedAccess` lands in `base.json`,
+`pnpm exec nx run-many -t typecheck` failing on an unguarded index read is the check for it; and the
+two GitHub toggles are confirmed by reading the repo's Settings → Code security page.
