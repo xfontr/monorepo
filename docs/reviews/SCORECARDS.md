@@ -4,9 +4,11 @@ The rubric a [review](./README.md) scores against. Seven cards, each an integer 
 one total. This is the only copy of the rubric: the skill reads it, the template leaves room for it,
 and nothing else restates it.
 
-Rubric **version 1**. Bump it and say so in the history table when a card, an anchor or a weight
-changes — scores from two versions aren't comparable, and quietly re-scoring history is worse than
-a gap in it.
+The method version lives in [`METHOD.md`](./METHOD.md) and **never in this file** — this is one of
+the four artifacts the version digests, so a copy of the number here would invalidate itself the
+moment anyone corrected it. Scores from two versions aren't comparable, and quietly re-scoring
+history is worse than a gap in it: a bump re-scores the previous review's commit once, labelled as
+a re-score, and leaves the older rows alone.
 
 ## 📊 The cards
 
@@ -46,6 +48,7 @@ last review's numbers. A card that scores 5 everywhere has stopped measuring any
 | A 5 needs an attempted breakage | Name the mistake and the tooling that catches it. If you can't, it's a 4 |
 | Never score by feature count | Five skills aren't better than three; one enforcing hook beats four reminders. Score whether the thing does its job |
 | Every card names its downgrade | At least one concrete thing costing it points — or an explicit line saying a sweep found none, and what was swept |
+| A cross-cutting finding lands on one card | Cards are scored in isolation so nothing is counted twice, which leaves the problems no single card owns unseen. The reconcile pass names the card each one costs and scores it there, once |
 | The total is computed, never chosen | If the arithmetic disagrees with your gut, the cards are wrong. Fix a card, don't nudge the total |
 
 ## 🧮 The total
@@ -101,6 +104,11 @@ alike; what happens on a failed fetch, a missing env var, a malformed vendor pay
 | 2 | An error path swallows a failure and returns something that looks like success |
 | 2 | An `eslint-disable` covering a rule the repo claims to enforce |
 
+Every cap here is a grep, so the card cannot move on judgement alone — a package written without
+supervision costs it nothing as long as the greps come back clean.
+[`0012`](../spikes/0012-review-rubric-validity.md) found that and records why the one mechanism that
+would have closed it was rejected; read this card's score as surface hygiene until it has one.
+
 ### 🧪 3. Testing — weight 15
 
 What the suite pins, not how much of it there is. The failure mode this repo already names in
@@ -118,8 +126,17 @@ core function would break.
 | 3 | A skipped or focused spec is committed |
 | 3 | A project with real logic has no specs at all |
 | 3 | Specs assert against their own mocks, or only exercise the happy path |
+| 3 | A project carries more than four source modules per spec file |
 | 2 | `--passWithNoTests` covers a project that has logic worth pinning |
 | 2 | The suite is green but a known-broken behaviour isn't covered by any failing test |
+
+The density floor counts `.ts`/`.mts` only, after the same barrel-and-config filter
+`collect-facts.sh` uses for its untested-file list; `.vue` is excluded because nothing in this repo
+puts a spec beside a component, so counting them would fire on every Nuxt app and stop
+discriminating. Four is the bar because it separates the projects that spec as they go — `content`
+at 1.2, `i18n` at 1.3, `scripts` at 3.1 — from `apps/tech-docs` at 4.6 in the 2026-09-10 review. It
+is **a cap and never a bonus**: a good ratio buys nothing, because otherwise it is the feature-count
+scoring this rubric refuses, one spec file at a time.
 
 ### ⚙️ 4. Tooling & DX — weight 15
 
@@ -197,7 +214,7 @@ just deleted; branches and versions against the [release rules](../../README.md#
 
 | Later need | What changes |
 | --- | --- |
-| A card that stops discriminating (everything scores 5 twice running) | Rewrite that card's caps to a harder bar and bump the rubric version — don't re-score old reviews |
+| A card that stops discriminating (everything scores 5 twice running) | Rewrite that card's caps to a harder bar; `review:version` bumps the version off the digest change, and the calibration re-score is owed in the same pass |
 | Coverage as evidence on the testing card | `collect-facts.sh` would need a `test:coverage` target on every project (only `scripts` has one today) and a threshold worth defending; a percentage with no threshold is not evidence |
-| Weights that reflect a different stage | Weights are the one part meant to be argued with. Change them in the table above, bump the version, and say what stage the new split is for |
+| Weights that reflect a different stage | Weights are the one part meant to be argued with. Change them in the table above, run `review:version`, and say what stage the new split is for |
 | More than a handful of reviews | The history table in [`README.md`](./README.md) grows a fold — keep the last six rows and move the rest to a collapsed section |

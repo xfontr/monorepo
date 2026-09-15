@@ -1,6 +1,6 @@
 # 📊 Review — <YYYY-MM-DD>
 
-Commit `<short sha>` on `<branch>` · Rubric v<n> · Previous: [<date>](./<file>.md)
+Commit `<short sha>` on `<branch>` · Method v<n> · Previous: [<date>](./<file>.md)
 
 <Two or three sentences. The headline number, the one card that carries the total, and the single
 change that would move it most. Not a summary of the sections below.>
@@ -35,6 +35,19 @@ the findings table below carries the specifics.>
 <Repeat the same two blocks for each of the remaining six cards, in the order of the scores table.
 A card that found nothing to deduct says so explicitly and names what was swept — an empty findings
 table with no explanation reads as a card nobody looked at.>
+
+## 🔗 Across the cards
+
+<What the seven card reports said only when read together — a project deducted thin on four cards,
+a problem whose shards each survived their own card. One paragraph, or an explicit line saying the
+pass found nothing and what was grouped to check.>
+
+| Finding | Shows up on | Scored on | Evidence |
+| --- | --- | --- | --- |
+| <the pattern, stated once> | <the cards it fragments across> | <the single card it costs> | <a citation per shard> |
+
+Each row costs points on exactly one card — the `Scored on` column — and that deduction already
+appears in that card's table above. This section says why it's there.
 
 ## 🔍 Evidence
 

@@ -64,6 +64,12 @@ far outside that is worth opening. The `comment-cleanup` skill runs the pass.
   to fill the cell in.
 - **Never hand-edit a `CHANGELOG.md` or a `version`.** `nx release` derives both from Conventional
   Commit messages. Releases run from the **Release** workflow (`workflow_dispatch`), never locally.
+- **Never hand-edit the version line or the digest rows in
+  [`docs/reviews/METHOD.md`](./docs/reviews/METHOD.md).** `pnpm review:version` writes both, and it
+  bumps the version precisely because the person changing the review method is the one least likely
+  to notice they owe a bump. Editing a digest to match a file you just changed silences the check
+  rather than satisfying it — and it makes every score in the history table a claim about a method
+  that didn't produce it. The prose around the tables is yours to edit.
 - **Never write a real endpoint, URL, token or instance ID into the repo.** Every one of them is an
   env var with no default; `.env.example` documents the names and nothing else. "It's a public URL"
   is not a reason — vendor endpoints stay out.
