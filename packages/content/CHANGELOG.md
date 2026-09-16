@@ -1,3 +1,17 @@
+## 0.0.5 (2026-09-16)
+
+### 🚀 Features
+
+- [100] install regexp linter, apply it ([df290a3](https://github.com/xfontr/monorepo/commit/df290a3))
+
+### 🧱 Updated Dependencies
+
+- Updated @monorepo/configs to 0.0.10
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.4 (2026-09-10)
 
 ### 🧱 Updated Dependencies

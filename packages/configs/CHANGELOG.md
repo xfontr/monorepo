@@ -1,3 +1,18 @@
+## 0.0.10 (2026-09-16)
+
+### 🚀 Features
+
+- [120] nuxt prepare script integration ([51f5cf0](https://github.com/xfontr/monorepo/commit/51f5cf0))
+- [100] install regexp linter, apply it ([df290a3](https://github.com/xfontr/monorepo/commit/df290a3))
+
+### 🩹 Fixes
+
+- [120] path to contain fixed, unwriteable directories ([c69a17c](https://github.com/xfontr/monorepo/commit/c69a17c))
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.9 (2026-09-10)
 
 This was a version bump only for @monorepo/configs to align it with other projects, there were no code changes.
