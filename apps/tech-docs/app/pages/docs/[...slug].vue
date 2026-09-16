@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from "@nuxt/ui";
-import { locate, toCollectionPath } from "../../../shared/wiki.ts";
+import { locate, toCollectionPath } from "#shared/wiki.ts";
 
 const route = useRoute();
 

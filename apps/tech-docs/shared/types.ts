@@ -206,9 +206,6 @@ export interface Issue {
     /** Names only — this app's own label colours come from a separate validated palette, not GitHub's. */
     labels: string[]
     assignees: string[]
-    /** The GitHub Project board the issue sits on, and its column there. Null when it is on none. */
-    project: string | null
-    projectStatus: string | null
     createdAt: string
     updatedAt: string
 }

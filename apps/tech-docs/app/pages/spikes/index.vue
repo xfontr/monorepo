@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { SpikeDecision, SpikeStatus } from "../../../shared/types.ts";
-import type { SpikeSort } from "../../../shared/spikeReports.ts";
-import { countByStatus, filterSpikes, sortSpikes } from "../../../shared/spikeReports.ts";
-import { SPIKE_DECISIONS, SPIKE_STATUSES } from "../../../shared/spikes.ts";
+import type { SpikeDecision, SpikeStatus } from "#shared/types.ts";
+import type { SpikeSort } from "#shared/spikeReports.ts";
+import { countByStatus, filterSpikes, sortSpikes } from "#shared/spikeReports.ts";
+import { SPIKE_DECISIONS, SPIKE_STATUSES } from "#shared/spikes.ts";
 
 const { data: snapshot } = await useSnapshot();
 const reports = useSpikeReports();

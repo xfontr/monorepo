@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { WikiGroup, WikiSection } from "../../shared/wiki.ts";
+import type { WikiGroup, WikiSection } from "#shared/wiki.ts";
 
 const { sections, current = "" } = defineProps<{
     sections: WikiSection[]

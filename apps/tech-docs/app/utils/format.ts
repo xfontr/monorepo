@@ -1,4 +1,4 @@
-import type { SpikeDecision, SpikeStatus } from "../../shared/types.ts";
+import type { SpikeDecision, SpikeStatus } from "#shared/types.ts";
 
 /** The palette behind these three classes lives in `assets/css/main.css` and is shown beside the figure it describes, never instead of it. */
 export type Tone = "good" | "warn" | "bad" | "neutral";

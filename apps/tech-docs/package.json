@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "nx nuxt:build",
     "dev": "nuxt dev",
     "lint": "nx eslint:lint",
     "nuxt-prepare": "nuxi prepare",

@@ -17,6 +17,16 @@ export default defineNuxtConfig({
     },
 
     content: {
+        build: {
+            markdown: {
+                // Keyed by an absolute path because `@nuxt/content` `import()`s the key verbatim,
+                // resolving neither a Nuxt alias nor a path relative to itself.
+                remarkPlugins: {
+                    [resolve(import.meta.dirname, "tools/lib/remarkDocLinks.ts")]: {},
+                },
+            },
+        },
+
         experimental: {
             // `node:sqlite` instead of `better-sqlite3`, which is a native module with a postinstall
             // step — and lifecycle scripts are banned in this workspace, so the default connector
@@ -56,6 +66,10 @@ export default defineNuxtConfig({
     },
 
     runtimeConfig: {
+        // Absolute, because the server that reads it is bundled somewhere else entirely. A static
+        // build resolves it while prerendering, so `NUXT_SNAPSHOT_DIR` points CI at its own artifact.
+        snapshotDir: resolve(import.meta.dirname, ".report"),
+
         public: {
             repoUrl: "",
         },

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Issue } from "../../shared/types.ts";
-import { summarize } from "../../shared/issues.ts";
+import type { Issue } from "#shared/types.ts";
+import { summarize } from "#shared/issues.ts";
 
 const { issue, compact = false } = defineProps<{ issue: Issue, compact?: boolean }>();
 
@@ -36,15 +36,6 @@ const summary = computed(() => summarize(issue.body, compact ? 100 : 160));
                 </p>
 
                 <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                    <UBadge
-                        v-if="issue.project"
-                        icon="i-lucide-columns-3"
-                        color="primary"
-                        variant="subtle"
-                        size="sm"
-                        :label="issue.projectStatus ? `${issue.project} · ${issue.projectStatus}` : issue.project"
-                    />
-
                     <UBadge
                         v-for="label in issue.labels"
                         :key="label"

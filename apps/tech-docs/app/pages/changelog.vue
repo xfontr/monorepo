@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toTitleCase } from "../../shared/wiki.ts";
+import { toTitleCase } from "#shared/wiki.ts";
 
 const { data: snapshot } = await useSnapshot();
 

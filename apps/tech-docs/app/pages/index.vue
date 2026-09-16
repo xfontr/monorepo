@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { sortIssues } from "../../shared/issues.ts";
-import { toCollectionPath } from "../../shared/wiki.ts";
+import { sortIssues } from "#shared/issues.ts";
+import { toCollectionPath } from "#shared/wiki.ts";
 
 const { data: snapshot } = await useSnapshot();
 const { data: issues } = await useIssues();
 const { data: reviews } = await useReviewPages();
 
 const open = computed(() => issues.value.issues.length);
-
-/** Filed and never placed on a board — the set that quietly stops being looked at. */
-const unplaced = computed(() => issues.value.issues.filter((issue) => issue.project === null).length);
 
 const coverage = computed(() => snapshot.value?.coverage?.totals?.lines ?? null);
 const projects = computed(() => snapshot.value?.projects?.projects.length ?? 0);
@@ -83,11 +80,9 @@ const next = computed(() => sortIssues(issues.value.issues).slice(0, 6));
                         label="Open issues"
                         :value="issues.error ? '—' : open"
                         :hint="issues.error
-                            ? 'gh could not be reached'
-                            : unplaced > 0
-                                ? `${unplaced} on no board`
-                                : 'all on a board'"
-                        :tone="issues.error || unplaced > 0 ? 'warn' : 'neutral'"
+                            ? 'GitHub could not be read'
+                            : issues.fetchedAt ? `read ${relativeTime(issues.fetchedAt)}` : 'reading…'"
+                        :tone="issues.error ? 'warn' : 'neutral'"
                         icon="i-lucide-circle-dot"
                         to="/issues"
                     />
@@ -173,7 +168,7 @@ const next = computed(() => sortIssues(issues.value.issues).slice(0, 6));
                             v-if="next.length === 0"
                             class="p-8 text-center text-sm text-muted"
                         >
-                            {{ issues.error ? "GitHub could not be reached — this reads the gh CLI." : "No open issues." }}
+                            {{ issues.error ? "GitHub could not be read from this browser." : "No open issues." }}
                         </div>
 
                         <div
