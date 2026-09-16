@@ -5,9 +5,10 @@ The repo's own dashboard. It renders every markdown file in the workspace as a w
 things that are not written down anywhere: coverage, the project graph, the open GitHub issues,
 which two files have stopped agreeing.
 
-It is served locally — `pnpm dev tech-docs` — reading the working tree and shelling out to `git`.
-It builds, and it is not deployed anywhere yet:
-[`0014`](../../docs/spikes/0014-tech-docs-deployment.md) is what the rest of that takes.
+It runs two ways. `pnpm dev tech-docs` reads the working tree and shells out to `git`, so it shows
+the branch you are on; the deployed site is a prerendered snapshot of `master`, published by
+[`docs-deploy.yml`](../../.github/workflows/docs-deploy.yml) — see
+[🚢 The deployed site is a snapshot](#-the-deployed-site-is-a-snapshot).
 
 ## 🗂 Structure
 
@@ -24,7 +25,12 @@ It builds, and it is not deployed anywhere yet:
 
 [`content.config.ts`](./content.config.ts) points `@nuxt/content` at the **workspace root**, not at a
 copy inside this app. That is what makes the docs half free: the README you edit for GitHub is the
-same file this renders, so the two cannot drift, and a page's URL mirrors its path in the repo.
+same file this renders, and a page's URL mirrors its path in the repo.
+
+Under `pnpm dev tech-docs` that file is read where it lives, so the two cannot drift. A build bakes
+the whole corpus into the bundle instead, which is why the deployed site is only ever as fresh as its
+last deploy — [🚢 The deployed site is a snapshot](#-the-deployed-site-is-a-snapshot) is the rest of
+that.
 
 | Page | Reads |
 | --- | --- |
@@ -103,6 +109,12 @@ Labels are the one thing not taken verbatim: under a group already called `packa
 titled `📦 @monorepo/ui` says the name three times and the subject none, so it reads `Overview`. The
 real title is still the page's own heading.
 
+⌘K searches every README, `CLAUDE.md`, changelog, skill and doc, fed straight from the content
+collection so there is no second index to keep in step. It is fetched **on the first open**, not by
+the layout: the layout wraps every page, so an index built there rode in all 103 prerendered
+payloads and made them 725 KB each against 75 KB now. The cost lands where it is asked for — roughly
+a megabyte of chunk and SQLite WASM, once per reader, with a spinner while it arrives.
+
 ## 🔬 Spikes are their own section
 
 The wiki nav is derived from paths alone, so the one question a reader brings to a list of spikes —
@@ -161,15 +173,56 @@ live off GitHub. If you delete every derived file in this project, one command p
 | `pnpm exec nx collect @monorepo/tech-docs` | Rebuild the snapshot — graph, coverage, metrics, docs, scorecards |
 | `pnpm exec nx check-docs @monorepo/tech-docs` | The CI gate — broken links, the mirrored invariants and malformed spike frontmatter, over every tracked doc; exits 1 on a finding |
 | `pnpm exec nx nuxt-prepare @monorepo/tech-docs` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
+| `pnpm exec nx build-static @monorepo/tech-docs` | `nuxt build --prerender` — the build the deploy publishes, and the only one that renders every route |
 
 The collector reads each project's `coverage/coverage-summary.json` and copies in the merged report
 `pnpm test:coverage` renders at the workspace root, so both are only as fresh as the last run of it.
 
 `build` delegates to `nuxt:build` because that is what the `@nx/nuxt` plugin names its inferred
 target, and `nx affected -t build` only ever looks for `build` — the same indirection
-[`apps/huella-legal`](../huella-legal/README.md) uses. A build carries the whole workspace's
-markdown as a snapshot rather than reading it in place, so it is not what `pnpm dev tech-docs`
-serves; see [`0014`](../../docs/spikes/0014-tech-docs-deployment.md).
+[`apps/huella-legal`](../huella-legal/README.md) uses. It is the SSR build, and nothing here runs a
+Node server; `build-static` is what ships.
+
+## 🚢 The deployed site is a snapshot
+
+[`docs-deploy.yml`](../../.github/workflows/docs-deploy.yml) prerenders this app and publishes it to
+GitHub Pages on every push to `master`, plus by hand from `workflow_dispatch`. Static files, no host
+and no secret: the repo is public, and the one thing here that needed a credential went away when
+the issues read moved into the browser. Pages has to be set to build from GitHub Actions in the
+repo's settings — the workflow reads that configuration, it does not create it.
+
+| Step | What it is there for |
+| --- | --- |
+| `pnpm test:coverage` | The collector reads every project's `coverage-summary.json` plus the merged report, and neither exists until this has run over the whole workspace |
+| `pnpm exec nx collect @monorepo/tech-docs` | Nuxt copies `public/embed/**` into the output, so the snapshot is a build input rather than something the deploy hands over afterwards |
+| `pnpm exec nx build-static @monorepo/tech-docs` | `nuxt build --prerender`. Plain `build` is SSR and would leave a server to host |
+
+It is a job of its own rather than three steps on `checks`, which is `affected` by design: this is a
+full coverage run and an `eslint` pass per project, producing an artifact no pull-request check
+reads.
+
+**This project overrides its own `production` Nx input**, in [`package.json`](./package.json), and
+the deploy is wrong without it. The workspace default excludes `!{projectRoot}/**/*.md` and scopes
+everything to the project, so nothing this app renders was a build input: editing any doc left the
+task hash unchanged and `nx affected` reported no project at all for a file under `docs/`. The
+override adds two entries, and they fix different halves.
+
+| Addition | What it buys |
+| --- | --- |
+| `{workspaceRoot}/**/*.md` | A doc anywhere is a build input, **and** it is what makes `nx affected` name this project for a file that belongs to none — no `implicitDependencies` entry needed |
+| A `runtime` input running [`snapshotStamp.ts`](./tools/lib/snapshotStamp.ts) | `.report/` is gitignored, so it is absent from Nx's file map and a file input over it hashes *nothing* — a re-collected snapshot still replayed a cached `.output`. Stdout is hashed instead |
+
+Two values are baked in at build time, because a static site keeps no server to read runtime config
+from: `NUXT_APP_BASE_URL`, which a project page needs since it serves from `/<repo>/` rather than the
+root, and `NUXT_PUBLIC_REPO_URL`. The workflow derives both from the run — the first from
+`actions/configure-pages`, the second from the repo it is running in — so neither is written down
+here. A `public/` path that Nuxt does not rewrite goes through
+[`embedUrl`](./app/utils/embed.ts) for the same reason.
+
+**Every page is as old as the last deploy**, which is the price of the snapshot and worth reading off
+the Overview's own `manifest.commit`: the docs travel with the build rather than being read in place,
+and the advisory count was true when `pnpm audit` ran. Issues are the exception, because the browser
+fetches them.
 
 ## 🔍 What it checks that nothing else does
 
@@ -230,4 +283,3 @@ nothing and so violates nothing.
 | Closed issues, or issues from another repo | `state=open` on the repo `NUXT_PUBLIC_REPO_URL` names. Both are one parameter; neither has a question this page is asked yet, and each doubles the requests against a 60-an-hour limit |
 | Ordering "What's next" by board column, or showing the board at all | Needs `projectItems`, which is GraphQL-only and so needs a token — the thing reading from the browser exists to avoid. Sorted by last touched instead |
 | Collecting on demand from the UI | `pnpm exec nx collect @monorepo/tech-docs` shells out to `nx graph` and `eslint` and takes tens of seconds. A button means a run state to poll and a way to cancel — the terminal already has both |
-| Serving this anywhere | Nothing here is authenticated and every path it prints is a local file. It is a `nuxt dev` tool on purpose; deploying it is a different project |

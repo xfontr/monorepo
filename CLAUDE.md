@@ -55,8 +55,8 @@ far outside that is worth opening. The `comment-cleanup` skill runs the pass.
 - **Never add a build step to a package.** `packages/*` export raw TypeScript/Vue source; consumers
   compile them. No `build` script, no `dist/`, no `tsup`/`unbuild`, no `main`/`types` fields — the
   `exports` map points straight at source.
-- **Never add a lifecycle script** (`postinstall`, `prepare`, `prepublish`). Both CI workflows
-  install with `--ignore-scripts`, so anything hung off one works locally and silently does nothing
+- **Never add a lifecycle script** (`postinstall`, `prepare`, `prepublish`). Every CI workflow
+  installs with `--ignore-scripts`, so anything hung off one works locally and silently does nothing
   in CI. There are none in the workspace today; keep it that way.
 - **Never hand-edit [`docs/FEATURES.md`](./docs/FEATURES.md).** `pnpm docs:map` renders it and CI
   runs `pnpm docs:map --check`, so an edit survives exactly until the next render. A capability with

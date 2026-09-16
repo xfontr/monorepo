@@ -1,6 +1,6 @@
 ---
 issue: 108
-status: to-implement
+status: implemented
 decision: accepted
 ---
 
@@ -135,6 +135,13 @@ alone, next to a 5.1 MB embed tree. Not a static-only cost either: under SSR the
 with every page response. The index is needed when someone opens the search dialog, which is not
 on load and not on most pages.
 
+Measured after change 6 landed, on 103 prerendered pages: **73.0 MB of payloads became 7.6 MB**, a
+mean of 725 KB a page against 75 KB, and the whole static output went from 93 MB to 27 MB. The cost
+moves rather than vanishing — the first open of the dialog fetches a 206 KB chunk and an 844 KB
+SQLite WASM, once per reader — but it is paid by the readers who search instead of by every page
+load, and `queryCollectionSearchSections` runs client-side against the prerendered dump, which is
+what makes it available at all without a server.
+
 **Nine changes are adopted**, in this order — the first two are prerequisites for everything after
 them, and 3–6 are what a static deploy costs:
 
@@ -178,12 +185,24 @@ them, and 3–6 are what a static deploy costs:
    which have to be filtered on the `pull_request` key, and the issue's link is `html_url` — `url` is
    the API's own address for it.
 6. **Load the search index on demand rather than in the layout.** It is 619 KB of the 650 KB each
-   prerendered page currently carries, and nothing needs it until the search dialog opens.
-7. **Give the build the inputs it actually has.** A `namedInput` covering the workspace-root
-   markdown and the collected snapshot, and no `!{projectRoot}/**/*.md` exclusion for this project.
-   Without this the deploy job restores a cached `.output` and publishes the previous snapshot. That
-   fixes the task hash; whether it also makes `nx affected` see a file belonging to no project is
-   untested, and may need an `implicitDependencies` entry instead.
+   prerendered page currently carries, and nothing needs it until the search dialog opens. The
+   trigger is `UDashboardSearch`'s own `open` model, which both ⌘K and the sidebar button already
+   flip, so nothing new decides when the dialog is open. `immediate: false` plus `server: false` on
+   the `useAsyncData` is what keeps it out of the prerendered payload; a `loading` prop covers the
+   wait on first open.
+7. **Give the build the inputs it actually has.** A per-project `production` `namedInput` in
+   `apps/tech-docs/package.json` — the workspace default is wrong for the one project whose inputs
+   are the workspace. Without it the deploy job restores a cached `.output` and publishes the
+   previous snapshot. Both open questions above are now measured:
+
+   | Question | Answer |
+   | --- | --- |
+   | Does `{workspaceRoot}/**/*.md` also make `nx affected` see a file belonging to no project? | **Yes** — `nx show projects --affected --files=docs/spikes/README.md` prints `["@monorepo/tech-docs"]`, where it printed `[]`. No `implicitDependencies` entry is needed; the input does both jobs |
+   | Can the collected snapshot be a file input? | **No.** `.report/` is gitignored, so it is absent from Nx's file map and `{projectRoot}/.report/**/*` hashes nothing — added it, re-stamped the manifest, still a 1/1 cache hit. A `runtime` input whose stdout is the manifest is the mechanism that works |
+
+   The target the deploy actually runs is `build-static`, not `build`; both take `production`, so the
+   one override covers them. Committing `.report/` would make it a file input and is still refused
+   for the reason below — and it would not help anyway, since `collect` re-stamps it every run.
 8. **A separate `docs-deploy` workflow** on push to `master` plus `workflow_dispatch`:
    `nx run-many -t test:coverage` and the merge script, then `nx collect`, then the build, then
    publish. Not a step on the `checks` job, which is `affected` by design.
@@ -248,4 +267,7 @@ Each is false today and true when the work lands:
 5. The build completes with the prerenderer's `failOnError` left at its default.
 6. A markdown edit pushed to `master` is readable at the deployed URL without anyone running
    `nx collect` or `nuxt dev` — which is the staleness this report is about, and the one thing a
-   `manifest.commit` the page renders itself cannot attest to.
+   `manifest.commit` the page renders itself cannot attest to. This is the one confirmation landing
+   the work does **not** settle: it needs the repo's Pages source set to GitHub Actions, which no
+   file here can do — `actions/configure-pages` reads that setting rather than creating it, so the
+   first run fails until someone has changed it. The repo had no Pages site at the time of writing.
