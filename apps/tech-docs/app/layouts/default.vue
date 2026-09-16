@@ -41,10 +41,15 @@ const links = computed<NavigationMenuItem[][]>(() => [
     ],
 ]);
 
-// Fed straight from the content collection, so ⌘K searches every README, CLAUDE.md, changelog,
-// skill and doc in the workspace without a second index to keep in step.
-const { data: sections } = await useAsyncData("search-sections", () =>
-    queryCollectionSearchSections("docs"), { default: () => [] });
+const searchOpen = ref(false);
+
+// Deferred to the first open; built here it rides in every prerendered payload (../../README.md).
+const { data: sections, status, execute } = useAsyncData("search-sections", () =>
+    queryCollectionSearchSections("docs"), { default: () => [], immediate: false, server: false });
+
+watch(searchOpen, () => {
+    if (searchOpen.value && status.value === "idle") execute();
+});
 
 const searchGroups = computed(() => [{
     id: "docs",
@@ -123,7 +128,9 @@ const searchGroups = computed(() => [{
         </UDashboardSidebar>
 
         <UDashboardSearch
+            v-model:open="searchOpen"
             :groups="searchGroups"
+            :loading="status === 'pending'"
             placeholder="Search the workspace docs…"
         />
 
