@@ -1,6 +1,6 @@
 ---
-issue: 117
-status: to-implement
+issue: 120
+status: implemented
 decision: accepted
 ---
 
@@ -80,28 +80,28 @@ raw TypeScript. No build step is involved either way; it is still source.
 those names is: it takes either re-implementing `@nx/vitest`'s atomization or wrapping the
 `createNodesV2` it exports, both of them a hard dependency on another package's internals.
 
-**Three changes are adopted, and none of them is a plugin.**
+**One change is adopted, and it is neither of the two proposed.**
+[`@monorepo/configs`](../../packages/configs/README.md) ships the `nuxi prepare` `globalSetup` as
+`.mjs`, carried by the preset every project's `vitest.config.ts` already calls. That closes findings
+1, 2, 4 and 6 at once — every Vitest target, inferred or hand-written, inside the graph or outside
+it — and it makes the four `dependsOn: ["nuxt-prepare"]` entries on `test` and `test:coverage`
+redundant, so they come out of [`nx.json`](../../nx.json) with it. `lint` and `typecheck` keep
+theirs: neither is Vitest, and `eslint` is measured failing cold.
 
-| Change | Closes |
-| --- | --- |
-| `test:dev` gets `"dependsOn": ["nuxt-prepare"]` in [`nx.json`](../../nx.json) | Finding 4 — the live hole |
-| `@monorepo/configs` ships the `nuxi prepare` `globalSetup` as `.mjs`, and both apps' vitest configs declare it | Findings 1, 2, 6 — every vitest target, inferred or hand-written, inside the graph or outside it |
-| An invariant over `nuxt.config.ts` ↔ `nuxt-prepare`, in [`invariants.ts`](../../apps/tech-docs/tools/lib/invariants.ts) | Finding 5 — and the next hand-written target that forgets the edge |
-
-The invariant asserts two things and deliberately stops there: a project with a `nuxt.config.ts`
-declares a `nuxt-prepare` script, and every target that project defines **by hand** — a
-`package.json` script, excluding `nuxt-prepare` itself, the `nuxt`-run `dev`/`serve`/`preview`/
-`build` family that prepares internally, and the vitest family the change above covers — carries the
-edge. Scoping it to hand-written targets is what keeps it honest: those are the ones a person can
-actually fix. It goes where the other mirrored invariants already live, so it runs in CI through
-`pnpm exec nx check-docs @monorepo/tech-docs` and in the `PostToolUse` hook, with no new script and
-no new project.
+**No check is adopted.** One was built — a `compareNuxtPrepare` beside the mirrored invariants in
+`apps/tech-docs`, asserting that a `nuxt.config.ts` project declares the script and that every
+tsconfig-reading target of one carries the edge — and it was removed. Two reasons, in order. It was
+in the wrong project: an Nx build-graph rule reaching across the workspace from inside an app, gating
+a target called `check-docs`, where the existing invariants at least have a dashboard that renders
+them. And once the self-heal landed, the half of it worth having was the one assertion the graph
+can't make — a Nuxt app with no `nuxt-prepare` script — for which the symptom is already a red
+`lint`, and the remedy 150 lines of checker for a three-word `package.json` entry.
 
 ## Options considered
 
 | Option | Why not |
 | --- | --- |
-| The invariant check alone, over every target | Finding 2: its only live findings would be the eight atomized targets, which have no expressible fix — so the first thing it earns is a permanent allowlist entry, and the check that follows protects nothing outside the graph (finding 6) |
+| The invariant check (built, then removed) | Finding 2: over every target its only live findings are the eight atomized ones, which have no expressible fix, so the first thing it earns is a permanent allowlist entry. Narrowed to what the self-heal leaves — a project missing the script — it is 150 lines guarding a three-word `package.json` entry whose absence already turns `lint` red |
 | A local Nx plugin injecting the edge into every target | Finding 8: attaching works, enumerating doesn't. Buying the inferred targets means coupling to `@nx/vitest`'s internals — the failure [`0005`](./0005-nx-generators-and-ai-agent-setup.md) already recorded for `nx_project_details` against Nx 23 — to protect tasks only Nx Cloud can run |
 | A `"test-ci--*"` glob key in `targetDefaults` | Measured: no effect. The exact `"test-ci"` key beside it applied, so this isn't a caching artefact |
 | `"test-ci"` with the edge, letting it cover its children | Finding 3: the target refuses to run without Nx Cloud, and Cloud runs the atomized tasks directly rather than through their parent |
@@ -116,26 +116,30 @@ no new project.
 `dependsOn` `nuxt-prepare`, and it earmarks the plugin this report retires. Both are part of the
 work, not follow-up — that paragraph is the repo's own "two places that must agree" class.
 
-The self-heal trades a graph edge for a runtime check. For the targets that keep the edge nothing
-changes; for the ones that don't, a cold run pays a `nuxi prepare` — 1.8s in `tech-docs` — rather
-than reusing the cached `nuxt-prepare` output, and two vitest processes in one app could prepare
-concurrently. The
-`.mjs` extension is load-bearing and silent — the one fact about it that can't be reconstructed from
-reading it, and therefore the one comment it gets.
+The self-heal trades a graph edge for a runtime check, and two costs come with that. A Vitest run
+that finds no `.nuxt` pays `nuxi prepare` itself — 1.8s in `tech-docs` — instead of reusing the
+cached `nuxt-prepare` output. And because `test` no longer waits on that task, a run that includes
+`lint` can have Nx preparing for `lint` while Vitest prepares for itself, two `nuxi prepare`
+processes writing one directory. Neither has bitten; the second is the one to watch, and re-wiring
+`test` alone undoes it.
+
+The `.mjs` extension is load-bearing and silent — the one fact about this that can't be
+reconstructed from reading it, and therefore the one comment it gets.
 
 Revisit if Nx Cloud is adopted, which turns finding 3's eight latent targets live and leaves the
-self-heal as the only thing covering them; or if a tool outside vitest and outside Nx starts
-resolving the app `tsconfig.json`, which is the case neither change reaches.
+self-heal as the only thing covering them; or if a tool outside Vitest and outside Nx starts
+resolving the app `tsconfig.json`, which is the case nothing here reaches. Finding 5 stays open by
+choice: a Nuxt app added without a `nuxt-prepare` script still fails `lint` with a parse error on
+every file and nothing names the cause.
 
 ## Confirmation
 
-None of the three changes is in the repo yet, so both checks below describe how they will be
-verified once they land.
+Delete both `apps/*/.nuxt` and run `pnpm exec nx run-many -t test test:coverage`, then
+`pnpm exec vitest run` from inside either app directory. All of it passes with no `nuxt-prepare`
+edge anywhere near a Vitest target, and the second is the one no task-graph wiring can make pass.
+The check that would fail if the decision stopped holding is the same one that proved the bug:
+`.nuxt` deleted, `nx run <app>:test:coverage` green.
 
-Once the invariant exists, `pnpm exec nx check-docs @monorepo/tech-docs` fails when a project with
-a `nuxt.config.ts` has no `nuxt-prepare` script, or when a hand-written target of one lacks the
-edge — that is the check for changes 1 and 3, and it already runs in CI.
-
-Change 2 is checked cold: with both `apps/*/.nuxt` deleted, `pnpm exec nx run-many -t lint
-typecheck test test:coverage` passes, and so does `pnpm exec vitest run` from inside either app
-directory. The second is the one no task-graph wiring can make pass, and it fails today.
+`grep nuxt-prepare nx.json` is the other half — `lint` and `typecheck` only. A third entry appearing
+there means a Vitest target was re-wired by hand, which is this decision being reversed rather than
+applied.

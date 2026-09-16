@@ -132,12 +132,18 @@ standing failure mode in this repo. Same for the workspace-layout block in the r
 project is added, and for a new file under [`docs/reviews/`](./docs/reviews/README.md) and the
 history table in that directory's README.
 
-The Nuxt `.nuxt` wiring is the same shape at smaller scale: [`nx.json`](./nx.json)'s `lint`,
-`typecheck`, `test` and `test:coverage` `dependsOn` a `nuxt-prepare` target that only exists where
-a project defines that script — currently `apps/huella-legal` and `apps/tech-docs`. A new Nuxt app
-needs the script added by hand for the dependency to take effect; if a **third** one lands, that's
-the point to replace this with a local Nx plugin inferring it from `nuxt.config.ts` instead of
-copy-pasting a fourth time.
+A Nuxt app's `tsconfig.json` is `files: []` plus references into `.nuxt/`, so anything that opens it
+fails while that directory is missing. **Vitest repairs this itself** — every preset carries
+[`prepareNuxt.mjs`](./packages/configs/src/vitest/prepareNuxt.mjs), which runs `nuxi prepare` when a
+project has a `nuxt.config.ts` and no `.nuxt` — so no test target is wired to anything, including
+the per-spec ones `@nx/vitest` generates and a bare `pnpm vitest` that never enters the task graph.
+What's left in [`nx.json`](./nx.json) is `lint` and `typecheck`, the two that aren't Vitest,
+depending on a `nuxt-prepare` target that only exists where a project defines that script —
+currently `apps/huella-legal` and `apps/tech-docs`. A new Nuxt app needs that script added by hand,
+and Nx **silently drops** an edge naming a target a project doesn't have, so the symptom is `lint`
+failing to parse every file rather than anything mentioning `.nuxt`.
+[`0015`](./docs/spikes/0015-nuxt-prepare-wiring.md) has the measurements, and settles against the
+local Nx plugin this section used to earmark for the third app.
 
 ## 🛠️ Skills
 

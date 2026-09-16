@@ -46,6 +46,13 @@ dependency of this package. Both presets also declare an explicit `include`: v8 
 instruments files a test actually imported, so an untested file would vanish from the report instead
 of counting as 0%.
 
+Both presets also carry one `globalSetup`,
+[`prepareNuxt.mjs`](./src/vitest/prepareNuxt.mjs): in a project with a `nuxt.config.ts` and no
+`.nuxt`, it runs `nuxi prepare` before anything is transformed, because the app's `tsconfig.json` is
+`files: []` plus references into that directory and every file fails to load while it's missing. It
+returns immediately everywhere else, so no project has to opt in or out. It is the one `.mjs` file
+here, and has to be: a `.ts` setup file is transformed by the pipeline it exists to repair.
+
 **TypeScript** — `tsconfig.json`:
 
 ```json
