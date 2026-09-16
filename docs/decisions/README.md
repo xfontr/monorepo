@@ -1,9 +1,9 @@
-# 🧭 Spikes
+# 🧭 Decisions
 
-Where a spike's answer goes once it's answered. One file per spike, named `<NNNN>-<slug>.md` —
+Where a decision's answer goes once it's answered. One file per decision, named `<NNNN>-<slug>.md` —
 `0013-ui-headless.md` is the thirteenth decision recorded here.
 
-A spike report is neither a design doc nor meeting minutes: it exists so the result of the
+A decision report is neither a design doc nor meeting minutes: it exists so the result of the
 investigation survives after the issue closes and the thread that led to it is forgotten. Write one
 when a spike (or any real architectural fork) gets resolved, not when the investigation starts —
 the issue holds the question, the file holds the answer. An issue comment can't do this job: it's
@@ -64,20 +64,20 @@ decision: accepted
 | `decision` | Does the decision still hold? | `accepted` — the default · `superseded` — a later report overturned it; see [🔁 Superseding a decision](#-superseding-a-decision) |
 
 Whoever lands the follow-up work flips `status` in the same PR, the way `CHANGELOG.md` gets touched
-by the change it describes rather than by a separate bookkeeping pass. A spike whose status never
+by the change it describes rather than by a separate bookkeeping pass. A decision whose status never
 moves off `to-implement` is either still waiting or forgotten, and there is no third option this
 field can express — that ambiguity is deliberate, the same read a stale changelog gets.
 
 [`apps/tech-docs`](../../apps/tech-docs/README.md) parses both fields the same way it already
-parses `## 🧭 Deliberately deferred`, and its Spikes section is built out of them: `status` is a
+parses `## 🧭 Deliberately deferred`, and its Decisions section is built out of them: `status` is a
 count, a filter, a sort and a pill on the report itself, and `decision` is a filter plus a pill that
-shows only when it reads `superseded` — so this is the one part of a spike report with a reader
+shows only when it reads `superseded` — so this is the one part of a decision report with a reader
 other than a human on GitHub. `pnpm exec nx check-docs @monorepo/tech-docs` is what enforces that
 the values stay inside the vocabulary above, and it runs in CI.
 
 ## 🔗 Linking back
 
-The spike report is the artifact; the `issue:` field is the link. Nothing gets commented on the
+The decision report is the artifact; the `issue:` field is the link. Nothing gets commented on the
 issue — the PR that lands the report references it, and that trail is enough. A comment would be a
 second copy of the answer, free to drift from the file and notifying watchers to say so.
 
@@ -94,7 +94,7 @@ a record of what was actually found at the time. Two frontmatter fields carry th
 2. The old report's frontmatter — and only its frontmatter — changes: `decision: superseded` and
    `supersededBy: <new-file>.md`.
 
-`check-docs` fails if `supersededBy` names a file that isn't a filed spike, or if it's set without
+`check-docs` fails if `supersededBy` names a file that isn't a filed decision, or if it's set without
 `decision: superseded`, so a reversed decision can't silently keep reading as current on its own
 page.
 

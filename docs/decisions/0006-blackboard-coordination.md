@@ -83,7 +83,7 @@ doesn't yet.
 ## Confirmation
 
 Once built: `pnpm docs:map --check` (or a sibling renderer, the way
-[`0011-docs-system-enforcement.md`](./0011-docs-system-enforcement.md) adds one for the spikes
+[`0011-docs-system-enforcement.md`](./0011-docs-system-enforcement.md) adds one for the decisions
 index rather than widening `docs:map` itself) fails CI when `boundaries.ts`, the workspace-layout
 block or the reviews history table is edited by hand instead of re-rendered — the same contract
 `docs/FEATURES.md` already has. Not yet built, so not yet checked.

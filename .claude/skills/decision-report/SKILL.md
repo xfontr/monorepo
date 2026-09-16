@@ -1,13 +1,13 @@
 ---
-name: spike-report
-description: Investigate an architectural question against this repo and write the answer up as a spike report under docs/spikes/. Use on "do a spike on this", "spike this", "write a spike" or "add a spike report" — and when a spike issue gets resolved and the outcome needs to survive after the issue closes. Filing a GitHub spike issue is the `github-issue` skill, not this one.
+name: decision-report
+description: Investigate an architectural question against this repo and write the answer up as a decision report under docs/decisions/. Use on "do a spike on this", "spike this", "write a decision report" or "add a decision report" — and when a spike issue gets resolved and the outcome needs to survive after the issue closes. Filing a GitHub spike issue is the `github-issue` skill, not this one.
 ---
 
-# Writing a spike report
+# Writing a decision report
 
 A spike is a question that has to get answered before work can start. The question may live in a
 GitHub issue or may have come straight out of a conversation; either way the answer belongs in
-`docs/spikes/`, because an issue thread is unsearchable outside `gh` and gone from context the
+`docs/decisions/`, because an issue thread is unsearchable outside `gh` and gone from context the
 moment it closes.
 
 **"Do a spike" means research plus a file.** It does not mean filing an issue — that's the
@@ -25,7 +25,7 @@ line of the report. Two failure modes to avoid:
   boundary table before saying a new project fits somewhere; read the hook before describing what
   it enforces. A report full of plausible generalities is worse than no report, because the next
   person trusts it.
-- **Don't stop at the framing you were handed.** The useful spike result is often that the question
+- **Don't stop at the framing you were handed.** The useful result is often that the question
   was the wrong shape — a content problem that's really a navigation problem, a build decision
   that's really a boundary decision. Say so, then answer the question that's actually load-bearing.
 
@@ -41,17 +41,17 @@ genuinely equivalent on the evidence, or a constraint that exists only in their 
 
 ## 2. Write the file
 
-Copy [`docs/spikes/TEMPLATE.md`](../../../docs/spikes/TEMPLATE.md) to
-`docs/spikes/<NNNN>-<slug>.md` and fill in its frontmatter and its five sections —
-[`docs/spikes/README.md`](../../../docs/spikes/README.md) says what each is for.
+Copy [`docs/decisions/TEMPLATE.md`](../../../docs/decisions/TEMPLATE.md) to
+`docs/decisions/<NNNN>-<slug>.md` and fill in its frontmatter and its five sections —
+[`docs/decisions/README.md`](../../../docs/decisions/README.md) says what each is for.
 `status` is almost always `to-implement` on the day the report is written: the report records that
 a decision was made, not that the work is done. Set it to `implemented` only if the change it calls
 for is already in the same PR, and to `wont-implement` only when the finding itself is a decision
 not to act. `decision` is `accepted` unless this report is reversing an earlier one — see
-[docs/spikes/README.md](../../../docs/spikes/README.md#-superseding-a-decision) for what changes on
+[docs/decisions/README.md](../../../docs/decisions/README.md#-superseding-a-decision) for what changes on
 the report being superseded.
 
-**`NNNN` is the next free number, not the issue's** — `ls docs/spikes/` and add one to the highest,
+**`NNNN` is the next free number, not the issue's** — `ls docs/decisions/` and add one to the highest,
 zero-padded to four digits. Two reports may never share it; `check-docs` fails if they do.
 
 `issue` is the issue that **raised the question**, as a plain integer. It is not always labelled
@@ -78,18 +78,18 @@ of an outcome, not a design doc arguing for it. Follow `house-docs` like any oth
 
 **When the follow-up work lands (or is dropped), flip the `status:` field in the same PR.** That's
 one of the two frontmatter fields expected to change after the fact — it's how
-[Technical Docs](../../../apps/tech-docs/README.md) shows, at a glance, which spikes are still owed
+[Technical Docs](../../../apps/tech-docs/README.md) shows, at a glance, which decisions are still owed
 work. If this report reverses an earlier one, also set that earlier report's `decision:` to
 `superseded` and its `supersededBy:` to this file — see
-[docs/spikes/README.md](../../../docs/spikes/README.md#-superseding-a-decision).
+[docs/decisions/README.md](../../../docs/decisions/README.md#-superseding-a-decision).
 
 **Never comment on the issue.** The report is reachable without one: its filename carries the issue
 number, and the PR that lands it references the issue. An issue comment adds a notification and a
 second copy of the answer that can drift from the file.
 
-Closing is outward-facing, so show the user before running it, and only once they confirm the spike
-is fully resolved — a spike report can exist for a spike whose issue stays open for follow-up work.
-Usually the PR closes the issue anyway, which makes this unnecessary:
+Closing is outward-facing, so show the user before running it, and only once they confirm the
+decision is fully resolved — a decision report can exist for a spike whose issue stays open for
+follow-up work. Usually the PR closes the issue anyway, which makes this unnecessary:
 
 ```sh
 gh issue close <n>

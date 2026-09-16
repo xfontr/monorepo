@@ -11,9 +11,9 @@ const PAGES = [
     { path: "/docs/concepts/boundaries", title: "🧱 Why the boundary system exists" },
     { path: "/docs/reviews/scorecards", title: "🎯 Scorecards" },
     { path: "/docs/reviews/2026-09-05-abcb17d", title: "📊 Review — 2026-09-05" },
-    { path: "/docs/spikes/readme", title: "🧭 Spikes" },
-    { path: "/docs/spikes/template", title: "🧭" },
-    { path: "/docs/spikes/0001-feature-discoverability", title: "🧭 Making the repo's feature surface discoverable" },
+    { path: "/docs/decisions/readme", title: "🧭 Decisions" },
+    { path: "/docs/decisions/template", title: "🧭" },
+    { path: "/docs/decisions/0001-feature-discoverability", title: "🧭 Making the repo's feature surface discoverable" },
     { path: "/packages/ui/readme", title: "📦 @monorepo/ui" },
     { path: "/packages/ui/claude", title: "🤖 @monorepo/ui" },
     { path: "/packages/ui/changelog", title: "CHANGELOG" },
@@ -54,18 +54,18 @@ describe("buildWiki", () => {
         expect(labelsIn("agents", "skills")).toEqual(["Writing docs here"]);
     });
 
-    it("drops the changelogs, the dated reviews and the spike reports, which have pages of their own in this app", () => {
+    it("drops the changelogs, the dated reviews and the decision reports, which have pages of their own in this app", () => {
         const paths = buildWiki(PAGES).flatMap((section) => section.groups.flatMap((group) => group.entries.map((entry) => entry.path)));
 
         expect(paths).not.toContain("/packages/ui/changelog");
         expect(paths).not.toContain("/docs/reviews/2026-09-05-abcb17d");
-        expect(paths).not.toContain("/docs/spikes/0001-feature-discoverability");
+        expect(paths).not.toContain("/docs/decisions/0001-feature-discoverability");
     });
 
     it("drops a TEMPLATE, whose placeholder heading survives @nuxt/content as a blank or truncated title", () => {
         const paths = buildWiki(PAGES).flatMap((section) => section.groups.flatMap((group) => group.entries.map((entry) => entry.path)));
 
-        expect(paths).not.toContain("/docs/spikes/template");
+        expect(paths).not.toContain("/docs/decisions/template");
     });
 
     it("keeps the rubric, which is a doc about how a review is written rather than a review", () => {
@@ -73,7 +73,7 @@ describe("buildWiki", () => {
     });
 
     it("sorts the docs tree's own pages above its subdirectories, so the map comes before the territory", () => {
-        expect(sectionOf("docs")?.groups.map((group) => group.key)).toEqual(["docs", "concepts", "guides", "spikes", "reviews"]);
+        expect(sectionOf("docs")?.groups.map((group) => group.key)).toEqual(["docs", "concepts", "guides", "decisions", "reviews"]);
     });
 
     it("files a package under its own 'Packages' section, not a shared 'Projects' one", () => {
@@ -88,8 +88,8 @@ describe("buildWiki", () => {
         expect(buildWiki([{ path: "/readme", title: "Monorepo" }]).map((section) => section.id)).toEqual(["workspace"]);
     });
 
-    it("keeps the spikes rubric, which is a doc about how a report is written rather than a report", () => {
-        expect(labelsIn("docs", "spikes")).toEqual(["Overview"]);
+    it("keeps the decisions rubric, which is a doc about how a report is written rather than a report", () => {
+        expect(labelsIn("docs", "decisions")).toEqual(["Overview"]);
     });
 });
 

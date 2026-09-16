@@ -1,25 +1,25 @@
-import type { DocPage, SpikeDecision, SpikeStatus } from "./types.ts";
-import { SPIKE_STATUSES } from "./spikes.ts";
+import type { DecisionOutcome, DecisionStatus, DocPage } from "./types.ts";
+import { DECISION_STATUSES } from "./decisions.ts";
 import { stripLeadingEmoji } from "./wiki.ts";
 
-export interface SpikeReport {
-    /** The repo path, `docs/spikes/0009-comment-discipline.md`. */
+export interface DecisionReport {
+    /** The repo path, `docs/decisions/0009-comment-discipline.md`. */
     path: string
-    /** The filename without its extension — the segment the `/spikes/:id` route carries. */
+    /** The filename without its extension — the segment the `/decisions/:id` route carries. */
     id: string
     number: string
     title: string
-    status: SpikeStatus | null
-    decision: SpikeDecision | null
+    status: DecisionStatus | null
+    decision: DecisionOutcome | null
     supersededBy: string | null
     updatedAt: string | null
     words: number
 }
 
 /** Everything the collector already parsed off a report's frontmatter, as one row per file. */
-export function toSpikeReports(pages: DocPage[]): SpikeReport[] {
+export function toDecisionReports(pages: DocPage[]): DecisionReport[] {
     return pages
-        .filter((page) => page.kind === "spike")
+        .filter((page) => page.kind === "decision")
         .map((page) => {
             const id = (page.path.split("/").at(-1) ?? page.path).replace(/\.md$/i, "");
 
@@ -28,22 +28,22 @@ export function toSpikeReports(pages: DocPage[]): SpikeReport[] {
                 id,
                 number: id.slice(0, 4),
                 title: stripLeadingEmoji(page.title),
-                status: page.spikeStatus,
-                decision: page.spikeDecision,
-                supersededBy: page.spikeSupersededBy,
+                status: page.decisionStatus,
+                decision: page.decisionOutcome,
+                supersededBy: page.decisionSupersededBy,
                 updatedAt: page.updatedAt,
                 words: page.words,
             };
         });
 }
 
-export interface SpikeFilter {
-    status?: SpikeStatus | "all"
-    decision?: SpikeDecision | "all"
+export interface DecisionReportFilter {
+    status?: DecisionStatus | "all"
+    decision?: DecisionOutcome | "all"
     search?: string
 }
 
-export function filterSpikes(reports: SpikeReport[], filter: SpikeFilter): SpikeReport[] {
+export function filterDecisions(reports: DecisionReport[], filter: DecisionReportFilter): DecisionReport[] {
     const needle = filter.search?.trim().toLowerCase() ?? "";
 
     return reports.filter((report) => {
@@ -55,22 +55,22 @@ export function filterSpikes(reports: SpikeReport[], filter: SpikeFilter): Spike
     });
 }
 
-export const SPIKE_SORTS = ["newest", "oldest", "updated", "status"] as const;
+export const DECISION_SORTS = ["newest", "oldest", "updated", "status"] as const;
 
-export type SpikeSort = typeof SPIKE_SORTS[number];
+export type DecisionSort = typeof DECISION_SORTS[number];
 
 /** A report whose `status` didn't parse sorts last rather than under a guessed value. */
-function statusRank(status: SpikeStatus | null): number {
-    return status === null ? SPIKE_STATUSES.length : SPIKE_STATUSES.indexOf(status);
+function statusRank(status: DecisionStatus | null): number {
+    return status === null ? DECISION_STATUSES.length : DECISION_STATUSES.indexOf(status);
 }
 
-// The number is zero-padded to four digits by the naming rule in `docs/spikes/README.md`, so
+// The number is zero-padded to four digits by the naming rule in `docs/decisions/README.md`, so
 // comparing it as a string is comparing it as a number.
-function byNumberDescending(a: SpikeReport, b: SpikeReport): number {
+function byNumberDescending(a: DecisionReport, b: DecisionReport): number {
     return b.number.localeCompare(a.number);
 }
 
-export function sortSpikes(reports: SpikeReport[], sort: SpikeSort): SpikeReport[] {
+export function sortDecisions(reports: DecisionReport[], sort: DecisionSort): DecisionReport[] {
     return reports.slice().sort((a, b) => {
         if (sort === "oldest") return a.number.localeCompare(b.number);
         if (sort === "updated") return (b.updatedAt ?? "").localeCompare(a.updatedAt ?? "") || byNumberDescending(a, b);
@@ -81,8 +81,8 @@ export function sortSpikes(reports: SpikeReport[], sort: SpikeSort): SpikeReport
 }
 
 /** Seeded from the vocabulary rather than from the reports, so a status nothing carries yet still shows its zero. */
-export function countByStatus(reports: SpikeReport[]): Record<SpikeStatus, number> {
-    const counts = Object.fromEntries(SPIKE_STATUSES.map((status) => [status, 0])) as Record<SpikeStatus, number>;
+export function countByStatus(reports: DecisionReport[]): Record<DecisionStatus, number> {
+    const counts = Object.fromEntries(DECISION_STATUSES.map((status) => [status, 0])) as Record<DecisionStatus, number>;
 
     for (const report of reports) {
         if (report.status !== null) counts[report.status] += 1;

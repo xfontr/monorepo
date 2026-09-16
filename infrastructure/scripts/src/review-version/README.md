@@ -23,7 +23,7 @@ domain/manifest.ts      the digest, the parse and the in-place rewrite — the o
 
 `SCORECARDS.md` carried a version of its own, and the other three carried nothing — so editing the
 skill or the fact collector moved every future score while the history table went on reading `v1`.
-[`0012-review-rubric-validity.md`](../../../../docs/spikes/0012-review-rubric-validity.md) measured
+[`0012-review-rubric-validity.md`](../../../../docs/decisions/0012-review-rubric-validity.md) measured
 that gap; this closes it.
 
 | Artifact | Decides |

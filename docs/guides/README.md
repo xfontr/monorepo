@@ -5,7 +5,7 @@ explains a constraint, a guide here walks a procedure — numbered steps are the
 folder, and a sign a file belongs in `concepts/` instead.
 
 Same ownership rule as the rest of `docs/`, from
-[spike 0001](../spikes/0001-feature-discoverability.md):
+[decision 0001](../decisions/0001-feature-discoverability.md):
 
 > A subject enters `docs/` only if no single project owns it.
 
@@ -29,4 +29,4 @@ story.
 | Later need | What changes |
 | --- | --- |
 | A guide that's really just one project's README restated | Delete it and link to that README — this folder existing doesn't change the ownership rule |
-| Enough of these that scanning the directory stops being enough | Add an index table here, same fix `docs/spikes/README.md` names for itself |
+| Enough of these that scanning the directory stops being enough | Add an index table here, same fix `docs/decisions/README.md` names for itself |

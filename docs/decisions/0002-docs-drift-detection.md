@@ -56,7 +56,7 @@ three layers are additive to what exists.
 
 Scheduled `repo-review` stays deferred: it needs a run environment outside GitHub Actions (there is
 no Claude/agent execution in `.github/workflows/` today), and the three layers above already cover
-every drift case found during this spike. Revisit it if a future review's Docs card catches a
+every drift case found during this decision. Revisit it if a future review's Docs card catches a
 contradiction none of the three layers would have — that's the signal that structural checks have
 hit their ceiling and a slower, prose-level pass earns its cost.
 

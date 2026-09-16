@@ -1,41 +1,41 @@
 import { describe, expect, it } from "vitest";
 import type { DocPage } from "./types.ts";
-import { countByStatus, filterSpikes, sortSpikes, toSpikeReports } from "./spikeReports.ts";
+import { countByStatus, filterDecisions, sortDecisions, toDecisionReports } from "./decisionReports.ts";
 
 function page(path: string, overrides: Partial<DocPage> = {}): DocPage {
     return {
         path,
         project: null,
-        kind: "spike",
-        title: "🧭 A spike",
+        kind: "decision",
+        title: "🧭 A decision",
         headings: [],
         words: 100,
         updatedAt: null,
         deferred: false,
-        spikeStatus: "to-implement",
-        spikeDecision: "accepted",
-        spikeSupersededBy: null,
+        decisionStatus: "to-implement",
+        decisionOutcome: "accepted",
+        decisionSupersededBy: null,
         brokenLinks: [],
         ...overrides,
     };
 }
 
 const PAGES: DocPage[] = [
-    page("docs/spikes/0001-feature-discoverability.md", { title: "🧭 Making the feature surface discoverable", spikeStatus: "implemented", updatedAt: "2026-01-04T00:00:00Z" }),
-    page("docs/spikes/0002-docs-drift-detection.md", { title: "🧭 Catching docs drift", spikeStatus: "wont-implement", updatedAt: "2026-03-02T00:00:00Z" }),
-    page("docs/spikes/0003-coverage-report-merge.md", { title: "🧭 Merging the coverage reports", spikeStatus: null, spikeDecision: null, updatedAt: "2026-02-01T00:00:00Z" }),
-    page("docs/spikes/0004-scripts-architecture.md", { title: "🧭 The scripts architecture", spikeDecision: "superseded", spikeSupersededBy: "0005-later.md", updatedAt: "2026-01-01T00:00:00Z" }),
-    page("docs/spikes/README.md", { kind: "doc", title: "🧭 Spikes" }),
+    page("docs/decisions/0001-feature-discoverability.md", { title: "🧭 Making the feature surface discoverable", decisionStatus: "implemented", updatedAt: "2026-01-04T00:00:00Z" }),
+    page("docs/decisions/0002-docs-drift-detection.md", { title: "🧭 Catching docs drift", decisionStatus: "wont-implement", updatedAt: "2026-03-02T00:00:00Z" }),
+    page("docs/decisions/0003-coverage-report-merge.md", { title: "🧭 Merging the coverage reports", decisionStatus: null, decisionOutcome: null, updatedAt: "2026-02-01T00:00:00Z" }),
+    page("docs/decisions/0004-scripts-architecture.md", { title: "🧭 The scripts architecture", decisionOutcome: "superseded", decisionSupersededBy: "0005-later.md", updatedAt: "2026-01-01T00:00:00Z" }),
+    page("docs/decisions/README.md", { kind: "doc", title: "🧭 Decisions" }),
     page("docs/guides/first-hour.md", { kind: "doc", title: "🌱 First hour" }),
 ];
 
-const REPORTS = toSpikeReports(PAGES);
+const REPORTS = toDecisionReports(PAGES);
 
 function numbersOf(reports: { number: string }[]): string[] {
     return reports.map((report) => report.number);
 }
 
-describe("toSpikeReports", () => {
+describe("toDecisionReports", () => {
     it("takes only the numbered reports, so the rubric beside them isn't listed as a decision", () => {
         expect(numbersOf(REPORTS)).toEqual(["0001", "0002", "0003", "0004"]);
     });
@@ -49,49 +49,49 @@ describe("toSpikeReports", () => {
     });
 });
 
-describe("filterSpikes", () => {
+describe("filterDecisions", () => {
     it("narrows to one status, which is the question the section is opened with", () => {
-        expect(numbersOf(filterSpikes(REPORTS, { status: "implemented" }))).toEqual(["0001"]);
+        expect(numbersOf(filterDecisions(REPORTS, { status: "implemented" }))).toEqual(["0001"]);
     });
 
     it("narrows to superseded reports, the axis a status filter cannot answer", () => {
-        expect(numbersOf(filterSpikes(REPORTS, { decision: "superseded" }))).toEqual(["0004"]);
+        expect(numbersOf(filterDecisions(REPORTS, { decision: "superseded" }))).toEqual(["0004"]);
     });
 
     it("matches the number, so a report cited as 0002 elsewhere is reachable by typing it", () => {
-        expect(numbersOf(filterSpikes(REPORTS, { search: "0002" }))).toEqual(["0002"]);
+        expect(numbersOf(filterDecisions(REPORTS, { search: "0002" }))).toEqual(["0002"]);
     });
 
     it("matches the title regardless of case, which is how a half-remembered subject is searched", () => {
-        expect(numbersOf(filterSpikes(REPORTS, { search: "DRIFT" }))).toEqual(["0002"]);
+        expect(numbersOf(filterDecisions(REPORTS, { search: "DRIFT" }))).toEqual(["0002"]);
     });
 
     it("keeps everything when nothing is asked of it, rather than an empty list under a blank search", () => {
-        expect(filterSpikes(REPORTS, { status: "all", decision: "all", search: "  " })).toHaveLength(4);
+        expect(filterDecisions(REPORTS, { status: "all", decision: "all", search: "  " })).toHaveLength(4);
     });
 });
 
-describe("sortSpikes", () => {
+describe("sortDecisions", () => {
     it("puts the newest decision first by number, not by when the file was last touched", () => {
-        expect(numbersOf(sortSpikes(REPORTS, "newest"))).toEqual(["0004", "0003", "0002", "0001"]);
+        expect(numbersOf(sortDecisions(REPORTS, "newest"))).toEqual(["0004", "0003", "0002", "0001"]);
     });
 
     it("reads in the order the decisions were made when asked for oldest first", () => {
-        expect(numbersOf(sortSpikes(REPORTS, "oldest"))).toEqual(["0001", "0002", "0003", "0004"]);
+        expect(numbersOf(sortDecisions(REPORTS, "oldest"))).toEqual(["0001", "0002", "0003", "0004"]);
     });
 
     it("sorts by last commit, so a report edited long after it was filed surfaces", () => {
-        expect(numbersOf(sortSpikes(REPORTS, "updated"))).toEqual(["0002", "0003", "0001", "0004"]);
+        expect(numbersOf(sortDecisions(REPORTS, "updated"))).toEqual(["0002", "0003", "0001", "0004"]);
     });
 
     it("groups by status in the order the vocabulary lists them, unparsed last rather than under a guess", () => {
-        expect(numbersOf(sortSpikes(REPORTS, "status"))).toEqual(["0004", "0001", "0002", "0003"]);
+        expect(numbersOf(sortDecisions(REPORTS, "status"))).toEqual(["0004", "0001", "0002", "0003"]);
     });
 
     it("leaves the reports it was handed untouched, so a sorted view never reorders the source", () => {
         const before = numbersOf(REPORTS);
 
-        sortSpikes(REPORTS, "oldest");
+        sortDecisions(REPORTS, "oldest");
 
         expect(numbersOf(REPORTS)).toEqual(before);
     });

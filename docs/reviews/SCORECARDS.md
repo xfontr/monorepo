@@ -106,7 +106,7 @@ alike; what happens on a failed fetch, a missing env var, a malformed vendor pay
 
 Every cap here is a grep, so the card cannot move on judgement alone — a package written without
 supervision costs it nothing as long as the greps come back clean.
-[`0012`](../spikes/0012-review-rubric-validity.md) found that and records why the one mechanism that
+[`0012`](../decisions/0012-review-rubric-validity.md) found that and records why the one mechanism that
 would have closed it was rejected; read this card's score as surface hygiene until it has one.
 
 ### 🧪 3. Testing — weight 15
@@ -194,19 +194,19 @@ encodes what a README already says (it should link, not restate); the `deny` lis
 
 ### 📋 7. Process & delivery — weight 10
 
-Whether the work is traceable without asking the author. Issues for what's known, spike reports
+Whether the work is traceable without asking the author. Issues for what's known, decision reports
 for the forks that got resolved, commit messages whose type matches what the commit did, and a
 release trail that was derived rather than typed.
 
 Look at: `gh issue list` and `gh issue list --state closed --label spike` against
-[`docs/spikes/`](../spikes/README.md); `git log --oneline -40` for types that don't match their
+[`docs/decisions/`](../decisions/README.md); `git log --oneline -40` for types that don't match their
 diffs; whether the markers the [push gate](../../.husky/pre-push) rejects were filed as issues or
 just deleted; branches and versions against the [release rules](../../README.md#-versioning).
 
 | Caps the card at | When |
 | --- | --- |
 | 1 | A version or a `CHANGELOG.md` was edited by hand |
-| 3 | A resolved architectural fork has no spike report |
+| 3 | A resolved architectural fork has no decision report |
 | 3 | Commit types don't match their diffs, so the derived version is wrong |
 | 4 | Known work exists only in a branch name or in the author's head |
 

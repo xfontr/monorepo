@@ -72,17 +72,17 @@ shortest statement of how a task is meant to go here.
 
 | Capability | Declared in | Explained in |
 | --- | --- | --- |
-| `/comment-cleanup` | [`.claude/skills/comment-cleanup/SKILL.md`](../.claude/skills/comment-cleanup/SKILL.md) | [`docs/spikes/0009-comment-discipline.md`](../docs/spikes/0009-comment-discipline.md) |
-| `/doc-drift-check` | [`.claude/skills/doc-drift-check/SKILL.md`](../.claude/skills/doc-drift-check/SKILL.md) | [`docs/spikes/0001-feature-discoverability.md`](../docs/spikes/0001-feature-discoverability.md) |
+| `/comment-cleanup` | [`.claude/skills/comment-cleanup/SKILL.md`](../.claude/skills/comment-cleanup/SKILL.md) | [`docs/decisions/0009-comment-discipline.md`](../docs/decisions/0009-comment-discipline.md) |
+| `/decision-report` | [`.claude/skills/decision-report/SKILL.md`](../.claude/skills/decision-report/SKILL.md) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
+| `/doc-drift-check` | [`.claude/skills/doc-drift-check/SKILL.md`](../.claude/skills/doc-drift-check/SKILL.md) | [`docs/decisions/0001-feature-discoverability.md`](../docs/decisions/0001-feature-discoverability.md) |
 | `/github-issue` | [`.claude/skills/github-issue/SKILL.md`](../.claude/skills/github-issue/SKILL.md) | [`infrastructure/scripts/src/issue/README.md`](../infrastructure/scripts/src/issue/README.md) |
-| `/house-docs` | [`.claude/skills/house-docs/SKILL.md`](../.claude/skills/house-docs/SKILL.md) | [`docs/spikes/0001-feature-discoverability.md`](../docs/spikes/0001-feature-discoverability.md) |
+| `/house-docs` | [`.claude/skills/house-docs/SKILL.md`](../.claude/skills/house-docs/SKILL.md) | [`docs/decisions/0001-feature-discoverability.md`](../docs/decisions/0001-feature-discoverability.md) |
 | `/new-package` | [`.claude/skills/new-package/SKILL.md`](../.claude/skills/new-package/SKILL.md) | [`infrastructure/scripts/src/drift/README.md`](../infrastructure/scripts/src/drift/README.md) |
-| `/nuxt-module-route` | [`.claude/skills/nuxt-module-route/SKILL.md`](../.claude/skills/nuxt-module-route/SKILL.md) | [`docs/spikes/0013-linter-coverage.md`](../docs/spikes/0013-linter-coverage.md) |
+| `/nuxt-module-route` | [`.claude/skills/nuxt-module-route/SKILL.md`](../.claude/skills/nuxt-module-route/SKILL.md) | [`docs/decisions/0013-linter-coverage.md`](../docs/decisions/0013-linter-coverage.md) |
 | `/repo-review` | [`.claude/skills/repo-review/SKILL.md`](../.claude/skills/repo-review/SKILL.md) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
-| `/spike-report` | [`.claude/skills/spike-report/SKILL.md`](../.claude/skills/spike-report/SKILL.md) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
 | `/start-issue` | [`.claude/skills/start-issue/SKILL.md`](../.claude/skills/start-issue/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/writing-tests` | [`.claude/skills/writing-tests/SKILL.md`](../.claude/skills/writing-tests/SKILL.md) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `/content:new-vendor` | [`packages/content/.claude/skills/new-vendor/SKILL.md`](../packages/content/.claude/skills/new-vendor/SKILL.md) | [`infrastructure/scripts/src/map/README.md`](../infrastructure/scripts/src/map/README.md) |
 | `/i18n:new-vendor` | [`packages/i18n/.claude/skills/new-vendor/SKILL.md`](../packages/i18n/.claude/skills/new-vendor/SKILL.md) | [`packages/i18n/CLAUDE.md`](../packages/i18n/CLAUDE.md) |
-| `/ui:new-component` | [`packages/ui/.claude/skills/new-component/SKILL.md`](../packages/ui/.claude/skills/new-component/SKILL.md) | [`packages/ui/CLAUDE.md`](../packages/ui/CLAUDE.md) |
-| `/scripts:new-script` | [`infrastructure/scripts/.claude/skills/new-script/SKILL.md`](../infrastructure/scripts/.claude/skills/new-script/SKILL.md) | [`infrastructure/scripts/CLAUDE.md`](../infrastructure/scripts/CLAUDE.md) |
+| `/ui:new-component` | [`packages/ui/.claude/skills/new-component/SKILL.md`](../packages/ui/.claude/skills/new-component/SKILL.md) | [`docs/decisions/0016-tech-docs-self-service.md`](../docs/decisions/0016-tech-docs-self-service.md) |
+| `/scripts:new-script` | [`infrastructure/scripts/.claude/skills/new-script/SKILL.md`](../infrastructure/scripts/.claude/skills/new-script/SKILL.md) | [`docs/decisions/0016-tech-docs-self-service.md`](../docs/decisions/0016-tech-docs-self-service.md) |

@@ -4,7 +4,7 @@ import { matchesIssue, matchesLabel } from "./search.ts";
 const ISSUE = {
     number: 63,
     title: "Gracefully handle pnpm dev for a first-time clone",
-    labels: ["enhancement", "spike"],
+    labels: ["enhancement", "decision"],
 };
 
 describe("matchesIssue", () => {
@@ -17,10 +17,10 @@ describe("matchesIssue", () => {
         expect(matchesIssue(ISSUE, "CLONE")).toBe(true);
     });
 
-    // Otherwise narrowing a board to its spikes needs a second prompt, which is the filter this
+    // Otherwise narrowing a board to its decisions needs a second prompt, which is the filter this
     // deliberately doesn't have.
     it("finds it by a label, so a board narrows to one kind of work without another prompt", () => {
-        expect(matchesIssue(ISSUE, "spike")).toBe(true);
+        expect(matchesIssue(ISSUE, "decision")).toBe(true);
     });
 
     it("excludes an issue matching nothing, so the list can reach empty rather than never narrow", () => {

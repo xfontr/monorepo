@@ -8,8 +8,8 @@ import { resolveDocLink } from "./docLinks.ts";
 const COLLECTED = new Set([
     "README.md",
     "docs/README.md",
-    "docs/spikes/README.md",
-    "docs/spikes/0011-docs-system-enforcement.md",
+    "docs/decisions/README.md",
+    "docs/decisions/0011-docs-system-enforcement.md",
     "apps/tech-docs/README.md",
     ".claude/skills/writing-tests/SKILL.md",
     ".claude/skills/house-docs/SKILL",
@@ -20,7 +20,7 @@ const isPage = (path: string): boolean => COLLECTED.has(path);
 /** `CLAUDE.md` at the repo root, whose links are relative to the root itself. */
 const ROOT = "CLAUDE.md";
 
-const SPIKE = "docs/spikes/0014-tech-docs-deployment.md";
+const DECISION = "docs/decisions/0014-tech-docs-deployment.md";
 
 describe("resolveDocLink", () => {
     it("routes a markdown sibling to its lower-cased collection path, not the name on disk", () => {
@@ -28,18 +28,18 @@ describe("resolveDocLink", () => {
     });
 
     it("resolves a markdown link against the linking file's directory rather than the route", () => {
-        expect(resolveDocLink("./0011-docs-system-enforcement.md", SPIKE, isPage))
-            .toBe("/docs/docs/spikes/0011-docs-system-enforcement");
+        expect(resolveDocLink("./0011-docs-system-enforcement.md", DECISION, isPage))
+            .toBe("/docs/docs/decisions/0011-docs-system-enforcement");
     });
 
     it("walks out of the directory on `..` so a cross-tree link lands in the right place", () => {
-        expect(resolveDocLink("../../apps/tech-docs/README.md", SPIKE, isPage))
+        expect(resolveDocLink("../../apps/tech-docs/README.md", DECISION, isPage))
             .toBe("/docs/apps/tech-docs/readme");
     });
 
     it("keeps an anchor, which names a heading on the page it just resolved", () => {
-        expect(resolveDocLink("./README.md#-numbering", SPIKE, isPage))
-            .toBe("/docs/docs/spikes/readme#-numbering");
+        expect(resolveDocLink("./README.md#-numbering", DECISION, isPage))
+            .toBe("/docs/docs/decisions/readme#-numbering");
     });
 
     it("sends a file the collection never renders to the repo instead of a route", () => {
@@ -58,7 +58,7 @@ describe("resolveDocLink", () => {
     });
 
     it("treats a leading slash as repo-root-relative, not directory-relative", () => {
-        expect(resolveDocLink("/docs/README.md", SPIKE, isPage)).toBe("/docs/docs/readme");
+        expect(resolveDocLink("/docs/README.md", DECISION, isPage)).toBe("/docs/docs/readme");
     });
 
     it("leaves a link nothing here owns to the renderer's own handling", () => {
@@ -69,7 +69,7 @@ describe("resolveDocLink", () => {
     });
 
     it("ignores a template's `<placeholder>`, which is instructions rather than a link", () => {
-        expect(resolveDocLink("<new-file>.md", "docs/spikes/TEMPLATE.md", isPage)).toBeNull();
+        expect(resolveDocLink("<new-file>.md", "docs/decisions/TEMPLATE.md", isPage)).toBeNull();
     });
 
     it("routes an extension-less target the collection knows, since these docs may omit `.md`", () => {

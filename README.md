@@ -36,7 +36,7 @@ skill in the repo, which is the shortest answer to "what is in here".
 [`docs/concepts/`](./docs/concepts/README.md) holds the *why* behind a model that spans projects —
 the boundary table above is one; [`docs/guides/`](./docs/guides/README.md) holds the cross-project
 procedures, first hour in the repo included.
-[`docs/spikes/`](./docs/spikes/README.md) holds the answer once a spike issue gets one — the
+[`docs/decisions/`](./docs/decisions/README.md) holds the answer once a spike issue gets one — the
 issue is where the question lived, not where the outcome should have to survive.
 [`docs/reviews/`](./docs/reviews/README.md) scores the whole tree against a fixed rubric, one dated
 file per review, so that "is this getting better" has an answer that isn't a feeling.

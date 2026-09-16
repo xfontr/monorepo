@@ -127,7 +127,7 @@ would have is rejected below, so every cap in the rubric stays a greppable predi
 
 Cards 1 and 2 carry 40 points on the stated grounds that *"those two are what a rewrite costs"*.
 Until a card can move on judgement, that weighting is asserted rather than earned, and every total
-— the three existing ones and every one after this spike — should be read as a measure of surface
+— the three existing ones and every one after this decision — should be read as a measure of surface
 hygiene rather than of architecture. Rejecting the attestation leaves that gap open rather than
 narrowing it, which is the price of not putting a person in the loop.
 

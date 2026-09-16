@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import type { SpikeDecision, SpikeStatus } from "#shared/types.ts";
-import type { SpikeSort } from "#shared/spikeReports.ts";
-import { countByStatus, filterSpikes, sortSpikes } from "#shared/spikeReports.ts";
-import { SPIKE_DECISIONS, SPIKE_STATUSES } from "#shared/spikes.ts";
+import type { DecisionOutcome, DecisionStatus } from "#shared/types.ts";
+import type { DecisionSort } from "#shared/decisionReports.ts";
+import { countByStatus, filterDecisions, sortDecisions } from "#shared/decisionReports.ts";
+import { DECISION_OUTCOMES, DECISION_STATUSES } from "#shared/decisions.ts";
 
 const { data: snapshot } = await useSnapshot();
-const reports = useSpikeReports();
+const reports = useDecisionReports();
 
-const status = ref<SpikeStatus | "all">("all");
-const decision = ref<SpikeDecision | "all">("all");
+const status = ref<DecisionStatus | "all">("all");
+const decision = ref<DecisionOutcome | "all">("all");
 const search = ref("");
-const sort = ref<SpikeSort>("newest");
+const sort = ref<DecisionSort>("newest");
 
-const visible = computed(() => sortSpikes(
-    filterSpikes(reports.value, { status: status.value, decision: decision.value, search: search.value }),
+const visible = computed(() => sortDecisions(
+    filterDecisions(reports.value, { status: status.value, decision: decision.value, search: search.value }),
     sort.value,
 ));
 
@@ -21,15 +21,15 @@ const counts = computed(() => countByStatus(reports.value));
 
 const statusItems = [
     { label: "Every status", value: "all" },
-    ...SPIKE_STATUSES.map((value) => ({ label: spikeStatusLabel(value), value })),
+    ...DECISION_STATUSES.map((value) => ({ label: decisionStatusLabel(value), value })),
 ];
 
 const decisionItems = [
     { label: "Every decision", value: "all" },
-    ...SPIKE_DECISIONS.map((value) => ({ label: spikeDecisionLabel(value), value })),
+    ...DECISION_OUTCOMES.map((value) => ({ label: decisionOutcomeLabel(value), value })),
 ];
 
-const sortItems: { label: string, value: SpikeSort }[] = [
+const sortItems: { label: string, value: DecisionSort }[] = [
     { label: "Newest first", value: "newest" },
     { label: "Oldest first", value: "oldest" },
     { label: "Recently updated", value: "updated" },
@@ -38,15 +38,15 @@ const sortItems: { label: string, value: SpikeSort }[] = [
 </script>
 
 <template>
-    <UDashboardPanel id="spikes">
+    <UDashboardPanel id="decisions">
         <template #header>
-            <UDashboardNavbar title="Spikes">
+            <UDashboardNavbar title="Decisions">
                 <template #leading>
                     <UDashboardSidebarCollapse />
                 </template>
                 <template #right>
                     <UButton
-                        to="/docs/docs/spikes/readme"
+                        to="/docs/docs/decisions/readme"
                         label="How a report is written"
                         icon="i-lucide-ruler"
                         color="neutral"
@@ -106,10 +106,10 @@ const sortItems: { label: string, value: SpikeSort }[] = [
                     class="size-8 text-dimmed mx-auto mb-2"
                 />
                 <p class="text-sm text-muted">
-                    Nothing collected under <code class="font-mono">docs/spikes/</code> yet.
+                    Nothing collected under <code class="font-mono">docs/decisions/</code> yet.
                 </p>
                 <p class="text-xs text-dimmed mt-1">
-                    The <code class="font-mono">spike-report</code> skill writes them, one numbered file per decision;
+                    The <code class="font-mono">decision-report</code> skill writes them, one numbered file per decision;
                     <code class="font-mono">pnpm exec nx collect @monorepo/tech-docs</code> is what reads them in.
                 </p>
             </div>
@@ -126,22 +126,22 @@ const sortItems: { label: string, value: SpikeSort }[] = [
                         icon="i-lucide-compass"
                     />
                     <StatTile
-                        :label="spikeStatusLabel('to-implement')"
+                        :label="decisionStatusLabel('to-implement')"
                         :value="counts['to-implement']"
                         hint="decided, not in the repo yet"
-                        :tone="spikeStatusTone('to-implement')"
+                        :tone="decisionStatusTone('to-implement')"
                     />
                     <StatTile
-                        :label="spikeStatusLabel('implemented')"
+                        :label="decisionStatusLabel('implemented')"
                         :value="counts.implemented"
                         hint="the work has landed"
-                        :tone="spikeStatusTone('implemented')"
+                        :tone="decisionStatusTone('implemented')"
                     />
                     <StatTile
-                        :label="spikeStatusLabel('wont-implement')"
+                        :label="decisionStatusLabel('wont-implement')"
                         :value="counts['wont-implement']"
                         hint="decided against, deliberately"
-                        :tone="spikeStatusTone('wont-implement')"
+                        :tone="decisionStatusTone('wont-implement')"
                     />
                 </div>
 
@@ -178,7 +178,7 @@ const sortItems: { label: string, value: SpikeSort }[] = [
                         <NuxtLink
                             v-for="report in visible"
                             :key="report.path"
-                            :to="`/spikes/${report.id}`"
+                            :to="`/decisions/${report.id}`"
                             class="flex items-center gap-3 px-4 py-2.5 hover:bg-elevated/40 transition-colors"
                         >
                             <span class="text-xs font-mono text-dimmed shrink-0">{{ report.number }}</span>
@@ -186,14 +186,14 @@ const sortItems: { label: string, value: SpikeSort }[] = [
 
                             <StatusPill
                                 v-if="report.decision === 'superseded'"
-                                :label="spikeDecisionLabel(report.decision)"
+                                :label="decisionOutcomeLabel(report.decision)"
                                 tone="bad"
                                 :hint="`Superseded by ${report.supersededBy}`"
                             />
                             <StatusPill
                                 v-if="report.status"
-                                :label="spikeStatusLabel(report.status)"
-                                :tone="spikeStatusTone(report.status)"
+                                :label="decisionStatusLabel(report.status)"
+                                :tone="decisionStatusTone(report.status)"
                             />
 
                             <span class="text-[11px] text-dimmed shrink-0 w-24 text-right">{{ relativeTime(report.updatedAt) }}</span>
