@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toCollectionPath } from "../../../shared/wiki.ts";
+import { toCollectionPath } from "#shared/wiki.ts";
 
 const { data: snapshot } = await useSnapshot();
 const { data: sections } = await useWiki();

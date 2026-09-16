@@ -5,25 +5,32 @@ The repo's own dashboard. It renders every markdown file in the workspace as a w
 things that are not written down anywhere: coverage, the project graph, the open GitHub issues,
 which two files have stopped agreeing.
 
-It runs locally only — `pnpm dev tech-docs` — and is never built or deployed. It reads the working
-tree and shells out to `git` and `gh`.
+It runs two ways. `pnpm dev tech-docs` reads the working tree and shells out to `git`, so it shows
+the branch you are on; the deployed site is a prerendered snapshot of `master`, published by
+[`docs-deploy.yml`](../../.github/workflows/docs-deploy.yml) — see
+[🚢 The deployed site is a snapshot](#-the-deployed-site-is-a-snapshot).
 
 ## 🗂 Structure
 
 | Path | What lives there |
 | --- | --- |
 | `app/` | The Nuxt UI dashboard — pages and components |
-| `server/api/` | The two reads the pages make: the collected snapshot, and `gh issue list` |
-| `shared/` | Pure logic — the wiki's shape, the issue rules, the spike vocabulary and the spike list's own filtering and counting. Imported by app, server and tools alike |
+| `server/api/` | The one read a page makes of this app itself: the collected snapshot. The issues come straight from GitHub to the browser |
+| `shared/` | Pure logic — the wiki's shape, the issue rules, the spike vocabulary, the spike list's own filtering and counting, and where a doc's link points. Imported by app, server and tools alike |
 | `tools/collect/` | Builds the derived snapshot: graph, coverage, metrics, docs, scorecards |
 | `tools/check-docs/` | The CI gate: the link check, the invariants and the spike rules, run over the whole tree and exit non-zero on a finding |
-| `tools/lib/` | Node-only helpers — paths, the `git` allowlist, the invariant checks |
+| `tools/lib/` | Node-only helpers — paths, the `git` allowlist, the invariant checks, and the remark plugin that rewrites a doc's links as it is parsed |
 
 ## 📄 The markdown is read in place
 
 [`content.config.ts`](./content.config.ts) points `@nuxt/content` at the **workspace root**, not at a
 copy inside this app. That is what makes the docs half free: the README you edit for GitHub is the
-same file this renders, so the two cannot drift, and a page's URL mirrors its path in the repo.
+same file this renders, and a page's URL mirrors its path in the repo.
+
+Under `pnpm dev tech-docs` that file is read where it lives, so the two cannot drift. A build bakes
+the whole corpus into the bundle instead, which is why the deployed site is only ever as fresh as its
+last deploy — [🚢 The deployed site is a snapshot](#-the-deployed-site-is-a-snapshot) is the rest of
+that.
 
 | Page | Reads |
 | --- | --- |
@@ -37,6 +44,35 @@ same file this renders, so the two cannot drift, and a page's URL mirrors its pa
 joining the two — a broken-link warning, an "updated 3 days ago" — goes through
 [`toCollectionPath`](./shared/wiki.ts) first. A hand-written `/docs/…/README` link matches nothing
 and fails silently, which is exactly how it went unnoticed the first time.
+
+The links *inside* a doc are written for GitHub and point at files, not routes — `./.husky/pre-push`,
+`../packages/ui/README.md`, a directory, a line range. Rendering them verbatim
+put 32 links on a hard 404 and another 33 on the wiki's own "No such page" at HTTP 200 —
+[`0014`](../../docs/spikes/0014-tech-docs-deployment.md) has the measurement. They cannot be fixed in
+the markdown, because on GitHub they are already correct.
+
+[`remarkDocLinks`](./tools/lib/remarkDocLinks.ts) rewrites each one **while the file is parsed**,
+which is the only moment both things it needs are in reach: the source file's own path, and a
+filesystem to ask. A target that is markdown on disk becomes a route; everything else becomes
+`repo:`, which [`ProseA`](./app/components/content/ProseA.vue) turns into a link to the forge once
+`NUXT_PUBLIC_REPO_URL` — runtime config, and so unknowable at parse time — is in hand.
+
+| The link says | It renders as | Because |
+| --- | --- | --- |
+| `../packages/ui/README.md` | `/docs/packages/ui/readme` | The collection lower-cases every route |
+| `./.husky/pre-push` | A link to the repo | A shell script is never a page here |
+| `./src/drift` | A link to the repo | Nothing answers to `src/drift.md`, so it is a directory |
+| `./SKILL.md:91-94` | The page, without the range | A line range narrows a file rather than naming another |
+| `./<file>.md` in a template | Plain text | A placeholder names no target, and a link onto "No such page" is the failure this whole pass removes |
+
+The third row is the one that needs the filesystem: a link may omit `.md` when a renderer routes it
+and [`checkLink`](./tools/collect/docs.ts) accepts that, so an extension-less target is a page or a
+directory and nothing in the href says which.
+
+Parse time is also what retires the route-table check `check-docs` briefly carried: a route is only
+ever emitted for a file the parser has just confirmed, so a link that resolves on disk and routes
+nowhere can no longer be built. A link to a *missing* file is still a real defect, and
+[`checkLink`](./tools/collect/docs.ts) still fails the build on it.
 
 A review's markdown is rendered as-is here, exactly like every other doc — nothing about it is
 recomputed. **Scorecards** is the one exception, and a narrow one: `tools/collect/scorecards.ts`
@@ -73,6 +109,12 @@ Labels are the one thing not taken verbatim: under a group already called `packa
 titled `📦 @monorepo/ui` says the name three times and the subject none, so it reads `Overview`. The
 real title is still the page's own heading.
 
+⌘K searches every README, `CLAUDE.md`, changelog, skill and doc, fed straight from the content
+collection so there is no second index to keep in step. It is fetched **on the first open**, not by
+the layout: the layout wraps every page, so an index built there rode in all 103 prerendered
+payloads and made them 725 KB each against 75 KB now. The cost lands where it is asked for — roughly
+a megabyte of chunk and SQLite WASM, once per reader, with a spinner while it arrives.
+
 ## 🔬 Spikes are their own section
 
 The wiki nav is derived from paths alone, so the one question a reader brings to a list of spikes —
@@ -95,17 +137,25 @@ list — which is the same staleness every other page here has, shown by the sam
 
 ## 🐙 Issues come from GitHub, not from here
 
-The Issues page runs `gh issue list --json` on the server and renders what comes back. There is no
-local copy, no `log/`, no schema: an issue's state lives on GitHub, and a second record of it in
-this repo would be a second answer to a question that already has one. This replaced a local todo
-list that was exactly that mistake.
+The Issues page reads `api.github.com` from the reader's own browser and renders what comes back.
+There is no local copy, no `log/`, no schema: an issue's state lives on GitHub, and a second record
+of it in this repo would be a second answer to a question that already has one. This replaced a local
+todo list that was exactly that mistake.
 
 | Decision | Why |
 | --- | --- |
-| `gh` on the server, never `fetch` in the browser | The CLI already holds a token. A page that asked for its own would be a credential this repo has to store somewhere |
-| One-minute memo in [`server/utils/issues.ts`](./server/utils/issues.ts) | `gh` takes about a second and every page showing an issue would otherwise pay it per navigation. The page's refresh button skips the window outright |
-| A failure is rendered, not thrown | No token, no network and no `gh` are facts about the machine. The page shows the CLI's own first line, which explains itself better than anything written here |
+| `fetch` in the browser, never `gh` on a server | The repo is public, so unauthenticated REST needs no credential — and a page that reads GitHub itself is a page that can be served as static files. A server existed only to hold the CLI's token |
+| The endpoint is derived from `NUXT_PUBLIC_REPO_URL` | GitHub's REST host is the repo's own with `api.` in front, so [`issuesApiUrl`](./shared/issues.ts) computes it and no vendor endpoint is written into this repo |
+| A failure is rendered, not thrown | No network and a spent rate limit are facts about the reader, not about the repo. The page shows GitHub's own message, which explains itself better than anything written here |
+| Pull requests are dropped | The REST issues endpoint returns both and `gh issue list` did not. [`toIssues`](./shared/issues.ts) filters on the `pull_request` key that only a PR carries |
 | Label names without their colours | GitHub's label palette is arbitrary and this app's is [three validated status roles](#-colour). Rendering one beside the other is how a page stops meaning anything |
+
+**The board a card sits on is gone, and is not coming back without a token.** `projectItems` is a
+GraphQL field, and GraphQL answers `403` unauthenticated — REST carries nothing about GitHub
+Projects. So the board badge, the board filter and the Overview's "filed and never placed" count were
+deleted rather than left to read `null`, which would have reported every open issue as unplaced. The
+rate limit is **60 requests an hour per address**, shared by everyone behind it, and the read is once
+per viewer per session rather than once a minute per server.
 
 ## 💾 One store, and it is disposable
 
@@ -123,12 +173,60 @@ live off GitHub. If you delete every derived file in this project, one command p
 | `pnpm exec nx collect @monorepo/tech-docs` | Rebuild the snapshot — graph, coverage, metrics, docs, scorecards |
 | `pnpm exec nx check-docs @monorepo/tech-docs` | The CI gate — broken links, the mirrored invariants and malformed spike frontmatter, over every tracked doc; exits 1 on a finding |
 | `pnpm exec nx nuxt-prepare @monorepo/tech-docs` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
+| `pnpm exec nx build-static @monorepo/tech-docs` | `nuxt build --prerender` — the build the deploy publishes, and the only one that renders every route |
 
 The collector reads each project's `coverage/coverage-summary.json` and copies in the merged report
 `pnpm test:coverage` renders at the workspace root, so both are only as fresh as the last run of it.
-There is deliberately **no `build` script**: the `@nx/nuxt` plugin names its inferred target
-`nuxt:build`, so `nx affected -t build` skips this project and CI never tries to build a tool that
-has nowhere to deploy.
+
+`build` delegates to `build-static`, because `nx affected -t build` only ever looks for a target
+called `build` — the same indirection [`apps/huella-legal`](../huella-legal/README.md) uses, pointed
+at a different target. **CI therefore builds the artifact that deploys**, which is the point: this
+app was broken under `--prerender` while the SSR build went green, so an SSR build here would verify
+a mode nothing runs. It survives as the plugin's inferred `nuxt:build` and is never invoked —
+`@nx/nuxt` infers it from `nuxt.config.ts` for every Nuxt project, and `huella-legal` genuinely
+serves that way. Prerendering costs nothing to check: 14s against the SSR build's 15s, and it
+succeeds with no `.report/` at all, rendering 181 routes instead of 211.
+
+## 🚢 The deployed site is a snapshot
+
+[`docs-deploy.yml`](../../.github/workflows/docs-deploy.yml) prerenders this app and publishes it to
+GitHub Pages on every push to `master`, plus by hand from `workflow_dispatch`. Static files, no host
+and no secret: the repo is public, and the one thing here that needed a credential went away when
+the issues read moved into the browser. Pages has to be set to build from GitHub Actions in the
+repo's settings — the workflow reads that configuration, it does not create it.
+
+| Step | What it is there for |
+| --- | --- |
+| `pnpm test:coverage` | The collector reads every project's `coverage-summary.json` plus the merged report, and neither exists until this has run over the whole workspace |
+| `pnpm exec nx collect @monorepo/tech-docs` | Nuxt copies `public/embed/**` into the output, so the snapshot is a build input rather than something the deploy hands over afterwards |
+| `pnpm exec nx build-static @monorepo/tech-docs` | `nuxt build --prerender`. Plain `build` is SSR and would leave a server to host |
+
+It is a job of its own rather than three steps on `checks`, which is `affected` by design: this is a
+full coverage run and an `eslint` pass per project, producing an artifact no pull-request check
+reads.
+
+**This project overrides its own `production` Nx input**, in [`package.json`](./package.json), and
+the deploy is wrong without it. The workspace default excludes `!{projectRoot}/**/*.md` and scopes
+everything to the project, so nothing this app renders was a build input: editing any doc left the
+task hash unchanged and `nx affected` reported no project at all for a file under `docs/`. The
+override adds two entries, and they fix different halves.
+
+| Addition | What it buys |
+| --- | --- |
+| `{workspaceRoot}/**/*.md` | A doc anywhere is a build input, **and** it is what makes `nx affected` name this project for a file that belongs to none — no `implicitDependencies` entry needed |
+| A `runtime` input running [`snapshotStamp.ts`](./tools/lib/snapshotStamp.ts) | `.report/` is gitignored, so it is absent from Nx's file map and a file input over it hashes *nothing* — a re-collected snapshot still replayed a cached `.output`. Stdout is hashed instead |
+
+Two values are baked in at build time, because a static site keeps no server to read runtime config
+from: `NUXT_APP_BASE_URL`, which a project page needs since it serves from `/<repo>/` rather than the
+root, and `NUXT_PUBLIC_REPO_URL`. The workflow derives both from the run — the first from
+`actions/configure-pages`, the second from the repo it is running in — so neither is written down
+here. A `public/` path that Nuxt does not rewrite goes through
+[`embedUrl`](./app/utils/embed.ts) for the same reason.
+
+**Every page is as old as the last deploy**, which is the price of the snapshot and worth reading off
+the Overview's own `manifest.commit`: the docs travel with the build rather than being read in place,
+and the advisory count was true when `pnpm audit` ran. Issues are the exception, because the browser
+fetches them.
 
 ## 🔍 What it checks that nothing else does
 
@@ -184,9 +282,8 @@ nothing and so violates nothing.
 | Later need | What changes |
 | --- | --- |
 | A time-series chart of review totals | The scorecards page already lists every review's total, newest first, parsed straight from each review file rather than from the hand-edited history table — so the objection that used to block this (a hand-edited row becoming a rendering bug) no longer applies. A chart still needs six or seven rows before it says anything a column of numbers doesn't |
-| Writing to GitHub from here — closing an issue, moving a card | Every write is a `gh` subcommand away, but a dashboard that writes needs an undo story, an optimistic-update story and a permission story. Reading is the whole value; `pnpm issue:add` and `pnpm issue:pick` already cover filing and starting |
+| Writing to GitHub from here — closing an issue, moving a card | Every write needs a credential, which the browser-side read deliberately removed, plus an undo story, an optimistic-update story and a permission story. Reading is the whole value; `pnpm issue:add` and `pnpm issue:pick` already cover filing and starting |
 | A spike's `issue:` shown beside it, or filtered on | The collector parses that field already and keeps only `status`, `decision` and `supersededBy`; carrying it would be one more field on `DocPage` and a link out to GitHub. Every report states its issue in its own Context section, and two reports may share one — so it sorts and groups worse than the number the list already uses |
-| Closed issues, or issues from another repo | `gh issue list --state open` on the repo you are standing in. Both are one flag; neither has a question this page is asked yet |
-| Ordering "What's next" by board column | `gh` reports a column's *name*, not its position, and the names are per project — nothing here can know which of them means next. Sorted by last touched instead |
+| Closed issues, or issues from another repo | `state=open` on the repo `NUXT_PUBLIC_REPO_URL` names. Both are one parameter; neither has a question this page is asked yet, and each doubles the requests against a 60-an-hour limit |
+| Ordering "What's next" by board column, or showing the board at all | Needs `projectItems`, which is GraphQL-only and so needs a token — the thing reading from the browser exists to avoid. Sorted by last touched instead |
 | Collecting on demand from the UI | `pnpm exec nx collect @monorepo/tech-docs` shells out to `nx graph` and `eslint` and takes tens of seconds. A button means a run state to poll and a way to cancel — the terminal already has both |
-| Serving this anywhere | Nothing here is authenticated and every path it prints is a local file. It is a `nuxt dev` tool on purpose; deploying it is a different project |

@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "nx build-static",
     "dev": "nuxt dev",
     "lint": "nx eslint:lint",
     "nuxt-prepare": "nuxi prepare",
@@ -18,7 +19,19 @@
     "tags": [
       "type:app",
       "scope:internal"
-    ]
+    ],
+    "namedInputs": {
+      "production": [
+        "default",
+        "!{projectRoot}/**/*.spec.ts",
+        "!{projectRoot}/**/*.test.ts",
+        "!{projectRoot}/vitest.config.ts",
+        "{workspaceRoot}/**/*.md",
+        {
+          "runtime": "node apps/tech-docs/tools/lib/snapshotStamp.ts"
+        }
+      ]
+    }
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.128",

@@ -42,8 +42,9 @@ quietly until it exists.
 | [2026-09-05](./2026-09-05-abcb17d.md) | `abcb17d` | 5 | 4 | 4 | 4 | 4 | 4 | 4 | 4.2 | v1 |
 | [2026-09-10](./2026-09-10-bfd6da2.md) | `bfd6da2` | 5 | 5 | 4 | 5 | 2 | 3 | 5 | 4.4 | v1 |
 | [2026-09-15](./2026-09-15-bfd6da2.md) | `bfd6da2` | 5 | 5 | 3 | 5 | 2 | 3 | 5 | 4.2 | v2 |
+| [2026-09-15](./2026-09-15-aea557e.md) | `aea557e` | 5 | 4 | 4 | 3 | 2 | 3 | 5 | 3.9 | v2 |
 
-The last two rows are **the same tree under two methods**, which is what a version bump buys: the
+Rows three and four are **the same tree under two methods**, which is what a version bump buys: the
 0.2 between them is the method moving, not the repo. Compare 4.4 against 4.2 and 4.2 against
 whatever comes next — never 4.2 against 4.4 as if the repo had regressed in five days.
 

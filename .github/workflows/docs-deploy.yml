@@ -1,0 +1,73 @@
+name: Docs deploy
+
+on:
+    push:
+        branches: [master]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+# Queued rather than cancelled, so a run that is already publishing is allowed to finish.
+concurrency:
+    group: docs-deploy
+    cancel-in-progress: false
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            # Narrower is untested: `configure-pages` documents no read-only path, and a wrong
+            # guess here only fails on a real run.
+            pages: write
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  # The collector dates every doc from `git log` and counts unreleased commits since
+                  # the last tag; a shallow clone carries neither.
+                  fetch-depth: 0
+
+            - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+            - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+              with:
+                  node-version-file: .nvmrc
+                  cache: pnpm
+
+            - run: pnpm install --frozen-lockfile --ignore-scripts
+
+            - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+              id: pages
+
+            # The collector reads coverage that only a whole-workspace run writes.
+            - run: pnpm test:coverage
+
+            - run: pnpm exec nx collect @monorepo/tech-docs
+
+            # An Nx cache restore would never hit: the step above re-stamps the snapshot, which this
+            # project's `production` input hashes, so every run is a new task hash by construction.
+            - name: Prerender the site
+              run: pnpm exec nx build-static @monorepo/tech-docs
+              env:
+                  # `base_path` is "/<repo>" on a project page and "" on a user one, and the
+                  # trailing slash is what keeps the second case a valid URL.
+                  NUXT_APP_BASE_URL: ${{ steps.pages.outputs.base_path }}/
+                  NUXT_PUBLIC_REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+
+            - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+              with:
+                  path: apps/tech-docs/.output/public
+
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        permissions:
+            pages: write
+            id-token: write
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        steps:
+            - id: deployment
+              uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

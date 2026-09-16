@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from "@nuxt/ui";
-import { sortSpikes } from "../../../shared/spikeReports.ts";
+import { sortSpikes } from "#shared/spikeReports.ts";
 
 const route = useRoute();
 
