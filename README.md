@@ -179,6 +179,17 @@ use `pnpm exec nx run-many -t <target>`.
   `gh secret set PROJECTS_TOKEN --repo xfontr/monorepo` (or Settings → Secrets and variables →
   Actions in the browser). Re-run the failed workflow run once it's set — no new PR needed.
 - CI (GitHub Actions) re-runs the same affected targets plus `build` on every PR and on `master`.
+  The `nx affected` step remote-caches through Nx Cloud — the workspace link lives in `nxCloudId`
+  in [`nx.json`](./nx.json), set once via `nx connect` — but only once an `NX_CLOUD_ACCESS_TOKEN`
+  secret exists too: `nxCloudId` just identifies the workspace, it isn't a credential, and CI has
+  no other way to prove it's allowed to read or write that workspace's cache. Without the secret,
+  `nx affected` runs everything locally with no error and no remote cache, so a missing token fails
+  silently rather than loudly. That secret isn't provisioned by anything either: generate a
+  **Read & Write** access token from the workspace's page on [Nx Cloud](https://cloud.nx.app) (the
+  link `nx connect` printed), then add it as `gh secret set NX_CLOUD_ACCESS_TOKEN --repo
+  xfontr/monorepo` (or Settings → Secrets and variables → Actions in the browser). Read & Write
+  because the same token authenticates both `master` pushes and PR runs here — a read-only token
+  would let CI pull from the cache but never populate it.
 
 ## 🏷 Versioning
 
