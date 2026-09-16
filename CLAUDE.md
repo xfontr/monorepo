@@ -133,11 +133,11 @@ project is added, and for a new file under [`docs/reviews/`](./docs/reviews/READ
 history table in that directory's README.
 
 The Nuxt `.nuxt` wiring is the same shape at smaller scale: [`nx.json`](./nx.json)'s `lint`,
-`typecheck` and `test` `dependsOn` a `nuxt-prepare` target that only exists where a project defines
-that script — currently `apps/huella-legal` and `apps/tech-docs`. A new Nuxt app needs the script
-added by hand for the dependency to take effect; if a **third** one lands, that's the point to
-replace this with a local Nx plugin inferring it from `nuxt.config.ts` instead of copy-pasting a
-fourth time.
+`typecheck`, `test` and `test:coverage` `dependsOn` a `nuxt-prepare` target that only exists where
+a project defines that script — currently `apps/huella-legal` and `apps/tech-docs`. A new Nuxt app
+needs the script added by hand for the dependency to take effect; if a **third** one lands, that's
+the point to replace this with a local Nx plugin inferring it from `nuxt.config.ts` instead of
+copy-pasting a fourth time.
 
 ## 🛠️ Skills
 
