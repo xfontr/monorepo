@@ -55,7 +55,7 @@ catches:
 | --- | --- | --- |
 | Essay voice | Persuades an imagined critic instead of informing a reader: "which is how a page stops meaning anything" | [`dev/domain/projects.ts`](../../infrastructure/scripts/src/dev/domain/projects.ts) — 33 comment lines over ~45 lines of code, majority prose |
 | Restating the code | A 3-line block over `[name, name.replace(SCOPE, ""), label]` | `spellings` and `matches`, same file |
-| Third copy | An architecture statement already in a README and a spike | [`shared/types.ts`](../../apps/tech-docs/shared/types.ts) header vs. [`tech-docs/README.md`](../../apps/tech-docs/README.md) lines 95–99, near-verbatim |
+| Third copy | An architecture statement already in a README and a decision report | [`shared/types.ts`](../../apps/tech-docs/shared/types.ts) header vs. [`tech-docs/README.md`](../../apps/tech-docs/README.md) lines 95–99, near-verbatim |
 
 **3. A comment that points at another comment rots fastest, and one already has.**
 [`shared/adapters/exec.ts`](../../infrastructure/scripts/src/shared/adapters/exec.ts) reads "every
@@ -69,7 +69,7 @@ A comment explaining what the code does is worthless to a human who can read it 
 reads it faster. What neither can reconstruct is *history and outside constraint*: what a scanner
 flagged, the bug behind a strange sort order, a trap in a type. That test keeps roughly 15–20
 comments in this workspace. Everything else is either derivable from the code or already written
-down in a README, a `CLAUDE.md` or a report under `docs/spikes/` — which the next reader, human or
+down in a README, a `CLAUDE.md` or a report under `docs/decisions/` — which the next reader, human or
 agent, reaches anyway.
 
 **5. The three proposed artifacts, unchanged from the first pass.** The CLAUDE.md section holds,

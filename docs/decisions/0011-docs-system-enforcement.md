@@ -8,8 +8,8 @@ decision: accepted
 
 ## Context
 
-`docs/` holds 28 files written between 2026-09-04 and 2026-09-14, ten of them spikes. The question
-raised was whether the tree survives many teams and many apps, and whether ~200 spikes in one flat
+`docs/` holds 28 files written between 2026-09-04 and 2026-09-14, ten of them decisions. The question
+raised was whether the tree survives many teams and many apps, and whether ~200 decisions in one flat
 folder is a structure problem. Behind it sat an assumption worth testing: that volume is what
 breaks first.
 
@@ -17,11 +17,11 @@ breaks first.
 
 **The structure is sound and the volume is not the problem.** The ownership rule — *"A subject
 enters `docs/` only if no single project owns it"* — is what keeps app count off this tree, and
-consolidating project READMEs is already foreclosed. Nothing loads all of `docs/`; spikes are
-pulled only when cited, so per-task cost is proportional to spikes *cited*, not spikes *filed*. At
+consolidating project READMEs is already foreclosed. Nothing loads all of `docs/`; decisions are
+pulled only when cited, so per-task cost is proportional to decisions *cited*, not decisions *filed*. At
 200 files the cost is discovery and truth, not context.
 
-**`docs/spikes/` is the ADR pattern**, arrived at independently: one immutable numbered file per
+**`docs/decisions/` is the ADR pattern**, arrived at independently: one immutable numbered file per
 resolved decision, a status field, a supersession rule. MADR 4.0.0 and Nygard's 2011 original
 describe the same shape, and ADR corpora are known to run to hundreds of files flat. The layout
 needs no change.
@@ -38,7 +38,7 @@ needs no change.
 Five symptoms follow from that, all present today: `0002-docs-drift-detection.md` reads
 `Status: Implemented` while none of its three layers was built; `0009-comment-discipline.md` was
 rewritten in place against the rule that only `Status:` may change; two reports share issue #38;
-five of ten spikes have no inbound link because `docs/spikes/README.md` links to none of them; and
+five of ten decisions have no inbound link because `docs/decisions/README.md` links to none of them; and
 `Superseded by` has never been written or parsed.
 
 **The status line tracks the wrong axis.** `To implement | Implemented | Won't implement` describes
@@ -48,7 +48,7 @@ overturned, which is why supersession had to be invented as a separate unparsed 
 being squeezed into one field.
 
 **Numbering by issue cannot be unique, and sorts by the wrong thing.** The convention makes the
-issue number the link back, but the `spike-report` skill also tells an agent to hang a report off
+issue number the link back, but the `decision-report` skill also tells an agent to hang a report off
 "the closest existing issue" when none was filed. #38 collided that way, and this report collided
 with its sibling at #106. The second problem is worse than the collision: the reports were written
 on 09-04, 09-05 and 09-06 in an order the issue numbers don't reflect — `0061` predates both `0038`s
@@ -62,7 +62,7 @@ construction and reads in decision order.
 | --- | --- |
 | `Confirmation` — how compliance with the decision is verified | **Take.** Exactly what `0002` lacked when it claimed three layers no check ever looked for; the highest-value item here |
 | `superseded by ADR-0123` as a *status value* | **Take.** Supersession belongs on the status axis, machine-read, not in a prose line nothing parses |
-| Decision status as an axis distinct from work state | **Take the distinction.** A spike here is written after the call is made, so `proposed` and `rejected` have no readers, but decision-validity and work-state still need separate fields |
+| Decision status as an axis distinct from work state | **Take the distinction.** A decision here is written after the call is made, so `proposed` and `rejected` have no readers, but decision-validity and work-state still need separate fields |
 | Consecutive `NNNN` numbering, issue as a separate field | **Take.** It costs every inbound link once, and buys uniqueness by construction plus a listing in decision order. The first draft of this report kept issue numbering on the grounds that the repo's existing links were worth more; that weighed a young experimental repo's conventions as if they were established practice, which is backwards |
 | Renumbering the twelve existing reports | **Take**, for the same reason — twelve files and ~20 relative links is the cheapest this migration will ever be |
 
@@ -91,12 +91,12 @@ reachability one — docs a teammate cannot read without running the app are not
 2. **The reports are renumbered consecutively in decision order**, and the issue moves to an
    `issue:` frontmatter field. A directory listing then reads in the order the calls were made, and
    two reports off one issue stop fighting over a prefix.
-3. **A validator over spike filenames and frontmatter** — well-formed `NNNN-slug.md`, a recognised
+3. **A validator over decision filenames and frontmatter** — well-formed `NNNN-slug.md`, a recognised
    `status` and `decision`, a numeric `issue:`, a `supersededBy` that names a real report, and a
    number no other report has taken. It runs inside `check-docs` rather than as its own script: the
-   vocabulary it enforces is the same `shared/spikes.ts` constant the dashboard renders from, so
+   vocabulary it enforces is the same `shared/decisions.ts` constant the dashboard renders from, so
    there is no second copy to drift.
-4. **`Confirmation` joins the spike template**, recording how the decision will be verified. `0002`
+4. **`Confirmation` joins the decision template**, recording how the decision will be verified. `0002`
    is the case it exists for.
 5. **Supersession becomes a parsed status rather than a prose line**, so a reversed decision stops
    rendering as `Implemented`.
@@ -123,11 +123,11 @@ third is the smaller project the README's "different project" is pointing at.
 
 | Option | Why not |
 | --- | --- |
-| Archive or prune old spikes | Solves volume, which is not the failing constraint; an old spike whose decision still holds is still true |
-| Subdivide `docs/spikes/` by area, team or status | The README already rejects folder-per-status: every flip becomes a `git mv` nothing enforces. Area folders add a second placement question to every report |
-| Hand-written index table in `docs/spikes/README.md` | The literal deferred entry, but it is a new manual cross-file sync obligation — the class that rots fastest as contributors are added |
+| Archive or prune old decisions | Solves volume, which is not the failing constraint; an old decision whose decision still holds is still true |
+| Subdivide `docs/decisions/` by area, team or status | The README already rejects folder-per-status: every flip becomes a `git mv` nothing enforces. Area folders add a second placement question to every report |
+| Hand-written index table in `docs/decisions/README.md` | The literal deferred entry, but it is a new manual cross-file sync obligation — the class that rots fastest as contributors are added |
 | A generated `INDEX.md`, rendered and asserted in CI | Built, then removed. Over a directory listing that now sorts in decision order it added a title and two frontmatter values, both of which the dashboard already shows as pills — a generated file, a CI step and a renderer to keep a table nobody needed |
-| A standalone `docs:spikes-index` script under `infrastructure/scripts` | The validation is worth keeping; a separate CLI for it is not. `check-docs` already reads every doc in CI, and living there lets the validator share `shared/spikes.ts` with the dashboard instead of mirroring the vocabulary across a `type:tooling` boundary that forbids the import |
+| A standalone `docs:decisions-index` script under `infrastructure/scripts` | The validation is worth keeping; a separate CLI for it is not. `check-docs` already reads every doc in CI, and living there lets the validator share `shared/decisions.ts` with the dashboard instead of mirroring the vocabulary across a `type:tooling` boundary that forbids the import |
 | Full MADR sections — `Decision Drivers`, `Considered Options`, `Pros and Cons of the Options` | The four sections here plus `Confirmation` carry what MADR's eight do. `Pros and Cons of the Options` invites a pro/con essay per option, which is what `Options considered` as a table of losers exists to prevent |
 | Keep `docs/drift` as the answer | It is a size-and-age proxy that never reads a doc's content, and it can never fail a push |
 
@@ -136,7 +136,7 @@ third is the smaller project the README's "different project" is pointing at.
 This forecloses nothing about the tree's shape. The renumbering spends every inbound link once —
 ~20 relative paths across docs, READMEs and two `CLAUDE.md` files — and buys a listing that reads
 in decision order. Every future report costs one lookup of the next free number, which is what the
-`spike-report` skill now says to do.
+`decision-report` skill now says to do.
 
 `apps/tech-docs/README.md`'s *"Serving this anywhere"* row and `docs/README.md`'s publishing row
 are spent by change 7.
@@ -160,18 +160,18 @@ than flipping.** Verified per change:
 
 1. `pnpm exec nx check-docs @monorepo/tech-docs` runs in CI (`ci.yml`) and fails on a broken link
    or a mirrored-invariant finding, over every tracked doc rather than only a Claude Code edit.
-2. `ls docs/spikes/` runs `0001`–`0012` with no gaps and no repeats, and every report carries an
+2. `ls docs/decisions/` runs `0001`–`0012` with no gaps and no repeats, and every report carries an
    `issue:` field. The check in 3 fails if a thirteenth report reuses a number.
 3. The same command fails on a malformed filename, an unrecognised `status:`/`decision:`, a missing
    `issue:`, or a `supersededBy:` naming a report that isn't filed — pinned by
-   [`tools/lib/spikes.spec.ts`](../../apps/tech-docs/tools/lib/spikes.spec.ts).
-4. Every spike report's frontmatter is now followed by a `## Confirmation` section, this one
+   [`tools/lib/decisions.spec.ts`](../../apps/tech-docs/tools/lib/decisions.spec.ts).
+4. Every decision report's frontmatter is now followed by a `## Confirmation` section, this one
    included.
 5. `decision: superseded` plus `supersededBy:` is a parsed, validated frontmatter pair — see
-   [`docs/spikes/README.md`](./README.md#-superseding-a-decision) — not a prose line.
+   [`docs/decisions/README.md`](./README.md#-superseding-a-decision) — not a prose line.
 6. All twelve reports carry the frontmatter template. The vocabulary they're checked against is
-   `SPIKE_STATUSES`/`SPIKE_DECISIONS` in
-   [`shared/spikes.ts`](../../apps/tech-docs/shared/spikes.ts), which the dashboard's own types
+   `DECISION_STATUSES`/`DECISION_OUTCOMES` in
+   [`shared/decisions.ts`](../../apps/tech-docs/shared/decisions.ts), which the dashboard's own types
    derive from — so a widened vocabulary can't reach one reader and not the other.
 7. **Not done, and not yet filed.** `apps/tech-docs` is not deployed; its four blockers are
    unaddressed. Deliberately kept out of this pass rather than attempted alongside it — no issue

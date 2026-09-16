@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from "@nuxt/ui";
-import { sortSpikes } from "#shared/spikeReports.ts";
+import { sortDecisions } from "#shared/decisionReports.ts";
 
 const route = useRoute();
 
-const reports = useSpikeReports();
+const reports = useDecisionReports();
 
 const id = computed(() => (route.params.id as string | undefined) ?? "");
-const path = computed(() => `/docs/spikes/${id.value}`);
+const path = computed(() => `/docs/decisions/${id.value}`);
 
 const { data: page } = await useAsyncData(
-    () => `spike-${id.value}`,
+    () => `decision-${id.value}`,
     () => queryCollection("docs").path(path.value).first(),
     { watch: [path] },
 );
@@ -18,13 +18,13 @@ const { data: page } = await useAsyncData(
 const report = computed(() => reports.value.find((candidate) => candidate.id === id.value) ?? null);
 
 const crumbs = computed<BreadcrumbItem[]>(() => [
-    { label: "Spikes", to: "/spikes", icon: "i-lucide-compass" },
+    { label: "Decisions", to: "/decisions", icon: "i-lucide-compass" },
     { label: report.value?.number ?? id.value, class: "font-mono" },
 ]);
 
 /** Neighbours by number — the order the decisions were made, which one report reading on from another follows regardless of how the list was last sorted. */
 const around = computed(() => {
-    const ordered = sortSpikes(reports.value, "oldest");
+    const ordered = sortDecisions(reports.value, "oldest");
     const index = ordered.findIndex((candidate) => candidate.id === id.value);
 
     return { previous: index > 0 ? ordered[index - 1] : null, next: index === -1 ? null : ordered[index + 1] ?? null };
@@ -32,7 +32,7 @@ const around = computed(() => {
 </script>
 
 <template>
-    <UDashboardPanel id="spike">
+    <UDashboardPanel id="decision">
         <template #header>
             <UDashboardNavbar :title="report?.title ?? page?.title ?? 'Not found'">
                 <template #leading>
@@ -41,15 +41,15 @@ const around = computed(() => {
                 <template #right>
                     <StatusPill
                         v-if="report?.decision === 'superseded' && report.supersededBy"
-                        :label="spikeDecisionLabel(report.decision)"
+                        :label="decisionOutcomeLabel(report.decision)"
                         tone="bad"
-                        :to="`/spikes/${report.supersededBy.replace(/\.md$/, '')}`"
+                        :to="`/decisions/${report.supersededBy.replace(/\.md$/, '')}`"
                         :hint="`Superseded by ${report.supersededBy}`"
                     />
                     <StatusPill
                         v-if="report?.status"
-                        :label="spikeStatusLabel(report.status)"
-                        :tone="spikeStatusTone(report.status)"
+                        :label="decisionStatusLabel(report.status)"
+                        :tone="decisionStatusTone(report.status)"
                     />
                     <span
                         v-if="report"
@@ -71,7 +71,7 @@ const around = computed(() => {
                         variant="subtle"
                         icon="i-lucide-file-question"
                         title="No such report"
-                        :description="`Nothing under docs/spikes/ matches ${id}. Reports are numbered consecutively, so a gap is a report that was never filed.`"
+                        :description="`Nothing under docs/decisions/ matches ${id}. Reports are numbered consecutively, so a gap is a report that was never filed.`"
                     />
 
                     <template v-else>
@@ -84,7 +84,7 @@ const around = computed(() => {
                         <div class="grid sm:grid-cols-2 gap-3">
                             <NuxtLink
                                 v-if="around.previous"
-                                :to="`/spikes/${around.previous.id}`"
+                                :to="`/decisions/${around.previous.id}`"
                                 class="flex items-center gap-2 rounded-lg border border-default p-3 hover:bg-elevated/40 transition-colors"
                             >
                                 <UIcon
@@ -103,7 +103,7 @@ const around = computed(() => {
 
                             <NuxtLink
                                 v-if="around.next"
-                                :to="`/spikes/${around.next.id}`"
+                                :to="`/decisions/${around.next.id}`"
                                 class="flex items-center justify-end gap-2 rounded-lg border border-default p-3 hover:bg-elevated/40 transition-colors sm:col-start-2"
                             >
                                 <div class="min-w-0 text-right">

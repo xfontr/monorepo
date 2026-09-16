@@ -1,4 +1,4 @@
-import type { SpikeDecision, SpikeStatus } from "#shared/types.ts";
+import type { DecisionOutcome, DecisionStatus } from "#shared/types.ts";
 
 /** The palette behind these three classes lives in `assets/css/main.css` and is shown beside the figure it describes, never instead of it. */
 export type Tone = "good" | "warn" | "bad" | "neutral";
@@ -50,41 +50,41 @@ const KIND_ICONS: Record<string, string> = {
     skill: "i-lucide-wand-sparkles",
     doc: "i-lucide-book-open",
     review: "i-lucide-clipboard-check",
-    spike: "i-lucide-compass",
+    decision: "i-lucide-compass",
 };
 
 export function kindIcon(kind: string): string {
     return KIND_ICONS[kind] ?? "i-lucide-file-text";
 }
 
-const SPIKE_STATUS_LABELS: Record<SpikeStatus, string> = {
+const DECISION_STATUS_LABELS: Record<DecisionStatus, string> = {
     "to-implement": "To implement",
     "implemented": "Implemented",
     "wont-implement": "Won't implement",
 };
 
-export function spikeStatusLabel(status: SpikeStatus): string {
-    return SPIKE_STATUS_LABELS[status];
+export function decisionStatusLabel(status: DecisionStatus): string {
+    return DECISION_STATUS_LABELS[status];
 }
 
 /** Reuses the same validated three-tone palette everything else on this page uses for a verdict. */
-const SPIKE_STATUS_TONES: Record<SpikeStatus, Tone> = {
+const DECISION_STATUS_TONES: Record<DecisionStatus, Tone> = {
     "to-implement": "warn",
     "implemented": "good",
     "wont-implement": "neutral",
 };
 
-export function spikeStatusTone(status: SpikeStatus): Tone {
-    return SPIKE_STATUS_TONES[status];
+export function decisionStatusTone(status: DecisionStatus): Tone {
+    return DECISION_STATUS_TONES[status];
 }
 
-const SPIKE_DECISION_LABELS: Record<SpikeDecision, string> = {
+const DECISION_OUTCOME_LABELS: Record<DecisionOutcome, string> = {
     accepted: "Accepted",
     superseded: "Superseded",
 };
 
-export function spikeDecisionLabel(decision: SpikeDecision): string {
-    return SPIKE_DECISION_LABELS[decision];
+export function decisionOutcomeLabel(decision: DecisionOutcome): string {
+    return DECISION_OUTCOME_LABELS[decision];
 }
 
 /** "3 hours ago" beats a timestamp for the one question a report page has to answer. */

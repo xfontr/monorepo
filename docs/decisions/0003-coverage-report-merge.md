@@ -47,7 +47,7 @@ directly. Five points make up the call:
    each project's vitest config, where they can differ. The browsable merged HTML is the whole
    deliverable.
 
-Two facts checked during the spike carry the design. Keys in `coverage-final.json` are **absolute
+Two facts checked during the decision carry the design. Keys in `coverage-final.json` are **absolute
 paths**, so nothing collides across projects and the merged HTML tree comes out rooted at the
 workspace with a folder per project — the desired grouping, for free. That also makes the inverse a
 real hazard, so the script asserts it: were a project ever to emit relative paths, two `src/index.ts`
@@ -58,7 +58,7 @@ entries would silently merge into one wrong file.
 | Option | Why not |
 | --- | --- |
 | A root Vitest `projects` config | Produces one native report with no merge logic at all, but tests then bypass Nx entirely — no per-project cache, no `affected`, no `dependsOn`. `pnpm test` running affected-only is a stated invariant of this repo |
-| Hosted — Codecov, Coveralls, SonarCloud | Merges the `lcov` uploads server-side and adds per-PR diff coverage, but it's a vendor plus a token, and it does nothing for the local loop this spike is about. CI runs no coverage today, so it's a different job — and an orthogonal one, still open |
+| Hosted — Codecov, Coveralls, SonarCloud | Merges the `lcov` uploads server-side and adds per-PR diff coverage, but it's a vendor plus a token, and it does nothing for the local loop this decision is about. CI runs no coverage today, so it's a different job — and an orthogonal one, still open |
 | `nyc merge` + `nyc report` | The standard answer, and literally the same Istanbul code — but reached through a full CLI whose transitive tree is far larger than the three libraries it would be pulled in to call |
 | `vitest --merge-reports` (blob reporter) | Built for sharding a single config across machines; here Nx spawns a process per project against two different presets (node and vue), which is not the shape it expects |
 | Concatenating the `lcov.info` files | Zero npm dependencies to merge, but rendering HTML from lcov needs `genhtml` from system perl — trading an install `pnpm i` handles for one it can't |
@@ -73,7 +73,7 @@ The cost is dependencies: `infrastructure/scripts` goes from one runtime depende
 (`istanbul-lib-coverage` for the merge, `istanbul-lib-report` and `istanbul-reports` for the HTML).
 That deserves the scrutiny CLAUDE.md asks for, and the answer is narrow — the merge itself is about
 five lines, and the three libraries buy the HTML renderer. Writing that renderer is the actual
-"build your own tooling" trap this spike set out to avoid.
+"build your own tooling" trap this decision set out to avoid.
 
 Forecloses nothing. A hosted service remains available and complementary, because every project
 already emits `lcov` whether or not anything uploads it. Revisit if CI starts gating coverage or

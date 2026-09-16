@@ -137,4 +137,4 @@ hook runs lint, test and typecheck, and CI never runs the invariants at all.
 entries read `23.2.0`. The closing line above is no longer current: `check-invariants.sh`'s
 assertions now also run in CI, over the whole tree rather than only an agent's edit — see
 [`0011-docs-system-enforcement.md`](./0011-docs-system-enforcement.md)'s Confirmation, not this
-record, which stays a snapshot of what this spike itself found.
+record, which stays a snapshot of what this decision itself found.

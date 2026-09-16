@@ -18,8 +18,8 @@ function issueOf(overrides: Partial<Issue>): Issue {
 
 describe("summarize", () => {
     it("strips the markdown instead of clamping it, so a row never ends mid-syntax", () => {
-        expect(summarize("**Decision needed.** See [the spike](./docs/spikes/0040.md) first."))
-            .toBe("Decision needed. See the spike first.");
+        expect(summarize("**Decision needed.** See [the decision](./docs/decisions/0040.md) first."))
+            .toBe("Decision needed. See the decision first.");
     });
 
     it("drops a fenced repro block, which is the longest thing in a bug body and says least in a row", () => {

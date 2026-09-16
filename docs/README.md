@@ -2,7 +2,7 @@
 
 Everything here spans more than one project. Anything that doesn't — a project's own reference,
 its setup, its invariants — stays in that project's `README.md` and `CLAUDE.md` instead, from
-[spike 0001](./spikes/0001-feature-discoverability.md):
+[decision 0001](./decisions/0001-feature-discoverability.md):
 
 > A subject enters `docs/` only if no single project owns it.
 
@@ -24,7 +24,7 @@ around.
 | [`FEATURES.md`](./FEATURES.md) | Generated index: every command, hook, workflow and skill, with the doc that explains it |
 | [`concepts/`](./concepts/README.md) | The models that span projects — the *why*, no procedure |
 | [`guides/`](./guides/README.md) | Task-shaped, cross-project, procedural walkthroughs |
-| [`spikes/`](./spikes/README.md) | The answer once an architectural spike issue gets one |
+| [`decisions/`](./decisions/README.md) | The answer once an architectural spike issue gets one |
 | [`reviews/`](./reviews/README.md) | A dated, scored read of the whole repo against a fixed rubric |
 
 `FEATURES.md` is the only generated file — it stays a pure index (what invokes a capability, where

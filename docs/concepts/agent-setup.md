@@ -48,7 +48,7 @@ handful of actions where "after the fact" is already too late.
 ## 🛠 What the skills are, collectively
 
 Twelve `SKILL.md` files today: nine live at the repo root, invoked for a task that spans or doesn't
-belong to one project (`new-package`, `spike-report`, `repo-review`, …); three are package-scoped,
+belong to one project (`new-package`, `decision-report`, `repo-review`, …); three are package-scoped,
 living inside `packages/content/`, `packages/i18n/` and `packages/ui/` for a vendor- or
 component-adding task specific to that package alone. A skill is loaded on request or on a matching
 trigger phrase, not on every turn — unlike `CLAUDE.md`, which an agent reads unconditionally. That

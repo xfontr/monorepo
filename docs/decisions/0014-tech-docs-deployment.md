@@ -37,7 +37,7 @@ alias — already generated in `.nuxt/tsconfig.json` — makes `nuxt build` comp
 **The markdown is not a deploy blocker; it is a freshness one.** `content.config.ts` points
 `@nuxt/content` at the workspace root, and a build bakes the whole corpus into
 `.output/public/__nuxt_content/docs/sql_dump.txt` — 308 KB gzipped, ~1 MB decoded, carrying every
-README, `CLAUDE.md`, spike, review and skill. The docs travel with the build. What does not survive
+README, `CLAUDE.md`, decision, review and skill. The docs travel with the build. What does not survive
 is the claim the app's README makes about them: *"the README you edit for GitHub is the same file
 this renders, so the two cannot drift."* That holds for `nuxt dev`, which reads the files in place.
 A deployed instance is as fresh as its last build.
@@ -46,14 +46,14 @@ A deployed instance is as fresh as its last build.
 
 | Change | `nx show projects --affected` | Why |
 | --- | --- | --- |
-| `docs/spikes/README.md` | `[]` | The `docs/` tree belongs to no project, so no target anywhere depends on it |
+| `docs/decisions/README.md` | `[]` | The `docs/` tree belongs to no project, so no target anywhere depends on it |
 | `packages/ui/README.md` | `@monorepo/ui`, `@monorepo/huella-legal` | Never `tech-docs`, though `tech-docs` is what renders it |
 | `apps/tech-docs/README.md` | `@monorepo/tech-docs` | Affected, but `build`'s `production` input carries `!{projectRoot}/**/*.md`, so the task hash is unchanged |
 
 Two independent mechanisms produce the same result, and the second survives the first: `production`
 resolves to `{projectRoot}/**/*` minus markdown, so no markdown anywhere — inside the project or
 out — is a build input. Measured end to end: `nx nuxt:build`, then an edit to a collected file under
-`public/embed/` and a touch on `docs/spikes/README.md`, then `nx nuxt:build` again — **1/1 cache
+`public/embed/` and a touch on `docs/decisions/README.md`, then `nx nuxt:build` again — **1/1 cache
 hit**. Nx replays an `.output` built from the previous snapshot and the previous docs.
 
 **The snapshot's two halves are needed at different times**, which is what makes `collect` a build
@@ -197,7 +197,7 @@ them, and 3–6 are what a static deploy costs:
 
    | Question | Answer |
    | --- | --- |
-   | Does `{workspaceRoot}/**/*.md` also make `nx affected` see a file belonging to no project? | **Yes** — `nx show projects --affected --files=docs/spikes/README.md` prints `["@monorepo/tech-docs"]`, where it printed `[]`. No `implicitDependencies` entry is needed; the input does both jobs |
+   | Does `{workspaceRoot}/**/*.md` also make `nx affected` see a file belonging to no project? | **Yes** — `nx show projects --affected --files=docs/decisions/README.md` prints `["@monorepo/tech-docs"]`, where it printed `[]`. No `implicitDependencies` entry is needed; the input does both jobs |
    | Can the collected snapshot be a file input? | **No.** `.report/` is gitignored, so it is absent from Nx's file map and `{projectRoot}/.report/**/*` hashes nothing — added it, re-stamped the manifest, still a 1/1 cache hit. A `runtime` input whose stdout is the manifest is the mechanism that works |
 
    The target the deploy actually runs is `build-static`, not `build`; both take `production`, so the
@@ -258,7 +258,7 @@ Each is false today and true when the work lands:
    `shared/spikeReports.ts`.
 2. Two consecutive builds with a markdown edit between them report a cache **miss** on the second.
    Measured at 1/1 hit today — this is the half change 7 is known to fix.
-3. `pnpm exec nx show projects --affected --files=docs/spikes/README.md` lists
+3. `pnpm exec nx show projects --affected --files=docs/decisions/README.md` lists
    `@monorepo/tech-docs`. It currently prints `[]`, and which mechanism gets it there is the open
    question in change 7.
 4. A prerendered build contains no page carrying the wiki's "No such page" copy, and the prerenderer

@@ -1,7 +1,7 @@
 import { parse } from "yaml";
-import { SPIKE_DECISIONS, SPIKE_STATUSES } from "../../shared/spikes.ts";
+import { DECISION_OUTCOMES, DECISION_STATUSES } from "../../shared/decisions.ts";
 
-export interface SpikeProblem {
+export interface DecisionProblem {
     file: string
     message: string
 }
@@ -51,12 +51,12 @@ function reportProblems(file: string, source: string, filed: ReadonlySet<string>
         problems.push("frontmatter is missing a numeric `issue:`");
     }
 
-    if (!(SPIKE_STATUSES as readonly string[]).includes(fields.status ?? "")) {
-        problems.push(`\`status: ${fields.status ?? "(missing)"}\` isn't one of ${SPIKE_STATUSES.join(", ")}`);
+    if (!(DECISION_STATUSES as readonly string[]).includes(fields.status ?? "")) {
+        problems.push(`\`status: ${fields.status ?? "(missing)"}\` isn't one of ${DECISION_STATUSES.join(", ")}`);
     }
 
-    if (!(SPIKE_DECISIONS as readonly string[]).includes(fields.decision ?? "")) {
-        problems.push(`\`decision: ${fields.decision ?? "(missing)"}\` isn't one of ${SPIKE_DECISIONS.join(", ")}`);
+    if (!(DECISION_OUTCOMES as readonly string[]).includes(fields.decision ?? "")) {
+        problems.push(`\`decision: ${fields.decision ?? "(missing)"}\` isn't one of ${DECISION_OUTCOMES.join(", ")}`);
     }
 
     if (fields.decision === "superseded") {
@@ -64,7 +64,7 @@ function reportProblems(file: string, source: string, filed: ReadonlySet<string>
             problems.push("`decision: superseded` needs a `supersededBy:` file");
         }
         else if (!filed.has(fields.supersededBy)) {
-            problems.push(`\`supersededBy: ${fields.supersededBy}\` names a file that isn't a filed spike`);
+            problems.push(`\`supersededBy: ${fields.supersededBy}\` names a file that isn't a filed decision`);
         }
     }
     else if (fields.supersededBy) {
@@ -75,14 +75,14 @@ function reportProblems(file: string, source: string, filed: ReadonlySet<string>
 }
 
 /**
- * Every rule `docs/spikes/README.md` states about a report's filename and frontmatter. A reused
+ * Every rule `docs/decisions/README.md` states about a report's filename and frontmatter. A reused
  * number is a problem here where a reused `issue:` is not: two questions off one issue is normal,
  * two reports answering to the same `NNNN` is the collision consecutive numbering exists to prevent.
  */
-export function spikeProblems(reports: { file: string, source: string }[]): SpikeProblem[] {
+export function decisionProblems(reports: { file: string, source: string }[]): DecisionProblem[] {
     const filed = new Set(reports.map((report) => report.file));
     const seen = new Map<string, string>();
-    const problems: SpikeProblem[] = [];
+    const problems: DecisionProblem[] = [];
 
     for (const { file, source } of reports) {
         const number = file.slice(0, 4);

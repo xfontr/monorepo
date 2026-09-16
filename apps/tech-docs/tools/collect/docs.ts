@@ -1,8 +1,8 @@
 import { access, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import type { DocKind, DocLink, DocPage, DocsArtifact, SpikeDecision, SpikeStatus } from "../../shared/types.ts";
-import { SPIKE_DECISIONS, SPIKE_STATUSES } from "../../shared/spikes.ts";
-import { frontmatterFields } from "../lib/spikes.ts";
+import type { DecisionOutcome, DecisionStatus, DocKind, DocLink, DocPage, DocsArtifact } from "../../shared/types.ts";
+import { DECISION_OUTCOMES, DECISION_STATUSES } from "../../shared/decisions.ts";
+import { frontmatterFields } from "../lib/decisions.ts";
 import { WORKSPACE_ROOT } from "../lib/paths.ts";
 import { git } from "../lib/run.ts";
 
@@ -12,7 +12,7 @@ const HEADING = /^#{1,3}[^\S\n]+(\S.*)$/gm;
 
 const DEFERRED = /^##\s+🧭\s/m;
 
-const SPIKE_PATH = /^docs\/spikes\/\d{4}-/;
+const DECISION_PATH = /^docs\/decisions\/\d{4}-/;
 
 /**
  * Anchors and external links are somebody else's problem; only repo-relative paths are resolvable.
@@ -59,7 +59,7 @@ async function checkLink(fromFile: string, href: string): Promise<DocLink | null
 
 function kindOf(path: string): DocKind {
     if (/^docs\/reviews\/\d{4}-/.test(path)) return "review";
-    if (SPIKE_PATH.test(path)) return "spike";
+    if (DECISION_PATH.test(path)) return "decision";
     if (path.endsWith("CHANGELOG.md")) return "changelog";
     if (path.endsWith("CLAUDE.md")) return "claude";
     if (path.endsWith("SKILL.md")) return "skill";
@@ -68,30 +68,30 @@ function kindOf(path: string): DocKind {
     return "readme";
 }
 
-export interface SpikeMeta {
-    status: SpikeStatus | null
-    decision: SpikeDecision | null
+export interface DecisionMeta {
+    status: DecisionStatus | null
+    decision: DecisionOutcome | null
     supersededBy: string | null
 }
 
-const NO_SPIKE_META: SpikeMeta = { status: null, decision: null, supersededBy: null };
+const NO_DECISION_META: DecisionMeta = { status: null, decision: null, supersededBy: null };
 
 /**
- * Only a spike report carries this — `TEMPLATE.md` doesn't match `SPIKE_PATH` and answers null
+ * Only a decision report carries this — `TEMPLATE.md` doesn't match `DECISION_PATH` and answers null
  * rather than a stale default. An unrecognised `status`/`decision` value (a typo, a
  * value from before this existed) also answers null instead of guessing, so a missing badge in the
  * dashboard is the visible nudge to fix the frontmatter rather than a silently wrong one.
  */
-export function spikeMetaOf(path: string, source: string): SpikeMeta {
-    if (!SPIKE_PATH.test(path)) return NO_SPIKE_META;
+export function decisionMetaOf(path: string, source: string): DecisionMeta {
+    if (!DECISION_PATH.test(path)) return NO_DECISION_META;
 
     // Unparseable frontmatter is `check-docs`'s problem to report, not the dashboard's to guess at.
     const fields = frontmatterFields(source);
 
-    if (fields === null) return NO_SPIKE_META;
+    if (fields === null) return NO_DECISION_META;
 
-    const status = (SPIKE_STATUSES as readonly string[]).includes(fields.status ?? "") ? (fields.status as SpikeStatus) : null;
-    const decision = (SPIKE_DECISIONS as readonly string[]).includes(fields.decision ?? "") ? (fields.decision as SpikeDecision) : null;
+    const status = (DECISION_STATUSES as readonly string[]).includes(fields.status ?? "") ? (fields.status as DecisionStatus) : null;
+    const decision = (DECISION_OUTCOMES as readonly string[]).includes(fields.decision ?? "") ? (fields.decision as DecisionOutcome) : null;
 
     return {
         status,
@@ -121,7 +121,7 @@ export async function collectDocs(projectRoots: string[], generatedAt: string): 
         }
 
         const updatedAt = (await git(["log", "-1", "--format=%cI", "--", path])).trim();
-        const spikeMeta = spikeMetaOf(path, source);
+        const decisionMeta = decisionMetaOf(path, source);
 
         pages.push({
             path,
@@ -132,9 +132,9 @@ export async function collectDocs(projectRoots: string[], generatedAt: string): 
             words: source.split(/\s+/).filter(Boolean).length,
             updatedAt: updatedAt || null,
             deferred: DEFERRED.test(source),
-            spikeStatus: spikeMeta.status,
-            spikeDecision: spikeMeta.decision,
-            spikeSupersededBy: spikeMeta.supersededBy,
+            decisionStatus: decisionMeta.status,
+            decisionOutcome: decisionMeta.decision,
+            decisionSupersededBy: decisionMeta.supersededBy,
             brokenLinks,
         });
     }

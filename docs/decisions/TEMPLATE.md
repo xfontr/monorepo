@@ -4,16 +4,16 @@ status: <to-implement | implemented | wont-implement>
 decision: <accepted | superseded>
 ---
 
-# 🧭 <Spike title>
+# 🧭 <Decision title>
 
 ## Context
 
-<What was in tension, and what was planned or assumed that made the spike necessary — the spike
+<What was in tension, and what was planned or assumed that made the decision necessary — the spike
 issue's own "Decision needed" framing, reused rather than rewritten.>
 
 ## Result
 
-<The outcome, stated plainly. What the spike found, not a recommendation.>
+<The outcome, stated plainly. What was found, not a recommendation.>
 
 ## Options considered
 

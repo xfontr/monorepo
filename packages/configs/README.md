@@ -65,7 +65,7 @@ here, and has to be: a `.ts` setup file is transformed by the pipeline it exists
 `base.json` is strict, `ES2022` with ESNext modules, bundler-resolved and `noEmit` — no project here
 emits its own JS. It adds `noUncheckedIndexedAccess` on top of `strict`, which does not imply it:
 `arr[0]` and `match[1]` are typed `T | undefined`, so a guard on them reads as necessary rather than
-as dead code — see [`0013`](../../docs/spikes/0013-linter-coverage.md) for why the two travel
+as dead code — see [`0013`](../../docs/decisions/0013-linter-coverage.md) for why the two travel
 together. `node.json` adds `types: ["node"]` on top, and is what every consumer actually
 extends; nothing extends `base.json` directly, since the config file in the `include` needs Node
 types even in a package that otherwise doesn't.
@@ -83,7 +83,7 @@ types even in a package that otherwise doesn't.
 - `@vitest/eslint-plugin` for `**/*.spec.ts`
 - `eslint-plugin-regexp` (`flat/recommended`) — ESLint core does not read inside a regex literal, and
   this repo parses markdown, commit subjects and command output with them. It catches super-linear
-  backtracking, dead alternatives and unread capturing groups; [`0013`](../../docs/spikes/0013-linter-coverage.md)
+  backtracking, dead alternatives and unread capturing groups; [`0013`](../../docs/decisions/0013-linter-coverage.md)
   has the sweep
 - `@nx/enforce-module-boundaries` — the layering rules. [`lib/boundaries.ts`](./src/eslint/lib/boundaries.ts)
   is the enforced copy; the readable one is the tag table in the

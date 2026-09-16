@@ -75,12 +75,12 @@ it points at:
 
 - **`Blocked by #<n>`** (the `github-issue` skill's task template) — `gh issue view <n>` for that
   issue too. You need to know what it settled, not just that it's closed.
-- **A spike or a past decision mentioned in the text** — a resolved spike lives in
-  `docs/spikes/`, filed as `<issue number, zero-padded to 4 digits>-<slug>.md`
-  (see the `spike-report` skill). If the issue references one, find it:
+- **A spike or a past decision mentioned in the text** — a resolved one lives in
+  `docs/decisions/`, filed as `<issue number, zero-padded to 4 digits>-<slug>.md`
+  (see the `decision-report` skill). If the issue references one, find it:
 
   ```sh
-  ls docs/spikes/ | grep <padded number>
+  ls docs/decisions/ | grep <padded number>
   ```
 
   Read the file's Result and Consequences sections before writing any code that touches the same

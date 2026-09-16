@@ -2,7 +2,7 @@
 
 Merges every project's `coverage-final.json` into one browsable HTML report rooted at the workspace
 `coverage/` directory, so reading coverage stops meaning opening seven `index.html` files by hand.
-See [`0003-coverage-report-merge.md`](../../../../docs/spikes/0003-coverage-report-merge.md) for why
+See [`0003-coverage-report-merge.md`](../../../../docs/decisions/0003-coverage-report-merge.md) for why
 this is a script on top of Istanbul's own libraries rather than the `nyc` CLI or a hosted service.
 
 | Command | What it does |
@@ -40,4 +40,4 @@ relative paths would fold two identically-named files from different projects in
 | Later need | What changes |
 | --- | --- |
 | A single workspace-wide coverage percentage or thresholds | Not built — mixing `apps/huella-legal` with `packages/ui` into one number isn't actionable. Per-project thresholds belong in each project's `vitest.config.ts` |
-| CI gating on coverage, or per-PR diff coverage | That's the hosted-service conversation (Codecov, Coveralls, SonarCloud) the spike names, and it replaces none of the above — every project already emits `lcov` whether or not anything uploads it |
+| CI gating on coverage, or per-PR diff coverage | That's the hosted-service conversation (Codecov, Coveralls, SonarCloud) the decision report names, and it replaces none of the above — every project already emits `lcov` whether or not anything uploads it |

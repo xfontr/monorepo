@@ -45,7 +45,7 @@ looks like.
 | The Nx tag table | [`boundaries.ts`](../../../packages/configs/src/eslint/lib/boundaries.ts) — check both directions, not just the direction the hook fires from (it only fires when `boundaries.ts` itself is edited in-session; a README hand-edit that falls out of sync goes uncaught) |
 | The workspace-layout block in the root README | The actual `packages/` / `apps/` / `infrastructure/` directories |
 
-Anything outside this table — spike reports under `docs/spikes/`, individual files under
+Anything outside this table — decision reports under `docs/decisions/`, individual files under
 `docs/reviews/` — is a point-in-time snapshot, not a living doc. Drift doesn't apply to them; leave
 them alone.
 

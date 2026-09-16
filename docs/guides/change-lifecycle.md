@@ -71,4 +71,4 @@ chain is built the way it is; this guide stops at "it's a separate, manual step.
 
 | Later need | What changes |
 | --- | --- |
-| Release triggered automatically on merge | Would remove the manual `workflow_dispatch` step here — not the current design, and changing it is a decision for [`docs/spikes/`](../spikes/README.md), not a silent edit to this file |
+| Release triggered automatically on merge | Would remove the manual `workflow_dispatch` step here — not the current design, and changing it is a decision for [`docs/decisions/`](../decisions/README.md), not a silent edit to this file |

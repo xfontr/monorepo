@@ -1,6 +1,6 @@
 /** This app stores nothing — everything below is either derived from the repo or read live from elsewhere. */
 
-import type { SpikeDecision, SpikeStatus } from "./spikes.ts";
+import type { DecisionOutcome, DecisionStatus } from "./decisions.ts";
 
 export interface ArtifactStatus {
     generatedAt: string
@@ -102,13 +102,13 @@ export interface DocLink {
 }
 
 /**
- * `doc`, `review` and `spike` are the ones that live under `docs/`, which is where anything
+ * `doc`, `review` and `decision` are the ones that live under `docs/`, which is where anything
  * spanning more than one project belongs. The rest are colocated with the code they describe.
  */
-export type DocKind = "readme" | "claude" | "changelog" | "skill" | "doc" | "review" | "spike";
+export type DocKind = "readme" | "claude" | "changelog" | "skill" | "doc" | "review" | "decision";
 
-/** Both derive from the value lists in `shared/spikes.ts`, which is also what the CI check reads — so there is no second copy to keep in step. */
-export type { SpikeDecision, SpikeStatus };
+/** Both derive from the value lists in `shared/decisions.ts`, which is also what the CI check reads — so there is no second copy to keep in step. */
+export type { DecisionOutcome, DecisionStatus };
 
 export interface DocPage {
     path: string
@@ -120,11 +120,11 @@ export interface DocPage {
     updatedAt: string | null
     /** Whether the doc carries a `## 🧭 Deliberately deferred` section. */
     deferred: boolean
-    /** Parsed from a spike report's frontmatter; null for anything that isn't one. */
-    spikeStatus: SpikeStatus | null
-    spikeDecision: SpikeDecision | null
-    /** The file a superseded spike was replaced by; null unless `spikeDecision` is `"superseded"`. */
-    spikeSupersededBy: string | null
+    /** Parsed from a decision report's frontmatter; null for anything that isn't one. */
+    decisionStatus: DecisionStatus | null
+    decisionOutcome: DecisionOutcome | null
+    /** The file a superseded decision was replaced by; null unless `decisionOutcome` is `"superseded"`. */
+    decisionSupersededBy: string | null
     brokenLinks: DocLink[]
 }
 

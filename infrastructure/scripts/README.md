@@ -60,7 +60,7 @@ Two things that follow from it and are worth saying out loud:
 
 The direction is convention, not lint, today — the folders make it a generic glob rather than a
 hardcoded file list, so enforcing it is now cheap. See
-[`0004-scripts-architecture.md`](../../docs/spikes/0004-scripts-architecture.md) for what was
+[`0004-scripts-architecture.md`](../../docs/decisions/0004-scripts-architecture.md) for what was
 weighed on the way here, including the flat layout this replaced.
 
 ## 🚀 Adding a script

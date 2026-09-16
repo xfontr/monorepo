@@ -15,7 +15,7 @@ See [README.md](./README.md) for the layout rule and the per-script docs it link
   listing answers "what runs, what talks to the outside, what's pure" before anyone opens a file.
   Don't add loose files at the top of `src/`.
 - **entry → command → `adapters/` → `domain/`, one way only, never sideways between script folders.**
-  The reasoning is in [`0004`](../../docs/spikes/0004-scripts-architecture.md). Two rules get got
+  The reasoning is in [`0004`](../../docs/decisions/0004-scripts-architecture.md). Two rules get got
   wrong: an **adapter is named after the boundary it wraps**, so `git.ts` living in three folders at
   once is correct rather than duplication; and a **`domain/` file is pure** — no `node:fs`, no
   subprocess, no clack, no `process`. There is no `helpers/`, no `types/` and no `constants.ts` here

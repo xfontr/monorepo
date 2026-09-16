@@ -103,7 +103,7 @@ Forecloses the option of ever consolidating the READMEs into `docs/`. The owners
 ways: it keeps the new tree free of duplicates, and it means a project's own docs stay in the
 project forever, subdividing in place as they grow.
 
-The internal app to render all of this is **deferred out of this spike** — it is a view over the
+The internal app to render all of this is **deferred out of this decision** — it is a view over the
 same sources and changes nothing about where they live. When it comes back it needs a boundary
 decision before any scaffolding, and that is the reusable finding: it fits nowhere in the tag table
 today, since the [root README](../../README.md#-architecture--boundaries) defines `infrastructure/`

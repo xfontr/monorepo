@@ -20,7 +20,7 @@ invariants that span more than one file.
 Default to none. **A comment carries one fact that isn't in the code, in one sentence.** The rule is
 not "a comment must justify its line" — that one is satisfied by writing a better argument, which is
 how `infrastructure/scripts` reached one comment line per four lines of code.
-[`0009`](./docs/spikes/0009-comment-discipline.md) has the measurement.
+[`0009`](./docs/decisions/0009-comment-discipline.md) has the measurement.
 
 - The keep-test is **whether the next reader can reconstruct it from present state.** History and
   outside constraint can't be: what a scanner flagged, the bug behind a strange sort order, a trap
@@ -28,8 +28,8 @@ how `infrastructure/scripts` reached one comment line per four lines of code.
 - Never restate the code, the names, or the signature. No `// loop over users`, no `// end if`. A
   human reads the line faster than the comment, and so does an agent.
 - Never argue. A comment informs the next reader; it does not persuade a critic that the decision
-  was right. That belongs in the PR or in a spike report.
-- Never repeat what a README, a `CLAUDE.md` or a spike already says. It's a third copy, free to
+  was right. That belongs in the PR or in a decision report.
+- Never repeat what a README, a `CLAUDE.md` or a decision report already says. It's a third copy, free to
   drift, and both readers reach the original anyway.
 - Never address the diff. "Updated to v2", "as requested" belong in the commit message. Every
   comment must read correctly to someone opening the file cold in a year.
@@ -142,7 +142,7 @@ depending on a `nuxt-prepare` target that only exists where a project defines th
 currently `apps/huella-legal` and `apps/tech-docs`. A new Nuxt app needs that script added by hand,
 and Nx **silently drops** an edge naming a target a project doesn't have, so the symptom is `lint`
 failing to parse every file rather than anything mentioning `.nuxt`.
-[`0015`](./docs/spikes/0015-nuxt-prepare-wiring.md) has the measurements, and settles against the
+[`0015`](./docs/decisions/0015-nuxt-prepare-wiring.md) has the measurements, and settles against the
 local Nx plugin this section used to earmark for the third app.
 
 ## 🛠️ Skills
@@ -157,7 +157,7 @@ local Nx plugin this section used to earmark for the third app.
 | `comment-cleanup` | Cleaning, pruning or auditing comments in a file, staged diff or PR before committing |
 | `github-issue` | Filing an issue *for* the user — the three templates. They file their own with `pnpm issue:add`, which is deliberately template-free |
 | `start-issue` | Starting work on a specific issue — from the branch you're on, or from a number, link or description |
-| `spike-report` | "Do a spike on this" — research an architectural question and write the answer to `docs/spikes/`. Filing the *issue* is `github-issue` |
+| `decision-report` | "Do a spike on this" — research an architectural question and write the answer to `docs/decisions/`. Filing the *issue* is `github-issue` |
 | `repo-review` | Rating, scoring or auditing the repo as a whole — the seven cards in [`docs/reviews/SCORECARDS.md`](./docs/reviews/SCORECARDS.md), not the current diff |
 | `content:new-vendor` | Adding a CMS vendor to `@monorepo/content` |
 | `i18n:new-vendor` | Adding a TMS vendor to `@monorepo/i18n` |
