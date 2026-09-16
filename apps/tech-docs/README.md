@@ -178,10 +178,14 @@ live off GitHub. If you delete every derived file in this project, one command p
 The collector reads each project's `coverage/coverage-summary.json` and copies in the merged report
 `pnpm test:coverage` renders at the workspace root, so both are only as fresh as the last run of it.
 
-`build` delegates to `nuxt:build` because that is what the `@nx/nuxt` plugin names its inferred
-target, and `nx affected -t build` only ever looks for `build` — the same indirection
-[`apps/huella-legal`](../huella-legal/README.md) uses. It is the SSR build, and nothing here runs a
-Node server; `build-static` is what ships.
+`build` delegates to `build-static`, because `nx affected -t build` only ever looks for a target
+called `build` — the same indirection [`apps/huella-legal`](../huella-legal/README.md) uses, pointed
+at a different target. **CI therefore builds the artifact that deploys**, which is the point: this
+app was broken under `--prerender` while the SSR build went green, so an SSR build here would verify
+a mode nothing runs. It survives as the plugin's inferred `nuxt:build` and is never invoked —
+`@nx/nuxt` infers it from `nuxt.config.ts` for every Nuxt project, and `huella-legal` genuinely
+serves that way. Prerendering costs nothing to check: 14s against the SSR build's 15s, and it
+succeeds with no `.report/` at all, rendering 181 routes instead of 211.
 
 ## 🚢 The deployed site is a snapshot
 
