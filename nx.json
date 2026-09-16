@@ -38,7 +38,6 @@
             "cache": true
         },
         "test": {
-            "dependsOn": ["nuxt-prepare"],
             "inputs": ["default", "^production"],
             "cache": true
         },
@@ -48,7 +47,6 @@
             "cache": true
         },
         "test:coverage": {
-            "dependsOn": ["nuxt-prepare"],
             "inputs": ["default", "^production"],
             "outputs": ["{projectRoot}/coverage"],
             "cache": true
