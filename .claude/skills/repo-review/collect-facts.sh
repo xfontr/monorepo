@@ -22,6 +22,10 @@ command -v jq >/dev/null 2>&1 && has_jq=1
 # Sources are ts/vue minus specs; every count below means the same thing by "source file"
 sources() { git ls-files '*.ts' '*.mts' '*.vue' | grep -v '\.spec\.ts$'; }
 
+# Files that need no spec and would make both the untested list and the density ratio useless. Read
+# by the per-project ratio above and the untested-file list below, so the two agree on what counts
+noise='(^|/)(index|eslint\.config|vitest\.config|vite\.config|nuxt\.config|content\.config)\.ts$|\.d\.ts$|\.stories\.ts$|/\.storybook/'
+
 # git grep over source only, counted in lines. `grep -c` prints 0 on no matches and exits 1, so no
 # `|| echo 0` anywhere below: that would print a second zero and break the numeric tests further down
 count() { git grep -nI -E "$1" -- '*.ts' '*.mts' '*.vue' 2>/dev/null | grep -vc '\.spec\.ts:'; }
@@ -109,8 +113,8 @@ echo
 # ------------------------------------------------------------------ projects
 echo "## Projects"
 echo
-echo "| Project | Root | Nx tags | Private | Specs | README |"
-echo "| --- | --- | --- | --- | --- | --- |"
+echo "| Project | Root | Nx tags | Private | Modules | Specs | Per spec | README |"
+echo "| --- | --- | --- | --- | --- | --- | --- | --- |"
 for manifest in packages/*/package.json apps/*/package.json infrastructure/*/package.json; do
     [ -f "$manifest" ] || continue
     dir=$(dirname "$manifest")
@@ -122,9 +126,15 @@ for manifest in packages/*/package.json apps/*/package.json infrastructure/*/pac
         name="$dir"; tags="(jq missing)"; priv="?"
     fi
     specs=$(git ls-files "$dir" | grep -c '\.spec\.ts$')
+    modules=$(git ls-files "$dir" | grep -E '\.(ts|mts)$' | grep -v '\.spec\.ts$' | grep -vc -E "$noise")
+    density=$(awk -v m="$modules" -v s="$specs" 'BEGIN { if (s == 0) print "none"; else printf "%.1f", m / s }')
     readme="no"; [ -f "$dir/README.md" ] && readme="yes"
-    echo "| $name | \`$dir\` | $tags | $priv | $specs | $readme |"
+    echo "| $name | \`$dir\` | $tags | $priv | $modules | $specs | $density | $readme |"
 done
+echo
+echo "\`Per spec\` is \`.ts\`/\`.mts\` modules per spec file, \`.vue\` excluded — nothing here puts a"
+echo "spec beside a component, so counting them would fire the density cap on every Nuxt app. Above"
+echo "4.0 caps 🧪 Testing at 3; \`none\` means no specs at all, which is a different cap."
 echo
 
 # ------------------------------------------------------------------ signals
@@ -170,7 +180,6 @@ echo "than quoting the count."
 echo
 # No `case` in here: bash 3.2, which is still /bin/sh on macOS, mis-parses a pattern's `)` inside a
 # command substitution. `${f%.ts}` is unchanged when the name doesn't end in .ts, which is the test
-noise='(^|/)(index|eslint\.config|vitest\.config|vite\.config|nuxt\.config)\.ts$|\.d\.ts$|\.stories\.ts$|/\.storybook/'
 missing=$(for f in $(sources | grep -v -E "$noise"); do
     [ "${f%.ts}" = "$f" ] && continue
     [ -f "${f%.ts}.spec.ts" ] || echo "$f"

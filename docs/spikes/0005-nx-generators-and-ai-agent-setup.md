@@ -1,7 +1,10 @@
-# 🧭 Nx generators, the MCP server and `nx migrate`
+---
+issue: 61
+status: implemented
+decision: accepted
+---
 
-Spike: #61
-Status: Implemented
+# 🧭 Nx generators, the MCP server and `nx migrate`
 
 ## Context
 
@@ -126,3 +129,12 @@ derived content at all; the other five are policy assertions with no Nx equivale
 All six share the same real gap, which is not about Nx: the hook fires only when an *agent* edits a
 file, so the same violation made by hand and pushed passes every gate the repo has — the pre-push
 hook runs lint, test and typecheck, and CI never runs the invariants at all.
+
+## Confirmation
+
+`.mcp.json` exists at the repo root, `infrastructure/nx-plugin` does not, and `nx.json` carries no
+`sync` block — verified by their presence or absence in the tree. `package.json`'s `nx` and `@nx/*`
+entries read `23.2.0`. The closing line above is no longer current: `check-invariants.sh`'s
+assertions now also run in CI, over the whole tree rather than only an agent's edit — see
+[`0011-docs-system-enforcement.md`](./0011-docs-system-enforcement.md)'s Confirmation, not this
+record, which stays a snapshot of what this spike itself found.

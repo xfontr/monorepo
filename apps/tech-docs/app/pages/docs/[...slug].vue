@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from "@nuxt/ui";
-import { locate, toCollectionPath } from "../../../shared/wiki.ts";
+import { locate, toCollectionPath } from "#shared/wiki.ts";
 
 const route = useRoute();
 
 const { data: snapshot } = await useSnapshot();
 const { data: sections } = await useWiki();
-const spikeStatuses = useSpikeStatuses();
 
 const path = computed(() => `/${(route.params.slug as string[] | undefined ?? []).join("/")}`.toLowerCase());
 
@@ -52,11 +51,6 @@ const meta = computed(() => snapshot.value?.docs?.pages.find((doc) => toCollecti
                 </template>
                 <template #right>
                     <span
-                        v-if="meta?.spikeStatus"
-                        class="text-xs font-medium px-1.5 py-0.5 rounded-full border border-current"
-                        :class="spikeStatusTone(meta.spikeStatus) === 'neutral' ? 'text-dimmed' : `tone-${spikeStatusTone(meta.spikeStatus)}`"
-                    >{{ spikeStatusLabel(meta.spikeStatus) }}</span>
-                    <span
                         v-if="meta"
                         class="text-xs text-muted"
                     >{{ meta.words }} words · updated {{ relativeTime(meta.updatedAt) }}</span>
@@ -71,7 +65,6 @@ const meta = computed(() => snapshot.value?.docs?.pages.find((doc) => toCollecti
                     <WikiNav
                         :sections="sections"
                         :current="path"
-                        :spike-statuses="spikeStatuses"
                     />
                 </aside>
 

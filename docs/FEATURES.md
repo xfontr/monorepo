@@ -27,6 +27,7 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm issue:ship` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm docs:drift` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm docs:map` | [`package.json`](../package.json) | [`README.md`](../README.md) |
+| `pnpm review:version` | [`package.json`](../package.json) | [`infrastructure/scripts/README.md`](../infrastructure/scripts/README.md) |
 | `pnpm release` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm release:dry` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm exec nx build-storybook @monorepo/ui` | [`packages/ui/package.json`](../packages/ui/package.json) | [`packages/ui/README.md`](../packages/ui/README.md) |
@@ -34,6 +35,7 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `pnpm exec nx nuxt-prepare @monorepo/tech-docs` | [`apps/tech-docs/package.json`](../apps/tech-docs/package.json) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
 | `pnpm exec nx collect @monorepo/tech-docs` | [`apps/tech-docs/package.json`](../apps/tech-docs/package.json) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
+| `pnpm exec nx check-docs @monorepo/tech-docs` | [`apps/tech-docs/package.json`](../apps/tech-docs/package.json) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
 | `pnpm exec nx coverage @monorepo/scripts` | [`infrastructure/scripts/package.json`](../infrastructure/scripts/package.json) | [`infrastructure/scripts/README.md`](../infrastructure/scripts/README.md) |
 | `pnpm exec nx serve @monorepo/translations` | [`infrastructure/translations/package.json`](../infrastructure/translations/package.json) | [`infrastructure/translations/README.md`](../infrastructure/translations/README.md) |
 | `pnpm exec nx docker:up @monorepo/translations` | [`infrastructure/translations/package.json`](../infrastructure/translations/package.json) | [`infrastructure/translations/README.md`](../infrastructure/translations/README.md) |
@@ -57,6 +59,9 @@ GitHub Actions, named as the Actions tab shows them rather than by filename.
 | Capability | Declared in | Explained in |
 | --- | --- | --- |
 | `CI` | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | [`README.md`](../README.md) |
+| `Dependabot auto-merge` | [`.github/workflows/dependabot-auto-merge.yml`](../.github/workflows/dependabot-auto-merge.yml) | [`README.md`](../README.md) |
+| `Docs deploy` | [`.github/workflows/docs-deploy.yml`](../.github/workflows/docs-deploy.yml) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
+| `Netlify deployment` | [`.github/workflows/netlify-deployment.yml`](../.github/workflows/netlify-deployment.yml) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `PR metadata` | [`.github/workflows/pr-metadata.yml`](../.github/workflows/pr-metadata.yml) | [`README.md`](../README.md) |
 | `Release` | [`.github/workflows/release.yml`](../.github/workflows/release.yml) | [`README.md`](../README.md) |
 
@@ -67,14 +72,14 @@ shortest statement of how a task is meant to go here.
 
 | Capability | Declared in | Explained in |
 | --- | --- | --- |
-| `/comment-cleanup` | [`.claude/skills/comment-cleanup/SKILL.md`](../.claude/skills/comment-cleanup/SKILL.md) | [`docs/spikes/0082-comment-discipline.md`](../docs/spikes/0082-comment-discipline.md) |
-| `/doc-drift-check` | [`.claude/skills/doc-drift-check/SKILL.md`](../.claude/skills/doc-drift-check/SKILL.md) | [`docs/spikes/0037-feature-discoverability.md`](../docs/spikes/0037-feature-discoverability.md) |
+| `/comment-cleanup` | [`.claude/skills/comment-cleanup/SKILL.md`](../.claude/skills/comment-cleanup/SKILL.md) | [`docs/spikes/0009-comment-discipline.md`](../docs/spikes/0009-comment-discipline.md) |
+| `/doc-drift-check` | [`.claude/skills/doc-drift-check/SKILL.md`](../.claude/skills/doc-drift-check/SKILL.md) | [`docs/spikes/0001-feature-discoverability.md`](../docs/spikes/0001-feature-discoverability.md) |
 | `/github-issue` | [`.claude/skills/github-issue/SKILL.md`](../.claude/skills/github-issue/SKILL.md) | [`infrastructure/scripts/src/issue/README.md`](../infrastructure/scripts/src/issue/README.md) |
-| `/house-docs` | [`.claude/skills/house-docs/SKILL.md`](../.claude/skills/house-docs/SKILL.md) | [`docs/spikes/0037-feature-discoverability.md`](../docs/spikes/0037-feature-discoverability.md) |
+| `/house-docs` | [`.claude/skills/house-docs/SKILL.md`](../.claude/skills/house-docs/SKILL.md) | [`docs/spikes/0001-feature-discoverability.md`](../docs/spikes/0001-feature-discoverability.md) |
 | `/new-package` | [`.claude/skills/new-package/SKILL.md`](../.claude/skills/new-package/SKILL.md) | [`infrastructure/scripts/src/drift/README.md`](../infrastructure/scripts/src/drift/README.md) |
-| `/nuxt-module-route` | [`.claude/skills/nuxt-module-route/SKILL.md`](../.claude/skills/nuxt-module-route/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
+| `/nuxt-module-route` | [`.claude/skills/nuxt-module-route/SKILL.md`](../.claude/skills/nuxt-module-route/SKILL.md) | [`docs/spikes/0013-linter-coverage.md`](../docs/spikes/0013-linter-coverage.md) |
 | `/repo-review` | [`.claude/skills/repo-review/SKILL.md`](../.claude/skills/repo-review/SKILL.md) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
-| `/spike-report` | [`.claude/skills/spike-report/SKILL.md`](../.claude/skills/spike-report/SKILL.md) | [`docs/concepts/agent-setup.md`](../docs/concepts/agent-setup.md) |
+| `/spike-report` | [`.claude/skills/spike-report/SKILL.md`](../.claude/skills/spike-report/SKILL.md) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
 | `/start-issue` | [`.claude/skills/start-issue/SKILL.md`](../.claude/skills/start-issue/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/writing-tests` | [`.claude/skills/writing-tests/SKILL.md`](../.claude/skills/writing-tests/SKILL.md) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `/content:new-vendor` | [`packages/content/.claude/skills/new-vendor/SKILL.md`](../packages/content/.claude/skills/new-vendor/SKILL.md) | [`infrastructure/scripts/src/map/README.md`](../infrastructure/scripts/src/map/README.md) |

@@ -20,7 +20,7 @@ invariants that span more than one file.
 Default to none. **A comment carries one fact that isn't in the code, in one sentence.** The rule is
 not "a comment must justify its line" — that one is satisfied by writing a better argument, which is
 how `infrastructure/scripts` reached one comment line per four lines of code.
-[`0082`](./docs/spikes/0082-comment-discipline.md) has the measurement.
+[`0009`](./docs/spikes/0009-comment-discipline.md) has the measurement.
 
 - The keep-test is **whether the next reader can reconstruct it from present state.** History and
   outside constraint can't be: what a scanner flagged, the bug behind a strange sort order, a trap
@@ -55,8 +55,8 @@ far outside that is worth opening. The `comment-cleanup` skill runs the pass.
 - **Never add a build step to a package.** `packages/*` export raw TypeScript/Vue source; consumers
   compile them. No `build` script, no `dist/`, no `tsup`/`unbuild`, no `main`/`types` fields — the
   `exports` map points straight at source.
-- **Never add a lifecycle script** (`postinstall`, `prepare`, `prepublish`). Both CI workflows
-  install with `--ignore-scripts`, so anything hung off one works locally and silently does nothing
+- **Never add a lifecycle script** (`postinstall`, `prepare`, `prepublish`). Every CI workflow
+  installs with `--ignore-scripts`, so anything hung off one works locally and silently does nothing
   in CI. There are none in the workspace today; keep it that way.
 - **Never hand-edit [`docs/FEATURES.md`](./docs/FEATURES.md).** `pnpm docs:map` renders it and CI
   runs `pnpm docs:map --check`, so an edit survives exactly until the next render. A capability with
@@ -64,6 +64,12 @@ far outside that is worth opening. The `comment-cleanup` skill runs the pass.
   to fill the cell in.
 - **Never hand-edit a `CHANGELOG.md` or a `version`.** `nx release` derives both from Conventional
   Commit messages. Releases run from the **Release** workflow (`workflow_dispatch`), never locally.
+- **Never hand-edit the version line or the digest rows in
+  [`docs/reviews/METHOD.md`](./docs/reviews/METHOD.md).** `pnpm review:version` writes both, and it
+  bumps the version precisely because the person changing the review method is the one least likely
+  to notice they owe a bump. Editing a digest to match a file you just changed silences the check
+  rather than satisfying it — and it makes every score in the history table a claim about a method
+  that didn't produce it. The prose around the tables is yours to edit.
 - **Never write a real endpoint, URL, token or instance ID into the repo.** Every one of them is an
   env var with no default; `.env.example` documents the names and nothing else. "It's a public URL"
   is not a reason — vendor endpoints stay out.
@@ -126,12 +132,18 @@ standing failure mode in this repo. Same for the workspace-layout block in the r
 project is added, and for a new file under [`docs/reviews/`](./docs/reviews/README.md) and the
 history table in that directory's README.
 
-The Nuxt `.nuxt` wiring is the same shape at smaller scale: [`nx.json`](./nx.json)'s `lint`,
-`typecheck` and `test` `dependsOn` a `nuxt-prepare` target that only exists where a project defines
-that script — currently `apps/huella-legal` and `apps/tech-docs`. A new Nuxt app needs the script
-added by hand for the dependency to take effect; if a **third** one lands, that's the point to
-replace this with a local Nx plugin inferring it from `nuxt.config.ts` instead of copy-pasting a
-fourth time.
+A Nuxt app's `tsconfig.json` is `files: []` plus references into `.nuxt/`, so anything that opens it
+fails while that directory is missing. **Vitest repairs this itself** — every preset carries
+[`prepareNuxt.mjs`](./packages/configs/src/vitest/prepareNuxt.mjs), which runs `nuxi prepare` when a
+project has a `nuxt.config.ts` and no `.nuxt` — so no test target is wired to anything, including
+the per-spec ones `@nx/vitest` generates and a bare `pnpm vitest` that never enters the task graph.
+What's left in [`nx.json`](./nx.json) is `lint` and `typecheck`, the two that aren't Vitest,
+depending on a `nuxt-prepare` target that only exists where a project defines that script —
+currently `apps/huella-legal` and `apps/tech-docs`. A new Nuxt app needs that script added by hand,
+and Nx **silently drops** an edge naming a target a project doesn't have, so the symptom is `lint`
+failing to parse every file rather than anything mentioning `.nuxt`.
+[`0015`](./docs/spikes/0015-nuxt-prepare-wiring.md) has the measurements, and settles against the
+local Nx plugin this section used to earmark for the third app.
 
 ## 🛠️ Skills
 

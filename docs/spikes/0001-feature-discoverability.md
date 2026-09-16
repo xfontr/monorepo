@@ -1,7 +1,10 @@
-# 🧭 Making the repo's feature surface discoverable
+---
+issue: 37
+status: implemented
+decision: accepted
+---
 
-Spike: #37
-Status: Implemented
+# 🧭 Making the repo's feature surface discoverable
 
 ## Context
 
@@ -15,7 +18,7 @@ What made it a decision rather than a ticket is that the tree already holds fort
 markdown files, with every one of the eight projects carrying both a README and a `CLAUDE.md` and
 [`house-docs`](../../.claude/skills/house-docs/SKILL.md) setting their voice. So the question was
 what a new collection holds that those don't — because anything that re-tells them is a second copy
-of content [`0040-docs-drift-detection.md`](./0040-docs-drift-detection.md) had just named as this
+of content [`0002-docs-drift-detection.md`](./0002-docs-drift-detection.md) had just named as this
 repo's standing failure mode.
 
 ## Result
@@ -37,7 +40,7 @@ So the collection is worth growing, and it earns its existence from one rule:
 > A subject enters `docs/` only if no single project owns it.
 
 That rule is the whole design. It makes overlap with the READMEs impossible by construction rather
-than by discipline, so the drift class 0040 is about cannot arise here: there is never a second copy
+than by discipline, so the drift class 0002 is about cannot arise here: there is never a second copy
 because there was never a first one. Its corollary answers the growth worry directly — when one
 project's docs outgrow a single file, they subdivide *inside that project* (`apps/huella-legal/docs/`,
 sub-READMEs beside the code), they do not migrate to the root tree. The root tree grows only when a
@@ -73,7 +76,7 @@ have had them, not into a new file, which is the behaviour the rule below is mea
 
 AI carries the extraction and the audit on all three: enumerating the surface, diffing a render
 against what is checked in, and reporting which cross-project subject has no doc.
-[`drift/detect.ts`](../../infrastructure/scripts/src/drift/detect.ts) already does the hard part of
+[`drift/detect.ts`](../../infrastructure/scripts/src/drift/domain/detect.ts) already does the hard part of
 the diff. What it does not do is author a concept doc unreviewed — `house-docs` names that as the
 anti-pattern because it yields text restating a signature where the constraint was the only thing
 worth reading, and the concepts tree is *entirely* constraint.
@@ -115,3 +118,9 @@ absorbing prose that belonged next to the code.
 
 #38 is a duplicate of #37 and closes with it. The map, the concepts tree and the guides tree are
 three implementation issues; none has been filed.
+
+## Confirmation
+
+`pnpm docs:map --check` in CI (`ci.yml`) fails the build the moment a capability is added without a
+re-render, and `docs/concepts/`, `docs/guides/` and `docs/FEATURES.md` existing in the tree is the
+rest of the claim.

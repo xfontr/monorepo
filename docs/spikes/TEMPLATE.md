@@ -1,7 +1,10 @@
-# 🧭 <Spike title>
+---
+issue: <the GitHub issue that raised the question>
+status: <to-implement | implemented | wont-implement>
+decision: <accepted | superseded>
+---
 
-Spike: #<issue number>
-Status: <To implement | Implemented | Won't implement>
+# 🧭 <Spike title>
 
 ## Context
 
@@ -21,3 +24,9 @@ issue's own "Decision needed" framing, reused rather than rewritten.>
 ## Consequences
 
 <What this unlocks, what it forecloses, and what would have to change for this to get revisited.>
+
+## Confirmation
+
+<How compliance with this decision is verified — a command, a check, or a test that would fail if
+it stopped being true. Written even before `status` reaches `implemented`, describing how it will
+be checked once it does.>

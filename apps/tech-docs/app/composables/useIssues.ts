@@ -1,18 +1,44 @@
-import type { IssuesArtifact } from "../../shared/types.ts";
+import type { IssuesArtifact } from "#shared/types.ts";
+import type { GithubIssue } from "#shared/issues.ts";
+import { issuesApiUrl, toIssues } from "#shared/issues.ts";
 
 const NO_ISSUES: IssuesArtifact = { fetchedAt: "", error: null, issues: [] };
 
-export function useIssues() {
-    const state = useFetch<IssuesArtifact>("/api/issues", { key: "issues", default: () => NO_ISSUES });
+const PER_PAGE = 100;
 
-    /**
-     * The server memoises `gh` for a minute, which is what makes navigating between pages free —
-     * so a refresh button has to say so explicitly. The plain `refresh()` would only read the
-     * memo back.
-     */
-    async function reload(): Promise<void> {
-        state.data.value = await $fetch<IssuesArtifact>("/api/issues", { query: { refresh: "1" } });
+function messageOf(cause: unknown): string {
+    const data = (cause as { data?: { message?: unknown } }).data;
+
+    if (typeof data?.message === "string") return data.message.slice(0, 300);
+
+    return cause instanceof Error ? cause.message.slice(0, 300) : "GitHub could not be read";
+}
+
+async function read(repoUrl: string): Promise<IssuesArtifact> {
+    const fetchedAt = new Date().toISOString();
+    const url = issuesApiUrl(repoUrl);
+
+    if (url === null) return { fetchedAt, error: "NUXT_PUBLIC_REPO_URL is unset, so there is no repo to read.", issues: [] };
+
+    try {
+        const payload = await $fetch<GithubIssue[]>(url, { query: { state: "open", per_page: PER_PAGE } });
+
+        return { fetchedAt, error: null, issues: toIssues(payload) };
     }
+    catch (cause) {
+        return { fetchedAt, error: messageOf(cause), issues: [] };
+    }
+}
 
-    return { ...state, reload };
+export function useIssues() {
+    const { public: { repoUrl } } = useRuntimeConfig();
+
+    const state = useAsyncData<IssuesArtifact>("issues", () => read(repoUrl), {
+        default: () => NO_ISSUES,
+        // Never on the server, which at build time is the prerenderer: a baked issue list would
+        // ship as old as the deploy.
+        server: false,
+    });
+
+    return { ...state, reload: state.refresh };
 }

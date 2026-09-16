@@ -1,27 +1,19 @@
 <script setup lang="ts">
-import { filterIssues, labelsOf, NO_PROJECT, projectsOf, sortIssues } from "../../shared/issues.ts";
+import { filterIssues, labelsOf, sortIssues } from "#shared/issues.ts";
 
 // Not awaited: `await` resolves to the plain `useFetch` state and would drop `reload` with it.
 // Nuxt settles the request before it serialises the payload either way.
 const { data: issues, reload } = useIssues();
 
-const project = ref<string>("all");
 const label = ref<string>("all");
 const search = ref("");
 
 const all = computed(() => issues.value.issues);
 
 const visible = computed(() => sortIssues(filterIssues(all.value, {
-    project: project.value,
     label: label.value,
     search: search.value,
 })));
-
-const projectItems = computed(() => [
-    { label: "Every project", value: "all" },
-    ...projectsOf(all.value).map((name) => ({ label: name, value: name })),
-    { label: "On no board", value: NO_PROJECT },
-]);
 
 const labelItems = computed(() => [
     { label: "Every label", value: "all" },
@@ -69,13 +61,6 @@ async function refresh(): Promise<void> {
                         size="sm"
                         class="w-56"
                     />
-                    <USelect
-                        v-model="project"
-                        :items="projectItems"
-                        value-key="value"
-                        size="sm"
-                        class="w-44"
-                    />
                 </template>
                 <template #right>
                     <USelect
@@ -97,7 +82,7 @@ async function refresh(): Promise<void> {
                     variant="subtle"
                     icon="i-lucide-plug-zap"
                     title="GitHub could not be reached"
-                    :description="`${issues.error} — this page runs the gh CLI, so it needs gh auth login and a network.`"
+                    :description="`${issues.error} — this page reads GitHub from your browser, unauthenticated, which allows 60 requests an hour per address.`"
                 />
 
                 <UCard :ui="{ body: 'p-0 sm:p-0' }">
@@ -108,8 +93,8 @@ async function refresh(): Promise<void> {
                                     Open issues
                                 </h2>
                                 <p class="text-xs text-muted">
-                                    Read live from GitHub through the <code class="font-mono">gh</code> CLI. Nothing is
-                                    stored here — the issue is the record, and this is a window onto it.
+                                    Read live from GitHub by your own browser. Nothing is stored here — the issue is
+                                    the record, and this is a window onto it.
                                 </p>
                             </div>
 

@@ -1,23 +1,18 @@
 import { access, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import type { DocKind, DocLink, DocPage, DocsArtifact, SpikeStatus } from "../../shared/types.ts";
+import type { DocKind, DocLink, DocPage, DocsArtifact, SpikeDecision, SpikeStatus } from "../../shared/types.ts";
+import { SPIKE_DECISIONS, SPIKE_STATUSES } from "../../shared/spikes.ts";
+import { frontmatterFields } from "../lib/spikes.ts";
 import { WORKSPACE_ROOT } from "../lib/paths.ts";
 import { git } from "../lib/run.ts";
 
 // Inline links only. Reference definitions and bare autolinks are not used anywhere in these docs.
-const LINK = /\[(?<text>[^\]]*)\]\((?<href>[^)\s]+)(?:\s+"[^"]*")?\)/g;
-const HEADING = /^(#{1,3})\s+(.+)$/gm;
+const LINK = /\[[^\]]*\]\((?<href>[^)\s]+)(?:\s+"[^"]*")?\)/g;
+const HEADING = /^#{1,3}[^\S\n]+(\S.*)$/gm;
 
 const DEFERRED = /^##\s+🧭\s/m;
 
 const SPIKE_PATH = /^docs\/spikes\/\d{4}-/;
-const STATUS_LINE = /^Status:\s*(.+)$/m;
-
-const SPIKE_STATUS_VALUES: Record<string, SpikeStatus> = {
-    "implemented": "implemented",
-    "to implement": "to-implement",
-    "won't implement": "wont-implement",
-};
 
 /**
  * Anchors and external links are somebody else's problem; only repo-relative paths are resolvable.
@@ -25,7 +20,7 @@ const SPIKE_STATUS_VALUES: Record<string, SpikeStatus> = {
  * copied, so flagging its own instructions would make the count permanently non-zero.
  */
 function isRepoRelative(href: string): boolean {
-    return !/^([a-z]+:|\/\/|#|mailto:)/i.test(href) && !href.includes("<");
+    return !/^(?:[a-z]+:|\/\/|#)/i.test(href) && !href.includes("<");
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -48,7 +43,7 @@ async function checkLink(fromFile: string, href: string): Promise<DocLink | null
     // `#anchor` is one way to point inside a file; `:91-94` is the other, and the reviews cite
     // evidence that way throughout. Neither says anything about whether the file itself exists.
     const [target] = href.split("#");
-    const path = target?.replace(/:\d+(-\d+)?$/, "");
+    const path = target?.replace(/:\d+(?:-\d+)?$/, "");
 
     if (!path) return null;
 
@@ -73,18 +68,36 @@ function kindOf(path: string): DocKind {
     return "readme";
 }
 
+export interface SpikeMeta {
+    status: SpikeStatus | null
+    decision: SpikeDecision | null
+    supersededBy: string | null
+}
+
+const NO_SPIKE_META: SpikeMeta = { status: null, decision: null, supersededBy: null };
+
 /**
  * Only a spike report carries this — `TEMPLATE.md` doesn't match `SPIKE_PATH` and answers null
- * rather than a stale default. An unrecognised value (a typo, a value from before this existed)
- * also answers null instead of guessing, so a missing badge in the dashboard is the visible nudge
- * to fix the line rather than a silently wrong one.
+ * rather than a stale default. An unrecognised `status`/`decision` value (a typo, a
+ * value from before this existed) also answers null instead of guessing, so a missing badge in the
+ * dashboard is the visible nudge to fix the frontmatter rather than a silently wrong one.
  */
-export function spikeStatusOf(path: string, source: string): SpikeStatus | null {
-    if (!SPIKE_PATH.test(path)) return null;
+export function spikeMetaOf(path: string, source: string): SpikeMeta {
+    if (!SPIKE_PATH.test(path)) return NO_SPIKE_META;
 
-    const raw = STATUS_LINE.exec(source)?.[1]?.trim().toLowerCase() ?? "";
+    // Unparseable frontmatter is `check-docs`'s problem to report, not the dashboard's to guess at.
+    const fields = frontmatterFields(source);
 
-    return SPIKE_STATUS_VALUES[raw] ?? null;
+    if (fields === null) return NO_SPIKE_META;
+
+    const status = (SPIKE_STATUSES as readonly string[]).includes(fields.status ?? "") ? (fields.status as SpikeStatus) : null;
+    const decision = (SPIKE_DECISIONS as readonly string[]).includes(fields.decision ?? "") ? (fields.decision as SpikeDecision) : null;
+
+    return {
+        status,
+        decision,
+        supersededBy: decision === "superseded" ? fields.supersededBy ?? null : null,
+    };
 }
 
 export async function collectDocs(projectRoots: string[], generatedAt: string): Promise<DocsArtifact> {
@@ -94,7 +107,7 @@ export async function collectDocs(projectRoots: string[], generatedAt: string): 
     for (const path of tracked) {
         const source = await readFile(resolve(WORKSPACE_ROOT, path), "utf8");
 
-        const headings = [...source.matchAll(HEADING)].map((match) => (match[2] ?? "").trim());
+        const headings = [...source.matchAll(HEADING)].map((match) => (match[1] ?? "").trim());
         const brokenLinks: DocLink[] = [];
 
         for (const match of source.matchAll(LINK)) {
@@ -108,6 +121,7 @@ export async function collectDocs(projectRoots: string[], generatedAt: string): 
         }
 
         const updatedAt = (await git(["log", "-1", "--format=%cI", "--", path])).trim();
+        const spikeMeta = spikeMetaOf(path, source);
 
         pages.push({
             path,
@@ -118,7 +132,9 @@ export async function collectDocs(projectRoots: string[], generatedAt: string): 
             words: source.split(/\s+/).filter(Boolean).length,
             updatedAt: updatedAt || null,
             deferred: DEFERRED.test(source),
-            spikeStatus: spikeStatusOf(path, source),
+            spikeStatus: spikeMeta.status,
+            spikeDecision: spikeMeta.decision,
+            spikeSupersededBy: spikeMeta.supersededBy,
             brokenLinks,
         });
     }

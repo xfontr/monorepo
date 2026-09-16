@@ -1,6 +1,6 @@
 {
   "name": "@monorepo/configs",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "",
   "private": true,
   "author": "Xifré Font",
@@ -30,6 +30,7 @@
     "@vitest/eslint-plugin": "^1.6.18",
     "eslint": "catalog:",
     "eslint-plugin-jsonc": "^3.2.0",
+    "eslint-plugin-regexp": "^3.3.0",
     "eslint-plugin-vue": "^10.9.1",
     "globals": "^17.6.0",
     "typescript": "catalog:",

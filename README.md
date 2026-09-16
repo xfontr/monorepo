@@ -148,8 +148,17 @@ use `pnpm exec nx run-many -t <target>`.
 - [`pnpm issue:ship`](./infrastructure/scripts/src/ship/README.md) is the other end of `pick`: it
   pushes the current branch, opens or reuses its PR, arms GitHub's auto-merge, then blocks until
   every check concludes and reports whether the PR merged or a check failed. Auto-merge and
-  delete-branch-on-merge are both on for this repo, and there's no branch protection on `master`
-  requiring reviews, so nothing gates the merge besides CI passing.
+  delete-branch-on-merge are both on for this repo. The `master` ruleset requires one approving
+  review, but repo admins are a standing bypass actor, so a self-opened PR still only waits on CI.
+- Dependabot PRs get the same auto-merge treatment without anyone running `issue:ship`:
+  [`dependabot-auto-merge.yml`](./.github/workflows/dependabot-auto-merge.yml) arms auto-merge on
+  every non-major PR Dependabot opens; a major bump is left for a manual merge after approval.
+  Dependabot isn't a bypass actor, so unlike a self-opened PR, the merge waits on both CI and that
+  one required approval.
+- [`CODEOWNERS`](./.github/CODEOWNERS) requests review by path — using the same layout as the
+  workspace tree above — so the required approval has someone to land on automatically. Every path
+  resolves to the sole collaborator today; splitting them further only matters once a second one
+  joins.
 - The hook also runs [`pnpm docs:drift`](./infrastructure/scripts/src/drift/README.md), which never
   fails the push: it warns when a changed project's docs look stale or the change is big, and offers
   to file an issue.
@@ -170,6 +179,17 @@ use `pnpm exec nx run-many -t <target>`.
   `gh secret set PROJECTS_TOKEN --repo xfontr/monorepo` (or Settings → Secrets and variables →
   Actions in the browser). Re-run the failed workflow run once it's set — no new PR needed.
 - CI (GitHub Actions) re-runs the same affected targets plus `build` on every PR and on `master`.
+  The `nx affected` step remote-caches through Nx Cloud — the workspace link lives in `nxCloudId`
+  in [`nx.json`](./nx.json), set once via `nx connect` — but only once an `NX_CLOUD_ACCESS_TOKEN`
+  secret exists too: `nxCloudId` just identifies the workspace, it isn't a credential, and CI has
+  no other way to prove it's allowed to read or write that workspace's cache. Without the secret,
+  `nx affected` runs everything locally with no error and no remote cache, so a missing token fails
+  silently rather than loudly. That secret isn't provisioned by anything either: generate a
+  **Read & Write** access token from the workspace's page on [Nx Cloud](https://cloud.nx.app) (the
+  link `nx connect` printed), then add it as `gh secret set NX_CLOUD_ACCESS_TOKEN --repo
+  xfontr/monorepo` (or Settings → Secrets and variables → Actions in the browser). Read & Write
+  because the same token authenticates both `master` pushes and PR runs here — a read-only token
+  would let CI pull from the cache but never populate it.
 
 ## 🏷 Versioning
 

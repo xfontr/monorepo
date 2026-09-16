@@ -15,11 +15,11 @@ See [README.md](./README.md) for the layout rule and the per-script docs it link
   listing answers "what runs, what talks to the outside, what's pure" before anyone opens a file.
   Don't add loose files at the top of `src/`.
 - **entry → command → `adapters/` → `domain/`, one way only, never sideways between script folders.**
-  The reasoning is in [`0048`](../../docs/spikes/0048-scripts-architecture.md). Two rules get got
+  The reasoning is in [`0004`](../../docs/spikes/0004-scripts-architecture.md). Two rules get got
   wrong: an **adapter is named after the boundary it wraps**, so `git.ts` living in three folders at
   once is correct rather than duplication; and a **`domain/` file is pure** — no `node:fs`, no
   subprocess, no clack, no `process`. There is no `helpers/`, no `types/` and no `constants.ts` here
-  — 0048 says why each was rejected, so don't re-add one. (`types/` also can't work: `**/types` is
+  — 0004 says why each was rejected, so don't re-add one. (`types/` also can't work: `**/types` is
   in `baseIgnores`, so ESLint would never see it.)
 - **No side effects at module scope.** No `run()`, `git()` or `readFileSync` at the top level of a
   file, and read `process.argv`/`process.env` inside a command (or via `flag()`), never into a

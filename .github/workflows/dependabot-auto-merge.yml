@@ -1,0 +1,30 @@
+name: Dependabot auto-merge
+
+# pull_request_target, not pull_request: GitHub forces a read-only GITHUB_TOKEN on any
+# pull_request-triggered run opened by Dependabot, no matter what `permissions` below says.
+# Nothing here checks out the PR's own code, so running in the base repo's context is safe.
+on:
+    pull_request_target:
+        types: [opened, reopened, synchronize]
+
+permissions:
+    contents: write
+    pull-requests: write
+
+jobs:
+    auto-merge:
+        # Not `github.actor`, which is whoever triggered the run and not necessarily the PR's
+        # author — Sonar githubactions:S8232 fails the security gate on it.
+        if: github.event.pull_request.user.login == 'dependabot[bot]'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+              id: metadata
+
+            # update-type is the highest semver change in the PR, so a grouped bump (github-actions,
+            # or the npm dependencies group) stays manual too if any one dependency in it is major.
+            - if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+              run: gh pr merge --auto --squash "$PR_URL"
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  PR_URL: ${{ github.event.pull_request.html_url }}

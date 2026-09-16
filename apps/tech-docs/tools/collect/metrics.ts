@@ -6,11 +6,11 @@ import { WORKSPACE_ROOT } from "../lib/paths.ts";
 import { git, runAllowFailure, tryRun } from "../lib/run.ts";
 
 const SPEC_SUFFIX = ".spec.ts";
-const SOURCE_PATTERN = /\.(ts|vue)$/;
+const SOURCE_PATTERN = /\.(?:ts|vue)$/;
 
 // The `commit-msg` hook rewrites a conforming subject to carry the branch's issue number — `feat:
 // [50] add thing` — so the optional group here keeps a numberless-branch commit from counting as a miss.
-const CONVENTIONAL = /^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([^)]+\))?!?: (\[\d+\] )?[a-z0-9]/;
+const CONVENTIONAL = /^(?:build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(?:\([^)]+\))?!?: (?:\[\d+\] )?[a-z0-9]/;
 
 async function filesIn(root: string): Promise<string[]> {
     const stdout = await git(["ls-files", "--", root]);

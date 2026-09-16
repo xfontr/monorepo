@@ -1,6 +1,6 @@
 {
   "name": "@monorepo/content",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Content ports",
   "author": "Xifré Font",
   "license": "ISC",
@@ -59,6 +59,7 @@
     "eslint": "catalog:",
     "h3": "^1.15.11",
     "nitropack": "^2.13.4",
+    "typescript": "catalog:",
     "vitest": "catalog:"
   }
 }

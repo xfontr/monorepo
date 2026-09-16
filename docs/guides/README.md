@@ -5,7 +5,7 @@ explains a constraint, a guide here walks a procedure — numbered steps are the
 folder, and a sign a file belongs in `concepts/` instead.
 
 Same ownership rule as the rest of `docs/`, from
-[spike 0037](../spikes/0037-feature-discoverability.md):
+[spike 0001](../spikes/0001-feature-discoverability.md):
 
 > A subject enters `docs/` only if no single project owns it.
 

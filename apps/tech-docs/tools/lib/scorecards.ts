@@ -17,7 +17,7 @@ export interface ParsedScores {
     totalDelta: string
 }
 
-const SCORES_SECTION = /## 🧮 Scores\n([\s\S]*?)(?:\n## |\n*$)/;
+const SCORES_SECTION = /## 🧮 Scores\n([\s\S]*?)(?:\n## |$)/;
 
 function cellsOf(row: string): string[] {
     return row.split("|").slice(1, -1).map((cell) => cell.trim());

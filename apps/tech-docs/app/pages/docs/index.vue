@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { toCollectionPath } from "../../../shared/wiki.ts";
+import { toCollectionPath } from "#shared/wiki.ts";
 
 const { data: snapshot } = await useSnapshot();
 const { data: sections } = await useWiki();
-const spikeStatuses = useSpikeStatuses();
 
 const pages = computed(() => snapshot.value?.docs?.pages ?? []);
 
@@ -54,10 +53,7 @@ const broken = computed(() => pages.value.filter((page) => page.brokenLinks.leng
         <template #body>
             <div class="flex gap-6 items-start">
                 <aside class="hidden lg:block w-60 shrink-0 sticky top-0">
-                    <WikiNav
-                        :sections="sections"
-                        :spike-statuses="spikeStatuses"
-                    />
+                    <WikiNav :sections="sections" />
                 </aside>
 
                 <div class="flex-1 min-w-0 flex flex-col gap-6">

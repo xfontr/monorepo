@@ -1,0 +1,86 @@
+name: Netlify deployment
+
+on:
+    push:
+        branches: [master]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+# Queued rather than cancelled: an in-flight run is polling a specific commit's Netlify deploy,
+# and cancelling it for a newer push would just abandon that poll without recording anything.
+concurrency:
+    group: netlify-deployment
+    cancel-in-progress: false
+
+jobs:
+    record:
+        runs-on: ubuntu-latest
+        permissions:
+            deployments: write
+        steps:
+            # Records the Netlify deploy as a GitHub Deployment; it builds and deploys nothing —
+            # huella-legal ships entirely through Netlify's own git integration, outside this repo.
+            - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+              env:
+                  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+                  NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
+              with:
+                  script: |
+                      const sha = context.sha;
+                      const environment = "netlify-huella-legal";
+
+                      // Netlify's git integration deploys asynchronously after the push that
+                      // triggers this workflow, so the matching deploy may not exist yet.
+                      const pollIntervalMs = 15_000;
+                      const pollTimeoutMs = 10 * 60 * 1000;
+                      const deadline = Date.now() + pollTimeoutMs;
+
+                      let deploy;
+                      while (Date.now() < deadline) {
+                          const response = await fetch(
+                              `https://api.netlify.com/api/v1/sites/${process.env.NETLIFY_SITE_ID}/deploys?per_page=20`,
+                              { headers: { Authorization: `Bearer ${process.env.NETLIFY_AUTH_TOKEN}` } }
+                          );
+                          if (!response.ok) {
+                              throw new Error(`Netlify API returned ${response.status}: ${await response.text()}`);
+                          }
+                          const deploys = await response.json();
+                          const match = deploys.find((d) => d.commit_ref === sha && d.context === "production");
+
+                          if (match?.state === "ready") {
+                              deploy = match;
+                              break;
+                          }
+                          if (match?.state === "error") {
+                              core.setFailed(`Netlify deploy for ${sha} failed: ${match.error_message ?? "no error message"}`);
+                              return;
+                          }
+
+                          await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+                      }
+
+                      if (!deploy) {
+                          core.setFailed(`No ready Netlify production deploy for ${sha} within ${pollTimeoutMs / 1000}s`);
+                          return;
+                      }
+
+                      const { data: deployment } = await github.rest.repos.createDeployment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          ref: sha,
+                          environment,
+                          auto_merge: false,
+                          required_contexts: [],
+                          production_environment: true,
+                      });
+
+                      await github.rest.repos.createDeploymentStatus({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          deployment_id: deployment.id,
+                          state: "success",
+                          environment,
+                          environment_url: deploy.ssl_url,
+                      });

@@ -2,7 +2,7 @@
 
 Merges every project's `coverage-final.json` into one browsable HTML report rooted at the workspace
 `coverage/` directory, so reading coverage stops meaning opening seven `index.html` files by hand.
-See [`0044-coverage-report-merge.md`](../../../../docs/spikes/0044-coverage-report-merge.md) for why
+See [`0003-coverage-report-merge.md`](../../../../docs/spikes/0003-coverage-report-merge.md) for why
 this is a script on top of Istanbul's own libraries rather than the `nyc` CLI or a hosted service.
 
 | Command | What it does |

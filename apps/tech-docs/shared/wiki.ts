@@ -30,11 +30,11 @@ export interface WikiSection {
 }
 
 /**
- * The reviews *rubric* and history aren't excluded — they're docs about the process, not the dated
+ * The reviews and spikes *rubrics* aren't excluded — they're docs about the process, not the
  * records. A `TEMPLATE.md`'s placeholder heading (`<Spike title>`) is markup `@nuxt/content` treats
  * as raw HTML and drops from the extracted title, so its nav entry would end up blank.
  */
-const EXCLUDED = [/\/changelog$/, /^\/docs\/reviews\/\d{4}-/, /\/template$/];
+const EXCLUDED = [/\/changelog$/, /^\/docs\/reviews\/\d{4}-/, /^\/docs\/spikes\/\d{4}-/, /\/template$/];
 
 /** The workspace layout the root README enforces — three project areas, each its own wiki section. */
 const PROJECT_AREAS = ["apps", "packages", "infrastructure"] as const;
@@ -115,7 +115,6 @@ export function stripLeadingEmoji(title: string): string {
 function kindOf(path: string): DocKind {
     if (path.endsWith("/skill")) return "skill";
     if (path.endsWith("/claude") || path === "/claude") return "claude";
-    if (/^\/docs\/spikes\/\d{4}-/.test(path)) return "spike";
     if (path.startsWith("/docs/")) return "doc";
 
     return "readme";

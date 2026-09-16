@@ -2,7 +2,7 @@
 
 Everything here spans more than one project. Anything that doesn't — a project's own reference,
 its setup, its invariants — stays in that project's `README.md` and `CLAUDE.md` instead, from
-[spike 0037](./spikes/0037-feature-discoverability.md):
+[spike 0001](./spikes/0001-feature-discoverability.md):
 
 > A subject enters `docs/` only if no single project owns it.
 
@@ -10,6 +10,12 @@ READMEs are excellent at one genre: per-project reference, colocated with the co
 the same diff. They structurally cannot hold a subject spanning projects, because there is no
 project whose README owns it — that's the gap this tree fills, not a volume problem better READMEs
 would fix.
+
+These files are read on GitHub first. [`@monorepo/tech-docs`](../apps/tech-docs/README.md) also
+renders them — in place under `pnpm dev tech-docs`, and as a snapshot on the site it publishes from
+`master` — so a link here has to stay correct in both places, which is
+[`resolveDocLink`](../apps/tech-docs/shared/docLinks.ts)'s whole job rather than something to write
+around.
 
 ## 🗂 Structure
 
@@ -30,5 +36,4 @@ under `concepts/` or `guides/`.
 
 | Later need | What changes |
 | --- | --- |
-| Publishing this tree as a site anyone can reach | [`@monorepo/tech-docs`](../apps/tech-docs/README.md) renders it locally — `pnpm dev tech-docs` — reading these files in place rather than copying them. Publishing is the different problem: nothing here is authenticated and every path it prints is a local file |
 | Consolidating project READMEs into this tree | Forecloses on purpose — the ownership rule cuts both ways, so a project's own docs stay in the project forever, subdividing in place as they grow rather than migrating here |

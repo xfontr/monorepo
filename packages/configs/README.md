@@ -46,6 +46,13 @@ dependency of this package. Both presets also declare an explicit `include`: v8 
 instruments files a test actually imported, so an untested file would vanish from the report instead
 of counting as 0%.
 
+Both presets also carry one `globalSetup`,
+[`prepareNuxt.mjs`](./src/vitest/prepareNuxt.mjs): in a project with a `nuxt.config.ts` and no
+`.nuxt`, it runs `nuxi prepare` before anything is transformed, because the app's `tsconfig.json` is
+`files: []` plus references into that directory and every file fails to load while it's missing. It
+returns immediately everywhere else, so no project has to opt in or out. It is the one `.mjs` file
+here, and has to be: a `.ts` setup file is transformed by the pipeline it exists to repair.
+
 **TypeScript** — `tsconfig.json`:
 
 ```json
@@ -56,7 +63,10 @@ of counting as 0%.
 ```
 
 `base.json` is strict, `ES2022` with ESNext modules, bundler-resolved and `noEmit` — no project here
-emits its own JS. `node.json` adds `types: ["node"]` on top, and is what every consumer actually
+emits its own JS. It adds `noUncheckedIndexedAccess` on top of `strict`, which does not imply it:
+`arr[0]` and `match[1]` are typed `T | undefined`, so a guard on them reads as necessary rather than
+as dead code — see [`0013`](../../docs/spikes/0013-linter-coverage.md) for why the two travel
+together. `node.json` adds `types: ["node"]` on top, and is what every consumer actually
 extends; nothing extends `base.json` directly, since the config file in the `include` needs Node
 types even in a package that otherwise doesn't.
 
@@ -71,6 +81,10 @@ types even in a package that otherwise doesn't.
   [`infrastructure/translations`](../../infrastructure/translations) stay diffable. The glob matches
   that layout — `projects/<project>/<locale>.json` — not a `locales/` directory
 - `@vitest/eslint-plugin` for `**/*.spec.ts`
+- `eslint-plugin-regexp` (`flat/recommended`) — ESLint core does not read inside a regex literal, and
+  this repo parses markdown, commit subjects and command output with them. It catches super-linear
+  backtracking, dead alternatives and unread capturing groups; [`0013`](../../docs/spikes/0013-linter-coverage.md)
+  has the sweep
 - `@nx/enforce-module-boundaries` — the layering rules. [`lib/boundaries.ts`](./src/eslint/lib/boundaries.ts)
   is the enforced copy; the readable one is the tag table in the
   [root README](../../README.md#-architecture--boundaries). Change both, or they drift

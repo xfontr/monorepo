@@ -11,7 +11,7 @@ function escapeKey(key: string): string {
 
 describe("contentKey", () => {
     it("names the vendor and the resource, so nothing has to be decoded to read a key", () => {
-        expect(contentKey(vendor, "posts", { page: 2 })).toMatch(/^wordpress_posts_\w+_\w+$/);
+        expect(contentKey(vendor, "posts", { page: 2 })).toMatch(/^wordpress_posts_\w+$/);
     });
 
     it("separates the resources of one vendor", () => {

@@ -5,6 +5,8 @@ const coverage = computed(() => snapshot.value?.coverage ?? null);
 const projects = computed(() => coverage.value?.projects ?? []);
 
 const metrics = ["lines", "statements", "functions", "branches"] as const;
+
+const coverageEmbed = embedUrl("/embed/coverage/index.html");
 </script>
 
 <template>
@@ -127,7 +129,7 @@ const metrics = ["lines", "statements", "functions", "branches"] as const;
                             </div>
 
                             <UButton
-                                to="/embed/coverage/index.html"
+                                :to="coverageEmbed"
                                 target="_blank"
                                 external
                                 label="Open full"
@@ -140,7 +142,7 @@ const metrics = ["lines", "statements", "functions", "branches"] as const;
                     </template>
 
                     <iframe
-                        src="/embed/coverage/index.html"
+                        :src="coverageEmbed"
                         class="embedded-report border-0 rounded-none"
                         :style="{ height: '640px' }"
                         title="Coverage report"

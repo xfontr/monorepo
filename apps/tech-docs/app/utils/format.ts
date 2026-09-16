@@ -1,4 +1,4 @@
-import type { SpikeStatus } from "../../shared/types.ts";
+import type { SpikeDecision, SpikeStatus } from "#shared/types.ts";
 
 /** The palette behind these three classes lives in `assets/css/main.css` and is shown beside the figure it describes, never instead of it. */
 export type Tone = "good" | "warn" | "bad" | "neutral";
@@ -76,6 +76,15 @@ const SPIKE_STATUS_TONES: Record<SpikeStatus, Tone> = {
 
 export function spikeStatusTone(status: SpikeStatus): Tone {
     return SPIKE_STATUS_TONES[status];
+}
+
+const SPIKE_DECISION_LABELS: Record<SpikeDecision, string> = {
+    accepted: "Accepted",
+    superseded: "Superseded",
+};
+
+export function spikeDecisionLabel(decision: SpikeDecision): string {
+    return SPIKE_DECISION_LABELS[decision];
 }
 
 /** "3 hours ago" beats a timestamp for the one question a report page has to answer. */

@@ -26,6 +26,20 @@ Two modules beyond the shared ones are installed here: `@nuxt/fonts`, and `@pini
 store inside a layer is not picked up without it, and the failure looks like a missing composable
 rather than a missing config.
 
+## 🚢 Deployment
+
+The app ships through Netlify's own git integration — there is no `netlify.toml` and no build or
+deploy step in this repo. [`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml)
+builds and deploys nothing itself: once Netlify's own pipeline publishes a commit, it polls
+Netlify's Deploys API for that commit and records a GitHub Deployment against the
+`netlify-huella-legal` environment, so the live URL shows up on the repo's Deployments page
+alongside `tech-docs` instead of only in Netlify's own dashboard.
+
+The site ID and auth token never enter this repo: `NETLIFY_SITE_ID` is a GitHub Actions repo
+variable and `NETLIFY_AUTH_TOKEN` a secret, both read at workflow runtime with no default. Netlify
+deploys asynchronously after the push that triggers the workflow, so it polls for up to 10 minutes
+rather than reading the API once.
+
 ## 🔑 Environment
 
 Translations and articles are both fetched over the network, so an unset vendor is not a degraded

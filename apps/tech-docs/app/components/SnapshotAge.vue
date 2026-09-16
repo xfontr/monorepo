@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Manifest } from "../../shared/types.ts";
+import type { Manifest } from "#shared/types.ts";
 
 const { manifest, artifact = undefined } = defineProps<{ manifest: Manifest | null, artifact?: string }>();
 

@@ -1,7 +1,10 @@
-# 🧭 Where a blackboard-style pattern would actually help
+---
+issue: 38
+status: to-implement
+decision: accepted
+---
 
-Spike: #38
-Status: To implement
+# 🧭 Where a blackboard-style pattern would actually help
 
 ## Context
 
@@ -76,3 +79,11 @@ Revisit this once `apps/huella-legal` grows its first `app/layers/` entry, or on
 actually starts using the reserved `type:feature`/`type:domain` tags — that is the point where
 real cross-boundary state coordination in the app tier would exist to evaluate, and today it
 doesn't yet.
+
+## Confirmation
+
+Once built: `pnpm docs:map --check` (or a sibling renderer, the way
+[`0011-docs-system-enforcement.md`](./0011-docs-system-enforcement.md) adds one for the spikes
+index rather than widening `docs:map` itself) fails CI when `boundaries.ts`, the workspace-layout
+block or the reviews history table is edited by hand instead of re-rendered — the same contract
+`docs/FEATURES.md` already has. Not yet built, so not yet checked.

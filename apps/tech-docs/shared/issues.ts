@@ -33,24 +33,11 @@ export function summarize(body: string, length = 140): string {
     return `${(space > length * 0.6 ? cut.slice(0, space) : cut).trimEnd()}…`;
 }
 
-/** Every board named by at least one issue, so the filter offers what is actually there. */
-export function projectsOf(issues: Issue[]): string[] {
-    return [...new Set(issues.map((issue) => issue.project).filter((name): name is string => name !== null))].sort();
-}
-
 export function labelsOf(issues: Issue[]): string[] {
     return [...new Set(issues.flatMap((issue) => issue.labels))].sort();
 }
 
-/**
- * "On no board" is the one set a board-shaped filter cannot name, and the one worth finding: work
- * that was filed and never placed. A sentinel rather than `null`, because it travels through a
- * `<select>` value.
- */
-export const NO_PROJECT = "__none__";
-
 export interface IssueFilter {
-    project?: string | "all"
     label?: string | "all"
     search?: string
 }
@@ -59,13 +46,65 @@ export function filterIssues(issues: Issue[], filter: IssueFilter): Issue[] {
     const needle = filter.search?.trim().toLowerCase() ?? "";
 
     return issues.filter((issue) => {
-        if (filter.project === NO_PROJECT && issue.project !== null) return false;
-        if (filter.project && filter.project !== "all" && filter.project !== NO_PROJECT && issue.project !== filter.project) return false;
         if (filter.label && filter.label !== "all" && !issue.labels.includes(filter.label)) return false;
         if (needle.length === 0) return true;
 
         return `#${issue.number} ${issue.title} ${issue.body}`.toLowerCase().includes(needle);
     });
+}
+
+/** The half of GitHub's REST issue payload this app reads; everything else is dropped. */
+export interface GithubIssue {
+    number: number
+    title: string
+    body: string | null
+    html_url: string
+    labels: { name: string }[]
+    assignees: { login: string }[]
+    created_at: string
+    updated_at: string
+    /** Set only on a pull request, which the issues endpoint returns alongside the issues. */
+    pull_request?: unknown
+}
+
+/** `html_url`, not `url` — the latter is the API's own address for the issue and renders as JSON. */
+export function toIssue(issue: GithubIssue): Issue {
+    return {
+        number: issue.number,
+        title: issue.title,
+        body: issue.body ?? "",
+        url: issue.html_url,
+        labels: issue.labels.map(({ name }) => name),
+        assignees: issue.assignees.map(({ login }) => login),
+        createdAt: issue.created_at,
+        updatedAt: issue.updated_at,
+    };
+}
+
+/** A pull request is an issue to this endpoint and is not one here. */
+export function toIssues(payload: GithubIssue[]): Issue[] {
+    return payload.filter((item) => item.pull_request === undefined).map(toIssue);
+}
+
+/**
+ * GitHub's REST host is the repo's own with `api.` in front, so no vendor endpoint is written down.
+ * Null when the variable is unset or names no repo, which the page renders as a failure.
+ */
+export function issuesApiUrl(repoUrl: string): string | null {
+    let url: URL;
+
+    try {
+        url = new URL(repoUrl);
+    }
+    catch {
+        return null;
+    }
+
+    const [owner, repo] = url.pathname.split("/").filter(Boolean);
+
+    if (owner === undefined || repo === undefined) return null;
+
+    return `${url.protocol}//api.${url.host}/repos/${owner}/${repo.replace(/\.git$/, "")}/issues`;
 }
 
 export function sortIssues(issues: Issue[]): Issue[] {

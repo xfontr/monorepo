@@ -84,7 +84,7 @@ describe("documentedBy", () => {
             { path: "CLAUDE.md", text: "| `house-docs` | Writing markdown |" },
         ];
 
-        expect(documentedBy(skills([{ source: own, name: "house-docs" }])[0], docs)).toBe("CLAUDE.md");
+        expect(documentedBy(skills([{ source: own, name: "house-docs" }])[0]!, docs)).toBe("CLAUDE.md");
     });
 
     // Nearness alone made every skill cite a sibling skill: two shared path segments under
@@ -94,7 +94,7 @@ describe("documentedBy", () => {
             { path: ".claude/skills/doc-drift-check/SKILL.md", text: "follow the house-docs skill" },
             { path: "CLAUDE.md", text: "| `house-docs` | Writing markdown |" },
         ];
-        const capability = skills([{ source: ".claude/skills/house-docs/SKILL.md", name: "house-docs" }])[0];
+        const capability = skills([{ source: ".claude/skills/house-docs/SKILL.md", name: "house-docs" }])[0]!;
 
         expect(documentedBy(capability, docs)).toBe("CLAUDE.md");
     });
