@@ -37,11 +37,11 @@ const walk = (dir: string, accept: (path: string) => boolean, found: string[] = 
 };
 
 export const instructionFiles = (): string[] =>
-    walk(repoRoot(), (path) => path.endsWith("AGENTS.md")).sort();
+    walk(repoRoot(), (path) => path.endsWith("AGENTS.md")).sort((a, b) => a.localeCompare(b));
 
 export const skillFiles = (): string[] => {
     const root = at(".agents", "skills");
-    return existsSync(root) ? walk(root, () => true).sort() : [];
+    return existsSync(root) ? walk(root, () => true).sort((a, b) => a.localeCompare(b)) : [];
 };
 
 export const readText = (path: string): string => readFileSync(at(path), "utf8");
