@@ -4,12 +4,13 @@
     "description": "",
     "author": "Xifré Font",
     "license": "ISC",
-    "packageManager": "pnpm@10.7.1",
+    "packageManager": "pnpm@12.4.2",
     "engines": {
         "node": "^22.18.0 || >=24.12.0"
     },
     "scripts": {
         "dev": "pnpm --filter @monorepo/scripts run dev",
+        "setup": "husky && pnpm test:coverage && pnpm exec nx collect @monorepo/developer-portal",
         "lint": "nx affected -t lint",
         "typecheck": "nx affected -t typecheck",
         "build": "nx affected -t build",
