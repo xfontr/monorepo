@@ -29,7 +29,7 @@ jobs:
               with:
                   main-branch-name: master
 
-            - run: pnpm exec nx affected -t lint typecheck test build
+            - run: pnpm exec nx affected --base="$NX_BASE" --head="$NX_HEAD" -t lint typecheck test build
               env:
                   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
 

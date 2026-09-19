@@ -29,11 +29,11 @@ function storybookFor(project: ProjectNode): string | undefined {
 }
 
 function deploysFor(project: ProjectNode): string | undefined {
-    return project.name === "@monorepo/huella-legal"
-        ? `${repoUrl}/actions/workflows/netlify-deployment.yml`
-        : project.name === "@monorepo/developer-portal"
-            ? `${repoUrl}/actions/workflows/docs-deploy.yml`
-            : undefined;
+    if (project.name === "@monorepo/huella-legal") return `${repoUrl}/actions/workflows/netlify-deployment.yml`;
+
+    if (project.name === "@monorepo/developer-portal") return `${repoUrl}/actions/workflows/docs-deploy.yml`;
+
+    return undefined;
 }
 
 function deploymentsFor(project: ProjectNode) {
