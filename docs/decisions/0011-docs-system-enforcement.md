@@ -33,7 +33,7 @@ needs no change.
 | `pnpm docs:map --check` (`ci.yml:37`) | The only blocking doc check in the repo; asserts a byte match on one generated file |
 | `pnpm docs:drift` | `.husky/pre-push` behind `\|\| true`; advisory, and absent on a fresh clone since lifecycle scripts are banned |
 | `check-invariants.sh` | A `PostToolUse` hook — fires only when Claude Code writes the file, never for a human or a web edit |
-| Link checking | `checkLink`/`brokenLinkCount` exist in `apps/tech-docs/tools/collect/docs.ts` and gate nothing; `collect` runs in no workflow |
+| Link checking | `checkLink`/`brokenLinkCount` exist in `apps/developer-portal/tools/collect/docs.ts` and gate nothing; `collect` runs in no workflow |
 
 Five symptoms follow from that, all present today: `0002-docs-drift-detection.md` reads
 `Status: Implemented` while none of its three layers was built; `0009-comment-discipline.md` was
@@ -85,7 +85,7 @@ hand-parsed: `@nuxt/content` already reads it as YAML to render the page, and th
 reachability one — docs a teammate cannot read without running the app are not team docs.
 
 1. **The link check and the mirrored invariants move into CI.** `checkLink`/`brokenLinkCount` and
-   `apps/tech-docs/tools/lib/invariants.ts` already run in the `collect` path and gate nothing;
+   `apps/developer-portal/tools/lib/invariants.ts` already run in the `collect` path and gate nothing;
    that path shells out only to `git`, so CI needs no `gh` token. This is the change that makes the
    invariants hold for a human editor rather than only for Claude Code.
 2. **The reports are renumbered consecutively in decision order**, and the issue moves to an
@@ -103,7 +103,7 @@ reachability one — docs a teammate cannot read without running the app are not
 6. **The existing reports are migrated to the new template**, `Confirmation` included. Writing that
    line onto the `Implemented` reports is a truth audit rather than a formatting pass: `0002`
    cannot state how its three layers would be verified, because none was built.
-7. **`apps/tech-docs` gets deployed.** Its README currently calls this "a different project", and
+7. **`apps/developer-portal` gets deployed.** Its README currently calls this "a different project", and
    the four blockers below are why; the decision here is that it stops being deferred.
 
 **Deploying the wiki is not a build step.** Four separate things block it:
@@ -138,7 +138,7 @@ This forecloses nothing about the tree's shape. The renumbering spends every inb
 in decision order. Every future report costs one lookup of the next free number, which is what the
 `decision-report` skill now says to do.
 
-`apps/tech-docs/README.md`'s *"Serving this anywhere"* row and `docs/README.md`'s publishing row
+`apps/developer-portal/README.md`'s *"Serving this anywhere"* row and `docs/README.md`'s publishing row
 are spent by change 7.
 
 `Confirmation` is a claim about future verification, so a report carrying one that nothing checks
@@ -158,21 +158,21 @@ subdividing `docs/`.
 **Changes 1–6 are in the repo; change 7 is not, which is why `status` stays `to-implement` rather
 than flipping.** Verified per change:
 
-1. `pnpm exec nx check-docs @monorepo/tech-docs` runs in CI (`ci.yml`) and fails on a broken link
+1. `pnpm exec nx check-docs @monorepo/developer-portal` runs in CI (`ci.yml`) and fails on a broken link
    or a mirrored-invariant finding, over every tracked doc rather than only a Claude Code edit.
 2. `ls docs/decisions/` runs `0001`–`0012` with no gaps and no repeats, and every report carries an
    `issue:` field. The check in 3 fails if a thirteenth report reuses a number.
 3. The same command fails on a malformed filename, an unrecognised `status:`/`decision:`, a missing
    `issue:`, or a `supersededBy:` naming a report that isn't filed — pinned by
-   [`tools/lib/decisions.spec.ts`](../../apps/tech-docs/tools/lib/decisions.spec.ts).
+   [`tools/lib/decisions.spec.ts`](../../apps/developer-portal/tools/lib/decisions.spec.ts).
 4. Every decision report's frontmatter is now followed by a `## Confirmation` section, this one
    included.
 5. `decision: superseded` plus `supersededBy:` is a parsed, validated frontmatter pair — see
    [`docs/decisions/README.md`](./README.md#-superseding-a-decision) — not a prose line.
 6. All twelve reports carry the frontmatter template. The vocabulary they're checked against is
    `DECISION_STATUSES`/`DECISION_OUTCOMES` in
-   [`shared/decisions.ts`](../../apps/tech-docs/shared/decisions.ts), which the dashboard's own types
+   [`shared/decisions.ts`](../../apps/developer-portal/shared/decisions.ts), which the dashboard's own types
    derive from — so a widened vocabulary can't reach one reader and not the other.
-7. **Not done, and not yet filed.** `apps/tech-docs` is not deployed; its four blockers are
+7. **Not done, and not yet filed.** `apps/developer-portal` is not deployed; its four blockers are
    unaddressed. Deliberately kept out of this pass rather than attempted alongside it — no issue
    exists for it yet.

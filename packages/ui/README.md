@@ -19,7 +19,7 @@ consumers are concerned. Each one sits next to its `*.spec.ts` and its `*.storie
 | `pnpm test` | Unit tests once (`@vue/test-utils` + happy-dom) |
 | `pnpm typecheck` | `vue-tsc --build` |
 | `pnpm lint` | ESLint (Vue config from `@monorepo/configs`) |
-| `pnpm build-storybook` | Static Storybook build, for publishing it somewhere |
+| `pnpm build-storybook` | Static Storybook build; the docs deploy publishes it beneath Developer Portal's Pages artifact |
 
 The `@/` alias points at `lib/`. It's declared twice — in
 [`tsconfig.app.json`](./tsconfig.app.json) for the editor and in [`vite.config.ts`](./vite.config.ts)

@@ -11,7 +11,7 @@ on, and the supporting services they depend on.
 ```
 apps/
     huella-legal/     @monorepo/huella-legal — Huella Legal, a WIP law blog redesign (Nuxt 4)
-    tech-docs/        @monorepo/tech-docs — local-only dashboard over this repo's docs and metrics
+    developer-portal/ @monorepo/developer-portal — internal developer portal over this repo's docs and metrics
 packages/
     configs/          @monorepo/configs — shared ESLint, Vitest and tsconfig presets
     content/          @monorepo/content — CMS entries and taxonomies + a Nuxt module
@@ -48,7 +48,7 @@ Projects are layered with Nx tags (declared in each `package.json` under `nx.tag
 
 | Tag | May depend on | Who has it |
 | --- | --- | --- |
-| `type:app` | `type:feature`, `type:domain`, `type:ui`, `type:i18n`, `type:content`, `type:observability`, `type:config` | `huella-legal`, `tech-docs` |
+| `type:app` | `type:feature`, `type:domain`, `type:ui`, `type:i18n`, `type:content`, `type:observability`, `type:config` | `developer-portal`, `huella-legal` |
 | `type:feature` | `type:domain`, `type:ui`, `type:i18n`, `type:content`, `type:config` | — |
 | `type:domain` | `type:domain`, `type:config` | — |
 | `type:ui` | `type:ui`, `type:config` | `ui` |
@@ -84,7 +84,7 @@ Requires the Node version in `.nvmrc` and pnpm (version pinned via `packageManag
 
 ```sh
 pnpm install
-git config core.hooksPath .husky        # git hooks — a fresh clone has none until you do this
+pnpm setup                              # hooks, workspace coverage and developer-portal snapshot
 pnpm agents:sync                        # Claude adapters; Codex reads the sources directly
 pnpm dev                                # pick a project to start
 ```
@@ -93,11 +93,12 @@ pnpm dev                                # pick a project to start
 itself if `node_modules` isn't there yet, then asks which project to start. See
 [`infrastructure/scripts/src/dev`](./infrastructure/scripts/src/dev/README.md).
 
-That second line is not optional and nothing runs it for you. Husky normally installs itself from a
-`prepare` script, and [lifecycle scripts are banned here](./AGENTS.md) because both CI workflows
-install with `--ignore-scripts` — so a hook hung off one works locally and silently does nothing
-where it matters. Skip it and the [commit and push gates](#-git-conventions) below simply never
-fire, which looks like a repo with no rules rather than a clone that isn't set up.
+That second line makes a clone useful beyond compiling: it installs Git hooks, runs the workspace's
+coverage suite and writes the developer portal's snapshot from the current tree. Husky normally
+installs itself from a `prepare` script, and [lifecycle scripts are banned here](./AGENTS.md) because
+both CI workflows install with `--ignore-scripts` — so a hook hung off one works locally and silently
+does nothing where it matters. Skip setup and the [commit and push gates](#-git-conventions) below
+simply never fire, while the portal has no current coverage or derived docs to show.
 
 The app fetches both its translations and its articles over the network at runtime, so it needs
 `NUXT_TRANSLATIONS_VENDOR_*` set before any page renders, and `NUXT_CONTENT_VENDOR_BASE_URL` before
@@ -110,15 +111,16 @@ use `pnpm exec nx run-many -t <target>`.
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev` | Pick a project and start its dev server — `pnpm dev tech-docs` skips the picker. Installs the workspace first if this is a fresh clone |
+| `pnpm setup` | Install Git hooks for this clone, collect coverage for the workspace, then refresh the developer portal's snapshot |
+| `pnpm dev` | Pick a project and start its dev server — `pnpm dev developer-portal` skips the picker. Installs the workspace first if this is a fresh clone |
 | `pnpm lint` | Lint affected projects |
 | `pnpm typecheck` | Typecheck affected projects |
 | `pnpm test` | Test affected projects |
 | `pnpm test:coverage` | Test the **whole workspace** with a V8 coverage report, then merge every project's into one browsable [`coverage/index.html`](./infrastructure/scripts/src/coverage-report/README.md) |
 | `pnpm build` | Build affected projects |
 | `pnpm graph` | Open the Nx project graph |
-| `pnpm dev tech-docs` | Start [`@monorepo/tech-docs`](./apps/tech-docs/README.md), the local dashboard over this repo's markdown, coverage, graph and issues |
-| `pnpm exec nx collect @monorepo/tech-docs` | Rebuild the snapshot that tech-docs reads |
+| `pnpm dev developer-portal` | Start [`@monorepo/developer-portal`](./apps/developer-portal/README.md), the internal developer portal over this repo's markdown, coverage, graph and issues |
+| `pnpm exec nx collect @monorepo/developer-portal` | Rebuild the snapshot that developer-portal reads |
 | `pnpm agents:sync` | Render ignored Claude adapters from canonical `AGENTS.md` files and `.agents/skills/`; `--check` reports local drift |
 | `pnpm docs:map` | Re-render [`docs/FEATURES.md`](./docs/FEATURES.md); `--check` asserts it is current |
 | `pnpm release:dry` | Preview a release (versioning + changelogs) |
@@ -137,9 +139,10 @@ use `pnpm exec nx run-many -t <target>`.
   committed as `feat: [50] add thing`. Nobody types the tag, and re-running on an amend is a no-op
   instead of stacking a second one; a branch with no number in it is left alone. This is why the log
   here is number-first without anyone maintaining that.
-- The pre-push hook runs `lint`, `test` and `typecheck` on affected projects, and rejects a push
-  that adds a `TODO`/`FIXME` comment. It diffs only the commits being pushed, so a marker already
-  in the tree never blocks you; the rejection points at
+- The pre-push hook checks that `docs/FEATURES.md` and the review method version are current, then
+  runs `lint`, `test` and `typecheck` on affected projects; it also rejects a push that adds a
+  `TODO`/`FIXME` comment. It diffs only the commits being pushed, so a marker already in the tree
+  never blocks you; the rejection points at
   [`pnpm issue:add`](./infrastructure/scripts/src/issue/README.md), which files the issue in a
   few prompts so the comment can go.
 - [`pnpm issue:pick`](./infrastructure/scripts/src/issue/README.md#-pnpm-issuepick) goes the other
@@ -161,9 +164,9 @@ use `pnpm exec nx run-many -t <target>`.
   workspace tree above — so the required approval has someone to land on automatically. Every path
   resolves to the sole collaborator today; splitting them further only matters once a second one
   joins.
-- The hook also runs [`pnpm docs:drift`](./infrastructure/scripts/src/drift/README.md), which never
-  fails the push: it warns when a changed project's docs look stale or the change is big, and offers
-  to file an issue.
+- After each commit, the hook runs [`pnpm docs:drift`](./infrastructure/scripts/src/drift/README.md).
+  It never fails the commit: it warns when a changed project's docs look stale or the change is big,
+  and offers to file an issue.
 - It runs `pnpm audit` too, same never-fails treatment — a local heads-up, not the real check. Every
   PR additionally gets [`actions/dependency-review-action`](https://github.com/actions/dependency-review-action)
   in `warn-only` mode, which comments with any vulnerability the PR's own diff introduces without

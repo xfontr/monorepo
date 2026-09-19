@@ -50,12 +50,12 @@ unbounded and duplicated presents one shard to each agent, and no agent sees the
 *The agents cannot execute.* `tools: Read, Grep, Glob`, `model: sonnet`, no Bash — deliberate, and
 it means every card is scored from reading, against counts a shell script produced beforehand.
 
-**The empirical test is the 2026-09-10 review against `apps/tech-docs`.** At that commit the app
+**The empirical test is the 2026-09-10 review against `apps/developer-portal`.** At that commit the app
 held 4,201 lines across 40 source files against 5 spec files — the largest codebase in the
 workspace and its thinnest test ratio. The review saw it: 🧪 Testing scored **4/5**, deducting two
 named files (`tools/collect/metrics.ts`, `deps.ts`). In the same review, 📚 Documentation fell
-**4 → 2** because that app's `README.md` said `pnpm tech-docs` where the script is
-`pnpm dev tech-docs`.
+**4 → 2** because that app's `README.md` said `pnpm developer-portal` where the script is
+`pnpm dev developer-portal`.
 
 One app, one review: a stale command string cost two points; an eight-to-one source-to-spec ratio
 across the workspace's largest codebase cost one. The earlier two reviews are not evidence either
@@ -64,7 +64,7 @@ way — `apps/` held only `huella-legal` at `abcb17d`, and the app did not exist
 **The cards are not wrong within their own scope.** 🧱 Architecture's 5/5 in that review is earned
 against its anchor: it cites `boundaries.ts` matching the README row for row,
 `@nx/enforce-module-boundaries` set to `"error"`, a clean grep of `content`/`i18n`'s `core/` for
-transport imports, and `apps/tech-docs/tools/lib/invariants.spec.ts:63-82` exercising
+transport imports, and `apps/developer-portal/tools/lib/invariants.spec.ts:63-82` exercising
 `compareTagTables` against a deliberately-drifted pair. That is a real attempted breakage.
 
 That is the finding, not a counter to it. The card asks *"Is the layering real, or only drawn?"*
@@ -100,7 +100,7 @@ would have is rejected below, so every cap in the rubric stays a greppable predi
    computed, whose only job is the findings no single card owns. Card isolation stays — it is what
    keeps the agents from triple-counting — but something has to read the seven sets together.
 2. **A test-density floor that caps 🧪 Testing**, expressed per project rather than repo-wide. At
-   40 source files to 5 specs, `apps/tech-docs` would have capped the card at 3 in the 2026-09-10
+   40 source files to 5 specs, `apps/developer-portal` would have capped the card at 3 in the 2026-09-10
    review instead of costing it one point for two named files.
 3. **The version covers the method, not the rubric document** — all four artifacts above — and the
    bump is enforced rather than remembered: a commit touching any of them without changing the
@@ -117,7 +117,7 @@ would have is rejected below, so every cap in the rubric stays a greppable predi
 | A per-package attestation capping 🧩 Implementation — a named person recording that they read the package at a given commit | The one input a predicate could not satisfy, and the reason it is not implemented is who would sign it: this repo has **one collaborator**, so the row is its author vouching for their own work and certifies nothing a second reader would. It is also unmaintainable at nine projects — an attestation goes stale on that project's next commit, so the card would sit at its stale cap in perpetuity while nine rows get re-signed by hand — and no reviewing convention outside this repo asks for such a register, so a reader of the history table would have to be taught what the number means |
 | Give the card agents Bash | Helps Testing and Tooling, which need counts. It does not help Architecture, whose gap is synthesis across cards, not measurement |
 | Drop scoring, write prose reviews | Loses the one thing the current system does well — the history table is real data, and `Evidence or it didn't happen` is why these reviews are not flattery |
-| Score per package instead of per repo | Would surface `tech-docs`, but `reviews/README.md` already rejects partial reviews: a per-area review cannot produce a comparable total |
+| Score per package instead of per repo | Would surface `developer-portal`, but `reviews/README.md` already rejects partial reviews: a per-area review cannot produce a comparable total |
 | Keep versioning the rubric alone | Three of the four artifacts that decide a score carry no version, so a method change ships under the version of a document it didn't touch |
 | Version by hand, as today | The bump is remembered, not enforced, and the reviewer bumping it is the one who just changed the method — the case where it is least likely to be noticed |
 | Mark a version change and leave the numbers | Says the scores aren't comparable without saying by how much, which is the question a reader of the history table is actually asking |

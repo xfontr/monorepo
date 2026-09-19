@@ -80,7 +80,7 @@ of an outcome, not a design doc arguing for it. Follow `house-docs` like any oth
 
 **When the follow-up work lands (or is dropped), flip the `status:` field in the same PR.** That's
 one of the two frontmatter fields expected to change after the fact — it's how
-[Technical Docs](../../../apps/tech-docs/README.md) shows, at a glance, which decisions are still owed
+[Technical Docs](../../../apps/developer-portal/README.md) shows, at a glance, which decisions are still owed
 work. If this report reverses an earlier one, also set that earlier report's `decision:` to
 `superseded` and its `supersededBy:` to this file — see
 [docs/decisions/README.md](../../../docs/decisions/README.md#-superseding-a-decision).

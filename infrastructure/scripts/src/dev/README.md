@@ -6,7 +6,7 @@ workspace first if this is a fresh clone. It never starts more than one project.
 
 ```sh
 pnpm dev                 # search or browse every project that declares a dev script
-pnpm dev tech-docs       # skip the picker
+pnpm dev developer-portal # skip the picker
 pnpm dev "Huella Legal"  # the label the picker shows works too
 pnpm dev huella          # not a name — opens the picker with "huella" already typed
 ```

@@ -1,0 +1,53 @@
+{
+  "name": "@monorepo/developer-portal",
+  "description": "Internal developer portal over the workspace",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nx build-static",
+    "dev": "nuxt dev",
+    "lint": "nx eslint:lint",
+    "nuxt-prepare": "nuxi prepare",
+    "typecheck": "nuxt typecheck",
+    "test": "vitest . --watch=false",
+    "test:dev": "vitest .",
+    "test:coverage": "vitest . --watch=false --coverage",
+    "collect": "node tools/collect/index.ts",
+    "check-docs": "node tools/check-docs/index.ts"
+  },
+  "nx": {
+    "tags": [
+      "type:app",
+      "scope:internal"
+    ],
+    "namedInputs": {
+      "production": [
+        "default",
+        "!{projectRoot}/**/*.spec.ts",
+        "!{projectRoot}/**/*.test.ts",
+        "!{projectRoot}/vitest.config.ts",
+        "{workspaceRoot}/**/*.md",
+        {
+          "runtime": "node apps/developer-portal/tools/lib/snapshotStamp.ts"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.128",
+    "@nuxt/content": "^3.16.0",
+    "@nuxt/ui": "^4.11.0",
+    "nuxt": "catalog:",
+    "vue": "catalog:",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@monorepo/configs": "workspace:*",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vue-tsc": "catalog:"
+  }
+}

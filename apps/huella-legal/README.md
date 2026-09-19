@@ -33,7 +33,7 @@ deploy step in this repo. [`netlify-deployment.yml`](../../.github/workflows/net
 builds and deploys nothing itself: once Netlify's own pipeline publishes a commit, it polls
 Netlify's Deploys API for that commit and records a GitHub Deployment against the
 `netlify-huella-legal` environment, so the live URL shows up on the repo's Deployments page
-alongside `tech-docs` instead of only in Netlify's own dashboard.
+alongside `developer-portal` instead of only in Netlify's own dashboard.
 
 The site ID and auth token never enter this repo: `NETLIFY_SITE_ID` is a GitHub Actions repo
 variable and `NETLIFY_AUTH_TOKEN` a secret, both read at workflow runtime with no default. Netlify

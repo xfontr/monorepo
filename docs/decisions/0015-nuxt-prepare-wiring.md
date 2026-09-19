@@ -10,7 +10,7 @@ decision: accepted
 
 #117 fixed a CI failure: `test:coverage` ran in both Nuxt apps without `.nuxt`, so Vite's oxc
 transform threw `Tsconfig not found: .nuxt/tsconfig.app.json` in `huella-legal`, while in
-`tech-docs` the same missing file first surfaced as a wave of `@vitest/coverage-v8` "Failed to
+`developer-portal` the same missing file first surfaced as a wave of `@vitest/coverage-v8` "Failed to
 parse … Excluding it from coverage" noise before failing on the identical error further down. The
 fix was one line in [`nx.json`](../../nx.json) — `"dependsOn": ["nuxt-prepare"]` on the
 `test:coverage` target default, which `lint`, `typecheck` and `test` already carried.
@@ -24,7 +24,7 @@ repo already uses for cross-file rules, or the local `createNodesV2` plugin
 
 **Neither proposal is sized to the problem, because the target list is not enumerable by hand and
 the task graph is not where most of the breakage is reachable from.** Every claim below was measured
-by moving `apps/tech-docs/.nuxt` aside and running the target cold.
+by moving `apps/developer-portal/.nuxt` aside and running the target cold.
 
 **1. One cause, three error messages.** Both apps' `tsconfig.json` is `files: []` plus `references`
 into `.nuxt/`, so anything that resolves it fails when the directory is absent — the tool decides
@@ -39,12 +39,12 @@ So this is not a vitest problem with a vitest fix. Any future target that opens 
 `tsconfig.json` joins the list.
 
 **2. The targets can't be listed, because Nx mints them.** `@nx/vitest` atomizes specs into one
-target per file — eight in `tech-docs` today, `test-ci--shared/wiki.spec.ts` and siblings — named
+target per file — eight in `developer-portal` today, `test-ci--shared/wiki.spec.ts` and siblings — named
 at graph-computation time, and each one fails cold. `targetDefaults` cannot reach them: adding both
 `"test-ci"` and `"test-ci--*"` applied the first and left every atomized target at
 `dependsOn: null`. Glob keys are not target defaults.
 
-**3. Those eight are latent, not live.** `nx run @monorepo/tech-docs:test-ci` refuses outright —
+**3. Those eight are latent, not live.** `nx run @monorepo/developer-portal:test-ci` refuses outright —
 *"should only be run with Nx Cloud"* — and Nx Cloud was rejected in
 [`0005`](./0005-nx-generators-and-ai-agent-setup.md). An edge on the aggregate would not help
 anyway: Cloud dispatches the atomized tasks directly, so a `dependsOn` on their parent never
@@ -89,7 +89,7 @@ redundant, so they come out of [`nx.json`](../../nx.json) with it. `lint` and `t
 theirs: neither is Vitest, and `eslint` is measured failing cold.
 
 **No check is adopted.** One was built — a `compareNuxtPrepare` beside the mirrored invariants in
-`apps/tech-docs`, asserting that a `nuxt.config.ts` project declares the script and that every
+`apps/developer-portal`, asserting that a `nuxt.config.ts` project declares the script and that every
 tsconfig-reading target of one carries the edge — and it was removed. Two reasons, in order. It was
 in the wrong project: an Nx build-graph rule reaching across the workspace from inside an app, gating
 a target called `check-docs`, where the existing invariants at least have a dashboard that renders
@@ -117,7 +117,7 @@ can't make — a Nuxt app with no `nuxt-prepare` script — for which the sympto
 work, not follow-up — that paragraph is the repo's own "two places that must agree" class.
 
 The self-heal trades a graph edge for a runtime check, and two costs come with that. A Vitest run
-that finds no `.nuxt` pays `nuxi prepare` itself — 1.8s in `tech-docs` — instead of reusing the
+that finds no `.nuxt` pays `nuxi prepare` itself — 1.8s in `developer-portal` — instead of reusing the
 cached `nuxt-prepare` output. And because `test` no longer waits on that task, a run that includes
 `lint` can have Nx preparing for `lint` while Vitest prepares for itself, two `nuxi prepare`
 processes writing one directory. Neither has bitten; the second is the one to watch, and re-wiring

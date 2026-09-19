@@ -9,8 +9,8 @@ import { projectsWithCoverage } from "./adapters/nx.ts";
 import { toReports } from "./domain/discover.ts";
 import { mergeReports } from "./domain/merge.ts";
 
-export const main = (): void => {
-    const projects = toReports(projectsWithCoverage());
+export const main = async (): Promise<void> => {
+    const projects = toReports(await projectsWithCoverage());
     const loaded = projects.map(({ name, coverageFinal }) => ({ name, data: loadReport(coverageFinal) }));
 
     const coverageMap = mergeReports(loaded);

@@ -68,11 +68,11 @@ by the change it describes rather than by a separate bookkeeping pass. A decisio
 moves off `to-implement` is either still waiting or forgotten, and there is no third option this
 field can express — that ambiguity is deliberate, the same read a stale changelog gets.
 
-[`apps/tech-docs`](../../apps/tech-docs/README.md) parses both fields the same way it already
+[`apps/developer-portal`](../../apps/developer-portal/README.md) parses both fields the same way it already
 parses `## 🧭 Deliberately deferred`, and its Decisions section is built out of them: `status` is a
 count, a filter, a sort and a pill on the report itself, and `decision` is a filter plus a pill that
 shows only when it reads `superseded` — so this is the one part of a decision report with a reader
-other than a human on GitHub. `pnpm exec nx check-docs @monorepo/tech-docs` is what enforces that
+other than a human on GitHub. `pnpm exec nx check-docs @monorepo/developer-portal` is what enforces that
 the values stay inside the vocabulary above, and it runs in CI.
 
 ## 🔗 Linking back

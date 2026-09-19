@@ -15,6 +15,7 @@ and are documented once in the [root README](../README.md#-getting-started).
 
 | Capability | Declared in | Explained in |
 | --- | --- | --- |
+| `pnpm quick-start` | [`package.json`](../package.json) | — |
 | `pnpm dev` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm lint` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm typecheck` | [`package.json`](../package.json) | [`README.md`](../README.md) |
@@ -32,11 +33,11 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm release` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm release:dry` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm exec nx build-storybook @monorepo/ui` | [`packages/ui/package.json`](../packages/ui/package.json) | [`packages/ui/README.md`](../packages/ui/README.md) |
+| `pnpm exec nx nuxt-prepare @monorepo/developer-portal` | [`apps/developer-portal/package.json`](../apps/developer-portal/package.json) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
+| `pnpm exec nx collect @monorepo/developer-portal` | [`apps/developer-portal/package.json`](../apps/developer-portal/package.json) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
+| `pnpm exec nx check-docs @monorepo/developer-portal` | [`apps/developer-portal/package.json`](../apps/developer-portal/package.json) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
 | `pnpm exec nx preview @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
-| `pnpm exec nx nuxt-prepare @monorepo/tech-docs` | [`apps/tech-docs/package.json`](../apps/tech-docs/package.json) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
-| `pnpm exec nx collect @monorepo/tech-docs` | [`apps/tech-docs/package.json`](../apps/tech-docs/package.json) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
-| `pnpm exec nx check-docs @monorepo/tech-docs` | [`apps/tech-docs/package.json`](../apps/tech-docs/package.json) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
 | `pnpm exec nx coverage @monorepo/scripts` | [`infrastructure/scripts/package.json`](../infrastructure/scripts/package.json) | [`infrastructure/scripts/README.md`](../infrastructure/scripts/README.md) |
 | `pnpm exec nx serve @monorepo/translations` | [`infrastructure/translations/package.json`](../infrastructure/translations/package.json) | [`infrastructure/translations/README.md`](../infrastructure/translations/README.md) |
 | `pnpm exec nx docker:up @monorepo/translations` | [`infrastructure/translations/package.json`](../infrastructure/translations/package.json) | [`infrastructure/translations/README.md`](../infrastructure/translations/README.md) |
@@ -45,8 +46,8 @@ and are documented once in the [root README](../README.md#-getting-started).
 
 ## 🪝 Git hooks
 
-These run themselves, but only after `git config core.hooksPath .husky` — a fresh clone has no
-hooks at all until that is set.
+These run themselves, but only after `pnpm setup` — a fresh clone has no hooks at all until
+that per-clone setup runs.
 
 | Capability | Declared in | Explained in |
 | --- | --- | --- |
@@ -61,7 +62,7 @@ GitHub Actions, named as the Actions tab shows them rather than by filename.
 | --- | --- | --- |
 | `CI` | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | [`README.md`](../README.md) |
 | `Dependabot auto-merge` | [`.github/workflows/dependabot-auto-merge.yml`](../.github/workflows/dependabot-auto-merge.yml) | [`README.md`](../README.md) |
-| `Docs deploy` | [`.github/workflows/docs-deploy.yml`](../.github/workflows/docs-deploy.yml) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
+| `Docs deploy` | [`.github/workflows/docs-deploy.yml`](../.github/workflows/docs-deploy.yml) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
 | `Netlify deployment` | [`.github/workflows/netlify-deployment.yml`](../.github/workflows/netlify-deployment.yml) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `PR metadata` | [`.github/workflows/pr-metadata.yml`](../.github/workflows/pr-metadata.yml) | [`README.md`](../README.md) |
 | `Release` | [`.github/workflows/release.yml`](../.github/workflows/release.yml) | [`README.md`](../README.md) |
@@ -75,14 +76,14 @@ shortest statement of how a task is meant to go here.
 | --- | --- | --- |
 | `$comment-cleanup` | [`.agents/skills/comment-cleanup/SKILL.md`](../.agents/skills/comment-cleanup/SKILL.md) | [`docs/decisions/0009-comment-discipline.md`](../docs/decisions/0009-comment-discipline.md) |
 | `$content-new-vendor` | [`.agents/skills/content-new-vendor/SKILL.md`](../.agents/skills/content-new-vendor/SKILL.md) | [`infrastructure/scripts/src/map/README.md`](../infrastructure/scripts/src/map/README.md) |
-| `$decision-report` | [`.agents/skills/decision-report/SKILL.md`](../.agents/skills/decision-report/SKILL.md) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
+| `$decision-report` | [`.agents/skills/decision-report/SKILL.md`](../.agents/skills/decision-report/SKILL.md) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
 | `$doc-drift-check` | [`.agents/skills/doc-drift-check/SKILL.md`](../.agents/skills/doc-drift-check/SKILL.md) | [`docs/decisions/0001-feature-discoverability.md`](../docs/decisions/0001-feature-discoverability.md) |
 | `$github-issue` | [`.agents/skills/github-issue/SKILL.md`](../.agents/skills/github-issue/SKILL.md) | [`infrastructure/scripts/src/issue/README.md`](../infrastructure/scripts/src/issue/README.md) |
 | `$house-docs` | [`.agents/skills/house-docs/SKILL.md`](../.agents/skills/house-docs/SKILL.md) | [`docs/decisions/0001-feature-discoverability.md`](../docs/decisions/0001-feature-discoverability.md) |
 | `$i18n-new-vendor` | [`.agents/skills/i18n-new-vendor/SKILL.md`](../.agents/skills/i18n-new-vendor/SKILL.md) | [`docs/concepts/agent-setup.md`](../docs/concepts/agent-setup.md) |
 | `$new-package` | [`.agents/skills/new-package/SKILL.md`](../.agents/skills/new-package/SKILL.md) | [`infrastructure/scripts/src/drift/README.md`](../infrastructure/scripts/src/drift/README.md) |
 | `$nuxt-module-route` | [`.agents/skills/nuxt-module-route/SKILL.md`](../.agents/skills/nuxt-module-route/SKILL.md) | [`docs/decisions/0013-linter-coverage.md`](../docs/decisions/0013-linter-coverage.md) |
-| `$repo-review` | [`.agents/skills/repo-review/SKILL.md`](../.agents/skills/repo-review/SKILL.md) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
+| `$repo-review` | [`.agents/skills/repo-review/SKILL.md`](../.agents/skills/repo-review/SKILL.md) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
 | `$scripts-new-script` | [`.agents/skills/scripts-new-script/SKILL.md`](../.agents/skills/scripts-new-script/SKILL.md) | [`docs/decisions/0004-scripts-architecture.md`](../docs/decisions/0004-scripts-architecture.md) |
 | `$start-issue` | [`.agents/skills/start-issue/SKILL.md`](../.agents/skills/start-issue/SKILL.md) | [`AGENTS.md`](../AGENTS.md) |
 | `$ui-new-component` | [`.agents/skills/ui-new-component/SKILL.md`](../.agents/skills/ui-new-component/SKILL.md) | [`AGENTS.md`](../AGENTS.md) |

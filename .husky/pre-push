@@ -101,20 +101,6 @@ fi
 success "No flagged comments found"
 
 # =========================
-# Docs drift heuristic
-# =========================
-# A nudge, not a gate — never fails the push. $BASE/$LOCAL_SHA are whatever the loop above last
-# set, so this reuses the exact range being pushed instead of recomputing a merge-base. Skipped on
-# a branch deletion (no LOCAL_SHA) and left to print-and-return on a non-interactive push, inside
-# the script itself, since there's nobody here to answer its prompt.
-
-if [ -n "$LOCAL_SHA" ] && [ "$LOCAL_SHA" != "$ZERO_SHA" ]; then
-  echo ""
-  info "Checking for possible docs drift..."
-  DOCS_DRIFT_BASE="$BASE" DOCS_DRIFT_HEAD="$LOCAL_SHA" pnpm docs:drift || true
-fi
-
-# =========================
 # Dependency audit
 # =========================
 # A nudge, not a gate — never fails the push. Whole-workspace, not diffed: this is a local
@@ -130,6 +116,30 @@ fi
 # =========================
 # Run checks
 # =========================
+
+echo ""
+info "Checking generated docs..."
+pnpm docs:map --check
+
+if [ $? -ne 0 ]; then
+  error "Generated docs are out of date"
+  exit 1
+fi
+
+echo ""
+success "Generated docs are up to date"
+
+echo ""
+info "Checking review method version..."
+pnpm review:version --check
+
+if [ $? -ne 0 ]; then
+  error "Review method version is out of date"
+  exit 1
+fi
+
+echo ""
+success "Review method version is up to date"
 
 echo ""
 info "Running lint..."

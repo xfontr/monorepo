@@ -20,7 +20,7 @@ filters an issue list down to the ones sitting on that project before showing an
 ## Result
 
 Keep the four boards. They aren't an accident of how the projects were created — they mirror the
-same split the Nx tags already enforce in code: two apps (`huella-legal`, `tech-docs`), the tooling
+same split the Nx tags already enforce in code: two apps (`huella-legal`, `developer-portal`), the tooling
 layer (`infrastructure`), and repo-level work that belongs to neither. A board answers "what's left
 in this app", and that question is cleaner with a board per app than with one board and a field you
 have to read on every card to get the same answer.
