@@ -130,6 +130,18 @@ echo ""
 success "Generated docs are up to date"
 
 echo ""
+info "Checking review method version..."
+pnpm review:version --check
+
+if [ $? -ne 0 ]; then
+  error "Review method version is out of date"
+  exit 1
+fi
+
+echo ""
+success "Review method version is up to date"
+
+echo ""
 info "Running lint..."
 pnpm lint
 
