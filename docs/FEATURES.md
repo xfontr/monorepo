@@ -52,7 +52,6 @@ that per-clone setup runs.
 | Capability | Declared in | Explained in |
 | --- | --- | --- |
 | `commit-msg` | [`.husky/commit-msg`](../.husky/commit-msg) | [`README.md`](../README.md) |
-| `post-commit` | [`.husky/post-commit`](../.husky/post-commit) | — |
 | `pre-push` | [`.husky/pre-push`](../.husky/pre-push) | [`README.md`](../README.md) |
 
 ## ⚙️ Workflows
