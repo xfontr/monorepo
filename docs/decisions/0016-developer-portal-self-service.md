@@ -22,7 +22,7 @@ Three facts about the repo decide the answer, and all three are newer than the o
 
 | Fact | Where |
 | --- | --- |
-| developer-portal is built and deployed — a prerender published to GitHub Pages, no host and no secret | [`docs-deploy.yml`](../../.github/workflows/docs-deploy.yml), [`0014`](./0014-developer-portal-deployment.md) |
+| developer-portal is built and deployed — a prerender published to GitHub Pages, no host and no secret | [`developer-portal-deploy.yml`](../../.github/workflows/developer-portal-deploy.yml), [`0014`](./0014-developer-portal-deployment.md) |
 | `huella-legal` has a production pipeline, and every deploy is recorded as a GitHub Deployment | [`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml) |
 | developer-portal requires exactly one env var, `NUXT_PUBLIC_REPO_URL` — the observability URLs belong to `huella-legal` | [`apps/developer-portal/.env.example`](../../apps/developer-portal/.env.example) |
 

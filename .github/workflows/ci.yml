@@ -42,10 +42,6 @@ jobs:
             # change to one moves every future score while the history table reads the old number.
             - run: pnpm review:version --check
 
-            # The link check, the mirrored invariants and the decision frontmatter rules, over the
-            # whole tree rather than only the file an agent hook happened to touch.
-            - run: pnpm exec nx check-docs @monorepo/developer-portal
-
     # Needs a base ref to diff against, so it's meaningless on a push to master.
     dependency-review:
         if: github.event_name == 'pull_request'

@@ -140,9 +140,10 @@ use `pnpm exec nx run-many -t <target>`.
   instead of stacking a second one; a branch with no number in it is left alone. This is why the log
   here is number-first without anyone maintaining that.
 - The pre-push hook checks that `docs/FEATURES.md` and the review method version are current, then
-  runs `lint`, `test` and `typecheck` on affected projects; it also rejects a push that adds a
-  `TODO`/`FIXME` comment. It diffs only the commits being pushed, so a marker already in the tree
-  never blocks you; the rejection points at
+  runs `lint`, `test` and `typecheck` on affected projects in a temporary checkout of the pushed
+  commit; it also rejects a push that adds a `TODO`/`FIXME` comment. Worktree and staged changes
+  are therefore ignored, while a marker already in the committed tree never blocks you; the
+  rejection points at
   [`pnpm issue:add`](./infrastructure/scripts/src/issue/README.md), which files the issue in a
   few prompts so the comment can go.
 - [`pnpm issue:pick`](./infrastructure/scripts/src/issue/README.md#-pnpm-issuepick) goes the other
