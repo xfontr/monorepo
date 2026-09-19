@@ -134,7 +134,7 @@ The density floor counts `.ts`/`.mts` only, after the same barrel-and-config fil
 `collect-facts.sh` uses for its untested-file list; `.vue` is excluded because nothing in this repo
 puts a spec beside a component, so counting them would fire on every Nuxt app and stop
 discriminating. Four is the bar because it separates the projects that spec as they go — `content`
-at 1.2, `i18n` at 1.3, `scripts` at 3.1 — from `apps/tech-docs` at 4.6 in the 2026-09-10 review. It
+at 1.2, `i18n` at 1.3, `scripts` at 3.1 — from `apps/developer-portal` at 4.6 in the 2026-09-10 review. It
 is **a cap and never a bonus**: a good ratio buys nothing, because otherwise it is the feature-count
 scoring this rubric refuses, one spec file at a time.
 

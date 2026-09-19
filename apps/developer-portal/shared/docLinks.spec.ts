@@ -20,7 +20,7 @@ const isPage = (path: string): boolean => COLLECTED.has(path);
 /** `AGENTS.md` at the repo root, whose links are relative to the root itself. */
 const ROOT = "AGENTS.md";
 
-const DECISION = "docs/decisions/0014-tech-docs-deployment.md";
+const DECISION = "docs/decisions/0014-developer-portal-deployment.md";
 
 describe("resolveDocLink", () => {
     it("routes a markdown sibling to its lower-cased collection path, not the name on disk", () => {

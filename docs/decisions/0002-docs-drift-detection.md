@@ -68,7 +68,7 @@ change; none has been filed yet.
 **Two of the three layers now run in CI**, not one — this file previously read `Status: Implemented`
 with none of the three built, the exact case
 [`0011-docs-system-enforcement.md`](./0011-docs-system-enforcement.md) names as a symptom of the
-status line tracking the wrong thing. `pnpm exec nx check-docs @monorepo/tech-docs` in `ci.yml`
+status line tracking the wrong thing. `pnpm exec nx check-docs @monorepo/developer-portal` in `ci.yml`
 runs the markdown link checker (layer 3) and the `check-invariants.sh`-mirrored assertions (the
 assertion half of layer 2) over the whole tree, not only the file a Claude Code session happens to
 be editing. **Layer 1 — generating the architecture table from `boundaries.ts` instead of only

@@ -34,7 +34,7 @@ that.
 
 | Page | Reads |
 | --- | --- |
-| Wiki | Every tracked `*.md`, arranged as a tree — see [🧭 The wiki](#-the-wiki) |
+| Wiki | Every non-ignored `*.md`, arranged as a tree — see [🧭 The wiki](#-the-wiki) |
 | Projects | The collected Nx graph joined to collect-time project metrics, with live deployment state |
 | Decisions | `docs/decisions/NNNN-<slug>.md` — the files the `decision-report` skill writes, see [🔬 Decisions are their own section](#-decisions-are-their-own-section) |
 | Reviews | `docs/reviews/YYYY-MM-DD-<sha>.md` — the files the `repo-review` skill writes |
@@ -49,7 +49,7 @@ and fails silently, which is exactly how it went unnoticed the first time.
 The links *inside* a doc are written for GitHub and point at files, not routes — `./.husky/pre-push`,
 `../packages/ui/README.md`, a directory, a line range. Rendering them verbatim
 put 32 links on a hard 404 and another 33 on the wiki's own "No such page" at HTTP 200 —
-[`0014`](../../docs/decisions/0014-tech-docs-deployment.md) has the measurement. They cannot be fixed in
+[`0014`](../../docs/decisions/0014-developer-portal-deployment.md) has the measurement. They cannot be fixed in
 the markdown, because on GitHub they are already correct.
 
 [`remarkDocLinks`](./tools/lib/remarkDocLinks.ts) rewrites each one **while the file is parsed**,

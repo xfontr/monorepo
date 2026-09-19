@@ -51,7 +51,7 @@ both apps use `createNuxtConfig`, which is deliberately not type-checked. **The 
 code in the workspace gets the weakest lint, and that is where the only bug was.**
 
 That exclusion is a documented decision, not drift. Worth noting against it: the probe ran
-type-aware rules over `apps/tech-docs`'s 29 `.ts` files without incident. The trouble Nuxt's
+type-aware rules over `apps/developer-portal`'s 29 `.ts` files without incident. The trouble Nuxt's
 generated files cause is a `.vue` and generated-file problem, so a `.ts`-only type-aware pass in a
 Nuxt app is narrower than the decision that excluded it and is retestable on that basis.
 
@@ -168,14 +168,14 @@ not a stricter reading of the same evidence. `no-unnecessary-condition` stays of
 The finding with the longest tail is the second one. The only defect the sweep found sits in an app
 excluded from type-aware linting, so it was invisible to a rule the workspace already configures.
 Whether a `.ts`-only type-aware pass for the two Nuxt apps is worth its friction is a separate
-question from the one this decision answered, and it should be measured on `apps/tech-docs` first —
+question from the one this decision answered, and it should be measured on `apps/developer-portal` first —
 38 findings there, one of them real — before `apps/huella-legal`, which typechecks only on build.
 
 ## Confirmation
 
 `eslint-plugin-regexp` is in and applied — `pnpm exec nx lint @monorepo/configs` failing on a
 reintroduced ReDoS pattern is the check. The link-checker decision is settled by #103:
-`brokenLinkCount` gates CI through `pnpm exec nx check-docs @monorepo/tech-docs`, which landed under
+`brokenLinkCount` gates CI through `pnpm exec nx check-docs @monorepo/developer-portal`, which landed under
 #106 rather than the `docs:map --check` mechanism this decision anticipated; `#anchor` links stay
 unverified, a deliberate exclusion since none of the four breaks found here were anchor breaks. The
 remaining two items are not yet built: once `noUncheckedIndexedAccess` lands in `base.json`,

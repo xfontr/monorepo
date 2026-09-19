@@ -151,7 +151,7 @@ project has a `nuxt.config.ts` and no `.nuxt` — so no test target is wired to 
 the per-spec ones `@nx/vitest` generates and a bare `pnpm vitest` that never enters the task graph.
 What's left in [`nx.json`](./nx.json) is `lint` and `typecheck`, the two that aren't Vitest,
 depending on a `nuxt-prepare` target that only exists where a project defines that script —
-currently `apps/huella-legal` and `apps/tech-docs`. A new Nuxt app needs that script added by hand,
+currently `apps/huella-legal` and `apps/developer-portal`. A new Nuxt app needs that script added by hand,
 and Nx **silently drops** an edge naming a target a project doesn't have, so the symptom is `lint`
 failing to parse every file rather than anything mentioning `.nuxt`.
 [`0015`](./docs/decisions/0015-nuxt-prepare-wiring.md) has the measurements, and settles against the

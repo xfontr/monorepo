@@ -86,7 +86,7 @@ survivable deduction and no agent the shape. So:
   so it still costs points once — the rule that stops double-counting is not suspended because the
   finding is bigger.
 - A cross-cutting finding is held to the same citation rule as any other. "This feels
-  unsupervised" is dropped; "four cards deduct on `apps/tech-docs`, with these four citations" is
+  unsupervised" is dropped; "four cards deduct on `apps/developer-portal`, with these four citations" is
   a finding.
 
 `0012-review-rubric-validity.md` is why this step exists: every cap in `SCORECARDS.md` resolves to a
@@ -105,7 +105,7 @@ card agent as well as the rubric, so it moves without `SCORECARDS.md` being touc
 `house-docs`: prose that says why the score is what it is, tables for the findings, no closing
 summary.
 
-The `## 🧮 Scores` table is machine-read, not only human-read: `@monorepo/tech-docs`'s scorecards page
+The `## 🧮 Scores` table is machine-read, not only human-read: `@monorepo/developer-portal`'s scorecards page
 parses it straight out of the file. Keep it byte-for-byte the shape `TEMPLATE.md` has — the same seven
 cards in the same order, each a bare `n/5` in the Score column, the total as `**n.n/5**` in a
 `**Total**` row. Never rename a card, reorder one, or write a score as anything but `n/5` (no `n/10`,

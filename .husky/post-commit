@@ -16,3 +16,5 @@ fi
 
 git diff-tree --no-commit-id --name-status -r HEAD | sed 's/^/  /'
 printf "\n${GREEN}✔${NC} ${DIM}%s · %s · %s${NC}\n" "$(git show -s --format=%an HEAD)" "$(git show -s --format=%ar HEAD)" "$(git branch --show-current)"
+
+pnpm docs:drift || true

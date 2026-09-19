@@ -101,11 +101,17 @@ export function decisionMetaOf(path: string, source: string): DecisionMeta {
 }
 
 export async function collectDocs(projectRoots: string[], generatedAt: string): Promise<DocsArtifact> {
-    const tracked = (await git(["ls-files", "*.md"])).split("\n").filter(Boolean);
+    const paths = (await git(["ls-files", "--cached", "--others", "--exclude-standard", "--", "*.md"]))
+        .split("\n")
+        .filter(Boolean);
     const pages: DocPage[] = [];
 
-    for (const path of tracked) {
-        const source = await readFile(resolve(WORKSPACE_ROOT, path), "utf8");
+    for (const path of paths) {
+        const absolute = resolve(WORKSPACE_ROOT, path);
+
+        if (!await exists(absolute)) continue;
+
+        const source = await readFile(absolute, "utf8");
 
         const headings = [...source.matchAll(HEADING)].map((match) => (match[1] ?? "").trim());
         const brokenLinks: DocLink[] = [];

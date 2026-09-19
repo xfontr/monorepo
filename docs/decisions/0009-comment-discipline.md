@@ -36,7 +36,7 @@ of code — roughly a novella of English inside a small monorepo. It is not spre
 | `apps/huella-legal` | 38 / 875 | 4.3% |
 | `packages/i18n` | 41 / 890 | 4.6% |
 | `packages/content` | 129 / 2077 | 6.2% |
-| `apps/tech-docs` | 369 / 3790 | 9.7% |
+| `apps/developer-portal` | 369 / 3790 | 9.7% |
 | `infrastructure/scripts` | 599 / 2421 | **24.7%** |
 
 One comment line per four lines of code in `scripts`, forty times the ratio of `content`, under the
@@ -99,7 +99,7 @@ that is otherwise deterministic shell.
 Unlocks a comment pass with a calibration anchor rather than only a principle: 4–6% is what this
 repo looks like when the rule is followed, and a file far outside it is worth opening. Calls for a
 sweep of the two projects that drifted — `infrastructure/scripts` from ~600 comment lines to ~120
-and `apps/tech-docs` from ~370, almost all of it shortening rather than deleting, since most of
+and `apps/developer-portal` from ~370, almost all of it shortening rather than deleting, since most of
 these comments have one good sentence inside a paragraph. That sweep is the work this report is
 waiting on, which is why the status line reads `To implement` while the policy and the skill
 themselves are already in the repo.
@@ -111,6 +111,6 @@ own — the 24.7% figure is the baseline any future gate gets judged against.
 
 ## Confirmation
 
-`infrastructure/scripts` and `apps/tech-docs` landing in the 4–6% comment-line-to-code-line band —
+`infrastructure/scripts` and `apps/developer-portal` landing in the 4–6% comment-line-to-code-line band —
 the same count Result item 1 used — once the `comment-cleanup` sweep runs. Not yet checked, which is
 why `status` stays `to-implement`.

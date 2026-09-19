@@ -4,11 +4,11 @@ status: implemented
 decision: accepted
 ---
 
-# 🧭 Deploying tech-docs is a snapshot problem, not a build step
+# 🧭 Deploying developer-portal is a snapshot problem, not a build step
 
 ## Context
 
-[`0011`](./0011-docs-system-enforcement.md) adopted deploying `apps/tech-docs` as change 7, listed
+[`0011`](./0011-docs-system-enforcement.md) adopted deploying `apps/developer-portal` as change 7, listed
 four blockers and deliberately left them unaddressed. Issue #108 restates those four as acceptance
 criteria, the last of them being *"a `build` script exists so `nx affected -t build` (and CI)
 actually builds the project"*.
@@ -26,7 +26,7 @@ Fourteen files under `app/` import `shared/` by relative path with a `.ts` exten
 them, off by one directory:
 
 ```
-ERROR  Could not resolve "../../../../../../../../apps/tech-docs/shared/spikeReports.ts"
+ERROR  Could not resolve "../../../../../../../../apps/developer-portal/shared/spikeReports.ts"
        from "node_modules/.cache/nuxt/.nuxt/dist/server/_nuxt/spikes-GqWH_gI8.js"
 ```
 
@@ -47,8 +47,8 @@ A deployed instance is as fresh as its last build.
 | Change | `nx show projects --affected` | Why |
 | --- | --- | --- |
 | `docs/decisions/README.md` | `[]` | The `docs/` tree belongs to no project, so no target anywhere depends on it |
-| `packages/ui/README.md` | `@monorepo/ui`, `@monorepo/huella-legal` | Never `tech-docs`, though `tech-docs` is what renders it |
-| `apps/tech-docs/README.md` | `@monorepo/tech-docs` | Affected, but `build`'s `production` input carries `!{projectRoot}/**/*.md`, so the task hash is unchanged |
+| `packages/ui/README.md` | `@monorepo/ui`, `@monorepo/huella-legal` | Never `developer-portal`, though `developer-portal` is what renders it |
+| `apps/developer-portal/README.md` | `@monorepo/developer-portal` | Affected, but `build`'s `production` input carries `!{projectRoot}/**/*.md`, so the task hash is unchanged |
 
 Two independent mechanisms produce the same result, and the second survives the first: `production`
 resolves to `{projectRoot}/**/*` minus markdown, so no markdown anywhere — inside the project or
@@ -113,7 +113,7 @@ renders the site and then exits on **32 distinct links that resolve to no route*
 | A line range on a file | `/.agents/skills/writing-tests/SKILL.md:91-94` | Strip the suffix, then as above |
 | A directory, or a sibling resolved from the wrong base | `/.claude/agents/`, `/2026-09-10-bfd6da2` | Link out to GitHub |
 
-`pnpm exec nx check-docs @monorepo/tech-docs` passes on the same tree with `brokenLinkCount: 0`,
+`pnpm exec nx check-docs @monorepo/developer-portal` passes on the same tree with `brokenLinkCount: 0`,
 and both are right. `checkLink` resolves against the filesystem on purpose — these files are read on
 GitHub first — while a deployed site resolves against a route table that lower-cases every path and
 has no entry for a file that is not markdown. `.husky/pre-push` is a shell script: it is a correct
@@ -148,7 +148,7 @@ them, and 3–6 are what a static deploy costs:
 1. **Rewrite `app/**`'s fourteen `../../shared/*.ts` imports to `#shared/*`.** This is what makes
    any build of this project complete, and it is a rename, not a redesign — `server/` and `tools/`
    keep their relative imports, which Nitro resolves.
-2. **Add `"build": "nx nuxt:build"`** to `apps/tech-docs/package.json`, the shape
+2. **Add `"build": "nx nuxt:build"`** to `apps/developer-portal/package.json`, the shape
    `apps/huella-legal` already uses, so `nx affected -t build` stops skipping the project. Delete
    the README paragraph that explains why it is absent.
 3. **Deploy statically** — `nuxt build --prerender` to GitHub Pages — rather than running a Node
@@ -191,13 +191,13 @@ them, and 3–6 are what a static deploy costs:
    the `useAsyncData` is what keeps it out of the prerendered payload; a `loading` prop covers the
    wait on first open.
 7. **Give the build the inputs it actually has.** A per-project `production` `namedInput` in
-   `apps/tech-docs/package.json` — the workspace default is wrong for the one project whose inputs
+   `apps/developer-portal/package.json` — the workspace default is wrong for the one project whose inputs
    are the workspace. Without it the deploy job restores a cached `.output` and publishes the
    previous snapshot. Both open questions above are now measured:
 
    | Question | Answer |
    | --- | --- |
-   | Does `{workspaceRoot}/**/*.md` also make `nx affected` see a file belonging to no project? | **Yes** — `nx show projects --affected --files=docs/decisions/README.md` prints `["@monorepo/tech-docs"]`, where it printed `[]`. No `implicitDependencies` entry is needed; the input does both jobs |
+   | Does `{workspaceRoot}/**/*.md` also make `nx affected` see a file belonging to no project? | **Yes** — `nx show projects --affected --files=docs/decisions/README.md` prints `["@monorepo/developer-portal"]`, where it printed `[]`. No `implicitDependencies` entry is needed; the input does both jobs |
    | Can the collected snapshot be a file input? | **No.** `.report/` is gitignored, so it is absent from Nx's file map and `{projectRoot}/.report/**/*` hashes nothing — added it, re-stamped the manifest, still a 1/1 cache hit. A `runtime` input whose stdout is the manifest is the mechanism that works |
 
    The target the deploy actually runs is `build-static`, not `build`; both take `production`, so the
@@ -206,7 +206,7 @@ them, and 3–6 are what a static deploy costs:
 8. **A separate `docs-deploy` workflow** on push to `master` plus `workflow_dispatch`:
    `nx run-many -t test:coverage` and the merge script, then `nx collect`, then the build, then
    publish. Not a step on the `checks` job, which is `affected` by design.
-9. **Correct the two READMEs.** `apps/tech-docs/README.md`'s "cannot drift" claim becomes a
+9. **Correct the two READMEs.** `apps/developer-portal/README.md`'s "cannot drift" claim becomes a
    statement about `nuxt dev`, and its *"Serving this anywhere"* deferred row plus
    `docs/README.md`'s publishing row are spent — as `0011` said they would be.
 
@@ -254,12 +254,12 @@ otherwise.
 
 Each is false today and true when the work lands:
 
-1. `pnpm exec nx build @monorepo/tech-docs` exits 0. It currently fails to resolve
+1. `pnpm exec nx build @monorepo/developer-portal` exits 0. It currently fails to resolve
    `shared/spikeReports.ts`.
 2. Two consecutive builds with a markdown edit between them report a cache **miss** on the second.
    Measured at 1/1 hit today — this is the half change 7 is known to fix.
 3. `pnpm exec nx show projects --affected --files=docs/decisions/README.md` lists
-   `@monorepo/tech-docs`. It currently prints `[]`, and which mechanism gets it there is the open
+   `@monorepo/developer-portal`. It currently prints `[]`, and which mechanism gets it there is the open
    question in change 7.
 4. A prerendered build contains no page carrying the wiki's "No such page" copy, and the prerenderer
    reports no unresolved route — the 32 and the 33 it found while `check-docs` reported

@@ -4,17 +4,17 @@ status: implemented
 decision: accepted
 ---
 
-# 🧭 tech-docs becomes an IDP by reading GitHub, not by installing one
+# 🧭 developer-portal becomes an IDP by reading GitHub, not by installing one
 
 ## Context
 
-tech-docs is documented as a pure leaf/reader — `type:app scope:internal`, imports nothing but
+developer-portal is documented as a pure leaf/reader — `type:app scope:internal`, imports nothing but
 `@monorepo/configs`, nothing imports it, and its only store is a disposable, rebuild-from-scratch
 `.report/` snapshot. #102 asked whether it should grow beyond that, listing an `nx` run panel,
 deploy status, deploy triggers for `huella-legal` and a feature-flag/analytics vendor integration —
 each in tension with the "reads only, holds no credential, never acts" posture its README commits to.
 
-The ask has since grown past that list: tech-docs should become something closer to an internal
+The ask has since grown past that list: developer-portal should become something closer to an internal
 developer platform, and the question raised with it is which dependency that means installing,
 Backstage being the obvious candidate.
 
@@ -22,14 +22,14 @@ Three facts about the repo decide the answer, and all three are newer than the o
 
 | Fact | Where |
 | --- | --- |
-| tech-docs is built and deployed — a prerender published to GitHub Pages, no host and no secret | [`docs-deploy.yml`](../../.github/workflows/docs-deploy.yml), [`0014`](./0014-tech-docs-deployment.md) |
+| developer-portal is built and deployed — a prerender published to GitHub Pages, no host and no secret | [`docs-deploy.yml`](../../.github/workflows/docs-deploy.yml), [`0014`](./0014-developer-portal-deployment.md) |
 | `huella-legal` has a production pipeline, and every deploy is recorded as a GitHub Deployment | [`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml) |
-| tech-docs requires exactly one env var, `NUXT_PUBLIC_REPO_URL` — the observability URLs belong to `huella-legal` | [`apps/developer-portal/.env.example`](../../apps/developer-portal/.env.example) |
+| developer-portal requires exactly one env var, `NUXT_PUBLIC_REPO_URL` — the observability URLs belong to `huella-legal` | [`apps/developer-portal/.env.example`](../../apps/developer-portal/.env.example) |
 
 ## Result
 
 **Backstage would relocate maintenance rather than remove it, and add a category this repo doesn't
-have.** tech-docs is 4,859 lines of hand-written source plus 838 of spec. Of that, `tools/` is 1,321
+have.** developer-portal is 4,859 lines of hand-written source plus 838 of spec. Of that, `tools/` is 1,321
 lines and **Backstage replaces none of it**: something still has to compute *this* workspace's graph,
 coverage, doc links, invariants and scorecard shapes, and Backstage would consume that output through
 a plugin also written here. What it replaces is `app/` — 2,723 lines of Vue, swapped for React — and
@@ -68,7 +68,7 @@ it is self-service actions — and that is blocked by something a dependency can
 
 **The `type:app` boundary tag was never the blocker, and neither is auth.**
 [`boundaries.ts`](../../packages/configs/src/eslint/lib/boundaries.ts) governs import edges, not
-execution: it stops tech-docs from `import`ing a workspace package it isn't allowed to, and says
+execution: it stops developer-portal from `import`ing a workspace package it isn't allowed to, and says
 nothing about spawning a child process or calling an external API. The "reader, not actor" posture is
 a design choice written in prose, not an enforced boundary.
 
@@ -119,7 +119,7 @@ for what changes *after* the build — a deploy, a workflow run — and nothing 
 | Self-host Backstage | Replaces no line of the 1,321 that compute this workspace's state, swaps 2,723 lines of Vue for React, and adds Yarn, a Node backend, PostgreSQL, MkDocs and a monthly all-packages version bump. The catalog goes from derived to hand-written, which is the drift these docs are built to prevent |
 | A hosted portal — Roadie, Spotify Portal, Red Hat Developer Hub, Port, Cortex, OpsLevel, Compass | Every one is a Backstage distribution or commercial SaaS. The catalog, scorecards and review history would live in a vendor's account rather than in the tree |
 | Adopt the Backstage entity model as a format — `catalog-info.yaml` per project, no dependency | The format is free; what it costs is the file. A hand-written descriptor beside a derived graph is a second answer to "what projects exist", free to drift — and generating one from the graph buys only portability to a portal this report declines |
-| Drop the static deploy and run tech-docs as a server, so actions have somewhere to run | A host, a secret and an auth mechanism this repo has never had, for an action GitHub already renders a button for. [`0014`](./0014-tech-docs-deployment.md) chose the snapshot deliberately |
+| Drop the static deploy and run developer-portal as a server, so actions have somewhere to run | A host, a secret and an auth mechanism this repo has never had, for an action GitHub already renders a button for. [`0014`](./0014-developer-portal-deployment.md) chose the snapshot deliberately |
 | Build an auth system now so every capability lands uniformly | Four of the five need no credential at all, and `CLAUDE.md`'s dependency rule argues against infrastructure built ahead of the write action that would justify it |
 | Build a general IDP abstraction — plugins, a capability registry — before any capability exists | One portal with one consumer. That rule cuts the same way against a hand-rolled framework as against an installed one |
 
@@ -137,11 +137,11 @@ No dependency is added. What gets built instead, in order, each row naming the o
 | Deploy trigger, flag toggle | A link out to GitHub's own **Run workflow** button | GitHub's UI |
 
 **#66 first, then #67, then #119.** #66 refactors the app on the grounds that it was vibe-coded and
-#67 adds the tests behind it; #119 — "How should tech-docs surface each app/package with links and
+#67 adds the tests behind it; #119 — "How should developer-portal surface each app/package with links and
 stats?", explicitly blocked by #102 — is where the table above gets built. New surface landed before
 that refactor gets refactored twice.
 
-A flags/analytics vendor, if one lands, gets a tech-docs-owned vendor type rather than a shared one:
+A flags/analytics vendor, if one lands, gets a developer-portal-owned vendor type rather than a shared one:
 `packages/i18n` and `packages/content` each define their own, deliberately, for reasons their READMEs
 argue out. A third copy is the honest continuation; a fourth is the signal to extract one.
 
@@ -152,8 +152,8 @@ GitHub cannot already render a button for; that is the day the auth question bec
 
 ## Confirmation
 
-The framework decision holds while `apps/tech-docs/package.json` lists no `@backstage/*` dependency,
-`apps/tech-docs/.env.example` still carries `NUXT_PUBLIC_REPO_URL` and nothing else, and no
+The framework decision holds while `apps/developer-portal/package.json` lists no `@backstage/*` dependency,
+`apps/developer-portal/.env.example` still carries `NUXT_PUBLIC_REPO_URL` and nothing else, and no
 `catalog-info.yaml` exists anywhere in the tree:
 
 ```sh

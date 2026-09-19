@@ -163,9 +163,9 @@ use `pnpm exec nx run-many -t <target>`.
   workspace tree above — so the required approval has someone to land on automatically. Every path
   resolves to the sole collaborator today; splitting them further only matters once a second one
   joins.
-- The hook also runs [`pnpm docs:drift`](./infrastructure/scripts/src/drift/README.md), which never
-  fails the push: it warns when a changed project's docs look stale or the change is big, and offers
-  to file an issue.
+- After each commit, the hook runs [`pnpm docs:drift`](./infrastructure/scripts/src/drift/README.md).
+  It never fails the commit: it warns when a changed project's docs look stale or the change is big,
+  and offers to file an issue.
 - It runs `pnpm audit` too, same never-fails treatment — a local heads-up, not the real check. Every
   PR additionally gets [`actions/dependency-review-action`](https://github.com/actions/dependency-review-action)
   in `warn-only` mode, which comments with any vulnerability the PR's own diff introduces without
