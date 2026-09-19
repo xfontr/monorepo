@@ -117,7 +117,7 @@ someone breaks it.
 
 Add the row to the table in [`docs/reviews/README.md`](../../../docs/reviews/README.md) — ratings
 only, in the same pass.
-[`check-invariants.sh`](../../hooks/check-invariants.sh) fails the write of a review file whose row
+[`check-invariants.sh`](../../../.claude/hooks/check-invariants.sh) fails the write of a review file whose row
 isn't there yet, so this step is not optional and the reminder clears itself once the row exists.
 
 ## 6. Report, then stop
