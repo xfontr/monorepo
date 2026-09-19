@@ -1,4 +1,4 @@
-name: Docs deploy
+name: Developer Portal deploy
 
 on:
     push:
@@ -10,7 +10,7 @@ permissions:
 
 # Queued rather than cancelled, so a run that is already publishing is allowed to finish.
 concurrency:
-    group: docs-deploy
+    group: developer-portal-deploy
     cancel-in-progress: false
 
 jobs:
@@ -73,7 +73,7 @@ jobs:
             pages: write
             id-token: write
         environment:
-            name: github-pages
+            name: developer-portal
             url: ${{ steps.deployment.outputs.page_url }}
         steps:
             - id: deployment

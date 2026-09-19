@@ -7,7 +7,7 @@ which two files have stopped agreeing.
 
 It runs two ways. `pnpm dev developer-portal` reads the working tree and shells out to `git`, so it shows
 the branch you are on; the deployed site is a prerendered snapshot of `master`, published by
-[`docs-deploy.yml`](../../.github/workflows/docs-deploy.yml) — see
+[`developer-portal-deploy.yml`](../../.github/workflows/developer-portal-deploy.yml) — see
 [🚢 The deployed site is a snapshot](#-the-deployed-site-is-a-snapshot).
 
 ## 🗂 Structure
@@ -210,7 +210,7 @@ succeeds with no `.report/` at all, rendering 181 routes instead of 211.
 
 ## 🚢 The deployed site is a snapshot
 
-[`docs-deploy.yml`](../../.github/workflows/docs-deploy.yml) prerenders this app and publishes it to
+[`developer-portal-deploy.yml`](../../.github/workflows/developer-portal-deploy.yml) prerenders this app and publishes it to
 GitHub Pages on every push to `master`, plus by hand from `workflow_dispatch`. Static files, no host
 and no secret: the repo is public, and the one thing here that needed a credential went away when
 the issues read moved into the browser. Pages has to be set to build from GitHub Actions in the

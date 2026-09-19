@@ -20,6 +20,10 @@ loudly.
 
 ## 2. Commit
 
+The [`pre-commit`](../../.husky/pre-commit) hook checks that the generated feature map and review
+method version are current. A stale generated file or an unrecorded review-method change blocks the
+commit.
+
 The [`commit-msg`](../../.husky/commit-msg) hook runs before `commitlint` sees your message. It
 reads the issue number out of the current branch name and rewrites the subject to carry it —
 `feat: Add thing` on `feature/website/50-slug` becomes `feat: [50] Add thing` — then hands the
@@ -36,9 +40,7 @@ whole working tree):
    rejected outright.
 2. **TODO/FIXME scan** over the diff of what's being pushed — a new one blocks the push and points
    at `pnpm issue:add` to file it properly instead.
-3. **Docs drift check** (`pnpm docs:drift`) — a nudge, never a gate. It warns when the changed
-   project's docs look stale and offers to file an issue, but always exits 0.
-4. **Lint, test, typecheck**, each against affected projects — any failure blocks the push.
+3. **Lint, test, typecheck**, each against affected projects — any failure blocks the push.
 
 ## 4. Open the PR
 

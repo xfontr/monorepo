@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# Colors
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+BLUE="\033[0;34m"
+NC="\033[0m"
+
+info() {
+  printf "${BLUE}➜ ${NC}%s\n" "$1"
+}
+
+success() {
+  printf "${GREEN}✔ ${NC}%s\n" "$1"
+}
+
+error() {
+  printf "${RED}✖ ${NC}%s\n" "$1"
+}
+
+echo ""
+info "Checking generated docs..."
+pnpm docs:map --check
+
+echo ""
+success "Generated docs are up to date"
+
+echo ""
+info "Checking review method version..."
+pnpm review:version --check
+
+echo ""
+success "Review method version is up to date"
+echo ""
