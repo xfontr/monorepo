@@ -108,9 +108,9 @@ renders the site and then exits on **32 distinct links that resolve to no route*
 
 | Kind | Examples | Fix |
 | --- | --- | --- |
-| Case — the page exists, lower-cased | `/README`, `/CLAUDE`, `/packages/ui/README`, `/.claude/skills/house-docs/SKILL` | Lower-case the href, as `toCollectionPath` already does elsewhere |
+| Case — the page exists, lower-cased | `/README`, `/CLAUDE`, `/packages/ui/README`, `/.agents/skills/house-docs/SKILL` | Lower-case the href, as `toCollectionPath` already does elsewhere |
 | Not markdown — there will never be a page | `/.husky/pre-push`, `/nx.json`, `/.mcp.json`, `/packages/configs/src/tsconfig/base.json` | Link out to GitHub |
-| A line range on a file | `/.claude/skills/writing-tests/SKILL.md:91-94` | Strip the suffix, then as above |
+| A line range on a file | `/.agents/skills/writing-tests/SKILL.md:91-94` | Strip the suffix, then as above |
 | A directory, or a sibling resolved from the wrong base | `/.claude/agents/`, `/2026-09-10-bfd6da2` | Link out to GitHub |
 
 `pnpm exec nx check-docs @monorepo/tech-docs` passes on the same tree with `brokenLinkCount: 0`,

@@ -1,5 +1,5 @@
 ---
-name: new-component
+name: ui-new-component
 description: Add a component to @monorepo/ui — the .vue file, its spec, its story, and the lib/index.ts re-export. Use when adding or removing a shared Vue component in packages/ui.
 ---
 
@@ -16,7 +16,7 @@ lib/components/<Name>.stories.ts   Storybook
 lib/index.ts                       the re-export ← without this, consumers cannot see it
 ```
 
-Copy the shape from `Button.*` in [`lib/components`](../../../lib/components) — all three files are
+Copy the shape from `Button.*` in [`lib/components`](../../../packages/ui/lib/components) — all three files are
 short and current.
 
 `lib/index.ts` imports the `.vue` file and re-exports it by name:
@@ -31,8 +31,8 @@ export { Button, Card };
 ## Conventions
 
 - Source lives in **`lib/`**, not `src/`. The `@/` alias points at `lib/` and is declared twice —
-  [`tsconfig.app.json`](../../../tsconfig.app.json) for the editor and
-  [`vite.config.ts`](../../../vite.config.ts) for the bundler. If an import resolves in one and not
+  [`tsconfig.app.json`](../../../packages/ui/tsconfig.app.json) for the editor and
+  [`vite.config.ts`](../../../packages/ui/vite.config.ts) for the bundler. If an import resolves in one and not
   the other, that pair is why.
 - `<script lang="ts" setup>` first, then `<template>`. 4-space indent, double quotes.
 - Props and emits are typed; no `defineProps` without a type argument.
@@ -40,7 +40,7 @@ export { Button, Card };
 
 ## What must not go in here
 
-The boundary rule is in [README.md](../../../README.md#-boundaries) (`type:ui`, enforced by
+The boundary rule is in [README.md](../../../packages/ui/README.md#-boundaries) (`type:ui`, enforced by
 `@nx/enforce-module-boundaries`) — this skill doesn't restate it. If a component "needs" a store, a
 fetch, or a translation, the prop it should have taken is the thing to find instead.
 

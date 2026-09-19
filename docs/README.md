@@ -1,7 +1,7 @@
 # 🗂 Docs
 
 Everything here spans more than one project. Anything that doesn't — a project's own reference,
-its setup, its invariants — stays in that project's `README.md` and `CLAUDE.md` instead, from
+its setup, its invariants — stays in that project's `README.md` and `AGENTS.md` instead, from
 [decision 0001](./decisions/0001-feature-discoverability.md):
 
 > A subject enters `docs/` only if no single project owns it.

@@ -114,7 +114,7 @@ dashboard tile:
 | Broken link | Status |
 | --- | --- |
 | [`i18n/src/nuxt/README.md:94`](../../packages/i18n/src/nuxt/README.md) → `../config.ts` | live; the file is `./config.ts`, same directory |
-| [`nuxt-module-route/SKILL.md:62`](../../.claude/skills/nuxt-module-route/SKILL.md) → `server/request.ts` | live; the file is `server/utils/request.ts` |
+| [`nuxt-module-route/SKILL.md:62`](../../.agents/skills/nuxt-module-route/SKILL.md) → `server/request.ts` | live; the file is `server/utils/request.ts` |
 | `reviews/2026-09-04-c1025f3.md` → `../decisions/README.md` | frozen history |
 | `spikes/0037-feature-discoverability.md` → `src/drift/detect.ts` | frozen history |
 

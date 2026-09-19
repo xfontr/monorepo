@@ -45,7 +45,7 @@ export function categoryIcon(category: string): string {
 
 const KIND_ICONS: Record<string, string> = {
     readme: "i-lucide-file-text",
-    claude: "i-lucide-bot",
+    agent: "i-lucide-bot",
     changelog: "i-lucide-tag",
     skill: "i-lucide-wand-sparkles",
     doc: "i-lucide-book-open",

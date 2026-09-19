@@ -85,6 +85,7 @@ Requires the Node version in `.nvmrc` and pnpm (version pinned via `packageManag
 ```sh
 pnpm install
 git config core.hooksPath .husky        # git hooks — a fresh clone has none until you do this
+pnpm agents:sync                        # Claude adapters; Codex reads the sources directly
 pnpm dev                                # pick a project to start
 ```
 
@@ -93,7 +94,7 @@ itself if `node_modules` isn't there yet, then asks which project to start. See
 [`infrastructure/scripts/src/dev`](./infrastructure/scripts/src/dev/README.md).
 
 That second line is not optional and nothing runs it for you. Husky normally installs itself from a
-`prepare` script, and [lifecycle scripts are banned here](./CLAUDE.md) because both CI workflows
+`prepare` script, and [lifecycle scripts are banned here](./AGENTS.md) because both CI workflows
 install with `--ignore-scripts` — so a hook hung off one works locally and silently does nothing
 where it matters. Skip it and the [commit and push gates](#-git-conventions) below simply never
 fire, which looks like a repo with no rules rather than a clone that isn't set up.
@@ -118,6 +119,7 @@ use `pnpm exec nx run-many -t <target>`.
 | `pnpm graph` | Open the Nx project graph |
 | `pnpm dev tech-docs` | Start [`@monorepo/tech-docs`](./apps/tech-docs/README.md), the local dashboard over this repo's markdown, coverage, graph and issues |
 | `pnpm exec nx collect @monorepo/tech-docs` | Rebuild the snapshot that tech-docs reads |
+| `pnpm agents:sync` | Render ignored Claude adapters from canonical `AGENTS.md` files and `.agents/skills/`; `--check` reports local drift |
 | `pnpm docs:map` | Re-render [`docs/FEATURES.md`](./docs/FEATURES.md); `--check` asserts it is current |
 | `pnpm release:dry` | Preview a release (versioning + changelogs) |
 

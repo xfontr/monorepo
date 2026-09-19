@@ -16,7 +16,7 @@
             "Bash(git grep:*)",
             "Bash(git rev-list:*)",
             "Bash(gh issue list:*)",
-            "Bash(.claude/skills/repo-review/collect-facts.sh:*)"
+            "Bash(.agents/skills/repo-review/collect-facts.sh:*)"
         ],
         "deny": [
             "Edit(**/CHANGELOG.md)",

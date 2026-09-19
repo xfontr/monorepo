@@ -8,10 +8,11 @@ lives — this file sequences, it doesn't repeat.
 ```sh
 pnpm install
 git config core.hooksPath .husky
+pnpm agents:sync        # only needed before using Claude Code
 ```
 
 The second line is easy to skip and nothing catches you if you do — [lifecycle scripts are banned
-here](../../CLAUDE.md), so there's no `prepare` script to install Husky for you. Skipping it means
+here](../../AGENTS.md), so there's no `prepare` script to install Husky for you. Skipping it means
 the commit and push gates below simply never fire, which looks like a repo with no rules rather
 than an unfinished setup. Full sequence, including the app's own dev server, is in the
 [root README's Getting started](../../README.md#-getting-started).
@@ -23,7 +24,7 @@ In this order:
 1. [Root README](../../README.md) — the workspace layout table and the
    [architecture & boundaries](../../README.md#-architecture--boundaries) table. Skim, don't
    memorize; you'll come back to both.
-2. [Root `CLAUDE.md`](../../CLAUDE.md) — even though it's written for an agent, it's the fastest
+2. [Root `AGENTS.md`](../../AGENTS.md) — even though it's written for an agent, it's the fastest
    list of "things that look reasonable and are wrong here", and every one of them is a mistake
    that already happened once.
 3. [`docs/concepts/boundaries.md`](../concepts/boundaries.md) — the *why* behind the table you just
@@ -33,7 +34,7 @@ In this order:
 ## 3. Find the project you actually came for
 
 The workspace layout table in the root README names all eight projects in one place. Once you know
-which one you're here for, its own `README.md` and `CLAUDE.md` are the source of truth — this repo
+which one you're here for, its own `README.md` and `AGENTS.md` are the source of truth — this repo
 deliberately keeps per-project reference there rather than duplicating it into `docs/`, so from
 here the project's own docs take over.
 

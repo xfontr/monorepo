@@ -3,6 +3,8 @@ name: nuxt-module-route
 description: Add a BFF route or a composable to the Nuxt half of @monorepo/content or @monorepo/i18n — the cached handler, the path and TTL consts, the module registration and the spec. Use when adding, changing or caching a server route inside a package's src/nuxt/runtime, or when exposing one to the app through a composable.
 ---
 
+<!-- Generated from `.agents/skills/nuxt-module-route/SKILL.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # Adding a route to a package's Nuxt module
 
 The `*:new-vendor` skills stop at `src/core/`. This is the other half: five files that have to agree,

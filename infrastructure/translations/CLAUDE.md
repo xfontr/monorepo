@@ -1,3 +1,5 @@
+<!-- Generated from `infrastructure/translations/AGENTS.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # 🤖 @monorepo/translations
 
 See [README.md](./README.md) for the endpoints, the Docker scripts and the two ways to run it.

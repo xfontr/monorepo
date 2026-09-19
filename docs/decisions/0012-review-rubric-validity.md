@@ -83,9 +83,9 @@ decide a number, and one of them is versioned:
 | Artifact | Decides | Versioned |
 | --- | --- | --- |
 | `docs/reviews/SCORECARDS.md` | Cards, anchors, caps, weights | Yes — `Rubric v1`, bumped by hand |
-| `.claude/skills/repo-review/SKILL.md` | The reconcile rules that drop and re-score agent findings | No |
+| `.agents/skills/repo-review/SKILL.md` | The reconcile rules that drop and re-score agent findings | No |
 | `.claude/agents/repo-review-card.md` | Model, tool access, the stay-inside-your-card rule | No |
-| `.claude/skills/repo-review/collect-facts.sh` | Every count each card is scored against | No |
+| `.agents/skills/repo-review/collect-facts.sh` | Every count each card is scored against | No |
 
 A change to any of the last three moves scores while the history table still reads `v1`. Nothing
 enforces the bump either: `check-invariants.sh` requires that a review **has** a history row, never

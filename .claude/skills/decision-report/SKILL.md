@@ -3,6 +3,8 @@ name: decision-report
 description: Investigate an architectural question against this repo and write the answer up as a decision report under docs/decisions/. Use on "do a spike on this", "spike this", "write a decision report" or "add a decision report" — and when a spike issue gets resolved and the outcome needs to survive after the issue closes. Filing a GitHub spike issue is the `github-issue` skill, not this one.
 ---
 
+<!-- Generated from `.agents/skills/decision-report/SKILL.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # Writing a decision report
 
 A spike is a question that has to get answered before work can start. The question may live in a

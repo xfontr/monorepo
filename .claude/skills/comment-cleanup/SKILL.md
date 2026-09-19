@@ -3,6 +3,8 @@ name: comment-cleanup
 description: Strip AI-generated comment noise from code — narration, diff-addressed notes, essayistic justification, facts already written down in a README, stale and bloated comments — while keeping the ones that carry real context. Use this whenever the user asks to clean, prune, tidy, audit or review comments, says there are too many comments or the comments are too verbose or read like essays, asks for a "comment pass" or to "de-AI the comments", or asks to tidy a file, staged diff or PR before committing. Use it even if they only gesture at it ("these comments are noise", "can you thin these out").
 ---
 
+<!-- Generated from `.agents/skills/comment-cleanup/SKILL.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # Comment cleanup
 
 A comment-only editing pass over the target files.
@@ -27,7 +29,7 @@ Run every comment through these in order. First match wins — the order is what
 
 **2. Diff narration.** Written to a reviewer rather than a reader: "updated to use the v2 client", "removed the old fallback", "added per feedback". → Delete. Test: does the sentence still make sense to someone who never saw the PR? If not, it was a commit message in the wrong place.
 
-**3. Third copy.** The fact is already in a README, a `CLAUDE.md`, a decision report or a module doc. → Delete. Both readers reach the original anyway, and the in-file copy is the one nobody updates — it exists only to drift. Reduce it to a trailing breadcrumb (`see ./README.md`) only when the line is actively surprising without one. Before keeping any comment that explains architecture, layering, or why a thing exists at all, search the docs for the claim: that category is nearly always already written down.
+**3. Third copy.** The fact is already in a README, an `AGENTS.md`, a decision report or a module doc. → Delete. Both readers reach the original anyway, and the in-file copy is the one nobody updates — it exists only to drift. Reduce it to a trailing breadcrumb (`see ./README.md`) only when the line is actively surprising without one. Before keeping any comment that explains architecture, layering, or why a thing exists at all, search the docs for the claim: that category is nearly always already written down.
 
 **4. Moving target.** "See spec §7", "per the requirements doc", "as in the design doc" — and *another comment*, which is the worst of them: "`gh.ts`'s comments say so explicitly" survives until someone edits that file, or until a second file by that name exists. → Delete if the line never needed a comment, or rewrite to encode the substance directly. A section number is never durable regardless of what it indexes. Ticket IDs, RFCs, permalinks and maintained repo docs at stable paths are fine — but only as a trailing breadcrumb. The comment must stand alone with the reference removed.
 

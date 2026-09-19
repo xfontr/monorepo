@@ -113,7 +113,7 @@ export async function collectMetrics(
             unreleasedCommits: await unreleasedFor(project.name, project.root),
             currentVersion: await versionOf(project.root),
             hasReadme: files.some((file) => file.endsWith("README.md")),
-            hasClaudeMd: files.some((file) => file.endsWith("CLAUDE.md")),
+            hasAgentMd: files.some((file) => file.endsWith("AGENTS.md")),
             hasChangelog: files.some((file) => file.endsWith("CHANGELOG.md")),
         });
     }

@@ -114,7 +114,7 @@ would have closed it was rejected; read this card's score as surface hygiene unt
 What the suite pins, not how much of it there is. The failure mode this repo already names in
 [`@monorepo/scripts`](../../infrastructure/scripts/README.md) is a spec that asserts a mock against
 itself; that counts as untested, not tested. Read specs against the
-[`writing-tests`](../../.claude/skills/writing-tests/SKILL.md) conventions — a title should name the
+[`writing-tests`](../../.agents/skills/writing-tests/SKILL.md) conventions — a title should name the
 failure it pins.
 
 Look at: the spec-to-source counts and the untested-file list from `collect-facts.sh`; whether the
@@ -162,11 +162,11 @@ for a project that looks under-targeted; the [pre-push hook](../../.husky/pre-pu
 Whether the docs say *why* and are still true. Drift is the whole card: a claim that no longer
 matches the code is worth less than no claim. Volume is not a signal — a short accurate README
 beats a thorough stale one, and this repo's own
-[`house-docs`](../../.claude/skills/house-docs/SKILL.md) rules are the bar.
+[`house-docs`](../../.agents/skills/house-docs/SKILL.md) rules are the bar.
 
 Look at: every project README's claims against its code; whether loose ends and stubs are named or
 smoothed over; whether `🧭 Deliberately deferred` sections exist and are specific enough to act on;
-whether `CLAUDE.md` files duplicate their README instead of pointing at it.
+whether `AGENTS.md` files duplicate their README instead of pointing at it.
 
 | Caps the card at | When |
 | --- | --- |
@@ -178,16 +178,16 @@ whether `CLAUDE.md` files duplicate their README instead of pointing at it.
 
 Whether an agent working here is constrained by tooling or only by prose. The question for every
 skill is whether it exists because the task gets got wrong without it; the question for every ban in
-`CLAUDE.md` is whether anything catches it.
+`AGENTS.md` is whether anything catches it.
 
 Look at: each skill's `description` against the prompt that should trigger it; whether a skill
 encodes what a README already says (it should link, not restate); the `deny` list in
 [`settings.json`](../../.claude/settings.json) against the prose bans in
-[`CLAUDE.md`](../../CLAUDE.md); whether each `PostToolUse` hook maps to a rule already written down.
+[`AGENTS.md`](../../AGENTS.md); whether each `PostToolUse` hook maps to a rule already written down.
 
 | Caps the card at | When |
 | --- | --- |
-| 3 | A `CLAUDE.md` ban has no deny entry and no hook, where one is possible |
+| 3 | An `AGENTS.md` ban has no deny entry and no hook, where one is possible |
 | 3 | A skill's description wouldn't trigger on the prompt it's for |
 | 4 | A skill restates a README instead of linking it — two copies, one drifts |
 | 2 | A hook blocks edits it has no business blocking; a reminder that cries wolf gets turned off |

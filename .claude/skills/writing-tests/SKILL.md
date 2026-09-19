@@ -3,6 +3,8 @@ name: writing-tests
 description: The spec conventions for this repo — globals are off, specs sit beside their subject, titles name the failure being pinned, and mocks follow one vi.hoisted recipe. Use when adding or changing any *.spec.ts anywhere in the workspace.
 ---
 
+<!-- Generated from `.agents/skills/writing-tests/SKILL.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # Writing specs here
 
 32 specs, one recipe. None of it is configured per project — every `vitest.config.ts` in the
@@ -30,7 +32,7 @@ it("rejects an unregistered vendor name instead of returning a broken provider",
 ```
 
 A comment above a `describe` or a tricky `it` explains why the test exists — the same rule the root
-[`CLAUDE.md`](../../../CLAUDE.md) applies to code comments. `it.each` covers validation matrices;
+[`AGENTS.md`](../../../AGENTS.md) applies to code comments. `it.each` covers validation matrices;
 [`TolgeeProvider.spec.ts`](../../../packages/i18n/src/core/adapters/providers/TolgeeProvider.spec.ts)
 is the example.
 

@@ -1,14 +1,14 @@
 ---
-name: new-vendor
+name: i18n-new-vendor
 description: Add a TMS vendor to @monorepo/i18n — a TranslationProvider subclass, its options type, configProblems() and one registry line. Use when adding or changing a translations vendor such as Phrase, Crowdin, Lokalise or another Tolgee-like API.
 ---
 
 # Adding a translations vendor
 
-The steps are in the [Vendors section](../../../README.md#-vendors) of the package README. Follow
+The steps are in the [Vendors section](../../../packages/i18n/README.md#-vendors) of the package README. Follow
 them; this file is what the prose can't enforce.
-[`TolgeeProvider.ts`](../../../src/core/adapters/providers/TolgeeProvider.ts) is the example with
-options, [`InternalProvider.ts`](../../../src/core/adapters/providers/InternalProvider.ts) the one
+[`TolgeeProvider.ts`](../../../packages/i18n/src/core/adapters/providers/TolgeeProvider.ts) is the example with
+options, [`InternalProvider.ts`](../../../packages/i18n/src/core/adapters/providers/InternalProvider.ts) the one
 without.
 
 ## The four things that go wrong

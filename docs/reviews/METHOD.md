@@ -1,6 +1,6 @@
 # 🔒 Method version
 
-Method **version 3**.
+Method **version 4**.
 
 A review's total is only readable against another total, and that comparison holds only if both were
 produced the same way. Four artifacts decide how a score comes out, and until version 2 only one of
@@ -15,10 +15,10 @@ recorded, and CI runs it beside `docs:map --check`.
 
 | Artifact | Digest |
 | --- | --- |
-| `docs/reviews/SCORECARDS.md` | `741ad0f49803` |
-| `.claude/skills/repo-review/SKILL.md` | `f2837660ec2c` |
+| `docs/reviews/SCORECARDS.md` | `9c14239963c4` |
+| `.agents/skills/repo-review/SKILL.md` | `6c25d60d67f7` |
 | `.claude/agents/repo-review-card.md` | `ae86215a400d` |
-| `.claude/skills/repo-review/collect-facts.sh` | `5387a0be4b03` |
+| `.agents/skills/repo-review/collect-facts.sh` | `5842670cfe06` |
 
 | Artifact | Decides |
 | --- | --- |

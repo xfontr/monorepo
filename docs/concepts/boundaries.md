@@ -44,7 +44,7 @@ this feel like" — it's "what may this legitimately import, and what would brea
 imported it back". A service reached over HTTP rather than imported (`type:infra`, today
 `translations`) and dev tooling nothing imports at all (`type:tooling`, today `scripts`) both
 happen to sit under `infrastructure/`, but they got different tags because the actual question —
-what may depend on this — has a different answer for each. [`new-package`](../../.claude/skills/new-package/SKILL.md)
+what may depend on this — has a different answer for each. [`new-package`](../../.agents/skills/new-package/SKILL.md)
 walks the mechanical steps; this is the judgment call that precedes them.
 
 ## 🧭 Deliberately deferred

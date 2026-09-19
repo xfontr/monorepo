@@ -3,6 +3,8 @@ name: repo-review
 description: Score the whole repository against the seven scorecards in docs/reviews/SCORECARDS.md and write the result to docs/reviews/. Use when asked to rate, score, grade, audit or review the repo, the codebase, the architecture as a whole, or "how good is this project".
 ---
 
+<!-- Generated from `.agents/skills/repo-review/SKILL.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # Reviewing the repo
 
 Seven cards, one weighted total, one file under [`docs/reviews/`](../../../docs/reviews/README.md).
@@ -18,7 +20,7 @@ keep as a series.
 ## 1. Collect the facts first
 
 ```sh
-.claude/skills/repo-review/collect-facts.sh
+.agents/skills/repo-review/collect-facts.sh
 ```
 
 Roughly two minutes — it runs `lint`, `typecheck`, `test` and `build` across **every** project (not
@@ -41,12 +43,11 @@ One agent per card, all seven launched in the same message so they run concurren
 over seven cards' worth of a whole monorepo either runs out of attention or scores from memory of
 the READMEs, which is exactly the failure this rubric is built to prevent.
 
-Launch all seven as `subagent_type: repo-review-card` (`.claude/agents/repo-review-card.md`). That
-agent has `Read`/`Grep`/`Glob` only — no Bash, no Edit/Write. Seven agents let loose with Bash on a
-whole monorepo each improvise their own `find`/`wc`/`grep -r`/ad-hoc lint runs, which don't match
-the settings.json allow-list and land as a permission prompt; seven of them concurrently turns a
-review into a wall of simultaneous prompts. There's nothing to shell out for anyway — the
-fact-collector output already has every count and target result a card needs.
+Use the runtime's subagent mechanism for all seven. Claude uses `subagent_type: repo-review-card`
+from [`.claude/agents/repo-review-card.md`](../../../.claude/agents/repo-review-card.md); Codex uses
+seven general subagents with the prompt below. Keep them read-only by instruction: no Bash and no
+edits. Seven agents improvising their own counts or target runs produce incomparable evidence;
+the fact-collector output already has every count and target result a card needs.
 
 Give each agent the card's section from `SCORECARDS.md` verbatim, plus:
 

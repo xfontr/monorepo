@@ -27,8 +27,11 @@ logs
 .env.*
 !.env.example
 
-# Claude Code personal overrides (the shared config is committed)
+# Claude Code personal overrides and generated compatibility files
 .claude/settings.local.json
+.claude/generated.json
+.claude/skills/
+**/CLAUDE.md
 
 # NX
 .nx

@@ -1,3 +1,5 @@
+<!-- Generated from `packages/observability/AGENTS.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # 🤖 @monorepo/observability
 
 See [README.md](./README.md) — it documents both entry points, what each instruments for free, and

@@ -1,66 +1,75 @@
 # 🤖 The agent setup as one inspectable system
 
-An agent working in this repo reads a `CLAUDE.md` per project, twelve `.claude/skills/`, two
-`PostToolUse` hooks and a permissions `deny` list in `.claude/settings.json`. All four are indexed
-from the root [`CLAUDE.md`](../../CLAUDE.md) — but that file is written *for* an agent, in its
-voice, and a human trying to understand what governs an agent's behavior here has to piece the four
-together from scratch. This is that piecing-together, done once.
+The repository has one editable instruction surface for both Codex and Claude: `AGENTS.md` files
+for always-on guidance and fourteen root-scoped skills under [`.agents/skills/`](../../.agents/skills/)
+for task-specific procedures. Claude's equivalent files are generated adapters, so an instruction
+is maintained once even when both agents work in different checkouts.
 
-## 📄 Why `CLAUDE.md` reads the way it does
+## 📄 Why `AGENTS.md` reads the way it does
 
-The root file says outright what it's for: "what \[the READMEs\] don't say, or what gets got wrong
-anyway." It is not project documentation restated for a machine — the actual documentation is the
-READMEs, which a human and an agent both read the same way. `CLAUDE.md` exists only where a plain
-reading of the code has produced a wrong edit before: the style rules, the "looks reasonable and is
-wrong here" list, the two places that must agree. Every project's `CLAUDE.md` follows the same
-shape — a short pointer to its README, then the invariants worth losing a build over. That's why
-these files read as terse rule lists rather than prose: they're a correction log, not an
-introduction.
+The root file says outright what it is for: what the READMEs do not say, or what gets done wrong
+anyway. It is not project documentation restated for a machine — the actual documentation is the
+READMEs, which a human and an agent both read. `AGENTS.md` exists where a plain reading of the code
+has produced a wrong edit before: style rules, the "looks reasonable and is wrong here" list and
+the pairs of files that must agree.
 
-## 🪝 What the two hooks actually enforce
+Every project's `AGENTS.md` follows the same shape: a short pointer to its README, then the
+invariants worth losing a build over. Codex only loads files between the repository root and the
+directory where its session started, so an agent working from the root must read the nearest
+project file before changing that project.
 
-Both are `PostToolUse`, firing after every `Edit`/`Write`:
+## 🔄 One source, two discovery surfaces
+
+[`agents-sync`](../../infrastructure/scripts/src/agents-sync/README.md) converts the canonical
+sources into the names and locations Claude discovers. The generated files are gitignored; a clean
+checkout can recreate all of them with `pnpm agents:sync`.
+
+| Editable source | Codex reads | Claude reads |
+| --- | --- | --- |
+| Root and project `AGENTS.md` files | The source directly | A sibling generated `CLAUDE.md` |
+| `.agents/skills/<name>/` | The source directly | A generated `.claude/skills/<name>/` mirror |
+| `.claude/settings.json`, `.claude/hooks/`, `.claude/agents/` | — | The native files directly |
+
+The renderer records its output in `.claude/generated.json`. That manifest lets it remove stale
+adapters without treating native Claude settings, hooks or subagent definitions as generated. The
+`--check` mode reports a missing or stale adapter without writing it.
+
+All skills live at the root and project-specific names carry their scope, such as
+`content-new-vendor` and `i18n-new-vendor`. This is not just tidiness: a Codex session started at
+the repository root does not discover a skill hidden under a package directory.
+
+## 🪝 Native Claude controls stay native
+
+Claude's two `PostToolUse` hooks fire after every edit; they are runtime integration rather than
+shared guidance and therefore remain under `.claude/`.
 
 | Hook | Enforces |
 | --- | --- |
-| [`eslint-fix.sh`](../../.claude/hooks/eslint-fix.sh) | Runs `eslint --fix` on the touched file — style is corrected mechanically, never left as a review comment |
-| [`check-invariants.sh`](../../.claude/hooks/check-invariants.sh) | Catches the specific mistakes `CLAUDE.md`'s prose alone hasn't prevented: `boundaries.ts` edited without the README table, a hand-edited `version`, a `build`/lifecycle script added to a package, an endpoint hardcoded outside `.env.example`, a new project missing its tag wiring, a review file with no row in its history table |
+| [`eslint-fix.sh`](../../.claude/hooks/eslint-fix.sh) | Runs `eslint --fix` on the touched file, so style is corrected mechanically |
+| [`check-invariants.sh`](../../.claude/hooks/check-invariants.sh) | Catches known cross-file and generated-file mistakes immediately after an edit |
 
-The comment at the top of `check-invariants.sh` states its own reason for existing: "the root
-CLAUDE.md states these rules in prose, which works right up until an agent edits one file and not
-its pair." Every check in it maps to a rule already written down that had already been broken once
-— it's a list of prose failures, not a design.
+The same invariant checks run independently in scripts and CI where practical. Claude's hook is
+earlier feedback, not the only authority, so an edit made by Codex or a human reaches the same
+repository gate.
 
-## 🚫 What the deny list forecloses, and why those specifically
+## 🚫 What the deny list forecloses
 
-[`.claude/settings.json`](../../.claude/settings.json) denies editing any `CHANGELOG.md` or
-[`docs/FEATURES.md`](../FEATURES.md), running any form of `nx release`, and reading any `.env` file.
-These aren't a generic security posture — each maps to a rule from `CLAUDE.md` that a prose reminder
-alone wouldn't reliably stop an agent from doing anyway. Three of the four are the same rule: a
-changelog, a version and the feature map are all *derived*, so editing one produces a change that
-survives only until the next render (see [`versioning.md`](./versioning.md)). The fourth is
-different in kind — `.env` files hold the real values `.env.example` only names.
+[`.claude/settings.json`](../../.claude/settings.json) denies editing generated changelogs and the
+feature map, running a release and reading real `.env` files. These are Claude-specific guardrails
+over shared rules in [`AGENTS.md`](../../AGENTS.md): generated artifacts have a named renderer, and
+real environment values are outside the repository's documentation surface.
 
-Where `check-invariants.sh` catches a mistake after the fact and asks for a fix,
-`.claude/settings.json`'s `deny` list stops the tool call before it runs — reserved for the
-handful of actions where "after the fact" is already too late.
+## 🛠 What the skills are collectively
 
-## 🛠 What the skills are, collectively
-
-Twelve `SKILL.md` files today: nine live at the repo root, invoked for a task that spans or doesn't
-belong to one project (`new-package`, `decision-report`, `repo-review`, …); three are package-scoped,
-living inside `packages/content/`, `packages/i18n/` and `packages/ui/` for a vendor- or
-component-adding task specific to that package alone. A skill is loaded on request or on a matching
-trigger phrase, not on every turn — unlike `CLAUDE.md`, which an agent reads unconditionally. That
-split is deliberate: the invariants that must never be missed are prose an agent can't opt out of
-reading, and the procedures that only apply to a specific, recognizable task are opt-in so they
-don't compete for attention on unrelated work. [`docs/FEATURES.md`](../FEATURES.md) lists every one
-of them with the source that declares it, generated rather than hand-maintained so a new skill
-can't go unlisted.
+A skill loads for a matching task rather than on every turn. The split keeps always-applicable
+invariants in `AGENTS.md` while detailed procedures such as adding a package, writing a spec or
+filing an issue stay out of unrelated context. [`docs/FEATURES.md`](../FEATURES.md) lists every
+skill and its source; the map is rendered by `pnpm docs:map`, never maintained by hand.
 
 ## 🧭 Deliberately deferred
 
 | Later need | What changes |
 | --- | --- |
-| A skill or hook that doesn't map to a prose rule already broken once | Question it before adding it — every hook and deny entry here exists because a specific mistake already happened, not as precaution |
-| An agent-facing doc genuinely worth a human reading in its own voice | Still doesn't belong here — this file explains the system, `CLAUDE.md` itself stays written for the agent that reads it every turn |
+| Another agent with a different discovery convention | Add an output adapter to `agents-sync`; do not add another editable guidance tree |
+| Bidirectional edits to generated files | Keep them out — accepting two writable sources recreates the drift this system removes |
+| A shared runtime hook standard | Move a check only when both agents can execute the same integration; until then scripts and CI remain the shared authority |

@@ -125,5 +125,5 @@ No automated check — this is the "convention, not lint" half of the Consequenc
 that way until the `eslint.config.ts` rule it names as a follow-up lands. Verified by the folder
 listing under `infrastructure/scripts/src/` matching the four-role shape (`index.ts`, `main.ts` or
 one file per subcommand, `adapters/`, `domain/`) for every script, and by
-[`new-script`](../../infrastructure/scripts/.claude/skills/new-script/SKILL.md)'s own verify steps
+[`new-script`](../../.agents/skills/scripts-new-script/SKILL.md)'s own verify steps
 running clean.

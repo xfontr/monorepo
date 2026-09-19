@@ -10,7 +10,7 @@ decision: accepted
 
 Issue #82 is titled "Improve Claude comments" with no body beyond "As title says" — the framing
 came from a separately drafted proposal, not the issue thread. That proposal asks for three
-artifacts: a `## Comments` section appended to CLAUDE.md, a new `.claude/skills/comment-cleanup/`
+artifacts: a `## Comments` section appended to CLAUDE.md, a new `.agents/skills/comment-cleanup/`
 skill, and a `PostToolUse` hook on every `Edit|Write|MultiEdit` that sends newly added comment lines
 to an LLM judge and blocks when it finds narration.
 

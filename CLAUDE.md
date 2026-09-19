@@ -1,10 +1,22 @@
+<!-- Generated from `AGENTS.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # 🤖 Working in this repo
 
 Architecture, boundaries, commands and release rules live in [README.md](./README.md), and every
 project has its own README — read those first. This file only holds what they don't say, or what
-gets got wrong anyway. It is enforced where it can be: [`.claude/settings.json`](./.claude/settings.json)
-denies what the prose below forbids, and two `PostToolUse` hooks run `eslint --fix` and check the
-invariants that span more than one file.
+gets got wrong anyway. Shared checks live in scripts and CI; Claude additionally uses
+[`.claude/settings.json`](./.claude/settings.json) and two `PostToolUse` hooks for earlier feedback.
+
+## 🔄 Agent sources
+
+`AGENTS.md` files and [`.agents/skills/`](./.agents/skills/) are the only editable agent guidance.
+`pnpm agents:sync` renders ignored `CLAUDE.md` files and `.claude/skills/` adapters from them. Never
+edit a generated adapter; change its named source and rerun the command.
+
+Codex loads instructions only from the repository root down to the directory where its session
+started. Before changing a project, read that project's nearest `AGENTS.md`; starting at the root
+does not load nested project guidance automatically. All skills are root-scoped and uniquely named
+so either agent can discover them from a root session.
 
 ## ✍️ Style
 
@@ -29,7 +41,7 @@ how `infrastructure/scripts` reached one comment line per four lines of code.
   human reads the line faster than the comment, and so does an agent.
 - Never argue. A comment informs the next reader; it does not persuade a critic that the decision
   was right. That belongs in the PR or in a decision report.
-- Never repeat what a README, a `CLAUDE.md` or a decision report already says. It's a third copy, free to
+- Never repeat what a README, an `AGENTS.md` or a decision report already says. It's a third copy, free to
   drift, and both readers reach the original anyway.
 - Never address the diff. "Updated to v2", "as requested" belong in the commit message. Every
   comment must read correctly to someone opening the file cold in a year.
@@ -159,7 +171,7 @@ local Nx plugin this section used to earmark for the third app.
 | `start-issue` | Starting work on a specific issue — from the branch you're on, or from a number, link or description |
 | `decision-report` | "Do a spike on this" — research an architectural question and write the answer to `docs/decisions/`. Filing the *issue* is `github-issue` |
 | `repo-review` | Rating, scoring or auditing the repo as a whole — the seven cards in [`docs/reviews/SCORECARDS.md`](./docs/reviews/SCORECARDS.md), not the current diff |
-| `content:new-vendor` | Adding a CMS vendor to `@monorepo/content` |
-| `i18n:new-vendor` | Adding a TMS vendor to `@monorepo/i18n` |
-| `scripts:new-script` | Adding a repo-local CLI under `infrastructure/scripts` |
-| `ui:new-component` | Adding a component to `@monorepo/ui` |
+| `content-new-vendor` | Adding a CMS vendor to `@monorepo/content` |
+| `i18n-new-vendor` | Adding a TMS vendor to `@monorepo/i18n` |
+| `scripts-new-script` | Adding a repo-local CLI under `infrastructure/scripts` |
+| `ui-new-component` | Adding a component to `@monorepo/ui` |

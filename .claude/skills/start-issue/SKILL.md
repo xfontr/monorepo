@@ -3,6 +3,8 @@ name: start-issue
 description: Get oriented on a GitHub issue and start developing it — from the branch you're already on, or from a number, link, or description you give directly. Reads the issue and its comments, follows any spike/decision it references, and makes sure you're on a linked branch before work begins. Use when asked to start, pick up, work on, or dev a specific GitHub issue.
 ---
 
+<!-- Generated from `.agents/skills/start-issue/SKILL.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # Starting work on a GitHub issue
 
 Two ways in, one job either way: land on the right branch, then read enough to actually implement

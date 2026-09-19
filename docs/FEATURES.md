@@ -25,6 +25,7 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm issue:add` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm issue:pick` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm issue:ship` | [`package.json`](../package.json) | [`README.md`](../README.md) |
+| `pnpm agents:sync` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm docs:drift` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm docs:map` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm review:version` | [`package.json`](../package.json) | [`infrastructure/scripts/README.md`](../infrastructure/scripts/README.md) |
@@ -72,17 +73,17 @@ shortest statement of how a task is meant to go here.
 
 | Capability | Declared in | Explained in |
 | --- | --- | --- |
-| `/comment-cleanup` | [`.claude/skills/comment-cleanup/SKILL.md`](../.claude/skills/comment-cleanup/SKILL.md) | [`docs/decisions/0009-comment-discipline.md`](../docs/decisions/0009-comment-discipline.md) |
-| `/decision-report` | [`.claude/skills/decision-report/SKILL.md`](../.claude/skills/decision-report/SKILL.md) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
-| `/doc-drift-check` | [`.claude/skills/doc-drift-check/SKILL.md`](../.claude/skills/doc-drift-check/SKILL.md) | [`docs/decisions/0001-feature-discoverability.md`](../docs/decisions/0001-feature-discoverability.md) |
-| `/github-issue` | [`.claude/skills/github-issue/SKILL.md`](../.claude/skills/github-issue/SKILL.md) | [`infrastructure/scripts/src/issue/README.md`](../infrastructure/scripts/src/issue/README.md) |
-| `/house-docs` | [`.claude/skills/house-docs/SKILL.md`](../.claude/skills/house-docs/SKILL.md) | [`docs/decisions/0001-feature-discoverability.md`](../docs/decisions/0001-feature-discoverability.md) |
-| `/new-package` | [`.claude/skills/new-package/SKILL.md`](../.claude/skills/new-package/SKILL.md) | [`infrastructure/scripts/src/drift/README.md`](../infrastructure/scripts/src/drift/README.md) |
-| `/nuxt-module-route` | [`.claude/skills/nuxt-module-route/SKILL.md`](../.claude/skills/nuxt-module-route/SKILL.md) | [`docs/decisions/0013-linter-coverage.md`](../docs/decisions/0013-linter-coverage.md) |
-| `/repo-review` | [`.claude/skills/repo-review/SKILL.md`](../.claude/skills/repo-review/SKILL.md) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
-| `/start-issue` | [`.claude/skills/start-issue/SKILL.md`](../.claude/skills/start-issue/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
-| `/writing-tests` | [`.claude/skills/writing-tests/SKILL.md`](../.claude/skills/writing-tests/SKILL.md) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
-| `/content:new-vendor` | [`packages/content/.claude/skills/new-vendor/SKILL.md`](../packages/content/.claude/skills/new-vendor/SKILL.md) | [`infrastructure/scripts/src/map/README.md`](../infrastructure/scripts/src/map/README.md) |
-| `/i18n:new-vendor` | [`packages/i18n/.claude/skills/new-vendor/SKILL.md`](../packages/i18n/.claude/skills/new-vendor/SKILL.md) | [`packages/i18n/CLAUDE.md`](../packages/i18n/CLAUDE.md) |
-| `/ui:new-component` | [`packages/ui/.claude/skills/new-component/SKILL.md`](../packages/ui/.claude/skills/new-component/SKILL.md) | [`docs/decisions/0016-tech-docs-self-service.md`](../docs/decisions/0016-tech-docs-self-service.md) |
-| `/scripts:new-script` | [`infrastructure/scripts/.claude/skills/new-script/SKILL.md`](../infrastructure/scripts/.claude/skills/new-script/SKILL.md) | [`docs/decisions/0016-tech-docs-self-service.md`](../docs/decisions/0016-tech-docs-self-service.md) |
+| `$comment-cleanup` | [`.agents/skills/comment-cleanup/SKILL.md`](../.agents/skills/comment-cleanup/SKILL.md) | [`docs/decisions/0009-comment-discipline.md`](../docs/decisions/0009-comment-discipline.md) |
+| `$content-new-vendor` | [`.agents/skills/content-new-vendor/SKILL.md`](../.agents/skills/content-new-vendor/SKILL.md) | [`infrastructure/scripts/src/map/README.md`](../infrastructure/scripts/src/map/README.md) |
+| `$decision-report` | [`.agents/skills/decision-report/SKILL.md`](../.agents/skills/decision-report/SKILL.md) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
+| `$doc-drift-check` | [`.agents/skills/doc-drift-check/SKILL.md`](../.agents/skills/doc-drift-check/SKILL.md) | [`docs/decisions/0001-feature-discoverability.md`](../docs/decisions/0001-feature-discoverability.md) |
+| `$github-issue` | [`.agents/skills/github-issue/SKILL.md`](../.agents/skills/github-issue/SKILL.md) | [`infrastructure/scripts/src/issue/README.md`](../infrastructure/scripts/src/issue/README.md) |
+| `$house-docs` | [`.agents/skills/house-docs/SKILL.md`](../.agents/skills/house-docs/SKILL.md) | [`docs/decisions/0001-feature-discoverability.md`](../docs/decisions/0001-feature-discoverability.md) |
+| `$i18n-new-vendor` | [`.agents/skills/i18n-new-vendor/SKILL.md`](../.agents/skills/i18n-new-vendor/SKILL.md) | [`docs/concepts/agent-setup.md`](../docs/concepts/agent-setup.md) |
+| `$new-package` | [`.agents/skills/new-package/SKILL.md`](../.agents/skills/new-package/SKILL.md) | [`infrastructure/scripts/src/drift/README.md`](../infrastructure/scripts/src/drift/README.md) |
+| `$nuxt-module-route` | [`.agents/skills/nuxt-module-route/SKILL.md`](../.agents/skills/nuxt-module-route/SKILL.md) | [`docs/decisions/0013-linter-coverage.md`](../docs/decisions/0013-linter-coverage.md) |
+| `$repo-review` | [`.agents/skills/repo-review/SKILL.md`](../.agents/skills/repo-review/SKILL.md) | [`apps/tech-docs/README.md`](../apps/tech-docs/README.md) |
+| `$scripts-new-script` | [`.agents/skills/scripts-new-script/SKILL.md`](../.agents/skills/scripts-new-script/SKILL.md) | [`docs/decisions/0004-scripts-architecture.md`](../docs/decisions/0004-scripts-architecture.md) |
+| `$start-issue` | [`.agents/skills/start-issue/SKILL.md`](../.agents/skills/start-issue/SKILL.md) | [`AGENTS.md`](../AGENTS.md) |
+| `$ui-new-component` | [`.agents/skills/ui-new-component/SKILL.md`](../.agents/skills/ui-new-component/SKILL.md) | [`AGENTS.md`](../AGENTS.md) |
+| `$writing-tests` | [`.agents/skills/writing-tests/SKILL.md`](../.agents/skills/writing-tests/SKILL.md) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
