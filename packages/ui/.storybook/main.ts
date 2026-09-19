@@ -6,6 +6,10 @@ const config: StorybookConfig = {
     core: {
         disableTelemetry: true,
     },
+    viteFinal: (config) => ({
+        ...config,
+        base: process.env.STORYBOOK_BASE_URL ?? config.base,
+    }),
 };
 
 export default config;

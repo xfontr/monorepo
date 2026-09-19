@@ -36,6 +36,18 @@ async function unreleasedCommits(name: string, root: string): Promise<number | n
     return Number.parseInt(stdout.trim(), 10);
 }
 
+async function commitStats(root: string): Promise<{ commits: number, commitsPerWeek: number }> {
+    const [counted, recent] = await Promise.all([
+        git(["rev-list", "--count", "HEAD", "--", root]),
+        git(["log", "--since=90 days ago", "--format=%H", "--", root]),
+    ]);
+
+    return {
+        commits: Number.parseInt(counted.trim(), 10),
+        commitsPerWeek: Math.round((recent.split("\n").filter(Boolean).length / (90 / 7)) * 10) / 10,
+    };
+}
+
 async function versionOf(root: string): Promise<string | null> {
     try {
         const raw = await readFile(resolve(WORKSPACE_ROOT, root, "package.json"), "utf8");
@@ -102,6 +114,7 @@ export async function collectMetrics(
         const specs = files.filter((file) => file.endsWith(SPEC_SUFFIX));
         const sources = files.filter((file) => SOURCE_PATTERN.test(file) && !file.endsWith(SPEC_SUFFIX));
         const projectCoverage = coverage.projects.find((entry) => entry.name === project.name);
+        const history = await tryRun(() => commitStats(project.root));
 
         measured.push({
             name: project.name,
@@ -109,6 +122,8 @@ export async function collectMetrics(
             specs: specs.length,
             sources: sources.length,
             specRatio: sources.length === 0 ? 0 : Math.round((specs.length / sources.length) * 100) / 100,
+            commits: history.ok ? history.value.commits : null,
+            commitsPerWeek: history.ok ? history.value.commitsPerWeek : null,
             coverageLinesPct: projectCoverage?.collected ? (projectCoverage.lines?.pct ?? null) : null,
             unreleasedCommits: await unreleasedFor(project.name, project.root),
             currentVersion: await versionOf(project.root),

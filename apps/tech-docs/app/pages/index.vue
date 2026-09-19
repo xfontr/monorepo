@@ -74,7 +74,7 @@ const next = computed(() => sortIssues(issues.value.issues).slice(0, 6));
                         :hint="`${findings.length} invariant finding${findings.length === 1 ? '' : 's'}`"
                         :tone="findings.length > 0 ? 'warn' : 'neutral'"
                         icon="i-lucide-boxes"
-                        to="/graph"
+                        to="/projects"
                     />
                     <StatTile
                         label="Open issues"

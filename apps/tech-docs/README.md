@@ -35,6 +35,7 @@ that.
 | Page | Reads |
 | --- | --- |
 | Wiki | Every tracked `*.md`, arranged as a tree — see [🧭 The wiki](#-the-wiki) |
+| Projects | The collected Nx graph joined to collect-time project metrics, with live deployment state |
 | Decisions | `docs/decisions/NNNN-<slug>.md` — the files the `decision-report` skill writes, see [🔬 Decisions are their own section](#-decisions-are-their-own-section) |
 | Reviews | `docs/reviews/YYYY-MM-DD-<sha>.md` — the files the `repo-review` skill writes |
 | Changelog | Every `CHANGELOG.md`, beside its unreleased-commit count |
@@ -157,6 +158,25 @@ Projects. So the board badge, the board filter and the Overview's "filed and nev
 deleted rather than left to read `null`, which would have reported every open issue as unplaced. The
 rate limit is **60 requests an hour per address**, shared by everyone behind it, and the read is once
 per viewer per session rather than once a minute per server.
+
+## 🪪 Projects are the catalog
+
+The Projects page is a card per node in the collected Nx graph — not a second hand-written catalog.
+Each card joins the graph to collect-time commit history, spec count and coverage. `git rev-list` counts
+the project's history; `git log --since=90 days ago` becomes commits per week, so the browser never
+spends one GitHub request per project for data already present in the checkout.
+
+Deployments are the exception because they can change after the static site ships. The browser reads
+GitHub's unauthenticated `deployments` endpoint once, then the newest status for each environment;
+the production URL travels in that status. Today those deployments belong to `huella-legal`, so its
+card carries an **Open site** link and a **Deploys** link to its GitHub Actions workflow. Technical
+Docs gets the same pair: its Pages URL is derived from the repository name, and its deploy link opens
+the Pages workflow. Neither is an in-app write action.
+
+`@monorepo/ui`'s Storybook is built into the same Pages artifact under `/storybook/`. A second Pages
+deploy would replace this dashboard, so the deploy workflow builds the static Storybook beneath the
+Nuxt app and configures its Vite base from Pages' derived path. The UI card links there without a
+stored public URL.
 
 ## 💾 One store, and it is disposable
 
@@ -288,3 +308,5 @@ nothing and so violates nothing.
 | Closed issues, or issues from another repo | `state=open` on the repo `NUXT_PUBLIC_REPO_URL` names. Both are one parameter; neither has a question this page is asked yet, and each doubles the requests against a 60-an-hour limit |
 | Ordering "What's next" by board column, or showing the board at all | Needs `projectItems`, which is GraphQL-only and so needs a token — the thing reading from the browser exists to avoid. Sorted by last touched instead |
 | Collecting on demand from the UI | `pnpm exec nx collect @monorepo/tech-docs` shells out to `nx graph` and `eslint` and takes tens of seconds. A button means a run state to poll and a way to cancel — the terminal already has both |
+| An `nx` run panel | A command can run in local development, but its result would be frozen into the deployed static site. GitHub Actions remains the deployed action runner until a server-backed execution model exists |
+| A feature-flag toggle | No flag vendor is configured yet; when one is, its card may link to that vendor's own authenticated UI, but this app still does not hold a credential or make the write |

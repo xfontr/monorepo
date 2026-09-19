@@ -24,6 +24,7 @@ const links = computed<NavigationMenuItem[][]>(() => [
     ],
     [
         { label: "Scorecards", icon: "i-lucide-target", to: "/scorecards" },
+        { label: "Projects", icon: "i-lucide-boxes", to: "/projects" },
         { label: "Coverage", icon: "i-lucide-shield-check", to: "/coverage" },
         {
             label: "Dependencies",

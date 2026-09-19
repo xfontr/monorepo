@@ -69,6 +69,8 @@ export interface ProjectMetrics {
     specs: number
     sources: number
     specRatio: number
+    commits: number | null
+    commitsPerWeek: number | null
     coverageLinesPct: number | null
     unreleasedCommits: number | null
     currentVersion: string | null

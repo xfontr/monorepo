@@ -45,6 +45,13 @@ jobs:
 
             - run: pnpm exec nx collect @monorepo/tech-docs
 
+            # Pages serves one artifact. Storybook is built beneath tech-docs rather than deploying
+            # a second artifact that would replace the dashboard.
+            - name: Build Storybook
+              run: pnpm --filter @monorepo/ui exec storybook build --output-dir ../../apps/tech-docs/public/storybook
+              env:
+                  STORYBOOK_BASE_URL: ${{ steps.pages.outputs.base_path }}/storybook/
+
             # An Nx cache restore would never hit: the step above re-stamps the snapshot, which this
             # project's `production` input hashes, so every run is a new task hash by construction.
             - name: Prerender the site
