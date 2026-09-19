@@ -110,7 +110,7 @@ const sortItems: { label: string, value: DecisionSort }[] = [
                 </p>
                 <p class="text-xs text-dimmed mt-1">
                     The <code class="font-mono">decision-report</code> skill writes them, one numbered file per decision;
-                    <code class="font-mono">pnpm exec nx collect @monorepo/tech-docs</code> is what reads them in.
+                    <code class="font-mono">pnpm exec nx collect @monorepo/developer-portal</code> is what reads them in.
                 </p>
             </div>
 

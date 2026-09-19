@@ -1,11 +1,11 @@
-# 🩺 @monorepo/tech-docs
+# 🩺 @monorepo/developer-portal
 
-The repo's own dashboard. It renders every markdown file in the workspace as a wiki — READMEs,
+The repo's internal developer portal (IDP). It renders every markdown file in the workspace as a wiki — READMEs,
 `AGENTS.md`s, the [`docs/`](../../docs/README.md) tree, the reviews, the changelogs — beside the
 things that are not written down anywhere: coverage, the project graph, the open GitHub issues,
 which two files have stopped agreeing.
 
-It runs two ways. `pnpm dev tech-docs` reads the working tree and shells out to `git`, so it shows
+It runs two ways. `pnpm dev developer-portal` reads the working tree and shells out to `git`, so it shows
 the branch you are on; the deployed site is a prerendered snapshot of `master`, published by
 [`docs-deploy.yml`](../../.github/workflows/docs-deploy.yml) — see
 [🚢 The deployed site is a snapshot](#-the-deployed-site-is-a-snapshot).
@@ -27,7 +27,7 @@ the branch you are on; the deployed site is a prerendered snapshot of `master`, 
 copy inside this app. That is what makes the docs half free: the README you edit for GitHub is the
 same file this renders, and a page's URL mirrors its path in the repo.
 
-Under `pnpm dev tech-docs` that file is read where it lives, so the two cannot drift. A build bakes
+Under `pnpm dev developer-portal` that file is read where it lives, so the two cannot drift. A build bakes
 the whole corpus into the bundle instead, which is why the deployed site is only ever as fresh as its
 last deploy — [🚢 The deployed site is a snapshot](#-the-deployed-site-is-a-snapshot) is the rest of
 that.
@@ -181,7 +181,7 @@ stored public URL.
 ## 💾 One store, and it is disposable
 
 `.report/` holds the collected snapshot — coverage, metrics, docs, the graph, the scorecards — is
-gitignored, and is rebuilt by `pnpm exec nx collect @monorepo/tech-docs` in seconds. A snapshot that
+gitignored, and is rebuilt by `pnpm exec nx collect @monorepo/developer-portal` in seconds. A snapshot that
 gets committed is a report that goes stale silently. Nothing else here is stored at all: the docs,
 the reviews and the changelogs are files in the tree read where they live, and the issues are read
 live off GitHub. If you delete every derived file in this project, one command puts it back.
@@ -190,11 +190,11 @@ live off GitHub. If you delete every derived file in this project, one command p
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev tech-docs` | Start Technical Docs |
-| `pnpm exec nx collect @monorepo/tech-docs` | Rebuild the snapshot — graph, coverage, metrics, docs, scorecards |
-| `pnpm exec nx check-docs @monorepo/tech-docs` | The CI gate — broken links, the mirrored invariants and malformed decision frontmatter, over every tracked doc; exits 1 on a finding |
-| `pnpm exec nx nuxt-prepare @monorepo/tech-docs` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
-| `pnpm exec nx build-static @monorepo/tech-docs` | `nuxt build --prerender` — the build the deploy publishes, and the only one that renders every route |
+| `pnpm dev developer-portal` | Start Developer Portal |
+| `pnpm exec nx collect @monorepo/developer-portal` | Rebuild the snapshot — graph, coverage, metrics, docs, scorecards |
+| `pnpm exec nx check-docs @monorepo/developer-portal` | The CI gate — broken links, the mirrored invariants and malformed decision frontmatter, over every tracked doc; exits 1 on a finding |
+| `pnpm exec nx nuxt-prepare @monorepo/developer-portal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
+| `pnpm exec nx build-static @monorepo/developer-portal` | `nuxt build --prerender` — the build the deploy publishes, and the only one that renders every route |
 
 The collector reads each project's `coverage/coverage-summary.json` and copies in the merged report
 `pnpm test:coverage` renders at the workspace root, so both are only as fresh as the last run of it.
@@ -219,8 +219,8 @@ repo's settings — the workflow reads that configuration, it does not create it
 | Step | What it is there for |
 | --- | --- |
 | `pnpm test:coverage` | The collector reads every project's `coverage-summary.json` plus the merged report, and neither exists until this has run over the whole workspace |
-| `pnpm exec nx collect @monorepo/tech-docs` | Nuxt copies `public/embed/**` into the output, so the snapshot is a build input rather than something the deploy hands over afterwards |
-| `pnpm exec nx build-static @monorepo/tech-docs` | `nuxt build --prerender`. Plain `build` is SSR and would leave a server to host |
+| `pnpm exec nx collect @monorepo/developer-portal` | Nuxt copies `public/embed/**` into the output, so the snapshot is a build input rather than something the deploy hands over afterwards |
+| `pnpm exec nx build-static @monorepo/developer-portal` | `nuxt build --prerender`. Plain `build` is SSR and would leave a server to host |
 
 It is a job of its own rather than three steps on `checks`, which is `affected` by design: this is a
 full coverage run and an `eslint` pass per project, producing an artifact no pull-request check
@@ -255,7 +255,7 @@ fetches them.
 [`check-invariants.sh`](../../.claude/hooks/check-invariants.sh) enforces on edit: the tag table
 written twice, the workspace-layout block, a review with no row in the history table. The hook only
 fires while an agent is editing a file; these run over the whole tree on every collect **and in
-CI**, via `pnpm exec nx check-docs @monorepo/tech-docs` (`ci.yml`), so drift introduced by hand or
+CI**, via `pnpm exec nx check-docs @monorepo/developer-portal` (`ci.yml`), so drift introduced by hand or
 pushed without an agent in the loop fails the build instead of only showing up on the dashboard.
 The two copies are kept honest by [`invariants.spec.ts`](./tools/lib/invariants.spec.ts) — which is
 the entire reason they exist as pure functions rather than more shell.
@@ -307,6 +307,6 @@ nothing and so violates nothing.
 | A decision's `issue:` shown beside it, or filtered on | The collector parses that field already and keeps only `status`, `decision` and `supersededBy`; carrying it would be one more field on `DocPage` and a link out to GitHub. Every report states its issue in its own Context section, and two reports may share one — so it sorts and groups worse than the number the list already uses |
 | Closed issues, or issues from another repo | `state=open` on the repo `NUXT_PUBLIC_REPO_URL` names. Both are one parameter; neither has a question this page is asked yet, and each doubles the requests against a 60-an-hour limit |
 | Ordering "What's next" by board column, or showing the board at all | Needs `projectItems`, which is GraphQL-only and so needs a token — the thing reading from the browser exists to avoid. Sorted by last touched instead |
-| Collecting on demand from the UI | `pnpm exec nx collect @monorepo/tech-docs` shells out to `nx graph` and `eslint` and takes tens of seconds. A button means a run state to poll and a way to cancel — the terminal already has both |
+| Collecting on demand from the UI | `pnpm exec nx collect @monorepo/developer-portal` shells out to `nx graph` and `eslint` and takes tens of seconds. A button means a run state to poll and a way to cancel — the terminal already has both |
 | An `nx` run panel | A command can run in local development, but its result would be frozen into the deployed static site. GitHub Actions remains the deployed action runner until a server-backed execution model exists |
 | A feature-flag toggle | No flag vendor is configured yet; when one is, its card may link to that vendor's own authenticated UI, but this app still does not hold a credential or make the write |

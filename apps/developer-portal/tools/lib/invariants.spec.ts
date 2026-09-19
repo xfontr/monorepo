@@ -87,9 +87,9 @@ describe("compareLayoutBlock", () => {
     });
 
     it("names the project missing from the layout block rather than just saying they differ", () => {
-        const [finding] = compareLayoutBlock(README, ["apps/huella-legal", "packages/ui", "apps/tech-docs"]);
+        const [finding] = compareLayoutBlock(README, ["apps/huella-legal", "packages/ui", "apps/developer-portal"]);
 
-        expect(finding?.detail).toContain("tech-docs");
+        expect(finding?.detail).toContain("developer-portal");
     });
 });
 

@@ -5,7 +5,7 @@ import { findProject, labelFor, matches, rowFor, toProjects, type Runnable } fro
 const RUNNABLE: Runnable[] = [
     { root: "packages", name: "@monorepo/ui" },
     { root: "infrastructure", name: "@monorepo/translations" },
-    { root: "apps", name: "@monorepo/tech-docs" },
+    { root: "apps", name: "@monorepo/developer-portal" },
     { root: "apps", name: "@monorepo/huella-legal" },
 ];
 
@@ -14,7 +14,7 @@ const PROJECTS = toProjects(RUNNABLE);
 describe("labelFor", () => {
     it.each([
         ["@monorepo/huella-legal", "Huella Legal"],
-        ["@monorepo/tech-docs", "Tech Docs"],
+        ["@monorepo/developer-portal", "Developer Portal"],
         ["@monorepo/translations", "Translations"],
     ])("turns %j into the picker row %j", (name, expected) => {
         expect(labelFor(name)).toBe(expected);
@@ -35,16 +35,16 @@ describe("toProjects", () => {
     });
 
     it("puts apps first and the component library last, so the list opens on what a newcomer wants", () => {
-        expect(PROJECTS.map(({ label }) => label)).toEqual(["Huella Legal", "Tech Docs", "Translations", "UI"]);
+        expect(PROJECTS.map(({ label }) => label)).toEqual(["Developer Portal", "Huella Legal", "Translations", "UI"]);
     });
 
     it("orders alphabetically inside a layer, so a graph change can't move rows under someone's fingers", () => {
         const apps = toProjects([
-            { root: "apps", name: "@monorepo/tech-docs" },
+            { root: "apps", name: "@monorepo/developer-portal" },
             { root: "apps", name: "@monorepo/huella-legal" },
         ]);
 
-        expect(apps.map(({ label }) => label)).toEqual(["Huella Legal", "Tech Docs"]);
+        expect(apps.map(({ label }) => label)).toEqual(["Developer Portal", "Huella Legal"]);
     });
 
     // The ranking is its own list rather than PROJECT_ROOTS' order, so nothing stops the two from

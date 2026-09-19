@@ -43,7 +43,7 @@ For `security`, 63 of 68 come from its two rules with a documented false-positiv
 useful three (`detect-unsafe-regex`) are a strict subset of what `eslint-plugin-regexp` reports.
 
 **2. The one real defect found in the whole sweep is already covered by a rule this repo owns.**
-[`useIssues.ts:17`](../../apps/tech-docs/app/composables/useIssues.ts) spreads an awaitable
+[`useIssues.ts:17`](../../apps/developer-portal/app/composables/useIssues.ts) spreads an awaitable
 `AsyncData` into an object literal, which silently drops the object's `await`ability.
 `no-misused-promises` catches it and is in `recommendedTypeChecked` — the preset
 [`node.ts`](../../packages/configs/src/eslint/node.ts) already applies. It does not fire because
@@ -74,7 +74,7 @@ passes at a third-party boundary.
 **4. `no-unnecessary-condition` without that flag instructs you to delete correct code.** The rule
 is not in `recommendedTypeChecked`; adopting `strictTypeChecked` would add it, and it is that
 preset's second-largest contributor here at 34 findings. In
-[`scorecards.ts:49`](../../apps/tech-docs/tools/lib/scorecards.ts) it flags `match[1] ?? ""` as an
+[`scorecards.ts:49`](../../apps/developer-portal/tools/lib/scorecards.ts) it flags `match[1] ?? ""` as an
 unnecessary `??`. Regex capture groups genuinely are `undefined` at runtime; the guard is right and
 the type is lying. Turning the flag on and re-measuring:
 
@@ -105,7 +105,7 @@ recommendation is rules and not the preset:
 the branch name, `TODO`/`FIXME`, lint, test and typecheck; it runs `docs:drift` and `pnpm audit`
 with `|| true` and comments both as "a nudge, not a gate". CI adds `build` and `docs:map --check`,
 and runs `dependency-review-action` with `warn-only: true`. A fourth measurement is displayed and
-never asserted: [`collect/docs.ts`](../../apps/tech-docs/tools/collect/docs.ts) already resolves
+never asserted: [`collect/docs.ts`](../../apps/developer-portal/tools/collect/docs.ts) already resolves
 every repo-relative markdown link against the filesystem — correctly, including the `:91-94`
 citation form and `<placeholder>` templates that a naive checker false-positives on. It reports
 **4 broken links across 520**, and they have accumulated because nothing reads the number but a
@@ -146,7 +146,7 @@ and not injectable. This is the one category where the answer is that no tool is
 | `eslint-plugin-sonarjs` | 18 findings, 12 of them the same ReDoS sites `eslint-plugin-regexp` reports. A second plugin for one new signal (`no-floating-point-equality`, 2) |
 | `strictTypeChecked` wholesale | 127 findings, ~100 cosmetic. Buys `no-misused-spread` and `no-deprecated` at the cost of a 34-finding template-literal sweep and a rule that is unsafe before finding 3 lands |
 | `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature` | Measured at 4 and 7; the first's hits are all benign `undefined` passes into a third-party option bag, the second is a property-access style preference wearing a compiler flag |
-| A new markdown link checker (`lychee`, `markdown-lint`) | [`collect/docs.ts`](../../apps/tech-docs/tools/collect/docs.ts) already does this, and handles two citation forms a generic checker flags wrongly. The missing piece is a gate, not a tool |
+| A new markdown link checker (`lychee`, `markdown-lint`) | [`collect/docs.ts`](../../apps/developer-portal/tools/collect/docs.ts) already does this, and handles two citation forms a generic checker flags wrongly. The missing piece is a gate, not a tool |
 | `zizmor` / `actionlint` | Finding 8 — the posture they check for is already in place. `actionlint` also ships only a WASM playground build on npm, so it would need a Go or brew install in CI to run at all |
 
 ## Consequences

@@ -31,7 +31,7 @@ function storybookFor(project: ProjectNode): string | undefined {
 function deploysFor(project: ProjectNode): string | undefined {
     return project.name === "@monorepo/huella-legal"
         ? `${repoUrl}/actions/workflows/netlify-deployment.yml`
-        : project.name === "@monorepo/tech-docs"
+        : project.name === "@monorepo/developer-portal"
             ? `${repoUrl}/actions/workflows/docs-deploy.yml`
             : undefined;
 }
@@ -43,7 +43,7 @@ function deploymentsFor(project: ProjectNode) {
 function websiteFor(project: ProjectNode): string | undefined {
     if (project.name === "@monorepo/huella-legal") return deploymentsFor(project).find((deployment) => deployment.url)?.url ?? undefined;
 
-    if (project.name !== "@monorepo/tech-docs") return undefined;
+    if (project.name !== "@monorepo/developer-portal") return undefined;
 
     try {
         const { hostname, pathname } = new URL(repoUrl);

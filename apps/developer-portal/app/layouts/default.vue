@@ -86,7 +86,7 @@ const searchGroups = computed(() => [{
                     <span
                         v-if="!collapsed"
                         class="font-semibold truncate"
-                    >Technical Docs</span>
+                    >Developer Portal</span>
                 </NuxtLink>
             </template>
 

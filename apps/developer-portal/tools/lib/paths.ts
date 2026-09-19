@@ -5,11 +5,11 @@ import { fileURLToPath } from "node:url";
 // both a plain `node tools/…` process and a server route. `import.meta.url` survives both.
 const here = dirname(fileURLToPath(import.meta.url));
 
-/** `apps/tech-docs` — every other path is derived from these two so nothing hard-codes a depth. */
+/** `apps/developer-portal` — every other path is derived from these two so nothing hard-codes a depth. */
 export const PROJECT_ROOT = resolve(here, "../..");
 export const WORKSPACE_ROOT = resolve(PROJECT_ROOT, "../..");
 
-/** Derived and gitignored. Deleting it costs one `pnpm exec nx collect @monorepo/tech-docs`. */
+/** Derived and gitignored. Deleting it costs one `pnpm exec nx collect @monorepo/developer-portal`. */
 export const SNAPSHOT_DIR = resolve(PROJECT_ROOT, ".report");
 
 /** Written by `pnpm test:coverage`: one merged report over every project. */

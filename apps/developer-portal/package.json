@@ -1,6 +1,6 @@
 {
-  "name": "@monorepo/tech-docs",
-  "description": "Local dashboard over the workspace",
+  "name": "@monorepo/developer-portal",
+  "description": "Internal developer portal over the workspace",
   "private": true,
   "type": "module",
   "scripts": {
@@ -28,7 +28,7 @@
         "!{projectRoot}/vitest.config.ts",
         "{workspaceRoot}/**/*.md",
         {
-          "runtime": "node apps/tech-docs/tools/lib/snapshotStamp.ts"
+          "runtime": "node apps/developer-portal/tools/lib/snapshotStamp.ts"
         }
       ]
     }

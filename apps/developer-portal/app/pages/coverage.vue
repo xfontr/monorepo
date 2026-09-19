@@ -155,7 +155,7 @@ const coverageEmbed = embedUrl("/embed/coverage/index.html");
                     variant="subtle"
                     icon="i-lucide-info"
                     title="No HTML report copied in"
-                    description="Run pnpm test:coverage from the workspace root, then pnpm exec nx collect @monorepo/tech-docs."
+                    description="Run pnpm test:coverage from the workspace root, then pnpm exec nx collect @monorepo/developer-portal."
                 />
             </div>
         </template>

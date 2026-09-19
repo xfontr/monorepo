@@ -43,19 +43,19 @@ jobs:
             # The collector reads coverage that only a whole-workspace run writes.
             - run: pnpm test:coverage
 
-            - run: pnpm exec nx collect @monorepo/tech-docs
+            - run: pnpm exec nx collect @monorepo/developer-portal
 
-            # Pages serves one artifact. Storybook is built beneath tech-docs rather than deploying
+            # Pages serves one artifact. Storybook is built beneath developer-portal rather than deploying
             # a second artifact that would replace the dashboard.
             - name: Build Storybook
-              run: pnpm --filter @monorepo/ui exec storybook build --output-dir ../../apps/tech-docs/public/storybook
+              run: pnpm --filter @monorepo/ui exec storybook build --output-dir ../../apps/developer-portal/public/storybook
               env:
                   STORYBOOK_BASE_URL: ${{ steps.pages.outputs.base_path }}/storybook/
 
             # An Nx cache restore would never hit: the step above re-stamps the snapshot, which this
             # project's `production` input hashes, so every run is a new task hash by construction.
             - name: Prerender the site
-              run: pnpm exec nx build-static @monorepo/tech-docs
+              run: pnpm exec nx build-static @monorepo/developer-portal
               env:
                   # `base_path` is "/<repo>" on a project page and "" on a user one, and the
                   # trailing slash is what keeps the second case a valid URL.
@@ -64,7 +64,7 @@ jobs:
 
             - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
               with:
-                  path: apps/tech-docs/.output/public
+                  path: apps/developer-portal/.output/public
 
     deploy:
         needs: build

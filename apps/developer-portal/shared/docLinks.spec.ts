@@ -10,7 +10,7 @@ const COLLECTED = new Set([
     "docs/README.md",
     "docs/decisions/README.md",
     "docs/decisions/0011-docs-system-enforcement.md",
-    "apps/tech-docs/README.md",
+    "apps/developer-portal/README.md",
     ".agents/skills/writing-tests/SKILL.md",
     ".agents/skills/house-docs/SKILL",
 ]);
@@ -33,8 +33,8 @@ describe("resolveDocLink", () => {
     });
 
     it("walks out of the directory on `..` so a cross-tree link lands in the right place", () => {
-        expect(resolveDocLink("../../apps/tech-docs/README.md", DECISION, isPage))
-            .toBe("/docs/apps/tech-docs/readme");
+        expect(resolveDocLink("../../apps/developer-portal/README.md", DECISION, isPage))
+            .toBe("/docs/apps/developer-portal/readme");
     });
 
     it("keeps an anchor, which names a heading on the page it just resolved", () => {

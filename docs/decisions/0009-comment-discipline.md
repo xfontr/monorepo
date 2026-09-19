@@ -55,7 +55,7 @@ catches:
 | --- | --- | --- |
 | Essay voice | Persuades an imagined critic instead of informing a reader: "which is how a page stops meaning anything" | [`dev/domain/projects.ts`](../../infrastructure/scripts/src/dev/domain/projects.ts) — 33 comment lines over ~45 lines of code, majority prose |
 | Restating the code | A 3-line block over `[name, name.replace(SCOPE, ""), label]` | `spellings` and `matches`, same file |
-| Third copy | An architecture statement already in a README and a decision report | [`shared/types.ts`](../../apps/tech-docs/shared/types.ts) header vs. [`tech-docs/README.md`](../../apps/tech-docs/README.md) lines 95–99, near-verbatim |
+| Third copy | An architecture statement already in a README and a decision report | [`shared/types.ts`](../../apps/developer-portal/shared/types.ts) header vs. [`developer-portal/README.md`](../../apps/developer-portal/README.md) lines 95–99, near-verbatim |
 
 **3. A comment that points at another comment rots fastest, and one already has.**
 [`shared/adapters/exec.ts`](../../infrastructure/scripts/src/shared/adapters/exec.ts) reads "every

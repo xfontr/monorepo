@@ -24,7 +24,7 @@ Three facts about the repo decide the answer, and all three are newer than the o
 | --- | --- |
 | tech-docs is built and deployed — a prerender published to GitHub Pages, no host and no secret | [`docs-deploy.yml`](../../.github/workflows/docs-deploy.yml), [`0014`](./0014-tech-docs-deployment.md) |
 | `huella-legal` has a production pipeline, and every deploy is recorded as a GitHub Deployment | [`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml) |
-| tech-docs requires exactly one env var, `NUXT_PUBLIC_REPO_URL` — the observability URLs belong to `huella-legal` | [`apps/tech-docs/.env.example`](../../apps/tech-docs/.env.example) |
+| tech-docs requires exactly one env var, `NUXT_PUBLIC_REPO_URL` — the observability URLs belong to `huella-legal` | [`apps/developer-portal/.env.example`](../../apps/developer-portal/.env.example) |
 
 ## Result
 
@@ -42,7 +42,7 @@ Python 3.11+ for the docs plugin. Its own docs describe it as "more of a library
 The part that isn't a matter of taste is the catalog. Backstage's is a hand-written
 `catalog-info.yaml` per component; this repo's is the Nx project graph, derived. **Adopting it
 converts derived state into maintained state**, which is the exact direction the invariant checks in
-[`invariants.ts`](../../apps/tech-docs/tools/lib/invariants.ts) exist to prevent.
+[`invariants.ts`](../../apps/developer-portal/tools/lib/invariants.ts) exist to prevent.
 
 **No other framework is a candidate, because the category has no open-source member that isn't
 Backstage.** Everything else in it is either a Backstage distribution (Roadie, Spotify Portal, Red
@@ -74,7 +74,7 @@ a design choice written in prose, not an enforced boundary.
 
 **What blocks it is that the deployed site is frozen at build time.** The mechanism is sharper than
 "there is no server": a prerendered route *is* answered, once, during the build, and then baked into
-the payload — [`snapshot.get.ts`](../../apps/tech-docs/server/api/snapshot.get.ts) is served exactly
+the payload — [`snapshot.get.ts`](../../apps/developer-portal/server/api/snapshot.get.ts) is served exactly
 that way. A route whose whole purpose is to compute something when the reader asks has nowhere to
 run. So "does it need a credential" needs a second axis beside it, and the second one reorders the
 original list:
@@ -108,7 +108,7 @@ posture kept rather than traded away.
 is **60 requests an hour per address**, shared by everyone behind it, and the issues read already
 spends one per viewer per session. Nine projects × one commit-history request each would spend ten
 more and buy nothing: `git rev-list` and `git log` are both on
-[the collector's allowlist](../../apps/tech-docs/tools/lib/run.ts), the deploy checks out with
+[the collector's allowlist](../../apps/developer-portal/tools/lib/run.ts), the deploy checks out with
 `fetch-depth: 0`, and anything derivable from the tree is free at collect time. The browser read is
 for what changes *after* the build — a deploy, a workflow run — and nothing else.
 

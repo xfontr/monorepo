@@ -164,14 +164,14 @@ than flipping.** Verified per change:
    `issue:` field. The check in 3 fails if a thirteenth report reuses a number.
 3. The same command fails on a malformed filename, an unrecognised `status:`/`decision:`, a missing
    `issue:`, or a `supersededBy:` naming a report that isn't filed — pinned by
-   [`tools/lib/decisions.spec.ts`](../../apps/tech-docs/tools/lib/decisions.spec.ts).
+   [`tools/lib/decisions.spec.ts`](../../apps/developer-portal/tools/lib/decisions.spec.ts).
 4. Every decision report's frontmatter is now followed by a `## Confirmation` section, this one
    included.
 5. `decision: superseded` plus `supersededBy:` is a parsed, validated frontmatter pair — see
    [`docs/decisions/README.md`](./README.md#-superseding-a-decision) — not a prose line.
 6. All twelve reports carry the frontmatter template. The vocabulary they're checked against is
    `DECISION_STATUSES`/`DECISION_OUTCOMES` in
-   [`shared/decisions.ts`](../../apps/tech-docs/shared/decisions.ts), which the dashboard's own types
+   [`shared/decisions.ts`](../../apps/developer-portal/shared/decisions.ts), which the dashboard's own types
    derive from — so a widened vocabulary can't reach one reader and not the other.
 7. **Not done, and not yet filed.** `apps/tech-docs` is not deployed; its four blockers are
    unaddressed. Deliberately kept out of this pass rather than attempted alongside it — no issue
