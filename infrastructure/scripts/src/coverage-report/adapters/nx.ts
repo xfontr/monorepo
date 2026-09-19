@@ -1,10 +1,14 @@
 import { spawn } from "node:child_process";
 import { closeSync, mkdtempSync, openSync, readFileSync, rmSync } from "node:fs";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { ProjectTarget } from "../domain/discover.ts";
 
 const TARGET = "test:coverage";
+const require = createRequire(import.meta.url);
+const nxPath = require.resolve("nx/bin/nx.js");
+const PATH = "/usr/bin:/bin";
 
 type NxProject = {
     root: string
@@ -16,7 +20,10 @@ const nx = (args: string[]): Promise<string> =>
         const directory = mkdtempSync(join(tmpdir(), "coverage-report-nx-"));
         const output = join(directory, "project.json");
         const file = openSync(output, "w");
-        const child = spawn("nx", args, { stdio: ["ignore", file, "pipe"] });
+        const child = spawn(process.execPath, [nxPath, ...args], {
+            env: { ...process.env, PATH },
+            stdio: ["ignore", file, "pipe"],
+        });
         let stderr = "";
 
         child.stderr?.on("data", (chunk: Buffer) => {

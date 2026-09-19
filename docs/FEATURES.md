@@ -15,8 +15,8 @@ and are documented once in the [root README](../README.md#-getting-started).
 
 | Capability | Declared in | Explained in |
 | --- | --- | --- |
+| `pnpm quick-start` | [`package.json`](../package.json) | — |
 | `pnpm dev` | [`package.json`](../package.json) | [`README.md`](../README.md) |
-| `pnpm setup` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm lint` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm typecheck` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm build` | [`package.json`](../package.json) | [`README.md`](../README.md) |

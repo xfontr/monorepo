@@ -118,6 +118,18 @@ fi
 # =========================
 
 echo ""
+info "Checking generated docs..."
+pnpm docs:map --check
+
+if [ $? -ne 0 ]; then
+  error "Generated docs are out of date"
+  exit 1
+fi
+
+echo ""
+success "Generated docs are up to date"
+
+echo ""
 info "Running lint..."
 pnpm lint
 
