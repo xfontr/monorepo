@@ -15,7 +15,4 @@ else
 fi
 
 git diff-tree --no-commit-id --name-status -r HEAD | sed 's/^/  /'
-git diff-tree --no-commit-id --shortstat -r HEAD | sed 's/^/  /'
-printf "\n${GREEN}✔${NC} ${BLUE}committed${NC} ${YELLOW}%s${NC}\n" "$(git rev-parse --short HEAD)"
-printf "  %s\n" "$(git show -s --format=%s HEAD)"
-printf "  ${DIM}%s · %s · %s${NC}\n" "$(git show -s --format=%an HEAD)" "$(git show -s --format=%ar HEAD)" "$(git branch --show-current)"
+printf "\n${GREEN}✔${NC} ${DIM}%s · %s · %s${NC}\n" "$(git show -s --format=%an HEAD)" "$(git show -s --format=%ar HEAD)" "$(git branch --show-current)"
