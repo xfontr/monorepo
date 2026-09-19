@@ -62,7 +62,7 @@ export const workflowFiles = (): { file: string, name: string }[] =>
             name: /^name:[^\S\n]*(\S.*)$/m.exec(read(at(".github", "workflows", file)))?.[1]?.trim() ?? file,
         }));
 
-const skillsUnder = (dir: string, scope?: string): { source: string, name: string, scope?: string }[] =>
+const skillsUnder = (dir: string): { source: string, name: string }[] =>
     dirsIn(at(dir))
         .map((skill) => `${dir}/${skill}/SKILL.md`)
         .filter((source) => {
@@ -77,19 +77,10 @@ const skillsUnder = (dir: string, scope?: string): { source: string, name: strin
         .map((source) => ({
             source,
             name: /^name:[^\S\n]*(\S.*)$/m.exec(read(at(source)))?.[1]?.trim() ?? source,
-            scope,
         }));
 
-/**
- * Repo-level skills plus the per-project ones, which are scoped to the project they sit in and so
- * are invisible from the root `.claude/` directory.
- */
-export const skillFiles = (): { source: string, name: string, scope?: string }[] => [
-    ...skillsUnder(".claude/skills"),
-    ...PROJECT_ROOTS.flatMap((top) =>
-        dirsIn(at(top)).flatMap((dir) => skillsUnder(`${top}/${dir}/.claude/skills`, dir)),
-    ),
-];
+/** Every skill is root-scoped so Codex and Claude both discover it from a root session. */
+export const skillFiles = (): { source: string, name: string }[] => skillsUnder(".agents/skills");
 
 /**
  * `worktrees` is `.claude/worktrees`, where a linked git worktree is a second checkout of this
@@ -101,11 +92,14 @@ const IGNORED_DIRS = ["node_modules", ".git", ".nx", "dist", ".output", ".nuxt",
 
 const walkMarkdown = (dir: string, found: string[] = []): string[] => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
-        if (entry.isDirectory() && !IGNORED_DIRS.includes(entry.name)) {
-            walkMarkdown(join(dir, entry.name), found);
+        const child = join(dir, entry.name);
+        const generatedClaudeSkills = relative(repoRoot(), child) === ".claude/skills";
+
+        if (entry.isDirectory() && !IGNORED_DIRS.includes(entry.name) && !generatedClaudeSkills) {
+            walkMarkdown(child, found);
         }
-        else if (entry.isFile() && entry.name.endsWith(".md")) {
-            found.push(relative(repoRoot(), join(dir, entry.name)));
+        else if (entry.isFile() && entry.name.endsWith(".md") && entry.name !== "CLAUDE.md") {
+            found.push(relative(repoRoot(), child));
         }
     }
     return found;

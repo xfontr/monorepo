@@ -22,7 +22,7 @@ describe("projectRootFor", () => {
 
     // The exact-duplication and structural-assertion layers in 0002 already own root-level files —
     // this heuristic isn't a second, looser version of either.
-    it("maps a repo-root file to no project, so README.md and CLAUDE.md never trip this heuristic", () => {
+    it("maps a repo-root file to no project, so README.md and AGENTS.md never trip this heuristic", () => {
         expect(projectRootFor("README.md")).toBeUndefined();
     });
 });

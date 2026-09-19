@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { PROJECT_ROOTS } from "../../shared/domain/layout.ts";
 
-/** A file at the repo root (README.md, CLAUDE.md, package.json) maps to no project on purpose. */
+/** A file at the repo root (README.md, AGENTS.md, package.json) maps to no project on purpose. */
 export const projectRootFor = (file: string): string | undefined => {
     const [top, name] = file.split("/");
     return top && name && PROJECT_ROOTS.includes(top) ? `${top}/${name}` : undefined;

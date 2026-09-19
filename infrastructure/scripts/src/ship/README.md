@@ -74,7 +74,7 @@ succeed.
 
 [`domain/report.spec.ts`](./domain/report.spec.ts) covers `shipMessage`, and
 [`domain/checks.spec.ts`](./domain/checks.spec.ts) covers `isMissingChecksError` — the only real
-logic here, per [`writing-tests`](../../../../.claude/skills/writing-tests/SKILL.md). Everything
+logic here, per [`writing-tests`](../../../../.agents/skills/writing-tests/SKILL.md). Everything
 else is a `git` or `gh` call with nothing to assert but a mock of itself.
 
 ## 🔑 Requirements

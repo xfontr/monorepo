@@ -3,9 +3,9 @@ import { createHash } from "node:crypto";
 /** The definition of the review method — `METHOD.md`'s digest table is written from this list, never the reverse. */
 export const METHOD_ARTIFACTS = [
     "docs/reviews/SCORECARDS.md",
-    ".claude/skills/repo-review/SKILL.md",
+    ".agents/skills/repo-review/SKILL.md",
     ".claude/agents/repo-review-card.md",
-    ".claude/skills/repo-review/collect-facts.sh",
+    ".agents/skills/repo-review/collect-facts.sh",
 ] as const;
 
 export type Digests = Record<string, string>;

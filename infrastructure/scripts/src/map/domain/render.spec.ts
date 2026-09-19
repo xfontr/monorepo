@@ -42,7 +42,7 @@ describe("render", () => {
     // before hooks before workflows before skills, regardless of how the capabilities were found.
     it("keeps sections in a fixed order regardless of the order capabilities were passed in", () => {
         const capabilities: Capability[] = [
-            { kind: "skill", invocation: "/new-package", source: ".claude/skills/new-package/SKILL.md", token: "new-package" },
+            { kind: "skill", invocation: "$new-package", source: ".agents/skills/new-package/SKILL.md", token: "new-package" },
             command("pnpm lint", "package.json", "lint"),
         ];
 

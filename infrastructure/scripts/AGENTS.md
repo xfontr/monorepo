@@ -1,5 +1,3 @@
-<!-- Generated from `infrastructure/scripts/AGENTS.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
-
 # 🤖 @monorepo/scripts
 
 See [README.md](./README.md) for the layout rule and the per-script docs it links to. Use the
