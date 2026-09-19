@@ -1,3 +1,18 @@
+## 0.1.7 (2026-09-19)
+
+### 🚀 Features
+
+- [128] require reviews check before push ([e74ee01](https://github.com/xfontr/monorepo/commit/e74ee01))
+- projects view ([fd5d509](https://github.com/xfontr/monorepo/commit/fd5d509))
+
+### 🧱 Updated Dependencies
+
+- Updated @monorepo/configs to 0.0.11
+
+### ❤️ Thank You
+
+- Xifré Font
+
 ## 0.1.6 (2026-09-16)
 
 ### 🧱 Updated Dependencies

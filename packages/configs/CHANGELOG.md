@@ -1,3 +1,7 @@
+## 0.0.11 (2026-09-19)
+
+This was a version bump only for @monorepo/configs to align it with other projects, there were no code changes.
+
 ## 0.0.10 (2026-09-16)
 
 ### 🚀 Features
