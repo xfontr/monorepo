@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { deploymentsApiUrl, latestDeployments } from "./deployments.ts";
+import { deploymentUrlFor, deploymentsApiUrl, latestDeployments } from "./deployments.ts";
+
+describe("deploymentUrlFor", () => {
+    it("keeps a project link on its environment instead of another project's deployment", () => {
+        const deployments = [
+            { environment: "developer-portal", state: "success" as const, url: "https://xfontr.github.io/monorepo/", updatedAt: "2026-09-19T12:00:00Z" },
+            { environment: "netlify-huella-legal", state: "success" as const, url: "https://huella-legal.netlify.app/", updatedAt: "2026-09-19T13:00:00Z" },
+        ];
+
+        expect(deploymentUrlFor(deployments, "netlify-huella-legal")).toBe("https://huella-legal.netlify.app/");
+    });
+});
 
 describe("deploymentsApiUrl", () => {
     it("derives the REST deployments endpoint without keeping a vendor URL in config", () => {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { deploymentUrlFor } from "#shared/deployments.ts";
 import type { ProjectMetrics, ProjectNode } from "#shared/types.ts";
 
 const { data: snapshot } = await useSnapshot();
@@ -41,7 +42,7 @@ function deploymentsFor(project: ProjectNode) {
 }
 
 function websiteFor(project: ProjectNode): string | undefined {
-    if (project.name === "@monorepo/huella-legal") return deploymentsFor(project).find((deployment) => deployment.url)?.url ?? undefined;
+    if (project.name === "@monorepo/huella-legal") return deploymentUrlFor(deploymentsFor(project), "netlify-huella-legal");
 
     if (project.name !== "@monorepo/developer-portal") return undefined;
 

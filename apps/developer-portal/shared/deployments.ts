@@ -16,6 +16,10 @@ export interface EnvironmentDeployment {
     updatedAt: string
 }
 
+export function deploymentUrlFor(deployments: EnvironmentDeployment[], environment: string): string | undefined {
+    return deployments.find((deployment) => deployment.environment === environment && deployment.url)?.url ?? undefined;
+}
+
 /** The deployments endpoint shares the issues page's unauthenticated, browser-side GitHub read. */
 export function deploymentsApiUrl(repoUrl: string): string | null {
     let url: URL;
