@@ -37,7 +37,7 @@ export default defineNuxtConfig({
 
     nitro: {
         prerender: {
-            ignore: ["/storybook/"],
+            ignore: ["/monorepo/storybook/"],
         },
 
         // The collectors reach outside `apps/developer-portal` on purpose, and the two vendored report
