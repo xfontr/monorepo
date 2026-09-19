@@ -1,3 +1,5 @@
+<!-- Generated from `packages/configs/AGENTS.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # 🤖 @monorepo/configs
 
 See [README.md](./README.md) for what the factories bundle.

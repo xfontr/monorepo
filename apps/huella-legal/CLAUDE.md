@@ -1,3 +1,5 @@
+<!-- Generated from `apps/huella-legal/AGENTS.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # 🤖 @monorepo/huella-legal
 
 See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry setup.
@@ -20,7 +22,7 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   prepare`/`build` generate and nothing commits — a fresh checkout with no lifecycle scripts (both
   banned here) has no `.nuxt/` at all, so `lint`/`typecheck`/`test` all fail without it. The
   `nuxt-prepare` script and the root [`nx.json`](../../nx.json)'s `dependsOn` on it are what
-  regenerate `.nuxt` first — see [the root CLAUDE.md](../../CLAUDE.md#-the-two-places-that-must-agree).
+  regenerate `.nuxt` first — see [the root AGENTS.md](../../AGENTS.md#-the-two-places-that-must-agree).
 - The ESLint config is the nuxt flavour, which is **not** type-checked. Don't switch it.
 - Shared packages are composed here, never reached into: import from `@monorepo/x`, not from a path
   inside it.

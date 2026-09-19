@@ -14,7 +14,7 @@ integration — were worth adopting, given what this repo actually already lever
 plus local caching, the project graph and tag-based boundaries
 ([`boundaries.ts`](../../packages/configs/src/eslint/lib/boundaries.ts)), `nx release`, and inferred
 targets from `@nx/nuxt` / `@nx/eslint` / `@nx/vitest` / `@nx/vite`. Two candidates looked like a
-concrete fit against real, already-documented pain: [`CLAUDE.md`](../../CLAUDE.md)'s own "two places
+concrete fit against real, already-documented pain: [`CLAUDE.md`](../../AGENTS.md)'s own "two places
 that must agree" section names the `boundaries.ts` ↔ README tag table as "the standing failure mode
 in this repo," and the `new-package` skill exists specifically because six files have to agree
 across directories when scaffolding a project.

@@ -1,5 +1,5 @@
 #!/bin/sh
-# The root CLAUDE.md states these rules in prose, which works right up until an agent edits one file
+# The root AGENTS.md states these rules in prose, which works right up until an agent edits one file
 # and not its pair. Each check below maps to a rule that is already written down and has already been
 # broken at least once.
 #
@@ -23,7 +23,7 @@ fi
 
 case "$rel" in
     packages/*/package.json|apps/*/package.json|infrastructure/*/package.json)
-        # Lifecycle scripts are banned workspace-wide (CLAUDE.md), not just under packages/*: both CI
+        # Lifecycle scripts are banned workspace-wide (AGENTS.md), not just under packages/*: both CI
         # workflows install with --ignore-scripts everywhere, so one works locally and silently does
         # nothing where it matters, regardless of which root it's added under
         lifecycle=$(jq -r '.scripts // {} | keys[] | select(. == "postinstall" or . == "prepare" or . == "prepublish" or . == "prepublishOnly")' "$file" 2>/dev/null | tr '\n' ' ')
@@ -89,7 +89,7 @@ case "$rel" in
         ;;
 esac
 
-# "Never write a real endpoint, URL, token or instance ID into the repo" (CLAUDE.md).A blanket https?://
+# "Never write a real endpoint, URL, token or instance ID into the repo" (AGENTS.md). A blanket https?://
 # grep isn't the fix — it fires on "$schema" in settings.json/nx.json,
 # on tsconfig.json's doc-link comment, and on every *.spec.ts that hardcodes a fake vendor URL as a
 # fixture (that's the norm here, not the violation) — so this skips specs/stories, comments, $schema
@@ -106,7 +106,7 @@ case "$rel" in
 
         if [ -n "$hit" ]; then
             echo "$rel: $hit" >&2
-            echo "Endpoints, tokens and instance IDs are env vars with no default (CLAUDE.md)." >&2
+            echo "Endpoints, tokens and instance IDs are env vars with no default (AGENTS.md)." >&2
             echo "Add the name to .env.example and read the value at runtime instead." >&2
             exit 2
         fi

@@ -30,7 +30,7 @@ const crumbs = computed<BreadcrumbItem[]>(() => [
 
 /**
  * Neighbours within the group rather than the collection's alphabetical order: `packages/i18n`'s
- * README and `packages/observability`'s CLAUDE.md are adjacent on disk and unrelated to read.
+ * README and `packages/observability`'s AGENTS.md are adjacent on disk and unrelated to read.
  */
 const around = computed(() => {
     const entries = here.value?.group.entries ?? [];

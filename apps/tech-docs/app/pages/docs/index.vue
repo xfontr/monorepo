@@ -18,7 +18,7 @@ const count = computed(() => sections.value.reduce(
  */
 const START = [
     { path: "/readme", label: "The repo", hint: "Layout, boundaries, commands", icon: "i-lucide-map" },
-    { path: "/claude", label: "Working here", hint: "The rules that get got wrong", icon: "i-lucide-bot" },
+    { path: "/agents", label: "Working here", hint: "The rules that get got wrong", icon: "i-lucide-bot" },
     { path: "/docs/features", label: "Features", hint: "Every command, hook and skill", icon: "i-lucide-list-tree" },
     { path: "/docs/guides/first-hour", label: "First hour", hint: "An ordered way in", icon: "i-lucide-play" },
 ];

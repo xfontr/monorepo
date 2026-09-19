@@ -17,8 +17,8 @@ describe("mentions", () => {
         expect(mentions("| `pnpm test:coverage` |", "test")).toBe(false);
     });
 
-    it("matches a token the skills table has prefixed with its project scope", () => {
-        expect(mentions("| `content:new-vendor` | Adding a CMS vendor |", "new-vendor")).toBe(true);
+    it("matches a namespaced skill token when it stands alone", () => {
+        expect(mentions("| `content-new-vendor` | Adding a CMS vendor |", "content-new-vendor")).toBe(true);
     });
 
     it("treats a token as found when it stands alone", () => {
@@ -60,13 +60,13 @@ describe("projectCommands", () => {
 });
 
 describe("skills", () => {
-    it("addresses a project skill by scope, the only thing telling two new-vendor skills apart", () => {
+    it("uses the unique canonical name Codex invokes from the root", () => {
         const rows = skills([
-            { source: "packages/content/.claude/skills/new-vendor/SKILL.md", name: "new-vendor", scope: "content" },
-            { source: "packages/i18n/.claude/skills/new-vendor/SKILL.md", name: "new-vendor", scope: "i18n" },
+            { source: ".agents/skills/content-new-vendor/SKILL.md", name: "content-new-vendor" },
+            { source: ".agents/skills/i18n-new-vendor/SKILL.md", name: "i18n-new-vendor" },
         ]);
 
-        expect(rows.map((row) => row.invocation)).toEqual(["/content:new-vendor", "/i18n:new-vendor"]);
+        expect(rows.map((row) => row.invocation)).toEqual(["$content-new-vendor", "$i18n-new-vendor"]);
     });
 });
 
@@ -78,25 +78,25 @@ describe("documentedBy", () => {
     });
 
     it("never lets a skill cite its own SKILL.md, which would answer every row trivially", () => {
-        const own = ".claude/skills/house-docs/SKILL.md";
+        const own = ".agents/skills/house-docs/SKILL.md";
         const docs: Doc[] = [
             { path: own, text: "name: house-docs" },
-            { path: "CLAUDE.md", text: "| `house-docs` | Writing markdown |" },
+            { path: "AGENTS.md", text: "| `house-docs` | Writing markdown |" },
         ];
 
-        expect(documentedBy(skills([{ source: own, name: "house-docs" }])[0]!, docs)).toBe("CLAUDE.md");
+        expect(documentedBy(skills([{ source: own, name: "house-docs" }])[0]!, docs)).toBe("AGENTS.md");
     });
 
     // Nearness alone made every skill cite a sibling skill: two shared path segments under
-    // `.claude/skills/` outranked the root CLAUDE.md table that actually indexes them.
+    // `.agents/skills/` outranked the root AGENTS.md table that actually indexes them.
     it("prefers the table that indexes a skill over a sibling skill that merely mentions it", () => {
         const docs: Doc[] = [
-            { path: ".claude/skills/doc-drift-check/SKILL.md", text: "follow the house-docs skill" },
-            { path: "CLAUDE.md", text: "| `house-docs` | Writing markdown |" },
+            { path: ".agents/skills/doc-drift-check/SKILL.md", text: "follow the house-docs skill" },
+            { path: "AGENTS.md", text: "| `house-docs` | Writing markdown |" },
         ];
-        const capability = skills([{ source: ".claude/skills/house-docs/SKILL.md", name: "house-docs" }])[0]!;
+        const capability = skills([{ source: ".agents/skills/house-docs/SKILL.md", name: "house-docs" }])[0]!;
 
-        expect(documentedBy(capability, docs)).toBe("CLAUDE.md");
+        expect(documentedBy(capability, docs)).toBe("AGENTS.md");
     });
 
     it("points a project's command at the README beside it, not at the root one", () => {
@@ -111,7 +111,7 @@ describe("documentedBy", () => {
 
     it("sends a reader to a README rather than the agent-facing file that also names it", () => {
         const docs: Doc[] = [
-            { path: "CLAUDE.md", text: "the `pre-push` gate" },
+            { path: "AGENTS.md", text: "the `pre-push` gate" },
             { path: "README.md", text: "The `pre-push` hook runs lint, test and typecheck" },
         ];
 

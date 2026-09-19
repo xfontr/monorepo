@@ -16,7 +16,7 @@ later.
 
 What made it a decision rather than a ticket is that the tree already holds forty-three hand-written
 markdown files, with every one of the eight projects carrying both a README and a `CLAUDE.md` and
-[`house-docs`](../../.claude/skills/house-docs/SKILL.md) setting their voice. So the question was
+[`house-docs`](../../.agents/skills/house-docs/SKILL.md) setting their voice. So the question was
 what a new collection holds that those don't — because anything that re-tells them is a second copy
 of content [`0002-docs-drift-detection.md`](./0002-docs-drift-detection.md) had just named as this
 repo's standing failure mode.
@@ -58,7 +58,7 @@ Three homes, split by what a reader wants rather than by topic:
 where it lives, which doc explains it, and nothing else. The *why* stays in the doc it points at, so
 the map has no hand-written column to clobber on the next render. It enumerates what already
 declares the surface: each `package.json`'s `scripts` and `nx.tags`, `.github/workflows/`,
-`.husky/*` and `.claude/skills/*`, from a new folder under
+`.husky/*` and `.agents/skills/*`, from a new folder under
 [`infrastructure/scripts/src/`](../../infrastructure/scripts/README.md#-adding-a-script).
 
 Implementing it settled one thing this record had wrong. The intended check was two assertions —

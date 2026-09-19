@@ -58,21 +58,18 @@ export const workflows = (files: { file: string, name: string }[]): Capability[]
         token: file,
     }));
 
-/**
- * A project-scoped skill is addressed `content:new-vendor`, which is also the only way to tell two
- * `new-vendor` skills apart — `content` and `i18n` both have one.
- */
-export const skills = (found: { source: string, name: string, scope?: string }[]): Capability[] =>
-    found.map(({ source, name, scope }) => {
-        const addressed = scope ? `${scope}:${name}` : name;
-        return { kind: "skill" as const, invocation: `/${addressed}`, source, token: addressed };
-    });
+export const skills = (found: { source: string, name: string }[]): Capability[] =>
+    found.map(({ source, name }) => ({
+        kind: "skill" as const,
+        invocation: `$${name}`,
+        source,
+        token: name,
+    }));
 
 /**
  * `release` must not be satisfied by a doc that only mentions `release:dry`, and `test` must not
  * be satisfied by `test:coverage` — so a token can't be followed by a `:` or another word
- * character. It *may* be preceded by one, because the skills table writes package-scoped skills as
- * `content:new-vendor`.
+ * character. It may be preceded by one because prose can wrap a capability in punctuation.
  */
 export const mentions = (text: string, token: string): boolean => {
     const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -88,14 +85,14 @@ const sharedPrefix = (a: string, b: string): number => {
 };
 
 /**
- * The map is read by humans, so a README outranks the `CLAUDE.md` or `SKILL.md` that happens to
+ * The map is read by humans, so a README outranks the `AGENTS.md` or `SKILL.md` that happens to
  * mention the same thing — those are written for an agent and pointing a newcomer at one is a
  * worse answer than pointing them at the README next to the code.
  */
 const audience = (path: string): number => {
     const name = path.split("/").pop();
     if (name === "README.md") return 0;
-    if (name === "CLAUDE.md") return 2;
+    if (name === "AGENTS.md") return 2;
     if (name === "SKILL.md") return 3;
     return 1;
 };
@@ -106,8 +103,8 @@ export type Doc = { path: string, text: string };
  * The best doc that explains a capability, or `undefined` when nothing does.
  *
  * Audience ranks before nearness, and that order is load-bearing: every skill lives under
- * `.claude/skills/`, so nearness-first made each one cite whichever *other* skill happened to
- * mention it — two shared path segments beating the root `CLAUDE.md` table that actually indexes
+ * `.agents/skills/`, so nearness-first made each one cite whichever *other* skill happened to
+ * mention it — two shared path segments beating the root `AGENTS.md` table that actually indexes
  * them. Within one audience, nearness is what keeps a `packages/ui` script pointing at
  * `packages/ui/README.md` instead of at the root README.
  */

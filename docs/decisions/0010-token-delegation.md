@@ -177,5 +177,5 @@ All three are cheaper to address than a two-model router, and none needs a hook.
 ## Confirmation
 
 `.claude/settings.json` carries no `PreToolUse` hook — only the two `PostToolUse` ones this report
-already counts. No `.claude/skills/` folder for delegation exists either. Both are the negative
+already counts. No `.agents/skills/` folder for delegation exists either. Both are the negative
 claim this record makes, so their absence is what verifies it.

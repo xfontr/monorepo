@@ -1,7 +1,9 @@
 ---
 name: house-docs
-description: The documentation voice for this repo — README structure, emoji headings, tables over bullets, and the "Deliberately deferred" tradeoff section. Use when writing or editing any markdown here: a README, a CLAUDE.md, a module doc, or a new section in an existing one.
+description: The documentation voice for this repo — README structure, emoji headings, tables over bullets, and the "Deliberately deferred" tradeoff section. Use when writing or editing any markdown here: a README, an AGENTS.md, a module doc, or a new section in an existing one.
 ---
+
+<!-- Generated from `.agents/skills/house-docs/SKILL.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
 
 # Writing docs here
 

@@ -11,6 +11,7 @@
     "issue:add": "node src/issue/index.ts add",
     "issue:pick": "node src/issue/index.ts pick",
     "issue:ship": "node src/ship/index.ts",
+    "agents:sync": "node src/agents-sync/index.ts",
     "docs:drift": "node src/drift/index.ts",
     "docs:map": "node src/map/index.ts",
     "review:version": "node src/review-version/index.ts",

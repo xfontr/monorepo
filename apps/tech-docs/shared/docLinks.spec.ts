@@ -11,14 +11,14 @@ const COLLECTED = new Set([
     "docs/decisions/README.md",
     "docs/decisions/0011-docs-system-enforcement.md",
     "apps/tech-docs/README.md",
-    ".claude/skills/writing-tests/SKILL.md",
-    ".claude/skills/house-docs/SKILL",
+    ".agents/skills/writing-tests/SKILL.md",
+    ".agents/skills/house-docs/SKILL",
 ]);
 
 const isPage = (path: string): boolean => COLLECTED.has(path);
 
-/** `CLAUDE.md` at the repo root, whose links are relative to the root itself. */
-const ROOT = "CLAUDE.md";
+/** `AGENTS.md` at the repo root, whose links are relative to the root itself. */
+const ROOT = "AGENTS.md";
 
 const DECISION = "docs/decisions/0014-tech-docs-deployment.md";
 
@@ -53,8 +53,8 @@ describe("resolveDocLink", () => {
     });
 
     it("drops a line range, which narrows a file rather than naming another one", () => {
-        expect(resolveDocLink("./.claude/skills/writing-tests/SKILL.md:91-94", ROOT, isPage))
-            .toBe("/docs/.claude/skills/writing-tests/skill");
+        expect(resolveDocLink("./.agents/skills/writing-tests/SKILL.md:91-94", ROOT, isPage))
+            .toBe("/docs/.agents/skills/writing-tests/skill");
     });
 
     it("treats a leading slash as repo-root-relative, not directory-relative", () => {
@@ -73,8 +73,8 @@ describe("resolveDocLink", () => {
     });
 
     it("routes an extension-less target the collection knows, since these docs may omit `.md`", () => {
-        expect(resolveDocLink("./.claude/skills/house-docs/SKILL", ROOT, isPage))
-            .toBe("/docs/.claude/skills/house-docs/skill");
+        expect(resolveDocLink("./.agents/skills/house-docs/SKILL", ROOT, isPage))
+            .toBe("/docs/.agents/skills/house-docs/skill");
     });
 
     it("sends an extension-less target the collection does not know to the repo, not a dead route", () => {

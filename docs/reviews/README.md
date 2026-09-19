@@ -11,7 +11,7 @@ acting on leave as issues (`pnpm issue:add`); architectural forks it exposes lea
 measurement that changes what it measures is worth nothing next quarter, and a review that turns
 into a refactor never gets finished.
 
-The [`repo-review`](../../.claude/skills/repo-review/SKILL.md) skill writes these: it collects the
+The [`repo-review`](../../.agents/skills/repo-review/SKILL.md) skill writes these: it collects the
 facts, scores each card, writes the file and appends the row below in one pass.
 
 ## 🗂 Structure

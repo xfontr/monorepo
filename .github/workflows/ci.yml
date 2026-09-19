@@ -43,7 +43,7 @@ jobs:
             - run: pnpm review:version --check
 
             # The link check, the mirrored invariants and the decision frontmatter rules, over the
-            # whole tree rather than only the file a Claude Code edit happened to touch.
+            # whole tree rather than only the file an agent hook happened to touch.
             - run: pnpm exec nx check-docs @monorepo/tech-docs
 
     # Needs a base ref to diff against, so it's meaningless on a push to master.

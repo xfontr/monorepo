@@ -35,11 +35,12 @@ Storybook stay undocumented for as long as they did.
 | Command | root `package.json`, then each project's | `lint`, `typecheck`, `test`, `test:dev`, `test:coverage`, `build` — every project has them and the root README covers them once. A project script the root already wraps is skipped too, so one capability never gets two invocations |
 | Hook | `.husky/*` | `_/`, which is husky's own generated shim |
 | Workflow | `.github/workflows/*.yml` | — |
-| Skill | `.claude/skills/*/SKILL.md`, plus each project's | — |
+| Skill | `.agents/skills/*/SKILL.md` | Generated `.claude/skills/` adapters |
 
 A skill's name comes from its frontmatter rather than its directory, because the frontmatter is
-what the Skill tool dispatches on. Project skills are addressed `content:new-vendor`, which is also
-the only thing telling `content`'s `new-vendor` apart from `i18n`'s.
+what the agent dispatches on. Project-specific skills carry their scope in a unique root-level name,
+such as `content-new-vendor`, because Codex only discovers skill directories between its starting
+directory and the repository root.
 
 ## 📄 Picking the doc
 
@@ -50,9 +51,9 @@ file is excluded as well — otherwise every skill would cite its own `SKILL.md`
 be uniformly full and worthless.
 
 Candidates are ranked by **audience** first, then nearness: `README.md`, then anything else, then
-`CLAUDE.md`, then `SKILL.md`. Audience has to win, and that ordering is the one real bug this had —
+`AGENTS.md`, then `SKILL.md`. Audience has to win, and that ordering is the one real bug this had —
 ranking by nearness first made every skill cite whichever *other* skill mentioned it, because two
-shared segments under `.claude/skills/` beat the root `CLAUDE.md` table that actually indexes them.
+shared segments under `.agents/skills/` beat the root `AGENTS.md` table that actually indexes them.
 Within one audience, nearness keeps a `packages/ui` command pointing at `packages/ui/README.md`
 rather than at the root README.
 

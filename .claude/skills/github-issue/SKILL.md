@@ -3,6 +3,8 @@ name: github-issue
 description: Draft and file a GitHub issue with the shape that fits its kind — task (user story + acceptance criteria), bug (repro steps + expected/actual), or spike (decision + question). Use when asked to open, file, or create a GitHub issue.
 ---
 
+<!-- Generated from `.agents/skills/github-issue/SKILL.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # Creating a GitHub issue
 
 Three kinds, three body shapes. `gh issue create` does the actual filing once the body and label

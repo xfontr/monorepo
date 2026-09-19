@@ -13,6 +13,7 @@ src/
   dev/              pnpm dev — pick a project to start, installing the workspace first if it's a fresh clone
   issue/            pnpm issue:add | issue:pick — file a GitHub issue, or branch off one
   ship/             pnpm issue:ship — push, open or reuse the PR, arm auto-merge, watch checks
+  agents-sync/      pnpm agents:sync — render Claude adapters from canonical agent instructions
   drift/            pnpm docs:drift — warn when a project's docs may be stale, offer to file an issue
   map/              pnpm docs:map — render docs/FEATURES.md, the index of everything this repo can do
   review-version/   pnpm review:version — fingerprint the four artifacts that decide a repo review's score
@@ -35,6 +36,7 @@ domain/      pure functions and their types. No fs, no subprocess, no clack, no 
 | [`issue add`](./src/issue/README.md#-pnpm-issueadd) | `pnpm issue:add` | Picking a project and label, then filing an issue with `gh` |
 | [`issue pick`](./src/issue/README.md#-pnpm-issuepick) | `pnpm issue:pick` | Picking an open issue off a project board, then branching off it and self-assigning |
 | [`ship`](./src/ship/README.md) | `pnpm issue:ship` | Pushing the current branch, opening or reusing its PR, arming auto-merge, then blocking on checks |
+| [`agents-sync`](./src/agents-sync/README.md) | `pnpm agents:sync` | Rendering ignored Claude adapters from `AGENTS.md` and `.agents/skills/` |
 | [`drift`](./src/drift/README.md) | `pnpm docs:drift` | Warning when a changed project's docs look stale, and offering to file it |
 | [`map`](./src/map/README.md) | `pnpm docs:map` | Rendering the feature index, and asserting in CI that it's current |
 | [`review-version`](./src/review-version/README.md) | `pnpm review:version` | Versioning the repo-review method, and asserting in CI that the version moved with it |
@@ -108,7 +110,7 @@ imports use the explicit `.ts` extension** — `./gh.ts`, not `./gh`.
 `test` still passes with `--passWithNoTests`, because most of what's here is prompts and `gh`
 invocations — a spec can only assert those against a mock of itself. The exception is the rule:
 real logic — a parser, a diff, a mapping — goes in its own file and gets a spec, per
-[`writing-tests`](../../.claude/skills/writing-tests/SKILL.md). Today that's
+[`writing-tests`](../../.agents/skills/writing-tests/SKILL.md). Today that's
 [`issue/domain/branch.ts`](./src/issue/domain/branch.ts), which turns a typed title into a ref name,
 [`drift/domain/detect.ts`](./src/drift/domain/detect.ts), which turns a diff into a warn/don't-warn decision,
 [`map/domain/capabilities.ts`](./src/map/domain/capabilities.ts), which decides what counts as a capability and

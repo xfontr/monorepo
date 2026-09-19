@@ -1,7 +1,9 @@
+<!-- Generated from `packages/content/AGENTS.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # 🤖 @monorepo/content
 
 See [README.md](./README.md) — it documents the domain, the ports and the tradeoffs in full. Use the
-`content:new-vendor` skill when adding a CMS.
+`content-new-vendor` skill when adding a CMS.
 
 The invariants worth losing a build over:
 

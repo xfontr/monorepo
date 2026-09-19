@@ -29,9 +29,9 @@ that gap; this closes it.
 | Artifact | Decides |
 | --- | --- |
 | `docs/reviews/SCORECARDS.md` | The cards, the anchors, the caps and the weights |
-| `.claude/skills/repo-review/SKILL.md` | The reconcile rules that drop and re-score what the agents report |
+| `.agents/skills/repo-review/SKILL.md` | The reconcile rules that drop and re-score what the agents report |
 | `.claude/agents/repo-review-card.md` | The card agents' model, tool access and isolation rule |
-| `.claude/skills/repo-review/collect-facts.sh` | Every count each card is scored against |
+| `.agents/skills/repo-review/collect-facts.sh` | Every count each card is scored against |
 
 The list lives in `METHOD_ARTIFACTS` in [`manifest.ts`](./domain/manifest.ts) and the table in
 `METHOD.md` is written from it, never the reverse.

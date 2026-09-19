@@ -3,6 +3,8 @@ name: new-package
 description: Scaffold a new project in this monorepo under packages/, apps/ or infrastructure/ — package.json with Nx tags and an exports map, the three wrapper configs, a README, and the boundary wiring. Use when adding a new workspace project, a new shared package, a new app, or a new infrastructure service.
 ---
 
+<!-- Generated from `.agents/skills/new-package/SKILL.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # Scaffolding a workspace project
 
 Six files have to agree, and two of them live outside the new directory. That is the whole reason

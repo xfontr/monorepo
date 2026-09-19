@@ -1,7 +1,9 @@
+<!-- Generated from `packages/i18n/AGENTS.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # 🤖 @monorepo/i18n
 
 See [README.md](./README.md) — it documents the vendors, the ports and the tradeoffs in full. Use the
-`i18n:new-vendor` skill when adding a TMS.
+`i18n-new-vendor` skill when adding a TMS.
 
 The invariants worth losing a build over:
 

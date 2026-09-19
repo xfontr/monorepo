@@ -18,7 +18,7 @@ fix was one line in [`nx.json`](../../nx.json) — `"dependsOn": ["nuxt-prepare"
 The question is how to stop the next one, since the same omission is available to every target
 added and every Nuxt app added. Two candidates were proposed: an invariant check in the shape this
 repo already uses for cross-file rules, or the local `createNodesV2` plugin
-[`CLAUDE.md`](../../CLAUDE.md) earmarks for "if a **third** one lands".
+[`CLAUDE.md`](../../AGENTS.md) earmarks for "if a **third** one lands".
 
 ## Result
 

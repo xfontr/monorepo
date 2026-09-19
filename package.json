@@ -19,6 +19,7 @@
         "issue:add": "pnpm --filter @monorepo/scripts run issue:add",
         "issue:pick": "pnpm --filter @monorepo/scripts run issue:pick",
         "issue:ship": "pnpm --filter @monorepo/scripts run issue:ship",
+        "agents:sync": "pnpm --filter @monorepo/scripts run agents:sync",
         "docs:drift": "pnpm --filter @monorepo/scripts run docs:drift",
         "docs:map": "pnpm --filter @monorepo/scripts run docs:map",
         "review:version": "pnpm --filter @monorepo/scripts run review:version",

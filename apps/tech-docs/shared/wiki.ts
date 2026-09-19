@@ -114,7 +114,7 @@ export function stripLeadingEmoji(title: string): string {
 
 function kindOf(path: string): DocKind {
     if (path.endsWith("/skill")) return "skill";
-    if (path.endsWith("/claude") || path === "/claude") return "claude";
+    if (path.endsWith("/agents") || path === "/agents") return "agent";
     if (path.startsWith("/docs/")) return "doc";
 
     return "readme";
@@ -127,7 +127,7 @@ interface Placed {
     entry: WikiEntry
 }
 
-/** Generic labels for README/CLAUDE.md — the group name already says the project; the real title is still the page's own heading. */
+/** Generic labels for README/AGENTS.md — the group name already says the project; the real title is still the page's own heading. */
 function labelWithin(root: string, path: string, title: string): string {
     const raw = segmentsOf(path.slice(root.length));
     // `src` is where the code lives, not a taxonomy a reader navigates by — a nested README's own directory names it.
@@ -136,7 +136,7 @@ function labelWithin(root: string, path: string, title: string): string {
     const directory = rest.slice(0, -1).join("/");
 
     if (file === "skill") return stripLeadingEmoji(title);
-    if (file === "claude") return "Agent notes";
+    if (file === "agents") return "Agent notes";
     if (file === "readme") return directory === "" ? "Overview" : directory;
 
     return stripLeadingEmoji(title);
@@ -148,7 +148,7 @@ function place(page: WikiPage): Placed {
     const segments = segmentsOf(path);
     const kind = kindOf(path);
 
-    if (segments[0] === ".claude") {
+    if (segments[0] === ".agents" || segments[0] === ".claude") {
         const group = segments[1] ?? "skills";
 
         return {

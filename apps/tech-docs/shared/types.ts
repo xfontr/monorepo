@@ -73,7 +73,7 @@ export interface ProjectMetrics {
     unreleasedCommits: number | null
     currentVersion: string | null
     hasReadme: boolean
-    hasClaudeMd: boolean
+    hasAgentMd: boolean
     hasChangelog: boolean
 }
 
@@ -105,7 +105,7 @@ export interface DocLink {
  * `doc`, `review` and `decision` are the ones that live under `docs/`, which is where anything
  * spanning more than one project belongs. The rest are colocated with the code they describe.
  */
-export type DocKind = "readme" | "claude" | "changelog" | "skill" | "doc" | "review" | "decision";
+export type DocKind = "readme" | "agent" | "changelog" | "skill" | "doc" | "review" | "decision";
 
 /** Both derive from the value lists in `shared/decisions.ts`, which is also what the CI check reads — so there is no second copy to keep in step. */
 export type { DecisionOutcome, DecisionStatus };

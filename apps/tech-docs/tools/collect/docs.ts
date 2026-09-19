@@ -61,7 +61,7 @@ function kindOf(path: string): DocKind {
     if (/^docs\/reviews\/\d{4}-/.test(path)) return "review";
     if (DECISION_PATH.test(path)) return "decision";
     if (path.endsWith("CHANGELOG.md")) return "changelog";
-    if (path.endsWith("CLAUDE.md")) return "claude";
+    if (path.endsWith("AGENTS.md")) return "agent";
     if (path.endsWith("SKILL.md")) return "skill";
     if (path.startsWith("docs/")) return "doc";
 

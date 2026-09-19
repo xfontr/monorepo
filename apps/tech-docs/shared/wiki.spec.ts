@@ -3,7 +3,7 @@ import { buildWiki, locate, stripLeadingEmoji, toCollectionPath, toTitleCase } f
 
 const PAGES = [
     { path: "/readme", title: "Monorepo" },
-    { path: "/claude", title: "🤖 Working in this repo" },
+    { path: "/agents", title: "🤖 Working in this repo" },
     { path: "/docs/readme", title: "🗂 Docs" },
     { path: "/docs/features", title: "🗺 Features" },
     { path: "/docs/guides/first-hour", title: "🌱 First hour in this repo" },
@@ -15,11 +15,11 @@ const PAGES = [
     { path: "/docs/decisions/template", title: "🧭" },
     { path: "/docs/decisions/0001-feature-discoverability", title: "🧭 Making the repo's feature surface discoverable" },
     { path: "/packages/ui/readme", title: "📦 @monorepo/ui" },
-    { path: "/packages/ui/claude", title: "🤖 @monorepo/ui" },
+    { path: "/packages/ui/agents", title: "🤖 @monorepo/ui" },
     { path: "/packages/ui/changelog", title: "CHANGELOG" },
-    { path: "/packages/ui/.claude/skills/new-component/skill", title: "Adding a UI component" },
+    { path: "/.agents/skills/ui-new-component/skill", title: "Adding a UI component" },
     { path: "/packages/content/src/nuxt/readme", title: "🟢 @monorepo/content/nuxt" },
-    { path: "/.claude/skills/house-docs/skill", title: "Writing docs here" },
+    { path: "/.agents/skills/house-docs/skill", title: "Writing docs here" },
 ];
 
 function sectionOf(id: string) {
@@ -47,11 +47,11 @@ describe("buildWiki", () => {
     });
 
     it("labels a project's own README 'Overview', because the group already carries the package name", () => {
-        expect(labelsIn("packages", "ui")).toEqual(["Overview", "Agent notes", "Adding a UI component"]);
+        expect(labelsIn("packages", "ui")).toEqual(["Overview", "Agent notes"]);
     });
 
-    it("keeps a project's skill with that project rather than with the root agent setup", () => {
-        expect(labelsIn("agents", "skills")).toEqual(["Writing docs here"]);
+    it("keeps every root-scoped skill in the shared agent setup", () => {
+        expect(labelsIn("agents", "skills")).toEqual(["Adding a UI component", "Writing docs here"]);
     });
 
     it("drops the changelogs, the dated reviews and the decision reports, which have pages of their own in this app", () => {

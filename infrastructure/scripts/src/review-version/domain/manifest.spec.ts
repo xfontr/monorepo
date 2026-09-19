@@ -8,18 +8,18 @@ Method **version 2**.
 | Artifact | Digest |
 | --- | --- |
 | \`docs/reviews/SCORECARDS.md\` | \`aaaaaaaaaaaa\` |
-| \`.claude/skills/repo-review/SKILL.md\` | \`bbbbbbbbbbbb\` |
+| \`.agents/skills/repo-review/SKILL.md\` | \`bbbbbbbbbbbb\` |
 | \`.claude/agents/repo-review-card.md\` | \`cccccccccccc\` |
-| \`.claude/skills/repo-review/collect-facts.sh\` | \`dddddddddddd\` |
+| \`.agents/skills/repo-review/collect-facts.sh\` | \`dddddddddddd\` |
 
 Prose below the table.
 `;
 
 const RECORDED = {
     "docs/reviews/SCORECARDS.md": "aaaaaaaaaaaa",
-    ".claude/skills/repo-review/SKILL.md": "bbbbbbbbbbbb",
+    ".agents/skills/repo-review/SKILL.md": "bbbbbbbbbbbb",
     ".claude/agents/repo-review-card.md": "cccccccccccc",
-    ".claude/skills/repo-review/collect-facts.sh": "dddddddddddd",
+    ".agents/skills/repo-review/collect-facts.sh": "dddddddddddd",
 };
 
 describe("parseManifest", () => {
@@ -45,10 +45,10 @@ describe("staleArtifacts", () => {
     it("names an unversioned artifact that moved, so a score can't be attributed to a method that didn't produce it", () => {
         const stale = staleArtifacts(parseManifest(MANIFEST), {
             ...RECORDED,
-            ".claude/skills/repo-review/SKILL.md": "999999999999",
+            ".agents/skills/repo-review/SKILL.md": "999999999999",
         });
 
-        expect(stale).toStrictEqual([".claude/skills/repo-review/SKILL.md"]);
+        expect(stale).toStrictEqual([".agents/skills/repo-review/SKILL.md"]);
     });
 
     it("treats an unreadable manifest as every artifact stale rather than as nothing to check", () => {

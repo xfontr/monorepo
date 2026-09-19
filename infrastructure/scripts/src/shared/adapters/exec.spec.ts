@@ -1,5 +1,25 @@
-import { describe, expect, it } from "vitest";
-import { assertNotFlagLike } from "./exec.ts";
+import { mkdtempSync, rmSync, symlinkSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { describe, expect, it, vi } from "vitest";
+import { assertNotFlagLike, run } from "./exec.ts";
+
+describe("run", () => {
+    it("uses the executable selected by PATH so machine-specific installations work", () => {
+        const bin = mkdtempSync(join(tmpdir(), "scripts-exec-"));
+
+        try {
+            symlinkSync(process.execPath, join(bin, "git"));
+            vi.stubEnv("PATH", bin);
+
+            expect(run("git", ["-e", "process.stdout.write('PATH git')"])).toBe("PATH git");
+        }
+        finally {
+            vi.unstubAllEnvs();
+            rmSync(bin, { recursive: true, force: true });
+        }
+    });
+});
 
 describe("assertNotFlagLike", () => {
     it("returns the value unchanged when it doesn't start with a dash", () => {

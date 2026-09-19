@@ -1,6 +1,8 @@
+<!-- Generated from `packages/ui/AGENTS.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
+
 # 🤖 @monorepo/ui
 
-See [README.md](./README.md). Use the `ui:new-component` skill when adding a component.
+See [README.md](./README.md). Use the `ui-new-component` skill when adding a component.
 
 - Source is **`lib/`**, not `src/`. The `exports` map points at `lib/index.ts`.
 - A component not re-exported from [`lib/index.ts`](./lib/index.ts) does not exist as far as

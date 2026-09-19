@@ -1,13 +1,13 @@
 ---
-name: new-vendor
+name: content-new-vendor
 description: Add a CMS vendor to @monorepo/content — a ContentProvider subclass, its config type, configProblems(), one registry line and a spec. Use when adding or changing a content vendor such as Contentful, Sanity, Strapi or another WordPress-like API.
 ---
 
 # Adding a content vendor
 
-The steps are in the [Vendors section](../../../README.md#-vendors) of the package README. Follow
+The steps are in the [Vendors section](../../../packages/content/README.md#-vendors) of the package README. Follow
 them; this file is what the prose can't enforce. Read
-[`wordpress/`](../../../src/core/adapters/providers/wordpress) first — it is the only vendor, so it
+[`wordpress/`](../../../packages/content/src/core/adapters/providers/wordpress) first — it is the only vendor, so it
 *is* the pattern, including the split into a provider, its constants, its mapping helpers and its
 response types.
 

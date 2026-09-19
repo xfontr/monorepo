@@ -69,7 +69,7 @@ The body is whatever you typed, verbatim. There is no task/bug/spike shape, no a
 no repro steps — that structure is what made the previous version of this script something you
 avoided using.
 
-The [`github-issue`](../../../../.claude/skills/github-issue/SKILL.md) skill still has the three
+The [`github-issue`](../../../../.agents/skills/github-issue/SKILL.md) skill still has the three
 templates, and Claude still fills them in when it files an issue. The two produce different-looking
 issues on purpose: the skill is for issues worth the ceremony, this is for the ones that would
 otherwise never get written down.
@@ -203,7 +203,7 @@ fail-open stance the missing `project` scope already gets in `listProjects` — 
 ## ✅ Tests
 
 [`domain/branch.spec.ts`](./domain/branch.spec.ts) covers `slugify` and `branchName` — the only real logic left in
-this folder, per [`writing-tests`](../../../../.claude/skills/writing-tests/SKILL.md).
+this folder, per [`writing-tests`](../../../../.agents/skills/writing-tests/SKILL.md).
 [`../shared/adapters/cache.spec.ts`](../shared/adapters/cache.spec.ts) covers the TTL and `--refresh` bypass in
 `cached`, plus the TTL-free reads and writes in `readCache`/`writeCache`. `isOnline` and the offline
 branches of `listProjects`/`listIssues` are `gh` calls and cache reads respectively, both already
