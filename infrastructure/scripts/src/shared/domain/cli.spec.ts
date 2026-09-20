@@ -9,6 +9,13 @@ describe("parse", () => {
             positionals: ["add", "issue-42"],
         });
     });
+
+    it("reads every flag occurrence into one set", () => {
+        expect(parse(["--check", "--check", "value", "--refresh"])).toEqual({
+            flags: new Set(["check", "refresh"]),
+            positionals: ["value"],
+        });
+    });
 });
 
 describe("dispatch", () => {
@@ -60,5 +67,10 @@ describe("report", () => {
         const error = Object.assign(new Error("unexpected"), { stderr: Buffer.from("detail") });
 
         expect(report(error).message).toContain("detail");
+    });
+
+    it("reports an ordinary error without stderr and a non-error throw as text", () => {
+        expect(report(new Error("without stack"))).toMatchObject({ cancelled: false });
+        expect(report("string failure")).toEqual({ cancelled: false, message: "string failure" });
     });
 });

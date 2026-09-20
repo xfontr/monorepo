@@ -99,4 +99,15 @@ describe("run", () => {
         expect(stderr.join("")).toContain("command detail");
         expect(process.exitCode).toBe(1);
     });
+
+    it("reports a non-Error throw as a user-visible failure", async () => {
+        await run(() => new Promise((_, reject) => {
+            // This deliberately exercises the CLI's non-Error rejection path.
+            // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+            reject("bad value");
+        }));
+
+        expect(stderr.join("")).toBe("bad value\n");
+        expect(process.exitCode).toBe(1);
+    });
 });
