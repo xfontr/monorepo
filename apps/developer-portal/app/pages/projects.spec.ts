@@ -19,7 +19,7 @@ const global = {
     stubs: {
         UDashboardPanel: { template: "<section><slot name='header' /><slot name='body' /></section>" }, UDashboardNavbar: { template: "<header><slot name='right' /></header>" }, UDashboardSidebarCollapse: true, SnapshotAge: true,
         UAlert: { props: { title: String, description: String }, template: "<div>{{ title }} {{ description }}</div>" }, UCard: { template: "<article><slot name='header' /><slot /></article>" }, UButton: { props: { label: String, to: String }, template: "<a :href='to'>{{ label }}</a>" }, UBadge: { props: { label: String }, template: "<span>{{ label }}</span>" },
-    }
+    },
 };
 
 beforeEach(() => {
@@ -35,8 +35,8 @@ beforeEach(() => {
                 { name: "@monorepo/ui", root: "packages/UI", tags: [], dependsOn: ["@monorepo/configs"], dependedOnBy: ["@monorepo/developer-portal"] },
                 { name: "@monorepo/huella-legal", root: "apps/huella-legal", tags: [], dependsOn: [], dependedOnBy: [] },
                 { name: "@monorepo/scripts", root: "infrastructure/scripts", tags: [], dependsOn: [], dependedOnBy: [] },
-            ]
-        }, manifest: {}
+            ],
+        }, manifest: {},
     });
     state.metrics = ref({ metrics: { projects: [{ name: "@monorepo/ui", commits: 4, commitsPerWeek: 1, specs: 2, coverageLinesPct: 90 }] }, manifest: {} });
     state.deployments = { data: ref({ deployments: [{ environment: "huella-legal", state: "success", url: "https://site.example", updatedAt: "2026-09-20" }], error: null }) };
