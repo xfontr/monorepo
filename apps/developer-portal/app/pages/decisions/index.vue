@@ -97,27 +97,34 @@ const sortItems: { label: string, value: DecisionSort }[] = [
         </template>
 
         <template #body>
-            <div
-                v-if="reports.length === 0"
-                class="p-12 text-center"
-            >
-                <UIcon
-                    name="i-lucide-compass"
-                    class="size-8 text-dimmed mx-auto mb-2"
-                />
-                <p class="text-sm text-muted">
-                    Nothing collected under <code class="font-mono">docs/decisions/</code> yet.
+            <div class="flex flex-col gap-4">
+                <p class="text-sm text-muted max-w-3xl">
+                    Decisions record why the repository works the way it does. Each report preserves an architectural
+                    or product choice after its originating issue is finished, and its status shows whether an accepted
+                    result has been implemented.
                 </p>
-                <p class="text-xs text-dimmed mt-1">
-                    The <code class="font-mono">decision-report</code> skill writes them, one numbered file per decision;
-                    <code class="font-mono">pnpm exec nx collect @monorepo/developer-portal</code> is what reads them in.
-                </p>
-            </div>
 
-            <div
-                v-else
-                class="flex flex-col gap-4"
-            >
+                <div
+                    v-if="reports.length === 0"
+                    class="p-12 text-center"
+                >
+                    <UIcon
+                        name="i-lucide-compass"
+                        class="size-8 text-dimmed mx-auto mb-2"
+                    />
+                    <p class="text-sm text-muted">
+                        Nothing collected under <code class="font-mono">docs/decisions/</code> yet.
+                    </p>
+                    <p class="text-xs text-dimmed mt-1">
+                        The <code class="font-mono">decision-report</code> skill writes them, one numbered file per decision;
+                        <code class="font-mono">pnpm exec nx collect @monorepo/developer-portal</code> is what reads them in.
+                    </p>
+                </div>
+
+                <div
+                    v-else
+                    class="flex flex-col gap-4"
+                >
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
                     <StatTile
                         label="Reports"
@@ -200,6 +207,7 @@ const sortItems: { label: string, value: DecisionSort }[] = [
                         </NuxtLink>
                     </div>
                 </UCard>
+                </div>
             </div>
         </template>
     </UDashboardPanel>

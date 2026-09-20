@@ -32,7 +32,7 @@ async function refresh(): Promise<void> {
 <template>
     <UDashboardPanel id="issues">
         <template #header>
-            <UDashboardNavbar title="Issues">
+            <UDashboardNavbar title="Work in progress">
                 <template #leading>
                     <UDashboardSidebarCollapse />
                 </template>
@@ -76,6 +76,11 @@ async function refresh(): Promise<void> {
 
         <template #body>
             <div class="flex flex-col gap-4">
+                <p class="text-sm text-muted max-w-3xl">
+                    Planned and active repository work appears here as issues from GitHub. The issue read is live in
+                    your browser; the rest of this portal remains a collected snapshot.
+                </p>
+
                 <UAlert
                     v-if="issues.error"
                     color="warning"

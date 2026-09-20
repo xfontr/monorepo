@@ -47,7 +47,7 @@ const conventional = computed(() => snapshot.value?.metrics?.conventionalCommitR
 <template>
     <UDashboardPanel id="changelog">
         <template #header>
-            <UDashboardNavbar title="Changelog">
+            <UDashboardNavbar title="What's new">
                 <template #leading>
                     <UDashboardSidebarCollapse />
                 </template>
@@ -60,26 +60,32 @@ const conventional = computed(() => snapshot.value?.metrics?.conventionalCommitR
         </template>
 
         <template #body>
-            <div
-                v-if="changelogs.length === 0"
-                class="p-12 text-center"
-            >
-                <UIcon
-                    name="i-lucide-tag"
-                    class="size-8 text-dimmed mx-auto mb-2"
-                />
-                <p class="text-sm text-muted">
-                    No CHANGELOG.md in the workspace yet.
+            <div class="flex flex-col gap-4">
+                <p class="text-sm text-muted max-w-3xl">
+                    This page brings together generated release histories and unreleased activity across the
+                    workspace.
                 </p>
-                <p class="text-xs text-dimmed mt-1">
-                    They are written by <code class="font-mono">nx release</code>, never by hand.
-                </p>
-            </div>
 
-            <div
-                v-else
-                class="grid lg:grid-cols-4 gap-4"
-            >
+                <div
+                    v-if="changelogs.length === 0"
+                    class="p-12 text-center"
+                >
+                    <UIcon
+                        name="i-lucide-tag"
+                        class="size-8 text-dimmed mx-auto mb-2"
+                    />
+                    <p class="text-sm text-muted">
+                        No CHANGELOG.md in the workspace yet.
+                    </p>
+                    <p class="text-xs text-dimmed mt-1">
+                        They are written by <code class="font-mono">nx release</code>, never by hand.
+                    </p>
+                </div>
+
+                <div
+                    v-else
+                    class="grid lg:grid-cols-4 gap-4"
+                >
                 <div class="flex flex-col gap-3">
                     <UCard :ui="{ body: 'p-0 sm:p-0' }">
                         <div class="divide-y divide-default">
@@ -133,6 +139,7 @@ const conventional = computed(() => snapshot.value?.metrics?.conventionalCommitR
                         :value="page"
                     />
                 </UCard>
+                </div>
             </div>
         </template>
     </UDashboardPanel>

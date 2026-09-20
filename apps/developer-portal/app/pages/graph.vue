@@ -4,6 +4,20 @@ const { data: metricsSnapshot } = await useSnapshot("metrics");
 
 const projects = computed(() => snapshot.value?.projects?.projects ?? []);
 const findings = computed(() => metricsSnapshot.value?.metrics?.invariantFindings ?? []);
+const projectGroups = computed(() => [
+    {
+        label: "Applications",
+        projects: projects.value.filter((project) => project.root.startsWith("apps/")),
+    },
+    {
+        label: "Shared building blocks",
+        projects: projects.value.filter((project) => project.root.startsWith("packages/")),
+    },
+    {
+        label: "Repository tooling",
+        projects: projects.value.filter((project) => !project.root.startsWith("apps/") && !project.root.startsWith("packages/")),
+    },
+]);
 
 const graphEmbed = embedUrl("/embed/graph/index.html");
 </script>
@@ -36,12 +50,93 @@ const graphEmbed = embedUrl("/embed/graph/index.html");
                     :description="finding.detail"
                 />
 
+                <section class="flex flex-col gap-3">
+                    <div>
+                        <h2 class="text-xl font-semibold">
+How the pieces fit
+</h2>
+                        <p class="text-sm text-muted mt-1">
+                            The repository groups applications, shared building blocks, and the tooling that supports them.
+                        </p>
+                    </div>
+
+                    <div class="grid gap-4 xl:grid-cols-3">
+                        <UCard
+                            v-for="group in projectGroups"
+                            :key="group.label"
+                        >
+                            <template #header>
+                                <h3 class="font-semibold">
+{{ group.label }}
+</h3>
+                            </template>
+
+                            <div
+                                v-if="group.projects.length === 0"
+                                class="text-sm text-muted"
+                            >
+                                No projects in this group.
+                            </div>
+
+                            <div
+                                v-else
+                                class="flex flex-col gap-4"
+                            >
+                                <div
+                                    v-for="project in group.projects"
+                                    :key="project.name"
+                                    class="flex flex-col gap-2"
+                                >
+                                    <div>
+                                        <p class="text-sm font-medium">
+{{ project.name }}
+</p>
+                                        <p class="text-xs text-dimmed font-mono">
+{{ project.root }}
+</p>
+                                    </div>
+
+                                    <div
+                                        v-if="project.tags.length > 0"
+                                        class="flex flex-wrap gap-1.5"
+                                    >
+                                        <UBadge
+                                            v-for="tag in project.tags"
+                                            :key="tag"
+                                            :label="tag"
+                                            color="neutral"
+                                            variant="subtle"
+                                            size="sm"
+                                            class="font-mono text-[11px]"
+                                        />
+                                    </div>
+
+                                    <div class="flex flex-col gap-0.5 text-xs text-muted">
+                                        <div v-if="project.dependsOn.length > 0">
+                                            <span class="text-dimmed">Uses:</span> {{ project.dependsOn.join(", ") }}
+                                        </div>
+                                        <div v-if="project.dependedOnBy.length > 0">
+                                            <span class="text-dimmed">Used by:</span> {{ project.dependedOnBy.join(", ") }}
+                                        </div>
+                                        <p
+                                            v-if="project.dependsOn.length === 0 && project.dependedOnBy.length === 0"
+                                            class="text-dimmed"
+                                        >
+                                            No project relationships recorded.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </UCard>
+                    </div>
+                </section>
+
                 <UCard :ui="{ body: 'p-0 sm:p-0' }">
                     <template #header>
                         <div>
                             <h2 class="font-semibold">
-                                Dependencies
-                            </h2>
+Detailed Nx graph
+</h2>
                             <p class="text-xs text-muted">
                                 Nx's own graph client, vendored in by the collector rather than redrawn.
                             </p>

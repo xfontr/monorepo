@@ -6,10 +6,17 @@ const { data: snapshot } = await useSnapshot("projects");
 const { data: metricsSnapshot } = await useSnapshot("metrics");
 const { data: live } = useDeployments();
 const { public: { repoUrl } } = useRuntimeConfig();
+const { data: readmes } = await useAsyncData("project-readmes", () =>
+    queryCollection("docs").select("path", "title", "description").all());
 
 const projects = computed(() => snapshot.value?.projects?.projects ?? []);
 const metrics = computed(() => new Map(metricsSnapshot.value?.metrics?.projects.map((project) => [project.name, project]) ?? []));
 const deployments = computed(() => live.value.deployments);
+const readmeByPath = computed(() => new Map(
+    (readmes.value ?? [])
+        .filter((page) => page.path !== "/readme" && page.path.endsWith("/readme"))
+        .map((page) => [page.path, page]),
+));
 
 const projectLinks: Record<string, { storybook?: string, deploys?: string, environment?: string, website?: () => string | undefined }> = {
     "@monorepo/ui": { storybook: embedUrl("/storybook/") },
@@ -46,6 +53,20 @@ const orderedProjects = computed(() => projects.value.slice().sort((a, b) => {
 
 function metricFor(project: ProjectNode): ProjectMetrics | undefined {
     return metrics.value.get(project.name);
+}
+
+function readmeFor(project: ProjectNode) {
+    return readmeByPath.value.get(`/${project.root.toLowerCase()}/readme`);
+}
+
+function categoryFor(project: ProjectNode): string {
+    const [area] = project.root.split("/");
+
+    return {
+        apps: "Application",
+        packages: "Shared building block",
+        infrastructure: "Repository tooling",
+    }[area ?? ""] ?? "Repository project";
 }
 
 function storybookFor(project: ProjectNode): string | undefined {
@@ -103,31 +124,87 @@ function websiteFor(project: ProjectNode): string | undefined {
                         :ui="{ body: 'flex flex-col gap-4' }"
                     >
                         <template #header>
-                            <div class="flex items-start justify-between gap-3">
-                                <div class="min-w-0">
-                                    <h2 class="font-semibold truncate">
-                                        {{ project.name }}
-                                    </h2>
-                                    <p class="font-mono text-xs text-dimmed truncate">
-                                        {{ project.root }}
-                                    </p>
+                            <h2 class="font-semibold">
+                                {{ readmeFor(project)?.title ?? project.name }}
+                            </h2>
+                        </template>
+
+                        <div class="flex flex-col gap-3">
+                            <p class="text-sm text-muted">
+                                {{ readmeFor(project)?.description ?? "No project description is available yet." }}
+                            </p>
+
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-dimmed">Category</span>
+                                <UBadge
+                                    :label="categoryFor(project)"
+                                    color="primary"
+                                    variant="subtle"
+                                    size="sm"
+                                />
+                            </div>
+
+                            <div class="flex flex-col gap-1 text-sm">
+                                <div v-if="project.dependsOn.length > 0">
+                                    <span class="text-dimmed">Uses:</span> {{ project.dependsOn.join(", ") }}
                                 </div>
+                                <div v-if="project.dependedOnBy.length > 0">
+                                    <span class="text-dimmed">Used by:</span> {{ project.dependedOnBy.join(", ") }}
+                                </div>
+                                <p
+                                    v-if="project.dependsOn.length === 0 && project.dependedOnBy.length === 0"
+                                    class="text-dimmed"
+                                >
+                                    No project relationships recorded.
+                                </p>
+                            </div>
+
+                            <div class="flex flex-wrap gap-2">
                                 <UButton
                                     v-if="websiteFor(project)"
                                     :to="websiteFor(project)"
+                                    label="Open site"
                                     icon="i-lucide-external-link"
-                                    color="neutral"
-                                    variant="ghost"
-                                    size="sm"
-                                    square
+                                    size="xs"
                                     target="_blank"
-                                    :aria-label="`Open ${project.name}`"
-                                    :title="`Open ${project.name}`"
+                                />
+                                <UButton
+                                    :to="`/docs/${project.root.toLowerCase()}/readme`"
+                                    label="Docs"
+                                    icon="i-lucide-book-open"
+                                    size="xs"
+                                    variant="soft"
+                                />
+                                <UButton
+                                    v-if="storybookFor(project)"
+                                    :to="storybookFor(project)"
+                                    label="Storybook"
+                                    icon="i-lucide-panels-top-left"
+                                    size="xs"
+                                    target="_blank"
+                                />
+                                <UButton
+                                    v-if="deploysFor(project)"
+                                    :to="deploysFor(project)"
+                                    label="Deploys"
+                                    size="xs"
+                                    variant="soft"
+                                    target="_blank"
                                 />
                             </div>
-                        </template>
+                        </div>
 
-                        <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div class="border-t border-default pt-3 flex flex-col gap-3 text-sm text-muted">
+                            <div>
+                                <p class="text-xs text-dimmed">
+Technical details
+</p>
+                                <p class="font-mono text-xs truncate">
+{{ project.name }} · {{ project.root }}
+</p>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <p class="text-xs text-dimmed">
                                     Commits
@@ -169,32 +246,7 @@ function websiteFor(project: ProjectNode): string | undefined {
                                     >%</span>
                                 </p>
                             </div>
-                        </div>
-
-                        <div class="flex flex-wrap gap-2">
-                            <UButton
-                                :to="`/docs/${project.root}/readme`"
-                                label="Docs"
-                                icon="i-lucide-book-open"
-                                size="xs"
-                                variant="soft"
-                            />
-                            <UButton
-                                v-if="storybookFor(project)"
-                                :to="storybookFor(project)"
-                                label="Storybook"
-                                icon="i-lucide-panels-top-left"
-                                size="xs"
-                                target="_blank"
-                            />
-                            <UButton
-                                v-if="deploysFor(project)"
-                                :to="deploysFor(project)"
-                                label="Deploys"
-                                size="xs"
-                                variant="soft"
-                                target="_blank"
-                            />
+                            </div>
                         </div>
                     </UCard>
                 </div>
