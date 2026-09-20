@@ -6,7 +6,15 @@ import { assignToMe, developBranch, isOnline, listIssues, listProjects, moveToIn
 import { branchForIssue, checkout } from "./adapters/git.ts";
 import { ISSUE_SCOPE_HINT, projectOptions, PROJECT_SCOPE_HINT } from "./adapters/prompts.ts";
 import { branchName, BRANCH_TYPES, slugify } from "./domain/branch.ts";
-import { issueLoad, issueOptionMatches, issueOptions, projectLoad } from "./domain/pick.ts";
+import {
+    issueCountMessage,
+    issueOptionMatches,
+    issueOptions,
+    issuePromptText,
+    projectLoad,
+    selectedProject,
+} from "./domain/pick.ts";
+import { issueSource } from "./domain/source.ts";
 
 const CANCELLED = "Cancelled — still on the same branch.";
 
@@ -50,7 +58,7 @@ const pickProject = async (): Promise<Picked<Project>> => {
         }),
     );
 
-    return { value: projects.find((project) => project.title === title), offline };
+    return { value: selectedProject(projects, title), offline };
 };
 
 const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue | typeof BACK> => {
@@ -59,11 +67,11 @@ const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue
 
     let issues: Issue[];
     try {
-        const source = issueLoad(knownOffline, false, false, [], []).source;
+        const source = issueSource({ knownOffline, requestFailed: false, online: false });
         issues = listIssues(project.title, source === "cache");
     }
     catch {
-        const failure = issueLoad(knownOffline, true, !knownOffline && isOnline(), [], []).source;
+        const failure = issueSource({ knownOffline, requestFailed: true, online: !knownOffline && isOnline() });
 
         if (failure === "auth-error") {
             loading.stop("Couldn't read issues.");
@@ -75,14 +83,15 @@ const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue
         issues = listIssues(project.title, true);
     }
 
-    loading.stop(`${issues.length} open issue${issues.length === 1 ? "" : "s"}.`);
+    loading.stop(issueCountMessage(issues.length));
 
-    if (issues.length === 0) out.warn("Nothing open on that project. `pnpm issue:add` fixes that.");
+    const prompt = issuePromptText(issues.length);
+    if (prompt.emptyWarning) out.warn(prompt.emptyWarning);
 
     return or(
         await autocomplete({
-            message: issues.length === 0 ? "No open issues" : "Issue",
-            placeholder: issues.length === 0 ? undefined : "Type a number, a word from the title, or a label",
+            message: prompt.message,
+            placeholder: prompt.placeholder,
             maxItems: 12,
             options: issueOptions(BACK, issues),
             // Keep navigation visible only when the issue search is empty.

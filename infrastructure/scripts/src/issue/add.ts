@@ -5,7 +5,7 @@ import { orExit } from "../shared/adapters/prompts.ts";
 import { listLabels, listProjects, type Label, type Project } from "./adapters/gh.ts";
 import { currentBranch } from "./adapters/git.ts";
 import { labelOptions, NONE_OPTION, PROJECT_SCOPE_HINT, projectOptions } from "./adapters/prompts.ts";
-import { matchesLabel } from "./domain/search.ts";
+import { labelOptionMatches, optionalSelection } from "./domain/pick.ts";
 import { pick } from "./pick.ts";
 
 const CANCELLED = "Cancelled — no issue created.";
@@ -25,7 +25,7 @@ const pickProject = async (projects: Project[]): Promise<string | undefined> => 
         }),
     );
 
-    return picked || undefined;
+    return optionalSelection(picked);
 };
 
 /** Keep `None` visible only for an empty search; once typed, the picker is searching for a label. */
@@ -36,14 +36,11 @@ const pickLabel = async (labels: Label[]): Promise<string | undefined> => {
             placeholder: "Type a label or what it means",
             maxItems: 12,
             options: [...labelOptions(labels), NONE_OPTION],
-            filter: (search, { value, hint }) =>
-                (value === NONE_OPTION.value
-                    ? !search.trim()
-                    : matchesLabel({ name: value, description: hint ?? "" }, search)),
+            filter: (search, option) => labelOptionMatches(NONE_OPTION.value, option, search),
         }),
     );
 
-    return picked || undefined;
+    return optionalSelection(picked);
 };
 
 export const add = async (): Promise<void> => {

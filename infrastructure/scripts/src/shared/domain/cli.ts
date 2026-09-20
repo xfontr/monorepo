@@ -11,10 +11,42 @@ export type ErrorReport = {
     message: string
 };
 
+type MatchedDispatch<T> = {
+    matched: true
+    command: T
+    args: {
+        flags: ReadonlySet<string>
+        positionalsWithoutCommandName: string[]
+    }
+};
+
+type UnmatchedDispatch = {
+    matched: false
+    usage: string
+};
+
+export type Dispatch<T> = MatchedDispatch<T> | UnmatchedDispatch;
+
 export const parse = (argv: string[]): Args => ({
     flags: new Set(argv.filter((arg) => arg.startsWith("--")).map((arg) => arg.slice(2))),
     positionals: argv.filter((arg) => !arg.startsWith("--")),
 });
+
+export const dispatch = <T>(commands: Record<string, T>, args: Args, commandInvocation: string): Dispatch<T> => {
+    const [name, ...positionalsWithoutCommandName] = args.positionals;
+    const command = name === undefined ? undefined : commands[name];
+
+    if (!command) return {
+        matched: false,
+        usage: `Usage: ${commandInvocation} <${Object.keys(commands).join("|")}>`,
+    };
+
+    return {
+        matched: true,
+        command,
+        args: { flags: args.flags, positionalsWithoutCommandName },
+    };
+};
 
 export const invocation = (entry: string, cwd: string): string => {
     const path = relative(cwd, entry);

@@ -1,6 +1,6 @@
 ---
 issue: 66
-status: implemented
+status: to-implement
 decision: accepted
 ---
 
@@ -51,12 +51,11 @@ The docs are the best part of the package and better than the code they describe
 with the filesystem. Three claims in them have gone stale (below), which is drift rather than
 invention.
 
-### The comment problem is 0009's, unfinished
+### The comment problem is 0009's, resolved
 
 0009 measured this package at **599 comment lines / 2421 code lines = 24.7%**, the worst in the
-workspace, called 4–6% "the house range", and called for a sweep down to **~120 comment lines**. A
-partial sweep has landed — comment lines have halved — but the ratio has barely moved and the target
-is still far off:
+workspace, called 4–6% "the house range", and called for a sweep down to **~120 comment lines**. The
+sweep now sits below that target and inside the house range:
 
 | Measure | 0009 baseline | Today | 0009's target |
 | --- | --- | --- | --- |
@@ -68,19 +67,19 @@ The package now sits in the house range named by 0009. The sweep removed narrati
 explanations while retaining scanner findings, API traps, units, and outside constraints.
 
 **The distribution is bimodal, and that is the more useful finding.** Bloat is concentrated in the
-six scripts that predate 0004; the two that postdate it carry *zero* comments across every file:
+six scripts that predate 0004; the two that postdate it carry *one* comment across every file:
 
 | Vintage | Scripts | Comment lines |
 | --- | --- | --- |
 | Pre-0004 | `shared/`, `issue/`, `dev/`, `drift/`, `map/`, `ship/` | 299 |
-| Post-0004 | `agents-sync/`, `coverage-report/` | 0 |
+| Post-0004 | `agents-sync/`, `coverage-report/` | 1 |
 
 That confirms 0009's claim that density "tracks recency of agent authorship rather than complexity of
 the code" — and it means the house style is already achievable here. `coverage-report/` retains the
 one line that genuinely needs a comment:
 [`adapters/nx.ts:11`](../../infrastructure/scripts/src/coverage-report/adapters/nx.ts) sets
 `const PATH = "/usr/bin:/bin"` and overrides the child's `PATH`, which is exactly the kind of outside
-constraint 0009's keep-test says to write down, and nothing explains it.
+constraint 0009's keep-test says to write down.
 
 ### Concrete defects
 

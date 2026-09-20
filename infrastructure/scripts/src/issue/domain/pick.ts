@@ -1,5 +1,4 @@
-import { matchesIssue, type SearchableIssue } from "./search.ts";
-import { issueSource, type IssueSource } from "./source.ts";
+import { matchesIssue, matchesLabel, type SearchableIssue } from "./search.ts";
 
 export type ProjectSummary = {
     title: string
@@ -14,11 +13,6 @@ export type ProjectLoad = {
 
 export type PickIssue = SearchableIssue & {
     url: string
-};
-
-export type IssueLoad = {
-    source: IssueSource
-    issues: PickIssue[]
 };
 
 export type IssueOption<T> = {
@@ -36,18 +30,6 @@ export const projectLoad = (
     return { source: "cache", projects: [] };
 };
 
-export const issueLoad = (
-    knownOffline: boolean,
-    requestFailed: boolean,
-    online: boolean,
-    live: PickIssue[],
-    cached: PickIssue[],
-): IssueLoad => {
-    const source = issueSource({ knownOffline, requestFailed, online });
-    if (source === "cache") return { source, issues: cached };
-    return { source, issues: live };
-};
-
 export const issueOptions = <T>(back: T, issues: PickIssue[]): IssueOption<T>[] => [
     { value: back, label: "← Back to project list" },
     ...issues.map((issue) => ({
@@ -59,3 +41,39 @@ export const issueOptions = <T>(back: T, issues: PickIssue[]): IssueOption<T>[] 
 
 export const issueOptionMatches = <T>(back: T, value: T | PickIssue, search: string): boolean =>
     value === back ? !search.trim() : matchesIssue(value as PickIssue, search);
+
+export const optionalSelection = (value: string): string | undefined => value || undefined;
+
+export const labelOptionMatches = (
+    noneValue: string,
+    option: { value: string, hint?: string },
+    search: string,
+): boolean => option.value === noneValue
+    ? !search.trim()
+    : matchesLabel({ name: option.value, description: option.hint ?? "" }, search);
+
+export const issueCountMessage = (count: number): string =>
+    `${count} open issue${count === 1 ? "" : "s"}.`;
+
+export type IssuePromptText = {
+    message: string
+    placeholder: string | undefined
+    emptyWarning: string | undefined
+};
+
+export const issuePromptText = (count: number): IssuePromptText => count === 0
+    ? {
+        message: "No open issues",
+        placeholder: undefined,
+        emptyWarning: "Nothing open on that project. `pnpm issue:add` fixes that.",
+    }
+    : {
+        message: "Issue",
+        placeholder: "Type a number, a word from the title, or a label",
+        emptyWarning: undefined,
+    };
+
+export const selectedProject = (
+    projects: ProjectSummary[],
+    title: string,
+): ProjectSummary | undefined => projects.find((project) => project.title === title);

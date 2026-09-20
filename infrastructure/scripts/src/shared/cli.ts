@@ -1,6 +1,6 @@
 import process from "node:process";
 import { out } from "./adapters/io.ts";
-import { invocation, parse, report as classifyError, type Args } from "./domain/cli.ts";
+import { dispatch, invocation, parse, report as classifyError, type Args } from "./domain/cli.ts";
 
 export type { Args } from "./domain/cli.ts";
 
@@ -34,15 +34,13 @@ export const run = async (commands: Command | Record<string, Command>): Promise<
             return;
         }
 
-        const [name, ...rest] = args.positionals;
-        const command = name === undefined ? undefined : commands[name];
-
-        if (!command) {
-            fail(`Usage: ${invocation(process.argv[1] ?? "", process.cwd())} <${Object.keys(commands).join("|")}>`);
+        const result = dispatch(commands, args, invocation(process.argv[1] ?? "", process.cwd()));
+        if (!result.matched) {
+            fail(result.usage);
             return;
         }
 
-        await command({ ...args, positionals: rest });
+        await result.command({ flags: result.args.flags, positionals: result.args.positionalsWithoutCommandName });
     }
     catch (error) {
         report(error);
