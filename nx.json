@@ -65,6 +65,9 @@
             "cache": true
         },
         "test": {
+            "dependsOn": [
+                "nuxt-prepare"
+            ],
             "inputs": [
                 "default",
                 "^production"
