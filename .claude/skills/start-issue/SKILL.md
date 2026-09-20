@@ -78,15 +78,18 @@ it points at:
 - **`Blocked by #<n>`** (the `github-issue` skill's task template) — `gh issue view <n>` for that
   issue too. You need to know what it settled, not just that it's closed.
 - **A spike or a past decision mentioned in the text** — a resolved one lives in
-  `docs/decisions/`, filed as `<issue number, zero-padded to 4 digits>-<slug>.md`
-  (see the `decision-report` skill). If the issue references one, find it:
+  `docs/decisions/` (see the `decision-report` skill). **Its filename number is the decision's, not
+  the issue's**, so match on frontmatter rather than on the name, and expect more than one hit —
+  one issue may have raised two questions:
 
   ```sh
-  ls docs/decisions/ | grep <padded number>
+  grep -l "^issue: <number>$" docs/decisions/*.md
   ```
 
-  Read the file's Result and Consequences sections before writing any code that touches the same
-  ground — that's the whole reason the report exists instead of a comment.
+  Read every hit before writing any code that touches the same ground — that's the whole reason the
+  report exists instead of a comment. A report still on `status: to-implement` is the work you're
+  about to do: its Result names the files to change, its Consequences carries the order and the
+  tripwires, and its Confirmation is what you run when you're done.
 
 ## 4. Confirm before diving in
 
