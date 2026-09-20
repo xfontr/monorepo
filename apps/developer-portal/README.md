@@ -1,5 +1,7 @@
 # 🩺 @monorepo/developer-portal
 
+⚠️ This is a fully vibe-coded app, with barely no human intervention. Why: it's purely a DX tool. I do not have the resources to properly build and maintain this, so I went for the quick and easy shortcut.
+
 The repo's internal developer portal (IDP). It renders every markdown file in the workspace as a wiki — READMEs,
 `AGENTS.md`s, the [`docs/`](../../docs/README.md) tree, the reviews, the changelogs — beside the
 things that are not written down anywhere: coverage, the project graph, the open GitHub issues,
@@ -18,7 +20,6 @@ the branch you are on; the deployed site is a prerendered snapshot of `master`, 
 | `server/api/` | The one read a page makes of this app itself: the collected snapshot. The issues come straight from GitHub to the browser |
 | `shared/` | Pure logic — the wiki's shape, the issue rules, the decision vocabulary, the decision list's own filtering and counting, and where a doc's link points. Imported by app, server and tools alike |
 | `tools/collect/` | Builds the derived snapshot: graph, coverage, metrics, docs, scorecards |
-| `tools/check-docs/` | The CI gate: the link check, the invariants and the decision rules, run over the whole tree and exit non-zero on a finding |
 | `tools/lib/` | Node-only helpers — paths, the `git` allowlist, the invariant checks, and the remark plugin that rewrites a doc's links as it is parsed |
 
 ## 📄 The markdown is read in place
@@ -70,9 +71,9 @@ The third row is the one that needs the filesystem: a link may omit `.md` when a
 and [`checkLink`](./tools/collect/docs.ts) accepts that, so an extension-less target is a page or a
 directory and nothing in the href says which.
 
-Parse time is also what retires the route-table check `check-docs` briefly carried: a route is only
-ever emitted for a file the parser has just confirmed, so a link that resolves on disk and routes
-nowhere can no longer be built. A link to a *missing* file is still a real defect, and
+Parse time retires the route-table check: a route is only ever emitted for a file the parser has
+just confirmed, so a link that resolves on disk and routes nowhere can no longer be built. A link
+to a *missing* file is still a real defect, and
 [`checkLink`](./tools/collect/docs.ts) still fails the build on it.
 
 A review's markdown is rendered as-is here, exactly like every other doc — nothing about it is
@@ -192,7 +193,6 @@ live off GitHub. If you delete every derived file in this project, one command p
 | --- | --- |
 | `pnpm dev developer-portal` | Start Developer Portal |
 | `pnpm exec nx collect @monorepo/developer-portal` | Rebuild the snapshot — graph, coverage, metrics, docs, scorecards |
-| `pnpm exec nx check-docs @monorepo/developer-portal` | The CI gate — broken links, the mirrored invariants and malformed decision frontmatter, over every tracked doc; exits 1 on a finding |
 | `pnpm exec nx nuxt-prepare @monorepo/developer-portal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
 | `pnpm exec nx build-static @monorepo/developer-portal` | `nuxt build --prerender` — the build the deploy publishes, and the only one that renders every route |
 
@@ -255,15 +255,10 @@ fetches them.
 [`check-invariants.sh`](../../.claude/hooks/check-invariants.sh) enforces on edit: the tag table
 written twice, the workspace-layout block, a review with no row in the history table. The hook only
 fires while an agent is editing a file; these run over the whole tree on every collect **and in
-CI**, via `pnpm exec nx check-docs @monorepo/developer-portal` (`ci.yml`), so drift introduced by hand or
+CI**, via the repository's blocking checks (`ci.yml`), so drift introduced by hand or
 pushed without an agent in the loop fails the build instead of only showing up on the dashboard.
 The two copies are kept honest by [`invariants.spec.ts`](./tools/lib/invariants.spec.ts) — which is
 the entire reason they exist as pure functions rather than more shell.
-
-`check-docs` runs only what CI needs as a gate — the link check, the invariants and
-[`tools/lib/decisions.ts`](./tools/lib/decisions.ts)'s frontmatter rules, using `collectGraph` for real
-project roots — not the full `collect` pipeline's coverage, deps and scorecards, which stay
-dashboard-only reads with no pass/fail meaning.
 
 The rules parse with `yaml` rather than a regex, because `@nuxt/content` reads these same bytes as
 YAML to render the page — a checker that disagreed with it about what parses would fail reports the

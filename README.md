@@ -2,6 +2,11 @@
 
 [![CI](https://github.com/xfontr/monorepo/actions/workflows/ci.yml/badge.svg)](https://github.com/xfontr/monorepo/actions/workflows/ci.yml)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=xfontr_monorepo&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=xfontr_monorepo)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/cae76234-bf69-4487-9dee-505f9a006250/deploy-status)](https://app.netlify.com/projects/monorepo-idp/deploys)
+[![Developer Portal deploy](https://github.com/xfontr/monorepo/actions/workflows/developer-portal-deploy.yml/badge.svg)](https://github.com/xfontr/monorepo/actions/workflows/developer-portal-deploy.yml)
+[![Release](https://github.com/xfontr/monorepo/actions/workflows/release.yml/badge.svg)](https://github.com/xfontr/monorepo/actions/workflows/release.yml)
+[![Netlify deployment](https://github.com/xfontr/monorepo/actions/workflows/netlify-deployment.yml/badge.svg)](https://github.com/xfontr/monorepo/actions/workflows/netlify-deployment.yml)
+[![Known Vulnerabilities](https://snyk.io/test/github/xfontr/monorepo/badge.svg)](https://snyk.io/test/github/xfontr/monorepo)
 
 A pnpm + Nx monorepo hosting personal projects: Nuxt frontend(s), the shared packages they build
 on, and the supporting services they depend on.

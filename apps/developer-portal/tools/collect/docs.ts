@@ -85,7 +85,6 @@ const NO_DECISION_META: DecisionMeta = { status: null, decision: null, supersede
 export function decisionMetaOf(path: string, source: string): DecisionMeta {
     if (!DECISION_PATH.test(path)) return NO_DECISION_META;
 
-    // Unparseable frontmatter is `check-docs`'s problem to report, not the dashboard's to guess at.
     const fields = frontmatterFields(source);
 
     if (fields === null) return NO_DECISION_META;

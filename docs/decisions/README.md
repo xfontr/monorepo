@@ -78,8 +78,8 @@ field can express — that ambiguity is deliberate, the same read a stale change
 parses `## 🧭 Deliberately deferred`, and its Decisions section is built out of them: `status` is a
 count, a filter, a sort and a pill on the report itself, and `decision` is a filter plus a pill that
 shows only when it reads `superseded` — so this is the one part of a decision report with a reader
-other than a human on GitHub. `pnpm exec nx check-docs @monorepo/developer-portal` is what enforces that
-the values stay inside the vocabulary above, and it runs in CI.
+other than a human on GitHub. The decision types are covered by the portal's shared parsing and
+tests, while the generated documentation map remains the CI check for documentation drift.
 
 ## 🔗 Linking back
 
@@ -99,10 +99,6 @@ a record of what was actually found at the time. Two frontmatter fields carry th
 1. The new report is filed as usual, `decision: accepted`.
 2. The old report's frontmatter — and only its frontmatter — changes: `decision: superseded` and
    `supersededBy: <new-file>.md`.
-
-`check-docs` fails if `supersededBy` names a file that isn't a filed decision, or if it's set without
-`decision: superseded`, so a reversed decision can't silently keep reading as current on its own
-page.
 
 ## 🧭 Deliberately deferred
 

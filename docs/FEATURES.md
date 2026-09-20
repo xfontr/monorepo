@@ -35,7 +35,6 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm exec nx build-storybook @monorepo/ui` | [`packages/ui/package.json`](../packages/ui/package.json) | [`packages/ui/README.md`](../packages/ui/README.md) |
 | `pnpm exec nx nuxt-prepare @monorepo/developer-portal` | [`apps/developer-portal/package.json`](../apps/developer-portal/package.json) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
 | `pnpm exec nx collect @monorepo/developer-portal` | [`apps/developer-portal/package.json`](../apps/developer-portal/package.json) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
-| `pnpm exec nx check-docs @monorepo/developer-portal` | [`apps/developer-portal/package.json`](../apps/developer-portal/package.json) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
 | `pnpm exec nx preview @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `pnpm exec nx coverage @monorepo/scripts` | [`infrastructure/scripts/package.json`](../infrastructure/scripts/package.json) | [`infrastructure/scripts/README.md`](../infrastructure/scripts/README.md) |
