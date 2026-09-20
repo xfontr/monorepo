@@ -4,24 +4,21 @@ import { describe, expect, it } from "vitest";
 import IssueRow from "./IssueRow.vue";
 import type { Issue } from "#shared/issues.ts";
 
-const ButtonStub = defineComponent({
+const NuxtStub = defineComponent({
     props: {
         to: { type: String, default: undefined },
         label: { type: String, default: undefined },
         ariaLabel: { type: String, default: undefined },
     },
     setup(props, { slots }) {
-        return () => h(props.to ? "a" : "button", {
+        const tag = props.to ? "a" : props.label ? "span" : "button";
+
+        return () => h(tag, {
             "href": props.to,
             "target": props.to ? "_blank" : undefined,
             "aria-label": props.ariaLabel,
         }, props.label ?? slots.default?.());
     },
-});
-
-const BadgeStub = defineComponent({
-    props: { label: { type: String, default: "" } },
-    template: "<span>{{ label }}</span>",
 });
 
 const issue: Issue = {
@@ -37,7 +34,7 @@ const issue: Issue = {
 
 const mount = (props: { issue: Issue, compact?: boolean }) => mountSuspended(IssueRow, {
     props,
-    global: { stubs: { UIcon: true, UBadge: BadgeStub, UButton: ButtonStub } },
+    global: { stubs: { UIcon: true, UBadge: NuxtStub, UButton: NuxtStub } },
 });
 
 describe("IssueRow", () => {

@@ -6,10 +6,16 @@ import Page from "./issues.vue";
 const state = vi.hoisted(() => ({ read: null as { value: unknown } | null }));
 const reload = vi.fn().mockResolvedValue(undefined);
 mockNuxtImport("useIssues", () => () => ({ data: state.read, reload }));
-const Input = defineComponent({ props: { modelValue: String }, emits: ["update:modelValue"], template: "<input :value='modelValue' @input='$emit(\"update:modelValue\", $event.target.value)' />" });
-const Select = defineComponent({ props: { modelValue: String, items: Array }, emits: ["update:modelValue"], template: "<select :value='modelValue' @change='$emit(\"update:modelValue\", $event.target.value)'><option v-for='item in items' :value='item.value'>{{ item.label }}</option></select>" });
+const ControlStub = defineComponent({
+    props: {
+        modelValue: { type: String, default: "" },
+        items: { type: Array, default: () => [] },
+    },
+    emits: ["update:modelValue"],
+    template: "<input v-if='items.length === 0' :value='modelValue' @input='$emit(\"update:modelValue\", $event.target.value)' /><select v-else :value='modelValue' @change='$emit(\"update:modelValue\", $event.target.value)'><option v-for='item in items' :value='item.value'>{{ item.label }}</option></select>",
+});
 const global = { stubs: {
-    UDashboardPanel: { template: "<section><slot name='header' /><slot name='body' /></section>" }, UDashboardNavbar: { template: "<header><slot name='right' /></header>" }, UDashboardSidebarCollapse: true, UDashboardToolbar: { template: "<div><slot name='left' /><slot name='right' /></div>" }, UInput: Input, USelect: Select,
+    UDashboardPanel: { template: "<section><slot name='header' /><slot name='body' /></section>" }, UDashboardNavbar: { template: "<header><slot name='right' /></header>" }, UDashboardSidebarCollapse: true, UDashboardToolbar: { template: "<div><slot name='left' /><slot name='right' /></div>" }, UInput: ControlStub, USelect: ControlStub,
     UButton: { emits: ["click"], template: "<button @click='$emit(\"click\")' />" }, UCard: { template: "<article><slot name='header' /><slot /></article>" }, UAlert: { props: { title: String, description: String }, template: "<div>{{ title }} {{ description }}</div>" }, IssueRow: { props: { issue: Object }, template: "<div class='row'>{{ issue.title }}</div>" }, UIcon: true,
 } };
 

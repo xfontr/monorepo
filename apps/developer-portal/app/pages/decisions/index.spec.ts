@@ -8,11 +8,17 @@ const state = vi.hoisted(() => ({ reports: null as unknown }));
 mockNuxtImport("useSnapshot", () => () => ({ data: ref({ manifest: {} }) }));
 mockNuxtImport("useDecisionReports", () => () => state.reports);
 
-const Input = defineComponent({ props: { modelValue: String }, emits: ["update:modelValue"], template: "<input :value='modelValue' @input='$emit(\"update:modelValue\", $event.target.value)' />" });
-const Select = defineComponent({ props: { modelValue: String, items: Array }, emits: ["update:modelValue"], template: "<select :value='modelValue' @change='$emit(\"update:modelValue\", $event.target.value)'><option v-for='item in items' :value='item.value'>{{ item.label }}</option></select>" });
+const ControlStub = defineComponent({
+    props: {
+        modelValue: { type: String, default: "" },
+        items: { type: Array, default: () => [] },
+    },
+    emits: ["update:modelValue"],
+    template: "<input v-if='items.length === 0' :value='modelValue' @input='$emit(\"update:modelValue\", $event.target.value)' /><select v-else :value='modelValue' @change='$emit(\"update:modelValue\", $event.target.value)'><option v-for='item in items' :value='item.value'>{{ item.label }}</option></select>",
+});
 const global = { stubs: {
     UDashboardPanel: { template: "<section><slot name='header' /><slot name='body' /></section>" }, UDashboardNavbar: { template: "<header><slot name='right' /></header>" }, UDashboardSidebarCollapse: true, UDashboardToolbar: { template: "<div><slot name='left' /><slot name='right' /></div>" },
-    UInput: Input, USelect: Select, SnapshotAge: true, StatTile: { props: { label: String, value: [String, Number] }, template: "<div>{{ label }} {{ value }}</div>" }, UCard: { template: "<article><slot name='header' /><slot /></article>" }, StatusPill: { props: { label: String, hint: String }, template: "<span>{{ label }} {{ hint }}</span>" }, UIcon: true,
+    UInput: ControlStub, USelect: ControlStub, SnapshotAge: true, StatTile: { props: { label: String, value: [String, Number] }, template: "<div>{{ label }} {{ value }}</div>" }, UCard: { template: "<article><slot name='header' /><slot /></article>" }, StatusPill: { props: { label: String, hint: String }, template: "<span>{{ label }} {{ hint }}</span>" }, UIcon: true,
 } };
 
 const report = (id: string, status: DecisionReport["status"], decision: DecisionReport["decision"], title: string, updatedAt: string, supersededBy: string | null = null): DecisionReport => ({ path: `docs/decisions/${id}.md`, id, number: id.slice(0, 4), title, status, decision, supersededBy, updatedAt, words: 10 });
