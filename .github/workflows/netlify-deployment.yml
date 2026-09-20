@@ -30,7 +30,7 @@ jobs:
               with:
                   script: |
                       const sha = context.sha;
-                      const environment = "netlify-huella-legal";
+                      const environment = "huella-legal";
 
                       // Netlify's git integration deploys asynchronously after the push that
                       // triggers this workflow, so the matching deploy may not exist yet.
