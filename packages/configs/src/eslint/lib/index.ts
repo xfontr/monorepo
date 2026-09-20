@@ -5,7 +5,8 @@ import boundaries from "./boundaries.ts";
 import vitestConfig from "./vitest.ts";
 import baseIgnores from "./ignores.ts";
 import coreIsolation from "./coreIsolation.ts";
+import layerIsolation from "./layerIsolation.ts";
 
 const regexp: object = regexpPlugin.configs["flat/recommended"];
 
-export { stylistic, jsonc, boundaries, vitestConfig, baseIgnores, coreIsolation, regexp };
+export { stylistic, jsonc, boundaries, vitestConfig, baseIgnores, coreIsolation, layerIsolation, regexp };

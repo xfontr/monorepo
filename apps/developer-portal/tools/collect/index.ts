@@ -41,7 +41,7 @@ async function main(): Promise<void> {
 
     await write("projects", graph.value);
     artifacts.projects = { generatedAt, ok: true };
-    console.log(`✓ projects — ${graph.value.projects.length} projects, ${graph.value.edges.length} edges`);
+    console.log(`✓ projects — ${graph.value.projects.length} projects`);
 
     const coverage = await tryRun(() => collectCoverage(graph.value.projects, generatedAt));
 

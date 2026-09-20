@@ -8,9 +8,7 @@ import { git } from "../lib/run.ts";
 
 // Inline links only. Reference definitions and bare autolinks are not used anywhere in these docs.
 const LINK = /\[[^\]]*\]\((?<href>[^)\s]+)(?:\s+"[^"]*")?\)/g;
-const HEADING = /^#{1,3}[^\S\n]+(\S.*)$/gm;
-
-const DEFERRED = /^##\s+🧭\s/m;
+const HEADING = /^#{1,3}[^\S\n]+\S.*$/gm;
 
 const DECISION_PATH = /^docs\/decisions\/\d{4}-/;
 
@@ -99,7 +97,7 @@ export function decisionMetaOf(path: string, source: string): DecisionMeta {
     };
 }
 
-export async function collectDocs(projectRoots: string[], generatedAt: string): Promise<DocsArtifact> {
+export async function collectDocs(_projectRoots: string[], generatedAt: string): Promise<DocsArtifact> {
     const paths = (await git(["ls-files", "--cached", "--others", "--exclude-standard", "--", "*.md"]))
         .split("\n")
         .filter(Boolean);
@@ -112,7 +110,7 @@ export async function collectDocs(projectRoots: string[], generatedAt: string): 
 
         const source = await readFile(absolute, "utf8");
 
-        const headings = [...source.matchAll(HEADING)].map((match) => (match[1] ?? "").trim());
+        const title = source.match(HEADING)?.[0]?.replace(/^#{1,3}\s+/, "");
         const brokenLinks: DocLink[] = [];
 
         for (const match of source.matchAll(LINK)) {
@@ -130,13 +128,10 @@ export async function collectDocs(projectRoots: string[], generatedAt: string): 
 
         pages.push({
             path,
-            project: projectRoots.find((root) => path.startsWith(`${root}/`)) ?? null,
             kind: kindOf(path),
-            title: headings[0] ?? path,
-            headings: headings.slice(1),
+            title: title?.trim() ?? path,
             words: source.split(/\s+/).filter(Boolean).length,
             updatedAt: updatedAt || null,
-            deferred: DEFERRED.test(source),
             decisionStatus: decisionMeta.status,
             decisionOutcome: decisionMeta.decision,
             decisionSupersededBy: decisionMeta.supersededBy,

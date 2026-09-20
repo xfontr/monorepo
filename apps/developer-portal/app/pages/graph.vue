@@ -1,8 +1,9 @@
 <script setup lang="ts">
-const { data: snapshot } = await useSnapshot();
+const { data: snapshot } = await useSnapshot("projects");
+const { data: metricsSnapshot } = await useSnapshot("metrics");
 
 const projects = computed(() => snapshot.value?.projects?.projects ?? []);
-const findings = computed(() => snapshot.value?.metrics?.invariantFindings ?? []);
+const findings = computed(() => metricsSnapshot.value?.metrics?.invariantFindings ?? []);
 
 const graphEmbed = embedUrl("/embed/graph/index.html");
 </script>

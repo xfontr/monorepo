@@ -3,11 +3,11 @@ import type { NavigationMenuItem } from "@nuxt/ui";
 
 const { data: issues } = useIssues();
 const { data: reviews } = await useReviewPages();
-const { data: snapshot } = await useSnapshot();
+const { data: badges } = await useFetch<{ advisories: number }>("/api/badges", { key: "badges" });
 const { public: { repoUrl } } = useRuntimeConfig();
 
 const open = computed(() => issues.value.issues.length);
-const advisories = computed(() => snapshot.value?.deps?.advisories.length ?? 0);
+const advisories = computed(() => badges.value?.advisories ?? 0);
 
 const links = computed<NavigationMenuItem[][]>(() => [
     [

@@ -1,4 +1,4 @@
-import type { Issue } from "./types.ts";
+import { repoApiUrl } from "./github.ts";
 
 const FENCE = /```[\s\S]*?```/g;
 const HTML_COMMENT = /<!--[\s\S]*?-->/g;
@@ -6,6 +6,18 @@ const LINK = /\[([^\]]*)\]\([^)]*\)/g;
 const CHECKBOX = /^\s*[-*]\s+\[[ x]\]\s*/gim;
 const BULLET = /^\s*[-*>#]+\s*/gm;
 const EMPHASIS = /[*_`~]+/g;
+
+/** One open issue normalized from the browser-side GitHub read. */
+export interface Issue {
+    number: number
+    title: string
+    body: string
+    url: string
+    labels: string[]
+    assignees: string[]
+    createdAt: string
+    updatedAt: string
+}
 
 /**
  * An issue body is markdown written for GitHub — headings, task lists, a fenced repro. A row shows
@@ -86,25 +98,15 @@ export function toIssues(payload: GithubIssue[]): Issue[] {
     return payload.filter((item) => item.pull_request === undefined).map(toIssue);
 }
 
-/**
- * GitHub's REST host is the repo's own with `api.` in front, so no vendor endpoint is written down.
- * Null when the variable is unset or names no repo, which the page renders as a failure.
- */
 export function issuesApiUrl(repoUrl: string): string | null {
-    let url: URL;
+    return repoApiUrl(repoUrl, "issues");
+}
 
-    try {
-        url = new URL(repoUrl);
-    }
-    catch {
-        return null;
-    }
-
-    const [owner, repo] = url.pathname.split("/").filter(Boolean);
-
-    if (owner === undefined || repo === undefined) return null;
-
-    return `${url.protocol}//api.${url.host}/repos/${owner}/${repo.replace(/\.git$/, "")}/issues`;
+/** The browser-side GitHub read, including a displayable error when it could not complete. */
+export interface IssuesRead {
+    fetchedAt: string
+    error: string | null
+    issues: Issue[]
 }
 
 export function sortIssues(issues: Issue[]): Issue[] {

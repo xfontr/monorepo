@@ -1,8 +1,8 @@
-import type { IssuesArtifact } from "#shared/types.ts";
+import type { IssuesRead } from "#shared/issues.ts";
 import type { GithubIssue } from "#shared/issues.ts";
 import { issuesApiUrl, toIssues } from "#shared/issues.ts";
 
-const NO_ISSUES: IssuesArtifact = { fetchedAt: "", error: null, issues: [] };
+const NO_ISSUES: IssuesRead = { fetchedAt: "", error: null, issues: [] };
 
 const PER_PAGE = 100;
 
@@ -14,7 +14,7 @@ function messageOf(cause: unknown): string {
     return cause instanceof Error ? cause.message.slice(0, 300) : "GitHub could not be read";
 }
 
-async function read(repoUrl: string): Promise<IssuesArtifact> {
+async function read(repoUrl: string): Promise<IssuesRead> {
     const fetchedAt = new Date().toISOString();
     const url = issuesApiUrl(repoUrl);
 
@@ -33,7 +33,7 @@ async function read(repoUrl: string): Promise<IssuesArtifact> {
 export function useIssues() {
     const { public: { repoUrl } } = useRuntimeConfig();
 
-    const state = useAsyncData<IssuesArtifact>("issues", () => read(repoUrl), {
+    const state = useAsyncData<IssuesRead>("issues", () => read(repoUrl), {
         default: () => NO_ISSUES,
         server: false, // A baked issue list would ship as old as the deploy.
     });

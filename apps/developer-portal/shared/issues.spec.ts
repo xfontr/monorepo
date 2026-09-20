@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { Issue } from "./types.ts";
 import { filterIssues, issuesApiUrl, labelsOf, sortIssues, summarize, toIssues } from "./issues.ts";
+import type { Issue } from "./issues.ts";
 
 function issueOf(overrides: Partial<Issue>): Issue {
     return {

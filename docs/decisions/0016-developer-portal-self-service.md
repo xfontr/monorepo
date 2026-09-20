@@ -74,7 +74,7 @@ a design choice written in prose, not an enforced boundary.
 
 **What blocks it is that the deployed site is frozen at build time.** The mechanism is sharper than
 "there is no server": a prerendered route *is* answered, once, during the build, and then baked into
-the payload — [`snapshot.get.ts`](../../apps/developer-portal/server/api/snapshot.get.ts) is served exactly
+the payload — [`[artifact].get.ts`](../../apps/developer-portal/server/api/snapshot/[artifact].get.ts) is served exactly
 that way. A route whose whole purpose is to compute something when the reader asks has nowhere to
 run. So "does it need a credential" needs a second axis beside it, and the second one reorders the
 original list:

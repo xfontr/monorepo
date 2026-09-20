@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toTitleCase } from "#shared/wiki.ts";
 
-const { data: snapshot } = await useSnapshot();
+const { data: snapshot } = await useSnapshot("metrics");
 
 const { data: changelogs } = await useAsyncData("changelogs", () =>
     queryCollection("docs")

@@ -2,17 +2,29 @@
 import { sortIssues } from "#shared/issues.ts";
 import { toCollectionPath } from "#shared/wiki.ts";
 
-const { data: snapshot } = await useSnapshot();
+const [
+    { data: projectsSnapshot },
+    { data: coverageSnapshot },
+    { data: docsSnapshot },
+    { data: depsSnapshot },
+    { data: metricsSnapshot },
+] = await Promise.all([
+    useSnapshot("projects"),
+    useSnapshot("coverage"),
+    useSnapshot("docs"),
+    useSnapshot("deps"),
+    useSnapshot("metrics"),
+]);
 const { data: issues } = await useIssues();
 const { data: reviews } = await useReviewPages();
 
 const open = computed(() => issues.value.issues.length);
 
-const coverage = computed(() => snapshot.value?.coverage?.totals?.lines ?? null);
-const projects = computed(() => snapshot.value?.projects?.projects.length ?? 0);
-const docs = computed(() => snapshot.value?.docs ?? null);
+const coverage = computed(() => coverageSnapshot.value?.coverage?.totals?.lines ?? null);
+const projects = computed(() => projectsSnapshot.value?.projects?.projects.length ?? 0);
+const docs = computed(() => docsSnapshot.value?.docs ?? null);
 
-const deps = computed(() => snapshot.value?.deps ?? null);
+const deps = computed(() => depsSnapshot.value?.deps ?? null);
 const advisories = computed(() => deps.value?.advisories.length ?? 0);
 
 /** The tile shows one number, so it takes the tone of the worst band rather than the total count. */
@@ -24,7 +36,7 @@ const worstSeverity = computed(() => {
     return (["critical", "high", "moderate", "low", "info"] as const).find((severity) => counts[severity] > 0) ?? null;
 });
 
-const findings = computed(() => snapshot.value?.metrics?.invariantFindings ?? []);
+const findings = computed(() => metricsSnapshot.value?.metrics?.invariantFindings ?? []);
 
 /** Only the pages that actually have one — a list of every doc with zero broken links is a wall. */
 const broken = computed(() => docs.value?.pages.filter((page) => page.brokenLinks.length > 0) ?? []);
@@ -40,7 +52,7 @@ const next = computed(() => sortIssues(issues.value.issues).slice(0, 6));
                     <UDashboardSidebarCollapse />
                 </template>
                 <template #right>
-                    <SnapshotAge :manifest="snapshot?.manifest ?? null" />
+                    <SnapshotAge :manifest="docsSnapshot?.manifest ?? null" />
                 </template>
             </UDashboardNavbar>
         </template>

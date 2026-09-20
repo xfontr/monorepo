@@ -1,5 +1,46 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { resolve } from "node:path";
+import { WORKSPACE_ROOT } from "../lib/paths.ts";
+import { collectDocs } from "./docs.ts";
 import { decisionMetaOf } from "./docs.ts";
+
+const state = vi.hoisted(() => ({
+    files: new Set<string>(),
+    paths: [] as string[],
+    sources: new Map<string, string>(),
+    updatedAt: new Map<string, string>(),
+}));
+const fs = vi.hoisted(() => ({ access: vi.fn(), readFile: vi.fn() }));
+const run = vi.hoisted(() => ({ git: vi.fn() }));
+
+vi.mock("node:fs/promises", () => fs);
+vi.mock("../lib/run.ts", () => run);
+
+function addFile(path: string, source: string, updatedAt = "2026-09-20T10:00:00Z"): void {
+    const absolute = resolve(WORKSPACE_ROOT, path);
+    state.files.add(absolute);
+    state.sources.set(absolute, source);
+    state.updatedAt.set(path, updatedAt);
+}
+
+beforeEach(() => {
+    vi.clearAllMocks();
+    state.files.clear();
+    state.paths = [];
+    state.sources.clear();
+    state.updatedAt.clear();
+    fs.access.mockImplementation(async (path: string) => {
+        if (!state.files.has(path)) throw new Error("missing");
+    });
+    fs.readFile.mockImplementation(async (path: string) => state.sources.get(path) ?? "");
+    run.git.mockImplementation(async (args: string[]) => {
+        if (args[0] === "ls-files") return state.paths.join("\n");
+
+        const path = args.at(-1) as string;
+
+        return state.updatedAt.get(path) ?? "";
+    });
+});
 
 const frontmatter = (body: string): string => `---\n${body}\n---\n\n# 🧭 A title\n`;
 
@@ -35,5 +76,78 @@ describe("decisionMetaOf", () => {
         const source = frontmatter("issue: 40\nstatus: done\ndecision: accepted");
 
         expect(decisionMetaOf("docs/decisions/0002-docs-drift-detection.md", source).status).toBeNull();
+    });
+});
+
+describe("collectDocs", () => {
+    it("collects only tracked and unignored markdown paths with titles, fallback names and timestamps", async () => {
+        const files = [
+            ["README.md", "# Workspace\n"],
+            ["AGENTS.md", "## Agent guidance\n"],
+            [".agents/skills/example/SKILL.md", "# Skill\n"],
+            ["packages/ui/CHANGELOG.md", "# Changelog\n"],
+            ["docs/reviews/2026-09-20-abc123.md", "# Review\n"],
+            ["docs/decisions/0001-first.md", "# Decision\n"],
+            ["docs/guides/no-heading.md", "word word\n"],
+            ["docs/README.md", "# Docs\n"],
+        ] as const;
+        files.forEach(([path, source], index) => addFile(path, source, `2026-09-${String(index + 1).padStart(2, "0")}T10:00:00Z`));
+        state.paths = [...files.map(([path]) => path), "docs/ignored.md"];
+
+        const result = await collectDocs([], "now");
+
+        expect(result.pages.map((page) => page.path)).toEqual(files.map(([path]) => path).sort((a, b) => a.localeCompare(b)));
+        expect(result.pages.find((page) => page.path === "README.md")).toMatchObject({ kind: "readme", title: "Workspace", updatedAt: "2026-09-01T10:00:00Z" });
+        expect(result.pages.find((page) => page.path === "AGENTS.md")).toMatchObject({ kind: "agent", title: "Agent guidance" });
+        expect(result.pages.find((page) => page.path === ".agents/skills/example/SKILL.md")).toMatchObject({ kind: "skill", title: "Skill" });
+        expect(result.pages.find((page) => page.path === "packages/ui/CHANGELOG.md")).toMatchObject({ kind: "changelog" });
+        expect(result.pages.find((page) => page.path === "docs/reviews/2026-09-20-abc123.md")).toMatchObject({ kind: "review" });
+        expect(result.pages.find((page) => page.path === "docs/decisions/0001-first.md")).toMatchObject({ kind: "decision" });
+        expect(result.pages.find((page) => page.path === "docs/guides/no-heading.md")).toMatchObject({ kind: "doc", title: "docs/guides/no-heading.md", words: 2 });
+        expect(result.pages.find((page) => page.path === "docs/README.md")).toMatchObject({ kind: "doc" });
+        expect(result.pages).toHaveLength(files.length);
+    });
+
+    it("counts missing relative targets while excluding external, anchor, mailto, placeholder and existing-directory links", async () => {
+        addFile("docs/source.md", [
+            "# Source",
+            "[valid](./target.md)",
+            "[extensionless](./target)",
+            "[missing](./gone.md)",
+            "[external](https://example.test)",
+            "[anchor](#section)",
+            "[mail](mailto:docs@example.test)",
+            "[placeholder](<file>.md)",
+            "[directory](../packages/ui)",
+        ].join("\n"));
+        addFile("docs/target.md", "# Target\n");
+        addFile("packages/ui/README.md", "# UI\n");
+        addFile("packages/ui", "");
+        state.paths = ["docs/source.md"];
+
+        const result = await collectDocs([], "now");
+        const page = result.pages[0];
+
+        expect(page?.brokenLinks).toEqual([{ href: "./gone.md", resolved: "docs/gone.md" }]);
+        expect(result.brokenLinkCount).toBe(1);
+    });
+
+    it("parses decision metadata only for numbered decision reports", async () => {
+        addFile("docs/decisions/0002-superseded.md", frontmatter("issue: 2\nstatus: implemented\ndecision: superseded\nsupersededBy: 0003-new.md"));
+        addFile("docs/decisions/README.md", frontmatter("status: implemented\ndecision: accepted"));
+        state.paths = ["docs/decisions/0002-superseded.md", "docs/decisions/README.md"];
+
+        const result = await collectDocs([], "now");
+
+        expect(result.pages.find((page) => page.path.includes("0002"))).toMatchObject({
+            decisionStatus: "implemented",
+            decisionOutcome: "superseded",
+            decisionSupersededBy: "0003-new.md",
+        });
+        expect(result.pages.find((page) => page.path.endsWith("decisions/README.md"))).toMatchObject({
+            decisionStatus: null,
+            decisionOutcome: null,
+            decisionSupersededBy: null,
+        });
     });
 });
