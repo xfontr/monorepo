@@ -11,23 +11,38 @@ const count = computed(() => sections.value.reduce(
     0,
 ));
 
-/**
- * A wiki's front page is the one page that has to be opinionated: everything else is reachable from
- * the tree on the left, so this says where to *start*. The four are the ordered answer to "I have
- * never seen this repo" — what it is, how to work in it, what it can do, what to run first.
- */
-const START = [
-    { path: "/readme", label: "The repo", hint: "Layout, boundaries, commands", icon: "i-lucide-map" },
-    { path: "/agents", label: "Working here", hint: "The rules that get got wrong", icon: "i-lucide-bot" },
-    { path: "/docs/features", label: "Features", hint: "Every command, hook and skill", icon: "i-lucide-list-tree" },
-    { path: "/docs/guides/first-hour", label: "First hour", hint: "An ordered way in", icon: "i-lucide-play" },
+const START_GROUPS = [
+    {
+        label: "Explore",
+        items: [
+            { to: "/docs/readme", label: "Repository overview", hint: "What this monorepo contains", icon: "i-lucide-map" },
+            { to: "/projects", label: "Project catalog", hint: "Applications, packages, and tooling", icon: "i-lucide-boxes" },
+        ],
+    },
+    {
+        label: "Understand",
+        items: [
+            { to: "/docs/docs/concepts/boundaries", label: "Architecture and boundaries", hint: "How projects are allowed to depend", icon: "i-lucide-git-branch" },
+            { to: "/graph", label: "Architecture view", hint: "How the collected projects fit together", icon: "i-lucide-git-fork" },
+        ],
+    },
+    {
+        label: "Contribute",
+        items: [
+            { to: "/docs/docs/guides/first-hour", label: "First hour", hint: "An ordered way into the repository", icon: "i-lucide-play" },
+        ],
+    },
 ];
 
 const known = computed(() => new Set(sections.value.flatMap((section) =>
     section.groups.flatMap((group) => group.entries.map((entry) => entry.path)))));
 
-/** A curated list is the one thing here that can rot; a renamed doc drops off it rather than 404s. */
-const start = computed(() => START.filter((entry) => known.value.has(entry.path)));
+const startGroups = computed(() => START_GROUPS
+    .map((group) => ({
+        ...group,
+        items: group.items.filter((entry) => !entry.to.startsWith("/docs/") || known.value.has(entry.to.slice("/docs".length))),
+    }))
+    .filter((group) => group.items.length > 0));
 
 const recent = computed(() => pages.value
     .filter((page) => page.updatedAt !== null && known.value.has(toCollectionPath(page.path)))
@@ -68,20 +83,31 @@ const broken = computed(() => pages.value.filter((page) => page.brokenLinks.leng
                         </p>
                     </div>
 
-                    <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
-                        <NuxtLink
-                            v-for="entry in start"
-                            :key="entry.path"
-                            :to="`/docs${entry.path}`"
-                            class="flex flex-col gap-1 rounded-lg border border-default bg-default p-4 hover:bg-elevated/50 transition-colors"
+                    <div class="flex flex-col gap-5">
+                        <section
+                            v-for="group in startGroups"
+                            :key="group.label"
+                            class="flex flex-col gap-2"
                         >
-                            <UIcon
-                                :name="entry.icon"
-                                class="size-4 text-primary"
-                            />
-                            <span class="text-sm font-medium">{{ entry.label }}</span>
-                            <span class="text-xs text-dimmed">{{ entry.hint }}</span>
-                        </NuxtLink>
+                            <h2 class="text-sm font-semibold">
+{{ group.label }}
+</h2>
+                            <div class="grid sm:grid-cols-2 gap-3">
+                                <NuxtLink
+                                    v-for="entry in group.items"
+                                    :key="entry.to"
+                                    :to="entry.to"
+                                    class="flex flex-col gap-1 rounded-lg border border-default bg-default p-4 hover:bg-elevated/50 transition-colors"
+                                >
+                                    <UIcon
+:name="entry.icon"
+class="size-4 text-primary"
+/>
+                                    <span class="text-sm font-medium">{{ entry.label }}</span>
+                                    <span class="text-xs text-dimmed">{{ entry.hint }}</span>
+                                </NuxtLink>
+                            </div>
+                        </section>
                     </div>
 
                     <UAlert

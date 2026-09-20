@@ -9,37 +9,48 @@ const { public: { repoUrl } } = useRuntimeConfig();
 const open = computed(() => issues.value.issues.length);
 const advisories = computed(() => badges.value?.advisories ?? 0);
 
-const links = computed<NavigationMenuItem[][]>(() => [
-    [
-        { label: "Overview", icon: "i-lucide-layout-dashboard", to: "/" },
-        { label: "Wiki", icon: "i-lucide-library", to: "/docs" },
-        { label: "Decisions", icon: "i-lucide-compass", to: "/decisions" },
-        {
-            label: "Reviews",
-            icon: "i-lucide-clipboard-check",
-            to: "/reviews",
-            badge: reviews.value.length === 0 ? undefined : String(reviews.value.length),
-        },
-        { label: "Changelog", icon: "i-lucide-tag", to: "/changelog" },
-    ],
-    [
-        { label: "Scorecards", icon: "i-lucide-target", to: "/scorecards" },
-        { label: "Projects", icon: "i-lucide-boxes", to: "/projects" },
-        { label: "Coverage", icon: "i-lucide-shield-check", to: "/coverage" },
-        {
-            label: "Dependencies",
-            icon: "i-lucide-shield-alert",
-            to: "/deps",
-            badge: advisories.value === 0 ? undefined : String(advisories.value),
-        },
-        { label: "Graph", icon: "i-lucide-git-fork", to: "/graph" },
-        {
-            label: "Issues",
-            icon: "i-lucide-circle-dot",
-            to: "/issues",
-            badge: open.value === 0 ? undefined : String(open.value),
-        },
-    ],
+const navGroups = computed<{ label: string, items: NavigationMenuItem[] }[]>(() => [
+    {
+        label: "Explore",
+        items: [
+            { label: "Overview", icon: "i-lucide-layout-dashboard", to: "/" },
+            { label: "Projects", icon: "i-lucide-boxes", to: "/projects" },
+            { label: "What's new", icon: "i-lucide-tag", to: "/changelog" },
+        ],
+    },
+    {
+        label: "Build",
+        items: [
+            { label: "Documentation", icon: "i-lucide-library", to: "/docs" },
+            { label: "Architecture", icon: "i-lucide-git-fork", to: "/graph" },
+            { label: "Decisions", icon: "i-lucide-compass", to: "/decisions" },
+        ],
+    },
+    {
+        label: "Engineering health",
+        items: [
+            {
+                label: "Work in progress",
+                icon: "i-lucide-circle-dot",
+                to: "/issues",
+                badge: open.value === 0 ? undefined : String(open.value),
+            },
+            { label: "Coverage", icon: "i-lucide-shield-check", to: "/coverage" },
+            {
+                label: "Dependencies",
+                icon: "i-lucide-shield-alert",
+                to: "/deps",
+                badge: advisories.value === 0 ? undefined : String(advisories.value),
+            },
+            {
+                label: "Reviews",
+                icon: "i-lucide-clipboard-check",
+                to: "/reviews",
+                badge: reviews.value.length === 0 ? undefined : String(reviews.value.length),
+            },
+            { label: "Scorecards", icon: "i-lucide-target", to: "/scorecards" },
+        ],
+    },
 ]);
 
 const searchOpen = ref(false);
@@ -86,7 +97,7 @@ const searchGroups = computed(() => [{
                     <span
                         v-if="!collapsed"
                         class="font-semibold truncate"
-                    >Developer Portal</span>
+                    >Monorepo</span>
                 </NuxtLink>
             </template>
 
@@ -96,13 +107,23 @@ const searchGroups = computed(() => [{
                     class="bg-transparent ring-default"
                 />
 
-                <UNavigationMenu
-                    v-for="(group, index) in links"
-                    :key="index"
-                    :items="group"
-                    :collapsed="collapsed"
-                    orientation="vertical"
-                />
+                <div
+                    v-for="group in navGroups"
+                    :key="group.label"
+                    class="flex flex-col gap-1"
+                >
+                    <p
+                        v-if="!collapsed"
+                        class="px-2 pt-3 text-xs font-semibold text-dimmed"
+                    >
+                        {{ group.label }}
+                    </p>
+                    <UNavigationMenu
+                        :items="group.items"
+                        :collapsed="collapsed"
+                        orientation="vertical"
+                    />
+                </div>
             </template>
 
             <template #footer="{ collapsed }">

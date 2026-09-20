@@ -60,6 +60,11 @@ function idOf(path: string): string {
                 v-else
                 class="flex flex-col gap-4"
             >
+                <p class="text-sm text-muted max-w-3xl">
+                    Scorecards summarize dated repository reviews as transparent engineering assessments, not live
+                    product ratings. Their values come from the review files and are not recomputed in the browser.
+                </p>
+
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
                     <StatTile
                         label="Total"

@@ -16,7 +16,7 @@ on, and the supporting services they depend on.
 ```
 apps/
     huella-legal/     @monorepo/huella-legal — Huella Legal, a WIP law blog redesign (Nuxt 4)
-    developer-portal/ @monorepo/developer-portal — internal developer portal over this repo's docs and metrics
+    developer-portal/ @monorepo/developer-portal — the repository's public portal/front door over its docs, projects, architecture and engineering health
 packages/
     configs/          @monorepo/configs — shared ESLint, Vitest and tsconfig presets
     content/          @monorepo/content — CMS entries and taxonomies + a Nuxt module
@@ -124,7 +124,7 @@ use `pnpm exec nx run-many -t <target>`.
 | `pnpm test:coverage` | Test the **whole workspace** with a V8 coverage report, then merge every project's into one browsable [`coverage/index.html`](./infrastructure/scripts/src/coverage-report/README.md) |
 | `pnpm build` | Build affected projects |
 | `pnpm graph` | Open the Nx project graph |
-| `pnpm dev developer-portal` | Start [`@monorepo/developer-portal`](./apps/developer-portal/README.md), the internal developer portal over this repo's markdown, coverage, graph and issues |
+| `pnpm dev developer-portal` | Start [`@monorepo/developer-portal`](./apps/developer-portal/README.md), the repository's public portal/front door over its docs, projects, architecture and engineering health |
 | `pnpm exec nx collect @monorepo/developer-portal` | Rebuild the snapshot that developer-portal reads |
 | `pnpm agents:sync` | Render ignored Claude adapters from canonical `AGENTS.md` files and `.agents/skills/`; `--check` reports local drift |
 | `pnpm docs:map` | Re-render [`docs/FEATURES.md`](./docs/FEATURES.md); `--check` asserts it is current |

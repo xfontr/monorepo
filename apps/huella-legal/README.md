@@ -1,8 +1,7 @@
 # 📦 @monorepo/huella-legal
 
-Huella Legal — a work in progress redesigning a law blog. It's a Nuxt 4 app that composes the
-shared packages (`@monorepo/ui`, `@monorepo/i18n`, `@monorepo/content`, `@monorepo/observability`)
-and keeps its own feature code in [layers](#-structure).
+A Nuxt 4 redesign of the Huella Legal law blog, composed from the workspace's shared UI, content,
+translations and observability packages.
 
 ## 🚀 Development
 
@@ -32,7 +31,7 @@ The app ships through Netlify's own git integration — there is no `netlify.tom
 deploy step in this repo. [`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml)
 builds and deploys nothing itself: once Netlify's own pipeline publishes a commit, it polls
 Netlify's Deploys API for that commit and records a GitHub Deployment against the
-`netlify-huella-legal` environment, so the live URL shows up on the repo's Deployments page
+`huella-legal` environment, so the live URL shows up on the repo's Deployments page
 alongside `developer-portal` instead of only in Netlify's own dashboard.
 
 The site ID and auth token never enter this repo: `NETLIFY_SITE_ID` is a GitHub Actions repo

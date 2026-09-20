@@ -11,7 +11,7 @@ const fs = vi.hoisted(() => ({
 
 vi.mock("node:fs/promises", () => fs);
 
-import { collectCoverage } from "./coverage.ts";
+import { collectCoverage, readSummary } from "./coverage.ts";
 
 const projects: ProjectNode[] = [
     { name: "alpha", root: "packages/alpha", tags: [], dependsOn: [], dependedOnBy: [] },
@@ -45,6 +45,43 @@ describe("collectCoverage", () => {
             root: "packages/beta",
             collected: false,
             files: 0,
+        });
+    });
+
+    it("derives coverage metrics when only the final coverage map exists", async () => {
+        const final = {
+            "/workspace/packages/alpha/src/index.ts": {
+                statementMap: {
+                    0: { start: { line: 1 }, end: { line: 1 } },
+                    1: { start: { line: 2 }, end: { line: 2 } },
+                    2: { start: { line: 3 }, end: { line: 3 } },
+                },
+                s: { 0: 1, 1: 0, 2: 2 },
+                f: {},
+                b: {},
+            },
+            "/workspace/packages/alpha/src/other.ts": {
+                statementMap: {
+                    0: { start: { line: 1 }, end: { line: 1 } },
+                },
+                s: { 0: 1 },
+                f: {},
+                b: {},
+            },
+        };
+        fs.readFile.mockImplementation(async (path: string) => {
+            if (path.endsWith("coverage-summary.json")) throw new Error("summary missing");
+
+            return JSON.stringify(final);
+        });
+
+        const result = await collectCoverage([projects[0]!], "now", readSummary);
+
+        expect(result.projects[0]).toMatchObject({
+            collected: true,
+            files: 2,
+            lines: { total: 4, covered: 3, pct: 75 },
+            statements: { total: 4, covered: 3, pct: 75 },
         });
     });
 

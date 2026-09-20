@@ -82,15 +82,6 @@ function idOf(path: string): string {
                         </div>
                     </UCard>
 
-                    <UAlert
-                        color="neutral"
-                        variant="subtle"
-                        icon="i-lucide-info"
-                        title="A review is a dated snapshot"
-                        description="Nothing here is recomputed — this is the file the repo-review skill wrote. The scorecards page reads the same numbers back out of it for a dashboard view."
-                        :ui="{ description: 'text-xs' }"
-                    />
-
                     <UButton
                         to="/scorecards"
                         label="Scorecards"
@@ -113,6 +104,15 @@ function idOf(path: string): string {
                 </div>
 
                 <UCard class="lg:col-span-3">
+                    <UAlert
+                        color="neutral"
+                        variant="subtle"
+                        icon="i-lucide-info"
+                        title="A review is a dated assessment"
+                        description="This transparent engineering assessment records the repository at a specific date and commit; it is not recomputed live. The scorecards page presents the same recorded numbers in dashboard form."
+                        :ui="{ description: 'text-xs' }"
+                    />
+
                     <ContentRenderer
                         v-if="page"
                         :value="page"

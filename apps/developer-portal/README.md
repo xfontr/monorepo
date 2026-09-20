@@ -1,16 +1,31 @@
-# 🩺 @monorepo/developer-portal
+# 📦 @monorepo/developer-portal
 
-⚠️ This is a fully vibe-coded app, with barely no human intervention. Why: it's purely a DX tool. I do not have the resources to properly build and maintain this, so I went for the quick and easy shortcut.
+A read-only portal for exploring the monorepo's projects, documentation, architecture and engineering
+health. It gives newcomers a clear starting point while keeping deeper developer views close by.
 
-The repo's internal developer portal (IDP). It renders every markdown file in the workspace as a wiki — READMEs,
-`AGENTS.md`s, the [`docs/`](../../docs/README.md) tree, the reviews, the changelogs — beside the
-things that are not written down anywhere: coverage, the project graph, the open GitHub issues,
-which two files have stopped agreeing.
+It renders every markdown file in the workspace as a wiki — READMEs, `AGENTS.md`s, the
+[`docs/`](../../docs/README.md) tree, reviews and changelogs — beside the things that are not written
+down anywhere: coverage, the project graph, open GitHub issues and which two files have stopped agreeing.
 
 It runs two ways. `pnpm dev developer-portal` reads the working tree and shells out to `git`, so it shows
 the branch you are on; the deployed site is a prerendered snapshot of `master`, published by
 [`developer-portal-deploy.yml`](../../.github/workflows/developer-portal-deploy.yml) — see
 [🚢 The deployed site is a snapshot](#-the-deployed-site-is-a-snapshot).
+
+## 🧭 The public entry points
+
+The interface starts with three public intents, using ordinary language before repository-specific
+terms.
+
+| Intent | Starts with |
+| --- | --- |
+| Explore what exists | Overview, Projects and What's new |
+| Understand how it works | Documentation, Architecture and Decisions |
+| Run or contribute | The first-hour guide and the repository documentation |
+
+Engineering health remains available after that introduction: the homepage places it below the featured
+projects, and the sidebar keeps it as the final group. Coverage, dependencies, reviews, scorecards and
+work in progress remain directly addressable without creating a second application or navigation tree.
 
 ## 🗂 Structure
 
@@ -35,11 +50,14 @@ that.
 
 | Page | Reads |
 | --- | --- |
-| Wiki | Every non-ignored `*.md`, arranged as a tree — see [🧭 The wiki](#-the-wiki) |
-| Projects | The collected Nx graph joined to collect-time project metrics, with live deployment state |
+| Documentation | Every non-ignored `*.md`, arranged as a tree — see [🧭 Documentation is a wiki](#-documentation-is-a-wiki) |
+| Architecture | The collected Nx graph, its plain-language relationships and the vendored detailed graph under `public/embed/graph/` |
+| Projects | The collected Nx graph joined to collect-time project metrics, with deployment state read live |
 | Decisions | `docs/decisions/NNNN-<slug>.md` — the files the `decision-report` skill writes, see [🔬 Decisions are their own section](#-decisions-are-their-own-section) |
 | Reviews | `docs/reviews/YYYY-MM-DD-<sha>.md` — the files the `repo-review` skill writes |
-| Changelog | Every `CHANGELOG.md`, beside its unreleased-commit count |
+| Work in progress | Open issues read from GitHub in the browser |
+| What's new | Every `CHANGELOG.md`, beside its unreleased-commit count |
+| Engineering health | Coverage, dependencies, reviews, scorecards and collected repository findings |
 
 `@nuxt/content` lower-cases every route, so `packages/ui/README.md` is served at
 `/packages/ui/readme` while the collector keys the same file as `packages/ui/README.md`. Anything
@@ -78,14 +96,14 @@ to a *missing* file is still a real defect, and
 
 A review's markdown is rendered as-is here, exactly like every other doc — nothing about it is
 recomputed. **Scorecards** is the one exception, and a narrow one: `tools/collect/scorecards.ts`
-parses each review's own `## 🧮 Scores` table and shows the numbers as tiles and a sortable table
+parses each review's own `## 🧮 Scores` table and shows the numbers as tiles and a table
 instead of a raw markdown table, but every figure is copied verbatim out of the file `repo-review`
 already wrote — nothing here re-scores or re-derives a total. That only stays honest because the
 table has one shape across every review: the seven cards `SCORECARDS.md` lists, in that order, each
 `n/5`. The `repo-review` skill is told to keep it that way, and
 [`compareScorecardShape`](./tools/lib/invariants.ts) is what notices the day a review doesn't.
 
-## 🧭 The wiki
+## 🧭 Documentation is a wiki
 
 The docs half is a wiki, not a file listing: a tree on the left that stays put while you read, a
 breadcrumb, and prev/next within the group you are in. [`shared/wiki.ts`](./shared/wiki.ts) derives
@@ -138,9 +156,9 @@ warn for `to-implement`, neutral for `wont-implement`. A second, independent pil
 snapshot, so a report filed since the last `collect` renders at its own URL but is missing from the
 list — which is the same staleness every other page here has, shown by the same timestamp.
 
-## 🐙 Issues come from GitHub, not from here
+## 🐙 Work in progress comes from GitHub, not from here
 
-The Issues page reads `api.github.com` from the reader's own browser and renders what comes back.
+The Work in progress page reads `api.github.com` from the reader's own browser and renders what comes back.
 There is no local copy, no `log/`, no schema: an issue's state lives on GitHub, and a second record
 of it in this repo would be a second answer to a question that already has one. This replaced a local
 todo list that was exactly that mistake.
@@ -162,10 +180,11 @@ per viewer per session rather than once a minute per server.
 
 ## 🪪 Projects are the catalog
 
-The Projects page is a card per node in the collected Nx graph — not a second hand-written catalog.
-Each card joins the graph to collect-time commit history, spec count and coverage. `git rev-list` counts
-the project's history; `git log --since=90 days ago` becomes commits per week, so the browser never
-spends one GitHub request per project for data already present in the checkout.
+The Projects page is a card per node in the collected Nx graph. Each project's title and description
+come from its existing README through the Nuxt Content `docs` collection, so there is no second
+hand-written project catalog. Each card also joins the graph to collect-time commit history, spec count
+and coverage. `git rev-list` counts the project's history; `git log --since=90 days ago` becomes commits
+per week, so the browser never spends one GitHub request per project for data already present in the checkout.
 
 Deployments are the exception because they can change after the static site ships. The browser reads
 GitHub's unauthenticated `deployments` endpoint once, then the newest status for each environment;
@@ -191,7 +210,7 @@ live off GitHub. If you delete every derived file in this project, one command p
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev developer-portal` | Start Developer Portal |
+| `pnpm dev developer-portal` | Start the portal |
 | `pnpm exec nx collect @monorepo/developer-portal` | Rebuild the snapshot — graph, coverage, metrics, docs, scorecards |
 | `pnpm exec nx nuxt-prepare @monorepo/developer-portal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
 | `pnpm exec nx build-static @monorepo/developer-portal` | `nuxt build --prerender` — the build the deploy publishes, and the only one that renders every route |

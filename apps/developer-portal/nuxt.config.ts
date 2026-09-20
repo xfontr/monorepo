@@ -74,8 +74,7 @@ export default defineNuxtConfig({
 
     app: {
         head: {
-            title: "Developer Portal",
-            meta: [{ name: "robots", content: "noindex" }],
+            title: "Monorepo",
         },
     },
 });
