@@ -1,3 +1,13 @@
+## 0.0.12 (2026-09-20)
+
+### 🚀 Features
+
+- [144] adjust descriptions, cover with tests ([ec8e30c](https://github.com/xfontr/monorepo/commit/ec8e30c))
+
+### ❤️ Thank You
+
+- Xifré Font
+
 ## 0.0.11 (2026-09-19)
 
 This was a version bump only for @monorepo/configs to align it with other projects, there were no code changes.
