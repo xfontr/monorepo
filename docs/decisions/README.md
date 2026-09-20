@@ -22,6 +22,12 @@ Copy [`TEMPLATE.md`](./TEMPLATE.md). A frontmatter block, then five sections, al
 | Consequences | What this unlocks, what it forecloses, what would have to change to revisit it |
 | Confirmation | How compliance with the decision is verified — a command, a check, a test that would fail if it stopped being true |
 
+A report still on `status: to-implement` carries a second reader — whoever does the work, usually an
+agent with none of the session that produced the report. Three of the five sections owe it something
+concrete while that status holds: file paths and lines in Result, the order and the tripwires in
+Consequences, a runnable check per claim in Confirmation. The `decision-report` skill has the
+obligations and names [`0018`](./0018-developer-portal-duplicated-facts.md) as the calibration.
+
 ## 🔢 Numbering
 
 **The number is consecutive, not the issue's.** The next report takes the next free `NNNN`,
@@ -103,3 +109,4 @@ page.
 | Later need | What changes |
 | --- | --- |
 | Full MADR — `Decision Drivers`, `Considered Options`, `Pros and Cons of the Options` | This repo's four content sections plus `Confirmation` already carry what MADR's eight do; `Options considered` as a table of losers is the deliberate alternative to a pro/con essay per option, which is what a "Pros and Cons" section invites |
+| A `check-docs` assertion that a `to-implement` report names a `path:line` | The skill carries it, and [`0018`](./0018-developer-portal-duplicated-facts.md) is the calibration a reader can diff against. A checker is [`0015`](./0015-nuxt-prepare-wiring.md)'s trade — 150 lines guarding something whose absence a reader spots in one screen |

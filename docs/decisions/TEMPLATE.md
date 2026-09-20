@@ -13,7 +13,9 @@ issue's own "Decision needed" framing, reused rather than rewritten.>
 
 ## Result
 
-<The outcome, stated plainly. What was found, not a recommendation.>
+<The outcome, stated plainly. What was found, not a recommendation. While `status` is
+`to-implement`, every change names its file path and its line — a table, one row per change, whose
+last column is the change itself.>
 
 ## Options considered
 
@@ -23,7 +25,9 @@ issue's own "Decision needed" framing, reused rather than rewritten.>
 
 ## Consequences
 
-<What this unlocks, what it forecloses, and what would have to change for this to get revisited.>
+<What this unlocks, what it forecloses, and what would have to change for this to get revisited.
+While `status` is `to-implement`, also the order the changes go in and why, and the tripwires whoever
+implements this will hit.>
 
 ## Confirmation
 

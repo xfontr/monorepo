@@ -76,7 +76,40 @@ Two things the template's shape enforces that are easy to lose:
 Keep it as tight as the shortest sections in the `ui`/`content` package READMEs: this is a record
 of an outcome, not a design doc arguing for it. Follow `house-docs` like any other markdown here.
 
-## 3. Close the loop
+## 3. Make it executable while `status` is `to-implement`
+
+**A report whose work hasn't landed is read next by whoever does the work, and that is usually
+another agent with none of your session.** Everything it needs has to be on the page, because the
+investigation that produced it is gone. A report that reads well and leaves the implementer to
+re-derive which files to open has failed at its only remaining job.
+
+[`0018-developer-portal-duplicated-facts.md`](../../../docs/decisions/0018-developer-portal-duplicated-facts.md)
+is the calibration. Four obligations, all inside the five sections — no new section:
+
+| Obligation | Where it goes |
+| --- | --- |
+| Every change names its **file path, and its line when one exists** — `app/pages/projects.vue:35`, not "the projects page" | Result |
+| A set of independent changes is a **table whose last column is the change**, one row per change, so the reader never counts them out of prose | Result |
+| **The order**, when one change makes another cheaper or safer — and the reason, since an order without one gets reshuffled | Consequences |
+| **Tripwires an implementer will hit** — a hook that blocks the edit, a pre-existing failure that isn't theirs, a neighbouring change explicitly out of scope | Consequences |
+
+Line numbers go stale, so say what they're as of (`Line numbers are as of this report.`) and keep
+the path and the symbol name beside them — those survive, and together they're enough to find the
+line again after it moves.
+
+Confirmation earns a `| Claim | Check |` table once there is more than one claim: a runnable command
+per row, so the implementer can work down it instead of parsing a paragraph into a checklist. A
+single-claim report keeps the sentence.
+
+None of this loosens §2's brevity, because the detail **replaces** the discussion rather than
+stacking on it: `0018` carries twelve file:line anchors, a seven-row change table, an order and a
+ten-row Confirmation table in 1,854 words, against a corpus median near 1,500. A path and a line are
+shorter than the paragraph that gestures at the same file.
+
+Reports whose `status` is `implemented` or `wont-implement` owe none of this — nobody picks them up,
+and they're a record of what was found. The obligation is the handoff, not the prose style.
+
+## 4. Close the loop
 
 **When the follow-up work lands (or is dropped), flip the `status:` field in the same PR.** That's
 one of the two frontmatter fields expected to change after the fact — it's how
