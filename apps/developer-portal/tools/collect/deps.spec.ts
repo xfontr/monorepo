@@ -1,4 +1,6 @@
+import { resolve } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { WORKSPACE_ROOT } from "../lib/paths.ts";
 import { collectDeps } from "./deps.ts";
 
 const run = vi.hoisted(() => ({
@@ -39,7 +41,7 @@ const outdated = {
         wanted: "1.1.0",
         latest: "2.0.0",
         isDeprecated: false,
-        dependentPackages: [{ name: "@monorepo/ui", location: "/Users/xifre/projects/monorepo/packages/ui" }],
+        dependentPackages: [{ name: "@monorepo/ui", location: resolve(WORKSPACE_ROOT, "packages/ui") }],
     },
 };
 

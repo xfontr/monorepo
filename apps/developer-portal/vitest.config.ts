@@ -4,6 +4,7 @@ import { defineConfig } from "vitest/config";
 
 const nodeConfig = vitest.createNodeConfig();
 const appRoot = import.meta.dirname;
+const { globalSetup, ...nodeTestConfig } = nodeConfig.test ?? {};
 
 const nuxtConfig = await defineVitestProject({
     root: appRoot,
@@ -24,11 +25,12 @@ const nuxtConfig = await defineVitestProject({
 
 export default defineConfig({
     test: {
+        globalSetup,
         projects: [
             {
                 ...nodeConfig,
                 test: {
-                    ...nodeConfig.test,
+                    ...nodeTestConfig,
                     name: "node",
                     include: [
                         "shared/**/*.spec.ts",
