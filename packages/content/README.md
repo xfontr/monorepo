@@ -1,8 +1,7 @@
 # 📦 @monorepo/content
 
-Shared content. A framework-agnostic core that reads entries and taxonomies out of a vendor
-(a CMS), built as ports & adapters, plus an optional Nuxt module that mounts it as a cached
-BFF in one config block.
+A vendor-neutral content client for entries and taxonomies, with a framework-agnostic core and an
+optional Nuxt module that exposes a cached BFF.
 
 Two entry points, kept apart by the `exports` map:
 

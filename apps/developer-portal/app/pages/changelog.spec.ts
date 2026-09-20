@@ -10,7 +10,7 @@ mockNuxtImport("queryCollection", () => state.query);
 
 const global = {
     stubs: {
-        UDashboardPanel: { template: "<section><slot name='header' /><slot name='body' /></section>" }, UDashboardNavbar: { template: "<header><slot name='right' /></header>" }, UDashboardSidebarCollapse: true,
+        UDashboardPanel: { template: "<section><slot name='header' /><slot name='body' /></section>" }, UDashboardNavbar: { props: { title: String }, template: "<header>{{ title }}<slot name='right' /></header>" }, UDashboardSidebarCollapse: true,
         UCard: { template: "<article><slot /></article>" }, UAlert: { props: { title: String, description: String }, template: "<div class='alert'>{{ title }} {{ description }}</div>" }, ContentRenderer: { props: { value: Object }, template: "<div>{{ value?.title }}</div>" }, UIcon: true,
     },
 };
@@ -45,6 +45,7 @@ beforeEach(() => {
 describe("changelog page", () => {
     it("explains the empty workspace when no changelogs exist", async () => {
         const wrapper = await mountSuspended(Page, { global });
+        expect(wrapper.text()).toContain("What's new");
         expect(wrapper.text()).toContain("No CHANGELOG.md in the workspace yet.");
     });
 

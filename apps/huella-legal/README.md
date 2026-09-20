@@ -1,8 +1,7 @@
 # 📦 @monorepo/huella-legal
 
-Huella Legal — a work in progress redesigning a law blog. It's a Nuxt 4 app that composes the
-shared packages (`@monorepo/ui`, `@monorepo/i18n`, `@monorepo/content`, `@monorepo/observability`)
-and keeps its own feature code in [layers](#-structure).
+A Nuxt 4 redesign of the Huella Legal law blog, composed from the workspace's shared UI, content,
+translations and observability packages.
 
 ## 🚀 Development
 

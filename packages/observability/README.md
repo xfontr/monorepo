@@ -1,8 +1,7 @@
 # 📦 @monorepo/observability
 
-Shared telemetry. Two entry points, one per runtime: [Grafana Faro](https://grafana.com/docs/grafana-cloud/monitor-applications/frontend-observability/)
-in the browser, the [OpenTelemetry](https://opentelemetry.io/docs/languages/js/) Node SDK on the
-server — so no app has to remember the boilerplate for either.
+Shared browser and server telemetry setup: Grafana Faro for web applications and OpenTelemetry for
+Node services. It keeps initialization consistent across applications.
 
 ```ts
 import { startWebTelemetry } from "@monorepo/observability";

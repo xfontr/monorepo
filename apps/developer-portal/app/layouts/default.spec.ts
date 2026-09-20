@@ -25,12 +25,27 @@ beforeEach(() => {
 });
 
 describe("default layout", () => {
-    it("keeps every primary section in navigation and omits zero badges", async () => {
+    it("groups navigation by purpose and points renamed entries to their routes", async () => {
         const wrapper = await mountSuspended(Layout, { global });
         expect(wrapper.text()).toContain("Overview");
         expect(wrapper.text()).toContain("Dependencies");
+        expect(wrapper.text()).toContain("Explore");
+        expect(wrapper.text()).toContain("Build");
+        expect(wrapper.text()).toContain("Engineering health");
         expect(wrapper.text()).not.toContain("undefined");
-        expect(wrapper.findAll("nav a").map((link) => link.text())).toEqual(expect.arrayContaining(["Issues", "Reviews"]));
+        expect(wrapper.findAll("nav a").map((link) => [link.text().trim(), link.attributes("href")])).toEqual([
+            ["Overview", "/"],
+            ["Projects", "/projects"],
+            ["What's new", "/changelog"],
+            ["Documentation", "/docs"],
+            ["Architecture", "/graph"],
+            ["Decisions", "/decisions"],
+            ["Work in progress", "/issues"],
+            ["Coverage", "/coverage"],
+            ["Dependencies", "/deps"],
+            ["Reviews", "/reviews"],
+            ["Scorecards", "/scorecards"],
+        ]);
     });
 
     it("renders non-zero badges, uses the repository source link, and defers search data", async () => {

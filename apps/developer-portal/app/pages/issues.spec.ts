@@ -15,7 +15,7 @@ const ControlStub = defineComponent({
     template: "<input v-if='items.length === 0' :value='modelValue' @input='$emit(\"update:modelValue\", $event.target.value)' /><select v-else :value='modelValue' @change='$emit(\"update:modelValue\", $event.target.value)'><option v-for='item in items' :value='item.value'>{{ item.label }}</option></select>",
 });
 const global = { stubs: {
-    UDashboardPanel: { template: "<section><slot name='header' /><slot name='body' /></section>" }, UDashboardNavbar: { template: "<header><slot name='right' /></header>" }, UDashboardSidebarCollapse: true, UDashboardToolbar: { template: "<div><slot name='left' /><slot name='right' /></div>" }, UInput: ControlStub, USelect: ControlStub,
+    UDashboardPanel: { template: "<section><slot name='header' /><slot name='body' /></section>" }, UDashboardNavbar: { props: { title: String }, template: "<header>{{ title }}<slot name='right' /></header>" }, UDashboardSidebarCollapse: true, UDashboardToolbar: { template: "<div><slot name='left' /><slot name='right' /></div>" }, UInput: ControlStub, USelect: ControlStub,
     UButton: { emits: ["click"], template: "<button @click='$emit(\"click\")' />" }, UCard: { template: "<article><slot name='header' /><slot /></article>" }, UAlert: { props: { title: String, description: String }, template: "<div>{{ title }} {{ description }}</div>" }, IssueRow: { props: { issue: Object }, template: "<div class='row'>{{ issue.title }}</div>" }, UIcon: true,
 } };
 
@@ -30,6 +30,7 @@ beforeEach(() => {
 describe("issues page", () => {
     it("filters by search and label, offers labels from the live data, and sorts newest first", async () => {
         const wrapper = await mountSuspended(Page, { global });
+        expect(wrapper.text()).toContain("Work in progress");
         expect(wrapper.text().indexOf("Fix portal")).toBeLessThan(wrapper.text().indexOf("Add docs"));
         expect(wrapper.findAll("select").at(0)?.text()).toContain("bug");
         await wrapper.find("input").setValue("docs");

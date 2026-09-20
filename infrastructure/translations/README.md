@@ -1,8 +1,7 @@
 # 🌐 @monorepo/translations
 
-A TMS (Translation Management System). It holds locale files as plain JSON and
-serves them over HTTP, so an app talks to it exactly as it would talk to a hosted
-provider — no vendor account, no API key, and the messages stay in the repo.
+A repository-hosted translation service that serves versioned JSON locale files over HTTP. It gives
+apps a vendor-free TMS endpoint for local development and deployment.
 
 ```
 infrastructure/translations/

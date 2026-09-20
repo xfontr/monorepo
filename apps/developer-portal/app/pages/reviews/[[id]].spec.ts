@@ -39,6 +39,7 @@ describe("reviews page", () => {
         const wrapper = await mountSuspended(Page, { global });
 
         expect(wrapper.text()).toContain("September review");
+        expect(wrapper.text()).toContain("A review is a dated assessment");
         expect(wrapper.text()).not.toContain("No such review");
     });
 });

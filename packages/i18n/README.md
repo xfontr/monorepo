@@ -1,8 +1,7 @@
 # 📦 @monorepo/i18n
 
-Shared translations. A framework-agnostic core that fetches locale messages from a vendor
-(a TMS), built as ports & adapters, plus an optional Nuxt module that wires it up in one
-config block.
+A vendor-neutral translations client for locale messages, with a framework-agnostic core and an
+optional Nuxt module that wires the selected TMS into an application.
 
 Two entry points, kept apart by the `exports` map:
 

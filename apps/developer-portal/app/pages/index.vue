@@ -153,16 +153,17 @@ Applications that show what this repository produces.
 
                     <div class="grid gap-4 xl:grid-cols-2">
                         <UCard
-v-for="project in featuredProjects"
-:key="project.name"
->
+                            v-for="project in featuredProjects"
+                            :key="project.name"
+                            :ui="{ root: 'h-full flex flex-col', header: 'flex-1', body: 'mt-auto' }"
+                        >
                             <template #header>
                                 <div class="flex items-start justify-between gap-3">
                                     <div class="min-w-0">
                                         <h3 class="font-semibold">
                                             {{ readmeFor(project)?.title ?? project.name }}
                                         </h3>
-                                        <p class="text-sm text-muted mt-1">
+                                        <p class="line-clamp-3 text-sm text-muted mt-1">
                                             {{ readmeFor(project)?.description ?? "No project description is available yet." }}
                                         </p>
                                     </div>

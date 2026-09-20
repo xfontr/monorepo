@@ -1,7 +1,7 @@
 # 📦 @monorepo/ui
 
-The shared Vue 3 component library. It ships raw `.vue`/`.ts` source with no build step — the
-consuming app compiles it, so there is nothing to rebuild while you work on a component.
+The shared Vue 3 component library for application interfaces. It exports raw source so consuming
+apps compile components directly without a package build step.
 
 ```ts
 import { Button } from "@monorepo/ui";

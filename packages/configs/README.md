@@ -1,8 +1,7 @@
 # 📦 @monorepo/configs
 
-The ESLint, Vitest and TypeScript setup for the workspace, in one place. A project keeps a config
-file of its own, but that file is a one-liner calling a factory from here — so a rule change lands
-everywhere at once instead of drifting across a copy per project.
+Shared ESLint, Vitest and TypeScript configuration for the workspace. It centralizes rules and
+presets so projects stay consistent without copying configuration.
 
 Only the ESLint half reaches all of them. `apps/huella-legal` and this package have no
 `vitest.config.ts` at all, and two projects extend no tsconfig preset: `packages/ui` is a solution

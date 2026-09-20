@@ -121,21 +121,13 @@ function websiteFor(project: ProjectNode): string | undefined {
                     <UCard
                         v-for="project in orderedProjects"
                         :key="project.name"
-                        :ui="{ body: 'flex flex-col gap-4' }"
+                        :ui="{ root: 'h-full flex flex-col', body: 'flex-1 flex flex-col gap-4' }"
                     >
                         <template #header>
-                            <h2 class="font-semibold">
-                                {{ readmeFor(project)?.title ?? project.name }}
-                            </h2>
-                        </template>
-
-                        <div class="flex flex-col gap-3">
-                            <p class="text-sm text-muted">
-                                {{ readmeFor(project)?.description ?? "No project description is available yet." }}
-                            </p>
-
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs text-dimmed">Category</span>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h2 class="font-semibold">
+                                    {{ readmeFor(project)?.title ?? project.name }}
+                                </h2>
                                 <UBadge
                                     :label="categoryFor(project)"
                                     color="primary"
@@ -143,6 +135,12 @@ function websiteFor(project: ProjectNode): string | undefined {
                                     size="sm"
                                 />
                             </div>
+                        </template>
+
+                        <div class="flex flex-col gap-3">
+                            <p class="line-clamp-3 text-sm text-muted">
+                                {{ readmeFor(project)?.description ?? "No project description is available yet." }}
+                            </p>
 
                             <div class="flex flex-col gap-1 text-sm">
                                 <div v-if="project.dependsOn.length > 0">
@@ -159,6 +157,9 @@ function websiteFor(project: ProjectNode): string | undefined {
                                 </p>
                             </div>
 
+                        </div>
+
+                        <div class="mt-auto flex flex-col gap-3">
                             <div class="flex flex-wrap gap-2">
                                 <UButton
                                     v-if="websiteFor(project)"
@@ -192,60 +193,34 @@ function websiteFor(project: ProjectNode): string | undefined {
                                     target="_blank"
                                 />
                             </div>
-                        </div>
 
-                        <div class="border-t border-default pt-3 flex flex-col gap-3 text-sm text-muted">
-                            <div>
-                                <p class="text-xs text-dimmed">
-Technical details
-</p>
-                                <p class="font-mono text-xs truncate">
-{{ project.name }} · {{ project.root }}
-</p>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <p class="text-xs text-dimmed">
-                                    Commits
-                                </p>
-                                <p class="font-semibold">
-                                    {{ metricFor(project)?.commits ?? "—" }}
-                                </p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-dimmed">
-                                    Commits / week (last 90 days)
-                                </p>
-                                <p class="font-semibold">
-                                    {{ metricFor(project)?.commitsPerWeek ?? "—" }}
-                                    <span
-                                        v-if="typeof metricFor(project)?.commitsPerWeek === 'number'"
-                                        class="font-normal text-muted"
-                                    > /
-                                        week</span>
-                                </p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-dimmed">
-                                    Tests
-                                </p>
-                                <p class="font-semibold">
-                                    {{ metricFor(project)?.specs ?? "—" }}
-                                </p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-dimmed">
-                                    Line coverage
-                                </p>
-                                <p class="font-semibold">
-                                    {{ metricFor(project)?.coverageLinesPct ?? "—" }}
-                                    <span
-                                        v-if="typeof metricFor(project)?.coverageLinesPct === 'number'"
-                                        class="font-normal text-muted"
-                                    >%</span>
-                                </p>
-                            </div>
+                            <div class="border-t border-default pt-3 text-sm text-muted">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <p class="text-xs text-dimmed">
+                                            Commits
+                                        </p>
+                                        <p class="font-semibold">
+                                            {{ metricFor(project)?.commits ?? "—" }}
+                                            <span
+                                                v-if="typeof metricFor(project)?.commitsPerWeek === 'number'"
+                                                class="font-normal text-muted"
+                                            > ({{ metricFor(project)?.commitsPerWeek }} / week)</span>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-dimmed">
+                                            Tests
+                                        </p>
+                                        <p class="font-semibold">
+                                            {{ metricFor(project)?.specs ?? "—" }}
+                                            <span
+                                                v-if="typeof metricFor(project)?.coverageLinesPct === 'number'"
+                                                class="font-normal text-muted"
+                                            > ({{ metricFor(project)?.coverageLinesPct }}% coverage)</span>
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </UCard>

@@ -16,10 +16,29 @@ beforeEach(() => {
 });
 
 describe("docs index page", () => {
-    it("renders the wiki sections and routes curated links through /docs", async () => {
-        state.wiki = ref([{ id: "workspace", groups: [{ entries: [{ path: "/readme", label: "The repo", kind: "readme" }] }] }]);
+    it("shows newcomer groups and routes curated and collected entries through /docs", async () => {
+        state.wiki = ref([{ id: "workspace", groups: [{ entries: [
+            { path: "/readme", label: "The repo", kind: "readme" },
+            { path: "/docs/concepts/boundaries", label: "Boundaries", kind: "doc" },
+            { path: "/docs/guides/first-hour", label: "First hour", kind: "doc" },
+        ] }] }]);
+        state.docs = ref({ docs: {
+            pages: [
+                { path: "docs/guides/first-hour.md", updatedAt: "2026-09-20", brokenLinks: [] },
+                { path: "docs/missing.md", updatedAt: null, brokenLinks: [{ href: "./missing", resolved: "docs/missing.md" }] },
+            ],
+            brokenLinkCount: 1,
+        } });
         const wrapper = await mountSuspended(Page, { global });
         expect(wrapper.find("a[href='/docs/readme']").exists()).toBe(true);
+        expect(wrapper.text()).toContain("Explore");
+        expect(wrapper.text()).toContain("Understand");
+        expect(wrapper.text()).toContain("Contribute");
+        expect(wrapper.find("a[href='/projects']").exists()).toBe(true);
+        expect(wrapper.find("a[href='/docs/docs/concepts/boundaries']").exists()).toBe(true);
+        expect(wrapper.find("a[href='/graph']").exists()).toBe(true);
+        expect(wrapper.find("a[href='/docs/docs/guides/first-hour']").exists()).toBe(true);
+        expect(wrapper.find("a[href='/docs/docs/missing']").exists()).toBe(true);
         expect(wrapper.find("nav").text()).toContain("1");
     });
 

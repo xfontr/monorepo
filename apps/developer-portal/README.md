@@ -1,9 +1,7 @@
 # 📦 @monorepo/developer-portal
 
-The developer portal is the public front door to the repository and a deeper engineering/DX surface
-for understanding and working with it. It helps visitors explore what exists, understand how it works,
-or run and contribute, while keeping the collected engineering-health views available for deeper use.
-It is presented publicly as Monorepo, and the application is read-only.
+A read-only portal for exploring the monorepo's projects, documentation, architecture and engineering
+health. It gives newcomers a clear starting point while keeping deeper developer views close by.
 
 It renders every markdown file in the workspace as a wiki — READMEs, `AGENTS.md`s, the
 [`docs/`](../../docs/README.md) tree, reviews and changelogs — beside the things that are not written
