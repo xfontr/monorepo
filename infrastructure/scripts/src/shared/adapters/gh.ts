@@ -9,11 +9,7 @@ export type NewIssue = {
     project?: string
 };
 
-/**
- * Shells out to `gh` rather than talking to the GitHub API, so this inherits whatever account is
- * already logged in locally instead of needing a token of its own. Returns the new issue's URL,
- * which is all `gh issue create` prints on success.
- */
+/** Use the locally authenticated `gh`; issue creation returns its URL. */
 export const createIssue = ({ title, body, label, project }: NewIssue): string =>
     gh(
         "issue",

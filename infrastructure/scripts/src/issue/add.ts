@@ -1,4 +1,4 @@
-import { autocomplete, confirm, isCancel, select, text } from "@clack/prompts";
+import { autocomplete, confirm, select, text } from "@clack/prompts";
 import { createIssue } from "../shared/adapters/gh.ts";
 import { out } from "../shared/adapters/io.ts";
 import { orExit } from "../shared/adapters/prompts.ts";
@@ -28,11 +28,7 @@ const pickProject = async (projects: Project[]): Promise<string | undefined> => 
     return picked || undefined;
 };
 
-/**
- * Searchable where the project prompt above isn't: labels are a list this repo keeps adding to, and
- * the one you want is one you can already name. *None* stays put while the box is empty and drops
- * out the moment you type — having typed anything, you're looking for a label, not for nothing.
- */
+/** Keep `None` visible only for an empty search; once typed, the picker is searching for a label. */
 const pickLabel = async (labels: Label[]): Promise<string | undefined> => {
     const picked = or(
         await autocomplete({
@@ -102,8 +98,8 @@ export const add = async (): Promise<void> => {
 const offerPick = async (): Promise<void> => {
     if (currentBranch() !== "master") return;
 
-    const wantsPick = await confirm({ message: "You're on master — pick an issue now?" });
-    if (isCancel(wantsPick) || !wantsPick) return;
+    const wantsPick = or(await confirm({ message: "You're on master — pick an issue now?" }));
+    if (!wantsPick) return;
 
     await pick();
 };

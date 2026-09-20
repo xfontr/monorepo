@@ -35,15 +35,15 @@ async function unreleasedCommits(name: string, root: string): Promise<number | n
     return Number.parseInt(stdout.trim(), 10);
 }
 
-async function commitStats(root: string): Promise<{ commits: number, commitsPerWeek: number }> {
+async function commitStats(root: string): Promise<{ commits: number, commitsLastTwoWeeks: number }> {
     const [counted, recent] = await Promise.all([
         git(["rev-list", "--count", "HEAD", "--", root]),
-        git(["log", "--since=90 days ago", "--format=%H", "--", root]),
+        git(["log", "--since=2 weeks ago", "--format=%H", "--", root]),
     ]);
 
     return {
         commits: Number.parseInt(counted.trim(), 10),
-        commitsPerWeek: Math.round((recent.split("\n").filter(Boolean).length / (90 / 7)) * 10) / 10,
+        commitsLastTwoWeeks: recent.split("\n").filter(Boolean).length,
     };
 }
 
@@ -97,7 +97,7 @@ export async function collectMetrics(
             root: project.root,
             specs: specs.length,
             commits: history.ok ? history.value.commits : null,
-            commitsPerWeek: history.ok ? history.value.commitsPerWeek : null,
+            commitsLastTwoWeeks: history.ok ? history.value.commitsLastTwoWeeks : null,
             coverageLinesPct: projectCoverage?.collected ? (projectCoverage.lines?.pct ?? null) : null,
             unreleasedCommits: await unreleasedFor(project.name, project.root),
             currentVersion: await versionOf(project.root),

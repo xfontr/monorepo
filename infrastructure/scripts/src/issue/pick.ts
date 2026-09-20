@@ -6,7 +6,7 @@ import { assignToMe, developBranch, isOnline, listIssues, listProjects, moveToIn
 import { branchForIssue, checkout } from "./adapters/git.ts";
 import { ISSUE_SCOPE_HINT, projectOptions, PROJECT_SCOPE_HINT } from "./adapters/prompts.ts";
 import { branchName, BRANCH_TYPES, slugify } from "./domain/branch.ts";
-import { matchesIssue } from "./domain/search.ts";
+import { issueLoad, issueOptionMatches, issueOptions, projectLoad } from "./domain/pick.ts";
 
 const CANCELLED = "Cancelled — still on the same branch.";
 
@@ -23,11 +23,12 @@ const pickProject = async (): Promise<Picked<Project>> => {
     const loading = out.spinner();
     loading.start("Asking gh what's available...");
 
-    let projects = listProjects();
-    let offline = false;
+    const live = listProjects();
+    const source = projectLoad(live, live.length > 0 || isOnline());
+    let projects = live;
+    const offline = source.source === "cache";
 
-    if (projects.length === 0 && !isOnline()) {
-        offline = true;
+    if (offline) {
         loading.message("Reading cached projects...");
         projects = listProjects(true);
     }
@@ -58,12 +59,13 @@ const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue
 
     let issues: Issue[];
     try {
-        issues = listIssues(project.title, knownOffline);
+        const source = issueLoad(knownOffline, false, false, [], []).source;
+        issues = listIssues(project.title, source === "cache");
     }
     catch {
-        // A throw here isn't necessarily offline — a scope/auth error throws the same way a
-        // dropped connection does, and only one of those should be served from stale cache.
-        if (!knownOffline && isOnline()) {
+        const failure = issueLoad(knownOffline, true, !knownOffline && isOnline(), [], []).source;
+
+        if (failure === "auth-error") {
             loading.stop("Couldn't read issues.");
             throw new ExpectedError(ISSUE_SCOPE_HINT);
         }
@@ -82,17 +84,9 @@ const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue
             message: issues.length === 0 ? "No open issues" : "Issue",
             placeholder: issues.length === 0 ? undefined : "Type a number, a word from the title, or a label",
             maxItems: 12,
-            options: [
-                { value: BACK as Issue | typeof BACK, label: "← Back to project list" },
-                ...issues.map((issue) => ({
-                    value: issue,
-                    label: `#${issue.number} ${issue.title}`,
-                    hint: [issue.labels.join(", "), issue.url].filter(Boolean).join(" · "),
-                })),
-            ],
-            // The back row is navigation, not an issue: it belongs at the top of an unfiltered
-            // list and nowhere inside a search for one.
-            filter: (search, { value }) => (value === BACK ? !search.trim() : matchesIssue(value, search)),
+            options: issueOptions(BACK, issues),
+            // Keep navigation visible only when the issue search is empty.
+            filter: (search, { value }) => issueOptionMatches(BACK, value, search),
         }),
     );
 };
@@ -153,8 +147,7 @@ const promptBranch = async (project: Project, issue: Issue): Promise<string> => 
 export const pick = async (): Promise<void> => {
     out.begin("🌱 Pick an issue");
 
-    // A loop rather than a single pass: choosing "← Back to project list" on the issue prompt
-    // re-runs `pickProject` instead of unwinding the whole command, which is what cancelling does.
+    // Choosing "← Back to project list" must re-run `pickProject`, not cancel the command.
     for (;;) {
         const { value: project, offline } = await pickProject();
         if (!project) return;

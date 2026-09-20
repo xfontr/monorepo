@@ -160,9 +160,9 @@ function websiteFor(project: ProjectNode): string | undefined {
                                         </p>
                                         <p class="font-semibold">
                                             {{ metricFor(project)?.commits ?? "—" }}
-                                            <span v-if="typeof metricFor(project)?.commitsPerWeek === 'number'"
+                                            <span v-if="typeof metricFor(project)?.commitsLastTwoWeeks === 'number'"
                                                 class="font-normal text-muted">
-                                                ({{ metricFor(project)?.commitsPerWeek }} / week)</span>
+                                                ({{ metricFor(project)?.commitsLastTwoWeeks }} last two weeks)</span>
                                         </p>
                                     </div>
                                     <div>

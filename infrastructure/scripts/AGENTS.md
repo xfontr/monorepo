@@ -35,8 +35,9 @@ See [README.md](./README.md) for the layout rule and the per-script docs it link
   not layered abstractions — the previous version of `addIssue` had three templates, a label
   mapping and four spec files, and got avoided because of it.
 - `test` runs with `--passWithNoTests` because most of this is prompts and subprocess calls.
-  Extract and test any real logic a script grows (a parser, a diff, a mapping) — `issue/branch.ts`
-  is the one that exists; don't write specs that assert a mock of `gh` against itself.
+  Extract and test any real logic a script grows (a parser, a diff, a mapping or a formatting
+  decision), keeping the spec beside its subject; don't write specs that assert a mock of `gh` against
+  itself.
 - Tagged `type:tooling`, so it may depend only on `@monorepo/configs`. Nothing else may depend on
   `type:tooling` — it's a leaf nothing imports, enforced the same way `type:infra` is.
 - The TODO/FIXME push gate is **not** here any more. It's a few lines of `awk` in

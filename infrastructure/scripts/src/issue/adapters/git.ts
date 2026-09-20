@@ -1,10 +1,6 @@
 import { git } from "../../shared/adapters/git.ts";
 
-/**
- * The first local branch already named after this issue, if any. The issue number sits right after
- * the project slug for exactly this reason: coming back to a ticket should reuse the branch, not
- * fail on `git checkout -b` because the name is taken.
- */
+/** Reuse an existing issue branch so checkout does not fail on a duplicate ref. */
 export const branchForIssue = (issue: number): string | undefined =>
     git("branch", "--format=%(refname:short)")
         .split("\n")
@@ -12,4 +8,4 @@ export const branchForIssue = (issue: number): string | undefined =>
 
 export const checkout = (branch: string): void => void git("checkout", branch);
 
-export const currentBranch = (): string => git("branch", "--show-current");
+export const currentBranch = (): string => git("rev-parse", "--abbrev-ref", "HEAD");

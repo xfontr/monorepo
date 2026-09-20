@@ -7,20 +7,14 @@ import { orExit } from "../shared/adapters/prompts.ts";
 import { changedFiles, diffNameStatus, diffNumstat, diffText, lastMdCommitEpochSeconds, mergeBase } from "./adapters/git.ts";
 import {
     displayName,
-    fingerprint,
-    hasRename,
-    parseLinesChanged,
     projectRootsFor,
+    recordFingerprint,
     shouldWarn,
 } from "./domain/detect.ts";
+import { changeSize, lastMdCommitMs } from "./domain/size.ts";
 
 const PROJECT = "Monorepo";
 const CACHE_KEY = "drift-fingerprints";
-
-const lastMdCommitMs = (root: string): number | undefined => {
-    const seconds = lastMdCommitEpochSeconds(root);
-    return seconds ? Number(seconds) * 1000 : undefined;
-};
 
 const warnFor = async (root: string): Promise<void> => {
     const name = displayName(root);
@@ -47,30 +41,25 @@ const warnFor = async (root: string): Promise<void> => {
 };
 
 export const main = async (): Promise<void> => {
-    // Read here rather than at module scope so importing this file doesn't shell out to `git`.
     const base = process.env.DOCS_DRIFT_BASE ?? mergeBase("master");
     const head = process.env.DOCS_DRIFT_HEAD ?? "HEAD";
 
     const roots = projectRootsFor(changedFiles(base, head));
     if (roots.length === 0) return;
 
-    const seen = readCache<Record<string, string>>(CACHE_KEY) ?? {};
+    let seen = readCache<Record<string, string>>(CACHE_KEY) ?? {};
 
     for (const root of roots) {
-        const diffFingerprint = fingerprint(diffText(base, head, root));
-        if (seen[root] === diffFingerprint) continue;
+        const transition = recordFingerprint(seen, root, diffText(base, head, root));
+        if (!transition.isNew) continue;
 
-        seen[root] = diffFingerprint;
+        seen = transition.seen;
         writeCache(CACHE_KEY, seen);
 
         const numstat = diffNumstat(base, head, root);
-        const size = {
-            linesChanged: parseLinesChanged(numstat),
-            filesChanged: numstat.length,
-            renamed: hasRename(diffNameStatus(base, head, root)),
-        };
+        const size = changeSize(numstat, diffNameStatus(base, head, root));
 
-        if (!shouldWarn(size, lastMdCommitMs(root))) continue;
+        if (!shouldWarn(size, lastMdCommitMs(lastMdCommitEpochSeconds(root)))) continue;
 
         await warnFor(root);
     }

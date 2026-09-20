@@ -5,10 +5,7 @@ const NONE = "";
 
 export const NONE_OPTION = { value: NONE, label: "— none —" };
 
-/**
- * Both commands hit this: an empty project list reads as "there are none" when the likelier cause
- * is a token without the scope to see them, so the fix goes in the message rather than a doc.
- */
+/** An empty project list often means the GitHub token lacks the `project` scope. */
 export const PROJECT_SCOPE_HINT
     = "No open projects. If you expected some, the `project` scope is missing: gh auth refresh -s project";
 

@@ -3,12 +3,7 @@ import process from "node:process";
 import { inherit } from "../../shared/adapters/exec.ts";
 import { repoRoot } from "../../shared/adapters/git.ts";
 
-/**
- * Resolved from this file rather than by looking for a `node_modules` directory: the question is
- * whether the dependencies this script is about to import are reachable, and this is the same
- * lookup Node will do for them. A root install that never reached this package would pass a
- * directory check and still die on the first import.
- */
+/** Resolve the dependency with Node's lookup; a directory check can pass while the import fails. */
 const isInstalled = (): boolean => {
     try {
         createRequire(import.meta.url).resolve("@clack/prompts");
@@ -27,8 +22,5 @@ export const ensureInstalled = (): boolean => {
     return inherit("pnpm", ["-C", repoRoot(), "install"]) === 0;
 };
 
-/**
- * Hands the terminal over for good. `name` is always one Nx just reported, never typed text, which
- * is why it doesn't go through `assertNotFlagLike` on the way to a flag's value.
- */
+/** Nx supplies `name`, so it is not untrusted flag text. */
 export const dev = (name: string): number | null => inherit("pnpm", ["--filter", name, "run", "dev"]);

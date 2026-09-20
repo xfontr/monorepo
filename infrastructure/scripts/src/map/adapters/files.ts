@@ -6,8 +6,7 @@ import type { Doc, ProjectScripts } from "../domain/capabilities.ts";
 
 const read = (path: string): string => readFileSync(path, "utf8");
 
-// `JSON.parse` is `any`, and only the two fields read below are ever touched — asserting the shape
-// here keeps that assumption in one place instead of at every call site.
+// Assert the parsed package shape once because `JSON.parse` returns `any`.
 const readJson = (path: string): Record<string, unknown> => JSON.parse(read(path)) as Record<string, unknown>;
 
 const scriptNames = (pkg: Record<string, unknown>): string[] =>
@@ -20,7 +19,7 @@ const dirsIn = (path: string): string[] => {
             .map((entry) => entry.name);
     }
     catch {
-        return []; // a project root that doesn't exist yet is not an error, just nothing to list
+        return [];
     }
 };
 
@@ -45,7 +44,7 @@ export const projectScripts = (): ProjectScripts[] =>
                 return [{ root: `${top}/${dir}`, name: String(pkg.name), scripts: scriptNames(pkg) }];
             }
             catch {
-                return []; // a directory under packages/ with no package.json isn't a project
+                return [];
             }
         }),
     );
@@ -57,8 +56,7 @@ export const workflowFiles = (): { file: string, name: string }[] =>
         .filter((file) => file.endsWith(".yml") || file.endsWith(".yaml"))
         .map((file) => ({
             file,
-            // The `name:` a workflow gives itself is what GitHub's Actions tab shows, so it's the
-            // name someone would search for, not the filename.
+            // Use the workflow's displayed name rather than its filename.
             name: /^name:[^\S\n]*(\S.*)$/m.exec(read(at(".github", "workflows", file)))?.[1]?.trim() ?? file,
         }));
 
@@ -79,15 +77,9 @@ const skillsUnder = (dir: string): { source: string, name: string }[] =>
             name: /^name:[^\S\n]*(\S.*)$/m.exec(read(at(source)))?.[1]?.trim() ?? source,
         }));
 
-/** Every skill is root-scoped so Codex and Claude both discover it from a root session. */
 export const skillFiles = (): { source: string, name: string }[] => skillsUnder(".agents/skills");
 
-/**
- * `worktrees` is `.claude/worktrees`, where a linked git worktree is a second checkout of this
- * whole repo — every doc in it matches every capability, and the map starts crediting the copy
- * rather than the file. It renders differently depending on which branches happen to be checked
- * out, which `docs:map --check` in CI (where there are none) then fails on.
- */
+/** Ignore linked worktrees or duplicate docs would make the map branch-dependent. */
 const IGNORED_DIRS = ["node_modules", ".git", ".nx", "dist", ".output", ".nuxt", "worktrees"];
 
 const walkMarkdown = (dir: string, found: string[] = []): string[] => {

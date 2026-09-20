@@ -1,21 +1,12 @@
 import { cancel, intro, log, note, outro, spinner as clackSpinner } from "@clack/prompts";
 import process from "node:process";
 
-/**
- * Whether anything watching this output can read box-drawing characters and an animated spinner.
- * `map/` is the script CI runs (`docs:map --check`), and `drift/` runs from a pre-push hook that a
- * GUI git client invokes with no terminal attached — for both, clack's decoration is noise in a log
- * someone greps later.
- */
+/** CI and GUI Git clients lack a readable terminal, so clack decoration would pollute logs. */
 export const isInteractive = (): boolean => Boolean(process.stdout.isTTY) && !process.env.CI;
 
 const line = (stream: NodeJS.WriteStream, message: string): void => void stream.write(`${message}\n`);
 
-/**
- * Anything a person is meant to read, in whichever of the two dialects fits the audience. The split
- * is not cosmetic: `warn` and `error` go to stderr in both dialects, so a `--check` failure stays
- * separable from the answer on stdout however the script was invoked.
- */
+/** Warnings and errors stay on stderr so check failures remain separate from stdout. */
 export const out = {
     info: (message: string): void =>
         isInteractive() ? log.info(message) : line(process.stdout, message),
@@ -41,11 +32,7 @@ export const out = {
     cancelled: (message: string): void =>
         isInteractive() ? cancel(message) : line(process.stdout, message),
 
-    /**
-     * Non-interactively a spinner has nothing to animate, so `start`/`stop` each print their
-     * message once and `message` is dropped — the intermediate states exist to show progress, and
-     * replaying them into a log file is just repetition.
-     */
+    /** Non-interactive spinners print start/stop once and discard intermediate messages. */
     spinner: (): { start: (message: string) => void, stop: (message: string) => void, message: (message: string) => void } => {
         if (isInteractive()) return clackSpinner();
 

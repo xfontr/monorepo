@@ -113,21 +113,10 @@ imports use the explicit `.ts` extension** — `./gh.ts`, not `./gh`.
 ## ✅ Tests
 
 `test` still passes with `--passWithNoTests`, because most of what's here is prompts and `gh`
-invocations — a spec can only assert those against a mock of itself. The exception is the rule:
-real logic — a parser, a diff, a mapping — goes in its own file and gets a spec, per
-[`writing-tests`](../../.agents/skills/writing-tests/SKILL.md). Today that's
-[`issue/domain/branch.ts`](./src/issue/domain/branch.ts), which turns a typed title into a ref name,
-[`drift/domain/detect.ts`](./src/drift/domain/detect.ts), which turns a diff into a warn/don't-warn decision,
-[`map/domain/capabilities.ts`](./src/map/domain/capabilities.ts), which decides what counts as a capability and
-which doc explains one, [`map/domain/render.ts`](./src/map/domain/render.ts), which turns capabilities and docs
-into the map's markdown, [`shared/adapters/exec.ts`](./src/shared/adapters/exec.ts), which rejects a `gh`/`git`
-argument that would be read as a flag instead of the value it's supposed to be, and
-[`coverage-report/domain/discover.ts`](./src/coverage-report/domain/discover.ts) and
-[`coverage-report/domain/merge.ts`](./src/coverage-report/domain/merge.ts), which resolve each project's coverage
-output and refuse to merge a set that's missing one, and
-[`dev/domain/projects.ts`](./src/dev/domain/projects.ts), which turns Nx's project names into picker rows and
-matches a typed one back, and [`issue/domain/search.ts`](./src/issue/domain/search.ts), which decides what a
-search typed into a picker matches.
+invocations — a spec can only assert those against a mock of itself. The rule is that real logic — a
+parser, a diff, a mapping or a formatting decision — goes in its own file and gets a spec beside it,
+per [`writing-tests`](../../.agents/skills/writing-tests/SKILL.md). Keep orchestration and external
+calls out of that boundary; test the pure decision rather than a mock of `gh`, Git or a prompt.
 
 Note that the folder is `coverage-report/`, not `coverage/`: `**/coverage` is in
 [`baseIgnores`](../../packages/configs/src/eslint/lib/ignores.ts), so a folder by that name is

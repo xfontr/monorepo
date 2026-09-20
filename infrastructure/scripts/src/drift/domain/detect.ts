@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { PROJECT_ROOTS } from "../../shared/domain/layout.ts";
+import { PROJECT_ROOTS, titleCase } from "../../shared/domain/layout.ts";
 
 /** A file at the repo root (README.md, AGENTS.md, package.json) maps to no project on purpose. */
 export const projectRootFor = (file: string): string | undefined => {
@@ -19,13 +19,26 @@ export const parseLinesChanged = (numstat: string[]): number =>
 export const hasRename = (nameStatus: string[]): boolean =>
     nameStatus.some((line) => line.startsWith("R"));
 
-// A stable digest of a project's diff, so a second push with nothing new for that project reads
-// as "already warned" instead of nagging on every push until the docs actually get touched. Not a
-// security use — collisions just mean a re-warn — but sha256 costs nothing extra here and avoids
-// flagging sha1 as a weak-hash finding for no reason.
+// Stable SHA-256 fingerprints suppress repeated warnings without treating this as security.
 export const fingerprint = (diff: string): string => createHash("sha256").update(diff).digest("hex");
 
-// ~4 months: long enough that a package under active, well-documented development never trips it.
+export type FingerprintTransition = {
+    seen: Record<string, string>
+    isNew: boolean
+};
+
+export const recordFingerprint = (
+    seen: Record<string, string>,
+    root: string,
+    diff: string,
+): FingerprintTransition => {
+    const value = fingerprint(diff);
+    if (seen[root] === value) return { seen, isNew: false };
+
+    return { seen: { ...seen, [root]: value }, isNew: true };
+};
+
+// 120 days is the stale-docs threshold.
 export const STALE_DOCS_MS = 120 * 24 * 60 * 60 * 1000;
 
 export const BIG_CHANGE_LINES = 200;
@@ -50,5 +63,5 @@ export const shouldWarn = (size: ChangeSize, lastMdCommitMs: number | undefined,
 export const displayName = (root: string): string =>
     (root.split("/").pop() ?? root)
         .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .map(titleCase)
         .join(" ");

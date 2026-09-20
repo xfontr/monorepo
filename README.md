@@ -89,7 +89,7 @@ Requires the Node version in `.nvmrc` and pnpm (version pinned via `packageManag
 
 ```sh
 pnpm install
-pnpm setup                              # hooks, workspace coverage and developer-portal snapshot
+pnpm quick-start                        # hooks, workspace coverage and developer-portal snapshot
 pnpm agents:sync                        # Claude adapters; Codex reads the sources directly
 pnpm dev                                # pick a project to start
 ```
@@ -116,7 +116,7 @@ use `pnpm exec nx run-many -t <target>`.
 
 | Command | What it does |
 | --- | --- |
-| `pnpm setup` | Install Git hooks for this clone, collect coverage for the workspace, then refresh the developer portal's snapshot |
+| `pnpm quick-start` | Install Git hooks for this clone, collect coverage for the workspace, then refresh the developer portal's snapshot |
 | `pnpm dev` | Pick a project and start its dev server — `pnpm dev developer-portal` skips the picker. Installs the workspace first if this is a fresh clone |
 | `pnpm lint` | Lint affected projects |
 | `pnpm typecheck` | Typecheck affected projects |

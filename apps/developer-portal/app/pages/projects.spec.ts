@@ -38,7 +38,7 @@ beforeEach(() => {
             ],
         }, manifest: {},
     });
-    state.metrics = ref({ metrics: { projects: [{ name: "@monorepo/ui", commits: 4, commitsPerWeek: 1, specs: 2, coverageLinesPct: 90 }] }, manifest: {} });
+    state.metrics = ref({ metrics: { projects: [{ name: "@monorepo/ui", commits: 4, commitsLastTwoWeeks: 1, specs: 2, coverageLinesPct: 90 }] }, manifest: {} });
     state.deployments = { data: ref({ deployments: [{ environment: "huella-legal", state: "success", url: "https://site.example", updatedAt: "2026-09-20" }], error: null }) };
 });
 
@@ -54,10 +54,10 @@ describe("projects page", () => {
         const uiCard = wrapper.findAll("article").find((card) => card.text().includes("UI kit"));
         const uiCardText = uiCard?.text().replace(/\s+/g, " ").trim();
         expect(uiCardText).toContain("Commits");
-        expect(uiCardText).toContain("4 (1 / week)");
+        expect(uiCardText).toContain("4 (1 last two weeks)");
         expect(uiCardText).toContain("Tests");
         expect(uiCardText).toContain("2 (90% coverage)");
-        expect(uiCardText).not.toContain("Commits / week (last 90 days)");
+        expect(uiCardText).not.toContain("/ week");
         expect(uiCardText).not.toContain("Line coverage");
 
         const toolingCard = wrapper.findAll("article").find((card) => card.text().includes("@monorepo/scripts"));
