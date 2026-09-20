@@ -26,8 +26,6 @@ export function normalizeGraph(raw: RawGraph, generatedAt: string): ProjectsArti
             name: node.name,
             root: node.data.root,
             tags: (node.data.tags ?? []).filter(isDeclaredTag),
-            targets: Object.keys(node.data.targets ?? {}).sort(),
-            private: (node.data.tags ?? []).includes("npm:private"),
             // Derived from the forward edges rather than read from a second field, so a project
             // with no dependencies still appears with two empty lists instead of being dropped.
             dependsOn: edges.filter((edge) => edge.source === node.name).map((edge) => edge.target).sort(),
@@ -35,7 +33,7 @@ export function normalizeGraph(raw: RawGraph, generatedAt: string): ProjectsArti
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
 
-    return { generatedAt, projects, edges };
+    return { generatedAt, projects };
 }
 
 export async function collectGraph(generatedAt: string): Promise<ProjectsArtifact> {

@@ -1,3 +1,5 @@
+import { repoApiUrl } from "./github.ts";
+
 export interface Deployment {
     id: number
     environment: string
@@ -22,20 +24,7 @@ export function deploymentUrlFor(deployments: EnvironmentDeployment[], environme
 
 /** The deployments endpoint shares the issues page's unauthenticated, browser-side GitHub read. */
 export function deploymentsApiUrl(repoUrl: string): string | null {
-    let url: URL;
-
-    try {
-        url = new URL(repoUrl);
-    }
-    catch {
-        return null;
-    }
-
-    const [owner, repo] = url.pathname.split("/").filter(Boolean);
-
-    if (owner === undefined || repo === undefined) return null;
-
-    return `${url.protocol}//api.${url.host}/repos/${owner}/${repo.replace(/\.git$/, "")}/deployments`;
+    return repoApiUrl(repoUrl, "deployments");
 }
 
 /** GitHub returns newest first; one current status per environment prevents stale deploys winning. */

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { data: snapshot } = await useSnapshot();
+const { data: snapshot } = await useSnapshot("scorecards");
 
 const reviews = computed(() => snapshot.value?.scorecards?.reviews ?? []);
 const latest = computed(() => reviews.value[0] ?? null);

@@ -2,13 +2,36 @@
 import { deploymentUrlFor } from "#shared/deployments.ts";
 import type { ProjectMetrics, ProjectNode } from "#shared/types.ts";
 
-const { data: snapshot } = await useSnapshot();
+const { data: snapshot } = await useSnapshot("projects");
+const { data: metricsSnapshot } = await useSnapshot("metrics");
 const { data: live } = useDeployments();
 const { public: { repoUrl } } = useRuntimeConfig();
 
 const projects = computed(() => snapshot.value?.projects?.projects ?? []);
-const metrics = computed(() => new Map(snapshot.value?.metrics?.projects.map((project) => [project.name, project]) ?? []));
+const metrics = computed(() => new Map(metricsSnapshot.value?.metrics?.projects.map((project) => [project.name, project]) ?? []));
 const deployments = computed(() => live.value.deployments);
+
+const projectLinks: Record<string, { storybook?: string, deploys?: string, environment?: string, website?: () => string | undefined }> = {
+    "@monorepo/ui": { storybook: embedUrl("/storybook/") },
+    "@monorepo/huella-legal": {
+        deploys: `${repoUrl}/actions/workflows/netlify-deployment.yml`,
+        environment: "netlify-huella-legal",
+    },
+    "@monorepo/developer-portal": {
+        deploys: `${repoUrl}/actions/workflows/developer-portal-deploy.yml`,
+        website: () => {
+            try {
+                const { hostname, pathname } = new URL(repoUrl);
+                const [owner, repo] = pathname.split("/").filter(Boolean);
+
+                return owner && repo && hostname === "github.com" ? `https://${owner}.github.io/${repo}/` : undefined;
+            }
+            catch {
+                return undefined;
+            }
+        },
+    },
+};
 
 const areaOrder: Record<string, number> = { apps: 0, infrastructure: 1, packages: 2 };
 
@@ -26,35 +49,22 @@ function metricFor(project: ProjectNode): ProjectMetrics | undefined {
 }
 
 function storybookFor(project: ProjectNode): string | undefined {
-    return project.name === "@monorepo/ui" ? embedUrl("/storybook/") : undefined;
+    return projectLinks[project.name]?.storybook;
 }
 
 function deploysFor(project: ProjectNode): string | undefined {
-    if (project.name === "@monorepo/huella-legal") return `${repoUrl}/actions/workflows/netlify-deployment.yml`;
-
-    if (project.name === "@monorepo/developer-portal") return `${repoUrl}/actions/workflows/docs-deploy.yml`;
-
-    return undefined;
+    return projectLinks[project.name]?.deploys;
 }
 
 function deploymentsFor(project: ProjectNode) {
-    return project.name === "@monorepo/huella-legal" ? deployments.value : [];
+    return projectLinks[project.name]?.environment ? deployments.value : [];
 }
 
 function websiteFor(project: ProjectNode): string | undefined {
-    if (project.name === "@monorepo/huella-legal") return deploymentUrlFor(deploymentsFor(project), "netlify-huella-legal");
+    const links = projectLinks[project.name];
+    if (links?.environment) return deploymentUrlFor(deploymentsFor(project), links.environment);
 
-    if (project.name !== "@monorepo/developer-portal") return undefined;
-
-    try {
-        const { hostname, pathname } = new URL(repoUrl);
-        const [owner, repo] = pathname.split("/").filter(Boolean);
-
-        return owner && repo && hostname === "github.com" ? `https://${owner}.github.io/${repo}/` : undefined;
-    }
-    catch {
-        return undefined;
-    }
+    return links?.website?.();
 }
 
 </script>
@@ -67,18 +77,31 @@ function websiteFor(project: ProjectNode): string | undefined {
                     <UDashboardSidebarCollapse />
                 </template>
                 <template #right>
-                    <SnapshotAge :manifest="snapshot?.manifest ?? null" artifact="metrics" />
+                    <SnapshotAge
+                        :manifest="snapshot?.manifest ?? null"
+                        artifact="metrics"
+                    />
                 </template>
             </UDashboardNavbar>
         </template>
 
         <template #body>
             <div class="flex flex-col gap-4">
-                <UAlert v-if="live.error" color="warning" variant="subtle" icon="i-lucide-cloud-off"
-                    title="Live deployment status is unavailable" :description="live.error" />
+                <UAlert
+                    v-if="live.error"
+                    color="warning"
+                    variant="subtle"
+                    icon="i-lucide-cloud-off"
+                    title="Live deployment status is unavailable"
+                    :description="live.error"
+                />
 
                 <div class="grid gap-4 xl:grid-cols-2">
-                    <UCard v-for="project in orderedProjects" :key="project.name" :ui="{ body: 'flex flex-col gap-4' }">
+                    <UCard
+                        v-for="project in orderedProjects"
+                        :key="project.name"
+                        :ui="{ body: 'flex flex-col gap-4' }"
+                    >
                         <template #header>
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
@@ -89,10 +112,18 @@ function websiteFor(project: ProjectNode): string | undefined {
                                         {{ project.root }}
                                     </p>
                                 </div>
-                                <UButton v-if="websiteFor(project)" :to="websiteFor(project)"
-                                    icon="i-lucide-external-link" color="neutral" variant="ghost" size="sm" square
-                                    target="_blank" :aria-label="`Open ${project.name}`"
-                                    :title="`Open ${project.name}`" />
+                                <UButton
+                                    v-if="websiteFor(project)"
+                                    :to="websiteFor(project)"
+                                    icon="i-lucide-external-link"
+                                    color="neutral"
+                                    variant="ghost"
+                                    size="sm"
+                                    square
+                                    target="_blank"
+                                    :aria-label="`Open ${project.name}`"
+                                    :title="`Open ${project.name}`"
+                                />
                             </div>
                         </template>
 
@@ -111,8 +142,10 @@ function websiteFor(project: ProjectNode): string | undefined {
                                 </p>
                                 <p class="font-semibold">
                                     {{ metricFor(project)?.commitsPerWeek ?? "—" }}
-                                    <span v-if="typeof metricFor(project)?.commitsPerWeek === 'number'"
-                                        class="font-normal text-muted"> /
+                                    <span
+                                        v-if="typeof metricFor(project)?.commitsPerWeek === 'number'"
+                                        class="font-normal text-muted"
+                                    > /
                                         week</span>
                                 </p>
                             </div>
@@ -130,19 +163,38 @@ function websiteFor(project: ProjectNode): string | undefined {
                                 </p>
                                 <p class="font-semibold">
                                     {{ metricFor(project)?.coverageLinesPct ?? "—" }}
-                                    <span v-if="typeof metricFor(project)?.coverageLinesPct === 'number'"
-                                        class="font-normal text-muted">%</span>
+                                    <span
+                                        v-if="typeof metricFor(project)?.coverageLinesPct === 'number'"
+                                        class="font-normal text-muted"
+                                    >%</span>
                                 </p>
                             </div>
                         </div>
 
                         <div class="flex flex-wrap gap-2">
-                            <UButton :to="`/docs/${project.root}/readme`" label="Docs" icon="i-lucide-book-open"
-                                size="xs" variant="soft" />
-                            <UButton v-if="storybookFor(project)" :to="storybookFor(project)" label="Storybook"
-                                icon="i-lucide-panels-top-left" size="xs" target="_blank" />
-                            <UButton v-if="deploysFor(project)" :to="deploysFor(project)" label="Deploys" size="xs"
-                                variant="soft" target="_blank" />
+                            <UButton
+                                :to="`/docs/${project.root}/readme`"
+                                label="Docs"
+                                icon="i-lucide-book-open"
+                                size="xs"
+                                variant="soft"
+                            />
+                            <UButton
+                                v-if="storybookFor(project)"
+                                :to="storybookFor(project)"
+                                label="Storybook"
+                                icon="i-lucide-panels-top-left"
+                                size="xs"
+                                target="_blank"
+                            />
+                            <UButton
+                                v-if="deploysFor(project)"
+                                :to="deploysFor(project)"
+                                label="Deploys"
+                                size="xs"
+                                variant="soft"
+                                target="_blank"
+                            />
                         </div>
                     </UCard>
                 </div>

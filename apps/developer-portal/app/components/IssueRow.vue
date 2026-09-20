@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Issue } from "#shared/types.ts";
 import { summarize } from "#shared/issues.ts";
+import type { Issue } from "#shared/issues.ts";
 
 const { issue, compact = false } = defineProps<{ issue: Issue, compact?: boolean }>();
 

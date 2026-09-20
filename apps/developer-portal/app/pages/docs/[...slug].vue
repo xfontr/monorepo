@@ -4,7 +4,7 @@ import { locate, toCollectionPath } from "#shared/wiki.ts";
 
 const route = useRoute();
 
-const { data: snapshot } = await useSnapshot();
+const { data: snapshot } = await useSnapshot("docs");
 const { data: sections } = await useWiki();
 
 const path = computed(() => `/${(route.params.slug as string[] | undefined ?? []).join("/")}`.toLowerCase());

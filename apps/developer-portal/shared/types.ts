@@ -20,8 +20,6 @@ export interface ProjectNode {
     name: string
     root: string
     tags: string[]
-    targets: string[]
-    private: boolean
     dependsOn: string[]
     dependedOnBy: string[]
 }
@@ -29,7 +27,6 @@ export interface ProjectNode {
 export interface ProjectsArtifact {
     generatedAt: string
     projects: ProjectNode[]
-    edges: { source: string, target: string, type: string }[]
 }
 
 export interface CoverageMetric {
@@ -67,15 +64,11 @@ export interface ProjectMetrics {
     name: string
     root: string
     specs: number
-    sources: number
-    specRatio: number
     commits: number | null
     commitsPerWeek: number | null
     coverageLinesPct: number | null
     unreleasedCommits: number | null
     currentVersion: string | null
-    hasReadme: boolean
-    hasAgentMd: boolean
     hasChangelog: boolean
 }
 
@@ -91,7 +84,6 @@ export interface MetricsArtifact {
     commit: string
     branch: string
     projects: ProjectMetrics[]
-    boundaryViolations: number | null
     invariantFindings: InvariantFinding[]
     conventionalCommitRate: number | null
     commitsSinceLastRelease: number | null
@@ -114,14 +106,10 @@ export type { DecisionOutcome, DecisionStatus };
 
 export interface DocPage {
     path: string
-    project: string | null
     kind: DocKind
     title: string
-    headings: string[]
     words: number
     updatedAt: string | null
-    /** Whether the doc carries a `## 🧭 Deliberately deferred` section. */
-    deferred: boolean
     /** Parsed from a decision report's frontmatter; null for anything that isn't one. */
     decisionStatus: DecisionStatus | null
     decisionOutcome: DecisionOutcome | null
@@ -169,7 +157,6 @@ export interface VulnerabilityAdvisory {
     title: string
     moduleName: string
     severity: "info" | "low" | "moderate" | "high" | "critical"
-    vulnerableVersions: string
     patchedVersions: string
     url: string
     /** `.>minimatch` notation — pnpm's own dependency chain, not a filesystem path. */
@@ -181,7 +168,6 @@ export interface OutdatedPackage {
     current: string
     wanted: string
     latest: string
-    dependencyType: string
     isDeprecated: boolean
     /** Repo-relative project roots — `pnpm outdated` itself reports an absolute filesystem path. */
     dependents: string[]
@@ -196,25 +182,4 @@ export interface DepsArtifact {
     advisories: VulnerabilityAdvisory[]
     /** Null when `pnpm outdated` itself failed to run — distinct from an empty array, which means nothing is outdated. */
     outdated: OutdatedPackage[] | null
-}
-
-/** One open issue, as `gh issue list --json` hands it over. */
-export interface Issue {
-    number: number
-    title: string
-    /** Raw markdown. Clamped where it is rendered, so the page decides how much of it fits. */
-    body: string
-    url: string
-    /** Names only — this app's own label colours come from a separate validated palette, not GitHub's. */
-    labels: string[]
-    assignees: string[]
-    createdAt: string
-    updatedAt: string
-}
-
-export interface IssuesArtifact {
-    fetchedAt: string
-    /** Null when `gh` answered; a string (not installed, not authenticated, offline) when it didn't. */
-    error: string | null
-    issues: Issue[]
 }

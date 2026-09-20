@@ -17,7 +17,7 @@ the branch you are on; the deployed site is a prerendered snapshot of `master`, 
 | Path | What lives there |
 | --- | --- |
 | `app/` | The Nuxt UI dashboard — pages and components |
-| `server/api/` | The one read a page makes of this app itself: the collected snapshot. The issues come straight from GitHub to the browser |
+| `server/api/` | Small reads of the collected artifacts and the navigation badge counts. The issues come straight from GitHub to the browser |
 | `shared/` | Pure logic — the wiki's shape, the issue rules, the decision vocabulary, the decision list's own filtering and counting, and where a doc's link points. Imported by app, server and tools alike |
 | `tools/collect/` | Builds the derived snapshot: graph, coverage, metrics, docs, scorecards |
 | `tools/lib/` | Node-only helpers — paths, the `git` allowlist, the invariant checks, and the remark plugin that rewrites a doc's links as it is parsed |
@@ -150,7 +150,7 @@ todo list that was exactly that mistake.
 | `fetch` in the browser, never `gh` on a server | The repo is public, so unauthenticated REST needs no credential — and a page that reads GitHub itself is a page that can be served as static files. A server existed only to hold the CLI's token |
 | The endpoint is derived from `NUXT_PUBLIC_REPO_URL` | GitHub's REST host is the repo's own with `api.` in front, so [`issuesApiUrl`](./shared/issues.ts) computes it and no vendor endpoint is written into this repo |
 | A failure is rendered, not thrown | No network and a spent rate limit are facts about the reader, not about the repo. The page shows GitHub's own message, which explains itself better than anything written here |
-| Pull requests are dropped | The REST issues endpoint returns both and `gh issue list` did not. [`toIssues`](./shared/issues.ts) filters on the `pull_request` key that only a PR carries |
+| Pull requests are dropped | The REST issues endpoint returns both, so [`toIssues`](./shared/issues.ts) filters on the `pull_request` key that only a PR carries |
 | Label names without their colours | GitHub's label palette is arbitrary and this app's is [three validated status roles](#-colour). Rendering one beside the other is how a page stops meaning anything |
 
 **The board a card sits on is gone, and is not coming back without a token.** `projectItems` is a
@@ -223,8 +223,8 @@ repo's settings — the workflow reads that configuration, it does not create it
 | `pnpm exec nx build-static @monorepo/developer-portal` | `nuxt build --prerender`. Plain `build` is SSR and would leave a server to host |
 
 It is a job of its own rather than three steps on `checks`, which is `affected` by design: this is a
-full coverage run and an `eslint` pass per project, producing an artifact no pull-request check
-reads.
+full coverage run and a collection of the cross-file invariant findings, producing an artifact no
+pull-request check reads.
 
 **This project overrides its own `production` Nx input**, in [`package.json`](./package.json), and
 the deploy is wrong without it. The workspace default excludes `!{projectRoot}/**/*.md` and scopes

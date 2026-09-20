@@ -11,7 +11,6 @@ interface RawAdvisory {
     title: string
     module_name: string
     severity: VulnerabilityAdvisory["severity"]
-    vulnerable_versions: string
     patched_versions: string
     url: string
     findings: { paths: string[] }[]
@@ -29,7 +28,6 @@ interface RawOutdatedEntry {
     current: string
     wanted: string
     latest: string
-    dependencyType: string
     isDeprecated: boolean
     dependentPackages: { name: string, location: string }[]
 }
@@ -53,7 +51,6 @@ async function collectAudit(): Promise<Pick<DepsArtifact, "vulnerabilities" | "t
             title: advisory.title,
             moduleName: advisory.module_name,
             severity: advisory.severity,
-            vulnerableVersions: advisory.vulnerable_versions,
             patchedVersions: advisory.patched_versions,
             url: advisory.url,
             paths: advisory.findings.flatMap((finding) => finding.paths),
@@ -75,7 +72,6 @@ async function collectOutdated(): Promise<OutdatedPackage[] | null> {
         current: entry.current,
         wanted: entry.wanted,
         latest: entry.latest,
-        dependencyType: entry.dependencyType,
         isDeprecated: entry.isDeprecated,
         dependents: entry.dependentPackages.map((pkg) => relative(WORKSPACE_ROOT, pkg.location)),
     }));

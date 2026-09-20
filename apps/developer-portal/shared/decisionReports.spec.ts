@@ -5,13 +5,10 @@ import { countByStatus, filterDecisions, sortDecisions, toDecisionReports } from
 function page(path: string, overrides: Partial<DocPage> = {}): DocPage {
     return {
         path,
-        project: null,
         kind: "decision",
         title: "🧭 A decision",
-        headings: [],
         words: 100,
         updatedAt: null,
-        deferred: false,
         decisionStatus: "to-implement",
         decisionOutcome: "accepted",
         decisionSupersededBy: null,

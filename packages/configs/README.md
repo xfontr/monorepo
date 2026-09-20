@@ -93,6 +93,9 @@ types even in a package that otherwise doesn't.
   package may not import `@nuxt/*`, `@nuxtjs/*`, `nitropack`, `h3` or `#nuxt/*`. That invariant is
   stated in the `content` and `i18n` AGENTS.md files, and the tag rule above cannot reach it: it
   reasons about project-to-project edges, never subpaths inside one project
+- `no-restricted-imports` under Nuxt `app/` and `server/`, from
+  [`lib/layerIsolation.ts`](./src/eslint/lib/layerIsolation.ts) — neither layer may import the
+  Node-only `tools/` tree, keeping collection commands out of browser and server bundles
 
 The shared pieces live in [`src/eslint/lib`](./src/eslint/lib) and are composed by
 [`node.ts`](./src/eslint/node.ts) and [`vue.ts`](./src/eslint/vue.ts). If you're adding a rule for

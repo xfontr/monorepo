@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { NuxtLink } from "#components";
 import type { Tone } from "../utils/format.ts";
 
 const { label, value, hint = undefined, icon = undefined, tone = "neutral", to = undefined } = defineProps<{
@@ -14,10 +15,13 @@ const toneClass = computed(() => (tone === "neutral" ? "" : `tone-${tone}`));
 </script>
 
 <template>
-    <NuxtLink
-        v-if="to"
+    <component
+        :is="to ? NuxtLink : 'div'"
         :to="to"
-        class="flex flex-col gap-1 rounded-lg border border-default bg-default p-4 hover:bg-elevated/50 transition-colors"
+        :class="[
+            'flex flex-col gap-1 rounded-lg border border-default bg-default p-4',
+            to && 'hover:bg-elevated/50 transition-colors',
+        ]"
     >
         <div class="flex items-center gap-1.5 text-xs text-muted">
             <UIcon
@@ -41,33 +45,5 @@ const toneClass = computed(() => (tone === "neutral" ? "" : `tone-${tone}`));
         >
             {{ hint }}
         </div>
-    </NuxtLink>
-
-    <div
-        v-else
-        class="flex flex-col gap-1 rounded-lg border border-default bg-default p-4"
-    >
-        <div class="flex items-center gap-1.5 text-xs text-muted">
-            <UIcon
-                v-if="icon"
-                :name="icon"
-                class="size-3.5"
-            />
-            {{ label }}
-        </div>
-
-        <div
-            class="text-2xl font-semibold tabular-nums"
-            :class="toneClass"
-        >
-            {{ value }}
-        </div>
-
-        <div
-            v-if="hint"
-            class="text-xs text-dimmed truncate"
-        >
-            {{ hint }}
-        </div>
-    </div>
+    </component>
 </template>

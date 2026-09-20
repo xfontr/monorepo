@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { data: snapshot } = await useSnapshot();
+const { data: snapshot } = await useSnapshot("deps");
 
 const deps = computed(() => snapshot.value?.deps ?? null);
 const advisories = computed(() => deps.value?.advisories ?? []);

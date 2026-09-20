@@ -4,7 +4,7 @@ import type { DecisionSort } from "#shared/decisionReports.ts";
 import { countByStatus, filterDecisions, sortDecisions } from "#shared/decisionReports.ts";
 import { DECISION_OUTCOMES, DECISION_STATUSES } from "#shared/decisions.ts";
 
-const { data: snapshot } = await useSnapshot();
+const { data: snapshot } = await useSnapshot("docs");
 const reports = useDecisionReports();
 
 const status = ref<DecisionStatus | "all">("all");

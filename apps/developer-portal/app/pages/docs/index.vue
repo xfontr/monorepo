@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toCollectionPath } from "#shared/wiki.ts";
 
-const { data: snapshot } = await useSnapshot();
+const { data: snapshot } = await useSnapshot("docs");
 const { data: sections } = await useWiki();
 
 const pages = computed(() => snapshot.value?.docs?.pages ?? []);
