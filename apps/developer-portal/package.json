@@ -42,9 +42,12 @@
   },
   "devDependencies": {
     "@monorepo/configs": "workspace:*",
+    "@nuxt/test-utils": "^4.3.2",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
+    "@vue/test-utils": "^2.4.11",
     "eslint": "catalog:",
+    "happy-dom": "^20.10.6",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
