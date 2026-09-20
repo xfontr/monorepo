@@ -1,5 +1,7 @@
 # 🤖 @monorepo/scripts
 
+⚠️ This is a mostly vibe-coded app, with low human intervention. Why: it's purely a DX tool. I do not have the resources to properly build and maintain this, so I went for the quick and easy shortcut.
+
 Repo-local dev tooling with no product code in it. Nothing imports this package — every script here
 is a CLI you run by hand or a hook runs for you, which is why it lives in `infrastructure/` rather
 than `packages/`.

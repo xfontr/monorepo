@@ -12,8 +12,7 @@
     "test": "vitest . --watch=false",
     "test:dev": "vitest .",
     "test:coverage": "vitest . --watch=false --coverage",
-    "collect": "node tools/collect/index.ts",
-    "check-docs": "node tools/check-docs/index.ts"
+    "collect": "node tools/collect/index.ts"
   },
   "nx": {
     "tags": [

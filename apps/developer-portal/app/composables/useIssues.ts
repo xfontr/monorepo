@@ -35,9 +35,7 @@ export function useIssues() {
 
     const state = useAsyncData<IssuesArtifact>("issues", () => read(repoUrl), {
         default: () => NO_ISSUES,
-        // Never on the server, which at build time is the prerenderer: a baked issue list would
-        // ship as old as the deploy.
-        server: false,
+        server: false, // A baked issue list would ship as old as the deploy.
     });
 
     return { ...state, reload: state.refresh };

@@ -28,9 +28,6 @@ export default defineNuxtConfig({
         },
 
         experimental: {
-            // `node:sqlite` instead of `better-sqlite3`, which is a native module with a postinstall
-            // step — and lifecycle scripts are banned in this workspace, so the default connector
-            // would work here and silently fail anywhere that installs with `--ignore-scripts`.
             sqliteConnector: "native",
         },
     },
@@ -61,17 +58,13 @@ export default defineNuxtConfig({
         },
     },
 
-    // @nuxtjs/color-mode ships as a dependency of @nuxt/ui rather than a listed module, so its
-    // defaults are otherwise invisible here. `fallback` only matters pre-hydration/no-JS; the
-    // toggle and system preference both still override it.
     colorMode: {
         preference: "system",
         fallback: "dark",
     },
 
     runtimeConfig: {
-        // Absolute, because the server that reads it is bundled somewhere else entirely. A static
-        // build resolves it while prerendering, so `NUXT_SNAPSHOT_DIR` points CI at its own artifact.
+        // Absolute, because the server that reads it is bundled somewhere else entirely.
         snapshotDir: resolve(import.meta.dirname, ".report"),
 
         public: {
