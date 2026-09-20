@@ -1,8 +1,4 @@
-/**
- * The fields a person searches an issue by. Declared here rather than imported from
- * [`gh.ts`](../adapters/gh.ts) so this file points at nothing outside `domain/`: `Issue` satisfies
- * it structurally, which is all either call site needs.
- */
+/** Structural typing keeps the domain independent of the GitHub adapter. */
 export type SearchableIssue = {
     number: number
     title: string

@@ -8,6 +8,7 @@ import {
     parseLinesChanged,
     projectRootFor,
     projectRootsFor,
+    recordFingerprint,
     shouldWarn,
 } from "./detect.ts";
 
@@ -62,6 +63,23 @@ describe("fingerprint", () => {
 
     it("returns a different digest once the diff text changes, so a new change re-arms the warning", () => {
         expect(fingerprint("diff content")).not.toBe(fingerprint("different diff content"));
+    });
+});
+
+describe("recordFingerprint", () => {
+    it("skips an unchanged fingerprint without changing the seen state", () => {
+        const seen = { "packages/ui": fingerprint("diff content") };
+
+        expect(recordFingerprint(seen, "packages/ui", "diff content")).toEqual({ seen, isNew: false });
+    });
+
+    it("records a new fingerprint before the caller decides whether to warn", () => {
+        const seen = { "packages/ui": fingerprint("old diff") };
+
+        expect(recordFingerprint(seen, "packages/ui", "new diff")).toEqual({
+            seen: { "packages/ui": fingerprint("new diff") },
+            isNew: true,
+        });
     });
 });
 
@@ -122,7 +140,7 @@ describe("shouldWarn", () => {
 describe("displayName", () => {
     it.each([
         ["apps/huella-legal", "Huella Legal"],
-        ["packages/ui", "Ui"],
+        ["packages/ui", "UI"],
         ["infrastructure/scripts", "Scripts"],
     ])("turns the root %j into the issue title name %j", (root, expected) => {
         expect(displayName(root)).toBe(expected);

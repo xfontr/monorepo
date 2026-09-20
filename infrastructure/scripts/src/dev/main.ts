@@ -10,7 +10,6 @@ import { findProject, matches, rowFor, toProjects, type DevProject } from "./dom
 
 const CANCELLED = "Cancelled — nothing started.";
 
-/** Enough to show every layer at once today, and to keep the search box on screen when it isn't. */
 const VISIBLE_ROWS = 12;
 
 const list = (): DevProject[] => {
@@ -27,10 +26,6 @@ const list = (): DevProject[] => {
 const spellings = (projects: DevProject[]): string =>
     projects.map(({ name }) => name.replace("@monorepo/", "")).join(", ");
 
-/**
- * The picker needs someone to answer it, so a non-interactive caller gets the list as an error
- * instead of a prompt nothing will ever type into — same split `drift/` makes for its own confirm.
- */
 const choose = async (projects: DevProject[], search: string): Promise<DevProject> => {
     if (!isInteractive()) {
         throw new ExpectedError(`No terminal to pick with — name a project: pnpm dev <${spellings(projects)}>`);
@@ -55,8 +50,6 @@ export const main = async ({ positionals }: Args): Promise<void> => {
     const projects = list();
     if (projects.length === 0) throw new ExpectedError("Nothing in this workspace declares a `dev` script.");
 
-    // Joined rather than taking the first, so `pnpm dev huella legal` matches the label the picker
-    // shows as readily as the quoted spelling does.
     const requested = positionals.join(" ");
     const named = requested ? findProject(projects, requested) : undefined;
 

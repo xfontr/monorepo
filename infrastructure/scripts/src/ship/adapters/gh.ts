@@ -2,11 +2,7 @@ import { assertNotFlagLike } from "../../shared/adapters/exec.ts";
 import { gh } from "../../shared/adapters/gh.ts";
 import { isMissingChecksError } from "../domain/checks.ts";
 
-/**
- * `gh pr view` exits non-zero when the branch has no PR at all, which is the normal "first push on
- * this branch" case rather than a failure — so this swallows that and hands `main.ts` `undefined` to
- * fall through to `createPr` on, instead of every caller having to know which `gh` errors are fine.
- */
+/** A missing PR is the normal first-push case, so return `undefined` for `main.ts` to create one. */
 export const prUrlForBranch = (branch: string): string | undefined => {
     try {
         return gh("pr", "view", assertNotFlagLike(branch, "branch"), "--json", "url", "-q", ".url");
@@ -25,8 +21,7 @@ export const enableAutoMerge = (url: string, method: string): void => {
 
 export type ChecksResult = {
     passed: boolean
-    /** `gh`'s own per-check table — the part worth showing on a failure, so the terminal names
-     * which check failed instead of just that one did. */
+    /** `gh`'s per-check table, shown when a check fails. */
     output: string
 };
 
@@ -38,8 +33,7 @@ const CHECK_REGISTRATION_INTERVAL_MS = 5_000;
 const MERGE_POLL_BUDGET_MS = 60_000;
 const MERGE_POLL_INTERVAL_MS = 3_000;
 
-/** Blocks the one thread that matters here — every other call in this script is synchronous top to
- * bottom, and dragging `await` through `main.ts` for two retry loops would buy nothing. */
+/** Keep retry loops synchronous so the rest of this script stays synchronous. */
 const wait = (ms: number): void => {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, ms);
 };
@@ -49,19 +43,14 @@ const errorText = (error: unknown): string => {
     return [stdout, stderr].map((part) => part?.toString().trim() ?? "").filter(Boolean).join("\n");
 };
 
-/**
- * `gh` exits non-zero the moment any check fails or is cancelled, and its table of results is on
- * `stdout` of that same failed process — `run()` only returns stdout on success, so a failure has
- * to read it back off the caught error.
- */
+/** Failed `gh` checks put their result table on the caught error's stdout. */
 export const watchChecks = (url: string, deadline = Date.now() + CHECK_REGISTRATION_BUDGET_MS): ChecksResult => {
     try {
         return { passed: true, output: gh("pr", "checks", assertNotFlagLike(url, "PR url"), "--watch") };
     }
     catch (error) {
         const output = errorText(error);
-        // "no checks reported" also means "hasn't registered yet" — indistinguishable from a real
-        // failure by exit code alone, which never carries this message, so retrying is safe
+        // "no checks reported" also means registration is pending, so retry before treating it as failure.
         if (isMissingChecksError(output) && Date.now() < deadline) {
             wait(CHECK_REGISTRATION_INTERVAL_MS);
             return watchChecks(url, deadline);
@@ -73,7 +62,7 @@ export const watchChecks = (url: string, deadline = Date.now() + CHECK_REGISTRAT
 const prState = (url: string): string =>
     gh("pr", "view", assertNotFlagLike(url, "PR url"), "--json", "state", "-q", ".state");
 
-/** Polls a bounded window rather than reading state once, so the checkout below can fire on this same run instead of a lucky next one. */
+/** Polling lets the same run return to master after the merge completes. */
 export const waitForMerge = (url: string, deadline = Date.now() + MERGE_POLL_BUDGET_MS): boolean => {
     if (prState(url) === "MERGED") return true;
     if (Date.now() >= deadline) return false;

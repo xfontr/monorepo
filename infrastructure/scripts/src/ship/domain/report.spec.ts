@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { shipMessage } from "./report.ts";
+import { shipMessage, shipReport } from "./report.ts";
 
 describe("shipMessage", () => {
     it("reports the check failure and leaves merged out of it, even if the caller also passed merged: true", () => {
@@ -12,5 +12,27 @@ describe("shipMessage", () => {
 
     it("reports a queued merge when checks passed but the merge hasn't landed yet", () => {
         expect(shipMessage({ checksPassed: true, merged: false })).toBe("✅ pipelines green, merge queued — should land shortly.");
+    });
+});
+
+describe("shipReport", () => {
+    it.each([
+        [{ checksPassed: false, merged: false }, {
+            message: "❌ a check failed — PR left open.",
+            exitCode: 1,
+            syncMaster: false,
+        }],
+        [{ checksPassed: true, merged: false }, {
+            message: "✅ pipelines green, merge queued — should land shortly.",
+            exitCode: undefined,
+            syncMaster: false,
+        }],
+        [{ checksPassed: true, merged: true }, {
+            message: "✅ pipelines green, PR auto-merged.",
+            exitCode: undefined,
+            syncMaster: true,
+        }],
+    ])("reports the message, exit status and master-sync action for %j", (outcome, expected) => {
+        expect(shipReport(outcome)).toEqual(expected);
     });
 });

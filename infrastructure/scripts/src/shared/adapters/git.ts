@@ -7,10 +7,5 @@ let root: string | undefined;
 
 export const repoRoot = (): string => (root ??= git("rev-parse", "--show-toplevel"));
 
-/**
- * Every script here runs with cwd set to this package's own directory, because `pnpm --filter`
- * changes into it first — so a plain relative path like "packages/ui" would resolve against
- * `infrastructure/scripts/packages/ui`, which doesn't exist, and match nothing. Resolving against
- * the real repo root sidesteps that wherever the process was invoked from.
- */
+/** pnpm may set cwd to this package, so repo-relative paths resolve from the actual Git root. */
 export const at = (...parts: string[]): string => join(repoRoot(), ...parts);

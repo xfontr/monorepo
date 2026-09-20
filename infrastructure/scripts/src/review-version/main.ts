@@ -6,8 +6,9 @@ import { parseManifest, staleArtifacts, updateManifest } from "./domain/manifest
 
 export const main = ({ flags }: Args): void => {
     const before = readManifest();
+    const beforeManifest = parseManifest(before);
     const digests = digestArtifacts();
-    const stale = staleArtifacts(parseManifest(before), digests);
+    const stale = staleArtifacts(beforeManifest, digests);
 
     if (flags.has("check")) {
         if (stale.length > 0) {
@@ -17,22 +18,21 @@ export const main = ({ flags }: Args): void => {
             );
         }
 
-        out.success(`${METHOD_PATH} is at version ${parseManifest(before)?.version}, four artifacts unchanged.`);
+        out.success(`${METHOD_PATH} is at version ${beforeManifest?.version}, four artifacts unchanged.`);
         return;
     }
 
     const after = updateManifest(before, digests);
 
     if (after === before) {
-        out.success(`${METHOD_PATH} is at version ${parseManifest(before)?.version}, four artifacts unchanged.`);
+        out.success(`${METHOD_PATH} is at version ${beforeManifest?.version}, four artifacts unchanged.`);
         return;
     }
 
     writeManifest(after);
 
-    const from = parseManifest(before)?.version;
     const to = parseManifest(after)?.version;
 
-    out.success(`Wrote ${METHOD_PATH} — version ${to} (was ${from}).`);
+    out.success(`Wrote ${METHOD_PATH} — version ${to} (was ${beforeManifest?.version}).`);
     out.info("A bump owes the calibration re-score: score the previous review's commit under the new method.");
 };

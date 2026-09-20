@@ -57,8 +57,7 @@ export const updateManifest = (markdown: string, digests: Digests): string => {
         return rows;
     });
 
-    // A manifest with no table can't record what a bump would mean, so refuse rather than climb the
-    // version on every run against a file that will never match.
+    // A manifest with no table cannot record what a bump would mean, so leave it unchanged.
     if (!seen) return markdown;
     if (!changed) return lines.join("\n");
 

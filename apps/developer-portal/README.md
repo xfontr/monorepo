@@ -183,8 +183,9 @@ per viewer per session rather than once a minute per server.
 The Projects page is a card per node in the collected Nx graph. Each project's title and description
 come from its existing README through the Nuxt Content `docs` collection, so there is no second
 hand-written project catalog. Each card also joins the graph to collect-time commit history, spec count
-and coverage. `git rev-list` counts the project's history; `git log --since=90 days ago` becomes commits
-per week, so the browser never spends one GitHub request per project for data already present in the checkout.
+and coverage. `git rev-list` counts the project's history; `git log --since=2 weeks ago` adds the recent
+commit count, so the browser never spends one GitHub request per project for data already present in the
+checkout.
 
 Deployments are the exception because they can change after the static site ships. The browser reads
 GitHub's unauthenticated `deployments` endpoint once, then the newest status for each environment;

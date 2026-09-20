@@ -65,7 +65,7 @@ export interface ProjectMetrics {
     root: string
     specs: number
     commits: number | null
-    commitsPerWeek: number | null
+    commitsLastTwoWeeks: number | null
     coverageLinesPct: number | null
     unreleasedCommits: number | null
     currentVersion: string | null

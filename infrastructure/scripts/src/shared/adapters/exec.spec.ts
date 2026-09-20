@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { assertNotFlagLike, run } from "./exec.ts";
+import { assertNotFlagLike, inherit, run } from "./exec.ts";
 
 describe("run", () => {
     it("uses the executable selected by PATH so machine-specific installations work", () => {
@@ -18,6 +18,17 @@ describe("run", () => {
             vi.unstubAllEnvs();
             rmSync(bin, { recursive: true, force: true });
         }
+    });
+
+    it("propagates a subprocess failure instead of hiding its stderr", () => {
+        expect(() => run(process.execPath, ["-e", "process.stderr.write('failure'); process.exit(2)"])).toThrow();
+    });
+});
+
+describe("inherit", () => {
+    it("returns the child exit status and preserves a null signal status", () => {
+        expect(inherit(process.execPath, ["-e", "process.exit(3)"])).toBe(3);
+        expect(inherit(process.execPath, ["-e", "process.kill(process.pid, 'SIGTERM')"])).toBeNull();
     });
 });
 

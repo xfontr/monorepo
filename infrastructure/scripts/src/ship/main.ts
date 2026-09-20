@@ -3,7 +3,7 @@ import { out } from "../shared/adapters/io.ts";
 import { ExpectedError } from "../shared/errors.ts";
 import { createPr, enableAutoMerge, prUrlForBranch, waitForMerge, watchChecks } from "./adapters/gh.ts";
 import { checkoutMaster, currentBranch, pullMaster, push } from "./adapters/git.ts";
-import { shipMessage } from "./domain/report.ts";
+import { shipReport } from "./domain/report.ts";
 
 const MERGE_METHOD = "merge";
 
@@ -34,13 +34,14 @@ export const main = (): void => {
     if (!passed) out.note(output, "Checks");
 
     const merged = passed && waitForMerge(url);
+    const report = shipReport({ checksPassed: passed, merged });
 
-    if (merged) {
+    if (report.syncMaster) {
         checkoutMaster();
         pullMaster();
     }
 
-    out.end(shipMessage({ checksPassed: passed, merged }));
+    out.end(report.message);
 
-    if (!passed) process.exitCode = 1;
+    if (report.exitCode !== undefined) process.exitCode = report.exitCode;
 };

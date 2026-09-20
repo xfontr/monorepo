@@ -1,4 +1,7 @@
-/** Facts about how this repo is laid out, with no way to read the repo. */
-
-/** Every project in this repo lives directly under one of these three — see the `new-package` skill. */
 export const PROJECT_ROOTS = ["packages", "apps", "infrastructure"];
+
+/** Words Title Case would ruin: nobody calls the component library "Ui". */
+const ACRONYMS = ["ui", "api", "bff", "cms", "tms"];
+
+export const titleCase = (word: string): string =>
+    ACRONYMS.includes(word) ? word.toUpperCase() : `${word.charAt(0).toUpperCase()}${word.slice(1)}`;

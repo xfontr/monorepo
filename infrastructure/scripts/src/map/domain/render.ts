@@ -16,7 +16,7 @@ const SECTIONS: { kind: Kind, heading: string, lead: string[] }[] = [
         kind: "hook",
         heading: "🪝 Git hooks",
         lead: [
-            "These run themselves, but only after `pnpm setup` — a fresh clone has no hooks at all until",
+            "These run themselves, but only after `pnpm quick-start` — a fresh clone has no hooks at all until",
             "that per-clone setup runs.",
         ],
     },

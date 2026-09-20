@@ -1,21 +1,16 @@
-/** One thing this repo can do that a newcomer could not have guessed was here. */
 export type Kind = "command" | "hook" | "workflow" | "skill";
 
 export type Capability = {
     kind: Kind
-    /** What you type, or the filename of the thing that runs itself. */
     invocation: string
-    /** Repo-relative path of the file that declares it. */
     source: string
-    /** The literal a doc has to contain to count as explaining this capability. */
     token: string
 };
 
-/** A row per project would be forty lines of `lint` and `typecheck` burying the eight commands that are actually specific to something. */
+/** Omit commands already exposed by the root so the map stays focused on project-specific capabilities. */
 export const STANDARD_TARGETS = ["lint", "typecheck", "test", "test:dev", "test:coverage", "build"];
 
 export type ProjectScripts = {
-    /** Repo-relative directory, e.g. `packages/ui`. */
     root: string
     name: string
     scripts: string[]
@@ -29,7 +24,6 @@ export const rootCommands = (scripts: string[]): Capability[] =>
         token: script,
     }));
 
-/** A project script is only worth a row when the root doesn't already expose it — `issue:add` lives in this package but you invoke it from the root. */
 export const projectCommands = (projects: ProjectScripts[], rootScripts: string[]): Capability[] =>
     projects.flatMap(({ root, name, scripts }) =>
         scripts
@@ -66,11 +60,7 @@ export const skills = (found: { source: string, name: string }[]): Capability[] 
         token: name,
     }));
 
-/**
- * `release` must not be satisfied by a doc that only mentions `release:dry`, and `test` must not
- * be satisfied by `test:coverage` — so a token can't be followed by a `:` or another word
- * character. It may be preceded by one because prose can wrap a capability in punctuation.
- */
+/** Match a token without accepting a longer command such as `test:coverage`. */
 export const mentions = (text: string, token: string): boolean => {
     const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     return new RegExp(`${escaped}(?![\\w:-])`).test(text);
@@ -84,11 +74,7 @@ const sharedPrefix = (a: string, b: string): number => {
     return shared;
 };
 
-/**
- * The map is read by humans, so a README outranks the `AGENTS.md` or `SKILL.md` that happens to
- * mention the same thing — those are written for an agent and pointing a newcomer at one is a
- * worse answer than pointing them at the README next to the code.
- */
+/** Prefer human-facing docs before proximity so skills do not cite one another as explanations. */
 const audience = (path: string): number => {
     const name = path.split("/").pop();
     if (name === "README.md") return 0;
@@ -99,19 +85,10 @@ const audience = (path: string): number => {
 
 export type Doc = { path: string, text: string };
 
-/**
- * The best doc that explains a capability, or `undefined` when nothing does.
- *
- * Audience ranks before nearness, and that order is load-bearing: every skill lives under
- * `.agents/skills/`, so nearness-first made each one cite whichever *other* skill happened to
- * mention it — two shared path segments beating the root `AGENTS.md` table that actually indexes
- * them. Within one audience, nearness is what keeps a `packages/ui` script pointing at
- * `packages/ui/README.md` instead of at the root README.
- */
+/** Audience ranks before nearness so skills do not cite another skill instead of their README. */
 export const documentedBy = ({ source, token }: Capability, docs: Doc[]): string | undefined =>
     docs
-        // A skill's own SKILL.md names the skill, so without this every skill would cite itself as
-        // its own explanation and the column would be uniformly green and worthless.
+        // Exclude a skill's own SKILL.md or every skill would cite itself.
         .filter((doc) => doc.path !== source && mentions(doc.text, token))
         .sort(
             (a, b) =>

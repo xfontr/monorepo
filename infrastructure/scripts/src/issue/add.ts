@@ -1,11 +1,11 @@
-import { autocomplete, confirm, isCancel, select, text } from "@clack/prompts";
+import { autocomplete, confirm, select, text } from "@clack/prompts";
 import { createIssue } from "../shared/adapters/gh.ts";
 import { out } from "../shared/adapters/io.ts";
 import { orExit } from "../shared/adapters/prompts.ts";
 import { listLabels, listProjects, type Label, type Project } from "./adapters/gh.ts";
 import { currentBranch } from "./adapters/git.ts";
 import { labelOptions, NONE_OPTION, PROJECT_SCOPE_HINT, projectOptions } from "./adapters/prompts.ts";
-import { matchesLabel } from "./domain/search.ts";
+import { labelOptionMatches, optionalSelection } from "./domain/pick.ts";
 import { pick } from "./pick.ts";
 
 const CANCELLED = "Cancelled — no issue created.";
@@ -25,14 +25,10 @@ const pickProject = async (projects: Project[]): Promise<string | undefined> => 
         }),
     );
 
-    return picked || undefined;
+    return optionalSelection(picked);
 };
 
-/**
- * Searchable where the project prompt above isn't: labels are a list this repo keeps adding to, and
- * the one you want is one you can already name. *None* stays put while the box is empty and drops
- * out the moment you type — having typed anything, you're looking for a label, not for nothing.
- */
+/** Keep `None` visible only for an empty search; once typed, the picker is searching for a label. */
 const pickLabel = async (labels: Label[]): Promise<string | undefined> => {
     const picked = or(
         await autocomplete({
@@ -40,14 +36,11 @@ const pickLabel = async (labels: Label[]): Promise<string | undefined> => {
             placeholder: "Type a label or what it means",
             maxItems: 12,
             options: [...labelOptions(labels), NONE_OPTION],
-            filter: (search, { value, hint }) =>
-                (value === NONE_OPTION.value
-                    ? !search.trim()
-                    : matchesLabel({ name: value, description: hint ?? "" }, search)),
+            filter: (search, option) => labelOptionMatches(NONE_OPTION.value, option, search),
         }),
     );
 
-    return picked || undefined;
+    return optionalSelection(picked);
 };
 
 export const add = async (): Promise<void> => {
@@ -102,8 +95,8 @@ export const add = async (): Promise<void> => {
 const offerPick = async (): Promise<void> => {
     if (currentBranch() !== "master") return;
 
-    const wantsPick = await confirm({ message: "You're on master — pick an issue now?" });
-    if (isCancel(wantsPick) || !wantsPick) return;
+    const wantsPick = or(await confirm({ message: "You're on master — pick an issue now?" }));
+    if (!wantsPick) return;
 
     await pick();
 };

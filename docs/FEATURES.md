@@ -15,7 +15,7 @@ and are documented once in the [root README](../README.md#-getting-started).
 
 | Capability | Declared in | Explained in |
 | --- | --- | --- |
-| `pnpm quick-start` | [`package.json`](../package.json) | [`docs/decisions/0019-scripts-quality-audit.md`](../docs/decisions/0019-scripts-quality-audit.md) |
+| `pnpm quick-start` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm dev` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm lint` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm typecheck` | [`package.json`](../package.json) | [`README.md`](../README.md) |
@@ -45,7 +45,7 @@ and are documented once in the [root README](../README.md#-getting-started).
 
 ## 🪝 Git hooks
 
-These run themselves, but only after `pnpm setup` — a fresh clone has no hooks at all until
+These run themselves, but only after `pnpm quick-start` — a fresh clone has no hooks at all until
 that per-clone setup runs.
 
 | Capability | Declared in | Explained in |

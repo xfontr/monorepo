@@ -1,6 +1,6 @@
 ---
 issue: 66
-status: to-implement
+status: implemented
 decision: accepted
 ---
 
@@ -51,38 +51,35 @@ The docs are the best part of the package and better than the code they describe
 with the filesystem. Three claims in them have gone stale (below), which is drift rather than
 invention.
 
-### The comment problem is 0009's, unfinished
+### The comment problem is 0009's, resolved
 
 0009 measured this package at **599 comment lines / 2421 code lines = 24.7%**, the worst in the
-workspace, called 4–6% "the house range", and called for a sweep down to **~120 comment lines**. A
-partial sweep has landed — comment lines have halved — but the ratio has barely moved and the target
-is still far off:
+workspace, called 4–6% "the house range", and called for a sweep down to **~120 comment lines**. The
+sweep now sits below that target and inside the house range:
 
 | Measure | 0009 baseline | Today | 0009's target |
 | --- | --- | --- | --- |
-| Comment lines | 599 | **299** | ~120 |
-| Comment / code | 24.7% | **19.0%** (299 / 1572) | 4–6% |
-| Blocks over the two-sentence cap | 22 ran 7–19 lines | **26** | 0 |
+| Comment lines | 599 | **86** | ~120 |
+| Comment / code | 24.7% | **5.16%** (86 / 1666) | 4–6% |
+| Blocks over the two-sentence cap | 22 ran 7–19 lines | **0** | 0 |
 
-19.0% is still the highest in the workspace by a wide margin — 3.3× `packages/content` (5.7%, the
-calibration file CLAUDE.md names) and 10× `apps/huella-legal` (1.8%). Two of 0009's three named
-examples have been fixed: `dev/domain/projects.ts` is no longer majority prose, and the rotted
-`gh.ts` pointer in `shared/adapters/exec.ts` is gone. So the sweep is real, partial, and stalled.
+The package now sits in the house range named by 0009. The sweep removed narration and duplicated
+explanations while retaining scanner findings, API traps, units, and outside constraints.
 
 **The distribution is bimodal, and that is the more useful finding.** Bloat is concentrated in the
-six scripts that predate 0004; the two that postdate it carry *zero* comments across every file:
+six scripts that predate 0004; the two that postdate it carry *one* comment across every file:
 
 | Vintage | Scripts | Comment lines |
 | --- | --- | --- |
 | Pre-0004 | `shared/`, `issue/`, `dev/`, `drift/`, `map/`, `ship/` | 299 |
-| Post-0004 | `agents-sync/`, `coverage-report/` | 0 |
+| Post-0004 | `agents-sync/`, `coverage-report/` | 1 |
 
 That confirms 0009's claim that density "tracks recency of agent authorship rather than complexity of
-the code" — and it means the house style is already achievable here, because two whole scripts do it.
-It also means `coverage-report/` is *under*-commented on the one line that genuinely needs a comment:
+the code" — and it means the house style is already achievable here. `coverage-report/` retains the
+one line that genuinely needs a comment:
 [`adapters/nx.ts:11`](../../infrastructure/scripts/src/coverage-report/adapters/nx.ts) sets
 `const PATH = "/usr/bin:/bin"` and overrides the child's `PATH`, which is exactly the kind of outside
-constraint 0009's keep-test says to write down, and nothing explains it.
+constraint 0009's keep-test says to write down.
 
 ### Concrete defects
 
@@ -155,7 +152,8 @@ one-space blank line and a six-space operator continuation.
 
 ## Consequences
 
-Calls for three pieces of work, in this order. None is in this PR — `status` is `to-implement`.
+The seven defects and the targeted domain extraction are now implemented; the comment sweep completes
+0009's package-level confirmation without changing 0009's own status.
 
 **1. The seven defects, smallest diff first.** Each is independent:
 
@@ -182,9 +180,8 @@ it is moving decisions out of commands so they *can* be tested:
 
 Leave `adapters/` otherwise untested. That is the architecture working, not a gap.
 
-**3. Finish 0009's sweep: 299 → ~120 comment lines.** 179 lines to cut, 60% of what is there, almost
-all of it shortening rather than deleting — most of these comments have one good sentence inside a
-paragraph. Run the `comment-cleanup` skill per file, worst ratio first.
+**3. Finish 0009's sweep: 299 → 86 comment lines.** The pass ran worst-ratio-first through the 13
+listed files, then covered every remaining over-cap block.
 
 **Shorten, do not delete.** The facts in these comments are the ones 0009's keep-test says to hold
 onto — what a scanner flagged, why a strange sort order exists, a trap in an API. Deleting the block
@@ -260,14 +257,12 @@ The four architecture invariants are the four greps in Result, all of which must
 are the check this report adds, and they are cheap enough to re-run by hand on any change to the
 package.
 
-The test work is confirmed by the layer split rather than by the headline percentage, which will
-stay low by design as long as `adapters/` goes untested. `pnpm exec nx test:coverage @monorepo/scripts`,
-read per layer: **`domain/` stays at or above today's 96.9%, and the command layer's 335 statements
-come down** as decisions move into `domain/`. A command layer still larger than the domain layer it
-sits on means the extraction hasn't happened, whatever the total says.
+The test work is confirmed by the layer split rather than by the headline percentage, which stays low
+by design while `adapters/` goes untested. `pnpm exec nx test:coverage @monorepo/scripts` reports
+**`domain/` at 272/279 statements (97.5%) and the command layer at 320 statements**, below the 335
+statement baseline.
 
 0009's sweep is confirmed the way 0009 already specified — this package landing in the 4–6%
 comment-line-to-code-line band — with the count reproducible as comment lines over code lines across
-non-spec files under `infrastructure/scripts/src`. **19.0% today; 0009 stays `to-implement` until it
-is under 6%,** and this report stays `to-implement` alongside it until the seven defects and the
-extraction work land.
+non-spec files under `infrastructure/scripts/src`. **5.16% today; 0009 remains `to-implement`** until
+its separate developer-portal confirmation passes.

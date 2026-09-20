@@ -3,35 +3,28 @@ import { dirname } from "node:path";
 import { flag } from "../cli.ts";
 
 const CACHE_DIR = "node_modules/.cache/@monorepo/scripts";
-// A day, not a session: labels and projects change on the order of quarters, so this is a
-// backstop, not the mechanism. `--refresh` is the mechanism.
+// TTL is one day; `--refresh` remains the explicit invalidation.
 const TTL_MS = 24 * 60 * 60 * 1000;
 
 const pathFor = (key: string): string => `${CACHE_DIR}/${key}.json`;
 
-// Read per call, not at module load, so nothing downstream has to thread the flag through.
+// Read per call so importing a module cannot freeze the flag's value.
 const refreshRequested = (): boolean => flag("refresh");
 
-/**
- * Wraps a `gh` call that barely ever changes (projects, labels) in a 24h file cache, keyed by
- * name. Deliberately not used for `listIssues`: that one changes on every triage, and a stale
- * answer there is worse than the round trip it would save.
- */
+/** Cache stable project and label lists for 24h; issue lists stay live because triage changes them. */
 export const cached = <T>(key: string, fetch: () => T): T => {
     const file = pathFor(key);
 
     if (!refreshRequested()) {
         try {
             const { fetchedAt, data } = JSON.parse(readFileSync(file, "utf8")) as { fetchedAt: number, data: T };
-            // An empty list here is usually a swallowed failure (e.g. a missing gh scope), not a
-            // confirmed "there's nothing" — trusting it for a full day would keep hiding that
-            // failure from callers long after the actual cause is gone.
+            // An empty list may be a swallowed failure, so do not cache it for a full day.
             const emptyList = Array.isArray(data) && data.length === 0;
 
             if (!emptyList && Date.now() - fetchedAt < TTL_MS) return data;
         }
         catch {
-            // No cache yet, or it's corrupt — fall through to a real fetch.
+            // Cache misses and corrupt data fall through to a live fetch.
         }
     }
 
@@ -42,36 +35,30 @@ export const cached = <T>(key: string, fetch: () => T): T => {
         writeFileSync(file, JSON.stringify({ fetchedAt: Date.now(), data }));
     }
     catch {
-        // A cache write failing (read-only fs, no space) shouldn't fail a command that has its answer.
+        // Cache writes fail open so a successful command is not lost to storage errors.
     }
 
     return data;
 };
 
-/**
- * The read half of `cached`, minus the TTL gate: offline mode wants whatever's on disk, however
- * old, instead of `cached`'s fresh-or-nothing answer — there's no fetch to fall back to.
- */
+/** Offline mode reads stale cache without the TTL gate because no fetch can replace it. */
 export const readCache = <T>(key: string): T | undefined => {
     try {
         return (JSON.parse(readFileSync(pathFor(key), "utf8")) as { data: T }).data;
     }
     catch {
+        // Offline cache misses return no issues.
         return undefined;
     }
 };
 
-/**
- * The write half, exported on its own for callers that need to update the cache on every run
- * rather than only on a TTL miss — `listIssues` does, because a stale issue list is the one
- * answer this whole flow exists to avoid.
- */
+/** Issue lists refresh the cache on every run instead of using `cached`'s TTL gate. */
 export const writeCache = <T>(key: string, data: T): void => {
     try {
         mkdirSync(dirname(pathFor(key)), { recursive: true });
         writeFileSync(pathFor(key), JSON.stringify({ fetchedAt: Date.now(), data }));
     }
     catch {
-        // Same fail-open stance as `cached`'s write.
+        // Cache writes fail open so issue selection is not lost to storage errors.
     }
 };
