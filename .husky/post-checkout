@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ "$#" -ne 3 ] || [ "$3" != "1" ]; then
+    exit 0
+fi
+
+if ! git rev-parse --verify "$1^{commit}" >/dev/null 2>&1 || \
+    ! git rev-parse --verify "$2^{commit}" >/dev/null 2>&1; then
+    exit 0
+fi
+
+git diff --quiet "$1" "$2" -- pnpm-lock.yaml >/dev/null 2>&1
+STATUS=$?
+
+if [ "$STATUS" -eq 1 ]; then
+    printf '%s\n' '⚠ pnpm-lock.yaml changed; run pnpm install.'
+fi
+
+exit 0
