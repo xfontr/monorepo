@@ -177,6 +177,9 @@ use `pnpm exec nx run-many -t <target>`.
   PR additionally gets [`actions/dependency-review-action`](https://github.com/actions/dependency-review-action)
   in `warn-only` mode, which comments with any vulnerability the PR's own diff introduces without
   ever blocking the merge.
+- [`pr-labeler.yml`](./.github/workflows/pr-labeler.yml) applies and synchronizes architectural path
+  labels on PRs from changed-file metadata. It does not execute PR code and uses only the read and
+  pull-request write permissions needed to inspect paths and update labels.
 - Opening a PR from a branch that convention built triggers
   [`pr-metadata.yml`](./.github/workflows/pr-metadata.yml): it reads the branch type and issue
   number back out of the branch name, copies the issue's assignees and project onto the PR as-is,

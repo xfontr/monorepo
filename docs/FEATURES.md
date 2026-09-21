@@ -64,6 +64,7 @@ GitHub Actions, named as the Actions tab shows them rather than by filename.
 | `Dependabot auto-merge` | [`.github/workflows/dependabot-auto-merge.yml`](../.github/workflows/dependabot-auto-merge.yml) | [`README.md`](../README.md) |
 | `Developer Portal deploy` | [`.github/workflows/developer-portal-deploy.yml`](../.github/workflows/developer-portal-deploy.yml) | [`README.md`](../README.md) |
 | `Netlify deployment` | [`.github/workflows/netlify-deployment.yml`](../.github/workflows/netlify-deployment.yml) | [`README.md`](../README.md) |
+| `PR labeler` | [`.github/workflows/pr-labeler.yml`](../.github/workflows/pr-labeler.yml) | [`README.md`](../README.md) |
 | `PR metadata` | [`.github/workflows/pr-metadata.yml`](../.github/workflows/pr-metadata.yml) | [`README.md`](../README.md) |
 | `Release` | [`.github/workflows/release.yml`](../.github/workflows/release.yml) | [`README.md`](../README.md) |
 
