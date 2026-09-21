@@ -1,0 +1,352 @@
+name: Focused documentation review
+
+on:
+    pull_request:
+        types: [opened, reopened, synchronize]
+
+permissions:
+    contents: read
+    pull-requests: write
+
+concurrency:
+    group: docs-review-${{ github.repository }}-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
+
+jobs:
+    review:
+        if: >-
+            github.event.pull_request.head.repo.full_name == github.repository &&
+            github.event.pull_request.user.login != 'dependabot[bot]'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check Copilot secret
+              id: copilot-secret
+              env:
+                  COPILOT_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+              run: |
+                  if [ -z "$COPILOT_TOKEN" ]; then
+                      echo "available=false" >> "$GITHUB_OUTPUT"
+                      {
+                          echo "### Focused documentation review"
+                          echo
+                          echo "Skipped: the COPILOT_GITHUB_TOKEN repository secret is not configured."
+                      } >> "$GITHUB_STEP_SUMMARY"
+                  else
+                      echo "available=true" >> "$GITHUB_OUTPUT"
+                  fi
+
+            - name: Check out pull request head
+              id: checkout
+              if: steps.copilot-secret.outputs.available == 'true'
+              continue-on-error: true
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  ref: ${{ github.event.pull_request.head.sha }}
+                  fetch-depth: 0
+
+            - name: Prepare bounded review context
+              id: prepare
+              if: steps.copilot-secret.outputs.available == 'true' && steps.checkout.outcome == 'success'
+              continue-on-error: true
+              env:
+                  BASE_SHA: ${{ github.event.pull_request.base.sha }}
+                  HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+              run: |
+                  node <<'NODE'
+                  const fs = require("node:fs");
+                  const path = require("node:path");
+                  const { spawnSync } = require("node:child_process");
+
+                  const base = process.env.BASE_SHA;
+                  const head = process.env.HEAD_SHA;
+                  const workspace = process.env.GITHUB_WORKSPACE ?? process.cwd();
+                  const contextDir = path.join(workspace, ".github", "docs-review-context");
+                  const maxDiffChars = 60_000;
+                  const maxDocumentationChars = 30_000;
+
+                  fs.mkdirSync(contextDir, { recursive: true });
+
+                  const git = (args, options = {}) => {
+                      const result = spawnSync("git", args, {
+                          cwd: workspace,
+                          encoding: "utf8",
+                          maxBuffer: 8 * 1024 * 1024,
+                          ...options,
+                      });
+                      if (result.status !== 0) {
+                          throw new Error(result.stderr || "git " + args.join(" ") + " failed");
+                      }
+                      return result.stdout;
+                  };
+
+                  const setOutput = (name, value) => {
+                      fs.appendFileSync(process.env.GITHUB_OUTPUT, name + "=" + value + "\n");
+                  };
+
+                  const isExcluded = (file) => {
+                      return (
+                          file === "docs/FEATURES.md" ||
+                          /(^|\/)(node_modules|coverage|dist|build|\.nuxt|\.output|storybook-static|\.report)(\/|$)/.test(file) ||
+                          /(^|\/)(__fixtures__|fixtures?|mocks?)(\/|$)/.test(file) ||
+                          /(^|\/)(pnpm-lock\.yaml|package-lock\.json|yarn\.lock|bun\.lockb)$/.test(file) ||
+                          /\.(?:spec|test)\.[^./]+$/.test(file) ||
+                          /\.stories?\.[^./]+$/.test(file) ||
+                          /\.snap$/.test(file)
+                      );
+                  };
+
+                  const isPotentiallyRelevant = (file) => {
+                      if (isExcluded(file)) return false;
+                      if (path.posix.basename(file) === "package.json") return true;
+                      if (["pnpm-workspace.yaml", "nx.json"].includes(file)) return true;
+                      if (/^(.+\/)?nuxt\.config\.[^/]+$/.test(file)) return true;
+                      if (/^packages\/[^/]+\/src(?:\/|$)/.test(file)) return true;
+                      if (/^infrastructure\/scripts\/src(?:\/|$)/.test(file)) return true;
+                      if (/^apps\/[^/]+\/(?:app|server|composables|middleware|modules|pages|plugins|shared)(?:\/|$)/.test(file)) return true;
+                      if (/^packages\/configs\/src\/eslint\/lib\/boundaries\.[^/]+$/.test(file)) return true;
+                      if (/^\.github\/workflows\//.test(file)) return true;
+                      if ([".github/dependabot.yml", ".github/CODEOWNERS"].includes(file)) return true;
+                      return false;
+                  };
+
+                  const changedFiles = git(["diff", "--name-only", "-z", base, head, "--"])
+                      .split("\0")
+                      .filter(Boolean);
+                  const relevantFiles = changedFiles.filter(isPotentiallyRelevant);
+                  fs.writeFileSync(path.join(contextDir, "changed-files.txt"), changedFiles.join("\n") + "\n");
+
+                  if (relevantFiles.length === 0) {
+                      setOutput("eligible", "false");
+                      setOutput("skip_reason", "The changed files do not touch a documented public surface.");
+                      fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "### Focused documentation review\n\nSkipped: the deterministic eligibility gate found no documented public-surface change.\n");
+                      process.exit(0);
+                  }
+
+                  const textFiles = relevantFiles.filter((file) => {
+                      const numstat = git(["diff", "--numstat", base, head, "--", file]);
+                      return !/^(-|-)\t(-|-)\t/m.test(numstat);
+                  });
+                  const diff = textFiles.length === 0
+                      ? ""
+                      : git(["diff", "--no-ext-diff", "--unified=3", base, head, "--", ...textFiles]);
+                  fs.writeFileSync(path.join(contextDir, "diff.patch"), diff);
+
+                  const projectRoots = new Set();
+                  for (const file of changedFiles) {
+                      const match = /^(apps|packages|infrastructure)\/[^/]+/.exec(file);
+                      if (match) projectRoots.add(match[0]);
+                  }
+
+                  const documentationFiles = new Set();
+                  const addNearestReadme = (file, root) => {
+                      let current = path.posix.dirname(file);
+                      while (current && current.startsWith(root)) {
+                          const candidate = path.join(workspace, current, "README.md");
+                          if (fs.existsSync(candidate)) {
+                              documentationFiles.add(candidate);
+                              return;
+                          }
+                          if (current === root) break;
+                          current = path.posix.dirname(current);
+                      }
+                      const projectReadme = path.join(workspace, root, "README.md");
+                      if (fs.existsSync(projectReadme)) documentationFiles.add(projectReadme);
+                  };
+
+                  for (const file of changedFiles) {
+                      const root = [...projectRoots].find((candidate) => file === candidate || file.startsWith(candidate + "/"));
+                      if (root) addNearestReadme(file, root);
+                  }
+
+                  const addAncestors = (file, basename) => {
+                      let current = path.posix.dirname(file);
+                      while (true) {
+                          const candidate = path.join(workspace, current, basename);
+                          if (fs.existsSync(candidate)) documentationFiles.add(candidate);
+                          if (!current) break;
+                          const parent = path.posix.dirname(current);
+                          if (parent === current) break;
+                          current = parent;
+                      }
+                  };
+
+                  documentationFiles.add(path.join(workspace, "AGENTS.md"));
+                  for (const file of changedFiles) addAncestors(file, "AGENTS.md");
+
+                  const rootBehaviorChanged = changedFiles.some((file) =>
+                      ["package.json", "pnpm-workspace.yaml", "nx.json"].includes(file) ||
+                      file.startsWith(".github/workflows/") ||
+                      [".github/dependabot.yml", ".github/CODEOWNERS"].includes(file)
+                  );
+                  if (rootBehaviorChanged) documentationFiles.add(path.join(workspace, "README.md"));
+
+                  const documentationEntries = [...documentationFiles]
+                      .filter((file) => fs.existsSync(file))
+                      .map((file) => ({
+                          header: "--- " + path.relative(workspace, file) + " ---\n",
+                          content: fs.readFileSync(file, "utf8"),
+                      }));
+                  const separator = "\n\n";
+                  const truncationMarker = "\n[truncated to fit the documentation context bound]\n";
+                  const fixedCharacters = documentationEntries.reduce(
+                      (total, entry) => total + entry.header.length + truncationMarker.length,
+                      Math.max(0, documentationEntries.length - 1) * separator.length,
+                  );
+                  let remainingCharacters = Math.max(0, maxDocumentationChars - fixedCharacters);
+                  let remainingEntries = documentationEntries.map((entry, index) => ({
+                      index,
+                      length: entry.content.length,
+                  }));
+                  const contentCharacters = documentationEntries.map(() => 0);
+                  while (remainingEntries.length > 0) {
+                      const equalShare = Math.floor(remainingCharacters / remainingEntries.length);
+                      const completeEntries = remainingEntries.filter((entry) => entry.length <= equalShare);
+                      if (completeEntries.length === 0) {
+                          for (const entry of remainingEntries) contentCharacters[entry.index] = equalShare;
+                          break;
+                      }
+                      for (const entry of completeEntries) {
+                          contentCharacters[entry.index] = entry.length;
+                          remainingCharacters -= entry.length;
+                      }
+                      const completeIndexes = new Set(completeEntries.map((entry) => entry.index));
+                      remainingEntries = remainingEntries.filter((entry) => !completeIndexes.has(entry.index));
+                  }
+                  const truncatedFiles = documentationEntries.filter(
+                      (entry, index) => entry.content.length > contentCharacters[index],
+                  ).length;
+                  const documentation = documentationEntries
+                      .map((entry, index) => {
+                          if (entry.content.length <= contentCharacters[index]) return entry.header + entry.content;
+                          return entry.header + entry.content.slice(0, contentCharacters[index]) + truncationMarker;
+                      })
+                      .join(separator);
+
+                  if (diff.length > maxDiffChars) {
+                      setOutput("eligible", "false");
+                      setOutput("skip_reason", "The relevant diff is " + diff.length + " characters, above the " + maxDiffChars + "-character review bound.");
+                      fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "### Focused documentation review\n\nSkipped: the relevant diff is " + diff.length + " characters, above the " + maxDiffChars + "-character review bound.\n");
+                      process.exit(0);
+                  }
+                  fs.writeFileSync(path.join(contextDir, "documentation.txt"), documentation);
+                  setOutput("eligible", "true");
+                  setOutput("skip_reason", "");
+                  const truncationSummary = truncatedFiles === 0
+                      ? "Documentation context is within bounds."
+                      : "Bounded " + truncatedFiles + " of " + documentationEntries.length + " documentation file(s) so every applicable file remains represented.";
+                  fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "### Focused documentation review\n\nEligible: " + relevantFiles.length + " changed public-surface file(s). " + truncationSummary + "\n");
+                  NODE
+
+            - name: Set up Node.js for Copilot CLI
+              id: node-setup
+              if: steps.prepare.outputs.eligible == 'true'
+              continue-on-error: true
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+              with:
+                  node-version-file: .nvmrc
+
+            - name: Install Copilot CLI
+              id: copilot-install
+              if: steps.prepare.outputs.eligible == 'true' && steps.node-setup.outcome == 'success'
+              continue-on-error: true
+              run: npm install --global --ignore-scripts @github/copilot@1.0.87
+
+            - name: Run focused documentation inference
+              id: inference
+              if: steps.prepare.outputs.eligible == 'true' && steps.node-setup.outcome == 'success' && steps.copilot-install.outcome == 'success'
+              continue-on-error: true
+              uses: actions/ai-inference@2c43c91ae16266ca159d311430343c67a5ffa222 # v3
+              with:
+                  prompt-file: ./.github/prompts/docs-review.prompt.yml
+                  file_input: |
+                      changed_files: ./.github/docs-review-context/changed-files.txt
+                      diff: ./.github/docs-review-context/diff.patch
+                      documentation: ./.github/docs-review-context/documentation.txt
+                  model: ""
+                  provider: copilot
+                  token: ""
+                  copilot-allow-tools: ""
+              env:
+                  COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+
+            - name: Report unavailable inference
+              if: steps.prepare.outputs.eligible == 'true' && (steps.node-setup.outcome != 'success' || steps.copilot-install.outcome != 'success' || steps.inference.outcome != 'success')
+              run: |
+                  {
+                      echo "### Focused documentation review"
+                      echo
+                      echo "Skipped: Copilot CLI installation or inference was unavailable; this advisory review will not affect the PR."
+                  } >> "$GITHUB_STEP_SUMMARY"
+
+            - name: Report unavailable review preparation
+              if: steps.copilot-secret.outputs.available == 'true' && (steps.checkout.outcome != 'success' || steps.prepare.outcome != 'success')
+              run: |
+                  {
+                      echo "### Focused documentation review"
+                      echo
+                      echo "Skipped: review context preparation was unavailable; this advisory review will not affect the PR."
+                  } >> "$GITHUB_STEP_SUMMARY"
+
+            - name: Synchronize focused review comment
+              if: steps.inference.outcome == 'success'
+              continue-on-error: true
+              uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+              env:
+                  RESPONSE_FILE: ${{ steps.inference.outputs.response-file }}
+              with:
+                  script: |
+                      const fs = require("node:fs");
+                      const marker = "<!-- focused-doc-review -->";
+                      const response = fs.readFileSync(process.env.RESPONSE_FILE, "utf8").trim();
+                      const { owner, repo } = context.repo;
+                      const issue_number = context.issue.number;
+                      const comments = await github.paginate(github.rest.issues.listComments, {
+                          owner,
+                          repo,
+                          issue_number,
+                          per_page: 100,
+                      });
+                      const marked = comments.filter((comment) =>
+                          comment.user?.login === "github-actions[bot]" && comment.body?.includes(marker)
+                      );
+                      const removeExtras = async () => {
+                          for (const comment of marked.slice(1)) {
+                              await github.rest.issues.deleteComment({ owner, repo, comment_id: comment.id });
+                          }
+                      };
+                      const removeOrResolve = async (comment) => {
+                          try {
+                              await github.rest.issues.deleteComment({ owner, repo, comment_id: comment.id });
+                          } catch {
+                              await github.rest.issues.updateComment({
+                                  owner,
+                                  repo,
+                                  comment_id: comment.id,
+                                  body: `${marker}\nResolved: no documentation drift detected for this revision.`,
+                              });
+                          }
+                      };
+
+                      if (response === "NO_DOCUMENTATION_DRIFT") {
+                          for (const comment of marked) {
+                              await removeOrResolve(comment);
+                          }
+                          core.notice("Focused documentation review completed with no drift detected.");
+                          await core.summary.addRaw("Completed: no documentation drift detected.\n").write();
+                          return;
+                      }
+
+                      if (!response.startsWith("### Possible documentation drift")) {
+                          core.warning("The advisory response did not match the expected format; no PR comment was posted.");
+                          return;
+                      }
+
+                      const body = `${marker}\n${response}`;
+                      if (marked.length > 0) {
+                          await github.rest.issues.updateComment({ owner, repo, comment_id: marked[0].id, body });
+                          await removeExtras();
+                      } else {
+                          await github.rest.issues.createComment({ owner, repo, issue_number, body });
+                      }
+                      core.notice("Focused documentation review completed and synchronized its PR comment.");
+                      await core.summary.addRaw("Completed: documentation findings were synchronized to the PR comment.\n").write();

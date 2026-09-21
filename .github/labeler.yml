@@ -1,0 +1,33 @@
+app:developer-portal:
+    - changed-files:
+          - any-glob-to-any-file: apps/developer-portal/**
+app:huella-legal:
+    - changed-files:
+          - any-glob-to-any-file: apps/huella-legal/**
+package:configs:
+    - changed-files:
+          - any-glob-to-any-file: packages/configs/**
+package:content:
+    - changed-files:
+          - any-glob-to-any-file: packages/content/**
+package:i18n:
+    - changed-files:
+          - any-glob-to-any-file: packages/i18n/**
+package:observability:
+    - changed-files:
+          - any-glob-to-any-file: packages/observability/**
+package:ui:
+    - changed-files:
+          - any-glob-to-any-file: packages/ui/**
+infrastructure:
+    - changed-files:
+          - any-glob-to-any-file: infrastructure/**
+documentation:
+    - changed-files:
+          - any-glob-to-any-file: "**/*.md"
+github_actions:
+    - changed-files:
+          - any-glob-to-any-file:
+                - .github/workflows/**
+                - .github/dependabot.yml
+                - .github/labeler.yml

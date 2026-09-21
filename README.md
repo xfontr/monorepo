@@ -128,6 +128,7 @@ use `pnpm exec nx run-many -t <target>`.
 | `pnpm exec nx collect @monorepo/developer-portal` | Rebuild the snapshot that developer-portal reads |
 | `pnpm agents:sync` | Render ignored Claude adapters from canonical `AGENTS.md` files and `.agents/skills/`; `--check` reports local drift |
 | `pnpm docs:map` | Re-render [`docs/FEATURES.md`](./docs/FEATURES.md); `--check` asserts it is current |
+| `pnpm package:check` | Validate every `packages/*` manifest, raw-source export target and peer metadata |
 | `pnpm release:dry` | Preview a release (versioning + changelogs) |
 
 ## 🌿 Git conventions
@@ -145,6 +146,10 @@ use `pnpm exec nx run-many -t <target>`.
   instead of stacking a second one; a branch with no number in it is left alone. This is why the log
   here is number-first without anyone maintaining that.
 - The pre-commit hook checks that `docs/FEATURES.md` and the review method version are current.
+- [`post-checkout`](./.husky/post-checkout) and [`post-merge`](./.husky/post-merge) warn when a branch
+  operation changes `pnpm-lock.yaml` and tell you to run `pnpm install`. They ignore file checkouts,
+  stay silent when Git cannot inspect the revisions, never install dependencies and never block the
+  checkout or merge.
 - The pre-push hook runs `lint`, `test` and `typecheck` on affected projects in a temporary
   checkout of the pushed commit; it also rejects a push that adds a `TODO`/`FIXME` comment. Worktree
   and staged changes are therefore ignored, while a marker already in the committed tree never
@@ -177,6 +182,29 @@ use `pnpm exec nx run-many -t <target>`.
   PR additionally gets [`actions/dependency-review-action`](https://github.com/actions/dependency-review-action)
   in `warn-only` mode, which comments with any vulnerability the PR's own diff introduces without
   ever blocking the merge.
+- [`pr-labeler.yml`](./.github/workflows/pr-labeler.yml) applies and synchronizes architectural path
+  labels on PRs from changed-file metadata. It does not execute PR code and uses only the read and
+  pull-request write permissions needed to inspect paths and update labels.
+- [`docs-review.yml`](./.github/workflows/docs-review.yml) is an advisory documentation-drift review:
+  a deterministic gate limits inference to PRs that plausibly change a documented public surface,
+  and the workflow stays silent when no drift is found. It is not a required check; missing
+  credentials, exhausted Copilot AI credits or a transient Copilot failure skip the review
+  gracefully. Inference uses the repository owner's Copilot allowance through the
+  `COPILOT_GITHUB_TOKEN` secret, which must contain a user-owned fine-grained PAT with the
+  account-level **Copilot Requests** permission. To provision it, create a fine-grained token at
+  [GitHub's token settings](https://github.com/settings/personal-access-tokens/new) with the
+  repository owner's personal account selected as **Resource owner** — not an organization — and
+  access limited to this repository or public repositories. Under **Account permissions**, add
+  **Copilot Requests**, generate the token, and store it without exposing its value:
+
+  ```sh
+  gh secret set COPILOT_GITHUB_TOKEN --repo xfontr/monorepo
+  ```
+
+  The command reads the token from standard input. The workflow uses this secret only for Copilot
+  CLI inference; the normal `GITHUB_TOKEN` remains responsible for its single sticky PR comment.
+  This consumes the repository owner's Copilot AI-credit allowance and does not use GitHub Models,
+  `models: read` or `copilot-requests: write`.
 - Opening a PR from a branch that convention built triggers
   [`pr-metadata.yml`](./.github/workflows/pr-metadata.yml): it reads the branch type and issue
   number back out of the branch name, copies the issue's assignees and project onto the PR as-is,
