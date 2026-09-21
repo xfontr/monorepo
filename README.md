@@ -191,7 +191,20 @@ use `pnpm exec nx run-many -t <target>`.
   credentials, exhausted Copilot AI credits or a transient Copilot failure skip the review
   gracefully. Inference uses the repository owner's Copilot allowance through the
   `COPILOT_GITHUB_TOKEN` secret, which must contain a user-owned fine-grained PAT with the
-  account-level **Copilot Requests** permission.
+  account-level **Copilot Requests** permission. To provision it, create a fine-grained token at
+  [GitHub's token settings](https://github.com/settings/personal-access-tokens/new) with the
+  repository owner's personal account selected as **Resource owner** — not an organization — and
+  access limited to this repository or public repositories. Under **Account permissions**, add
+  **Copilot Requests**, generate the token, and store it without exposing its value:
+
+  ```sh
+  gh secret set COPILOT_GITHUB_TOKEN --repo xfontr/monorepo
+  ```
+
+  The command reads the token from standard input. The workflow uses this secret only for Copilot
+  CLI inference; the normal `GITHUB_TOKEN` remains responsible for its single sticky PR comment.
+  This consumes the repository owner's Copilot AI-credit allowance and does not use GitHub Models,
+  `models: read` or `copilot-requests: write`.
 - Opening a PR from a branch that convention built triggers
   [`pr-metadata.yml`](./.github/workflows/pr-metadata.yml): it reads the branch type and issue
   number back out of the branch name, copies the issue's assignees and project onto the PR as-is,
