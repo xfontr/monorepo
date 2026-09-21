@@ -14,6 +14,7 @@
     "agents:sync": "node --disable-warning=ExperimentalWarning src/agents-sync/index.ts",
     "docs:drift": "node --disable-warning=ExperimentalWarning src/drift/index.ts",
     "docs:map": "node --disable-warning=ExperimentalWarning src/map/index.ts",
+    "package:check": "node --disable-warning=ExperimentalWarning src/package-contracts/index.ts",
     "review:version": "node --disable-warning=ExperimentalWarning src/review-version/index.ts",
     "coverage": "node --disable-warning=ExperimentalWarning src/coverage-report/index.ts",
          "lint": "nx eslint:lint",

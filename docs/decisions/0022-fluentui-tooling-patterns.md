@@ -23,10 +23,10 @@ comments or blockers. Line numbers are as of this report.
 
 ## Result
 
-**Three experiments are adopted: package-contract checks, a UI bundle-size fixture, and lockfile
-change warnings.** They start as explicit local commands or advisory hooks, not CI gates. Each
-produces evidence before the next layer is added, which keeps the shiny-object budget attached to a
-real question rather than to infrastructure for its own sake.
+**Two experiments are adopted: lockfile change warnings and static package-manifest checks.** The
+hooks remain advisory and the validation starts as an explicit local command, not a CI gate. Both
+test properties that exist in the repository today without inventing a packaging or bundle-output
+lifecycle around them.
 
 ### The full `scripts/` inventory
 
@@ -46,9 +46,9 @@ machinery, test harnesses and compatibility code for three generations of Fluent
 | `lint-staged` | Groups staged files by project, then runs each project's ESLint setup in parallel | Clever at Fluent UI scale; the existing affected lint plus pre-push isolation is enough here |
 | `monorepo` | Git root, package metadata, internal dependency traversal, affected projects and workspace aliases | Widely consumed in Fluent UI, but direct Nx calls remain clearer for this repository's independent CLIs |
 | `package-manager` | Enforces Yarn, prints onboarding help and warns after checkout/merge when lock or Nx files changed | Port the Git-hook warning only; lifecycle entry points conflict with the local lifecycle-script ban |
-| `perf-test-flamegrill` | Renders named component scenarios and markers for CPU-profile comparisons | Fun, but bundle size gives a cheaper first performance signal; keep this behind evidence of runtime regressions |
+| `perf-test-flamegrill` | Renders named component scenarios and markers for CPU-profile comparisons | Fun, but there is no measured runtime problem here to anchor it to |
 | `prettier` | Filters supported files and invokes one root Prettier configuration safely without a shell | ESLint already owns formatting here; no separate formatter exists to wrap |
-| `projects-test` | Packs workspace packages, installs tarballs into temporary consumers, serves their output and fails on browser errors | Best idea in the directory: test what a consumer receives, not what workspace links hide |
+| `projects-test` | Packs workspace packages, installs tarballs into temporary consumers, serves their output and fails on browser errors | A strong published-package test, but tarballs are not part of this repository's raw-source workspace model |
 | `puppeteer` | Shared browser launch and navigation helpers for integration and SSR tests | An implementation detail of the browser harness, not a feature to copy alone |
 | `storybook` | Story globs, loader rules, TypeScript aliases and build-less registration of workspace Storybook addons | Build-less addons are genuinely neat, but this repository has no custom addon; story-driven smoke tests are the transferable half |
 | `tasks` | A large `just-scripts` facade over compilation, lint, tests, Sass, Webpack, API extraction and performance tasks | An older orchestration layer now overlapping Nx; not a model for new code here |
@@ -70,10 +70,10 @@ metadata:
 | --- | --- | --- |
 | `export-maps-sync` | Declared entry points generate ordered `exports`, `main`, `module` and `typings`; `nx sync:check` catches drift before build | The drift class is real here, but [`0005`](./0005-nx-generators-and-ai-agent-setup.md) already built and reverted a local Nx plugin. Steal the contract, not the delivery mechanism |
 | `verify-peer-dependencies` | Checks incompatible ranges, invalid ranges, orphaned metadata and optional peer forwarding, with verbose proof of what it skipped | Directly relevant to `content` and `i18n`, whose Nuxt dependencies are optional peers |
-| `verify-packaging` | Reads `npm pack --dry-run` and asserts both required files and forbidden development/config files | Directly useful even with raw source: an export that is absent from the tarball is broken regardless of compilation strategy |
+| `verify-packaging` | Reads `npm pack --dry-run` and asserts both required files and forbidden development/config files | Its contract mindset transfers, but tarball contents do not describe the current raw-source workspace model |
 | `attw` target | Runs `@arethetypeswrong/cli` against a packed package | Useful only after the package has a publishable JS/declaration shape; raw `.ts` and `.vue` exports make it a later experiment |
-| `projects-test` integration | Replaces workspace dependencies with tarballs in a temporary consumer, then builds and opens it | The strongest end-to-end package contract, but it comes after the cheap pack inspection identifies what is publishable |
-| Bundle-size generator + Monosize | Generates one fixture per import scenario, measures affected packages, compares the PR with a base report and posts a sticky summary | A good playground for `@monorepo/ui`; start with the Vite already installed before deciding whether Monosize earns a dependency |
+| `projects-test` integration | Replaces workspace dependencies with tarballs in a temporary consumer, then builds and opens it | Useful for a publishable artifact lifecycle, which this repository deliberately does not have |
+| Bundle-size generator + Monosize | Generates one fixture per import scenario, measures affected packages, compares the PR with a base report and posts a sticky summary | Interesting tooling, but bundle-size measurement is not being introduced here |
 | `test-ssr` inference | Every stories project automatically gets an SSR/browser-console target unless excluded centrally | The automatic target is less interesting than the test: server render, hydrate, fail on browser errors |
 | Build/API executors | SWC emits ESM/CommonJS while API Extractor rolls declarations and API reports per export subpath | Opposite to this repository's raw-source package decision; useful reference if that decision changes, not before |
 | Scaffolding and migrations | React libraries, components, recipes, CLI commands, release phases, moves and package splits are executable, dry-runnable transformations with integration tests | Excellent examples for learning Nx generators. The local package generator was already prototyped and reverted in 0005, so another attempt should pursue a new contract rather than repeat it |
@@ -85,12 +85,7 @@ metadata:
 | # | Where | Experiment |
 | --- | --- | --- |
 | 1 | `.husky/post-checkout:1`, `.husky/post-merge:1`, `README.md:133` | Port Fluent UI's advisory lockfile warning using `pnpm-lock.yaml`. Ignore file checkouts, never auto-install and never fail the Git operation |
-| 2 | `infrastructure/scripts/src/package-contracts/:1`, `infrastructure/scripts/package.json:6`, `package.json:11`, `infrastructure/scripts/README.md:14` | Add `pnpm package:check`: inspect every `packages/*/package.json`, assert each export target exists and is present in `pnpm pack --dry-run`, validate that every `peerDependenciesMeta` key has a peer, and print skipped checks explicitly. It remains dependency-free and read-only |
-| 3 | `packages/ui/bundle-size/Button.fixture.ts:1`, `infrastructure/scripts/src/bundle-size/:1`, `infrastructure/scripts/package.json:6`, `package.json:11`, `infrastructure/scripts/README.md:14` | Add a manual `pnpm bundle:size` experiment that bundles a minimal `Button` import with the Vite already installed, reports raw and gzip bytes, and writes only to a temporary directory. Do not add a package `build` target or committed bundle output |
-
-The package-contract command deliberately stops before installing the tarballs. Once its cheap
-checks pass, extend it with one temporary Vite consumer that installs the packed packages instead of
-workspace links. Only after that consumer needs registry semantics does Verdaccio enter the design.
+| 2 | `infrastructure/scripts/src/package-contracts/:1`, `infrastructure/scripts/package.json:6`, `package.json:11`, `infrastructure/scripts/README.md:14` | Add `pnpm package:check`: inspect every `packages/*/package.json`, validate the metadata shape, assert each declared export target exists, ensure every `peerDependenciesMeta` key names a declared peer and print checked or skipped results explicitly. It remains dependency-free and read-only; it does not pack packages or inspect tarballs |
 
 ## Options considered
 
@@ -98,47 +93,39 @@ workspace links. Only after that consumer needs registry semantics does Verdacci
 | --- | --- |
 | Port `scripts/` wholesale | Much of it is React-generation or release-generation compatibility code. Copying 23 packages hides the five contracts worth learning from |
 | Start by building a local Nx plugin | Decision 0005 already completed that experiment: the generators worked and were reverted. Repeating it teaches nothing unless a new sync or inferred-target problem appears |
-| Start with Verdaccio | Fluent UI currently exposes the target and permissive proxy config, but code search finds no workflow or test consuming it. A tarball consumer proves the need for registry behaviour before a long-running service is added |
-| Add Monosize immediately | It buys base-report comparison, thresholds and PR summaries. The hand-rolled alternative uses existing Vite and reports bytes locally; begin there, then add Monosize only if historical comparison is the useful part of the experiment |
-| Put all three experiments in CI immediately | A playground that blocks every change before its baseline is understood turns exploration into policy by accident |
-| Build the SSR-story harness first | The design is excellent, but `@monorepo/ui` has one component and one story. Bundle size and package contracts produce meaningful evidence at that size; the browser matrix does not yet |
+| Add tarball or Verdaccio checks | Packages export raw source directly inside the workspace; neither packed artifacts nor registry semantics are part of the current setup |
+| Add bundle-size tooling | The mechanism is interesting, but no bundle-size experiment will be implemented as part of this decision |
+| Put both experiments in CI immediately | A playground that blocks every change before its baseline is understood turns exploration into policy by accident |
+| Build the SSR-story harness first | The design is excellent, but `@monorepo/ui` has one component and one story, so the browser matrix does not yet test a meaningful surface |
 
 ## Consequences
 
-The repository gains two new read-only measurements and one advisory. None changes package output,
-release behaviour or CI. The bundle experiment is explicitly not a package build step: it creates a
-temporary consumer bundle, reports it and removes it, while packages continue exporting raw source.
+The repository gains one read-only validation command and one advisory. Neither changes package
+output, release behaviour or CI, and neither introduces a packed-package lifecycle.
 
 **Order.** Add the two hooks first because they are independent. Build `package:check` second; its
-manifest discovery and pack-output parser become proven primitives for a later temporary consumer.
-Build `bundle:size` third using existing Vite, record the first result in its README, and run it
-manually across a few changes before deciding whether a baseline file, CI workflow or Monosize is
-worth carrying. Add a tarball consumer after the pack checks pass. Add Verdaccio only if that
-consumer needs multi-package publication, registry resolution or dist-tags.
+manifest discovery and export-target validation establish the useful package contracts without
+depending on a publishing model the repository does not use.
 
-**Tripwires an implementer will hit.** Use the `scripts-new-script` skill for both commands and
-`writing-tests` for their specs. Do not edit `.husky/_`; it is generated. Do not place a helper at
-the top of `.husky/`, because
+**Tripwires an implementer will hit.** Use the `scripts-new-script` skill for `package:check` and
+`writing-tests` for its specs. Do not edit `.husky/_`; it is generated. Do not place a helper at the
+top of `.husky/`, because
 [`infrastructure/scripts/src/map/adapters/files.ts:52`](../../infrastructure/scripts/src/map/adapters/files.ts#L52)
-treats every non-underscore file there as a hook. `pnpm pack --dry-run` output is tool output, so
-parse its JSON form rather than terminal prose. A dependency addition remains a check-in under
-[`AGENTS.md`](../../AGENTS.md#L91-L103); the first two commands need none. Keep all bundle artifacts
-under a `mkdtemp` directory, because `dist/` and a package build target are forbidden here. Re-render
-`docs/FEATURES.md` only through `pnpm docs:map` after the commands and hooks exist.
+treats every non-underscore file there as a hook. A dependency addition remains a check-in under
+[`AGENTS.md`](../../AGENTS.md#L91-L103); this work needs none. Re-render `docs/FEATURES.md` only
+through `pnpm docs:map` after the command and hooks exist.
 
-The next playground tier is Fluent UI's SSR idea adapted to Vue: discover `*.stories.ts`, server
-render each story, hydrate it in a browser and fail on `console.error`, `pageerror` or markup
-mismatch. Revisit it when `packages/ui/lib/components` contains enough stories that discovery tests
-something more than one button.
+Bundle-size tooling, packed-package checks, Verdaccio and the SSR-story harness are deliberately not
+part of this implementation. They need a separate decision if the repository later acquires the
+corresponding bundle, publication or component-test lifecycle.
 
 ## Confirmation
 
 | Claim | Check |
 | --- | --- |
 | Both hooks are valid and advisory | `sh -n .husky/post-checkout .husky/post-merge`; a lockfile-changing revision pair prints `pnpm install`, while `sh .husky/post-checkout HEAD HEAD 1` exits 0 silently |
-| Export targets exist and ship | `pnpm package:check` exits 0 and prints one checked/skipped line per project under `packages/` |
+| Package metadata and export targets are valid | `pnpm package:check` exits 0, prints one checked/skipped line per project under `packages/`, and names any missing export target before exiting 1 |
 | Peer metadata cannot orphan | Removing one matching `peerDependencies` entry in a temporary copy makes `pnpm package:check` name that package and key, then exit 1 |
-| The bundle experiment is reproducible | Two clean `pnpm bundle:size` runs report the same fixture names and byte counts, allowing only gzip timestamp metadata to differ |
 | No package build surface was added | `git diff --name-only master...HEAD` contains no `dist/`, and `pnpm exec nx show project @monorepo/ui` has no `build` target |
-| The experiments stay optional | `.github/workflows/ci.yml` contains neither `package:check` nor `bundle:size` until their output has been evaluated separately |
-| Every new capability has an owner | `pnpm docs:map` followed by `pnpm docs:map --check` passes, with both commands and both hooks pointing at a README |
+| The validation stays optional | `.github/workflows/ci.yml` does not contain `package:check` until its output has been evaluated separately |
+| Every new capability has an owner | `pnpm docs:map` followed by `pnpm docs:map --check` passes, with the command and both hooks pointing at a README |

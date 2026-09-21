@@ -23,6 +23,7 @@
         "agents:sync": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/agents-sync/index.ts",
         "docs:drift": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/drift/index.ts",
         "docs:map": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/map/index.ts",
+        "package:check": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/package-contracts/index.ts",
         "review:version": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/review-version/index.ts",
         "release": "nx release --skip-publish",
         "release:dry": "nx release --skip-publish --dry-run"

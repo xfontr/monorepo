@@ -29,6 +29,7 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm agents:sync` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm docs:drift` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm docs:map` | [`package.json`](../package.json) | [`README.md`](../README.md) |
+| `pnpm package:check` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm review:version` | [`package.json`](../package.json) | [`infrastructure/scripts/README.md`](../infrastructure/scripts/README.md) |
 | `pnpm release` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm release:dry` | [`package.json`](../package.json) | [`README.md`](../README.md) |
@@ -51,6 +52,8 @@ that per-clone setup runs.
 | Capability | Declared in | Explained in |
 | --- | --- | --- |
 | `commit-msg` | [`.husky/commit-msg`](../.husky/commit-msg) | [`README.md`](../README.md) |
+| `post-checkout` | [`.husky/post-checkout`](../.husky/post-checkout) | [`README.md`](../README.md) |
+| `post-merge` | [`.husky/post-merge`](../.husky/post-merge) | [`README.md`](../README.md) |
 | `pre-commit` | [`.husky/pre-commit`](../.husky/pre-commit) | [`README.md`](../README.md) |
 | `pre-push` | [`.husky/pre-push`](../.husky/pre-push) | [`README.md`](../README.md) |
 
@@ -63,6 +66,7 @@ GitHub Actions, named as the Actions tab shows them rather than by filename.
 | `CI` | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | [`README.md`](../README.md) |
 | `Dependabot auto-merge` | [`.github/workflows/dependabot-auto-merge.yml`](../.github/workflows/dependabot-auto-merge.yml) | [`README.md`](../README.md) |
 | `Developer Portal deploy` | [`.github/workflows/developer-portal-deploy.yml`](../.github/workflows/developer-portal-deploy.yml) | [`README.md`](../README.md) |
+| `Focused documentation review` | [`.github/workflows/docs-review.yml`](../.github/workflows/docs-review.yml) | [`README.md`](../README.md) |
 | `Netlify deployment` | [`.github/workflows/netlify-deployment.yml`](../.github/workflows/netlify-deployment.yml) | [`README.md`](../README.md) |
 | `PR labeler` | [`.github/workflows/pr-labeler.yml`](../.github/workflows/pr-labeler.yml) | [`README.md`](../README.md) |
 | `PR metadata` | [`.github/workflows/pr-metadata.yml`](../.github/workflows/pr-metadata.yml) | [`README.md`](../README.md) |
