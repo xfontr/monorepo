@@ -180,10 +180,47 @@ jobs:
                   );
                   if (rootBehaviorChanged) documentationFiles.add(path.join(workspace, "README.md"));
 
-                  const documentation = [...documentationFiles]
+                  const documentationEntries = [...documentationFiles]
                       .filter((file) => fs.existsSync(file))
-                      .map((file) => "--- " + path.relative(workspace, file) + " ---\n" + fs.readFileSync(file, "utf8"))
-                      .join("\n\n");
+                      .map((file) => ({
+                          header: "--- " + path.relative(workspace, file) + " ---\n",
+                          content: fs.readFileSync(file, "utf8"),
+                      }));
+                  const separator = "\n\n";
+                  const truncationMarker = "\n[truncated to fit the documentation context bound]\n";
+                  const fixedCharacters = documentationEntries.reduce(
+                      (total, entry) => total + entry.header.length + truncationMarker.length,
+                      Math.max(0, documentationEntries.length - 1) * separator.length,
+                  );
+                  let remainingCharacters = Math.max(0, maxDocumentationChars - fixedCharacters);
+                  let remainingEntries = documentationEntries.map((entry, index) => ({
+                      index,
+                      length: entry.content.length,
+                  }));
+                  const contentCharacters = documentationEntries.map(() => 0);
+                  while (remainingEntries.length > 0) {
+                      const equalShare = Math.floor(remainingCharacters / remainingEntries.length);
+                      const completeEntries = remainingEntries.filter((entry) => entry.length <= equalShare);
+                      if (completeEntries.length === 0) {
+                          for (const entry of remainingEntries) contentCharacters[entry.index] = equalShare;
+                          break;
+                      }
+                      for (const entry of completeEntries) {
+                          contentCharacters[entry.index] = entry.length;
+                          remainingCharacters -= entry.length;
+                      }
+                      const completeIndexes = new Set(completeEntries.map((entry) => entry.index));
+                      remainingEntries = remainingEntries.filter((entry) => !completeIndexes.has(entry.index));
+                  }
+                  const truncatedFiles = documentationEntries.filter(
+                      (entry, index) => entry.content.length > contentCharacters[index],
+                  ).length;
+                  const documentation = documentationEntries
+                      .map((entry, index) => {
+                          if (entry.content.length <= contentCharacters[index]) return entry.header + entry.content;
+                          return entry.header + entry.content.slice(0, contentCharacters[index]) + truncationMarker;
+                      })
+                      .join(separator);
 
                   if (diff.length > maxDiffChars) {
                       setOutput("eligible", "false");
@@ -191,17 +228,13 @@ jobs:
                       fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "### Focused documentation review\n\nSkipped: the relevant diff is " + diff.length + " characters, above the " + maxDiffChars + "-character review bound.\n");
                       process.exit(0);
                   }
-                  if (documentation.length > maxDocumentationChars) {
-                      setOutput("eligible", "false");
-                      setOutput("skip_reason", "The documentation context is " + documentation.length + " characters, above the " + maxDocumentationChars + "-character review bound.");
-                      fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "### Focused documentation review\n\nSkipped: the documentation context is " + documentation.length + " characters, above the " + maxDocumentationChars + "-character review bound.\n");
-                      process.exit(0);
-                  }
-
                   fs.writeFileSync(path.join(contextDir, "documentation.txt"), documentation);
                   setOutput("eligible", "true");
                   setOutput("skip_reason", "");
-                  fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "### Focused documentation review\n\nEligible: " + relevantFiles.length + " changed public-surface file(s); context is within bounds.\n");
+                  const truncationSummary = truncatedFiles === 0
+                      ? "Documentation context is within bounds."
+                      : "Bounded " + truncatedFiles + " of " + documentationEntries.length + " documentation file(s) so every applicable file remains represented.";
+                  fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "### Focused documentation review\n\nEligible: " + relevantFiles.length + " changed public-surface file(s). " + truncationSummary + "\n");
                   NODE
 
             - name: Set up Node.js for Copilot CLI
@@ -216,7 +249,7 @@ jobs:
               id: copilot-install
               if: steps.prepare.outputs.eligible == 'true' && steps.node-setup.outcome == 'success'
               continue-on-error: true
-              run: npm install --global @github/copilot
+              run: npm install --global --ignore-scripts @github/copilot@1.0.87
 
             - name: Run focused documentation inference
               id: inference
@@ -298,6 +331,8 @@ jobs:
                           for (const comment of marked) {
                               await removeOrResolve(comment);
                           }
+                          core.notice("Focused documentation review completed with no drift detected.");
+                          await core.summary.addRaw("Completed: no documentation drift detected.\n").write();
                           return;
                       }
 
@@ -313,3 +348,5 @@ jobs:
                       } else {
                           await github.rest.issues.createComment({ owner, repo, issue_number, body });
                       }
+                      core.notice("Focused documentation review completed and synchronized its PR comment.");
+                      await core.summary.addRaw("Completed: documentation findings were synchronized to the PR comment.\n").write();
