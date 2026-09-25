@@ -7,7 +7,7 @@ export function contentKey(vendor: VendorConfig, resource: Resource, query?: Ent
 }
 
 function toWordChars(part: string): string {
-    return part.replace(/_/g, "_u").replace(/-/g, "_d");
+    return part.replaceAll("_", "_u").replaceAll("-", "_d");
 }
 
 function queryKey(query?: EntryQuery): string {
@@ -16,8 +16,9 @@ function queryKey(query?: EntryQuery): string {
         term: query?.term && `${query.term.resource}=${query.term.id}`,
     }).filter(([, value]) => value !== undefined);
 
+    entries.sort(([a], [b]) => a.localeCompare(b));
+
     return entries
-        .sort(([a], [b]) => a.localeCompare(b))
         .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
         .join(",");
 }

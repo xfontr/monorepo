@@ -7,5 +7,5 @@ export function translationsKey(vendor: VendorConfig, locale: Locale): string {
 }
 
 function toWordChars(part: string): string {
-    return part.replace(/_/g, "_u").replace(/-/g, "_d");
+    return part.replaceAll("_", "_u").replaceAll("-", "_d");
 }

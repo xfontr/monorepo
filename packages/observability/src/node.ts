@@ -23,6 +23,7 @@ export type NodeTelemetryConfig = {
 };
 
 export function startNodeTelemetry({ url, instanceId, token, app }: NodeTelemetryConfig): NodeTracerProvider {
+    const credentials = Buffer.from(`${instanceId}:${token}`).toString("base64");
     const provider = new NodeTracerProvider({
         resource: defaultResource().merge(resourceFromAttributes({
             [ATTR_SERVICE_NAME]: app.name,
@@ -31,7 +32,7 @@ export function startNodeTelemetry({ url, instanceId, token, app }: NodeTelemetr
         })),
         spanProcessors: [new BatchSpanProcessor(new OTLPTraceExporter({
             url: `${url.replace(/\/$/, "")}/v1/traces`,
-            headers: { Authorization: `Basic ${Buffer.from(`${instanceId}:${token}`).toString("base64")}` },
+            headers: { Authorization: `Basic ${credentials}` },
         }))],
     });
 

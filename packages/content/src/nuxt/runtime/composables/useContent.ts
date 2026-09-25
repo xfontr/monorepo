@@ -1,4 +1,4 @@
-import type { Entry, EntryQuery, EntryResource, Page, Query, Term, TermResource } from "#core/domain/content";
+import type { Entry, EntryQuery, EntryResource, Page, Query, Resource, Term, TermResource } from "#core/domain/content";
 import { CONTENT_API_PATH } from "#nuxt/config";
 
 function listEntries(resource: EntryResource, query?: () => EntryQuery) {
@@ -40,21 +40,21 @@ export function useContent() {
 }
 
 // #region utils
-function getList<T>(resource: EntryResource | TermResource, query: Record<string, string | number | undefined>): Promise<Page<T>> {
+function getList<T>(resource: Resource, query: Record<string, string | number | undefined>): Promise<Page<T>> {
     return $fetch<Page<T>>(`${CONTENT_API_PATH}/${resource}`, { query });
 }
 
 // The response type is named at the call site rather than passed through a generic helper: Nitro
 // resolves `$fetch<T>` to T only for a concrete object type, and leaves a bare one unresolved
-function itemPath(resource: EntryResource | TermResource, slug: string): string {
+function itemPath(resource: Resource, slug: string): string {
     return `${CONTENT_API_PATH}/${resource}/${encodeURIComponent(slug)}`;
 }
 
-function listKey(resource: EntryResource | TermResource, requestQuery: Record<string, string | number | undefined>): string {
+function listKey(resource: Resource, requestQuery: Record<string, string | number | undefined>): string {
     return `content:${resource}:${JSON.stringify(requestQuery)}`;
 }
 
-function itemKey(resource: EntryResource | TermResource, slug: string): string {
+function itemKey(resource: Resource, slug: string): string {
     return `content:${resource}:${slug}`;
 }
 
