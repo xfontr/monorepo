@@ -123,7 +123,7 @@ describe("collectDocs", () => {
         files.forEach(([path, source], index) => addFile(path, source, `2026-09-${String(index + 1).padStart(2, "0")}T10:00:00Z`));
         state.paths = [...files.map(([path]) => path), "docs/ignored.md"];
 
-        const result = await collectDocs([], "now");
+        const result = await collectDocs("now");
 
         expect(result.pages.map((page) => page.path)).toEqual(files.map(([path]) => path).sort((a, b) => a.localeCompare(b)));
         expect(result.pages.find((page) => page.path === "README.md")).toMatchObject({ kind: "readme", title: "Workspace", updatedAt: "2026-09-01T10:00:00Z" });
@@ -154,7 +154,7 @@ describe("collectDocs", () => {
         addFile("packages/ui", "");
         state.paths = ["docs/source.md"];
 
-        const result = await collectDocs([], "now");
+        const result = await collectDocs("now");
         const page = result.pages[0];
 
         expect(page?.brokenLinks).toEqual([{ href: "./gone.md", resolved: "docs/gone.md" }]);
@@ -166,7 +166,7 @@ describe("collectDocs", () => {
         addFile("docs/decisions/README.md", frontmatter("status: implemented\ndecision: accepted"));
         state.paths = ["docs/decisions/0002-superseded.md", "docs/decisions/README.md"];
 
-        const result = await collectDocs([], "now");
+        const result = await collectDocs("now");
 
         expect(result.pages.find((page) => page.path.includes("0002"))).toMatchObject({
             decisionStatus: "implemented",
@@ -185,7 +185,7 @@ describe("collectDocs", () => {
         addFile("docs/audits/README.md", frontmatter("scope: nothing"));
         state.paths = ["docs/audits/2026-09-25-portal.md", "docs/audits/README.md"];
 
-        const result = await collectDocs([], "now");
+        const result = await collectDocs("now");
 
         expect(result.pages.find((page) => page.path.includes("2026"))).toMatchObject({
             kind: "audit",

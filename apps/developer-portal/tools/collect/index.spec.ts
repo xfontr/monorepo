@@ -41,7 +41,7 @@ function successfulCollectors(): void {
     state.collectCoverage.mockImplementation(async (_projects: unknown, generatedAt: string) => ({ ...coverage, generatedAt }));
     state.collectMetrics.mockImplementation(async (_projects: unknown, _coverage: unknown, generatedAt: string) => ({ generatedAt, commit: "commit", branch: "branch", projects: [], invariantFindings: [], conventionalCommitRate: null, commitsSinceLastRelease: null }));
     state.collectDeps.mockImplementation(async (generatedAt: string) => ({ generatedAt, vulnerabilities: null, totalDependencies: null, advisories: [], outdated: null }));
-    state.collectDocs.mockImplementation(async (_roots: unknown, generatedAt: string) => ({ generatedAt, pages: [], brokenLinkCount: 0 }));
+    state.collectDocs.mockImplementation(async (generatedAt: string) => ({ generatedAt, pages: [], brokenLinkCount: 0 }));
     state.collectScorecards.mockImplementation(async (generatedAt: string) => ({ generatedAt, reviews: [] }));
 }
 
@@ -127,7 +127,7 @@ describe("collector entrypoint", () => {
         expect(manifestWrite.value).toMatchObject({ commit: "abc123", branch: "feature/collect", artifacts: expect.any(Object) });
         expect(state.collectGraph).toHaveBeenCalledWith(generatedAt);
         expect(state.collectCoverage).toHaveBeenCalledWith(projects.projects, generatedAt);
-        expect(state.collectDocs).toHaveBeenCalledWith(["packages/ui"], generatedAt);
+        expect(state.collectDocs).toHaveBeenCalledWith(generatedAt);
         expect(state.collectScorecards).toHaveBeenCalledWith(generatedAt);
     });
 });

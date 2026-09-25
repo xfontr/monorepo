@@ -86,7 +86,7 @@ async function main(): Promise<void> {
         console.error(`✗ deps — ${deps.error}`);
     }
 
-    const docs = await tryRun(() => collectDocs(graph.value.projects.map((project) => project.root), generatedAt));
+    const docs = await tryRun(() => collectDocs(generatedAt));
 
     if (docs.ok) {
         await write("docs", docs.value);

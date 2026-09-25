@@ -134,7 +134,7 @@ export function auditMetaOf(path: string, source: string): AuditMeta | null {
     };
 }
 
-export async function collectDocs(_projectRoots: string[], generatedAt: string): Promise<DocsArtifact> {
+export async function collectDocs(generatedAt: string): Promise<DocsArtifact> {
     const paths = (await git(["ls-files", "--cached", "--others", "--exclude-standard", "--", "*.md"]))
         .split("\n")
         .filter(Boolean);
