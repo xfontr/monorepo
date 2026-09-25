@@ -22,12 +22,10 @@ still can't import each other, because none of them has any reason to.
 
 ## 🌱 `type:feature` and `type:domain`, reserved and empty
 
-Two tags exist in the table with no project wearing them yet:
-
-| Tag | May depend on | Why it's there already |
-| --- | --- | --- |
-| `type:feature` | `type:domain`, `type:ui`, `type:i18n`, `type:content`, `type:config` | The layer a feature package would compose from — UI plus domain logic, no direct app dependency |
-| `type:domain` | `type:domain`, `type:config` | Pure business logic, shared between features without depending on how any of them render |
+Two tags in the [root README's table](../../README.md#-architecture--boundaries) have no project
+wearing them yet. `type:feature` is the layer a feature package would compose from — UI plus domain
+logic, with no direct app dependency. `type:domain` is pure business logic, shared between features
+without depending on how any of them render.
 
 `huella-legal` imports `ui`, `i18n`, `content` and `observability` directly. The second app,
 `developer-portal`, imports no product package at all — only `configs` — so the two apps share no

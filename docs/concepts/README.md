@@ -4,15 +4,11 @@ The models that span projects — the *why*, with no procedure in it. One file p
 for the subject rather than numbered: there's no order to read these in, unlike
 [`docs/decisions/`](../decisions/README.md).
 
-A subject belongs here under one rule, from
-[decision 0001](../decisions/0001-feature-discoverability.md):
-
-> A subject enters `docs/` only if no single project owns it.
-
-Boundaries, versioning and the agent setup all span every project in the tree, so no README can
-hold them without becoming the accidental owner of something that isn't its own. That's the whole
-test before adding a file here — if a project's own README could hold this and just doesn't yet,
-the fix is to write it there, not here.
+A subject belongs here under the [ownership rule](../README.md) the rest of `docs/` follows: no
+single project owns it. Boundaries, versioning and the agent setup all span every project in the
+tree, so no README can hold them without becoming the accidental owner of something that isn't its
+own. That's the whole test before adding a file here — if a project's own README could hold this and
+just doesn't yet, the fix is to write it there, not here.
 
 ## 🗂 Structure
 

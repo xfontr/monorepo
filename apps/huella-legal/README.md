@@ -57,11 +57,10 @@ page but a `500` naming what is missing, on the first request that needs it.
 | `NUXT_OBSERVABILITY_INSTANCE_ID` | Grafana Cloud instance ID, the user half of the OTLP credentials |
 | `NUXT_OBSERVABILITY_TOKEN` | Grafana Cloud access token, the password half |
 
-No URL or credential has a default in `nuxt.config.ts`, and no real URL or key belongs in the repo. Every
-variable is read at **startup**, not at build time: `nuxt.config.ts` declares the keys empty and Nuxt
-fills them from the environment, so one build artifact runs in any environment and no credential is
-baked into `.output/`. Nothing reads `process.env` in `nuxt.config.ts` — a value read there is
-resolved during the build and freezes the artifact to the host that produced it.
+No URL or credential has a default in `nuxt.config.ts`, and no real URL or key belongs in the repo.
+Every variable is read at **startup**, not at build time, so one build artifact runs in any
+environment — the [i18n module](../../packages/i18n/src/nuxt/README.md#-usage) has the mechanism and
+why nothing here reads `process.env`.
 
 The vendor **names** are the exception, and they are not env vars: `translations.vendor.name` and
 `content.vendor.name` select each vendor's config type, so they stay literals in `nuxt.config.ts`.
@@ -129,13 +128,11 @@ each skipped entirely when its URL is unset — which is why local dev ships not
 | Browser | [`app/plugins/observability.client.ts`](./app/plugins/observability.client.ts) | `NUXT_PUBLIC_OBSERVABILITY_URL` |
 | Nitro | [`server/plugins/observability.ts`](./server/plugins/observability.ts) | `NUXT_OBSERVABILITY_URL` |
 
-The server plugin opens the request span itself, by wrapping `nitroApp.h3App.handler`. It has to:
-OpenTelemetry's HTTP instrumentation cannot patch `node:http` here — the build is ESM, which needs a
-loader preloaded with `--import`, and Nitro has imported the module before any plugin runs either
-way. So the package does not ship that instrumentation at all and no inbound span would exist
-without this wrapper. Wrapping the handler also means internal `$fetch` calls nest under the request
-that made them, and an incoming `traceparent` continues the browser's trace rather than starting a
-second one.
+The server plugin opens the request span itself, by wrapping `nitroApp.h3App.handler`, because
+`@monorepo/observability` ships no inbound HTTP instrumentation — [its
+Gotchas](../../packages/observability/README.md#️-gotchas) say why. Wrapping the handler also means
+internal `$fetch` calls nest under the request that made them, and an incoming `traceparent`
+continues the browser's trace rather than starting a second one.
 
 Both halves read `app.version` and `app.environment` from the same public runtime config, so one
 `NUXT_PUBLIC_OBSERVABILITY_APP_VERSION` stamps browser and server alike. It defaults to `0.0.0` —

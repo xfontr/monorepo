@@ -44,8 +44,9 @@ src/
 └── nuxt/                                     # the Nuxt module (separate entry point)
 ```
 
-Nothing under `core/` imports `h3`, `nitropack` or `@nuxt/kit`, and `core/domain/` imports
-nothing at all. That is the invariant worth keeping: the day it breaks, the core stops being
+Nothing under `core/` imports the Nuxt or Nitro runtime — lint enforces the [list in
+`@monorepo/configs`](../configs/README.md#-what-the-eslint-factories-bundle) — and `core/domain/`
+imports nothing at all. That is the invariant worth keeping: the day it breaks, the core stops being
 portable and the ports stop being worth their indirection.
 
 ## 📄 The domain
@@ -202,7 +203,7 @@ the identity of the upstream document, covering every input that picks it.
 
 ```ts
 contentKey({ name: "wordpress", baseURL: "https://wp.test/" }, "posts", { page: 2, perPage: 6 })
-// "wordpress_posts_s5YiZy223_u5QYmUTs0HlqRkJZWPuL6rTAixGVek1RLQ_4QAlrG9fdIh8SbxMRYDKQIXr1x_uzAaf2arip7_dLUsbE"
+// "wordpress_posts_<hash>", word characters only
 ```
 
 Four decisions in there:
@@ -213,13 +214,10 @@ Four decisions in there:
   readily as credentials — a Contentful environment and a Sanity dataset both live there.
 - **The query axes are sorted and encoded before being hashed**, so two callers spelling one query
   differently share an entry, and a crafted value cannot forge an axis it did not ask for.
-- **The key is word characters only.** Nitro deletes every non-word character from a custom cache
-  key before storing it (`escapeKey`, in its cache runtime), so a key that spells its query out
-  reaches storage with the separators gone: `search=b,slug=a` arrives as `searchbsluga`, and so
-  does `search=bsluga`. Hashing the query half means the key that is built is the key that is
-  stored — and it bounds the length, which a driver turning it into a filename cares about. The
-  cost is that the query half is no longer readable in a cache listing; the vendor and the
-  resource still are.
+- **The key is word characters only**, because Nitro strips everything else before storing it —
+  [the Nuxt module](./src/nuxt/README.md) has the collision that prevents. Hashing the query half
+  also bounds the length, which a driver turning it into a filename cares about. The cost is that
+  the query half is no longer readable in a cache listing; the vendor and the resource still are.
 
 The ceilings in the domain — `MAX_PAGE`, `MAX_PER_PAGE`, `MAX_SEARCH_LENGTH` — are contract
 limits, distinct from any vendor's own. They exist so a public route's key space is finite and a

@@ -5,7 +5,8 @@ See [README.md](./README.md) — it documents the vendors, the ports and the tra
 
 The invariants worth losing a build over:
 
-- **Nothing under `src/core/` may import `@nuxt/kit` or `@nuxtjs/i18n`.** `ofetch` and `ohash` are the
+- **Nothing under `src/core/` may import the Nuxt or Nitro runtime**
+  ([the enforced list](../configs/README.md#-what-the-eslint-factories-bundle)). `ofetch` and `ohash` are the
   package's only real dependencies; everything the Nuxt entry point needs is an **optional peer
   dependency**. Never promote one.
 - Use the `#core/*` and `#nuxt/*` subpath imports, never `../../`.
