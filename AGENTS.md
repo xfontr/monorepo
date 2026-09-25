@@ -115,23 +115,24 @@ changed since `master`, same as CI and the pre-push hook.
 | Why something rebuilt | `pnpm graph` |
 
 The rest of this section is reference for when the user asks for it, not licence to offer it.
-Branches must match `^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+` and `master` is not pushable.
-`pnpm issue:pick` is the shortest way to a branch — pick an open issue off a project board and it
-creates `<type>/<project>/<issue number>-<slug>`, `<project>` being the slugified title of the gh
-Project board the issue came from, which is the naming the number-first branches here come from.
-Commits are [Conventional Commits](https://www.conventionalcommits.org) —
-commitlint rejects anything else, and the type decides the next version.
-[`commitlint.config.mjs`](./commitlint.config.mjs) just extends `@commitlint/config-conventional`
-with no overrides, and two of that preset's rules aren't obvious from a rejection message: the
-**type is lower-case** and the **subject is not** sentence-case, start-case, Pascal-case or
-upper-case — so `feat: add the thing` passes and `feat: Add the thing` does not.
+[`docs/guides/change-lifecycle.md`](./docs/guides/change-lifecycle.md) has the whole flow; these are
+the traps in it.
 
-The pre-push hook validates the branch name, blocks added `TODO`/`FIXME` comments, nudges on
-docs drift, then runs lint, test and typecheck on affected projects. CI runs those **plus `build`**,
-so a green push is not yet a green pipeline — `apps/huella-legal` typechecks on build, which is where
-most of that difference shows up. Note also that `husky` has no `prepare` script to install itself,
-because lifecycle scripts are banned here; a fresh clone gets no hooks until `core.hooksPath` is
-pointed at `.husky`.
+- Branches must match `^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+`, and `master` is not
+  pushable. `pnpm issue:pick` builds `<type>/<project>/<issue number>-<slug>`, `<project>` being the
+  slugified title of the gh Project board the issue came from.
+- [`commitlint.config.mjs`](./commitlint.config.mjs) just extends `@commitlint/config-conventional`
+  with no overrides, and two of that preset's rules aren't obvious from a rejection message: the
+  **type is lower-case** and the **subject is not** sentence-case, start-case, Pascal-case or
+  upper-case — so `feat: add the thing` passes and `feat: Add the thing` does not. The type decides
+  the next version.
+- Pre-push runs lint, test and typecheck **in the working tree**, not the pushed commits, so an
+  uncommitted fix can pass a push whose commits are red. Only the `TODO`/`FIXME` scan is range-based.
+- CI runs those three **plus `build`**, `pnpm docs:map --check` and `pnpm review:version --check`,
+  so a green push is not yet a green pipeline — `apps/huella-legal` typechecks on build, which is
+  where most of that difference shows up. The two `--check`s also run in pre-commit.
+- A fresh clone gets no hooks until `pnpm quick-start` runs, because lifecycle scripts are banned
+  and `husky` has no `prepare` script to install itself.
 
 ## 🔗 The two places that must agree
 

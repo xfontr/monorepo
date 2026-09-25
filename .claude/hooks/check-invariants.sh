@@ -23,8 +23,8 @@ fi
 
 case "$rel" in
     packages/*/package.json|apps/*/package.json|infrastructure/*/package.json)
-        # Lifecycle scripts are banned workspace-wide (AGENTS.md), not just under packages/*: both CI
-        # workflows install with --ignore-scripts everywhere, so one works locally and silently does
+        # Lifecycle scripts are banned workspace-wide (AGENTS.md), not just under packages/*: every
+        # workflow that installs uses --ignore-scripts, so one works locally and silently does
         # nothing where it matters, regardless of which root it's added under
         lifecycle=$(jq -r '.scripts // {} | keys[] | select(. == "postinstall" or . == "prepare" or . == "prepublish" or . == "prepublishOnly")' "$file" 2>/dev/null | tr '\n' ' ')
 

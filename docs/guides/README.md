@@ -23,10 +23,10 @@ story.
 | [`first-hour.md`](./first-hour.md) | An ordered way in for someone who's never seen the repo |
 | [`change-lifecycle.md`](./change-lifecycle.md) | An issue, end to end, from `issue:pick` to a released version |
 | [`adding-a-locale.md`](./adding-a-locale.md) | Adding a locale across the app and the translations service |
+| [`repo-secrets.md`](./repo-secrets.md) | Provisioning the four Actions secrets nothing else sets up |
 
 ## 🧭 Deliberately deferred
 
 | Later need | What changes |
 | --- | --- |
 | A guide that's really just one project's README restated | Delete it and link to that README — this folder existing doesn't change the ownership rule |
-| Enough of these that scanning the directory stops being enough | Add an index table here, same fix `docs/decisions/README.md` names for itself |

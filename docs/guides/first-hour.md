@@ -7,14 +7,14 @@ lives — this file sequences, it doesn't repeat.
 
 ```sh
 pnpm install
-git config core.hooksPath .husky
+pnpm quick-start        # installs the Git hooks, among other things
 pnpm agents:sync        # only needed before using Claude Code
 ```
 
 The second line is easy to skip and nothing catches you if you do — [lifecycle scripts are banned
-here](../../AGENTS.md), so there's no `prepare` script to install Husky for you. Skipping it means
-the commit and push gates below simply never fire, which looks like a repo with no rules rather
-than an unfinished setup. Full sequence, including the app's own dev server, is in the
+here](../../AGENTS.md), so there's no `prepare` script to install Husky for you; `quick-start` runs
+`husky`, which points `core.hooksPath` at `.husky/_`. Skipping it means the commit and push gates
+below simply never fire, which looks like a repo with no rules rather than an unfinished setup. Full sequence, including the app's own dev server, is in the
 [root README's Getting started](../../README.md#-getting-started).
 
 ## 2. Read the shape before the code
@@ -33,7 +33,7 @@ In this order:
 
 ## 3. Find the project you actually came for
 
-The workspace layout table in the root README names all eight projects in one place. Once you know
+The workspace layout table in the root README names all nine projects in one place. Once you know
 which one you're here for, its own `README.md` and `AGENTS.md` are the source of truth — this repo
 deliberately keeps per-project reference there rather than duplicating it into `docs/`, so from
 here the project's own docs take over.
@@ -41,7 +41,7 @@ here the project's own docs take over.
 ## 4. Make your first change the way the repo expects
 
 `pnpm issue:pick` is the shortest path to a branch: pick an open issue off a project board and it
-creates `<type>/<issue number>-<slug>`, assigns you, and checks it out. From there,
+creates `<type>/<project>/<issue number>-<slug>`, assigns you, and checks it out. From there,
 [`docs/guides/change-lifecycle.md`](./change-lifecycle.md) walks what happens between that first
 commit and a released version — worth reading once before your first push, since several of its
 steps (the commit message rewrite, the push gates) act on you silently and are easy to mistake for

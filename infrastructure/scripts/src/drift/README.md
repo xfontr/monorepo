@@ -1,17 +1,16 @@
 # 📚 drift
 
-A cheap, non-AI proxy for "did this change make some project's docs wrong": if a push changes a
+A cheap, non-AI proxy for "did this change make some project's docs wrong": if a range changes a
 project's docs recently, or changes very little, it stays quiet; otherwise it warns and offers to
-file an issue. It only ever nudges — nothing here fails a push or blocks anything.
+file an issue. It only ever nudges — nothing here fails or blocks anything.
 
 ```sh
 pnpm docs:drift                                        # against merge-base(HEAD, master)..HEAD
 DOCS_DRIFT_BASE=<sha> DOCS_DRIFT_HEAD=<sha> pnpm docs:drift   # against an explicit range
 ```
 
-`.husky/pre-push` runs it with `DOCS_DRIFT_BASE`/`DOCS_DRIFT_HEAD` set to the exact range being
-pushed, so a manual run and the hook's run answer the same question two different ways: manually,
-"what would this warn about if I pushed now"; from the hook, "what does this push actually contain".
+It is a manual command: no hook or workflow calls it. The explicit range is for asking about
+something other than the current branch, such as a single commit or an already-pushed range.
 
 ## 🗂 Structure
 
@@ -70,6 +69,5 @@ becomes `Huella Legal` (`displayName` in [`detect.ts`](./domain/detect.ts)).
 | Later need | What changes |
 | --- | --- |
 | Duplicate issues across machines or after a cache wipe | No check against already-open issues before filing — `createIssue` just files. Worth it once this becomes a two-person repo; a solo one notices a duplicate immediately |
-| A push touching more than one ref at once | `.husky/pre-push`'s ref loop keeps only the last `$BASE`/`$LOCAL_SHA` it saw, so a multi-ref `git push` only checks the last one. Rare enough on a solo repo not to be worth threading an array through the hook yet |
 | Tuning the thresholds from real noise | `STALE_DOCS_MS`, `BIG_CHANGE_LINES`, `BIG_CHANGE_FILES` are constants in `detect.ts`, picked without data. Move them once a few months of real warnings say they're wrong in either direction |
-| Running in CI | Deliberately not — filing an issue and prompting for confirmation both need a human on the other end, which CI doesn't have. `.husky/pre-push` is the only caller |
+| Running in CI | Deliberately not — filing an issue and prompting for confirmation both need a human on the other end, which CI doesn't have |

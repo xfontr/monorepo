@@ -99,6 +99,16 @@ describe("documentedBy", () => {
         expect(documentedBy(capability, docs)).toBe("AGENTS.md");
     });
 
+    it("sends a skill to the AGENTS.md table even when some README happens to name it", () => {
+        const docs: Doc[] = [
+            { path: "AGENTS.md", text: "| `new-package` | Adding a project |" },
+            { path: "infrastructure/scripts/src/drift/README.md", text: "per the `new-package` skill's layout" },
+        ];
+        const capability = skills([{ source: ".agents/skills/new-package/SKILL.md", name: "new-package" }])[0]!;
+
+        expect(documentedBy(capability, docs)).toBe("AGENTS.md");
+    });
+
     it("points a project's command at the README beside it, not at the root one", () => {
         const docs: Doc[] = [
             { path: "README.md", text: "`pnpm storybook` somewhere in here" },
