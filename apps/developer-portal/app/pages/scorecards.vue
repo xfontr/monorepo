@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { toCollectionPath } from "#shared/wiki.ts";
+
 const { data: snapshot } = await useSnapshot("scorecards");
 
 const reviews = computed(() => snapshot.value?.scorecards?.reviews ?? []);
@@ -11,7 +13,7 @@ const weakest = computed(() => {
 });
 
 function idOf(path: string): string {
-    return path.split("/").at(-1) ?? path;
+    return toCollectionPath(path).split("/").at(-1) ?? path;
 }
 </script>
 

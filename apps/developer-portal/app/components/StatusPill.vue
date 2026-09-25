@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { NuxtLink } from "#components";
 import type { Tone } from "../utils/format.ts";
 
 const { label, tone = "neutral", to = undefined, hint = undefined } = defineProps<{
@@ -14,7 +15,7 @@ const toneClass = computed(() => (tone === "neutral" ? "text-dimmed" : `tone-${t
 
 <template>
     <component
-        :is="to ? 'NuxtLink' : 'span'"
+        :is="to ? NuxtLink : 'span'"
         :to="to"
         :title="hint"
         class="shrink-0 text-xs font-medium px-1.5 py-0.5 rounded-full border border-current"
