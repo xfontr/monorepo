@@ -165,8 +165,8 @@ settings:
 catalogs:
   default:
     '@hono/node-server':
-      specifier: ^1.14.0
-      version: 1.19.17
+      specifier: ^2.1.1
+      version: 2.1.1
     '@nuxt/fonts':
       specifier: 0.14.0
       version: 0.14.0
@@ -409,7 +409,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: 'catalog:'
-        version: 1.19.17(hono@4.13.9)
+        version: 2.1.1(hono@4.13.9)
       hono:
         specifier: 'catalog:'
         version: 4.13.9
@@ -1624,9 +1624,9 @@ packages:
   '@grafana/faro-web-tracing@2.12.1':
     resolution: {integrity: sha512-m9TEjPsEc8kJVeKnHoHCEPz7eDVpn/etZqMc2louYCWZsXIH4v2hlfT8ZY3MAIKCzBPBgoxVFqOOjvSwtOKRfw==}
 
-  '@hono/node-server@1.19.17':
-    resolution: {integrity: sha512-dSneS5qhiauZWGDCeK4o695Xd9nUNjviSZCMQrj10eetr8Uln1ucn6bbphOM6UynAMMtNIzZNSpL9vnASJwrPQ==}
-    engines: {node: '>=18.14.1'}
+  '@hono/node-server@2.1.1':
+    resolution: {integrity: sha512-ELuehkj5VCBdgEw9zs+ivkKwyzzUCSQuE96YmiPvn1ECBoZCczbFXJLeEGMTYjphP6gydh4pHMqEYPVMYUVgQg==}
+    engines: {node: '>=20'}
     peerDependencies:
       hono: ^4
 
@@ -9914,7 +9914,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@hono/node-server@1.19.17(hono@4.13.9)':
+  '@hono/node-server@2.1.1(hono@4.13.9)':
     dependencies:
       hono: 4.13.9
 
