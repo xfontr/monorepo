@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-    categoryIcon,
     coverageTone,
     decisionOutcomeLabel,
     decisionStatusLabel,
@@ -46,13 +45,6 @@ describe("severityTone", () => {
         ["critical", "bad"],
     ] as const)("collapses %s severity to %s", (severity, tone) => {
         expect(severityTone(severity)).toBe(tone);
-    });
-});
-
-describe("categoryIcon", () => {
-    it("returns known icons and a fallback icon for unknown categories", () => {
-        expect(categoryIcon("bug")).toBe("i-lucide-bug");
-        expect(categoryIcon("unknown")).toBe("i-lucide-circle");
     });
 });
 

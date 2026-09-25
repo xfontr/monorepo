@@ -10,6 +10,28 @@ import { git } from "../lib/run.ts";
 // Inline links only. Reference definitions and bare autolinks are not used anywhere in these docs.
 const LINK = /\[[^\]]*\]\((?<href>[^)\s]+)(?:\s+"[^"]*")?\)/g;
 const HEADING = /^#{1,3}[^\S\n]+\S.*$/gm;
+const FENCE = /^\s*(`{3,}|~{3,})/;
+// A span may wrap onto the next line but never past a blank one, the same pairing the renderer does.
+const CODE_SPAN = /(`+)(?:[^`\n]|\n(?![^\S\n]*\n))+\1/g;
+
+/**
+ * Every inline link's href outside code. A docs page that shows link syntax in a sample is
+ * describing a link, not making one, and the remark plugin never sees it as one.
+ */
+export function hrefsIn(source: string): string[] {
+    const prose: string[] = [];
+    let fence: string | null = null;
+
+    for (const line of source.split("\n")) {
+        const marker = FENCE.exec(line)?.[1];
+
+        if (fence === null && marker) fence = marker;
+        else if (fence !== null && marker?.startsWith(fence) && line.trim() === marker) fence = null;
+        else if (fence === null) prose.push(line);
+    }
+
+    return [...prose.join("\n").replace(CODE_SPAN, " ").matchAll(LINK)].map((match) => match.groups?.href ?? "");
+}
 
 const DECISION_PATH = /^docs\/decisions\/\d{4}-/;
 const AUDIT_PATH = /^docs\/audits\/\d{4}-/;
@@ -112,7 +134,7 @@ export function auditMetaOf(path: string, source: string): AuditMeta | null {
     };
 }
 
-export async function collectDocs(_projectRoots: string[], generatedAt: string): Promise<DocsArtifact> {
+export async function collectDocs(generatedAt: string): Promise<DocsArtifact> {
     const paths = (await git(["ls-files", "--cached", "--others", "--exclude-standard", "--", "*.md"]))
         .split("\n")
         .filter(Boolean);
@@ -128,9 +150,7 @@ export async function collectDocs(_projectRoots: string[], generatedAt: string):
         const title = source.match(HEADING)?.[0]?.replace(/^#{1,3}\s+/, "");
         const brokenLinks: DocLink[] = [];
 
-        for (const match of source.matchAll(LINK)) {
-            const href = match.groups?.href ?? "";
-
+        for (const href of hrefsIn(source)) {
             if (!isRepoRelative(href)) continue;
 
             const broken = await checkLink(path, href);

@@ -30,20 +30,6 @@ export function severityTone(severity: "info" | "low" | "moderate" | "high" | "c
     return "neutral";
 }
 
-const CATEGORY_ICONS: Record<string, string> = {
-    bug: "i-lucide-bug",
-    feature: "i-lucide-sparkles",
-    refactor: "i-lucide-wrench",
-    test: "i-lucide-flask-conical",
-    docs: "i-lucide-book-open",
-    chore: "i-lucide-broom",
-    idea: "i-lucide-lightbulb",
-};
-
-export function categoryIcon(category: string): string {
-    return CATEGORY_ICONS[category] ?? "i-lucide-circle";
-}
-
 const KIND_ICONS: Record<string, string> = {
     readme: "i-lucide-file-text",
     agent: "i-lucide-bot",

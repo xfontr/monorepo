@@ -115,6 +115,22 @@ describe("collectMetrics", () => {
         expect(result.projects).toHaveLength(2);
     });
 
+    // A package waiting on its first release has no tag, which is exactly the case the "Never released" alert is for.
+    it("counts an untagged release project's whole history as unreleased, but never an app nx release skips", async () => {
+        const withApp = [...projects, { name: "@monorepo/portal", root: "apps/portal", tags: [], dependsOn: [], dependedOnBy: [] }];
+        fs.readFile.mockImplementation(async (path: string) => path.endsWith("nx.json")
+            ? JSON.stringify({ release: { projects: ["packages/*"] } })
+            : "{}\n");
+
+        const result = await collectMetrics(withApp, coverage, "now");
+
+        expect(result.projects.map((project) => [project.root, project.unreleasedCommits])).toEqual([
+            ["packages/ui", 3],
+            ["packages/i18n", 10],
+            ["apps/portal", null],
+        ]);
+    });
+
     it("returns null for the conventional rate when the commit history is empty", async () => {
         state.emptySubjects = true;
 

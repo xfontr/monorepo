@@ -1,4 +1,5 @@
 import { deploymentsApiUrl, latestDeployments, type Deployment, type DeploymentStatus, type EnvironmentDeployment } from "#shared/deployments.ts";
+import { messageOf } from "#shared/github.ts";
 
 interface DeploymentsResponse {
     deployments: EnvironmentDeployment[]
@@ -30,10 +31,7 @@ export function useDeployments() {
             return { deployments: latestDeployments(deployments, statuses), error: null };
         }
         catch (cause) {
-            return {
-                deployments: [],
-                error: cause instanceof Error ? cause.message : "GitHub deployments could not be read.",
-            };
+            return { deployments: [], error: messageOf(cause, "GitHub deployments could not be read.") };
         }
     }, { server: false, default: () => ({ deployments: [], error: null }) });
 }

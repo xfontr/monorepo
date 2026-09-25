@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { resolve } from "node:path";
 import { WORKSPACE_ROOT } from "../lib/paths.ts";
 import { collectDocs } from "./docs.ts";
-import { decisionMetaOf } from "./docs.ts";
+import { decisionMetaOf, hrefsIn } from "./docs.ts";
 
 const state = vi.hoisted(() => ({
     files: new Set<string>(),
@@ -79,6 +79,35 @@ describe("decisionMetaOf", () => {
     });
 });
 
+describe("hrefsIn", () => {
+    it("skips link syntax shown in a code span or a fenced sample, so documenting a link never reports it broken", () => {
+        const source = [
+            "Write `[x](y)` to link.",
+            "```md",
+            "[template](./<previous>.md)",
+            "```",
+            "- A list item:",
+            "  ```sh",
+            "  echo [a](b)",
+            "  ```",
+            "[real](./real.md)",
+        ].join("\n");
+
+        expect(hrefsIn(source)).toEqual(["./real.md"]);
+    });
+
+    it("keeps a link whose text is code, including brackets inside that code", () => {
+        expect(hrefsIn("See [`add.ts`](./add.ts) and [`pages/[slug].vue`](./pages/%5Bslug%5D.vue)."))
+            .toEqual(["./add.ts", "./pages/%5Bslug%5D.vue"]);
+    });
+
+    // A span that wraps is common in hard-wrapped prose, and pairing its closing tick with the next link's opening one loses that link.
+    it("pairs a code span that wraps a line, but never lets one run past a blank line", () => {
+        expect(hrefsIn("the `pnpm install\n--prod` in the [`Dockerfile`](./docker/Dockerfile)")).toEqual(["./docker/Dockerfile"]);
+        expect(hrefsIn("a stray ` tick\n\n[after](./after.md)")).toEqual(["./after.md"]);
+    });
+});
+
 describe("collectDocs", () => {
     it("collects only tracked and unignored markdown paths with titles, fallback names and timestamps", async () => {
         const files = [
@@ -94,7 +123,7 @@ describe("collectDocs", () => {
         files.forEach(([path, source], index) => addFile(path, source, `2026-09-${String(index + 1).padStart(2, "0")}T10:00:00Z`));
         state.paths = [...files.map(([path]) => path), "docs/ignored.md"];
 
-        const result = await collectDocs([], "now");
+        const result = await collectDocs("now");
 
         expect(result.pages.map((page) => page.path)).toEqual(files.map(([path]) => path).sort((a, b) => a.localeCompare(b)));
         expect(result.pages.find((page) => page.path === "README.md")).toMatchObject({ kind: "readme", title: "Workspace", updatedAt: "2026-09-01T10:00:00Z" });
@@ -125,7 +154,7 @@ describe("collectDocs", () => {
         addFile("packages/ui", "");
         state.paths = ["docs/source.md"];
 
-        const result = await collectDocs([], "now");
+        const result = await collectDocs("now");
         const page = result.pages[0];
 
         expect(page?.brokenLinks).toEqual([{ href: "./gone.md", resolved: "docs/gone.md" }]);
@@ -137,7 +166,7 @@ describe("collectDocs", () => {
         addFile("docs/decisions/README.md", frontmatter("status: implemented\ndecision: accepted"));
         state.paths = ["docs/decisions/0002-superseded.md", "docs/decisions/README.md"];
 
-        const result = await collectDocs([], "now");
+        const result = await collectDocs("now");
 
         expect(result.pages.find((page) => page.path.includes("0002"))).toMatchObject({
             decisionStatus: "implemented",
@@ -156,7 +185,7 @@ describe("collectDocs", () => {
         addFile("docs/audits/README.md", frontmatter("scope: nothing"));
         state.paths = ["docs/audits/2026-09-25-portal.md", "docs/audits/README.md"];
 
-        const result = await collectDocs([], "now");
+        const result = await collectDocs("now");
 
         expect(result.pages.find((page) => page.path.includes("2026"))).toMatchObject({
             kind: "audit",

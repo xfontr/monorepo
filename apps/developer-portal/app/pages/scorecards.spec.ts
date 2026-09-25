@@ -33,6 +33,17 @@ describe("scorecards page", () => {
         expect(wrapper.findAll("a").length).toBeGreaterThan(1);
     });
 
+    // The collector keys a review by its repo path, so a link built from it verbatim ends in `.md` and opens "No such review".
+    it("links each review to its route rather than to its markdown filename", async () => {
+        state.snapshot.value = { scorecards: { reviews: [review("2026-09-20", 3), review("2026-09-19", 4)] }, manifest: {} };
+        const wrapper = await mountSuspended(Page, { global });
+        const reviewLinks = wrapper.findAll("a").map((link) => link.attributes("href")).filter((href) => href?.startsWith("/reviews/"));
+
+        expect(reviewLinks).toContain("/reviews/2026-09-20-abc");
+        expect(reviewLinks).toContain("/reviews/2026-09-19-abc");
+        expect(reviewLinks.filter((href) => href?.endsWith(".md"))).toEqual([]);
+    });
+
     it("shows parse errors, preserves newest-first history, and leaves weakest absent for empty cards", async () => {
         state.snapshot.value = { scorecards: { reviews: [
             { ...review("2026-09-20", 0, "bad table"), cards: [] },

@@ -70,7 +70,7 @@ const searchGroups = computed(() => [{
     items: sections.value.map((section) => ({
         label: section.title,
         suffix: section.content,
-        to: `/docs${section.id.replace(/^\//, "/")}`,
+        to: `/docs${section.id}`,
         icon: "i-lucide-file-text",
     })),
 }]);
