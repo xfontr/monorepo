@@ -1,220 +1,180 @@
 # 🎯 Scorecards
 
-The rubric a [review](./README.md) scores against. Seven cards, each an integer 1–5, weighted into
-one total. This is the only copy of the rubric: the skill reads it, the template leaves room for it,
-and nothing else restates it.
+The rubric a [review](./README.md) scores against: seven cards, each an integer 1–5, weighted into
+one total. A review is a **macro judgement of the repository as a system**: whether it is shaped
+right for what it does, whether its effort goes where the risk is, and where it is heading. It is
+not a bug hunt. Individual defects belong to an [audit](../audits/README.md); a review may cite one
+as evidence of a pattern, never as a reason on its own.
 
-The method version lives in [`METHOD.md`](./METHOD.md) and **never in this file** — this is one of
-the four artifacts the version digests, so a copy of the number here would invalidate itself the
-moment anyone corrected it. Scores from two versions aren't comparable, and quietly re-scoring
-history is worse than a gap in it: a bump re-scores the previous review's commit once, labelled as
-a re-score, and leaves the older rows alone.
+The method version lives in [`METHOD.md`](./METHOD.md) and never in this file, because this is one
+of the artifacts the version digests.
 
 ## 📊 The cards
 
-| # | Card | Weight | What it asks |
+| # | Card | Weight | The question |
 | --- | --- | --- | --- |
-| 1 | 🧱 Architecture | 20 | Is the layering real, or only drawn? |
-| 2 | 🧩 Implementation | 20 | Does the code inside the boundaries hold up on its own? |
-| 3 | 🧪 Testing | 15 | What does the suite actually pin? |
-| 4 | ⚙️ Tooling & DX | 15 | What does the second hour of work here cost? |
-| 5 | 📚 Documentation | 10 | Do the docs say why, and are they still true? |
-| 6 | 🤖 Agent setup | 10 | Is an agent here constrained by tooling, or only by prose? |
-| 7 | 📋 Process & delivery | 10 | Is the work traceable without asking the author? |
+| 1 | 🧱 Architecture | 20 | Is the system shaped right for what it has to do, and for what it will have to do next? |
+| 2 | 🧩 Implementation | 20 | Is the code inside the boundaries something a senior engineer would want to own? |
+| 3 | 🧪 Testing | 15 | Would the suite catch the mistakes this repo is actually likely to make? |
+| 4 | ⚙️ Tooling & DX | 15 | What does working here cost after the first hour, and what does the tooling cost to keep alive? |
+| 5 | 📚 Documentation | 10 | Do the docs help the next person make the right decision, at a reading cost they'll pay? |
+| 6 | 🤖 Agent setup | 10 | Does the agent setup make an agent here better, or only busier? |
+| 7 | 📋 Process & delivery | 10 | Can someone reconstruct what happened and why, and does the process move work forward? |
+
+Architecture and implementation carry 40 of the 100 points because they are what a rewrite costs;
+everything else is recoverable.
 
 ## 🔢 The scale
 
-The same five anchors apply to every card. The right-hand column is the question that settles a
-borderline score — pick the score whose test you can answer with a citation.
+The same five anchors apply to every card. Each card below adds what a 5, a 3 and a 1 look like on
+its own dimension.
 
-| Score | Means | The test |
-| --- | --- | --- |
-| 5 | Enforced, not merely intended | Breaking it fails a hook, a lint rule, a spec or CI — name which |
-| 4 | Sound, with gaps that are named where someone will find them | The gap is deliberate and written down |
-| 3 | Works today; nothing stops it going wrong | Nothing is broken and nothing is enforced |
-| 2 | Being worked around | Someone has to know a workaround for this to go well |
-| 1 | Costing time or correctness right now | Point at the failure it has already caused |
-
-## ⚖️ Calibration
-
-Score against what an unfamiliar senior engineer joining a **production** monorepo would need. Not
-against the repo's own stated ambitions, not against "it's a personal project", and not against the
-last review's numbers. A card that scores 5 everywhere has stopped measuring anything.
-
-| Rule | Why it's here |
+| Score | Means |
 | --- | --- |
-| Evidence or it didn't happen | Every score cites a `file.ts:12`, a command's output, or a count from `collect-facts.sh`. An uncited score gets deleted, not argued for |
-| Assertion caps a card at 3 | A rule stated in a README with no enforcement path and no spec behind it is intent, not structure |
-| A 5 needs an attempted breakage | Name the mistake and the tooling that catches it. If you can't, it's a 4 |
-| Never score by feature count | Five skills aren't better than three; one enforcing hook beats four reminders. Score whether the thing does its job |
-| Every card names its downgrade | At least one concrete thing costing it points — or an explicit line saying a sweep found none, and what was swept |
-| A cross-cutting finding lands on one card | Cards are scored in isolation so nothing is counted twice, which leaves the problems no single card owns unseen. The reconcile pass names the card each one costs and scores it there, once |
-| The total is computed, never chosen | If the arithmetic disagrees with your gut, the cards are wrong. Fix a card, don't nudge the total |
+| 5 | A strength that compounds. You would point a new team at it as the model to copy |
+| 4 | Sound. Weaknesses are real but local, and fixing them doesn't mean rethinking anything |
+| 3 | Mixed. It works today, but the shape has problems that grow with the repo |
+| 2 | Weak. The dimension is costing time or correctness now, and the fix is structural |
+| 1 | Failing. It actively works against the repo |
 
-## 🧮 The total
+## ⚖️ How to judge
 
-`total = Σ(score × weight) / 100`, to one decimal. Architecture and implementation carry 40 of the
-100 points between them because everything else is recoverable and those two are what a rewrite
-costs.
+- **Judge the whole, not the worst line.** A single defect moves a score only as evidence of a
+  pattern. Name the pattern and show where else it holds, or explain why this one instance is
+  revealing (a design choice, not a slip). A bug that is just a bug goes to an audit.
+- **Proportionality is quality.** Machinery that costs more than the risk it covers is a weakness,
+  exactly like a missing safeguard. That goes for abstractions, gates, docs, rules and process alike.
+  Ask what each one protects, and what it costs to keep.
+- **Enforcement is evidence, not the definition of good.** A check that enforces the wrong thing, or
+  one heavier than what it protects, counts against the card. Good judgement with no gate can be a 4.
+- **Unevenness is a finding.** Say where the repo is markedly better or worse than its own average,
+  and what that suggests: who wrote it, how, and with how much care.
+- **Trajectory counts.** Say where effort went since the last review and whether that was the right
+  place. A card can hold its score while heading the wrong way, and the prose must say so.
+- **Support every judgement.** Cite representative evidence: files, measurements from
+  `collect-facts.sh`, history, audits. A synthesis ("this project reads unsupervised") is expected
+  when it's backed by what was read; an impression with nothing behind it gets dropped.
+- **Steelman both directions.** Every score states the best case for one point higher and one lower,
+  and why neither holds. That is the guard against inflation, and it replaces arithmetic rules.
+- **Calibrate against a production monorepo of this size and purpose.** Not the repo's own
+  ambitions, not "it's a side project", and not the last review's numbers.
+- **The total is computed, never chosen.** `Σ(score × weight) / 100`, one decimal. If it disagrees
+  with the thesis, one of the cards is wrong: fix the card.
 
 ## 🃏 Card by card
 
-Each card below says what it asks, where to look, and what caps it. A cap is a ceiling, not a
-deduction: hit one and the card cannot score above it however good the rest looks.
+Each card lists the questions its assessment must answer and where to start looking. The questions
+are the card; answer them in prose, not as a checklist.
 
 ### 🧱 1. Architecture — weight 20
 
-Whether the layering is a property of the code or a picture in a README. DDD and hexagonal are the
-vocabulary here, not the goal — score the property (a domain that doesn't know its transport, an
-adapter that can be swapped without touching a caller), never the presence of a folder named after
-a pattern.
+- Do the boundaries sit on the real seams: the places where things vary, or where teams, vendors or
+  deploy targets differ? Would the next vendor, app or consumer fit without bending anything?
+- Does each layer earn its cost at this size, with ports where there's real variation and none
+  where there isn't?
+- Where does the complexity live, and is that where the problem is?
+- What does duplication across projects say about a missing home or a wrong boundary?
+- What breaks first if the repo doubles?
 
-Look at: the Nx tags in each `package.json` against
-[`boundaries.ts`](../../packages/configs/src/eslint/lib/boundaries.ts) and the
-[root README's table](../../README.md#-architecture--boundaries); the vendor/port seams in
-`content` and `i18n`; whether `apps/*` compose and everything else stays a leaf; whether a new
-consumer would have an obvious place to go.
+Start at the Nx tags against [`boundaries.ts`](../../packages/configs/src/eslint/lib/boundaries.ts),
+the vendor seams in `content` and `i18n`, and how the apps compose the packages.
 
-| Caps the card at | When |
-| --- | --- |
-| 3 | The enforced tag table and the readable one disagree |
-| 3 | A package reaches a vendor SDK, an env var or a transport outside its adapter |
-| 2 | Layering exists only as prose — no `@nx/enforce-module-boundaries`, or it's configured to warn |
-| 2 | Two projects at the same layer solve the same problem two different ways |
-
-Reserved tags for layers nothing uses yet (`type:feature`, `type:domain`) cost nothing on their
-own. Deduct only when a project that should sit at that layer isn't there.
+| 5 | 3 | 1 |
+| --- | --- | --- |
+| Boundaries match the problem; a new consumer has one obvious place to go; abstraction exactly where variation is | Layering is real but uneven: some seams are ceremonial, some real ones are missing | The drawn architecture and the running one are different systems |
 
 ### 🧩 2. Implementation — weight 20
 
-The code inside the boundaries, judged as code. Cohesion, earned abstractions, honest error paths,
-type safety at the edges, duplication, dead code. This repo argues in its own READMEs that a
-dependency or an abstraction has to earn its place — hold it to that in both directions: a
-speculative wrapper with one caller costs as much as a missing one.
+- Is the code clear, cohesive and consistent across projects doing similar jobs?
+- Do abstractions earn their place, in both directions: no speculative wrapper, no missing one?
+- What is the error-handling philosophy, and is it the same everywhere? What happens at the edges
+  (a failed fetch, a missing env var, a malformed payload)?
+- Where was the code written with markedly less care, and how much of the repo is that?
+- Is the amount of code proportionate to what it does?
 
-Look at: the largest files and longest functions from `collect-facts.sh`; the type and lint escapes
-it counts; whether `content` and `i18n` — two packages doing structurally the same job — look
-alike; what happens on a failed fetch, a missing env var, a malformed vendor payload.
+Start at the largest files from `collect-facts.sh`, the two vendor packages side by side, and
+whatever [audits](../audits/README.md) exist.
 
-| Caps the card at | When |
-| --- | --- |
-| 3 | `any`, `@ts-ignore` or `@ts-expect-error` in non-spec code without a comment saying why |
-| 3 | The same logic exists twice, in a form where fixing one leaves the other wrong |
-| 3 | An abstraction with a single caller and no named second one coming |
-| 2 | An error path swallows a failure and returns something that looks like success |
-| 2 | An `eslint-disable` covering a rule the repo claims to enforce |
-
-Every cap here is a grep, so the card cannot move on judgement alone — a package written without
-supervision costs it nothing as long as the greps come back clean.
-[`0012`](../decisions/0012-review-rubric-validity.md) found that and records why the one mechanism that
-would have closed it was rejected; read this card's score as surface hygiene until it has one.
+| 5 | 3 | 1 |
+| --- | --- | --- |
+| Reads like one careful author at every size; failure paths are designed, not patched | Solid core, with areas nobody would sign; inconsistency you have to learn | You'd rewrite before you'd extend |
 
 ### 🧪 3. Testing — weight 15
 
-What the suite pins, not how much of it there is. The failure mode this repo already names in
-[`@monorepo/scripts`](../../infrastructure/scripts/README.md) is a spec that asserts a mock against
-itself; that counts as untested, not tested. Read specs against the
-[`writing-tests`](../../.agents/skills/writing-tests/SKILL.md) conventions — a title should name the
-failure it pins.
+- Where does the risk actually live, and is that where the tests are?
+- Do the specs pin behaviour, or restate implementation? Would a plausible one-character mistake in
+  a core function fail something?
+- What does the suite cost: brittleness, slowness, mocks that need rewriting on every change?
+- What is untested on purpose, and is that written down?
 
-Look at: the spec-to-source counts and the untested-file list from `collect-facts.sh`; whether the
-untested files hold logic or only types and barrels; what a deliberate one-character change to a
-core function would break.
+Start at the per-project spec counts and the untested-file list, then read specs in the riskiest
+projects, not the tidiest.
 
-| Caps the card at | When |
-| --- | --- |
-| 3 | A skipped or focused spec is committed |
-| 3 | A project with real logic has no specs at all |
-| 3 | Specs assert against their own mocks, or only exercise the happy path |
-| 3 | A project carries more than four source modules per spec file |
-| 2 | `--passWithNoTests` covers a project that has logic worth pinning |
-| 2 | The suite is green but a known-broken behaviour isn't covered by any failing test |
-
-The density floor counts `.ts`/`.mts` only, after the same barrel-and-config filter
-`collect-facts.sh` uses for its untested-file list; `.vue` is excluded because nothing in this repo
-puts a spec beside a component, so counting them would fire on every Nuxt app and stop
-discriminating. Four is the bar because it separates the projects that spec as they go — `content`
-at 1.2, `i18n` at 1.3, `scripts` at 3.1 — from `apps/developer-portal` at 4.6 in the 2026-09-10 review. It
-is **a cap and never a bonus**: a good ratio buys nothing, because otherwise it is the feature-count
-scoring this rubric refuses, one spec file at a time.
+| 5 | 3 | 1 |
+| --- | --- | --- |
+| The suite is a specification: risky code is pinned, tests are cheap to keep | Good coverage where testing is easy, thin where the risk is | Green means nothing |
 
 ### ⚙️ 4. Tooling & DX — weight 15
 
-What the second hour here costs. Nx correctness first — a cache that lies is worse than no cache:
-declared `outputs`, honest `inputs`, `sharedGlobals` that actually invalidate what they should. Then
-the reach of lint and typecheck, the parity between what runs locally and what runs in CI, the
-release path, and how many undocumented steps a fresh clone needs.
+- Is the feedback loop fast and truthful: caching correct, local and CI in agreement?
+- How often does tooling break for reasons unrelated to the change?
+- Is the number of gates, hooks and scripts proportionate to what they protect?
+- What does a fresh clone need, and is it written down?
 
-Look at: `nx.json` `targetDefaults` against each project's real outputs; `pnpm exec nx show project`
-for a project that looks under-targeted; the [pre-push hook](../../.husky/pre-push) against
-[`ci.yml`](../../.github/workflows/ci.yml); whether the gaps between them are written down.
+Start at [`nx.json`](../../nx.json), the hooks in [`.husky/`](../../.husky/) against
+[`ci.yml`](../../.github/workflows/ci.yml), and the four target results.
 
-| Caps the card at | When |
-| --- | --- |
-| 3 | A cached target doesn't declare the outputs it writes |
-| 3 | A check runs in CI with no local equivalent, and that gap isn't documented |
-| 3 | A fresh clone needs a step no README mentions |
-| 2 | A target fails on a clean tree |
-| 2 | Formatting or style is argued in review rather than settled by `eslint --fix` |
+| 5 | 3 | 1 |
+| --- | --- | --- |
+| Invisible when it works, loud and precise when it doesn't, cheap to maintain | Works, with rough edges and machinery nobody would miss | People route around it |
 
 ### 📚 5. Documentation — weight 10
 
-Whether the docs say *why* and are still true. Drift is the whole card: a claim that no longer
-matches the code is worth less than no claim. Volume is not a signal — a short accurate README
-beats a thorough stale one, and this repo's own
-[`house-docs`](../../.agents/skills/house-docs/SKILL.md) rules are the bar.
+- Do the docs explain why things are shaped this way, and what breaks if that's undone?
+- Are they true, and is drift trending up or down?
+- Is the volume proportionate? What does it cost to read, and does anyone read it?
+- Is each fact written once, or copied into places that will drift?
 
-Look at: every project README's claims against its code; whether loose ends and stubs are named or
-smoothed over; whether `🧭 Deliberately deferred` sections exist and are specific enough to act on;
-whether `AGENTS.md` files duplicate their README instead of pointing at it.
+Start at every project README against its code, then the ratio of markdown to code.
 
-| Caps the card at | When |
-| --- | --- |
-| 2 | A README contradicts the code — a renamed env var, a dropped command, a moved file |
-| 3 | A project has no README, or one that lists its files instead of saying what it's for |
-| 4 | Docs describe what the code does rather than why it's shaped that way |
+| 5 | 3 | 1 |
+| --- | --- | --- |
+| Short, true, and the first place you'd look | Useful but sprawling or partly stale; you check the code anyway | Wrong often enough that it misleads |
 
 ### 🤖 6. Agent setup — weight 10
 
-Whether an agent working here is constrained by tooling or only by prose. The question for every
-skill is whether it exists because the task gets got wrong without it; the question for every ban in
-`AGENTS.md` is whether anything catches it.
+- Does each skill, rule and hook target a failure agents actually make here?
+- What context does an agent pay for on every turn, and is it worth it?
+- Is enforcement placed where a mistake is expensive, and left out where prose is enough?
+- Does the setup help agents do good work, or only stop them doing bad work?
+- What does it cost to maintain, relative to the product code it serves?
 
-Look at: each skill's `description` against the prompt that should trigger it; whether a skill
-encodes what a README already says (it should link, not restate); the `deny` list in
-[`settings.json`](../../.claude/settings.json) against the prose bans in
-[`AGENTS.md`](../../AGENTS.md); whether each `PostToolUse` hook maps to a rule already written down.
+Start at [`AGENTS.md`](../../AGENTS.md), [`.claude/settings.json`](../../.claude/settings.json),
+`.claude/hooks/` and `.agents/skills/`.
 
-| Caps the card at | When |
-| --- | --- |
-| 3 | An `AGENTS.md` ban has no deny entry and no hook, where one is possible |
-| 3 | A skill's description wouldn't trigger on the prompt it's for |
-| 4 | A skill restates a README instead of linking it — two copies, one drifts |
-| 2 | A hook blocks edits it has no business blocking; a reminder that cries wolf gets turned off |
+| 5 | 3 | 1 |
+| --- | --- | --- |
+| Small, targeted, and agents here visibly do better work for it | Useful core under a layer of rules nobody could keep in their head | Agents spend more effort on the setup than on the task |
 
 ### 📋 7. Process & delivery — weight 10
 
-Whether the work is traceable without asking the author. Issues for what's known, decision reports
-for the forks that got resolved, commit messages whose type matches what the commit did, and a
-release trail that was derived rather than typed.
+- Can a newcomer reconstruct why things are the way they are: issues, decisions, commit history?
+- Do findings, reviews and decisions turn into work, or accumulate?
+- Do decisions stay true, and get superseded when the code moves on?
+- Is the release trail derived rather than typed, and do commit types match what changed?
+- Is the process overhead proportionate to the team that runs it?
 
-Look at: `gh issue list` and `gh issue list --state closed --label spike` against
-[`docs/decisions/`](../decisions/README.md); `git log --oneline -40` for types that don't match their
-diffs; whether the markers the [push gate](../../.husky/pre-push) rejects were filed as issues or
-just deleted; branches and versions against the [release rules](../../README.md#-versioning).
+Start at `git log` since the last review, [`docs/decisions/`](../decisions/README.md) against the
+code, and the last review's recommendations against what happened to them.
 
-| Caps the card at | When |
-| --- | --- |
-| 1 | A version or a `CHANGELOG.md` was edited by hand |
-| 3 | A resolved architectural fork has no decision report |
-| 3 | Commit types don't match their diffs, so the derived version is wrong |
-| 4 | Known work exists only in a branch name or in the author's head |
+| 5 | 3 | 1 |
+| --- | --- | --- |
+| Everything traceable, nothing ceremonial, findings close | Traceable, but records pile up faster than they're acted on | History has to be asked for |
 
 ## 🧭 Deliberately deferred
 
 | Later need | What changes |
 | --- | --- |
-| A card that stops discriminating (everything scores 5 twice running) | Rewrite that card's caps to a harder bar; `review:version` bumps the version off the digest change, and the calibration re-score is owed in the same pass |
-| Coverage as evidence on the testing card | `collect-facts.sh` would need a `test:coverage` target on every project (only `scripts` has one today) and a threshold worth defending; a percentage with no threshold is not evidence |
-| Weights that reflect a different stage | Weights are the one part meant to be argued with. Change them in the table above, run `review:version`, and say what stage the new split is for |
-| More than a handful of reviews | The history table in [`README.md`](./README.md) grows a fold — keep the last six rows and move the rest to a collapsed section |
+| Weights that fit a different stage | Weights are the part meant to be argued with. Change them above, run `review:version`, and say what stage the new split is for |
+| A dimension none of the seven covers | Add a card only if its question can't live inside an existing one. The Scores table shape is parsed by `apps/developer-portal/tools/lib/scorecards.ts`, so a new card is a code change there too |
+| Reviews of one area rather than the whole tree | That's an [audit](../audits/README.md). A review stays whole-repo, so its total stays comparable |

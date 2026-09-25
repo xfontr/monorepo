@@ -1,130 +1,104 @@
 ---
 name: repo-review
-description: Score the whole repository against the seven scorecards in docs/reviews/SCORECARDS.md and write the result to docs/reviews/. Use when asked to rate, score, grade, audit or review the repo, the codebase, the architecture as a whole, or "how good is this project".
+description: Judge the whole repository as a system — architecture, code, tests, tooling, docs, agent setup, process — against the seven cards in docs/reviews/SCORECARDS.md, and write a dated review to docs/reviews/. Use when asked to rate, score, grade or review the repo, the codebase or the architecture as a whole, or "how good is this project". Finding the bugs in one project is `audit-report`; the current diff is `/code-review`.
 ---
 
 <!-- Generated from `.agents/skills/repo-review/SKILL.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->
 
 # Reviewing the repo
 
-Seven cards, one weighted total, one file under [`docs/reviews/`](../../../docs/reviews/README.md).
-The rubric is not in this skill — it lives in
-[`SCORECARDS.md`](../../../docs/reviews/SCORECARDS.md) so that a human can argue with it without
-reading a skill. Read that file before scoring anything; this one is only the process.
+A review is a senior engineer's macro judgement of the repository, written down and scored: what
+the repo is, what it's good at, what's wrong with it, and where it's heading. The rubric lives in
+[`SCORECARDS.md`](../../../docs/reviews/SCORECARDS.md). Read it before anything else, and especially
+its ⚖️ How to judge section, which is what separates a review from a bug list.
 
-Two things this is not. It is **not a code review** of the current diff — use `/code-review` for
-that. And it **changes nothing**: no fixes, no refactors, no doc edits, however tempting a finding
-is. A review that edits what it measures is worthless as a baseline, and reviews only earn their
-keep as a series.
+A review **changes nothing**: no fixes, no refactors, no doc edits. A measurement that edits what it
+measures is worthless as a baseline.
 
-## 1. Collect the facts first
+## 1. Collect the facts
 
 ```sh
 .agents/skills/repo-review/collect-facts.sh
 ```
 
-Roughly two minutes — it runs `lint`, `typecheck`, `test` and `build` across **every** project (not
-affected: a review scores the tree, not the diff) and prints the counts each card leans on. Add
-`--quick` to skip the targets, but only on a re-run; a Tooling & DX score with no target results is
-a guess.
+This takes a few minutes: it runs `lint`, `typecheck`, `test` and `build` across every project and
+prints sizes, ratios and activity since the last review. The figures are **context for judgement,
+not triggers**: nothing in them moves a score by itself. Pass `--quick` only on a re-run.
 
-Its output opens with the guard. Act on it before doing anything else:
+Act on the guard at the top first:
 
 | The output says | Do this |
 | --- | --- |
-| Nothing committed since the last review | Stop and ask. The tree is identical, so a new review can only differ in judgement — offer to re-read the last one instead |
-| The last review is under 7 days old | Ask before continuing, unless something large landed in between |
-| Untracked source files | Say so. Every count comes from `git ls-files`/`git grep`, so untracked work is invisible to all of them |
-| Not on `master`, or a dirty tree | Continue, and say it in the review's opening line — the commit column can't describe a tree that isn't committed |
+| Nothing committed since the last review | Stop and ask; offer to re-read the last one instead |
+| The last review is under 7 days old | Ask before continuing, unless something large landed |
+| Untracked source files | Say so in the review; every count is blind to them |
+| Not on `master`, or a dirty tree | Continue, and say it in the review's opening line |
 
-## 2. Score the cards
+If a target fails, find out why before treating it as a finding. A stale local install is not a
+broken repo.
 
-One agent per card, all seven launched in the same message so they run concurrently. A single pass
-over seven cards' worth of a whole monorepo either runs out of attention or scores from memory of
-the READMEs, which is exactly the failure this rubric is built to prevent.
+## 2. Gather evidence per card
 
-Use the runtime's subagent mechanism for all seven. Claude uses `subagent_type: repo-review-card`
-from [`.claude/agents/repo-review-card.md`](../../../.claude/agents/repo-review-card.md); Codex uses
-seven general subagents with the prompt below. Keep them read-only by instruction: no Bash and no
-edits. Seven agents improvising their own counts or target runs produce incomparable evidence;
-the fact-collector output already has every count and target result a card needs.
-
-Give each agent the card's section from `SCORECARDS.md` verbatim, plus:
+Launch seven [`repo-review-card`](../../../.claude/agents/repo-review-card.md) agents in one message,
+one per card, so they run concurrently. Codex uses seven general subagents with the same prompt.
+Give each one:
 
 ```
-Read docs/reviews/SCORECARDS.md — the scale, the calibration rules and the "<card>" card.
-Score only that card. Read the actual code, not just the READMEs: a claim in a README is
-evidence about the docs card, never about this one.
+Read docs/reviews/SCORECARDS.md, in full, then assess the "<card>" card. The facts are attached.
+Read the code and the history, not just the READMEs. Previous review: <file>.
 ```
 
-Attach the fact-collector output to every agent so seven agents don't re-run the same counts.
+Attach the fact-collector output, plus the last review's recommendations so trajectory can be
+judged. If the agents fail on a rate limit, re-run them with a model override and say so in the
+review's opening line.
 
-## 3. Reconcile, then compute
+The agents gather evidence and propose; they don't decide. Each returns the shape the card agent
+defines: an assessment, strengths, weaknesses as patterns, over- and under-engineering, low-hanging
+fruit, and a proposed score with its steelman.
 
-Agents inflate. Before accepting a score, check it against the calibration rules — every one of
-them exists because a previous review broke it:
+## 3. Form the thesis, then the scores
 
-- An uncited finding gets dropped, not softened.
-- A 5 with no named breakage-the-tooling-catches becomes a 4.
-- A card whose evidence is all README claims gets re-scored from the code.
-- Two agents citing the same finding on different cards means one of them is on the wrong card —
-  the same fact must not cost points twice.
+This is your job, not the agents'. Read the seven reports together, and read enough of the repo
+yourself to have a view of your own.
 
-### The cross-card pass
-
-Card isolation is what stops the agents triple-counting one fact, and it is also why nothing sees a
-problem that presents one shard to each card. Read the seven sets **together**, once, before any
-arithmetic. You are the only reader who has them all.
-
-The question is not "what did the agents miss" — it is **which findings only exist in the
-overlap**. A project that is undocumented, untested, unbounded and duplicated hands each agent a
-survivable deduction and no agent the shape. So:
-
-- Group the findings by project and by file, not by card. A project named on four cards is the
-  signal; a project named on one is that card's business.
-- Ask what the pattern is evidence *of*. Four thin deductions on one project may be one finding:
-  nobody has read it.
-- Name the **one card** each cross-cutting finding costs, and score it there. It is still one fact,
-  so it still costs points once — the rule that stops double-counting is not suspended because the
-  finding is bigger.
-- A cross-cutting finding is held to the same citation rule as any other. "This feels
-  unsupervised" is dropped; "four cards deduct on `apps/developer-portal`, with these four citations" is
-  a finding.
-
-`0012-review-rubric-validity.md` is why this step exists: every cap in `SCORECARDS.md` resolves to a
-predicate, and a problem spread thin across seven cards fires none of them.
-
-Then compute the total yourself: `Σ(score × weight) / 100`, one decimal. Never carry an agent's
-arithmetic, and never nudge a card to make the total feel right.
+1. **Write the big picture first.** What this repo is, what it's good at, what's really wrong, and
+   whether its effort is going where the risk is. The scores follow from this thesis; they don't
+   produce it.
+2. **Find the root causes.** Group the agents' findings by project and by cause. A problem that
+   shows up on four cards is usually one fact about the repo, so say what it is. Let a root cause
+   lower each card it genuinely harms, and say so where it does, but not a card that only happens
+   to mention it.
+3. **Test every proposed score against the anchors.** Keep the agent's number only if the steelman
+   holds up. Agents inflate on familiar strengths and deflate on vivid single defects: correct
+   both. A score that rests on one bug is wrong by definition, so move the bug to the
+   recommendations and rescore on the pattern.
+4. **Compute the total yourself.** `Σ(score × weight) / 100`, one decimal. If it contradicts the
+   thesis, a card is wrong: fix the card, never the arithmetic.
 
 ## 4. Write it
 
-Copy [`TEMPLATE.md`](../../../docs/reviews/TEMPLATE.md) to
-`docs/reviews/<YYYY-MM-DD>-<short sha>.md` using the date and HEAD from the fact collector. Fill Δ
-against the previous review's row, or `—` on the first. The method version in the opening line comes
-from [`METHOD.md`](../../../docs/reviews/METHOD.md), never from memory — it covers this skill and the
-card agent as well as the rubric, so it moves without `SCORECARDS.md` being touched. Follow
-`house-docs`: prose that says why the score is what it is, tables for the findings, no closing
-summary.
+Copy [`TEMPLATE.md`](../../../docs/reviews/TEMPLATE.md) to `docs/reviews/<YYYY-MM-DD>-<short sha>.md`,
+with the date and HEAD from the fact collector. The method version in the opening line comes from
+[`METHOD.md`](../../../docs/reviews/METHOD.md). Fill Δ against the previous review's row, and say
+when it crosses a method version. Follow `house-docs`.
 
-The `## 🧮 Scores` table is machine-read, not only human-read: `@monorepo/developer-portal`'s scorecards page
-parses it straight out of the file. Keep it byte-for-byte the shape `TEMPLATE.md` has — the same seven
-cards in the same order, each a bare `n/5` in the Score column, the total as `**n.n/5**` in a
-`**Total**` row. Never rename a card, reorder one, or write a score as anything but `n/5` (no `n/10`,
-no bare `n`, no card split in two). A malformed table degrades the dashboard silently — it just shows
-fewer cards — so there is no error to notice at write time; this instruction is the only guard until
-someone breaks it.
+The `## 🧮 Scores` table is machine-read: `@monorepo/developer-portal` parses it. Keep the shape
+`TEMPLATE.md` has, byte for byte: the same seven cards in the same order, a bare `n/5` in the Score
+column, and the total as `**n.n/5**` in a `**Total**` row. A malformed table silently shows fewer
+cards on the dashboard.
+
+Every section of the template gets filled. What's really wrong, over- and under-engineering, and
+the low-hanging fruit are the parts the reader acts on, so none of them is optional.
 
 ## 5. Append the history row
 
-Add the row to the table in [`docs/reviews/README.md`](../../../docs/reviews/README.md) — ratings
-only, in the same pass.
-[`check-invariants.sh`](../../../.claude/hooks/check-invariants.sh) fails the write of a review file whose row
-isn't there yet, so this step is not optional and the reminder clears itself once the row exists.
+Add the row to the table in [`docs/reviews/README.md`](../../../docs/reviews/README.md) in the same pass.
+[`check-invariants.sh`](../../../.claude/hooks/check-invariants.sh) flags a review file whose row is
+missing.
 
 ## 6. Report, then stop
 
-Give the user the totals table and the "what would move the total" rows. Offer to file the top
-findings as issues (`pnpm issue:add`, or the `github-issue` skill) and to turn any architectural
-fork the review exposed into a [decision report](../decision-report/SKILL.md) — but file nothing
-without being asked. The review is the deliverable.
+Give the user the scores, the thesis in a paragraph, and the top of what's really wrong. Offer to
+file the recommendations as issues, to run [`audit-report`](../audit-report/SKILL.md) on any project
+whose code-level problems the review only sampled, and to turn an architectural fork into a
+[decision report](../decision-report/SKILL.md). File nothing without being asked.

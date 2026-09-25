@@ -1,11 +1,13 @@
 # 📊 Reviews
 
-A dated, scored read of the whole repository. One file per review, named
-`YYYY-MM-DD-<short sha>.md` — the day it was written and the commit it was written against, because
-a review measures one tree state and starts expiring the moment that state changes.
+A dated, scored judgement of the whole repository as a system: what it is, what it's good at,
+what's wrong with it and where it's heading. One file per review, named `YYYY-MM-DD-<short sha>.md`:
+the day it was written and the commit it was written against, because a review measures one tree
+state and starts expiring the moment that state changes.
 
-A review is not a backlog and not a refactor plan. It scores what is here against
-[`SCORECARDS.md`](./SCORECARDS.md), cites the evidence behind every score, and stops. Findings worth
+A review is not a bug list; defects in one project are an [audit](../audits/README.md). It is not a
+backlog or a refactor plan either. It judges what is here against [`SCORECARDS.md`](./SCORECARDS.md),
+supports every judgement with evidence, and stops. Findings worth
 acting on leave as issues (`pnpm issue:add`); architectural forks it exposes leave as
 [decision reports](../decisions/README.md). **Nothing gets fixed inside the review itself** — a
 measurement that changes what it measures is worth nothing next quarter, and a review that turns
@@ -26,8 +28,8 @@ facts, scores each card, writes the file and appends the row below in one pass.
 Every card is an integer 1–5 and the total is their weighted mean to one decimal, so a total is
 only comparable to another total from the same **method** version — which covers the rubric, the
 skill, the card agent and the fact collector, because all four decide how a number comes out.
-[`METHOD.md`](./METHOD.md) carries it, `check-docs` enforces it, and the last column below records
-which version produced each row.
+[`METHOD.md`](./METHOD.md) carries it, `pnpm review:version --check` enforces it in pre-commit and
+CI, and the last column below records which version produced each row.
 
 ## 📈 History
 
@@ -43,6 +45,7 @@ quietly until it exists.
 | [2026-09-10](./2026-09-10-bfd6da2.md) | `bfd6da2` | 5 | 5 | 4 | 5 | 2 | 3 | 5 | 4.4 | v1 |
 | [2026-09-15](./2026-09-15-bfd6da2.md) | `bfd6da2` | 5 | 5 | 3 | 5 | 2 | 3 | 5 | 4.2 | v2 |
 | [2026-09-15](./2026-09-15-aea557e.md) | `aea557e` | 5 | 4 | 4 | 3 | 2 | 3 | 5 | 3.9 | v2 |
+| [2026-09-23](./2026-09-23-61b6f7f.md) | `61b6f7f` | 4 | 2 | 3 | 3 | 2 | 3 | 3 | 2.9 | v6 |
 
 Rows three and four are **the same tree under two methods**, which is what a version bump buys: the
 0.2 between them is the method moving, not the repo. Compare 4.4 against 4.2 and 4.2 against
