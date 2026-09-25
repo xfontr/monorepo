@@ -25,10 +25,10 @@ describe("gh", () => {
 
 describe("createIssue", () => {
     it.each([
-        [{ title: "Title", body: "Body" }, ["issue", "create", "--title", "Title", "--body", "Body"]],
-        [{ title: "Title", body: "Body", label: "bug" }, ["issue", "create", "--title", "Title", "--body", "Body", "--label", "bug"]],
-        [{ title: "Title", body: "Body", project: "Roadmap" }, ["issue", "create", "--title", "Title", "--body", "Body", "--project", "Roadmap"]],
-        [{ title: "Title", body: "Body", label: "bug", project: "Roadmap" }, ["issue", "create", "--title", "Title", "--body", "Body", "--label", "bug", "--project", "Roadmap"]],
+        [{ title: "Title", body: "Body" }, ["issue", "create", "--title=Title", "--body=Body"]],
+        [{ title: "Title", body: "Body", label: "bug" }, ["issue", "create", "--title=Title", "--body=Body", "--label", "bug"]],
+        [{ title: "Title", body: "Body", project: "Roadmap" }, ["issue", "create", "--title=Title", "--body=Body", "--project", "Roadmap"]],
+        [{ title: "Title", body: "Body", label: "bug", project: "Roadmap" }, ["issue", "create", "--title=Title", "--body=Body", "--label", "bug", "--project", "Roadmap"]],
     ])("omits empty optional values while preserving supplied flags", (input, expected) => {
         exec.run.mockReturnValue("https://example.test/issues/1");
 
@@ -36,12 +36,16 @@ describe("createIssue", () => {
         expect(exec.run).toHaveBeenCalledWith("gh", expected);
     });
 
-    it("rejects flag-like titles before gh can interpret them", () => {
-        vi.mocked(exec.run).mockImplementation(() => {
-            throw new Error("must not run");
-        });
+    // A description is free text, and one starting with a markdown checklist used to throw after
+    // every field had been typed.
+    it("passes a dash-leading body as the value of --body instead of rejecting it", () => {
+        createIssue({ title: "--label=bug", body: "- [ ] first step" });
 
-        expect(() => createIssue({ title: "--title", body: "Body" })).toThrow(/title/);
+        expect(exec.run).toHaveBeenCalledWith("gh", ["issue", "create", "--title=--label=bug", "--body=- [ ] first step"]);
+    });
+
+    it("rejects a flag-like label, which is still passed as a separate argument", () => {
+        expect(() => createIssue({ title: "Title", body: "Body", label: "--web" })).toThrow(/label/);
         expect(exec.run).not.toHaveBeenCalled();
     });
 });

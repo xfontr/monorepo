@@ -6,10 +6,7 @@ export type ProjectSummary = {
     url: string
 };
 
-export type ProjectLoad = {
-    source: "live" | "cache" | "empty"
-    projects: ProjectSummary[]
-};
+export type ProjectSource = "live" | "cache" | "empty";
 
 export type PickIssue = SearchableIssue & {
     url: string
@@ -24,10 +21,9 @@ export type IssueOption<T> = {
 export const projectLoad = (
     live: ProjectSummary[],
     online: boolean,
-): ProjectLoad => {
-    if (live.length > 0) return { source: "live", projects: live };
-    if (online) return { source: "empty", projects: live };
-    return { source: "cache", projects: [] };
+): ProjectSource => {
+    if (live.length > 0) return "live";
+    return online ? "empty" : "cache";
 };
 
 export const issueOptions = <T>(back: T, issues: PickIssue[]): IssueOption<T>[] => [

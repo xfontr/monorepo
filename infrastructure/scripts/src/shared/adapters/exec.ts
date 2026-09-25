@@ -12,7 +12,7 @@ export const inherit = (command: string, args: string[]): number | null =>
 /** A value starting with `-` is read as a flag, not a value — the injection shape SonarCloud flags. */
 export const assertNotFlagLike = (value: string, field: string): string => {
     if (value.startsWith("-")) {
-        throw new ExpectedError(`${field} can't start with "-" — gh would read it as a flag, not a value: "${value}"`);
+        throw new ExpectedError(`${field} can't start with "-" — it would be read as a flag, not a value: "${value}"`);
     }
     return value;
 };

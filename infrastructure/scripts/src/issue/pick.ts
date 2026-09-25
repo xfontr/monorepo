@@ -32,9 +32,8 @@ const pickProject = async (): Promise<Picked<Project>> => {
     loading.start("Asking gh what's available...");
 
     const live = listProjects();
-    const source = projectLoad(live, live.length > 0 || isOnline());
     let projects = live;
-    const offline = source.source === "cache";
+    const offline = projectLoad(live, live.length > 0 || isOnline()) === "cache";
 
     if (offline) {
         loading.message("Reading cached projects...");
@@ -67,8 +66,7 @@ const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue
 
     let issues: Issue[];
     try {
-        const source = issueSource({ knownOffline, requestFailed: false, online: false });
-        issues = listIssues(project.title, source === "cache");
+        issues = listIssues(project.title, knownOffline);
     }
     catch {
         const failure = issueSource({ knownOffline, requestFailed: true, online: !knownOffline && isOnline() });
