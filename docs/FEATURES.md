@@ -85,10 +85,10 @@ shortest statement of how a task is meant to go here.
 | `$decision-report` | [`.agents/skills/decision-report/SKILL.md`](../.agents/skills/decision-report/SKILL.md) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
 | `$doc-drift-check` | [`.agents/skills/doc-drift-check/SKILL.md`](../.agents/skills/doc-drift-check/SKILL.md) | [`docs/decisions/0001-feature-discoverability.md`](../docs/decisions/0001-feature-discoverability.md) |
 | `$github-issue` | [`.agents/skills/github-issue/SKILL.md`](../.agents/skills/github-issue/SKILL.md) | [`infrastructure/scripts/src/issue/README.md`](../infrastructure/scripts/src/issue/README.md) |
-| `$house-docs` | [`.agents/skills/house-docs/SKILL.md`](../.agents/skills/house-docs/SKILL.md) | [`docs/decisions/0001-feature-discoverability.md`](../docs/decisions/0001-feature-discoverability.md) |
+| `$house-docs` | [`.agents/skills/house-docs/SKILL.md`](../.agents/skills/house-docs/SKILL.md) | [`docs/audits/2026-09-25-docs.md`](../docs/audits/2026-09-25-docs.md) |
 | `$i18n-new-vendor` | [`.agents/skills/i18n-new-vendor/SKILL.md`](../.agents/skills/i18n-new-vendor/SKILL.md) | [`docs/concepts/agent-setup.md`](../docs/concepts/agent-setup.md) |
 | `$new-package` | [`.agents/skills/new-package/SKILL.md`](../.agents/skills/new-package/SKILL.md) | [`infrastructure/scripts/src/drift/README.md`](../infrastructure/scripts/src/drift/README.md) |
-| `$nuxt-module-route` | [`.agents/skills/nuxt-module-route/SKILL.md`](../.agents/skills/nuxt-module-route/SKILL.md) | [`docs/decisions/0013-linter-coverage.md`](../docs/decisions/0013-linter-coverage.md) |
+| `$nuxt-module-route` | [`.agents/skills/nuxt-module-route/SKILL.md`](../.agents/skills/nuxt-module-route/SKILL.md) | [`docs/audits/2026-09-25-docs.md`](../docs/audits/2026-09-25-docs.md) |
 | `$repo-review` | [`.agents/skills/repo-review/SKILL.md`](../.agents/skills/repo-review/SKILL.md) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
 | `$scripts-new-script` | [`.agents/skills/scripts-new-script/SKILL.md`](../.agents/skills/scripts-new-script/SKILL.md) | [`docs/decisions/0004-scripts-architecture.md`](../docs/decisions/0004-scripts-architecture.md) |
 | `$start-issue` | [`.agents/skills/start-issue/SKILL.md`](../.agents/skills/start-issue/SKILL.md) | [`AGENTS.md`](../AGENTS.md) |
