@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync, type Dirent } from "node:fs";
+import { readdirSync, readFileSync, statSync, writeFileSync, type Dirent } from "node:fs";
 import { join, relative } from "node:path";
 import { at, repoRoot } from "../../shared/adapters/git.ts";
 import { PROJECT_ROOTS } from "../../shared/domain/layout.ts";
@@ -109,3 +109,5 @@ export const readMap = (): string => {
         return ""; // never rendered before; the diff against "" is the whole file
     }
 };
+
+export const writeMap = (markdown: string): void => writeFileSync(at(MAP_PATH), markdown);

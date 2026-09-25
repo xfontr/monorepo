@@ -1,6 +1,6 @@
 import { titleCase } from "../../shared/domain/layout.ts";
 
-const SCOPE = "@monorepo/";
+export const SCOPE = "@monorepo/";
 
 const SELF = "@monorepo/scripts";
 

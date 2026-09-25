@@ -9,10 +9,10 @@ export const main = (): void => {
 
     for (const report of reports) {
         if (report.errors.length === 0) {
-            out.success(`✅ Checked ${report.packageName} — package metadata and exports are valid.`);
+            out.success(`Checked ${report.packageName} — package metadata and exports are valid.`);
         }
         else {
-            out.error(`❌ Checked ${report.packageName} — ${report.errors.length} contract error(s).`);
+            out.error(`Checked ${report.packageName} — ${report.errors.length} contract error(s).`);
             for (const error of report.errors) out.error(`  ${error}`);
         }
 
