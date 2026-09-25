@@ -62,8 +62,8 @@ export const skills = (found: { source: string, name: string }[]): Capability[] 
 
 /** Match a token without accepting a longer name on either side, such as `test:coverage` for `coverage`. */
 export const mentions = (text: string, token: string): boolean => {
-    const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    return new RegExp(`(?<![\\w:-])${escaped}(?![\\w:-])`).test(text);
+    const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+    return new RegExp(String.raw`(?<![\w:-])${escaped}(?![\w:-])`).test(text);
 };
 
 const sharedPrefix = (a: string, b: string): number => {

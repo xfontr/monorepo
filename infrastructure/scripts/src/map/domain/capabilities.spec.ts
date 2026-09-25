@@ -29,6 +29,13 @@ describe("mentions", () => {
     it("treats a token as found when it stands alone", () => {
         expect(mentions("The `pre-push` hook runs lint", "pre-push")).toBe(true);
     });
+
+    it("matches punctuation literally while keeping word and command boundaries", () => {
+        expect(mentions("Run `a+b`", "a+b")).toBe(true);
+        expect(mentions("Run `axb`", "a+b")).toBe(false);
+        expect(mentions("Run `a+b:watch`", "a+b")).toBe(false);
+        expect(mentions("Use `test[abc]`", "test[abc]")).toBe(true);
+    });
 });
 
 describe("rootCommands", () => {

@@ -6,6 +6,8 @@ export const branchForIssue = (issue: number): string | undefined =>
         .split("\n")
         .find((name) => new RegExp(`^[^/]+/[^/]+/${issue}-`).test(name));
 
-export const checkout = (branch: string): void => void git("checkout", branch);
+export const checkout = (branch: string): void => {
+    git("checkout", branch);
+};
 
 export const currentBranch = (): string => git("rev-parse", "--abbrev-ref", "HEAD");

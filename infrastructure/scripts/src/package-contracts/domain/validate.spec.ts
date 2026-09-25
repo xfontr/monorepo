@@ -48,6 +48,17 @@ describe("validatePackage", () => {
         );
     });
 
+    it("treats punctuation in a wildcard target as literal path text", () => {
+        const report = validatePackage(source(
+            validManifest({ "./v1.0/*": "./src/v1.0/*" }),
+            ["src/v1x0/index.ts"],
+        ));
+
+        expect(report.errors).toContain(
+            "@monorepo/demo: exports[\"./v1.0/*\"] wildcard target has no matching file: \"./src/v1.0/*\"",
+        );
+    });
+
     it("rejects an export target that escapes the package directory", () => {
         const report = validatePackage(source(validManifest({ ".": { import: "./../../outside.ts" } })));
 
@@ -89,6 +100,12 @@ describe("validatePackage", () => {
 
     it("reports peer metadata as skipped when the package has none", () => {
         expect(validatePackage(source(validManifest())).skipped).toEqual(["peer metadata (not present)"]);
+    });
+
+    it("renders values that JSON.stringify cannot represent in validation errors", () => {
+        const report = validatePackage(source({ ...validManifest(), name: Symbol("demo") }));
+
+        expect(report.errors).toContain("@monorepo/demo: name must be \"@monorepo/demo\"; received Symbol(demo)");
     });
 
     it("collects metadata, export and peer errors together", () => {

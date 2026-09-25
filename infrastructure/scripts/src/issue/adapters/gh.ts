@@ -80,13 +80,16 @@ export const listIssues = (project: string, offline = false): Issue[] => {
 };
 
 /** Assigns `@me`; re-adding an existing assignee is a no-op, so this never checks first. */
-export const assignToMe = (issue: number): void =>
-    void gh("issue", "edit", String(issue), "--add-assignee", "@me");
+export const assignToMe = (issue: number): void => {
+    gh("issue", "edit", String(issue), "--add-assignee", "@me");
+};
 
 /** `gh issue develop` over `git checkout -b`: the branch it creates is linked on the issue's Development panel, which a branch name alone never is. */
-export const developBranch = (issue: number, branch: string): void =>
-    void gh("issue", "develop", String(issue), "--name", branch, "--checkout");
+export const developBranch = (issue: number, branch: string): void => {
+    gh("issue", "develop", String(issue), "--name", branch, "--checkout");
+};
 
 /** Addressed by name rather than node ID — `item-edit` resolves the field and option server-side instead of a separate `field-list` lookup. */
-export const moveToInProgress = (project: Project, issue: Issue): void =>
-    void gh("project", "item-edit", String(project.number), "--owner", repoOwner(), "--url", issue.url, "--field", "Status", "--value", "In Progress");
+export const moveToInProgress = (project: Project, issue: Issue): void => {
+    gh("project", "item-edit", String(project.number), "--owner", repoOwner(), "--url", issue.url, "--field", "Status", "--value", "In Progress");
+};
