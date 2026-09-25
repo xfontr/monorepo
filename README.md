@@ -107,14 +107,16 @@ every workflow that installs uses `--ignore-scripts` — so a hook hung off one 
 silently does nothing where it matters. Skip setup and the [commit and push gates](#-git-conventions) below
 simply never fire, while the portal has no current coverage or derived docs to show.
 
-The app fetches both its translations and its articles over the network at runtime, so it needs
-`NUXT_TRANSLATIONS_VENDOR_*` set before any page renders, and `NUXT_CONTENT_VENDOR_BASE_URL` before
-`/articles` does. See [`apps/huella-legal`](./apps/huella-legal/README.md) for which vars, and for
-how to serve the translations locally instead.
+`huella-legal` fetches both its translations and its articles over the network at runtime, so it
+needs `NUXT_TRANSLATIONS_VENDOR_*` set before any page renders, and `NUXT_CONTENT_VENDOR_BASE_URL`
+before `/articles` does. See [`apps/huella-legal`](./apps/huella-legal/README.md) for which vars,
+and for how to serve the translations locally instead.
 
-Every command below runs against **affected** projects only (what changed since `master`), which is
-also what CI runs, except `pnpm test:coverage` — see its row below. For the whole workspace instead,
-use `pnpm exec nx run-many -t <target>`.
+The everyday commands. [`docs/FEATURES.md`](./docs/FEATURES.md) lists every other one — the
+`issue:*` scripts, `docs:drift`, `review:version`, `package:check` — with the doc that explains it.
+The ones that take a target run against **affected** projects only (what changed since `master`),
+which is also what CI runs, except `pnpm test:coverage`. For the whole workspace instead, use
+`pnpm exec nx run-many -t <target>`.
 
 | Command | What it does |
 | --- | --- |
@@ -128,7 +130,6 @@ use `pnpm exec nx run-many -t <target>`.
 | `pnpm graph` | Open the Nx project graph |
 | `pnpm agents:sync` | Render ignored Claude adapters from canonical `AGENTS.md` files and `.agents/skills/`; `--check` reports local drift |
 | `pnpm docs:map` | Re-render [`docs/FEATURES.md`](./docs/FEATURES.md); `--check` asserts it is current |
-| `pnpm package:check` | Validate every `packages/*` manifest, raw-source export target and peer metadata |
 | `pnpm release:dry` | Preview a release (versioning + changelogs) |
 
 ## 🌿 Git conventions

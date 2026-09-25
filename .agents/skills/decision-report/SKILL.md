@@ -75,6 +75,12 @@ Two things the template's shape enforces that are easy to lose:
 Keep it as tight as the shortest sections in the `ui`/`content` package READMEs: this is a record
 of an outcome, not a design doc arguing for it. Follow `house-docs` like any other markdown here.
 
+- **Result stays under about 60 lines.** Past that it is a design doc; split the question or move
+  the measurements into a table.
+- **No process narration.** What was tried in which order, what got built and reverted in the
+  session, and who asked what belong in the PR. The report states what is true, and a reverted
+  attempt appears only as a row in Options considered.
+
 ## 3. Make it executable while `status` is `to-implement`
 
 **A report whose work hasn't landed is read next by whoever does the work, and that is usually

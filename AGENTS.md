@@ -82,7 +82,9 @@ far outside that is worth opening. The `comment-cleanup` skill runs the pass.
   that didn't produce it. The prose around the tables is yours to edit.
 - **Never write a real endpoint, URL, token or instance ID into the repo.** Every one of them is an
   env var with no default; `.env.example` documents the names and nothing else. "It's a public URL"
-  is not a reason — vendor endpoints stay out.
+  is not a reason — vendor endpoints stay out. Two exceptions, both identifiers rather than
+  credentials: the status badges atop the root README, and `nxCloudId` in `nx.json` — see
+  [0026](./docs/decisions/0026-nx-cloud-remote-cache.md).
 - **Never raise git.** Branching, committing, pushing, PRs and releases belong to the user and they
   do not want them suggested, offered, prepared for or asked about. Answer the question or change
   the code and stop there — an unprompted "want me to branch off and apply this?" is noise, not

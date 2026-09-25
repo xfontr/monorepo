@@ -127,7 +127,7 @@ Two halves, because only one of them is knowable in the core:
 | Checked | Where | Rule |
 | --- | --- | --- |
 | `project` | `TranslationProvider` | non-empty |
-| `baseURL` | `TranslationProvider` | parses as an absolute URL, so a missing scheme (`app.tolgee.io`) is caught rather than silently becoming a relative fetch |
+| `baseURL` | `TranslationProvider` | parses as an absolute URL, so a missing scheme (`tms.example.com`) is caught rather than silently becoming a relative fetch |
 | `options` | the provider, via `configProblems()` | whatever that vendor needs — `tolgee` requires a non-empty token |
 
 `configProblems()` returns problems rather than throwing, so one `MisconfiguredVendorError` lists

@@ -47,7 +47,7 @@ of counting as 0%.
 
 Both presets also carry one `globalSetup`,
 [`prepareNuxt.mjs`](./src/vitest/prepareNuxt.mjs): in a project with a `nuxt.config.ts` and no
-`.nuxt`, it runs `nuxi prepare` before anything is transformed, because the app's `tsconfig.json` is
+`.nuxt`, it runs `nuxi prepare` before anything is transformed, because a Nuxt app's `tsconfig.json` is
 `files: []` plus references into that directory and every file fails to load while it's missing. It
 returns immediately everywhere else, so no project has to opt in or out. It is the one `.mjs` file
 here, and has to be: a `.ts` setup file is transformed by the pipeline it exists to repair.
@@ -69,7 +69,7 @@ together. `node.json` adds `types: ["node"]` on top, and is what every consumer 
 extends; no consumer extends `base.json` directly, since the config file in the `include` needs
 Node types even in a package that otherwise doesn't.
 
-## 📐 What the ESLint factories bundle
+## 🧰 What the ESLint factories bundle
 
 - `@eslint/js` + `typescript-eslint` — type-checked for node and vue, non-type-checked for nuxt
   (Nuxt's generated files make a type-aware pass more trouble than it's worth)

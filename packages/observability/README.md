@@ -7,7 +7,7 @@ Node services. It keeps initialization consistent across applications.
 import { startWebTelemetry } from "@monorepo/observability";
 
 const faro = startWebTelemetry({
-    url: "https://faro-collector-<region>.grafana.net/collect/<app-key>",
+    url: "<faro-collector-url>",
     app: { name: "@monorepo/huella-legal", version: "1.0.0", environment: "production" },
 });
 
@@ -18,7 +18,7 @@ faro.api.pushError(new Error("boom"));
 import { startNodeTelemetry } from "@monorepo/observability/node";
 
 const provider = startNodeTelemetry({
-    url: "https://otlp-gateway-<zone>.grafana.net/otlp",
+    url: "<otlp-gateway-url>",
     instanceId: "123456",
     token: "glc_…",
     app: { name: "@monorepo/huella-legal", version: "1.0.0", environment: "production" },
@@ -82,20 +82,10 @@ The exception is the first page load: an SSR document request is a navigation, n
 carries no `traceparent` and its server trace stands alone. Everything the page fetches afterwards
 joins up.
 
-## 🧭 Not here yet
+## 🧭 Deliberately deferred
 
-**Cross-origin trace propagation.** Every request the browser makes today is same-origin — its own
-Nitro server — which Faro's tracing instrumentation already propagates `traceparent` on. The day the
-browser calls another origin directly, that origin has to be passed as Faro's
-`propagateTraceHeaderCorsUrls` or the header is dropped and the trace splits into two unrelated
-halves. Add the option when there is a caller for it, not before.
-
-**Metrics.** `service.name` is on every span already, so RED metrics can be derived in Grafana
-without shipping a second signal. The `./node` entry builds a `NodeTracerProvider` — traces and
-nothing else — so metrics mean adding a `MeterProvider` alongside it (plus
-`@opentelemetry/instrumentation-runtime-node` for event-loop and GC) the day someone wants heap and
-lag graphs.
-
-**Node telemetry for [`infrastructure/translations`](../../infrastructure/translations).** The
-`./node` entry fits it as-is, with the same caveat as any ESM service: it gets outbound fetch spans
-and propagation, but the inbound span is the caller's to open.
+| Later need | What changes |
+| --- | --- |
+| Cross-origin trace propagation | Every browser request today is same-origin — its own Nitro server — which Faro already propagates `traceparent` on. The day the browser calls another origin directly, pass it as Faro's `propagateTraceHeaderCorsUrls`, or the header is dropped and the trace splits in two |
+| Metrics | `service.name` is on every span, so RED metrics can be derived in Grafana without a second signal. Heap and lag graphs mean adding a `MeterProvider` beside the `./node` entry's `NodeTracerProvider`, plus `@opentelemetry/instrumentation-runtime-node` for event-loop and GC |
+| Node telemetry for [`infrastructure/translations`](../../infrastructure/translations) | The `./node` entry fits it as-is, with the same caveat as any ESM service: outbound fetch spans and propagation, but the inbound span is the caller's to open |

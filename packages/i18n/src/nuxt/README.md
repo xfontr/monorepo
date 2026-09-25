@@ -57,7 +57,7 @@ the derived list. Declare locales under `i18n`, as above.
 
 ```
 module.ts                       # build-time: runs in Node during the consumer's build (@nuxt/kit)
-config.ts                       # the contract between both halves: the API path and the config shape
+config.ts                       # the contract between both halves: the API path, the windows, the config shape
 runtime/
 ├── locales/loader.ts            # the @nuxtjs/i18n locale loader, compiled by the consumer's Vite
 ├── locales/i18n.d.ts            # declares defineI18nLocale, which @nuxtjs/i18n auto-imports

@@ -1,7 +1,7 @@
 # 🧭 Decisions
 
 Where a decision's answer goes once it's answered. One file per decision, named `<NNNN>-<slug>.md` —
-`0013-ui-headless.md` is the thirteenth decision recorded here.
+`0042-example-slug.md` would be the forty-second decision recorded here.
 
 A decision report is neither a design doc nor meeting minutes: it exists so the result of the
 investigation survives after the issue closes and the thread that led to it is forgotten. Write one
@@ -46,8 +46,8 @@ history is the example) may touch every section, because nothing about any indiv
 changes. A **citation repair** — a relative link gone stale because the file it pointed at moved or
 was renamed elsewhere in the repo — may be fixed in place, the same way a dated review's broken
 link gets fixed rather than left. Neither licenses rewriting one report's prose in isolation to say
-something different than what was originally found; that stays what
-[`0009-comment-discipline.md`](./0009-comment-discipline.md) got wrong.
+something different than what was originally found — the silent in-place rewrite of `0009` that
+[`0011`](./0011-docs-system-enforcement.md) records is the case this rule exists for.
 
 ## 🚦 Status and decision
 
