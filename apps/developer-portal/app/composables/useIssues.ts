@@ -1,18 +1,11 @@
 import type { IssuesRead } from "#shared/issues.ts";
 import type { GithubIssue } from "#shared/issues.ts";
 import { issuesApiUrl, toIssues } from "#shared/issues.ts";
+import { messageOf } from "#shared/github.ts";
 
 const NO_ISSUES: IssuesRead = { fetchedAt: "", error: null, issues: [] };
 
 const PER_PAGE = 100;
-
-function messageOf(cause: unknown): string {
-    const data = (cause as { data?: { message?: unknown } }).data;
-
-    if (typeof data?.message === "string") return data.message.slice(0, 300);
-
-    return cause instanceof Error ? cause.message.slice(0, 300) : "GitHub could not be read";
-}
 
 async function read(repoUrl: string): Promise<IssuesRead> {
     const fetchedAt = new Date().toISOString();
@@ -26,7 +19,7 @@ async function read(repoUrl: string): Promise<IssuesRead> {
         return { fetchedAt, error: null, issues: toIssues(payload) };
     }
     catch (cause) {
-        return { fetchedAt, error: messageOf(cause), issues: [] };
+        return { fetchedAt, error: messageOf(cause, "GitHub could not be read"), issues: [] };
     }
 }
 

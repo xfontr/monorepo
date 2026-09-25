@@ -81,6 +81,15 @@ describe("useDeployments", () => {
         expect(result.deployments).toEqual([]);
     });
 
+    it("shows GitHub's rate-limit message rather than the fetch client's 403 status line", async () => {
+        fetch.mockRejectedValue(Object.assign(new Error("[GET] \"https://api.github.com/repos/acme/repo/deployments\": 403 Forbidden"), {
+            data: { message: "API rate limit exceeded for 203.0.113.7." },
+        }));
+        const wrapper = await mountSuspended(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
+
+        expect((await execute(wrapper)).error).toBe("API rate limit exceeded for 203.0.113.7.");
+    });
+
     it("uses the empty client-only default before a deployment read completes", async () => {
         const wrapper = await mountSuspended(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
 
