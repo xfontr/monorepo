@@ -1,7 +1,8 @@
 ---
 issue: 61
 status: implemented
-decision: accepted
+decision: superseded
+supersededBy: 0026-nx-cloud-remote-cache.md
 ---
 
 # 🧭 Nx generators, the MCP server and `nx migrate`

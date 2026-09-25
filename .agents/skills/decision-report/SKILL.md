@@ -52,7 +52,8 @@ not to act. `decision` is `accepted` unless this report is reversing an earlier 
 the report being superseded.
 
 **`NNNN` is the next free number, not the issue's** — `ls docs/decisions/` and add one to the highest,
-zero-padded to four digits. Two reports may never share it; `check-docs` fails if they do.
+zero-padded to four digits. Two reports may never share it; `nx collect @monorepo/developer-portal`
+reports a collision as a `decision-shape-mismatch` on the portal's Overview, but nothing blocks it.
 
 `issue` is the issue that **raised the question**, as a plain integer. It is not always labelled
 `spike` — an enhancement issue whose thread turned out to hide a decision is the issue that raised
@@ -111,7 +112,7 @@ and they're a record of what was found. The obligation is the handoff, not the p
 
 **When the follow-up work lands (or is dropped), flip the `status:` field in the same PR.** That's
 one of the two frontmatter fields expected to change after the fact — it's how
-[Technical Docs](../../../apps/developer-portal/README.md) shows, at a glance, which decisions are still owed
+[the developer portal](../../../apps/developer-portal/README.md) shows, at a glance, which decisions are still owed
 work. If this report reverses an earlier one, also set that earlier report's `decision:` to
 `superseded` and its `supersededBy:` to this file — see
 [docs/decisions/README.md](../../../docs/decisions/README.md#-superseding-a-decision).

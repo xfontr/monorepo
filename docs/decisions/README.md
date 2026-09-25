@@ -78,8 +78,9 @@ field can express — that ambiguity is deliberate, the same read a stale change
 parses `## 🧭 Deliberately deferred`, and its Decisions section is built out of them: `status` is a
 count, a filter, a sort and a pill on the report itself, and `decision` is a filter plus a pill that
 shows only when it reads `superseded` — so this is the one part of a decision report with a reader
-other than a human on GitHub. The decision types are covered by the portal's shared parsing and
-tests, while the generated documentation map remains the CI check for documentation drift.
+other than a human on GitHub. `nx collect` reports a malformed filename, an unknown value, a reused
+number or a dangling `supersededBy:` as a `decision-shape-mismatch` on the portal's Overview. It
+doesn't block anything — [`0025`](./0025-check-docs-removal.md) records why no docs check gates CI.
 
 ## 🔗 Linking back
 
@@ -105,4 +106,4 @@ a record of what was actually found at the time. Two frontmatter fields carry th
 | Later need | What changes |
 | --- | --- |
 | Full MADR — `Decision Drivers`, `Considered Options`, `Pros and Cons of the Options` | This repo's four content sections plus `Confirmation` already carry what MADR's eight do; `Options considered` as a table of losers is the deliberate alternative to a pro/con essay per option, which is what a "Pros and Cons" section invites |
-| A `check-docs` assertion that a `to-implement` report names a `path:line` | The skill carries it, and [`0018`](./0018-developer-portal-duplicated-facts.md) is the calibration a reader can diff against. A checker is [`0015`](./0015-nuxt-prepare-wiring.md)'s trade — 150 lines guarding something whose absence a reader spots in one screen |
+| A `decision-shape-mismatch` rule that a `to-implement` report names a `path:line` | The skill carries it, and [`0018`](./0018-developer-portal-duplicated-facts.md) is the calibration a reader can diff against. A checker is [`0015`](./0015-nuxt-prepare-wiring.md)'s trade — 150 lines guarding something whose absence a reader spots in one screen |

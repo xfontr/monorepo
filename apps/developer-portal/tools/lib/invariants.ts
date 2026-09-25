@@ -2,6 +2,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { InvariantFinding } from "../../shared/types.ts";
 import { auditProblems } from "./audits.ts";
+import { decisionProblems } from "./decisions.ts";
 import { WORKSPACE_ROOT } from "./paths.ts";
 import { parseScoresTable, scorecardShapeProblems } from "./scorecards.ts";
 
@@ -10,6 +11,7 @@ const README_PATH = "README.md";
 const REVIEWS_DIR = "docs/reviews";
 const REVIEWS_README_PATH = `${REVIEWS_DIR}/README.md`;
 const AUDITS_DIR = "docs/audits";
+const DECISIONS_DIR = "docs/decisions";
 
 /**
  * Duplicated from `.claude/hooks/check-invariants.sh` rather than shelled out to it: that hook reads
@@ -144,13 +146,30 @@ export function compareAuditShape(audits: { file: string, source: string }[]): I
     }));
 }
 
+/** Dated decisions only — `README.md` and `TEMPLATE.md` are the furniture around them. */
+export async function listDecisionFiles(): Promise<string[]> {
+    const entries = await readdir(resolve(WORKSPACE_ROOT, DECISIONS_DIR)).catch(() => [] as string[]);
+
+    return entries.filter((entry) => /^\d{4}-.+\.md$/.test(entry)).sort();
+}
+
+export function compareDecisionShape(decisions: { file: string, source: string }[]): InvariantFinding[] {
+    return decisionProblems(decisions).map(({ file, message }) => ({
+        id: "decision-shape-mismatch",
+        title: "A decision report doesn't match the template",
+        detail: `${file}: ${message}.`,
+        evidence: [`${DECISIONS_DIR}/${file}`, `${DECISIONS_DIR}/README.md`],
+    }));
+}
+
 export async function collectInvariants(projectRoots: string[] = []): Promise<InvariantFinding[]> {
-    const [boundaries, readme, history, reviewFiles, auditFiles] = await Promise.all([
+    const [boundaries, readme, history, reviewFiles, auditFiles, decisionFiles] = await Promise.all([
         readFile(resolve(WORKSPACE_ROOT, BOUNDARIES_PATH), "utf8"),
         readFile(resolve(WORKSPACE_ROOT, README_PATH), "utf8"),
         readFile(resolve(WORKSPACE_ROOT, REVIEWS_README_PATH), "utf8").catch(() => ""),
         listReviewFiles(),
         listAuditFiles(),
+        listDecisionFiles(),
     ]);
 
     const reviewBodies = await Promise.all(
@@ -159,6 +178,9 @@ export async function collectInvariants(projectRoots: string[] = []): Promise<In
     const audits = await Promise.all(
         auditFiles.map(async (file) => ({ file, source: await readFile(resolve(WORKSPACE_ROOT, AUDITS_DIR, file), "utf8") })),
     );
+    const decisions = await Promise.all(
+        decisionFiles.map(async (file) => ({ file, source: await readFile(resolve(WORKSPACE_ROOT, DECISIONS_DIR, file), "utf8") })),
+    );
 
     return [
         ...compareTagTables(boundaries, readme),
@@ -166,5 +188,6 @@ export async function collectInvariants(projectRoots: string[] = []): Promise<In
         ...compareReviewHistory(history, reviewFiles),
         ...reviewFiles.flatMap((file, index) => compareScorecardShape(file, reviewBodies[index] ?? "")),
         ...compareAuditShape(audits),
+        ...compareDecisionShape(decisions),
     ];
 }

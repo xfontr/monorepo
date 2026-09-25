@@ -144,17 +144,16 @@ project is added, and for a new file under [`docs/reviews/`](./docs/reviews/READ
 history table in that directory's README.
 
 A Nuxt app's `tsconfig.json` is `files: []` plus references into `.nuxt/`, so anything that opens it
-fails while that directory is missing. **Vitest repairs this itself** — every preset carries
-[`prepareNuxt.mjs`](./packages/configs/src/vitest/prepareNuxt.mjs), which runs `nuxi prepare` when a
-project has a `nuxt.config.ts` and no `.nuxt` — so no test target is wired to anything, including
-the per-spec ones `@nx/vitest` generates and a bare `pnpm vitest` that never enters the task graph.
-What's left in [`nx.json`](./nx.json) is `lint` and `typecheck`, the two that aren't Vitest,
-depending on a `nuxt-prepare` target that only exists where a project defines that script —
-currently `apps/developer-portal` and `apps/huella-legal`. A new Nuxt app needs that script added by hand,
-and Nx **silently drops** an edge naming a target a project doesn't have, so the symptom is `lint`
-failing to parse every file rather than anything mentioning `.nuxt`.
-[`0015`](./docs/decisions/0015-nuxt-prepare-wiring.md) has the measurements, and settles against the
-local Nx plugin this section used to earmark for the third app.
+fails while that directory is missing. Two mechanisms cover it. In [`nx.json`](./nx.json), `lint`,
+`typecheck` and `test` depend on a `nuxt-prepare` target that only exists where a project defines
+that script — currently `apps/developer-portal` and `apps/huella-legal`. Everything else is covered by
+[`prepareNuxt.mjs`](./packages/configs/src/vitest/prepareNuxt.mjs), which every Vitest preset carries
+and which runs `nuxi prepare` when a project has a `nuxt.config.ts` and no `.nuxt`: `test:coverage`,
+the per-spec targets `@nx/vitest` generates, and a bare `pnpm vitest`. A new Nuxt app needs the
+script added by hand, and Nx **silently drops** an edge naming a target a project doesn't have, so
+the symptom is `lint` failing to parse every file rather than anything mentioning `.nuxt`.
+[`0015`](./docs/decisions/0015-nuxt-prepare-wiring.md) has the measurements and
+[`0024`](./docs/decisions/0024-nuxt-prepare-test-edge.md) why `test` has the edge again.
 
 ## 🛠️ Skills
 
