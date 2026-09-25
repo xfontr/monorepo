@@ -22,18 +22,16 @@ still can't import each other, because none of them has any reason to.
 
 ## 🌱 `type:feature` and `type:domain`, reserved and empty
 
-Two tags exist in the table with no project wearing them yet:
+Two tags in the [root README's table](../../README.md#-architecture--boundaries) have no project
+wearing them yet. `type:feature` is the layer a feature package would compose from — UI plus domain
+logic, with no direct app dependency. `type:domain` is pure business logic, shared between features
+without depending on how any of them render.
 
-| Tag | May depend on | Why it's there already |
-| --- | --- | --- |
-| `type:feature` | `type:domain`, `type:ui`, `type:i18n`, `type:content`, `type:config` | The layer a feature package would compose from — UI plus domain logic, no direct app dependency |
-| `type:domain` | `type:domain`, `type:config` | Pure business logic, shared between features without depending on how any of them render |
-
-`huella-legal` currently imports `ui`, `i18n`, `content` and `observability` directly, because
-there's exactly one app and splitting business logic out from it has no second consumer yet to
-justify it. The rule of thumb the root README states — apps compose, everything else stays a leaf
-— already anticipates a second app or a feature big enough to need its own package. Reserving the
-tags now means that day doesn't also require a `boundaries.ts` migration: the constraint is already
+`huella-legal` imports `ui`, `i18n`, `content` and `observability` directly. The second app,
+`developer-portal`, imports no product package at all — only `configs` — so the two apps share no
+business logic, and splitting any out of `huella-legal` still has no second consumer to justify it.
+The tags stay reserved for the day two apps need the same feature or domain code. Reserving them
+now means that day doesn't also require a `boundaries.ts` migration: the constraint is already
 written, waiting for a project to claim it.
 
 ## 🏷 Choosing a tag for a new project
@@ -51,5 +49,5 @@ walks the mechanical steps; this is the judgment call that precedes them.
 
 | Later need | What changes |
 | --- | --- |
-| A second app | `type:feature` and `type:domain` stop being reserved — this is the scenario they're already sized for |
+| Two apps sharing feature or domain code | `type:feature` and `type:domain` stop being reserved — this is the scenario they're already sized for. A second app alone wasn't: `developer-portal` shares nothing with `huella-legal` |
 | A tag that doesn't fit "what may this depend on" | Don't force it into the table — that's the signal the tag model itself needs revisiting, not just this file |

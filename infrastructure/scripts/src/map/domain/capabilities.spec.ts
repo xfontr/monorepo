@@ -92,11 +92,13 @@ describe("documentedBy", () => {
         expect(documentedBy(skills([{ source: own, name: "house-docs" }])[0]!, docs)).toBe("AGENTS.md");
     });
 
-    // Nearness alone made every skill cite a sibling skill: two shared path segments under
-    // `.agents/skills/` outranked the root AGENTS.md table that actually indexes them.
-    it("prefers the table that indexes a skill over a sibling skill that merely mentions it", () => {
+    // Nearness alone sent skills to a sibling skill, and ranking alone to whichever README named them.
+    it.each([
+        { other: ".agents/skills/doc-drift-check/SKILL.md", text: "follow the house-docs skill" },
+        { other: "infrastructure/scripts/src/drift/README.md", text: "per the `house-docs` skill's rules" },
+    ])("sends a skill to the AGENTS.md table even when $other also names it", ({ other, text }) => {
         const docs: Doc[] = [
-            { path: ".agents/skills/doc-drift-check/SKILL.md", text: "follow the house-docs skill" },
+            { path: other, text },
             { path: "AGENTS.md", text: "| `house-docs` | Writing markdown |" },
         ];
         const capability = skills([{ source: ".agents/skills/house-docs/SKILL.md", name: "house-docs" }])[0]!;

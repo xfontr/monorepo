@@ -1,7 +1,8 @@
 ---
 issue: 120
 status: implemented
-decision: accepted
+decision: superseded
+supersededBy: 0024-nuxt-prepare-test-edge.md
 ---
 
 # 🧭 `.nuxt` is repaired where it's used, not wired target by target

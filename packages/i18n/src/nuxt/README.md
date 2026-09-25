@@ -2,7 +2,7 @@
 
 The Nuxt integration for [`@monorepo/i18n`](../../README.md). One config block installs
 and configures `@nuxtjs/i18n`, registers a locale loader, and mounts a cached BFF route that
-proxies the vendor — so the TMS base URL (and, later, its credentials) never reach the client.
+proxies the vendor — so the TMS base URL and its credentials never reach the client.
 
 ## 🚀 Usage
 
@@ -57,7 +57,7 @@ the derived list. Declare locales under `i18n`, as above.
 
 ```
 module.ts                       # build-time: runs in Node during the consumer's build (@nuxt/kit)
-config.ts                       # the contract between both halves: the API path and the config shape
+config.ts                       # the contract between both halves: the API path, the windows, the config shape
 runtime/
 ├── locales/loader.ts            # the @nuxtjs/i18n locale loader, compiled by the consumer's Vite
 ├── locales/i18n.d.ts            # declares defineI18nLocale, which @nuxtjs/i18n auto-imports
@@ -86,7 +86,9 @@ $t("meta.title")
     → GET /api/translations/:locale          (runtime/server/translations.get.ts, cached)
       → :locale must be one of runtimeConfig.translations.locales, or 404
       → createProvider(vendor, http) → provider.getTranslations(locale)
-        → GET :baseURL/:locale/:project      (the TMS)
+        → the TMS, per vendor:
+          internal  GET :baseURL/:locale/:project
+          tolgee    GET :baseURL/v2/projects/:project/translations/:locale   (X-API-Key: options.token)
 ```
 
 Two things are fixed rather than configurable, because both are internal contracts between the
@@ -117,7 +119,9 @@ cannot be load-bearing.
   a line on the console rather than silence.
 - **`:locale` is matched exactly against the declared locales.** `en-gb` is not `en-GB` — it 404s.
   The loader always sends the codes you declared, so this only bites a hand-written request.
-- **The vendor config is checked at request time, not build time.** It has to be: `baseURL` can be
+- **An unknown `vendor.name` fails the build.** `setup()` throws `UndefinedVendorError` naming the
+  registered vendors, since no runtime value can make an unregistered one work.
+- **The rest of the vendor config is checked at request time, not build time.** It has to be: `baseURL` can be
   replaced at runtime by `NUXT_TRANSLATIONS_VENDOR_BASE_URL`, so the values present during the build
   are not necessarily the deployed ones. Unset config fails on the first translation request with a
   `500` naming what is missing — see [validation](../../README.md#-validation) — rather than at

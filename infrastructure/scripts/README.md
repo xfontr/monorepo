@@ -131,7 +131,7 @@ everywhere in the workspace.
 
 `gh` installed and authenticated (`gh auth status`) for `issue/`, `ship/` and `drift/`. They shell
 out to it rather than calling the GitHub API, so they inherit whatever account is already logged in
-instead of needing a token. `map/` needs neither, which is why it's the one that runs in CI. `ship/`
+instead of needing a token. `map/` and `review-version/` need neither, which is why they're the two that run in CI. `ship/`
 additionally needs the repo's *Allow auto-merge* setting on — without it, `gh pr merge --auto` fails
 and the branch is left pushed with a PR open but nothing armed to merge it.
 
@@ -140,6 +140,5 @@ and the branch is left pushed with a PR open but nothing armed to merge it.
 | Later need | What changes |
 | --- | --- |
 | A script that isn't a one-shot CLI (a watcher, a server) | It doesn't belong here — `infrastructure/` gets its own project for it, the way [`translations`](../translations/README.md) has one |
-| Enforcing the layer rule instead of stating it | A `no-restricted-imports` block in this package's own `eslint.config.ts` with a declared adapter list, so a new file under a script folder is domain by default and fails lint the moment it imports `node:fs` or `@clack/prompts`. Deferred because it costs this package the thin-wrapper `eslint.config.ts` every other project has, and the rule can't move into `@monorepo/configs` without `configs` learning the names `add.ts` and `pick.ts` |
-| A script folder past ~10 files | That's when `domain/` and `adapters/` folders start paying for themselves, and when the rule above would be generic enough to share. Four layers named in prose is cheaper than eight directories until then |
+| Enforcing the layer rule instead of stating it | A `no-restricted-imports` block over `src/*/domain/**` in this package's own `eslint.config.ts`, failing lint the moment a domain file imports `node:*` or `@clack/prompts`. Deferred because it costs this package the thin-wrapper `eslint.config.ts` every other project has |
 | Running one of the `gh` scripts in CI | [`ci.yml`](../../.github/workflows/ci.yml) already runs `docs:map --check`, which touches only git and the filesystem. Anything calling `gh` needs `GH_TOKEN` in the job env — `--ignore-scripts` is not the obstacle, since none of these is a lifecycle hook |

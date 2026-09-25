@@ -1,7 +1,8 @@
 ---
 issue: 106
-status: to-implement
-decision: accepted
+status: implemented
+decision: superseded
+supersededBy: 0025-check-docs-removal.md
 ---
 
 # 🧭 The docs tree scales; the mechanisms that keep it true do not

@@ -85,9 +85,16 @@ const audience = (path: string): number => {
 
 export type Doc = { path: string, text: string };
 
-/** Audience ranks before nearness so skills do not cite another skill instead of their README. */
-export const documentedBy = ({ source, token }: Capability, docs: Doc[]): string | undefined =>
-    docs
+const SKILL_INDEX = "AGENTS.md";
+
+/** Skills cite the AGENTS.md table; everything else ranks by audience, then nearness. */
+export const documentedBy = ({ kind, source, token }: Capability, docs: Doc[]): string | undefined => {
+    // Ranking alone sent skills to whichever doc happened to name them, even a dated audit.
+    if (kind === "skill" && docs.some((doc) => doc.path === SKILL_INDEX && mentions(doc.text, token))) {
+        return SKILL_INDEX;
+    }
+
+    return docs
         // Exclude a skill's own SKILL.md or every skill would cite itself.
         .filter((doc) => doc.path !== source && mentions(doc.text, token))
         .sort(
@@ -98,3 +105,4 @@ export const documentedBy = ({ source, token }: Capability, docs: Doc[]): string
                 || a.path.localeCompare(b.path),
         )
         .at(0)?.path;
+};

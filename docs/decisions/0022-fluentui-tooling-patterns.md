@@ -112,7 +112,7 @@ depending on a publishing model the repository does not use.
 top of `.husky/`, because
 [`infrastructure/scripts/src/map/adapters/files.ts:52`](../../infrastructure/scripts/src/map/adapters/files.ts#L52)
 treats every non-underscore file there as a hook. A dependency addition remains a check-in under
-[`AGENTS.md`](../../AGENTS.md#L91-L103); this work needs none. Re-render `docs/FEATURES.md` only
+[`AGENTS.md`](../../AGENTS.md); this work needs none. Re-render `docs/FEATURES.md` only
 through `pnpm docs:map` after the command and hooks exist.
 
 Bundle-size tooling, packed-package checks, Verdaccio and the SSR-story harness are deliberately not

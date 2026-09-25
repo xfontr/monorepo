@@ -2,13 +2,14 @@
 
 See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry setup.
 
-- **No env var gets a default in [`nuxt.config.ts`](./nuxt.config.ts), and nothing there reads
-  `process.env`.** An unset vendor is supposed to fail loudly on the first request naming what is
-  missing, not fall back to something plausible — and a value read from `process.env` is resolved at
-  build time, which bakes the build host's environment into `.output/` and stops one artifact being
-  promotable. Declare the key empty and let the `NUXT_`-prefixed var fill it at startup. The vendor
-  `name` fields are the exception: they select a config type, so they stay literals. New config goes
-  in `.env.example` with a row in the README table, and nowhere else.
+- **No URL or credential gets a default in [`nuxt.config.ts`](./nuxt.config.ts), and nothing there
+  reads `process.env`.** An unset vendor is supposed to fail loudly on the first request naming what
+  is missing, not fall back to something plausible. Declare the key empty and let the
+  `NUXT_`-prefixed var fill it at startup; the
+  [i18n module](../../packages/i18n/src/nuxt/README.md#-usage) says why. The vendor `name` fields are
+  the exception: they select a config type, so they stay literals. So are the observability `version`
+  and `environment`, which default to `0.0.0` and `development`. New config goes in `.env.example`
+  with a row in the README table, and nowhere else.
 - **There is no `app/layers/` directory today.** `app/` holds the whole front end and stays thin: a
   layout, an entry page, an error page, client plugins, and pages that carry no domain logic of
   their own. If feature code with real domain logic lands, it goes in a **Nuxt layer** under
@@ -26,9 +27,9 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   inside it.
 - Both telemetry halves are off when their URL is unset, which is why local dev ships nothing. Keep
   that property when adding instrumentation.
-- The server observability plugin wraps `nitroApp.h3App.handler` by hand for reasons the README
-  explains — OTel's HTTP instrumentation cannot patch `node:http` in this ESM build. Don't replace it
-  with the standard instrumentation.
+- The server observability plugin wraps `nitroApp.h3App.handler` by hand, for reasons
+  [`@monorepo/observability`](../../packages/observability/README.md#️-gotchas) explains. Don't
+  replace it with the standard instrumentation.
 - **The span is named for the matched route, never the raw path.** It opens under the concrete URL
   because nothing has matched yet, and `end()` renames it. Keep the query string out of both the name
   and `http.route` — a 404 never matches a route, so the fallback is what a crawler hits, and leaving

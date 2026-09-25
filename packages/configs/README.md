@@ -3,8 +3,8 @@
 Shared ESLint, Vitest and TypeScript configuration for the workspace. It centralizes rules and
 presets so projects stay consistent without copying configuration.
 
-Only the ESLint half reaches all of them. `apps/huella-legal` and this package have no
-`vitest.config.ts` at all, and two projects extend no tsconfig preset: `packages/ui` is a solution
+Only the ESLint half reaches all of them. This package has no `vitest.config.ts` at all, and two
+projects extend no tsconfig preset: `packages/ui` is a solution
 file whose `tsconfig.app.json` extends `@vue/tsconfig`, and `apps/huella-legal` only references the four
 `.nuxt/tsconfig.*.json` Nuxt generates. Both are the framework's own layout rather than drift — but
 worth knowing, because a compiler option added here does not reach either one.
@@ -47,7 +47,7 @@ of counting as 0%.
 
 Both presets also carry one `globalSetup`,
 [`prepareNuxt.mjs`](./src/vitest/prepareNuxt.mjs): in a project with a `nuxt.config.ts` and no
-`.nuxt`, it runs `nuxi prepare` before anything is transformed, because the app's `tsconfig.json` is
+`.nuxt`, it runs `nuxi prepare` before anything is transformed, because a Nuxt app's `tsconfig.json` is
 `files: []` plus references into that directory and every file fails to load while it's missing. It
 returns immediately everywhere else, so no project has to opt in or out. It is the one `.mjs` file
 here, and has to be: a `.ts` setup file is transformed by the pipeline it exists to repair.
@@ -66,10 +66,10 @@ emits its own JS. It adds `noUncheckedIndexedAccess` on top of `strict`, which d
 `arr[0]` and `match[1]` are typed `T | undefined`, so a guard on them reads as necessary rather than
 as dead code — see [`0013`](../../docs/decisions/0013-linter-coverage.md) for why the two travel
 together. `node.json` adds `types: ["node"]` on top, and is what every consumer actually
-extends; nothing extends `base.json` directly, since the config file in the `include` needs Node
-types even in a package that otherwise doesn't.
+extends; no consumer extends `base.json` directly, since the config file in the `include` needs
+Node types even in a package that otherwise doesn't.
 
-## 📐 What the ESLint factories bundle
+## 🧰 What the ESLint factories bundle
 
 - `@eslint/js` + `typescript-eslint` — type-checked for node and vue, non-type-checked for nuxt
   (Nuxt's generated files make a type-aware pass more trouble than it's worth)

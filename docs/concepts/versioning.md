@@ -7,20 +7,14 @@ version number in this repo is never someone's judgment call.
 
 ## 🔗 The chain from keystroke to bump
 
-1. **[`commit-msg`](../../.husky/commit-msg)** rewrites the subject to thread in the issue number
-   from the branch name, then hands the message to `commitlint`. Commitlint enforces the
-   Conventional Commits shape, plus two rules that live only in
-   [`commitlint.config.mjs`](../../commitlint.config.mjs) and nowhere else: the **type is
-   lower-case** and the **subject is sentence case** — `feat: Add the thing` passes,
-   `feat: add the thing` doesn't.
+1. **[`commit-msg`](../../.husky/commit-msg)** threads the issue number from the branch name into
+   the subject, then hands the message to `commitlint`, which applies
+   `@commitlint/config-conventional` with no overrides.
 2. A rejected commit never lands, so by the time anything reaches `master` every commit message is
-   a value `nx release` can parse without guessing: `chore`, `refactor`, `docs`, `test`, `ci` and
-   `style` don't bump; `feat` bumps minor; `fix` bumps patch; a `!` suffix or a `BREAKING CHANGE:`
-   footer bumps major.
-3. **`nx release`** reads the commits that touched each `packages/*` project's files since that
-   project's last git tag (`<projectName>@<version>`, falling back to `package.json` if no tag
-   exists yet) and computes the version and changelog from them — never from what's currently
-   written in `package.json`.
+   a value `nx release` can parse without guessing. The type-to-bump table is in the
+   [root README](../../README.md#-versioning).
+3. **`nx release`** computes each `packages/*` project's version and changelog from the commits
+   that touched it since its last tag — never from what's currently written in `package.json`.
 
 Nothing in that chain reads a number a human typed. `check-invariants.sh` closes the one gap that
 would otherwise exist — an agent editing `package.json`'s `version` field by hand — by rejecting the

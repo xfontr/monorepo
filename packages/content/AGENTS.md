@@ -5,7 +5,8 @@ See [README.md](./README.md) — it documents the domain, the ports and the trad
 
 The invariants worth losing a build over:
 
-- **Nothing under `src/core/` may import `@nuxt/kit`, `h3` or `nitropack`**, and `src/core/domain/`
+- **Nothing under `src/core/` may import the Nuxt or Nitro runtime**
+  ([the enforced list](../configs/README.md#-what-the-eslint-factories-bundle)), and `src/core/domain/`
   imports nothing at all. The day that breaks, the core stops being portable and the ports stop
   earning their indirection.
 - The Nuxt half is a separate entry point (`@monorepo/content/nuxt`) and its dependencies are
@@ -26,4 +27,4 @@ The invariants worth losing a build over:
   consumers bring their own.
 
 Tagged `type:content`, so it may depend only on `@monorepo/configs`. That is why nothing here emits
-a span; instrument from the app.
+a span; instrument from the consuming app.

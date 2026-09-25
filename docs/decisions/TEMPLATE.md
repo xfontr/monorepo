@@ -15,7 +15,8 @@ issue's own "Decision needed" framing, reused rather than rewritten.>
 
 <The outcome, stated plainly. What was found, not a recommendation. While `status` is
 `to-implement`, every change names its file path and its line — a table, one row per change, whose
-last column is the change itself.>
+last column is the change itself. Under about 60 lines, with no account of how the session got
+here.>
 
 ## Options considered
 

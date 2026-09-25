@@ -96,25 +96,27 @@ pnpm agents:sync                        # Claude adapters; Codex reads the sourc
 pnpm dev                                # pick a project to start
 ```
 
-`pnpm dev` is the only one of those three that survives being run first: it installs the workspace
+`pnpm dev` is the only one of those commands that survives being run first: it installs the workspace
 itself if `node_modules` isn't there yet, then asks which project to start. See
 [`infrastructure/scripts/src/dev`](./infrastructure/scripts/src/dev/README.md).
 
 That second line makes a clone useful beyond compiling: it installs Git hooks, runs the workspace's
 coverage suite and writes the developer portal's snapshot from the current tree. Husky normally
 installs itself from a `prepare` script, and [lifecycle scripts are banned here](./AGENTS.md) because
-both CI workflows install with `--ignore-scripts` — so a hook hung off one works locally and silently
-does nothing where it matters. Skip setup and the [commit and push gates](#-git-conventions) below
+every workflow that installs uses `--ignore-scripts` — so a hook hung off one works locally and
+silently does nothing where it matters. Skip setup and the [commit and push gates](#-git-conventions) below
 simply never fire, while the portal has no current coverage or derived docs to show.
 
-The app fetches both its translations and its articles over the network at runtime, so it needs
-`NUXT_TRANSLATIONS_VENDOR_*` set before any page renders, and `NUXT_CONTENT_VENDOR_BASE_URL` before
-`/articles` does. See [`apps/huella-legal`](./apps/huella-legal/README.md) for which vars, and for
-how to serve the translations locally instead.
+`huella-legal` fetches both its translations and its articles over the network at runtime, so it
+needs `NUXT_TRANSLATIONS_VENDOR_*` set before any page renders, and `NUXT_CONTENT_VENDOR_BASE_URL`
+before `/articles` does. See [`apps/huella-legal`](./apps/huella-legal/README.md) for which vars,
+and for how to serve the translations locally instead.
 
-Every command below runs against **affected** projects only (what changed since `master`), which is
-also what CI runs, except `pnpm test:coverage` — see its row below. For the whole workspace instead,
-use `pnpm exec nx run-many -t <target>`.
+The everyday commands. [`docs/FEATURES.md`](./docs/FEATURES.md) lists every other one — the
+`issue:*` scripts, `docs:drift`, `review:version`, `package:check` — with the doc that explains it.
+The ones that take a target run against **affected** projects only (what changed since `master`),
+which is also what CI runs, except `pnpm test:coverage`. For the whole workspace instead, use
+`pnpm exec nx run-many -t <target>`.
 
 | Command | What it does |
 | --- | --- |
@@ -126,111 +128,41 @@ use `pnpm exec nx run-many -t <target>`.
 | `pnpm test:coverage` | Test the **whole workspace** with a V8 coverage report, then merge every project's into one browsable [`coverage/index.html`](./infrastructure/scripts/src/coverage-report/README.md) |
 | `pnpm build` | Build affected projects |
 | `pnpm graph` | Open the Nx project graph |
-| `pnpm dev developer-portal` | Start [`@monorepo/developer-portal`](./apps/developer-portal/README.md), the repository's public portal/front door over its docs, projects, architecture and engineering health |
-| `pnpm exec nx collect @monorepo/developer-portal` | Rebuild the snapshot that developer-portal reads |
 | `pnpm agents:sync` | Render ignored Claude adapters from canonical `AGENTS.md` files and `.agents/skills/`; `--check` reports local drift |
 | `pnpm docs:map` | Re-render [`docs/FEATURES.md`](./docs/FEATURES.md); `--check` asserts it is current |
-| `pnpm package:check` | Validate every `packages/*` manifest, raw-source export target and peer metadata |
 | `pnpm release:dry` | Preview a release (versioning + changelogs) |
 
 ## 🌿 Git conventions
 
-- Branches must match `^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+` (enforced on push) — which
-  also means you can't push straight to `master`.
-- Commits follow [Conventional Commits](https://www.conventionalcommits.org) (enforced by
-  commitlint via [`commitlint.config.mjs`](./commitlint.config.mjs), which just extends
-  `@commitlint/config-conventional`): the type must be lower-case and the subject must not be
-  sentence-case, start-case, Pascal-case or upper-case, so `feat: Add thing` is rejected and
-  `feat: add thing` is not.
-- The [`commit-msg`](./.husky/commit-msg) hook reads the issue number back out of the branch name
-  and rewrites the subject to carry it, so `feat: add thing` on `feature/website/50-slug` is
-  committed as `feat: [50] add thing`. Nobody types the tag, and re-running on an amend is a no-op
-  instead of stacking a second one; a branch with no number in it is left alone. This is why the log
-  here is number-first without anyone maintaining that.
-- The pre-commit hook checks that `docs/FEATURES.md` and the review method version are current.
+The rules, each enforced by a hook or a workflow. The order they fire in, and what each gate
+checks, is in [`docs/guides/change-lifecycle.md`](./docs/guides/change-lifecycle.md).
+
+- Branches must match `^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+` (enforced on push), so
+  `master` can't be pushed to. [`pnpm issue:pick`](./infrastructure/scripts/src/issue/README.md#-pnpm-issuepick)
+  creates one from an issue on a project board.
+- Commits follow [Conventional Commits](https://www.conventionalcommits.org), enforced by
+  commitlint through [`commitlint.config.mjs`](./commitlint.config.mjs). The
+  [`commit-msg`](./.husky/commit-msg) hook tags the subject with the branch's issue number
+  (`feat: [#50] add thing`), which is why the log here is number-first without anyone typing it.
+- [`pre-commit`](./.husky/pre-commit) blocks a commit while `docs/FEATURES.md` or the review
+  method version is stale.
+- [`pre-push`](./.husky/pre-push) rejects a bad branch name or an added `TODO`/`FIXME` comment,
+  then runs lint, test and typecheck on affected projects. File a flagged comment with
+  [`pnpm issue:add`](./infrastructure/scripts/src/issue/README.md) and delete it.
+- [`pnpm issue:ship`](./infrastructure/scripts/src/ship/README.md) pushes, opens the PR and arms
+  auto-merge. Auto-merge and delete-branch-on-merge are on for this repo.
+- A PR gets its title, assignees and project from the issue
+  ([`pr-metadata.yml`](./.github/workflows/pr-metadata.yml)), path labels
+  ([`pr-labeler.yml`](./.github/workflows/pr-labeler.yml)) and an advisory docs review
+  ([`docs-review.yml`](./.github/workflows/docs-review.yml)). Non-major Dependabot PRs get
+  auto-merge armed by [`dependabot-auto-merge.yml`](./.github/workflows/dependabot-auto-merge.yml).
 - [`post-checkout`](./.husky/post-checkout) and [`post-merge`](./.husky/post-merge) warn when a branch
-  operation changes `pnpm-lock.yaml` and tell you to run `pnpm install`. They ignore file checkouts,
-  stay silent when Git cannot inspect the revisions, never install dependencies and never block the
-  checkout or merge.
-- The pre-push hook runs `lint`, `test` and `typecheck` on affected projects in a temporary
-  checkout of the pushed commit; it also rejects a push that adds a `TODO`/`FIXME` comment. Worktree
-  and staged changes are therefore ignored, while a marker already in the committed tree never
-  blocks you; the rejection points at
-  [`pnpm issue:add`](./infrastructure/scripts/src/issue/README.md), which files the issue in a
-  few prompts so the comment can go.
-- [`pnpm issue:pick`](./infrastructure/scripts/src/issue/README.md#-pnpm-issuepick) goes the other
-  way: pick an open issue off a project board and it creates and checks out
-  `<type>/<project>/<issue number>-<slug>` for you and assigns you the issue — `<project>` is the
-  slugified title of the gh Project board the issue came from, which is where the branch names in
-  this repo come from.
-- [`pnpm issue:ship`](./infrastructure/scripts/src/ship/README.md) is the other end of `pick`: it
-  pushes the current branch, opens or reuses its PR, arms GitHub's auto-merge, then blocks until
-  every check concludes and reports whether the PR merged or a check failed. Auto-merge and
-  delete-branch-on-merge are both on for this repo. The `master` ruleset requires one approving
-  review, but repo admins are a standing bypass actor, so a self-opened PR still only waits on CI.
-- Dependabot PRs get the same auto-merge treatment without anyone running `issue:ship`:
-  [`dependabot-auto-merge.yml`](./.github/workflows/dependabot-auto-merge.yml) arms auto-merge on
-  every non-major PR Dependabot opens; a major bump is left for a manual merge after approval.
-  Dependabot isn't a bypass actor, so unlike a self-opened PR, the merge waits on both CI and that
-  one required approval.
-- [`CODEOWNERS`](./.github/CODEOWNERS) requests review by path — using the same layout as the
-  workspace tree above — so the required approval has someone to land on automatically. Every path
-  resolves to the sole collaborator today; splitting them further only matters once a second one
-  joins.
-- After each commit, the hook runs [`pnpm docs:drift`](./infrastructure/scripts/src/drift/README.md).
-  It never fails the commit: it warns when a changed project's docs look stale or the change is big,
-  and offers to file an issue.
-- It runs `pnpm audit` too, same never-fails treatment — a local heads-up, not the real check. Every
-  PR additionally gets [`actions/dependency-review-action`](https://github.com/actions/dependency-review-action)
-  in `warn-only` mode, which comments with any vulnerability the PR's own diff introduces without
-  ever blocking the merge.
-- [`pr-labeler.yml`](./.github/workflows/pr-labeler.yml) applies and synchronizes architectural path
-  labels on PRs from changed-file metadata. It does not execute PR code and uses only the read and
-  pull-request write permissions needed to inspect paths and update labels.
-- [`docs-review.yml`](./.github/workflows/docs-review.yml) is an advisory documentation-drift review:
-  a deterministic gate limits inference to PRs that plausibly change a documented public surface,
-  and the workflow stays silent when no drift is found. It is not a required check; missing
-  credentials, exhausted Copilot AI credits or a transient Copilot failure skip the review
-  gracefully. Inference uses the repository owner's Copilot allowance through the
-  `COPILOT_GITHUB_TOKEN` secret, which must contain a user-owned fine-grained PAT with the
-  account-level **Copilot Requests** permission. To provision it, create a fine-grained token at
-  [GitHub's token settings](https://github.com/settings/personal-access-tokens/new) with the
-  repository owner's personal account selected as **Resource owner** — not an organization — and
-  access limited to this repository or public repositories. Under **Account permissions**, add
-  **Copilot Requests**, generate the token, and store it without exposing its value:
-
-  ```sh
-  gh secret set COPILOT_GITHUB_TOKEN --repo xfontr/monorepo
-  ```
-
-  The command reads the token from standard input. The workflow uses this secret only for Copilot
-  CLI inference; the normal `GITHUB_TOKEN` remains responsible for its single sticky PR comment.
-  This consumes the repository owner's Copilot AI-credit allowance and does not use GitHub Models,
-  `models: read` or `copilot-requests: write`.
-- Opening a PR from a branch that convention built triggers
-  [`pr-metadata.yml`](./.github/workflows/pr-metadata.yml): it reads the branch type and issue
-  number back out of the branch name, copies the issue's assignees and project onto the PR as-is,
-  and tags the title with that type and number (`feature: [48] <issue title>`), so a PR never
-  ships with GitHub's bare defaults. It runs on a `PROJECTS_TOKEN` PAT (`repo` + `project` scopes)
-  because moving a PR onto a Projects (v2) board needs the `project` scope that `GITHUB_TOKEN`
-  doesn't have. That secret isn't provisioned by anything — a repo without it fails the workflow
-  with `gh`'s "set the GH_TOKEN environment variable" error on the first PR anyone opens. To fix it:
-  generate a classic PAT ([github.com/settings/tokens](https://github.com/settings/tokens) →
-  **Generate new token (classic)**) scoped to `repo` and `project`, then add it as
-  `gh secret set PROJECTS_TOKEN --repo xfontr/monorepo` (or Settings → Secrets and variables →
-  Actions in the browser). Re-run the failed workflow run once it's set — no new PR needed.
-- CI (GitHub Actions) re-runs the same affected targets plus `build` on every PR and on `master`.
-  The `nx affected` step remote-caches through Nx Cloud — the workspace link lives in `nxCloudId`
-  in [`nx.json`](./nx.json), set once via `nx connect` — but only once an `NX_CLOUD_ACCESS_TOKEN`
-  secret exists too: `nxCloudId` just identifies the workspace, it isn't a credential, and CI has
-  no other way to prove it's allowed to read or write that workspace's cache. Without the secret,
-  `nx affected` runs everything locally with no error and no remote cache, so a missing token fails
-  silently rather than loudly. That secret isn't provisioned by anything either: generate a
-  **Read & Write** access token from the workspace's page on [Nx Cloud](https://cloud.nx.app) (the
-  link `nx connect` printed), then add it as `gh secret set NX_CLOUD_ACCESS_TOKEN --repo
-  xfontr/monorepo` (or Settings → Secrets and variables → Actions in the browser). Read & Write
-  because the same token authenticates both `master` pushes and PR runs here — a read-only token
-  would let CI pull from the cache but never populate it.
+  operation changes `pnpm-lock.yaml`. They never install anything and never block.
+- [`pnpm docs:drift`](./infrastructure/scripts/src/drift/README.md) is a manual check for a range
+  whose project docs may have gone stale. No hook runs it.
+- Four workflows need secrets nothing provisions — `PROJECTS_TOKEN`, `NX_CLOUD_ACCESS_TOKEN`,
+  `RELEASE_TOKEN` and `COPILOT_GITHUB_TOKEN`. [`docs/guides/repo-secrets.md`](./docs/guides/repo-secrets.md)
+  has what each one is for and how a missing one shows up.
 
 ## 🏷 Versioning
 
@@ -245,15 +177,5 @@ Versions and changelogs are derived from commit messages by `nx release` — no 
 
 Run the **Release** workflow ([`release.yml`](./.github/workflows/release.yml), `workflow_dispatch`)
 to cut versions. Leave `dry-run` on to preview;
-tick `first-release` only when a project has no git tag yet. Locally: `pnpm release:dry`.
-
-The workflow's final push runs as `github-actions[bot]` via `GITHUB_TOKEN`, which the `master`
-branch ruleset's PR and required-status-check rules don't exempt — that push needs a
-`RELEASE_TOKEN` PAT belonging to an account the ruleset's bypass list covers (an admin, today).
-That secret isn't provisioned by anything — a repo without it gets the release commit and tags
-built locally, then `git push --follow-tags` rejected with GitHub's "Changes must be made through
-a pull request" error. To fix it: generate a classic PAT
-([github.com/settings/tokens](https://github.com/settings/tokens) → **Generate new token
-(classic)**) on an account with bypass rights, scoped to `repo`, then add it as
-`gh secret set RELEASE_TOKEN --repo xfontr/monorepo` (or Settings → Secrets and variables →
-Actions in the browser). Re-run the failed workflow run once it's set.
+tick `first-release` only when a project has no git tag yet. Locally: `pnpm release:dry`. Its final
+push needs the `RELEASE_TOKEN` secret — see [`docs/guides/repo-secrets.md`](./docs/guides/repo-secrets.md).

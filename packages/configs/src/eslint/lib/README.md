@@ -11,7 +11,7 @@ composes it instead — see the [package README](../../../README.md#-what-the-es
 | --- | --- |
 | [`index.ts`](./index.ts) | The barrel every factory imports through. A plugin preset that needs no local customization is composed straight here instead of getting its own file |
 | [`boundaries.ts`](./boundaries.ts) | `@nx/enforce-module-boundaries` and the `depConstraints` table — the enforced copy of the Nx tag table; the readable one is the [root README](../../../../../README.md#-architecture--boundaries) |
-| [`coreIsolation.ts`](./coreIsolation.ts) | `no-restricted-imports` under `**/src/core/**`, keeping the framework-agnostic half of `content`/`i18n` free of `@nuxt/*`, `nitropack` and `h3` |
+| [`coreIsolation.ts`](./coreIsolation.ts) | `no-restricted-imports` under `**/src/core/**`, keeping the framework-agnostic half of `content`/`i18n` free of the Nuxt and Nitro runtime — the list is in the [package README](../../../README.md#-what-the-eslint-factories-bundle) |
 | [`layerIsolation.ts`](./layerIsolation.ts) | `no-restricted-imports` under `app/` and `server/`, keeping Nuxt's browser-facing layers free of the Node-only `tools/` layer |
 | [`ignores.ts`](./ignores.ts) | `baseIgnores` — the glob list every factory feeds into ESLint's `ignores` |
 | [`jsonc.ts`](./jsonc.ts) | `eslint-plugin-jsonc`'s `sort-keys`, scoped to `**/projects/*/*.json` so the TMS locale files stay diffable |

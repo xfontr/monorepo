@@ -82,7 +82,9 @@ far outside that is worth opening. The `comment-cleanup` skill runs the pass.
   that didn't produce it. The prose around the tables is yours to edit.
 - **Never write a real endpoint, URL, token or instance ID into the repo.** Every one of them is an
   env var with no default; `.env.example` documents the names and nothing else. "It's a public URL"
-  is not a reason — vendor endpoints stay out.
+  is not a reason — vendor endpoints stay out. Two exceptions, both identifiers rather than
+  credentials: the status badges atop the root README, and `nxCloudId` in `nx.json` — see
+  [0026](./docs/decisions/0026-nx-cloud-remote-cache.md).
 - **Never raise git.** Branching, committing, pushing, PRs and releases belong to the user and they
   do not want them suggested, offered, prepared for or asked about. Answer the question or change
   the code and stop there — an unprompted "want me to branch off and apply this?" is noise, not
@@ -115,23 +117,24 @@ changed since `master`, same as CI and the pre-push hook.
 | Why something rebuilt | `pnpm graph` |
 
 The rest of this section is reference for when the user asks for it, not licence to offer it.
-Branches must match `^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+` and `master` is not pushable.
-`pnpm issue:pick` is the shortest way to a branch — pick an open issue off a project board and it
-creates `<type>/<project>/<issue number>-<slug>`, `<project>` being the slugified title of the gh
-Project board the issue came from, which is the naming the number-first branches here come from.
-Commits are [Conventional Commits](https://www.conventionalcommits.org) —
-commitlint rejects anything else, and the type decides the next version.
-[`commitlint.config.mjs`](./commitlint.config.mjs) just extends `@commitlint/config-conventional`
-with no overrides, and two of that preset's rules aren't obvious from a rejection message: the
-**type is lower-case** and the **subject is not** sentence-case, start-case, Pascal-case or
-upper-case — so `feat: add the thing` passes and `feat: Add the thing` does not.
+[`docs/guides/change-lifecycle.md`](./docs/guides/change-lifecycle.md) has the whole flow; these are
+the traps in it.
 
-The pre-push hook validates the branch name, blocks added `TODO`/`FIXME` comments, nudges on
-docs drift, then runs lint, test and typecheck on affected projects. CI runs those **plus `build`**,
-so a green push is not yet a green pipeline — `apps/huella-legal` typechecks on build, which is where
-most of that difference shows up. Note also that `husky` has no `prepare` script to install itself,
-because lifecycle scripts are banned here; a fresh clone gets no hooks until `core.hooksPath` is
-pointed at `.husky`.
+- Branches must match `^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+`, and `master` is not
+  pushable. `pnpm issue:pick` builds `<type>/<project>/<issue number>-<slug>`, `<project>` being the
+  slugified title of the gh Project board the issue came from.
+- [`commitlint.config.mjs`](./commitlint.config.mjs) just extends `@commitlint/config-conventional`
+  with no overrides, and two of that preset's rules aren't obvious from a rejection message: the
+  **type is lower-case** and the **subject is not** sentence-case, start-case, Pascal-case or
+  upper-case — so `feat: add the thing` passes and `feat: Add the thing` does not. The type decides
+  the next version.
+- Pre-push runs lint, test and typecheck **in the working tree**, not the pushed commits, so an
+  uncommitted fix can pass a push whose commits are red. Only the `TODO`/`FIXME` scan is range-based.
+- CI runs those three **plus `build`**, `pnpm docs:map --check` and `pnpm review:version --check`,
+  so a green push is not yet a green pipeline — `apps/huella-legal` typechecks on build, which is
+  where most of that difference shows up. The two `--check`s also run in pre-commit.
+- A fresh clone gets no hooks until `pnpm quick-start` runs, because lifecycle scripts are banned
+  and `husky` has no `prepare` script to install itself.
 
 ## 🔗 The two places that must agree
 
@@ -143,17 +146,16 @@ project is added, and for a new file under [`docs/reviews/`](./docs/reviews/READ
 history table in that directory's README.
 
 A Nuxt app's `tsconfig.json` is `files: []` plus references into `.nuxt/`, so anything that opens it
-fails while that directory is missing. **Vitest repairs this itself** — every preset carries
-[`prepareNuxt.mjs`](./packages/configs/src/vitest/prepareNuxt.mjs), which runs `nuxi prepare` when a
-project has a `nuxt.config.ts` and no `.nuxt` — so no test target is wired to anything, including
-the per-spec ones `@nx/vitest` generates and a bare `pnpm vitest` that never enters the task graph.
-What's left in [`nx.json`](./nx.json) is `lint` and `typecheck`, the two that aren't Vitest,
-depending on a `nuxt-prepare` target that only exists where a project defines that script —
-currently `apps/developer-portal` and `apps/huella-legal`. A new Nuxt app needs that script added by hand,
-and Nx **silently drops** an edge naming a target a project doesn't have, so the symptom is `lint`
-failing to parse every file rather than anything mentioning `.nuxt`.
-[`0015`](./docs/decisions/0015-nuxt-prepare-wiring.md) has the measurements, and settles against the
-local Nx plugin this section used to earmark for the third app.
+fails while that directory is missing. Two mechanisms cover it. In [`nx.json`](./nx.json), `lint`,
+`typecheck` and `test` depend on a `nuxt-prepare` target that only exists where a project defines
+that script — currently `apps/developer-portal` and `apps/huella-legal`. Everything else is covered by
+[`prepareNuxt.mjs`](./packages/configs/src/vitest/prepareNuxt.mjs), which every Vitest preset carries
+and which runs `nuxi prepare` when a project has a `nuxt.config.ts` and no `.nuxt`: `test:coverage`,
+the per-spec targets `@nx/vitest` generates, and a bare `pnpm vitest`. A new Nuxt app needs the
+script added by hand, and Nx **silently drops** an edge naming a target a project doesn't have, so
+the symptom is `lint` failing to parse every file rather than anything mentioning `.nuxt`.
+[`0015`](./docs/decisions/0015-nuxt-prepare-wiring.md) has the measurements and
+[`0024`](./docs/decisions/0024-nuxt-prepare-test-edge.md) why `test` has the edge again.
 
 ## 🛠️ Skills
 

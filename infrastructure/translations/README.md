@@ -35,8 +35,9 @@ curl http://localhost:4000/en-GB/huella-legal
 ```
 
 `:locale` and `:project` are the JSON file and its directory, so the route above
-serves `projects/huella-legal/en-GB.json`. Adding a locale means adding a file —
-there is nothing to register.
+serves `projects/huella-legal/en-GB.json`. Adding a locale means adding a file
+here — nothing in this service registers it, but the app has to declare it too; see
+[`docs/guides/adding-a-locale.md`](../../docs/guides/adding-a-locale.md).
 
 Responses are CORS-open (`Access-Control-Allow-Origin: *`). Unknown locales
 return `404`; unsafe `:project`/`:locale` path segments return `400`; a locale

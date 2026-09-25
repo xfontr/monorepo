@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+    compareDecisionShape,
     compareLayoutBlock,
     compareReviewHistory,
     compareScorecardShape,
@@ -140,5 +141,23 @@ describe("compareScorecardShape", () => {
         expect(finding?.id).toBe("scorecard-shape-mismatch");
         expect(finding?.detail).toContain("2026-09-06-badbeef.md");
         expect(finding?.evidence).toContain("docs/reviews/2026-09-06-badbeef.md");
+    });
+});
+
+describe("compareDecisionShape", () => {
+    const report = (issue: string) => `---\nissue: ${issue}\nstatus: implemented\ndecision: accepted\n---\n\n# 🧭 A decision\n`;
+
+    it("flags two reports sharing a number, the collision consecutive numbering exists to prevent", () => {
+        const findings = compareDecisionShape([
+            { file: "0001-first.md", source: report("1") },
+            { file: "0001-second.md", source: report("2") },
+        ]);
+
+        expect(findings.map((finding) => finding.id)).toEqual(["decision-shape-mismatch"]);
+        expect(findings[0]?.detail).toContain("0001-second.md");
+    });
+
+    it("stays silent on well-formed reports, so the Overview only lists real drift", () => {
+        expect(compareDecisionShape([{ file: "0001-first.md", source: report("1") }])).toEqual([]);
     });
 });

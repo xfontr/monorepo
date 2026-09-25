@@ -48,12 +48,9 @@ combination fails to typecheck in `nuxt.config`.
 
 `runtimeConfig` (server-side, not `public`) carries the vendor for the routes to read per
 request, so every field of it is overridable per deployment with the `NUXT_`-prefixed form —
-`NUXT_CONTENT_VENDOR_BASE_URL`. **Never read `process.env` in `nuxt.config` instead**, as the
-[i18n module](../../../i18n/src/nuxt/README.md#options) argues at more length: a value read there is
-resolved at build time and baked into the output, which freezes the artifact to the host that built
-it. Declare the field empty, as above — the key has to exist for Nuxt to override it — and let the
-environment fill it at startup. `name` is the exception: it picks the vendor and its config type, so
-it stays a literal.
+`NUXT_CONTENT_VENDOR_BASE_URL`. Declare the field empty, as above, and never read `process.env` in
+`nuxt.config` instead — the [i18n module](../../../i18n/src/nuxt/README.md#-usage) says why, and why
+`name` stays a literal.
 
 ## 🧱 The two halves
 
@@ -66,16 +63,18 @@ runtime/
 └── server/
     ├── content.get.ts              # cached BFF route: a list
     ├── contentItem.get.ts          # cached BFF route: one document
-    └── request.ts                  # everything both routes do to an incoming request
+    └── utils/
+        ├── request.ts              # everything both routes do to an incoming request
+        └── parsing.ts              # one validator per query or route param, each throwing a typed 400 or 404
 ```
 
 `module.ts` and `runtime/**` are separate runtimes. Never import across that line except with
 `import type` — anything shared at value level (`CONTENT_API_PATH`, the cache windows) goes in
 `config.ts`.
 
-`request.ts` is where the routes are thin: parsing, ceilings, provider construction and the
-error mapping all live there, so each handler is its own six lines of orchestration. It is also
-the only file in the package that knows both h3 and the core.
+`utils/request.ts` is where the routes are thin: ceilings, provider construction and the error
+mapping all live there, with the per-param validation in `utils/parsing.ts`, so each handler is its
+own six lines of orchestration.
 
 ## 🔁 The request path
 
@@ -119,10 +118,10 @@ way instead of reinventing it — and it is built from the **parsed** query, so 
 and no page at all are one entry rather than three. See
 [the key](../../README.md#-framework-agnostic-use) for what goes into it and why.
 
-Nitro does not store a custom key verbatim: it strips every non-word character first. `contentKey`
-is word characters only for that reason, so nothing is lost between building the key and storing
-it — a key that spelled its axes out with `:` and `=` would arrive with them deleted and collide
-with a query that never asked for them.
+Nitro does not store a custom key verbatim: it strips every non-word character first (`escapeKey`,
+in its cache runtime). `contentKey` is word characters only for that reason, so nothing is lost
+between building the key and storing it — a key that spelled its query out would arrive with the
+separators gone, and `search=b,slug=a` would collide with `search=bsluga`.
 
 Note that `getKey` runs *before* the handler, so it parses the request too: a malformed query
 throws there and mints no entry at all. That is what makes the ceilings a keyspace bound rather

@@ -44,9 +44,10 @@ src/
 └── nuxt/                                     # the Nuxt module (separate entry point)
 ```
 
-Nothing under `core/` imports `@nuxt/kit` or `@nuxtjs/i18n`, and `core/domain/` imports nothing at
-all. That is the invariant worth keeping: the day it breaks, the core stops being portable and the
-ports stop being worth their indirection.
+Nothing under `core/` imports the Nuxt or Nitro runtime — lint enforces the [list in
+`@monorepo/configs`](../configs/README.md#-what-the-eslint-factories-bundle) — and `core/domain/`
+imports nothing at all. That is the invariant worth keeping: the day it breaks, the core stops being
+portable and the ports stop being worth their indirection.
 
 ## 🏷 Vendors
 
@@ -126,7 +127,7 @@ Two halves, because only one of them is knowable in the core:
 | Checked | Where | Rule |
 | --- | --- | --- |
 | `project` | `TranslationProvider` | non-empty |
-| `baseURL` | `TranslationProvider` | parses as an absolute URL, so a missing scheme (`app.tolgee.io`) is caught rather than silently becoming a relative fetch |
+| `baseURL` | `TranslationProvider` | parses as an absolute URL, so a missing scheme (`tms.example.com`) is caught rather than silently becoming a relative fetch |
 | `options` | the provider, via `configProblems()` | whatever that vendor needs — `tolgee` requires a non-empty token |
 
 `configProblems()` returns problems rather than throwing, so one `MisconfiguredVendorError` lists
@@ -170,11 +171,10 @@ whatever cache you use, so no two of those can share an entry. The vendor is has
 field by field, so a field added to `Vendor` cannot be forgotten here; base URL being one of them is
 what stops a cache shared across environments serving staging messages in production.
 
-Those inputs are hashed rather than listed, behind a readable `vendor_locale_` prefix. Nitro strips
-every non-word character from a cached handler's key, so the key is built from word characters only —
-`_` separates the parts, and both it and the `-` of base64url are escaped (`_u`, `_d`) so distinct
-parts stay distinct. The key that is stored is the key that was built, and anything consuming it gets
-that guarantee for free.
+Those inputs are hashed rather than listed, behind a readable `vendor_locale_` prefix, and the key is
+word characters only — `_` separates the parts, and both it and the `-` of base64url are escaped
+(`_u`, `_d`) so distinct parts stay distinct. [The Nuxt module](./src/nuxt/README.md) says why a
+cache key here can't carry anything else.
 
 `options` is deliberately **not** in the key: it carries credentials, and credentials are not
 identity — two tokens for the same project fetch the same document, so they should share an entry,

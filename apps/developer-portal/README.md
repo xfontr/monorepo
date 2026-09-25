@@ -7,12 +7,12 @@ It renders every markdown file in the workspace as a wiki — READMEs, `AGENTS.m
 [`docs/`](../../docs/README.md) tree, reviews and changelogs — beside the things that are not written
 down anywhere: coverage, the project graph, open GitHub issues and which two files have stopped agreeing.
 
-It runs two ways. `pnpm dev developer-portal` reads the working tree and shells out to `git`, so it shows
+It runs two ways. `pnpm dev developer-portal`, from the workspace root, reads the working tree and shells out to `git`, so it shows
 the branch you are on; the deployed site is a prerendered snapshot of `master`, published by
 [`developer-portal-deploy.yml`](../../.github/workflows/developer-portal-deploy.yml) — see
 [🚢 The deployed site is a snapshot](#-the-deployed-site-is-a-snapshot).
 
-## 🧭 The public entry points
+## 🚪 The public entry points
 
 The interface starts with three public intents, using ordinary language before repository-specific
 terms.
@@ -32,10 +32,32 @@ work in progress remain directly addressable without creating a second applicati
 | Path | What lives there |
 | --- | --- |
 | `app/` | The Nuxt UI dashboard — pages and components |
-| `server/api/` | Small reads of the collected artifacts and the navigation badge counts. The issues come straight from GitHub to the browser |
+| `server/api/` | `badges.get.ts` for the navigation badge counts, and `snapshot/[artifact].get.ts` for one collected artifact by name. The issues come straight from GitHub to the browser |
+| `server/utils/` | `store.ts`, which reads a `.report/` artifact and returns `null` rather than throwing when it was never collected |
 | `shared/` | Pure logic — the wiki's shape, the issue rules, the decision and audit vocabularies, the findings-table parser, both lists' own filtering and counting, and where a doc's link points. Imported by app, server and tools alike |
 | `tools/collect/` | Builds the derived snapshot: graph, coverage, metrics, docs, scorecards |
 | `tools/lib/` | Node-only helpers — paths, the `git` allowlist, the invariant checks, and the remark plugin that rewrites a doc's links as it is parsed |
+
+## 🚀 Development
+
+| Command | What it does |
+| --- | --- |
+| `pnpm dev developer-portal` | Start the portal, from the workspace root |
+| `pnpm exec nx collect @monorepo/developer-portal` | Rebuild the snapshot — graph, coverage, metrics, docs, scorecards |
+| `pnpm exec nx nuxt-prepare @monorepo/developer-portal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
+| `pnpm exec nx build-static @monorepo/developer-portal` | `nuxt build --prerender` — the build the deploy publishes, and the only one that renders every route |
+
+The collector reads each project's `coverage/coverage-summary.json` and copies in the merged report
+`pnpm test:coverage` renders at the workspace root, so both are only as fresh as the last run of it.
+
+`build` delegates to `build-static`, because `nx affected -t build` only ever looks for a target
+called `build` — the same indirection [`apps/huella-legal`](../huella-legal/README.md) uses, pointed
+at a different target. **CI therefore builds the artifact that deploys**, which is the point: this
+app was broken under `--prerender` while the SSR build went green, so an SSR build here would verify
+a mode nothing runs. It survives as the plugin's inferred `nuxt:build` and is never invoked —
+`@nx/nuxt` infers it from `nuxt.config.ts` for every Nuxt project, and `huella-legal` genuinely
+serves that way. Prerendering costs about what the SSR build does, and it succeeds with no
+`.report/` at all, rendering fewer routes.
 
 ## 📄 The markdown is read in place
 
@@ -43,7 +65,7 @@ work in progress remain directly addressable without creating a second applicati
 copy inside this app. That is what makes the docs half free: the README you edit for GitHub is the
 same file this renders, and a page's URL mirrors its path in the repo.
 
-Under `pnpm dev developer-portal` that file is read where it lives, so the two cannot drift. A build bakes
+Under `pnpm dev developer-portal` (run from the root) that file is read where it lives, so the two cannot drift. A build bakes
 the whole corpus into the bundle instead, which is why the deployed site is only ever as fresh as its
 last deploy — [🚢 The deployed site is a snapshot](#-the-deployed-site-is-a-snapshot) is the rest of
 that.
@@ -51,7 +73,7 @@ that.
 | Page | Reads |
 | --- | --- |
 | Documentation | Every non-ignored `*.md`, arranged as a tree — see [🧭 Documentation is a wiki](#-documentation-is-a-wiki) |
-| Architecture | The collected Nx graph, its plain-language relationships and the vendored detailed graph under `public/embed/graph/` |
+| Architecture | The collected Nx graph, its plain-language relationships and the detailed graph `collect` writes to the gitignored `public/embed/graph/` |
 | Projects | The collected Nx graph joined to collect-time project metrics, with deployment state read live |
 | Decisions | `docs/decisions/NNNN-<slug>.md` — the files the `decision-report` skill writes, see [🔬 Decisions are their own section](#-decisions-are-their-own-section) |
 | Audits | `docs/audits/YYYY-MM-DD-<scope>.md` — the files the `audit-report` skill writes, see [🔎 Audits count findings, not files](#-audits-count-findings-not-files) |
@@ -104,7 +126,7 @@ table has one shape across every review: the seven cards `SCORECARDS.md` lists, 
 `n/5`. The `repo-review` skill is told to keep it that way, and
 [`compareScorecardShape`](./tools/lib/invariants.ts) is what notices the day a review doesn't.
 
-## 🧭 Documentation is a wiki
+## 📚 Documentation is a wiki
 
 The docs half is a wiki, not a file listing: a tree on the left that stays put while you read, a
 breadcrumb, and prev/next within the group you are in. [`shared/wiki.ts`](./shared/wiki.ts) derives
@@ -133,9 +155,11 @@ real title is still the page's own heading.
 
 ⌘K searches every README, `AGENTS.md`, changelog, skill and doc, fed straight from the content
 collection so there is no second index to keep in step. It is fetched **on the first open**, not by
-the layout: the layout wraps every page, so an index built there rode in all 103 prerendered
-payloads and made them 725 KB each against 75 KB now. The cost lands where it is asked for — roughly
-a megabyte of chunk and SQLite WASM, once per reader, with a spinner while it arrives.
+the layout: the layout wraps every page, so an index built there rode in every prerendered payload
+and made each one about ten times larger —
+[`0014`](../../docs/decisions/0014-developer-portal-deployment.md) has the measurement. The cost
+lands where it is asked for — roughly a megabyte of chunk and SQLite WASM, once per reader, with a
+spinner while it arrives.
 
 ## 🔬 Decisions are their own section
 
@@ -173,7 +197,7 @@ page is derived from those rows.
 
 ## 🐙 Work in progress comes from GitHub, not from here
 
-The Work in progress page reads `api.github.com` from the reader's own browser and renders what comes back.
+The Work in progress page reads the repo host's REST API from the reader's own browser and renders what comes back.
 There is no local copy, no `log/`, no schema: an issue's state lives on GitHub, and a second record
 of it in this repo would be a second answer to a question that already has one. This replaced a local
 todo list that was exactly that mistake.
@@ -205,8 +229,8 @@ checkout.
 Deployments are the exception because they can change after the static site ships. The browser reads
 GitHub's unauthenticated `deployments` endpoint once, then the newest status for each environment;
 the production URL travels in that status. Today those deployments belong to `huella-legal`, so its
-card carries an **Open site** link and a **Deploys** link to its GitHub Actions workflow. Technical
-Docs gets the same pair: its Pages URL is derived from the repository name, and its deploy link opens
+card carries an **Open site** link and a **Deploys** link to its GitHub Actions workflow. This
+portal gets the same pair: its Pages URL is derived from the repository name, and its deploy link opens
 the Pages workflow. Neither is an in-app write action.
 
 `@monorepo/ui`'s Storybook is built into the same Pages artifact under `/storybook/`. A second Pages
@@ -221,27 +245,6 @@ gitignored, and is rebuilt by `pnpm exec nx collect @monorepo/developer-portal` 
 gets committed is a report that goes stale silently. Nothing else here is stored at all: the docs,
 the reviews and the changelogs are files in the tree read where they live, and the issues are read
 live off GitHub. If you delete every derived file in this project, one command puts it back.
-
-## 🚀 Development
-
-| Command | What it does |
-| --- | --- |
-| `pnpm dev developer-portal` | Start the portal |
-| `pnpm exec nx collect @monorepo/developer-portal` | Rebuild the snapshot — graph, coverage, metrics, docs, scorecards |
-| `pnpm exec nx nuxt-prepare @monorepo/developer-portal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
-| `pnpm exec nx build-static @monorepo/developer-portal` | `nuxt build --prerender` — the build the deploy publishes, and the only one that renders every route |
-
-The collector reads each project's `coverage/coverage-summary.json` and copies in the merged report
-`pnpm test:coverage` renders at the workspace root, so both are only as fresh as the last run of it.
-
-`build` delegates to `build-static`, because `nx affected -t build` only ever looks for a target
-called `build` — the same indirection [`apps/huella-legal`](../huella-legal/README.md) uses, pointed
-at a different target. **CI therefore builds the artifact that deploys**, which is the point: this
-app was broken under `--prerender` while the SSR build went green, so an SSR build here would verify
-a mode nothing runs. It survives as the plugin's inferred `nuxt:build` and is never invoked —
-`@nx/nuxt` infers it from `nuxt.config.ts` for every Nuxt project, and `huella-legal` genuinely
-serves that way. Prerendering costs nothing to check: 14s against the SSR build's 15s, and it
-succeeds with no `.report/` at all, rendering 181 routes instead of 211.
 
 ## 🚢 The deployed site is a snapshot
 
@@ -289,9 +292,9 @@ fetches them.
 `tools/lib/invariants.ts` re-runs the cross-file rules
 [`check-invariants.sh`](../../.claude/hooks/check-invariants.sh) enforces on edit: the tag table
 written twice, the workspace-layout block, a review with no row in the history table. The hook only
-fires while an agent is editing a file; these run over the whole tree on every collect **and in
-CI**, via the repository's blocking checks (`ci.yml`), so drift introduced by hand or
-pushed without an agent in the loop fails the build instead of only showing up on the dashboard.
+fires while an agent is editing a file; these run over the whole tree on every collect and show up
+as findings on the Overview. Nothing in CI runs them, so drift introduced by hand is reported here
+and blocks nothing — [`0025`](../../docs/decisions/0025-check-docs-removal.md) records why.
 The two copies are kept honest by [`invariants.spec.ts`](./tools/lib/invariants.spec.ts) — which is
 the entire reason they exist as pure functions rather than more shell.
 
@@ -302,11 +305,13 @@ dashboard shows correctly. The split is deliberate: the vocabulary is
 `DecisionOutcome` from and which client code can import; the parsing lives in `tools/` so a node-only
 dependency never reaches the browser bundle.
 
-One check here has no shell-hook twin: `compareScorecardShape` flags a review whose `## 🧮 Scores`
-table doesn't match `SCORECARDS.md`'s seven cards, in order, each `n/5` — the shape the scorecards
-page's parser depends on. It runs only on collect, not on edit; a malformed table shows up as a
-finding on the Overview page rather than blocking the write, which is a deliberate, smaller footprint
-than the other invariants get.
+Three checks here have no shell-hook twin, and each guards a shape a page's parser depends on:
+
+| Check | Flags |
+| --- | --- |
+| `compareScorecardShape` | A review whose `## 🧮 Scores` table doesn't match `SCORECARDS.md`'s seven cards, in order, each `n/5` |
+| `compareAuditShape` | An audit with a bad filename, missing frontmatter, a reused ID or an unknown status |
+| `compareDecisionShape` | A decision report with a bad filename, a reused number, an unknown `status:`/`decision:`, no `issue:` or a dangling `supersededBy:` |
 
 ## 📊 Colour
 
