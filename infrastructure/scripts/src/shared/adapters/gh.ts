@@ -14,10 +14,9 @@ export const createIssue = ({ title, body, label, project }: NewIssue): string =
     gh(
         "issue",
         "create",
-        "--title",
-        assertNotFlagLike(title, "title"),
-        "--body",
-        assertNotFlagLike(body, "body"),
+        // The `=` form keeps a value starting with `-`, such as a markdown checklist, from reading as a flag.
+        `--title=${title}`,
+        `--body=${body}`,
         ...(label ? ["--label", assertNotFlagLike(label, "label")] : []),
         ...(project ? ["--project", assertNotFlagLike(project, "project")] : []),
     );

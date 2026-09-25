@@ -1,23 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const fs = vi.hoisted(() => ({ mkdirSync: vi.fn() }));
 const projects = vi.hoisted(() => ({ projectsWithCoverage: vi.fn() }));
-const files = vi.hoisted(() => ({ loadReport: vi.fn() }));
+const files = vi.hoisted(() => ({ loadReport: vi.fn(), writeHtmlReport: vi.fn() }));
 const domain = vi.hoisted(() => ({ toReports: vi.fn(), mergeReports: vi.fn() }));
 const git = vi.hoisted(() => ({ at: vi.fn((path: string) => `/repo/${path}`) }));
 const io = vi.hoisted(() => ({ out: { success: vi.fn() } }));
-const report = vi.hoisted(() => ({ createContext: vi.fn(), create: vi.fn() }));
-const reports = vi.hoisted(() => ({ create: vi.fn() }));
 
-vi.mock("node:fs", () => fs);
 vi.mock("./adapters/nx.ts", () => projects);
 vi.mock("./adapters/files.ts", () => files);
 vi.mock("./domain/discover.ts", () => domain);
 vi.mock("./domain/merge.ts", () => domain);
 vi.mock("../shared/adapters/git.ts", () => git);
 vi.mock("../shared/adapters/io.ts", () => io);
-vi.mock("istanbul-lib-report", () => report);
-vi.mock("istanbul-reports", () => ({ default: reports }));
 
 import { main } from "./main.ts";
 
@@ -27,8 +21,6 @@ beforeEach(() => {
     domain.toReports.mockReturnValue([{ name: "ui", coverageFinal: "packages/ui/coverage/coverage-final.json" }]);
     files.loadReport.mockReturnValue({ files: {} });
     domain.mergeReports.mockReturnValue("coverage-map");
-    reports.create.mockReturnValue({ execute: vi.fn() });
-    report.createContext.mockReturnValue("context");
 });
 
 describe("coverage report main", () => {
@@ -36,8 +28,7 @@ describe("coverage report main", () => {
         await main();
 
         expect(domain.mergeReports).toHaveBeenCalledWith([{ name: "ui", data: { files: {} } }]);
-        expect(fs.mkdirSync).toHaveBeenCalledWith("/repo/coverage", { recursive: true });
-        expect(report.createContext).toHaveBeenCalledWith({ dir: "/repo/coverage", coverageMap: "coverage-map" });
+        expect(files.writeHtmlReport).toHaveBeenCalledWith("/repo/coverage", "coverage-map");
         expect(io.out.success).toHaveBeenCalledWith("Wrote /repo/coverage/index.html, merged from 1 projects.");
     });
 
@@ -72,6 +63,6 @@ describe("coverage report main", () => {
         });
 
         await expect(main()).rejects.toThrow("missing coverage");
-        expect(fs.mkdirSync).not.toHaveBeenCalled();
+        expect(files.writeHtmlReport).not.toHaveBeenCalled();
     });
 });

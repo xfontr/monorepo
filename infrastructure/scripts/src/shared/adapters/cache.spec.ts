@@ -64,6 +64,15 @@ describe("cached", () => {
         expect(fetch).toHaveBeenCalledOnce();
     });
 
+    // Offline with a stale cache, a swallowed gh failure returns [] — writing it would leave
+    // `readCache` nothing to fall back to.
+    it("keeps the stale entry instead of overwriting it with an empty fetch", () => {
+        fs.readFileSync.mockReturnValue(JSON.stringify({ fetchedAt: Date.now() - DAY_MS - 1, data: ["stale"] }));
+
+        expect(cached("projects", () => [])).toEqual([]);
+        expect(fs.writeFileSync).not.toHaveBeenCalled();
+    });
+
     it("still returns the fetched value when the cache write fails, so a read-only fs can't fail the command", () => {
         fs.readFileSync.mockImplementation(() => {
             throw new Error("ENOENT");

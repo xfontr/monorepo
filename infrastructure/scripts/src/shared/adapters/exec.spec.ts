@@ -20,6 +20,10 @@ describe("run", () => {
         }
     });
 
+    it("returns stdout past Node's 1 MiB default buffer instead of throwing ENOBUFS", () => {
+        expect(run(process.execPath, ["-e", "process.stdout.write('x'.repeat(2 * 1024 * 1024))"])).toHaveLength(2 * 1024 * 1024);
+    });
+
     it("propagates a subprocess failure instead of hiding its stderr", () => {
         expect(() => run(process.execPath, ["-e", "process.stderr.write('failure'); process.exit(2)"])).toThrow();
     });

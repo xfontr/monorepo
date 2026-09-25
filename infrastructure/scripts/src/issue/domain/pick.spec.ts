@@ -18,7 +18,7 @@ describe("projectLoad", () => {
         [[], true, "empty"],
         [[], false, "cache"],
     ])("chooses the %s source", (live, online, source) => {
-        expect(projectLoad(live, online).source).toBe(source);
+        expect(projectLoad(live, online)).toBe(source);
     });
 });
 

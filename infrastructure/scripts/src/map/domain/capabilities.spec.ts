@@ -17,6 +17,11 @@ describe("mentions", () => {
         expect(mentions("| `pnpm test:coverage` |", "test")).toBe(false);
     });
 
+    it("does not let a longer name satisfy the shorter one it ends with", () => {
+        expect(mentions("| `pnpm test:coverage` |", "coverage")).toBe(false);
+        expect(mentions("the latest release", "test")).toBe(false);
+    });
+
     it("matches a namespaced skill token when it stands alone", () => {
         expect(mentions("| `content-new-vendor` | Adding a CMS vendor |", "content-new-vendor")).toBe(true);
     });

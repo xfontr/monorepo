@@ -69,6 +69,12 @@ describe("report", () => {
         expect(report(error).message).toContain("detail");
     });
 
+    it("prints stderr once when Node already put it in the message", () => {
+        const error = Object.assign(new Error("Command failed: git rev-parse\nfatal: bad ref"), { stderr: "fatal: bad ref\n" });
+
+        expect(report(error).message.split("fatal: bad ref")).toHaveLength(2);
+    });
+
     it("reports an ordinary error without stderr and a non-error throw as text", () => {
         expect(report(new Error("without stack"))).toMatchObject({ cancelled: false });
         expect(report("string failure")).toEqual({ cancelled: false, message: "string failure" });

@@ -2,7 +2,7 @@ import type { Args } from "../shared/cli.ts";
 import { ExpectedError } from "../shared/errors.ts";
 import { out } from "../shared/adapters/io.ts";
 import { digestArtifacts, METHOD_PATH, readManifest, writeManifest } from "./adapters/files.ts";
-import { parseManifest, staleArtifacts, updateManifest } from "./domain/manifest.ts";
+import { METHOD_ARTIFACTS, parseManifest, staleArtifacts, updateManifest } from "./domain/manifest.ts";
 
 export const main = ({ flags }: Args): void => {
     const before = readManifest();
@@ -18,14 +18,14 @@ export const main = ({ flags }: Args): void => {
             );
         }
 
-        out.success(`${METHOD_PATH} is at version ${beforeManifest?.version}, four artifacts unchanged.`);
+        out.success(`${METHOD_PATH} is at version ${beforeManifest?.version}, ${METHOD_ARTIFACTS.length} artifacts unchanged.`);
         return;
     }
 
     const after = updateManifest(before, digests);
 
     if (after === before) {
-        out.success(`${METHOD_PATH} is at version ${beforeManifest?.version}, four artifacts unchanged.`);
+        out.success(`${METHOD_PATH} is at version ${beforeManifest?.version}, ${METHOD_ARTIFACTS.length} artifacts unchanged.`);
         return;
     }
 

@@ -1,17 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const fs = vi.hoisted(() => ({ writeFileSync: vi.fn() }));
 const files = vi.hoisted(() => ({
-    rootScripts: vi.fn(), projectScripts: vi.fn(), hookNames: vi.fn(), workflowFiles: vi.fn(), skillFiles: vi.fn(), docs: vi.fn(), readMap: vi.fn(),
+    rootScripts: vi.fn(), projectScripts: vi.fn(), hookNames: vi.fn(), workflowFiles: vi.fn(), skillFiles: vi.fn(), docs: vi.fn(), readMap: vi.fn(), writeMap: vi.fn(),
 }));
 const domain = vi.hoisted(() => ({ rootCommands: vi.fn(), projectCommands: vi.fn(), hooks: vi.fn(), workflows: vi.fn(), skills: vi.fn(), render: vi.fn() }));
-const git = vi.hoisted(() => ({ at: vi.fn((path: string) => `/repo/${path}`) }));
 const io = vi.hoisted(() => ({ out: { success: vi.fn() } }));
-vi.mock("node:fs", () => fs);
 vi.mock("./adapters/files.ts", () => ({ ...files, MAP_PATH: "docs/FEATURES.md" }));
 vi.mock("./domain/capabilities.ts", () => domain);
 vi.mock("./domain/render.ts", () => domain);
-vi.mock("../shared/adapters/git.ts", () => git);
 vi.mock("../shared/adapters/io.ts", () => io);
 
 import { main } from "./main.ts";
@@ -37,7 +33,7 @@ describe("map main", () => {
     it("renders and writes the generated feature map", () => {
         main({ flags: new Set(), positionals: [] });
 
-        expect(fs.writeFileSync).toHaveBeenCalledWith("/repo/docs/FEATURES.md", "rendered");
+        expect(files.writeMap).toHaveBeenCalledWith("rendered");
         expect(io.out.success).toHaveBeenCalledWith("Wrote docs/FEATURES.md.");
     });
 
@@ -45,7 +41,7 @@ describe("map main", () => {
         main({ flags: new Set(["check"]), positionals: [] });
 
         expect(io.out.success).toHaveBeenCalledWith("docs/FEATURES.md is up to date.");
-        expect(fs.writeFileSync).not.toHaveBeenCalled();
+        expect(files.writeMap).not.toHaveBeenCalled();
     });
 
     it("rejects stale generated output under check", () => {
@@ -55,7 +51,7 @@ describe("map main", () => {
     });
 
     it("does not hide a filesystem failure while writing the generated map", () => {
-        fs.writeFileSync.mockImplementation(() => {
+        files.writeMap.mockImplementation(() => {
             throw new Error("read-only");
         });
 

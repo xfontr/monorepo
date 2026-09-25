@@ -6,7 +6,7 @@ import type { Args } from "../shared/cli.ts";
 import { ExpectedError } from "../shared/errors.ts";
 import { projectsWithDev } from "./adapters/nx.ts";
 import { dev } from "./adapters/pnpm.ts";
-import { findProject, matches, rowFor, toProjects, type DevProject } from "./domain/projects.ts";
+import { findProject, matches, rowFor, SCOPE, toProjects, type DevProject } from "./domain/projects.ts";
 
 const CANCELLED = "Cancelled — nothing started.";
 
@@ -23,12 +23,12 @@ const list = (): DevProject[] => {
     return projects;
 };
 
-const spellings = (projects: DevProject[]): string =>
-    projects.map(({ name }) => name.replace("@monorepo/", "")).join(", ");
+const shortNames = (projects: DevProject[]): string =>
+    projects.map(({ name }) => name.replace(SCOPE, "")).join(", ");
 
 const choose = async (projects: DevProject[], search: string): Promise<DevProject> => {
     if (!isInteractive()) {
-        throw new ExpectedError(`No terminal to pick with — name a project: pnpm dev <${spellings(projects)}>`);
+        throw new ExpectedError(`No terminal to pick with — name a project: pnpm dev <${shortNames(projects)}>`);
     }
 
     return orExit(

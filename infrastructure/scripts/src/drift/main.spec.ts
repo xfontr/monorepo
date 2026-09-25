@@ -69,11 +69,22 @@ describe("drift main", () => {
         expect(git.diffNumstat).not.toHaveBeenCalled();
     });
 
-    it("records a new fingerprint before deciding whether the docs are stale", async () => {
+    it("records a new fingerprint when the change needs no warning", async () => {
         await main();
 
         expect(cache.writeCache).toHaveBeenCalledWith("drift-fingerprints", { "packages/demo": "fingerprint" });
-        expect(cache.writeCache.mock.invocationCallOrder[0]).toBeLessThan(git.diffNumstat.mock.invocationCallOrder[0]!);
+    });
+
+    // Recording before the prompt made a cancelled or unattended warning permanent.
+    it("leaves the fingerprint unrecorded when nobody answered the warning", async () => {
+        detect.shouldWarn.mockReturnValue(true);
+        await main();
+        expect(cache.writeCache).not.toHaveBeenCalled();
+
+        io.isInteractive.mockReturnValue(true);
+        prompts.confirm.mockResolvedValue(Symbol("cancel"));
+        await expect(main()).rejects.toThrow(CancelledError);
+        expect(cache.writeCache).not.toHaveBeenCalled();
     });
 
     it("warns non-interactively without prompting and files an issue interactively when accepted", async () => {

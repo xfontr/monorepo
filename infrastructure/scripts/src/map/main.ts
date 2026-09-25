@@ -1,7 +1,5 @@
-import { writeFileSync } from "node:fs";
 import type { Args } from "../shared/cli.ts";
 import { ExpectedError } from "../shared/errors.ts";
-import { at } from "../shared/adapters/git.ts";
 import { out } from "../shared/adapters/io.ts";
 import {
     docs,
@@ -12,6 +10,7 @@ import {
     rootScripts,
     skillFiles,
     workflowFiles,
+    writeMap,
 } from "./adapters/files.ts";
 import { hooks, projectCommands, rootCommands, skills, workflows } from "./domain/capabilities.ts";
 import { render } from "./domain/render.ts";
@@ -39,6 +38,6 @@ export const main = ({ flags }: Args): void => {
         return;
     }
 
-    writeFileSync(at(MAP_PATH), rendered);
+    writeMap(rendered);
     out.success(`Wrote ${MAP_PATH}.`);
 };

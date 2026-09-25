@@ -27,4 +27,12 @@ describe("ship git adapter", () => {
         expect(() => push("feature/demo")).toThrow("Push rejected");
         expect(() => push("--delete")).toThrow("Push rejected");
     });
+
+    it("keeps git's own reason, since a missing remote or expired auth isn't a failed push check", () => {
+        gitApi.git.mockImplementation(() => {
+            throw Object.assign(new Error("Command failed"), { stderr: "fatal: Authentication failed\n" });
+        });
+
+        expect(() => push("feature/demo")).toThrow(/Push rejected[\s\S]*Authentication failed/);
+    });
 });

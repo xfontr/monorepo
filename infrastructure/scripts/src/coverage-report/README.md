@@ -13,9 +13,9 @@ this is a script on top of Istanbul's own libraries rather than the `nyc` CLI or
 
 ```
 index.ts              hands main to run()
-main.ts               loads the files discover.ts names, merges them, renders the HTML
+main.ts               loads the files discover.ts names, merges them, hands the result to files.ts
 adapters/nx.ts        asks nx which projects declare test:coverage, and where each writes its output
-adapters/files.ts     reads one coverage-final.json off disk
+adapters/files.ts     reads one coverage-final.json off disk, and writes the merged HTML report
 domain/discover.ts    nx's project + output shape → the coverage-final.json path per project
 domain/merge.ts       loaded reports → one CoverageMap, refusing a partial merge
 ```
