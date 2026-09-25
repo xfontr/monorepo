@@ -20,7 +20,7 @@ terms.
 | Intent | Starts with |
 | --- | --- |
 | Explore what exists | Overview, Projects and What's new |
-| Understand how it works | Documentation, Architecture and Decisions |
+| Understand how it works | Documentation, Architecture, Decisions and Audits |
 | Run or contribute | The first-hour guide and the repository documentation |
 
 Engineering health remains available after that introduction: the homepage places it below the featured
@@ -33,7 +33,7 @@ work in progress remain directly addressable without creating a second applicati
 | --- | --- |
 | `app/` | The Nuxt UI dashboard — pages and components |
 | `server/api/` | Small reads of the collected artifacts and the navigation badge counts. The issues come straight from GitHub to the browser |
-| `shared/` | Pure logic — the wiki's shape, the issue rules, the decision vocabulary, the decision list's own filtering and counting, and where a doc's link points. Imported by app, server and tools alike |
+| `shared/` | Pure logic — the wiki's shape, the issue rules, the decision and audit vocabularies, the findings-table parser, both lists' own filtering and counting, and where a doc's link points. Imported by app, server and tools alike |
 | `tools/collect/` | Builds the derived snapshot: graph, coverage, metrics, docs, scorecards |
 | `tools/lib/` | Node-only helpers — paths, the `git` allowlist, the invariant checks, and the remark plugin that rewrites a doc's links as it is parsed |
 
@@ -54,6 +54,7 @@ that.
 | Architecture | The collected Nx graph, its plain-language relationships and the vendored detailed graph under `public/embed/graph/` |
 | Projects | The collected Nx graph joined to collect-time project metrics, with deployment state read live |
 | Decisions | `docs/decisions/NNNN-<slug>.md` — the files the `decision-report` skill writes, see [🔬 Decisions are their own section](#-decisions-are-their-own-section) |
+| Audits | `docs/audits/YYYY-MM-DD-<scope>.md` — the files the `audit-report` skill writes, see [🔎 Audits count findings, not files](#-audits-count-findings-not-files) |
 | Reviews | `docs/reviews/YYYY-MM-DD-<sha>.md` — the files the `repo-review` skill writes |
 | Work in progress | Open issues read from GitHub in the browser |
 | What's new | Every `CHANGELOG.md`, beside its unreleased-commit count |
@@ -114,12 +115,12 @@ doc added anywhere appears in the nav on the next reload instead.
 | Section | What lands in it |
 | --- | --- |
 | Workspace | The two files at the root, plus the generated `docs/FEATURES.md` |
-| Docs | `docs/`, grouped by subdirectory: concepts, guides, the decision and review rubrics |
+| Docs | `docs/`, grouped by subdirectory: concepts, guides, the decision, audit and review rubrics |
 | Projects | One group per project, holding its README, its `AGENTS.md` and its nested READMEs |
 | Agent setup | The canonical `.agents/skills/` and Claude's native `.claude/agents/` definitions |
 
-Three things are deliberately **not** in the tree: `CHANGELOG.md`s, the dated reviews and the
-numbered decision reports. Each already has a page of its own here, and a wiki that also lists them is a
+Four things are deliberately **not** in the tree: `CHANGELOG.md`s, the dated reviews, the dated
+audits and the numbered decision reports. Each already has a page of its own here, and a wiki that also lists them is a
 second route to the same file that ages differently. The `README.md` beside each of those — the
 review rubric, the decision template's rules — stays, because a doc about how a record is written is
 not one of the records. Project-specific skills still live at the root with namespaced names. Codex
@@ -155,6 +156,20 @@ warn for `to-implement`, neutral for `wont-implement`. A second, independent pil
 `decision: superseded`, linking to the report that replaced it. Both come from the collected
 snapshot, so a report filed since the last `collect` renders at its own URL but is missing from the
 list — which is the same staleness every other page here has, shown by the same timestamp.
+
+## 🔎 Audits count findings, not files
+
+An audit is worked down one finding at a time, so the question a reader brings to
+[`/audits`](./app/pages/audits/index.vue) is how much of each one is still owed. The collector
+parses every table carrying both an `ID` and a `Status` header into `docs.json`; everything on the
+page is derived from those rows.
+
+| Fact | Where it comes from |
+| --- | --- |
+| Each finding's status | Its `Status` cell, parsed by [`parseFindings`](./shared/audits.ts) — a value outside the vocabulary counts as open |
+| The audit's state | Derived by `auditStateOf`: open, in progress, or closed once nothing is open. Never written in the file |
+| Progress, counts, filters, ordering | [`shared/auditReports.ts`](./shared/auditReports.ts), pure and specced beside itself |
+| A malformed audit | [`tools/lib/audits.ts`](./tools/lib/audits.ts), surfaced as an `audit-shape-mismatch` invariant on the Overview |
 
 ## 🐙 Work in progress comes from GitHub, not from here
 

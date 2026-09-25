@@ -1,7 +1,7 @@
 #!/bin/sh
 # Everything a repo review should not be trusting a model to remember: what the targets do on this
-# tree right now, the counts a card would otherwise get eyeballed, and whether the last review is
-# recent enough that this one is probably a mistake.
+# tree right now, the sizes and ratios a judgement leans on, and whether the last review is recent
+# enough that this one is probably a mistake. Context for the reviewer, never a score trigger.
 #
 # Output is markdown on stdout, meant to be read and quoted into the review's Evidence section.
 # Exits 0 even when a target fails — a red suite is the most useful finding a review can have, not
@@ -31,6 +31,15 @@ noise='(^|/)(index|eslint\.config|vitest\.config|vite\.config|nuxt\.config|conte
 count() { git grep -nI -E "$1" -- '*.ts' '*.mts' '*.vue' 2>/dev/null | grep -vc '\.spec\.ts:'; }
 lines() { grep -c .; }
 
+# Sums the line counts of the file paths on stdin; no xargs, which runs `cat` on stdin when handed nothing
+sumlines() {
+    total=0
+    while read -r f; do
+        [ -f "$f" ] && total=$((total + $(wc -l < "$f")))
+    done
+    echo "$total"
+}
+
 epoch_of() { date -j -f "%Y-%m-%d" "$1" +%s 2>/dev/null || date -d "$1" +%s 2>/dev/null; }
 
 echo "# Review facts"
@@ -41,7 +50,16 @@ echo
 # (it would score the same tree) and a last one from days ago (the numbers can't have moved).
 echo "## Review history"
 echo
-last=$(ls docs/reviews/[0-9]*.md 2>/dev/null | sort | tail -1)
+# Same-day reviews tie on the filename date, and a sha sorts in no useful order, so the commit's time
+# breaks the tie. The date stays the primary key, so a later re-score of an older commit still counts
+# as the latest.
+last=$(for f in docs/reviews/[0-9]*.md; do
+    [ -f "$f" ] || continue
+    b=$(basename "$f" .md)
+    ts=$(git log -1 --format=%ct "$(echo "$b" | cut -d- -f4-)" 2>/dev/null)
+    printf '%s %012d %s\n' "$(echo "$b" | cut -d- -f1-3)" "${ts:-0}" "$f"
+done | sort | tail -1 | cut -d' ' -f3)
+last_sha=""
 
 if [ -z "$last" ]; then
     echo "No previous review — this is the first. No Δ column to fill, no recency guard."
@@ -113,8 +131,8 @@ echo
 # ------------------------------------------------------------------ projects
 echo "## Projects"
 echo
-echo "| Project | Root | Nx tags | Private | Modules | Specs | Per spec | README |"
-echo "| --- | --- | --- | --- | --- | --- | --- | --- |"
+echo "| Project | Root | Nx tags | Private | Modules | Specs | Per spec | Code lines | Markdown lines | Commits since last review | README |"
+echo "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"
 for manifest in packages/*/package.json apps/*/package.json infrastructure/*/package.json; do
     [ -f "$manifest" ] || continue
     dir=$(dirname "$manifest")
@@ -129,32 +147,58 @@ for manifest in packages/*/package.json apps/*/package.json infrastructure/*/pac
     modules=$(git ls-files "$dir" | grep -E '\.(ts|mts)$' | grep -v '\.spec\.ts$' | grep -vc -E "$noise")
     density=$(awk -v m="$modules" -v s="$specs" 'BEGIN { if (s == 0) print "none"; else printf "%.1f", m / s }')
     readme="no"; [ -f "$dir/README.md" ] && readme="yes"
-    echo "| $name | \`$dir\` | $tags | $priv | $modules | $specs | $density | $readme |"
+    code=$(git ls-files "$dir" | grep -E '\.(ts|mts|vue)$' | grep -v '\.spec\.ts$' | sumlines)
+    docs=$(git ls-files "$dir" | grep '\.md$' | grep -v 'CHANGELOG\.md$' | sumlines)
+    since="?"
+    [ -n "$last_sha" ] && since=$(git rev-list --count "$last_sha"..HEAD -- "$dir" 2>/dev/null || echo "?")
+    echo "| $name | \`$dir\` | $tags | $priv | $modules | $specs | $density | $code | $docs | $since | $readme |"
 done
 echo
-echo "\`Per spec\` is \`.ts\`/\`.mts\` modules per spec file, \`.vue\` excluded — nothing here puts a"
-echo "spec beside a component, so counting them would fire the density cap on every Nuxt app. Above"
-echo "4.0 caps 🧪 Testing at 3; \`none\` means no specs at all, which is a different cap."
+echo "\`Per spec\` is \`.ts\`/\`.mts\` modules per spec file, \`.vue\` excluded; \`Code lines\` is non-spec"
+echo "\`.ts\`/\`.mts\`/\`.vue\`, and \`Markdown lines\` excludes changelogs. Where the commits went against"
+echo "where the code is tells the Process and trajectory story."
+echo
+
+# ------------------------------------------------------------------ proportion
+# The measurements behind "proportionality is quality": what the repo spends on prose, rules and review
+# machinery against the code they serve.
+echo "## Proportion"
+echo
+code_total=$(sources | sumlines)
+spec_total=$(git ls-files '*.spec.ts' | sumlines)
+md_total=$(git ls-files '*.md' | grep -v -E 'CHANGELOG\.md$|^docs/reviews/[0-9]|^docs/audits/[0-9]' | sumlines)
+agents_total=$(git ls-files 'AGENTS.md' '*/AGENTS.md' '.agents/*' '.claude/*' | sumlines)
+review_total=$(git ls-files '.agents/skills/repo-review/*' '.claude/agents/repo-review-card.md' 'docs/reviews/SCORECARDS.md' 'docs/reviews/METHOD.md' 'docs/reviews/TEMPLATE.md' 'infrastructure/scripts/src/review-version/*' | sumlines)
+echo "| Measure | Lines |"
+echo "| --- | --- |"
+echo "| Source (non-spec ts/mts/vue) | $code_total |"
+echo "| Specs | $spec_total |"
+echo "| Markdown (excl. changelogs, dated reviews and audits) | $md_total |"
+echo "| Agent guidance (\`AGENTS.md\` files, \`.agents/\`, \`.claude/\`) | $agents_total |"
+echo "| Review machinery (skill, collector, card agent, rubric, method, template, \`review-version\`) | $review_total |"
+echo "| Root \`AGENTS.md\`, loaded on every agent turn | $(wc -l < AGENTS.md | tr -d ' ') |"
+echo
+echo "Decisions by status: $(git grep -h -E '^status: ' -- 'docs/decisions/[0-9]*.md' 2>/dev/null | sort | uniq -c | awk '{ printf "%s%s %s", sep, $3, $1; sep=", " }')."
+echo "Audits: $(git ls-files 'docs/audits/[0-9]*.md' | lines) filed; open findings: $(git grep -h -E '\| open \|$' -- 'docs/audits/[0-9]*.md' 2>/dev/null | lines)."
 echo
 
 # ------------------------------------------------------------------ signals
-# Counts, not verdicts. Each one caps a card in SCORECARDS.md, so the review has to look at the
-# hits rather than quote the number.
+# Counts, not verdicts: a hit is worth reading only for the pattern it might be part of.
 echo "## Signals"
 echo
 # The pre-push gate rejects added lines containing the two flagged-comment markers, which would
 # block this very file — hence the bracket in each pattern. It matches the same strings.
 flagged="T[O]DO|F[I]XME|H[A]CK|X[X]X"
-echo "| Signal | Count | Card it caps |"
-echo "| --- | --- | --- |"
-echo "| Flagged comments in source | $(count "$flagged") | Process |"
-echo "| \`any\` in non-spec source | $(count '(\bas any\b|:\s*any\b|<any>)') | Implementation |"
-echo "| ts escapes (\`@ts-ignore\`/\`@ts-expect-error\`) | $(count '@ts-(ignore|expect-error)') | Implementation |"
-echo "| \`eslint-disable\` | $(count 'eslint-disable') | Implementation |"
-echo "| \`console.*\` outside specs | $(count 'console\.(log|warn|error|debug)') | Implementation |"
-echo "| \`process.env\` reads | $(count 'process\.env') | Architecture |"
-echo "| Skipped or focused specs | $(git grep -nI -E '(it|test|describe)\.(skip|only)\(' -- '*.spec.ts' 2>/dev/null | lines) | Testing |"
-echo "| \`--passWithNoTests\` in a package script | $(git grep -nI -e '--passWithNoTests' -- '*/package.json' 2>/dev/null | lines) | Testing |"
+echo "| Signal | Count |"
+echo "| --- | --- |"
+echo "| Flagged comments in source | $(count "$flagged") |"
+echo "| \`any\` in non-spec source | $(count '(\bas any\b|:\s*any\b|<any>)') |"
+echo "| ts escapes (\`@ts-ignore\`/\`@ts-expect-error\`) | $(count '@ts-(ignore|expect-error)') |"
+echo "| \`eslint-disable\` | $(count 'eslint-disable') |"
+echo "| \`console.*\` outside specs | $(count 'console\.(log|warn|error|debug)') |"
+echo "| \`process.env\` reads | $(count 'process\.env') |"
+echo "| Skipped or focused specs | $(git grep -nI -E '(it|test|describe)\.(skip|only)\(' -- '*.spec.ts' 2>/dev/null | lines) |"
+echo "| \`--passWithNoTests\` in a package script | $(git grep -nI -e '--passWithNoTests' -- '*/package.json' 2>/dev/null | lines) |"
 echo
 
 echo "### Source files over 200 lines"
@@ -194,7 +238,7 @@ echo
 echo "## Targets"
 echo
 if [ "$quick" -eq 1 ]; then
-    echo "Skipped (\`--quick\`). A review that scores Tooling & DX without running them is guessing."
+    echo "Skipped (\`--quick\`). A review that judges Tooling & DX without running them is guessing."
 else
     echo "Whole workspace, not affected — a review scores the tree, not the diff."
     echo

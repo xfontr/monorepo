@@ -43,6 +43,8 @@ the boundary table above is one; [`docs/guides/`](./docs/guides/README.md) holds
 procedures, first hour in the repo included.
 [`docs/decisions/`](./docs/decisions/README.md) holds the answer once a spike issue gets one — the
 issue is where the question lived, not where the outcome should have to survive.
+[`docs/audits/`](./docs/audits/README.md) holds what a static read of one project found wrong, each
+finding numbered and carrying its own status, so the backlog outlives the session that found it.
 [`docs/reviews/`](./docs/reviews/README.md) scores the whole tree against a fixed rubric, one dated
 file per review, so that "is this getting better" has an answer that isn't a feeling.
 

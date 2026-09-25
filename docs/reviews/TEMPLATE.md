@@ -2,8 +2,8 @@
 
 Commit `<short sha>` on `<branch>` · Method v<n> · Previous: [<date>](./<file>.md)
 
-<Two or three sentences. The headline number, the one card that carries the total, and the single
-change that would move it most. Not a summary of the sections below.>
+<Two or three sentences: the headline number, and the one judgement about the repo that explains it.
+Say here if the tree was dirty or the method was run with a deviation.>
 
 ## 🧮 Scores
 
@@ -18,48 +18,65 @@ change that would move it most. Not a summary of the sections below.>
 | 📋 Process & delivery | <n>/5 | <Δ> | <one line> |
 | **Total** | **<n.n>/5** | <Δ> | |
 
-Δ is against the previous review; `—` on the first one. Weights and the arithmetic live in
-[`SCORECARDS.md`](./SCORECARDS.md).
+<The arithmetic, and whether Δ is like-for-like (same method version) or crosses a bump.>
+
+## 🔭 The big picture
+
+<The thesis, and the most important section. Several paragraphs, not a list. Cover what this repo
+is and what it's for, what it's genuinely good at, and what's wrong with it as a whole. Say where
+the effort has gone since the last review against where it should have gone, and which direction
+it's heading. Take positions; this is the part a reader remembers.>
 
 ## 🃏 Cards
 
 ### 🧱 Architecture — <n>/5
 
-<One paragraph: what holds, and why the score isn't higher. Prose, not a list of every observation —
-the findings table below carries the specifics.>
+<Two to four paragraphs answering the card's questions in SCORECARDS.md.>
 
-| Costs a point | Evidence |
+| Strength | Evidence |
 | --- | --- |
-| <finding, stated as the problem not the fix> | <`file.ts:12`, a command's output, or a count> |
+| <what holds, and why it matters> | <files, measurements, history> |
 
-<Repeat the same two blocks for each of the remaining six cards, in the order of the scores table.
-A card that found nothing to deduct says so explicitly and names what was swept — an empty findings
-table with no explanation reads as a card nobody looked at.>
+| Weakness | Evidence |
+| --- | --- |
+| <a pattern, not a single line> | <several places it shows, or why one instance is revealing> |
 
-## 🔗 Across the cards
+**Why not <n+1>:** <the best case for higher, and why it doesn't hold>. **Why not <n−1>:** <same,
+downward>.
 
-<What the seven card reports said only when read together — a project deducted thin on four cards,
-a problem whose shards each survived their own card. One paragraph, or an explicit line saying the
-pass found nothing and what was grouped to check.>
+<Repeat for the remaining six cards, in the order of the scores table.>
 
-| Finding | Shows up on | Scored on | Evidence |
+## 🔥 What's really wrong
+
+<Ranked, worst first. The problems that matter most to the repo's future, whichever card they sit
+on: the ones a senior engineer joining would raise in their first week.>
+
+| # | Problem | Why it matters | Evidence |
 | --- | --- | --- | --- |
-| <the pattern, stated once> | <the cards it fragments across> | <the single card it costs> | <a citation per shard> |
+| 1 | <problem> | <consequence if left> | <evidence> |
 
-Each row costs points on exactly one card — the `Scored on` column — and that deduction already
-appears in that card's table above. This section says why it's there.
+## 🏗 Over- and under-engineering
+
+| Where | Which | What it costs | Evidence |
+| --- | --- | --- | --- |
+| <area> | <over / under> | <the cost, in time, attention or risk> | <measurement or files> |
+
+## 🍒 Low-hanging fruit
+
+| Fix | Effort | What it buys | Where |
+| --- | --- | --- | --- |
+| <change> | <minutes / an hour / a day> | <outcome> | <file> |
+
+## 🎯 Recommendations
+
+<The strategic moves, ordered by value to the repo, not by points. Each one says what changes and
+why now.>
+
+| Recommendation | Cards it moves | Filed |
+| --- | --- | --- |
+| <move> | <cards> | <#issue, a decision report, an audit, or `—`> |
 
 ## 🔍 Evidence
 
-<The `collect-facts.sh` numbers the scores lean on: target results, the counts, the untested
-surface, commits since the last review. Paste the figures, not the log.>
-
-## 🎯 What would move the total
-
-| Action | Card | Points | Filed |
-| --- | --- | --- | --- |
-| <the change, small enough to start> | <card> | <realistic gain, e.g. +1 on Testing → +0.15 total> | <#issue, a decision report, or `—`> |
-
-Ordered by points per unit of work. This table is a finding, not a tracker: anything worth doing
-gets filed (`pnpm issue:add`) or becomes a [decision report](../decisions/README.md), and the row
-records which.
+<The `collect-facts.sh` figures the judgements lean on: target results, sizes, ratios, activity
+since the last review, and the audits consulted. Paste the figures, not the log.>

@@ -28,7 +28,7 @@ that gap; this closes it.
 
 | Artifact | Decides |
 | --- | --- |
-| `docs/reviews/SCORECARDS.md` | The cards, the anchors, the caps and the weights |
+| `docs/reviews/SCORECARDS.md` | The cards and their questions, the anchors, how to judge, and the weights |
 | `.agents/skills/repo-review/SKILL.md` | The reconcile rules that drop and re-score what the agents report |
 | `.claude/agents/repo-review-card.md` | The card agents' model, tool access and isolation rule |
 | `.agents/skills/repo-review/collect-facts.sh` | Every count each card is scored against |
@@ -54,6 +54,6 @@ that can't record the new digests would climb a version on every run.
 | Later need | What changes |
 | --- | --- |
 | A fifth artifact deciding a score (a second agent, a scoring script) | Add its path to `METHOD_ARTIFACTS` and run the script — the list is the definition |
-| Telling a typo apart from a rule change | Nothing here can, so a whitespace fix in `SKILL.md` bumps the version like a reworded cap. A version people argue their way out of stops meaning anything, and the re-score a bump owes is cheap — it applies new caps to the old review's evidence, not a fresh read of the tree |
+| Telling a typo apart from a rule change | Nothing here can, so a whitespace fix in `SKILL.md` bumps the version like a reworded card. A version people argue their way out of stops meaning anything, and the re-score a bump owes is a fresh review of the old commit, so batch method edits into one change |
 | Blocking the bump at commit time | `.claude/hooks/check-invariants.sh` sees only the one file an edit touched, and this compares four. CI and the push gate are where whole-tree checks already live |
 | Verifying the calibration re-score actually happened | The bump prints the reminder and `docs/reviews/README.md`'s history table is where the row lands, but nothing fails if it doesn't. Worth a check once a second bump has happened and the habit is real |

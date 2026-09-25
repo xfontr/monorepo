@@ -40,6 +40,7 @@ describe("default layout", () => {
             ["Documentation", "/docs"],
             ["Architecture", "/graph"],
             ["Decisions", "/decisions"],
+            ["Audits", "/audits"],
             ["Work in progress", "/issues"],
             ["Coverage", "/coverage"],
             ["Dependencies", "/deps"],

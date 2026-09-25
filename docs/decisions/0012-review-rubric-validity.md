@@ -1,7 +1,8 @@
 ---
 issue: 106
 status: implemented
-decision: accepted
+decision: superseded
+supersededBy: 0023-review-as-judgement.md
 ---
 
 # 🧭 The review rubric measures what a grep can confirm, and nothing marks when it changes

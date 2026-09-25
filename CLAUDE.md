@@ -170,7 +170,8 @@ local Nx plugin this section used to earmark for the third app.
 | `github-issue` | Filing an issue *for* the user — the three templates. They file their own with `pnpm issue:add`, which is deliberately template-free |
 | `start-issue` | Starting work on a specific issue — from the branch you're on, or from a number, link or description |
 | `decision-report` | "Do a spike on this" — research an architectural question and write the answer to `docs/decisions/`. Filing the *issue* is `github-issue` |
-| `repo-review` | Rating, scoring or auditing the repo as a whole — the seven cards in [`docs/reviews/SCORECARDS.md`](./docs/reviews/SCORECARDS.md), not the current diff |
+| `audit-report` | "Audit X", "static analysis of X" — a numbered findings list for one project, filed to `docs/audits/` and worked down finding by finding |
+| `repo-review` | Rating, scoring or reviewing the repo as a whole: a macro judgement against the seven cards in [`docs/reviews/SCORECARDS.md`](./docs/reviews/SCORECARDS.md). Not the current diff, and not a bug hunt (that's `audit-report`) |
 | `content-new-vendor` | Adding a CMS vendor to `@monorepo/content` |
 | `i18n-new-vendor` | Adding a TMS vendor to `@monorepo/i18n` |
 | `scripts-new-script` | Adding a repo-local CLI under `infrastructure/scripts` |
