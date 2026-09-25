@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync, type Dirent } from "node:fs";
 import { join, relative } from "node:path";
 import { at, repoRoot } from "../../shared/adapters/git.ts";
 import { PROJECT_ROOTS } from "../../shared/domain/layout.ts";
@@ -12,27 +12,20 @@ const readJson = (path: string): Record<string, unknown> => JSON.parse(read(path
 const scriptNames = (pkg: Record<string, unknown>): string[] =>
     Object.keys((pkg.scripts ?? {}));
 
-const dirsIn = (path: string): string[] => {
+const entriesIn = (path: string, keep: (entry: Dirent) => boolean): string[] => {
     try {
-        return readdirSync(path, { withFileTypes: true })
-            .filter((entry) => entry.isDirectory())
-            .map((entry) => entry.name);
+        return readdirSync(path, { withFileTypes: true }).filter(keep).map((entry) => entry.name);
     }
     catch {
         return [];
     }
 };
 
-const filesIn = (path: string): string[] => {
-    try {
-        return readdirSync(path, { withFileTypes: true })
-            .filter((entry) => entry.isFile())
-            .map((entry) => entry.name);
-    }
-    catch {
-        return [];
-    }
-};
+const dirsIn = (path: string): string[] => entriesIn(path, (entry) => entry.isDirectory());
+
+const filesIn = (path: string): string[] => entriesIn(path, (entry) => entry.isFile());
+
+const nameField = (text: string): string | undefined => /^name:[^\S\n]*(\S.*)$/m.exec(text)?.[1]?.trim();
 
 export const rootScripts = (): string[] => scriptNames(readJson(at("package.json")));
 
@@ -57,7 +50,7 @@ export const workflowFiles = (): { file: string, name: string }[] =>
         .map((file) => ({
             file,
             // Use the workflow's displayed name rather than its filename.
-            name: /^name:[^\S\n]*(\S.*)$/m.exec(read(at(".github", "workflows", file)))?.[1]?.trim() ?? file,
+            name: nameField(read(at(".github", "workflows", file))) ?? file,
         }));
 
 const skillsUnder = (dir: string): { source: string, name: string }[] =>
@@ -74,7 +67,7 @@ const skillsUnder = (dir: string): { source: string, name: string }[] =>
         })
         .map((source) => ({
             source,
-            name: /^name:[^\S\n]*(\S.*)$/m.exec(read(at(source)))?.[1]?.trim() ?? source,
+            name: nameField(read(at(source))) ?? source,
         }));
 
 export const skillFiles = (): { source: string, name: string }[] => skillsUnder(".agents/skills");

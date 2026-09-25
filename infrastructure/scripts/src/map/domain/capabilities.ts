@@ -60,10 +60,10 @@ export const skills = (found: { source: string, name: string }[]): Capability[] 
         token: name,
     }));
 
-/** Match a token without accepting a longer command such as `test:coverage`. */
+/** Match a token without accepting a longer name on either side, such as `test:coverage` for `coverage`. */
 export const mentions = (text: string, token: string): boolean => {
     const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    return new RegExp(`${escaped}(?![\\w:-])`).test(text);
+    return new RegExp(`(?<![\\w:-])${escaped}(?![\\w:-])`).test(text);
 };
 
 const sharedPrefix = (a: string, b: string): number => {
