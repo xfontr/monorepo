@@ -16,11 +16,8 @@ updates:
                   - "*"
 
     - package-ecosystem: npm
-      directories:
-          - /
-          - /packages/*
-          - /apps/*
-          - /infrastructure/*
+      # Root only: it covers every workspace package, and a subdirectory entry has no lockfile to update.
+      directory: /
       schedule:
           interval: weekly
       open-pull-requests-limit: 15
