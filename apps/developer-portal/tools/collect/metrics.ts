@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { matchesGlob, resolve } from "node:path";
 import type { CoverageArtifact, MetricsArtifact, ProjectMetrics, ProjectNode } from "../../shared/types.ts";
 import { collectInvariants } from "../lib/invariants.ts";
 import { WORKSPACE_ROOT } from "../lib/paths.ts";
@@ -25,12 +25,25 @@ async function latestTag(name: string): Promise<string | null> {
     return newest ?? null;
 }
 
-async function unreleasedCommits(name: string, root: string): Promise<number | null> {
+/** `nx.json`'s `release.projects`: roots or names that `nx release` versions, so they owe a first release. */
+async function releaseProjects(): Promise<string[]> {
+    try {
+        const raw = await readFile(resolve(WORKSPACE_ROOT, "nx.json"), "utf8");
+        const projects = (JSON.parse(raw) as { release?: { projects?: string | string[] } }).release?.projects ?? [];
+
+        return typeof projects === "string" ? [projects] : projects;
+    }
+    catch {
+        return [];
+    }
+}
+
+async function unreleasedCommits(name: string, root: string, released: boolean): Promise<number | null> {
     const tag = await latestTag(name);
 
-    if (!tag) return null;
+    if (!tag && !released) return null;
 
-    const stdout = await git(["rev-list", "--count", `${tag}..HEAD`, "--", root]);
+    const stdout = await git(["rev-list", "--count", tag ? `${tag}..HEAD` : "HEAD", "--", root]);
 
     return Number.parseInt(stdout.trim(), 10);
 }
@@ -58,8 +71,8 @@ async function versionOf(root: string): Promise<string | null> {
     }
 }
 
-async function unreleasedFor(name: string, root: string): Promise<number | null> {
-    const result = await tryRun(() => unreleasedCommits(name, root));
+async function unreleasedFor(name: string, root: string, released: boolean): Promise<number | null> {
+    const result = await tryRun(() => unreleasedCommits(name, root, released));
 
     return result.ok ? result.value : null;
 }
@@ -85,6 +98,7 @@ export async function collectMetrics(
     generatedAt: string,
 ): Promise<MetricsArtifact> {
     const measured: ProjectMetrics[] = [];
+    const releasePatterns = await releaseProjects();
 
     for (const project of projects) {
         const files = await filesIn(project.root);
@@ -99,7 +113,11 @@ export async function collectMetrics(
             commits: history.ok ? history.value.commits : null,
             commitsLastTwoWeeks: history.ok ? history.value.commitsLastTwoWeeks : null,
             coverageLinesPct: projectCoverage?.collected ? (projectCoverage.lines?.pct ?? null) : null,
-            unreleasedCommits: await unreleasedFor(project.name, project.root),
+            unreleasedCommits: await unreleasedFor(
+                project.name,
+                project.root,
+                releasePatterns.some((pattern) => pattern === project.name || matchesGlob(project.root, pattern)),
+            ),
             currentVersion: await versionOf(project.root),
             hasChangelog: files.some((file) => file.endsWith("CHANGELOG.md")),
         });

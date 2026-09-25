@@ -117,7 +117,7 @@ const conventional = computed(() => snapshot.value?.metrics?.conventionalCommitR
                         variant="subtle"
                         icon="i-lucide-package-open"
                         title="Never released"
-                        :description="`${unreleased.map((project) => displayName(project.root)).join(', ')} — commits since the last tag but no changelog.`"
+                        :description="`${unreleased.map((project) => displayName(project.root)).join(', ')} — commits waiting on a first release, so no changelog yet.`"
                     />
 
                     <!-- Both changelogs and versions are derived from commit subjects, so a subject

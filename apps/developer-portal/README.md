@@ -57,7 +57,7 @@ that.
 | Audits | `docs/audits/YYYY-MM-DD-<scope>.md` — the files the `audit-report` skill writes, see [🔎 Audits count findings, not files](#-audits-count-findings-not-files) |
 | Reviews | `docs/reviews/YYYY-MM-DD-<sha>.md` — the files the `repo-review` skill writes |
 | Work in progress | Open issues read from GitHub in the browser |
-| What's new | Every `CHANGELOG.md`, beside its unreleased-commit count |
+| What's new | Every `CHANGELOG.md`, beside its unreleased-commit count, plus any project in `nx.json`'s `release.projects` that has commits and no release yet |
 | Engineering health | Coverage, dependencies, reviews, scorecards and collected repository findings |
 
 `@nuxt/content` lower-cases every route, so `packages/ui/README.md` is served at
@@ -93,7 +93,9 @@ directory and nothing in the href says which.
 Parse time retires the route-table check: a route is only ever emitted for a file the parser has
 just confirmed, so a link that resolves on disk and routes nowhere can no longer be built. A link
 to a *missing* file is still a real defect, and
-[`checkLink`](./tools/collect/docs.ts) still fails the build on it.
+[`checkLink`](./tools/collect/docs.ts) still counts it, on the Overview and the Documentation page.
+It never fails a build. Link syntax inside a code span or a fenced sample is skipped, because the
+parser never turns it into a link either.
 
 A review's markdown is rendered as-is here, exactly like every other doc — nothing about it is
 recomputed. **Scorecards** is the one exception, and a narrow one: `tools/collect/scorecards.ts`

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { resolve } from "node:path";
 import { WORKSPACE_ROOT } from "../lib/paths.ts";
 import { collectDocs } from "./docs.ts";
-import { decisionMetaOf } from "./docs.ts";
+import { decisionMetaOf, hrefsIn } from "./docs.ts";
 
 const state = vi.hoisted(() => ({
     files: new Set<string>(),
@@ -76,6 +76,35 @@ describe("decisionMetaOf", () => {
         const source = frontmatter("issue: 40\nstatus: done\ndecision: accepted");
 
         expect(decisionMetaOf("docs/decisions/0002-docs-drift-detection.md", source).status).toBeNull();
+    });
+});
+
+describe("hrefsIn", () => {
+    it("skips link syntax shown in a code span or a fenced sample, so documenting a link never reports it broken", () => {
+        const source = [
+            "Write `[x](y)` to link.",
+            "```md",
+            "[template](./<previous>.md)",
+            "```",
+            "- A list item:",
+            "  ```sh",
+            "  echo [a](b)",
+            "  ```",
+            "[real](./real.md)",
+        ].join("\n");
+
+        expect(hrefsIn(source)).toEqual(["./real.md"]);
+    });
+
+    it("keeps a link whose text is code, including brackets inside that code", () => {
+        expect(hrefsIn("See [`add.ts`](./add.ts) and [`pages/[slug].vue`](./pages/%5Bslug%5D.vue)."))
+            .toEqual(["./add.ts", "./pages/%5Bslug%5D.vue"]);
+    });
+
+    // A span that wraps is common in hard-wrapped prose, and pairing its closing tick with the next link's opening one loses that link.
+    it("pairs a code span that wraps a line, but never lets one run past a blank line", () => {
+        expect(hrefsIn("the `pnpm install\n--prod` in the [`Dockerfile`](./docker/Dockerfile)")).toEqual(["./docker/Dockerfile"]);
+        expect(hrefsIn("a stray ` tick\n\n[after](./after.md)")).toEqual(["./after.md"]);
     });
 });
 

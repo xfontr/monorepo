@@ -66,7 +66,7 @@ describe("changelog page", () => {
         expect(wrapper.text()).toContain("UI page");
         expect(wrapper.text()).toContain("UI");
         expect(wrapper.text()).toContain("v3.2.1");
-        expect(wrapper.text()).toContain("Content — commits since the last tag but no changelog.");
+        expect(wrapper.text()).toContain("Content — commits waiting on a first release, so no changelog yet.");
         await wrapper.findAll("button")[1]!.trigger("click");
         await nextTick();
         expect(wrapper.text()).toContain("i18n page");
