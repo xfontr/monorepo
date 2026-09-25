@@ -84,7 +84,7 @@ code cannot drift.
 
 ```ts
 const providers = {
-    wordpress: () => import("./adapters/providers/WordpressProvider"),
+    wordpress: () => import("./adapters/providers/wordpress/WordpressProvider"),
 };
 ```
 

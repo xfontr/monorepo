@@ -66,16 +66,18 @@ runtime/
 └── server/
     ├── content.get.ts              # cached BFF route: a list
     ├── contentItem.get.ts          # cached BFF route: one document
-    └── request.ts                  # everything both routes do to an incoming request
+    └── utils/
+        ├── request.ts              # everything both routes do to an incoming request
+        └── parsing.ts              # one validator per query or route param, each throwing a typed 400 or 404
 ```
 
 `module.ts` and `runtime/**` are separate runtimes. Never import across that line except with
 `import type` — anything shared at value level (`CONTENT_API_PATH`, the cache windows) goes in
 `config.ts`.
 
-`request.ts` is where the routes are thin: parsing, ceilings, provider construction and the
-error mapping all live there, so each handler is its own six lines of orchestration. It is also
-the only file in the package that knows both h3 and the core.
+`utils/request.ts` is where the routes are thin: ceilings, provider construction and the error
+mapping all live there, with the per-param validation in `utils/parsing.ts`, so each handler is its
+own six lines of orchestration.
 
 ## 🔁 The request path
 

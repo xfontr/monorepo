@@ -67,11 +67,14 @@ info "Scanning pushed commits for TODO/FIXME..."
 ZERO_SHA="0000000000000000000000000000000000000000"
 EMPTY_TREE_SHA="4b825dc642cb6eb9a060e54bf8d69288fbee4904" # every repo has it; the base for a branch's first push
 FLAGGED=""
+PUSHES_COMMITS=""
 
 while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
   if [ "$LOCAL_SHA" = "$ZERO_SHA" ]; then
     continue # deleting a branch pushes nothing to scan
   fi
+
+  PUSHES_COMMITS=1
 
   BASE="$REMOTE_SHA"
   if [ "$REMOTE_SHA" = "$ZERO_SHA" ]; then
@@ -107,7 +110,7 @@ success "No flagged comments found"
 # heads-up before you even push; the PR itself gets the real diff-based check from
 # actions/dependency-review-action in CI.
 
-if [ -n "$LOCAL_SHA" ] && [ "$LOCAL_SHA" != "$ZERO_SHA" ]; then
+if [ -n "$PUSHES_COMMITS" ]; then
   echo ""
   info "Checking pnpm audit..."
   pnpm audit || true

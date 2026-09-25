@@ -126,7 +126,6 @@ use `pnpm exec nx run-many -t <target>`.
 | `pnpm test:coverage` | Test the **whole workspace** with a V8 coverage report, then merge every project's into one browsable [`coverage/index.html`](./infrastructure/scripts/src/coverage-report/README.md) |
 | `pnpm build` | Build affected projects |
 | `pnpm graph` | Open the Nx project graph |
-| `pnpm exec nx collect @monorepo/developer-portal` | Rebuild the snapshot that developer-portal reads |
 | `pnpm agents:sync` | Render ignored Claude adapters from canonical `AGENTS.md` files and `.agents/skills/`; `--check` reports local drift |
 | `pnpm docs:map` | Re-render [`docs/FEATURES.md`](./docs/FEATURES.md); `--check` asserts it is current |
 | `pnpm package:check` | Validate every `packages/*` manifest, raw-source export target and peer metadata |

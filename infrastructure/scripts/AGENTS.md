@@ -3,7 +3,7 @@
 See [README.md](./README.md) for the layout rule and the per-script docs it links to. Use the
 `scripts-new-script` skill when adding a script.
 
-- **This is a service, not a library.** Nothing in the workspace imports it — scripts are run as
+- **This is CLI tooling, not a library.** Nothing in the workspace imports it — scripts are run as
   CLIs, which is also why it's `infrastructure/` rather than `packages/`, same reasoning as
   [`translations`](../translations/AGENTS.md).
 - `private: true` and outside `nx release`'s `packages/*`, so it has **no `CHANGELOG.md` and no

@@ -7,7 +7,7 @@ It renders every markdown file in the workspace as a wiki — READMEs, `AGENTS.m
 [`docs/`](../../docs/README.md) tree, reviews and changelogs — beside the things that are not written
 down anywhere: coverage, the project graph, open GitHub issues and which two files have stopped agreeing.
 
-It runs two ways. `pnpm dev developer-portal` reads the working tree and shells out to `git`, so it shows
+It runs two ways. `pnpm dev developer-portal`, from the workspace root, reads the working tree and shells out to `git`, so it shows
 the branch you are on; the deployed site is a prerendered snapshot of `master`, published by
 [`developer-portal-deploy.yml`](../../.github/workflows/developer-portal-deploy.yml) — see
 [🚢 The deployed site is a snapshot](#-the-deployed-site-is-a-snapshot).
@@ -43,7 +43,7 @@ work in progress remain directly addressable without creating a second applicati
 copy inside this app. That is what makes the docs half free: the README you edit for GitHub is the
 same file this renders, and a page's URL mirrors its path in the repo.
 
-Under `pnpm dev developer-portal` that file is read where it lives, so the two cannot drift. A build bakes
+Under `pnpm dev developer-portal` (run from the root) that file is read where it lives, so the two cannot drift. A build bakes
 the whole corpus into the bundle instead, which is why the deployed site is only ever as fresh as its
 last deploy — [🚢 The deployed site is a snapshot](#-the-deployed-site-is-a-snapshot) is the rest of
 that.
@@ -51,7 +51,7 @@ that.
 | Page | Reads |
 | --- | --- |
 | Documentation | Every non-ignored `*.md`, arranged as a tree — see [🧭 Documentation is a wiki](#-documentation-is-a-wiki) |
-| Architecture | The collected Nx graph, its plain-language relationships and the vendored detailed graph under `public/embed/graph/` |
+| Architecture | The collected Nx graph, its plain-language relationships and the detailed graph `collect` writes to the gitignored `public/embed/graph/` |
 | Projects | The collected Nx graph joined to collect-time project metrics, with deployment state read live |
 | Decisions | `docs/decisions/NNNN-<slug>.md` — the files the `decision-report` skill writes, see [🔬 Decisions are their own section](#-decisions-are-their-own-section) |
 | Audits | `docs/audits/YYYY-MM-DD-<scope>.md` — the files the `audit-report` skill writes, see [🔎 Audits count findings, not files](#-audits-count-findings-not-files) |
@@ -205,8 +205,8 @@ checkout.
 Deployments are the exception because they can change after the static site ships. The browser reads
 GitHub's unauthenticated `deployments` endpoint once, then the newest status for each environment;
 the production URL travels in that status. Today those deployments belong to `huella-legal`, so its
-card carries an **Open site** link and a **Deploys** link to its GitHub Actions workflow. Technical
-Docs gets the same pair: its Pages URL is derived from the repository name, and its deploy link opens
+card carries an **Open site** link and a **Deploys** link to its GitHub Actions workflow. This
+portal gets the same pair: its Pages URL is derived from the repository name, and its deploy link opens
 the Pages workflow. Neither is an in-app write action.
 
 `@monorepo/ui`'s Storybook is built into the same Pages artifact under `/storybook/`. A second Pages
@@ -226,7 +226,7 @@ live off GitHub. If you delete every derived file in this project, one command p
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev developer-portal` | Start the portal |
+| `pnpm dev developer-portal` | Start the portal, from the workspace root |
 | `pnpm exec nx collect @monorepo/developer-portal` | Rebuild the snapshot — graph, coverage, metrics, docs, scorecards |
 | `pnpm exec nx nuxt-prepare @monorepo/developer-portal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
 | `pnpm exec nx build-static @monorepo/developer-portal` | `nuxt build --prerender` — the build the deploy publishes, and the only one that renders every route |
@@ -289,9 +289,9 @@ fetches them.
 `tools/lib/invariants.ts` re-runs the cross-file rules
 [`check-invariants.sh`](../../.claude/hooks/check-invariants.sh) enforces on edit: the tag table
 written twice, the workspace-layout block, a review with no row in the history table. The hook only
-fires while an agent is editing a file; these run over the whole tree on every collect **and in
-CI**, via the repository's blocking checks (`ci.yml`), so drift introduced by hand or
-pushed without an agent in the loop fails the build instead of only showing up on the dashboard.
+fires while an agent is editing a file; these run over the whole tree on every collect and show up
+as findings on the Overview. Nothing in CI runs them, so drift introduced by hand is reported here
+and blocks nothing — [`0025`](../../docs/decisions/0025-check-docs-removal.md) records why.
 The two copies are kept honest by [`invariants.spec.ts`](./tools/lib/invariants.spec.ts) — which is
 the entire reason they exist as pure functions rather than more shell.
 
@@ -302,11 +302,13 @@ dashboard shows correctly. The split is deliberate: the vocabulary is
 `DecisionOutcome` from and which client code can import; the parsing lives in `tools/` so a node-only
 dependency never reaches the browser bundle.
 
-One check here has no shell-hook twin: `compareScorecardShape` flags a review whose `## 🧮 Scores`
-table doesn't match `SCORECARDS.md`'s seven cards, in order, each `n/5` — the shape the scorecards
-page's parser depends on. It runs only on collect, not on edit; a malformed table shows up as a
-finding on the Overview page rather than blocking the write, which is a deliberate, smaller footprint
-than the other invariants get.
+Three checks here have no shell-hook twin, and each guards a shape a page's parser depends on:
+
+| Check | Flags |
+| --- | --- |
+| `compareScorecardShape` | A review whose `## 🧮 Scores` table doesn't match `SCORECARDS.md`'s seven cards, in order, each `n/5` |
+| `compareAuditShape` | An audit with a bad filename, missing frontmatter, a reused ID or an unknown status |
+| `compareDecisionShape` | A decision report with a bad filename, a reused number, an unknown `status:`/`decision:`, no `issue:` or a dangling `supersededBy:` |
 
 ## 📊 Colour
 

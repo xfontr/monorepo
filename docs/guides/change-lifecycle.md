@@ -44,8 +44,8 @@ start-case, Pascal-case or upper-case — so `feat: add thing` passes and `feat:
 2. **TODO/FIXME scan** over the diff of the commits being pushed — the only range-based step. A new
    marker blocks the push and points at `pnpm issue:add` to file it instead. A branch's first push
    diffs against the empty tree, so there every marker in the tree counts as new.
-3. **`pnpm audit`**, over the whole workspace, meant never to fail the push. Its guard reads
-   `$LOCAL_SHA` after the ref loop has emptied it, so it currently never runs (audit B25).
+3. **`pnpm audit`**, over the whole workspace, skipped when the push only deletes a branch. It never
+   fails the push.
 4. **Lint, test, typecheck**, each against affected projects in the working tree — any failure
    blocks the push. Uncommitted and staged changes are checked too, so a dirty tree can pass or fail
    differently from the commits actually being pushed.

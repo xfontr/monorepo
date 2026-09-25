@@ -57,7 +57,7 @@ page but a `500` naming what is missing, on the first request that needs it.
 | `NUXT_OBSERVABILITY_INSTANCE_ID` | Grafana Cloud instance ID, the user half of the OTLP credentials |
 | `NUXT_OBSERVABILITY_TOKEN` | Grafana Cloud access token, the password half |
 
-Nothing here has a default in `nuxt.config.ts`, and no real URL or key belongs in the repo. Every
+No URL or credential has a default in `nuxt.config.ts`, and no real URL or key belongs in the repo. Every
 variable is read at **startup**, not at build time: `nuxt.config.ts` declares the keys empty and Nuxt
 fills them from the environment, so one build artifact runs in any environment and no credential is
 baked into `.output/`. Nothing reads `process.env` in `nuxt.config.ts` — a value read there is

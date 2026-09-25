@@ -2,12 +2,13 @@
 
 See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry setup.
 
-- **No env var gets a default in [`nuxt.config.ts`](./nuxt.config.ts), and nothing there reads
-  `process.env`.** An unset vendor is supposed to fail loudly on the first request naming what is
+- **No URL or credential gets a default in [`nuxt.config.ts`](./nuxt.config.ts), and nothing there
+  reads `process.env`.** An unset vendor is supposed to fail loudly on the first request naming what is
   missing, not fall back to something plausible — and a value read from `process.env` is resolved at
   build time, which bakes the build host's environment into `.output/` and stops one artifact being
   promotable. Declare the key empty and let the `NUXT_`-prefixed var fill it at startup. The vendor
-  `name` fields are the exception: they select a config type, so they stay literals. New config goes
+  `name` fields are the exception: they select a config type, so they stay literals. So are the
+  observability `version` and `environment`, which default to `0.0.0` and `development`. New config goes
   in `.env.example` with a row in the README table, and nowhere else.
 - **There is no `app/layers/` directory today.** `app/` holds the whole front end and stays thin: a
   layout, an entry page, an error page, client plugins, and pages that carry no domain logic of
