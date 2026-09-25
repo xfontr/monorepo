@@ -12,6 +12,7 @@ function page(path: string, overrides: Partial<DocPage> = {}): DocPage {
         decisionStatus: "to-implement",
         decisionOutcome: "accepted",
         decisionSupersededBy: null,
+        audit: null,
         brokenLinks: [],
         ...overrides,
     };

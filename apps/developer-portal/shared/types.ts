@@ -1,5 +1,6 @@
 /** This app stores nothing — everything below is either derived from the repo or read live from elsewhere. */
 
+import type { AuditFinding } from "./audits.ts";
 import type { DecisionOutcome, DecisionStatus } from "./decisions.ts";
 
 export interface ArtifactStatus {
@@ -96,10 +97,10 @@ export interface DocLink {
 }
 
 /**
- * `doc`, `review` and `decision` are the ones that live under `docs/`, which is where anything
+ * `doc`, `review`, `decision` and `audit` are the ones that live under `docs/`, which is where anything
  * spanning more than one project belongs. The rest are colocated with the code they describe.
  */
-export type DocKind = "readme" | "agent" | "changelog" | "skill" | "doc" | "review" | "decision";
+export type DocKind = "readme" | "agent" | "changelog" | "skill" | "doc" | "review" | "decision" | "audit";
 
 /** Both derive from the value lists in `shared/decisions.ts`, which is also what the CI check reads — so there is no second copy to keep in step. */
 export type { DecisionOutcome, DecisionStatus };
@@ -115,7 +116,16 @@ export interface DocPage {
     decisionOutcome: DecisionOutcome | null
     /** The file a superseded decision was replaced by; null unless `decisionOutcome` is `"superseded"`. */
     decisionSupersededBy: string | null
+    /** Parsed from an audit's frontmatter and findings tables; null for anything that isn't one. */
+    audit: AuditMeta | null
     brokenLinks: DocLink[]
+}
+
+export interface AuditMeta {
+    /** The project or path the audit read, as its frontmatter names it; null when missing. */
+    scope: string | null
+    commit: string | null
+    findings: AuditFinding[]
 }
 
 export interface DocsArtifact {

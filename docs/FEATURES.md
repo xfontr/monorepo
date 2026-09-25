@@ -79,6 +79,7 @@ shortest statement of how a task is meant to go here.
 
 | Capability | Declared in | Explained in |
 | --- | --- | --- |
+| `$audit-report` | [`.agents/skills/audit-report/SKILL.md`](../.agents/skills/audit-report/SKILL.md) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
 | `$comment-cleanup` | [`.agents/skills/comment-cleanup/SKILL.md`](../.agents/skills/comment-cleanup/SKILL.md) | [`docs/decisions/0009-comment-discipline.md`](../docs/decisions/0009-comment-discipline.md) |
 | `$content-new-vendor` | [`.agents/skills/content-new-vendor/SKILL.md`](../.agents/skills/content-new-vendor/SKILL.md) | [`infrastructure/scripts/src/map/README.md`](../infrastructure/scripts/src/map/README.md) |
 | `$decision-report` | [`.agents/skills/decision-report/SKILL.md`](../.agents/skills/decision-report/SKILL.md) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |

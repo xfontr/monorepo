@@ -1,3 +1,4 @@
+import type { AuditState, FindingStatus } from "#shared/audits.ts";
 import type { DecisionOutcome, DecisionStatus } from "#shared/types.ts";
 
 /** The palette behind these three classes lives in `assets/css/main.css` and is shown beside the figure it describes, never instead of it. */
@@ -51,6 +52,7 @@ const KIND_ICONS: Record<string, string> = {
     doc: "i-lucide-book-open",
     review: "i-lucide-clipboard-check",
     decision: "i-lucide-compass",
+    audit: "i-lucide-scan-search",
 };
 
 export function kindIcon(kind: string): string {
@@ -85,6 +87,46 @@ const DECISION_OUTCOME_LABELS: Record<DecisionOutcome, string> = {
 
 export function decisionOutcomeLabel(decision: DecisionOutcome): string {
     return DECISION_OUTCOME_LABELS[decision];
+}
+
+const FINDING_STATUS_LABELS: Record<FindingStatus, string> = {
+    "open": "Open",
+    "fixed": "Fixed",
+    "wont-fix": "Won't fix",
+};
+
+export function findingStatusLabel(status: FindingStatus): string {
+    return FINDING_STATUS_LABELS[status];
+}
+
+const FINDING_STATUS_TONES: Record<FindingStatus, Tone> = {
+    "open": "warn",
+    "fixed": "good",
+    "wont-fix": "neutral",
+};
+
+export function findingStatusTone(status: FindingStatus): Tone {
+    return FINDING_STATUS_TONES[status];
+}
+
+const AUDIT_STATE_LABELS: Record<AuditState, string> = {
+    "open": "Open",
+    "in-progress": "In progress",
+    "closed": "Closed",
+};
+
+export function auditStateLabel(state: AuditState): string {
+    return AUDIT_STATE_LABELS[state];
+}
+
+const AUDIT_STATE_TONES: Record<AuditState, Tone> = {
+    "open": "warn",
+    "in-progress": "warn",
+    "closed": "good",
+};
+
+export function auditStateTone(state: AuditState): Tone {
+    return AUDIT_STATE_TONES[state];
 }
 
 /** "3 hours ago" beats a timestamp for the one question a report page has to answer. */

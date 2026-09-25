@@ -1,6 +1,7 @@
 import { access, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import type { DecisionOutcome, DecisionStatus, DocKind, DocLink, DocPage, DocsArtifact } from "../../shared/types.ts";
+import type { AuditMeta, DecisionOutcome, DecisionStatus, DocKind, DocLink, DocPage, DocsArtifact } from "../../shared/types.ts";
+import { parseFindings } from "../../shared/audits.ts";
 import { DECISION_OUTCOMES, DECISION_STATUSES } from "../../shared/decisions.ts";
 import { frontmatterFields } from "../lib/decisions.ts";
 import { WORKSPACE_ROOT } from "../lib/paths.ts";
@@ -11,6 +12,7 @@ const LINK = /\[[^\]]*\]\((?<href>[^)\s]+)(?:\s+"[^"]*")?\)/g;
 const HEADING = /^#{1,3}[^\S\n]+\S.*$/gm;
 
 const DECISION_PATH = /^docs\/decisions\/\d{4}-/;
+const AUDIT_PATH = /^docs\/audits\/\d{4}-/;
 
 /**
  * Anchors and external links are somebody else's problem; only repo-relative paths are resolvable.
@@ -58,6 +60,7 @@ async function checkLink(fromFile: string, href: string): Promise<DocLink | null
 function kindOf(path: string): DocKind {
     if (/^docs\/reviews\/\d{4}-/.test(path)) return "review";
     if (DECISION_PATH.test(path)) return "decision";
+    if (AUDIT_PATH.test(path)) return "audit";
     if (path.endsWith("CHANGELOG.md")) return "changelog";
     if (path.endsWith("AGENTS.md")) return "agent";
     if (path.endsWith("SKILL.md")) return "skill";
@@ -94,6 +97,18 @@ export function decisionMetaOf(path: string, source: string): DecisionMeta {
         status,
         decision,
         supersededBy: decision === "superseded" ? fields.supersededBy ?? null : null,
+    };
+}
+
+export function auditMetaOf(path: string, source: string): AuditMeta | null {
+    if (!AUDIT_PATH.test(path)) return null;
+
+    const fields = frontmatterFields(source) ?? {};
+
+    return {
+        scope: fields.scope ?? null,
+        commit: fields.commit ?? null,
+        findings: parseFindings(source),
     };
 }
 
@@ -135,6 +150,7 @@ export async function collectDocs(_projectRoots: string[], generatedAt: string):
             decisionStatus: decisionMeta.status,
             decisionOutcome: decisionMeta.decision,
             decisionSupersededBy: decisionMeta.supersededBy,
+            audit: auditMetaOf(path, source),
             brokenLinks,
         });
     }

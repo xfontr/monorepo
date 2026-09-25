@@ -150,4 +150,22 @@ describe("collectDocs", () => {
             decisionSupersededBy: null,
         });
     });
+
+    it("parses an audit's scope and findings, and leaves every other page's audit null", async () => {
+        addFile("docs/audits/2026-09-25-portal.md", `${frontmatter("scope: \"@monorepo/developer-portal\"\ncommit: 61b6f7f")}\n## Bugs\n\n| ID | Where | Status |\n| --- | --- | --- |\n| B1 | x.ts | fixed #3 |\n`);
+        addFile("docs/audits/README.md", frontmatter("scope: nothing"));
+        state.paths = ["docs/audits/2026-09-25-portal.md", "docs/audits/README.md"];
+
+        const result = await collectDocs([], "now");
+
+        expect(result.pages.find((page) => page.path.includes("2026"))).toMatchObject({
+            kind: "audit",
+            audit: {
+                scope: "@monorepo/developer-portal",
+                commit: "61b6f7f",
+                findings: [{ id: "B1", category: "Bugs", status: "fixed", ref: "#3" }],
+            },
+        });
+        expect(result.pages.find((page) => page.path.endsWith("audits/README.md"))?.audit).toBeNull();
+    });
 });

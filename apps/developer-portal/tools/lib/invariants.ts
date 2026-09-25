@@ -1,6 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { InvariantFinding } from "../../shared/types.ts";
+import { auditProblems } from "./audits.ts";
 import { WORKSPACE_ROOT } from "./paths.ts";
 import { parseScoresTable, scorecardShapeProblems } from "./scorecards.ts";
 
@@ -8,6 +9,7 @@ const BOUNDARIES_PATH = "packages/configs/src/eslint/lib/boundaries.ts";
 const README_PATH = "README.md";
 const REVIEWS_DIR = "docs/reviews";
 const REVIEWS_README_PATH = `${REVIEWS_DIR}/README.md`;
+const AUDITS_DIR = "docs/audits";
 
 /**
  * Duplicated from `.claude/hooks/check-invariants.sh` rather than shelled out to it: that hook reads
@@ -125,16 +127,37 @@ export function compareScorecardShape(file: string, markdown: string): Invariant
     }];
 }
 
+/** Dated audits only — `README.md` and `TEMPLATE.md` are the furniture around them. */
+export async function listAuditFiles(): Promise<string[]> {
+    const entries = await readdir(resolve(WORKSPACE_ROOT, AUDITS_DIR)).catch(() => [] as string[]);
+
+    return entries.filter((entry) => /^\d{4}-.+\.md$/.test(entry)).sort();
+}
+
+/** A finding whose status doesn't parse still counts as open on the audits page, so this is what says why. */
+export function compareAuditShape(audits: { file: string, source: string }[]): InvariantFinding[] {
+    return auditProblems(audits).map(({ file, message }) => ({
+        id: "audit-shape-mismatch",
+        title: "An audit doesn't match the template",
+        detail: `${file}: ${message}.`,
+        evidence: [`${AUDITS_DIR}/${file}`, `${AUDITS_DIR}/TEMPLATE.md`],
+    }));
+}
+
 export async function collectInvariants(projectRoots: string[] = []): Promise<InvariantFinding[]> {
-    const [boundaries, readme, history, reviewFiles] = await Promise.all([
+    const [boundaries, readme, history, reviewFiles, auditFiles] = await Promise.all([
         readFile(resolve(WORKSPACE_ROOT, BOUNDARIES_PATH), "utf8"),
         readFile(resolve(WORKSPACE_ROOT, README_PATH), "utf8"),
         readFile(resolve(WORKSPACE_ROOT, REVIEWS_README_PATH), "utf8").catch(() => ""),
         listReviewFiles(),
+        listAuditFiles(),
     ]);
 
     const reviewBodies = await Promise.all(
         reviewFiles.map((file) => readFile(resolve(WORKSPACE_ROOT, REVIEWS_DIR, file), "utf8").catch(() => "")),
+    );
+    const audits = await Promise.all(
+        auditFiles.map(async (file) => ({ file, source: await readFile(resolve(WORKSPACE_ROOT, AUDITS_DIR, file), "utf8") })),
     );
 
     return [
@@ -142,5 +165,6 @@ export async function collectInvariants(projectRoots: string[] = []): Promise<In
         ...compareLayoutBlock(readme, projectRoots),
         ...compareReviewHistory(history, reviewFiles),
         ...reviewFiles.flatMap((file, index) => compareScorecardShape(file, reviewBodies[index] ?? "")),
+        ...compareAuditShape(audits),
     ];
 }

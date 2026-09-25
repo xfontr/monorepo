@@ -24,6 +24,7 @@ const navGroups = computed<{ label: string, items: NavigationMenuItem[] }[]>(() 
             { label: "Documentation", icon: "i-lucide-library", to: "/docs" },
             { label: "Architecture", icon: "i-lucide-git-fork", to: "/graph" },
             { label: "Decisions", icon: "i-lucide-compass", to: "/decisions" },
+            { label: "Audits", icon: "i-lucide-scan-search", to: "/audits" },
         ],
     },
     {

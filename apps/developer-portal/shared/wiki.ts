@@ -30,11 +30,11 @@ export interface WikiSection {
 }
 
 /**
- * The reviews and decisions *rubrics* aren't excluded — they're docs about the process, not the
+ * The reviews, decisions and audits *rubrics* aren't excluded — they're docs about the process, not the
  * records. A `TEMPLATE.md`'s placeholder heading (`<Decision title>`) is markup `@nuxt/content`
  * treats as raw HTML and drops from the extracted title, so its nav entry would end up blank.
  */
-const EXCLUDED = [/\/changelog$/, /^\/docs\/reviews\/\d{4}-/, /^\/docs\/decisions\/\d{4}-/, /\/template$/];
+const EXCLUDED = [/\/changelog$/, /^\/docs\/reviews\/\d{4}-/, /^\/docs\/decisions\/\d{4}-/, /^\/docs\/audits\/\d{4}-/, /\/template$/];
 
 /** The workspace layout the root README enforces — three project areas, each its own wiki section. */
 const PROJECT_AREAS = ["apps", "packages", "infrastructure"] as const;
@@ -77,7 +77,7 @@ const SECTIONS: Record<SectionId, { label: string, icon: string, blurb: string }
 };
 
 /** Ordered where the order carries meaning; anything new falls through to alphabetical. */
-const DOCS_GROUPS = ["concepts", "guides", "decisions", "reviews"];
+const DOCS_GROUPS = ["concepts", "guides", "decisions", "audits", "reviews"];
 
 /** A folder name is what the workspace calls a project; a reader wants its name, not its slug. */
 const NAME_OVERRIDES: Record<string, string> = {
@@ -98,6 +98,7 @@ const GROUP_LABELS: Record<string, string> = {
     concepts: "Concepts",
     guides: "Guides",
     decisions: "Decisions",
+    audits: "Audits",
     reviews: "Reviews",
     skills: "Skills",
     agents: "Subagents",
