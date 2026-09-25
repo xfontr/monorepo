@@ -20,7 +20,7 @@ async function filesIn(root: string): Promise<string[]> {
 /** Latest `<project>@<version>` tag. Tags under an older scope never match the glob. */
 async function latestTag(name: string): Promise<string | null> {
     const stdout = await git(["tag", "--list", `${name}@*`, "--sort=-v:refname"]);
-    const [newest] = stdout.split("\n").filter(Boolean);
+    const newest = stdout.split("\n").find(Boolean);
 
     return newest ?? null;
 }
@@ -83,7 +83,7 @@ async function unreleasedFor(name: string, root: string, released: boolean): Pro
  */
 async function commitsSinceRelease(): Promise<number | null> {
     const stdout = await git(["log", "--format=%H", "--grep=^chore(release)", "-1"]);
-    const [sha] = stdout.split("\n").filter(Boolean);
+    const sha = stdout.split("\n").find(Boolean);
 
     if (!sha) return null;
 

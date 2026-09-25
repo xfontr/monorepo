@@ -48,8 +48,10 @@ export function parseScoresTable(markdown: string): ParsedScores | null {
         if (card === "**Total**") {
             const match = /^\*\*([\d.]+)\/5\*\*$/.exec(scoreCell ?? "");
 
-            total = match ? Number.parseFloat(match[1] ?? "") : null;
-            totalDelta = delta;
+            if (match && total === null) {
+                total = Number.parseFloat(match[1] ?? "");
+                totalDelta = delta;
+            }
             continue;
         }
 

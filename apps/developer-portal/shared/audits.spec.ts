@@ -67,6 +67,12 @@ describe("parseFindings", () => {
     it("answers null for a status outside the vocabulary rather than guessing one", () => {
         expect(findings[3]?.status).toBeNull();
     });
+
+    it("ignores malformed rows and prose tables without hiding a later findings table", () => {
+        const source = "## 🧹 Quality\n| Read | How |\n| --- | --- |\n| x | y |\n\n| ID | Status |\n| --- | --- |\n| | open |\n| Q1 | fixed #183 |\n";
+
+        expect(parseFindings(source)).toEqual([{ id: "Q1", category: "Quality", status: "fixed", ref: "#183" }]);
+    });
 });
 
 describe("auditStateOf", () => {

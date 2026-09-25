@@ -1,6 +1,4 @@
-import type { IssuesRead } from "#shared/issues.ts";
-import type { GithubIssue } from "#shared/issues.ts";
-import { issuesApiUrl, toIssues } from "#shared/issues.ts";
+import { issuesApiUrl, toIssues, type GithubIssue, type IssuesRead } from "#shared/issues.ts";
 import { messageOf } from "#shared/github.ts";
 
 const NO_ISSUES: IssuesRead = { fetchedAt: "", error: null, issues: [] };

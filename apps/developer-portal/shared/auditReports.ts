@@ -51,7 +51,7 @@ export function toAuditReports(pages: DocPage[]): AuditReport[] {
 
 export interface AuditReportFilter {
     state?: AuditState | "all"
-    scope?: string | "all"
+    scope?: string
     search?: string
 }
 

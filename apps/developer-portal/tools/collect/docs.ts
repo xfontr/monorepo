@@ -7,12 +7,12 @@ import { frontmatterFields } from "../lib/decisions.ts";
 import { WORKSPACE_ROOT } from "../lib/paths.ts";
 import { git } from "../lib/run.ts";
 
-// Inline links only. Reference definitions and bare autolinks are not used anywhere in these docs.
-const LINK = /\[[^\]]*\]\((?<href>[^)\s]+)(?:\s+"[^"]*")?\)/g;
+// Excluding nested openers keeps failed link candidates from rescanning each other's text and href.
+const LINK = /\[[^[\]]*\]\((?<href>[^()\s]+)(?:\s+"[^"]*")?\)/g;
 const HEADING = /^#{1,3}[^\S\n]+\S.*$/gm;
 const FENCE = /^\s*(`{3,}|~{3,})/;
-// A span may wrap onto the next line but never past a blank one, the same pairing the renderer does.
-const CODE_SPAN = /(`+)(?:[^`\n]|\n(?![^\S\n]*\n))+\1/g;
+// Match whole backtick runs so an unmatched delimiter cannot restart at each of its backticks.
+const CODE_SPAN = /(?<!`)(`+)(?:[^`\n]|\n(?![^\S\n]*\n))+\1(?!`)/g;
 
 /**
  * Every inline link's href outside code. A docs page that shows link syntax in a sample is
@@ -175,9 +175,11 @@ export async function collectDocs(generatedAt: string): Promise<DocsArtifact> {
         });
     }
 
+    pages.sort((a, b) => a.path.localeCompare(b.path));
+
     return {
         generatedAt,
-        pages: pages.sort((a, b) => a.path.localeCompare(b.path)),
+        pages,
         brokenLinkCount: pages.reduce((sum, page) => sum + page.brokenLinks.length, 0),
     };
 }
