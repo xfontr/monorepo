@@ -1,7 +1,7 @@
 import { autocomplete, confirm, select, text } from "@clack/prompts";
 import { createIssue } from "../shared/adapters/gh.ts";
 import { out } from "../shared/adapters/io.ts";
-import { orExit } from "../shared/adapters/prompts.ts";
+import { orExit, type Cancellable } from "../shared/adapters/prompts.ts";
 import { listLabels, listProjects, type Label, type Project } from "./adapters/gh.ts";
 import { currentBranch } from "./adapters/git.ts";
 import { labelOptions, NONE_OPTION, PROJECT_SCOPE_HINT, projectOptions } from "./adapters/prompts.ts";
@@ -10,7 +10,7 @@ import { pick } from "./pick.ts";
 
 const CANCELLED = "Cancelled — no issue created.";
 
-const or = <T>(value: T | symbol): T => orExit(value, CANCELLED);
+const or = <T>(value: Cancellable<T>): T => orExit(value, CANCELLED);
 
 const pickProject = async (projects: Project[]): Promise<string | undefined> => {
     if (projects.length === 0) {

@@ -1,6 +1,6 @@
 import { autocomplete, confirm, select, text } from "@clack/prompts";
 import { out } from "../shared/adapters/io.ts";
-import { orExit } from "../shared/adapters/prompts.ts";
+import { orExit, type Cancellable } from "../shared/adapters/prompts.ts";
 import { ExpectedError } from "../shared/errors.ts";
 import { assignToMe, developBranch, isOnline, listIssues, listProjects, moveToInProgress, type Issue, type Project } from "./adapters/gh.ts";
 import { branchForIssue, checkout } from "./adapters/git.ts";
@@ -18,7 +18,7 @@ import { issueSource } from "./domain/source.ts";
 
 const CANCELLED = "Cancelled — still on the same branch.";
 
-const or = <T>(value: T | symbol): T => orExit(value, CANCELLED);
+const or = <T>(value: Cancellable<T>): T => orExit(value, CANCELLED);
 
 const BACK = Symbol("back to project list");
 
