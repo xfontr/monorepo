@@ -62,5 +62,6 @@ export const report = (error: unknown): ErrorReport => {
 
     const stack = error instanceof Error ? error.stack ?? error.message : String(error);
     const detail = detailOf(error);
-    return { cancelled: false, message: detail ? `${stack}\n${detail}` : stack };
+    // Node already appends stderr to an execFileSync error's message, and so to its stack.
+    return { cancelled: false, message: detail && !stack.includes(detail) ? `${stack}\n${detail}` : stack };
 };

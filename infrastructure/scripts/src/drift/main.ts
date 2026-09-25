@@ -16,7 +16,8 @@ import { changeSize, lastMdCommitMs } from "./domain/size.ts";
 const PROJECT = "Monorepo";
 const CACHE_KEY = "drift-fingerprints";
 
-const warnFor = async (root: string): Promise<void> => {
+/** Resolves to whether someone answered, which is what makes the diff safe to stop asking about. */
+const warnFor = async (root: string): Promise<boolean> => {
     const name = displayName(root);
     out.warn(`${root} changed a lot and its docs might be stale.`);
 
@@ -24,7 +25,7 @@ const warnFor = async (root: string): Promise<void> => {
     // a pointer instead of hanging the push on an unanswerable question.
     if (!isInteractive()) {
         out.info("Run `pnpm docs:drift` to review and file an issue.");
-        return;
+        return false;
     }
 
     out.begin(`📚 Possible docs drift — ${name}`);
@@ -33,11 +34,12 @@ const warnFor = async (root: string): Promise<void> => {
 
     if (!wantsIssue) {
         out.end("Skipped — won't ask again until this project changes further.");
-        return;
+        return true;
     }
 
     const url = createIssue({ title: `Address documentation drift for ${name}`, body: "", project: PROJECT });
     out.end(url);
+    return true;
 };
 
 export const main = async (): Promise<void> => {
@@ -53,14 +55,14 @@ export const main = async (): Promise<void> => {
         const transition = recordFingerprint(seen, root, diffText(base, head, root));
         if (!transition.isNew) continue;
 
-        seen = transition.seen;
-        writeCache(CACHE_KEY, seen);
-
         const numstat = diffNumstat(base, head, root);
         const size = changeSize(numstat, diffNameStatus(base, head, root));
+        const warn = shouldWarn(size, lastMdCommitMs(lastMdCommitEpochSeconds(root)));
 
-        if (!shouldWarn(size, lastMdCommitMs(lastMdCommitEpochSeconds(root)))) continue;
+        // Recording only after an answer means Ctrl+C or a non-interactive run asks again next time.
+        if (warn && !await warnFor(root)) continue;
 
-        await warnFor(root);
+        seen = transition.seen;
+        writeCache(CACHE_KEY, seen);
     }
 };
