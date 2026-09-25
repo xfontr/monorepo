@@ -30,6 +30,11 @@ updates:
               patterns:
                   - "nx"
                   - "@nx/*"
+          # The coverage provider peers on the exact vitest version, so a solo major bump breaks test:coverage.
+          vitest:
+              patterns:
+                  - "vitest"
+                  - "@vitest/coverage-*"
           # Everything else that's a non-breaking bump batches into one PR instead of one per package.
           dependencies:
               patterns:
