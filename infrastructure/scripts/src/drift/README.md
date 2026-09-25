@@ -47,9 +47,10 @@ what's deferred past it.
 
 Each project's fingerprint — a hash of `git diff base..head -- <root>`'s full text — is stored under
 the `drift-fingerprints` cache key via `../shared/adapters/cache.ts`'s `readCache`/`writeCache`, the same file
-cache `issue/` uses for projects and labels. It's written *before* the prompt runs, so a Ctrl+C
-mid-run still counts that diff as seen. A second push with nothing new for a project reads the same
-fingerprint and skips it entirely, warned or not, said yes or no. The trade-off is the same one
+cache `issue/` uses for projects and labels. It's written only once the warning is answered, yes or
+no, or when the change needs no warning at all. A Ctrl+C at the prompt, or a non-interactive run that
+could only print a pointer, leaves it unrecorded, so the next run asks again. A second run with
+nothing new for a project reads the same fingerprint and skips it entirely. The trade-off is the same one
 `issue/README.md` already names for its own cache: `node_modules/.cache` is per-clone and a fresh
 `pnpm install` clears it for free, so a clean clone can re-warn once for changes that already got a
 "no" on another machine.
