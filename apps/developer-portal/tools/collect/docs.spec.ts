@@ -99,12 +99,29 @@ describe("hrefsIn", () => {
     it("keeps a link whose text is code, including brackets inside that code", () => {
         expect(hrefsIn("See [`add.ts`](./add.ts) and [`pages/[slug].vue`](./pages/%5Bslug%5D.vue)."))
             .toEqual(["./add.ts", "./pages/%5Bslug%5D.vue"]);
+        expect(hrefsIn("[`[artifact].get.ts`](./[artifact].get.ts \"Route [artifact]\")"))
+            .toEqual(["./[artifact].get.ts"]);
     });
 
     // A span that wraps is common in hard-wrapped prose, and pairing its closing tick with the next link's opening one loses that link.
     it("pairs a code span that wraps a line, but never lets one run past a blank line", () => {
         expect(hrefsIn("the `pnpm install\n--prod` in the [`Dockerfile`](./docker/Dockerfile)")).toEqual(["./docker/Dockerfile"]);
         expect(hrefsIn("a stray ` tick\n\n[after](./after.md)")).toEqual(["./after.md"]);
+    });
+
+    it("reads titled links after malformed brackets without rescanning a long prefix", () => {
+        const source = `${"[".repeat(20_000)}\n[good](./good.md "A title")`;
+
+        expect(hrefsIn(source)).toEqual(["./good.md"]);
+        expect(hrefsIn(`${"[bad](unterminated ".repeat(20_000)}[good](./good.md)`)).toEqual(["./good.md"]);
+    });
+
+    it("skips multiline code spans and leaves links after unmatched backtick runs", () => {
+        expect(hrefsIn("``[hidden](./hidden.md)\nstill hidden`` [shown](./shown.md)"))
+            .toEqual(["./shown.md"]);
+        expect(hrefsIn(`stray ${"`".repeat(20_000)}\n\n[after](./after.md)`))
+            .toEqual(["./after.md"]);
+        expect(hrefsIn("`` [visible](./visible.md) ```")).toEqual(["./visible.md"]);
     });
 });
 

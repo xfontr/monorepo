@@ -7,12 +7,12 @@ export class ContentError extends Error {
 
 // 400 and 404 are the caller's fault. Everything else (wrong credentials, etc.)
 // are gateways failures, not client errors.
-const PASSTHROUGH_STATUSES: readonly number[] = [400, 404];
+const PASSTHROUGH_STATUSES = new Set([400, 404]);
 
 export class UpstreamError extends ContentError {
     constructor(public readonly upstreamStatus: number | undefined, cause?: unknown) {
         super(
-            upstreamStatus && PASSTHROUGH_STATUSES.includes(upstreamStatus) ? upstreamStatus : 502,
+            upstreamStatus && PASSTHROUGH_STATUSES.has(upstreamStatus) ? upstreamStatus : 502,
             "Upstream request failed",
             { cause },
         );

@@ -11,7 +11,7 @@ const filesUnder = (directory: string, root: string, found: string[] = []): stri
             filesUnder(path, root, found);
         }
         else if (entry.isFile()) {
-            found.push(relative(root, path).split("\\").join("/"));
+            found.push(relative(root, path).replaceAll("\\", "/"));
         }
     }
 

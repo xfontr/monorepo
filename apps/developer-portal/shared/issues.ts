@@ -2,9 +2,9 @@ import { repoApiUrl } from "./github.ts";
 
 const FENCE = /```[\s\S]*?```/g;
 const HTML_COMMENT = /<!--[\s\S]*?-->/g;
-const LINK = /\[([^\]]*)\]\([^)]*\)/g;
-const CHECKBOX = /^\s*[-*]\s+\[[ x]\]\s*/gim;
-const BULLET = /^\s*[-*>#]+\s*/gm;
+const LINK = /\[([^[\]]*)\]\([^()]*\)/g;
+const CHECKBOX = /^[ \t]*[-*][ \t]+\[[ x]\][ \t]*/gim;
+const BULLET = /^[ \t]*[-*>#]+[ \t]*/gm;
 const EMPHASIS = /[*_`~]+/g;
 
 /** One open issue normalized from the browser-side GitHub read. */
@@ -50,7 +50,7 @@ export function labelsOf(issues: Issue[]): string[] {
 }
 
 export interface IssueFilter {
-    label?: string | "all"
+    label?: string
     search?: string
 }
 

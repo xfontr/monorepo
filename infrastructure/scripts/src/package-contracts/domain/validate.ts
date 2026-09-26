@@ -20,7 +20,7 @@ const isObject = (value: unknown): value is JsonObject =>
 
 const valueText = (value: unknown): string => {
     const rendered = JSON.stringify(value);
-    return rendered === undefined ? String(value) : rendered;
+    return rendered ?? String(value);
 };
 
 const packageNameFor = (directory: string): string => `@monorepo/${directory}`;
@@ -70,7 +70,7 @@ const isEscapingPackage = (target: string): boolean => {
 const targetPattern = (target: string): RegExp => {
     const escaped = target
         .split("*")
-        .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
+        .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, String.raw`\$&`))
         .join(".*");
 
     return new RegExp(`^${escaped}$`);
@@ -202,6 +202,51 @@ const validatePeerMetadata = (
     return true;
 };
 
+const validateManifestExports = (
+    packageName: string,
+    manifest: JsonObject,
+    files: string[],
+    errors: string[],
+): void => {
+    const exports = validateObjectField(packageName, manifest, "exports", errors);
+    if (exports === undefined) {
+        if (manifest.exports === undefined) {
+            errors.push(errorFor(packageName, "exports", "must be a non-empty object; field is missing"));
+        }
+    }
+    else if (Object.keys(exports).length === 0) {
+        errors.push(errorFor(packageName, "exports", "must be a non-empty object; received {}"));
+    }
+    else {
+        validateExports(packageName, exports, files, errors);
+    }
+};
+
+const validateManifestPeers = (
+    packageName: string,
+    manifest: JsonObject,
+    errors: string[],
+    skipped: string[],
+): void => {
+    const peerDependencies = validateObjectField(packageName, manifest, "peerDependencies", errors);
+    if (peerDependencies !== undefined) {
+        for (const [dependency, range] of Object.entries(peerDependencies)) {
+            if (typeof range !== "string" || range.trim().length === 0) {
+                errors.push(errorFor(
+                    packageName,
+                    `peerDependencies[${JSON.stringify(dependency)}]`,
+                    `must be a non-empty string; received ${valueText(range)}`,
+                ));
+            }
+        }
+    }
+
+    const peerDependenciesMeta = validateObjectField(packageName, manifest, "peerDependenciesMeta", errors);
+    if (!validatePeerMetadata(packageName, peerDependencies, peerDependenciesMeta, errors)) {
+        skipped.push("peer metadata (not present)");
+    }
+};
+
 export const validatePackage = (source: PackageSource): PackageReport => {
     const packageName = packageNameFor(source.directory);
     const errors: string[] = [];
@@ -224,36 +269,8 @@ export const validatePackage = (source: PackageSource): PackageReport => {
     validateStringField(packageName, manifest, "version", (value) => value.trim().length > 0, "a non-empty string", errors);
     validateStringField(packageName, manifest, "type", (value) => value === "module", "\"module\"", errors);
 
-    const exports = validateObjectField(packageName, manifest, "exports", errors);
-    if (exports === undefined) {
-        if (manifest.exports === undefined) {
-            errors.push(errorFor(packageName, "exports", "must be a non-empty object; field is missing"));
-        }
-    }
-    else if (Object.keys(exports).length === 0) {
-        errors.push(errorFor(packageName, "exports", "must be a non-empty object; received {}"));
-    }
-    else {
-        validateExports(packageName, exports, source.files, errors);
-    }
-
-    const peerDependencies = validateObjectField(packageName, manifest, "peerDependencies", errors);
-    if (peerDependencies !== undefined) {
-        for (const [dependency, range] of Object.entries(peerDependencies)) {
-            if (typeof range !== "string" || range.trim().length === 0) {
-                errors.push(errorFor(
-                    packageName,
-                    `peerDependencies[${JSON.stringify(dependency)}]`,
-                    `must be a non-empty string; received ${valueText(range)}`,
-                ));
-            }
-        }
-    }
-
-    const peerDependenciesMeta = validateObjectField(packageName, manifest, "peerDependenciesMeta", errors);
-    if (!validatePeerMetadata(packageName, peerDependencies, peerDependenciesMeta, errors)) {
-        skipped.push("peer metadata (not present)");
-    }
+    validateManifestExports(packageName, manifest, source.files, errors);
+    validateManifestPeers(packageName, manifest, errors, skipped);
 
     const nx = validateObjectField(packageName, manifest, "nx", errors);
     if (nx?.tags !== undefined && (!Array.isArray(nx.tags) || nx.tags.some((tag) => typeof tag !== "string"))) {

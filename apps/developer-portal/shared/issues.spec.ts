@@ -30,6 +30,16 @@ describe("summarize", () => {
         expect(summarize("Acceptance criteria:\n- [ ] one\n- [x] two")).toBe("Acceptance criteria: one two");
     });
 
+    it("keeps link text after malformed brackets and handles empty link targets", () => {
+        expect(summarize(`${"[broken] ".repeat(20_000)}\n[decision](./decision.md) [empty]()`, 250_000))
+            .toContain("decision empty");
+    });
+
+    it("removes indented uppercase checkboxes and long bullet prefixes in one pass", () => {
+        expect(summarize(`${" ".repeat(20_000)}- [X] done\n${" \n".repeat(20_000)}${" ".repeat(20_000)}### Heading`))
+            .toBe("done Heading");
+    });
+
     it("cuts on a word boundary, so the ellipsis never lands inside a word", () => {
         expect(summarize("alpha bravo charlie delta", 18)).toBe("alpha bravo…");
     });

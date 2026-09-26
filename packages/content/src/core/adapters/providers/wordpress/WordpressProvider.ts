@@ -31,7 +31,12 @@ class WordpressProvider extends ContentProvider<WordpressProviderConfig> {
 
     // new URL() would discard the path of a subdirectory install, so the site root is joined by hand
     private url(path: string): string {
-        return `${this.config.baseURL.replace(/\/+$/, "")}${path}`;
+        const baseURL = this.config.baseURL;
+        let end = baseURL.length;
+        while (end > 0 && baseURL[end - 1] === "/") {
+            end--;
+        }
+        return `${baseURL.slice(0, end)}${path}`;
     }
 }
 

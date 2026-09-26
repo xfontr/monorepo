@@ -61,6 +61,12 @@ describe("WordpressProvider", () => {
             expect(requestedUrl()).toBe(POSTS_URL);
         });
 
+        it("trims a long slash suffix while keeping a subdirectory install", async () => {
+            await build(`https://wp.test/blog/${"/".repeat(10_000)}`).listEntries("posts");
+
+            expect(requestedUrl()).toBe("https://wp.test/blog/wp-json/wp/v2/posts");
+        });
+
         it("sends no _embed for terms, which have nothing to embed", async () => {
             await build().listTerms("categories");
 

@@ -14,6 +14,7 @@ describe("slugify", () => {
     // The branch-title prompt rejects anything that slugs to nothing, so this is what it checks.
     it("collapses a title with no letters or digits to an empty string, rather than to a lone dash", () => {
         expect(slugify("--- ??? ---")).toBe("");
+        expect(slugify("-".repeat(100_000))).toBe("");
     });
 });
 

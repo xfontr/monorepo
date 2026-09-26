@@ -54,6 +54,12 @@ describe("parseScoresTable", () => {
         expect(parsed?.cards.map((row) => row.card)).not.toContain("🧱 Architecture");
         expect(parsed?.total).toBe(4.1);
     });
+
+    it("keeps the first parseable Total row when a review accidentally repeats it", () => {
+        const repeated = SCORES.replace("| **Total** | **4.1/5** | ↑0.5 | |", "| **Total** | invalid | = | |\n| **Total** | **4.1/5** | ↑0.5 | |\n| **Total** | **3.0/5** | ↓1 | |");
+
+        expect(parseScoresTable(repeated)).toMatchObject({ total: 4.1, totalDelta: "↑0.5" });
+    });
 });
 
 describe("scorecardShapeProblems", () => {

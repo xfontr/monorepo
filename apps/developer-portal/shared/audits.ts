@@ -26,6 +26,26 @@ function isSeparator(line: string): boolean {
     return /^\|?\s*:?-{3,}/.test(line.trim());
 }
 
+type FindingColumns = { id: number, status: number };
+
+function findingColumns(cells: string[]): FindingColumns {
+    const header = cells.map((cell) => cell.toLowerCase());
+
+    return { id: header.indexOf("id"), status: header.indexOf("status") };
+}
+
+function findingOf(cells: string[], columns: FindingColumns, category: string): AuditFinding | null {
+    if (columns.id === -1 || columns.status === -1) return null;
+
+    const id = (cells[columns.id] ?? "").replace(/[*`]/g, "").trim();
+    if (!id) return null;
+
+    const [word = "", ...rest] = (cells[columns.status] ?? "").split(/\s+/);
+    const status = word.toLowerCase();
+
+    return { id, category, status: isFindingStatus(status) ? status : null, ref: rest.join(" ") || null };
+}
+
 export function isFindingStatus(value: string): value is FindingStatus {
     return (FINDING_STATUSES as readonly string[]).includes(value);
 }
@@ -35,7 +55,7 @@ export function parseFindings(markdown: string): AuditFinding[] {
     const findings: AuditFinding[] = [];
     let category = "";
     let inFence = false;
-    let columns: { id: number, status: number } | null = null;
+    let columns: FindingColumns | null = null;
 
     for (const line of markdown.split("\n")) {
         if (FENCE.test(line.trim())) {
@@ -63,28 +83,12 @@ export function parseFindings(markdown: string): AuditFinding[] {
         const cells = cellsOf(line);
 
         if (columns === null) {
-            const header = cells.map((cell) => cell.toLowerCase());
-            const id = header.indexOf("id");
-            const status = header.indexOf("status");
-
-            columns = id === -1 || status === -1 ? { id: -1, status: -1 } : { id, status };
+            columns = findingColumns(cells);
             continue;
         }
 
-        if (columns.id === -1) continue;
-
-        const id = (cells[columns.id] ?? "").replace(/[*`]/g, "").trim();
-        const [word = "", ...rest] = (cells[columns.status] ?? "").split(/\s+/);
-        const status = word.toLowerCase();
-
-        if (!id) continue;
-
-        findings.push({
-            id,
-            category,
-            status: isFindingStatus(status) ? status : null,
-            ref: rest.join(" ") || null,
-        });
+        const finding = findingOf(cells, columns, category);
+        if (finding) findings.push(finding);
     }
 
     return findings;

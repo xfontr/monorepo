@@ -78,7 +78,7 @@ describe("updateManifest", () => {
         const next = updateManifest(MANIFEST, { ...RECORDED, ".claude/agents/repo-review-card.md": "222222222222" });
 
         expect(next).toContain("Prose below the table.");
-        expect(next.split("\n").filter((line) => line.startsWith("| `")).length).toBe(METHOD_ARTIFACTS.length);
+        expect(next.split("\n").filter((line) => line.startsWith("| `"))).toHaveLength(METHOD_ARTIFACTS.length);
     });
 });
 
