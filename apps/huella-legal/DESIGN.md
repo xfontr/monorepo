@@ -1,245 +1,128 @@
-# 🎨 Huella Legal Penpot design plan
+# 🎨 Huella Legal design
 
-This plan produces a focused editorial design system and the website templates needed for Huella
-Legal. Penpot replaces Figma as the design workspace, and its official MCP server is the path for
-AI-assisted design work.
+The redesign of [huellalegal.com](https://www.huellalegal.com/) is designed directly in code, as
+dev-only pages under `/lab`, and reviewed as real pages in a browser at 390, 768 and 1280 px. There
+is no design file. The approved lab pages *are* the design; the production components that later
+replace the provisional article pages are built from them, not from a separate handoff.
 
-The target remains one weekend. That is realistic only if the system covers this website rather
-than every hypothetical future Huella product.
+An earlier Penpot attempt was abandoned: the MCP link was too unreliable to maintain a component
+library, and its boards were never reviewed against real rendering. Its token values survived and
+are the ones below.
 
-## 🧩 What should remain recognizably Huella Legal
-
-A superficial inspection of [huellalegal.com](https://www.huellalegal.com/) shows brand ingredients
-worth preserving.
+## 🧩 What stays recognizably Huella
 
 | Ingredient | Direction |
 | --- | --- |
-| Background | Warm ivory around `#F1E9DB` |
-| Primary | Slate blue around `#3E5A6D` |
-| Accent | Muted teal around `#5DA399` |
-| Text | Charcoal around `#4E4E4E` |
-| Editorial type | Georgia, or a closely related serif if testing exposes a concrete problem |
-| Interface type | Montserrat for navigation, labels and calls to action |
-| Imagery | Classical legal imagery rather than generic corporate-law stock photography |
-| Personality | Academic, restrained and content-first |
+| Paper | Warm ivory `#F1E9DB` as the page, lighter `#FBF8F2` for fields and panels |
+| Ink | Charcoal `#4E4E4E` for text, deep slate `#192630` for headings |
+| Primary | Slate blue `#3E5A6D` for links and actions |
+| Accent | Teal `#5DA399` as decoration only; `#326C65` whenever teal carries text |
+| Type | Georgia for everything read, Montserrat for everything used to navigate |
+| Tone | An academic journal, not a law firm: numbered issues, ISSN, hairline rules, no gradients |
 
-These are the brand DNA, not a requirement to preserve the existing interface. The redesign may
-replace the layout, hierarchy, cards, navigation, spacing, article experience, mobile behaviour and
-conversion structure. Decorative gradients should mostly disappear; blue-to-teal may remain as a
-controlled accent rather than a background treatment.
+## 🚀 Development
 
-## 🧰 How Penpot fits the work
-
-Penpot Professional is sufficient for this scope. The hosted free plan currently allows unlimited
-design files, up to eight team members, unlimited viewers and 10 GB of storage. Its meaningful
-constraint is short retention: seven days of autosaved versions and deleted-file recovery. The
-[current pricing page](https://penpot.app/pricing) is the source of truth if those limits change.
-
-Penpot also supports components, variants, flex and grid layouts, prototypes, inspect mode, shared
-libraries and native design tokens. Tokens use the W3C Design Tokens Community Group format and can
-be imported or exported as JSON, so the design vocabulary can later be mapped to code without a
-proprietary translation layer. See the Penpot guides for
-[design tokens](https://help.penpot.app/user-guide/design-systems/design-tokens/),
-[libraries](https://help.penpot.app/user-guide/design-systems/libraries/) and
-[developer inspection](https://help.penpot.app/user-guide/dev-tools/).
-
-The working setup is:
-
-| Concern | Decision | Why |
-| --- | --- | --- |
-| Project | One Penpot project named `Huella Legal` | Keeps design work discoverable without coupling it to personal drafts |
-| Design file | One master file named `Huella Legal — Website` for v1 | Avoids token-copy drift and keeps the weekend handoff self-contained |
-| File pages | `00 Brief`, `01 Audit`, `02 Concepts`, `03 Foundations`, `04 Components`, `05 Patterns`, `06 Templates`, `07 QA`, `99 Archive` | Separates decisions from reusable assets and final boards |
-| Reuse | Start from a vetted Tailwind-oriented Penpot kit, then copy the required assets into local Huella components | Reusing sound primitives and states saves time without making a community file the product's source of truth |
-| Tokens | Native Penpot tokens split into Tailwind primitives, interface semantics and Huella semantics | Keeps design values close to the eventual Nuxt UI theme while preserving a brand-level vocabulary |
-| Backups | Export a `.penpot` file and token JSON at each approval gate to a private design archive | Seven-day hosted history is too short to be the only recovery strategy |
-| Developer handoff | Shared View-mode link plus Inspect mode and exported token JSON | Developers can read measurements, CSS, HTML and SVG without editing the source |
-
-Use a Tailwind-oriented Penpot kit as the implementation substrate rather than recreating generic
-primitives. The leading candidates are the Penpot Hub Tailwind kit and its Radix/Tailwind UI Design
-System. Audit native tokens, flex layouts, variants, responsive behaviour, naming and licensing
-before adopting either one; community provenance is a reason to inspect a kit, not to discard the
-time it can save.
-
-Connect the selected kit as a reference library, then copy only the required assets into this
-file's local library. Local copies are where Huella naming, token bindings and structural changes
-live. Do not import a connected library's tokens blindly because Penpot replaces the file's full
-token catalogue when it imports library tokens.
-
-Nuxt UI remains the implementation baseline. Its Tailwind and Reka UI foundations are close enough
-to the candidate Penpot kits that generic controls can share scales, anatomy and states even when
-there is no official Nuxt UI Penpot file. All Huella UI code, including local wrappers and editorial
-patterns, lives in `apps/huella-legal`; `@monorepo/ui` is not part of the target architecture.
-
-The design vocabulary has three layers:
-
-| Layer | Contents | Purpose |
-| --- | --- | --- |
-| `tailwind.*` | Palette ramps, spacing, sizing, breakpoints, radii and shadows | Keeps primitive decisions aligned with Tailwind CSS |
-| `ui.*` | Primary, neutral, surfaces, borders, muted text, focus, container and control semantics | Maps the design onto Nuxt UI theming rather than raw utility classes |
-| `huella.*` | Brand colours, editorial typography, reading measure, citations and article treatments | Preserves product meaning when implementation details change |
-
-## 🤖 AI workflow
-
-Use Penpot's official MCP server rather than relying on cursor movement or a third-party generative
-plugin. The [Penpot MCP guide](https://help.penpot.app/mcp/) documents the connection: enable MCP in
-the Penpot account, add its server to the AI client, open the target file, and connect the active
-Penpot tab through **File → MCP Server → Connect**.
-
-The integration follows two operational constraints:
-
-| Constraint | Consequence |
+| Command | What it does |
 | --- | --- |
-| MCP operates on the currently focused Penpot page | Every task names the page it expects and verifies that page before writing |
-| Only one Penpot browser tab can be MCP-active | Keep one pinned design tab active and close or disconnect competing Penpot tabs |
+| `pnpm exec nx serve @monorepo/huella-legal` | Dev server; the lab is at `/lab` |
+| `pnpm exec nx build @monorepo/huella-legal` | Production build, which never contains `/lab` |
 
-The MCP key and server URL are credentials. Never paste them into this repository, a prompt, a
-screenshot or an exported design note. If setup requires the user to enter a secret, pause for that
-action and resume only after the Penpot tools are available to the agent.
+The lab is stripped from every non-dev build by a `pages:extend` hook under `$production` in
+[`nuxt.config.ts`](./nuxt.config.ts). It is the environment switch Nuxt already resolves, so the
+config still reads no `process.env` ([`CLAUDE.md`](./CLAUDE.md)). Lab pages use hard-coded Spanish
+copy from [`app/lab/fixtures.ts`](./app/lab/fixtures.ts) and never call `@monorepo/content`, so a
+design review never depends on WordPress being reachable.
 
-AI should work in small transformations: inspect, propose, write, render, verify and then continue.
-It should not attempt to generate the whole site in one operation. Each completed phase must leave
-named components, applied tokens, flex or grid constraints and a visual QA board rather than a set
-of disconnected mock-ups.
+Tailwind's incremental scan in the dev server sometimes misses classes in a newly created file under
+`app/lab/` or `app/pages/lab/`. If a fresh page renders with a collapsed grid, restart the server
+before debugging the markup.
 
-## 🗺️ Delivery phases
+## 🗂 Structure
 
-| Phase | Work | Deliverable | Approval |
+| Path | Role |
+| --- | --- |
+| [`app/assets/css/main.css`](./app/assets/css/main.css) | Every token: palettes, type scale, measure, and Nuxt UI's semantic roles pointed at them |
+| [`app/app.config.ts`](./app/app.config.ts) | Nuxt UI colour aliases and control defaults (44 px minimum height, paper field surface) |
+| `app/pages/lab/*.vue` | One review page per site archetype |
+| `app/lab/*.vue` | Lab-only building blocks shared across those pages; loose on purpose |
+| [`app/lab/article-body.ts`](./app/lab/article-body.ts) | The article body as WordPress-style HTML, so the reading styles are tested against CMS output |
+| `.hl-prose` in [`app/pages/lab/article.vue`](./app/pages/lab/article.vue) | Reading typography for that HTML: headings, drop cap, notes, quotes, quoted legislation, tables, figures. It styles plain elements and Gutenberg's own wrappers (`wp-block-table`), so production can reuse it on CMS HTML |
+
+## 🎨 Tokens
+
+Palettes are namespaced (`ivory`, `huella-slate`, `huella-teal`, `huella-ink`, `huella-danger`) so
+none shadows a Tailwind palette, and each runs 50–950 because Nuxt UI generates all eleven shades
+for every alias. Contrast ratios are measured on the canvas; the foundations page computes them
+from hex values mirrored from `main.css`, so a token change must be copied there too.
+
+| Role | Token | Ratio on paper |
+| --- | --- | --- |
+| Headings | `--ui-text-highlighted` → `huella-slate-900` | 12.80:1 |
+| Body | `--ui-text` → `huella-ink-700` | 6.90:1 |
+| Secondary text | `--ui-text-muted` → `huella-ink-600` | 4.60:1 |
+| Links, primary | `--ui-primary` → `huella-slate-500` | 6.03:1 |
+| Teal text | `--ui-secondary` → `huella-teal-600` | 5.02:1 |
+| Errors | `--ui-error` → `huella-danger-600` | 6.23:1 on `danger-50` |
+
+| Type step | Spec | Use |
+| --- | --- | --- |
+| `text-display` | Georgia 52/1.08, −0.02em | Homepage statement; 36 px on mobile |
+| `text-h1` / `h2` / `h3` | Georgia 40 / 30 / 24 | Page, section and subsection titles, always regular weight |
+| `text-reading` | Georgia 18/1.7 | Article body inside `max-w-measure` (680 px, about 70 characters) |
+| `text-quote` / `text-citation` | Georgia italic 24 / Georgia 15 | Pull quotes / legal citations and footnotes |
+| `text-meta` | Montserrat 500 13 | Author, date, reading time |
+| Kicker | Montserrat 600 12, uppercase, 0.12em | Category labels, section numbers |
+
+### Where the lab departs from the Penpot tokens
+
+The Penpot P5 sheet is deleted, so its deviations are recorded here.
+
+| Token | P5 value | Lab value | Why |
 | --- | --- | --- | --- |
-| P0. Validate the workflow | Connect Penpot MCP; prove read, write, component, token, layout, inspect and export operations; establish the master-file structure | A disposable smoke-test page, the structured master file and a recorded pass/fail checklist | None unless credentials or permissions block the connection |
-| P1. Audit Huella Legal | Sample the homepage, article, listing, static page and mobile behaviour; extract visual, content and conversion patterns | `01 Audit` with annotated evidence and a short findings table | None |
-| P2. Lock the brief | Define brand invariants, audience, conversions, accessibility target, page archetypes and exclusions | `00 Brief` with one concise decision board | **Gate 1: brief** |
-| P3. Curate the implementation baseline | Audit the Tailwind-oriented Penpot candidates, inspect the relevant Nuxt UI and `@monorepo/ui` components, then localize only the structures needed by the editorial site | Selected kit, adoption notes and a component inventory with design-to-code names and states | None |
-| P4. Explore directions | Produce two directions using the same brand: one homepage section, article reading view, header and mobile treatment | Concept A and B on `02 Concepts` | **Gate 2: direction** |
-| P5. Define the theme | Create primitive and semantic tokens for colour, typography, spacing, radius, containers, borders, shadows and focus states | Token sets, typography assets and foundations boards | Review one foundations board |
-| P6. Build the core system | Build the required components from tokens and flexible layouts; add Huella-specific editorial patterns | Reusable components and patterns with representative states | **Gate 3: system** |
-| P7. Build templates | Apply the chosen direction to the agreed page archetypes at desktop and mobile sizes | Final template boards with responsive constraints | Review the assembled site |
-| P8. Validate | Check accessibility, contrast, readability, content stress, responsive behaviour, consistency and conversion clarity | `07 QA` with evidence and a resolved issue table | **Gate 4: ready** |
-| P9. Package the result | Clean naming, annotations, component index, final screenshots, decision summary and milestone exports | Development-ready Penpot file, View link, `.penpot` backup and token JSON | None |
+| Control / card radius | 8 px / 12 px | 4 px (`--ui-radius`) / 2–4 px | Rounded cards read as an app, not a journal; hairline rules carry the structure instead |
+| Focus offset | 4 px | 2 px (Nuxt UI default) | Keeps the ring attached to tight inline links; still a 2 px ring, visible on paper and slate |
+| Heading colour | `slate-800` | `slate-900` | More separation from body copy at regular weight |
+| Kickers | No automatic uppercase | Uppercase, 0.12em tracking | CSS uppercase keeps Spanish accents; approved at Gate A |
+| Canvas | `ivory-100` | `ivory-100` | Unchanged |
+| Muted text | Stated as 4.60:1 | Measured 4.60:1 | Unchanged; the ratio was re-measured |
 
-The sequence is deliberate: discovery precedes tokens, tokens precede components, and components
-precede complete screens. Skipping that order produces attractive boards that cannot be maintained.
+## 🗺️ Site inventory
 
-## 🧪 P0 acceptance criteria
+These pages come from the live site, not from an invented sitemap.
 
-P0 is a capability test, not design production. It passes only when the assigned agent can prove
-each operation in the real Penpot file and then remove the disposable artefacts.
+| Lab page | Archetype | Notes |
+| --- | --- | --- |
+| `/lab` | Foundations | Colour, type, reading, controls, cards; links to every other lab page |
+| `/lab/home` | Homepage | Direction A: statement line, lead article beside the Fundamentos series, subject index; `?menu=1` opens the mobile menu |
+| `/lab/article` | Article | Issue number, series position, TOC rail (accordion on mobile), roman-numbered sections, quoted legislation, scrolling table, notes, bibliography, "Cómo citar", author card, series navigator |
+| `/lab/category` | Category listing | Topic filter, sort, row cards with image fallback, numbered pager (previous/next on phones); `?autor=1` turns it into a contributor profile |
+| `/lab/categorias` | Subject index | Ten areas of law plus the TFG/TFM archive, then tags |
+| `/lab/colaboradores` | About + contributors | Mission, three editorial principles, searchable directory with a no-match state |
+| `/lab/publicar` | Publish an article | Reasons, five-step process, form, FAQ, TFG/TFM track; `?estado=invalid\|submitting\|success\|error` previews each submission state |
+| `/lab/estados` | Utility states | 404, search results, no results, empty subject, server error, loading |
 
-| Check | Evidence of success |
-| --- | --- |
-| Connection | Penpot tools can identify the open file and focused page without exposing the MCP credential |
-| Structure | The nine named pages exist in the master file in the stated order |
-| Read | The agent can list a page and inspect a selected object by stable name |
-| Tokens | Primitive colour and spacing smoke-test tokens can be created, applied and read back |
-| Flexible layout | A test card uses flex layout, gap and padding rather than manually positioned children |
-| Component | The test card becomes a component and a copy inherits a changed source property |
-| Inspect | The test board exposes measurements and code information in Penpot Inspect mode |
-| Visual verification | A rendered image or screenshot confirms that the result matches the requested hierarchy |
-| Export | A `.penpot` backup and token JSON can be exported without adding either artefact to this repository |
-| Cleanup | The smoke-test component, tokens and board are deleted; the permanent page structure remains |
+## 🚦 Review gates
 
-If the hosted MCP connection is unavailable, P0 stops after recording the exact missing prerequisite.
-Browser-only drawing is not an acceptable substitute because every later phase depends on reliable
-structured reads and writes.
+| Gate | Question | Status |
+| --- | --- | --- |
+| A | Do the foundations feel like Huella? | Approved 29 Sep 2026 |
+| B | Which homepage direction? | Approved 29 Sep 2026: A · Revista, opened by B's statement line |
+| C | Is the whole site ready at 390 / 768 / 1280? | Approved 29 Sep 2026 |
 
-## 🧱 System scope
-
-For Huella Legal v1, a proper design system means the following bounded set.
-
-| Area | Required coverage |
-| --- | --- |
-| Tokens | Tailwind-aligned primitives plus interface and Huella semantic colour, type, spacing, radius, border, shadow, container and focus tokens |
-| Typography | Display, heading, body, metadata, label, citation and caption treatments |
-| Layout | Desktop and mobile rules plus responsive flex/grid behaviour between them |
-| Components | Approximately 12–18 components with only useful states and variants |
-| Editorial patterns | Approximately 5–7 reusable compositions |
-| Templates | The agreed website archetypes, not every CMS permutation |
-| Documentation | Naming, purpose, states, content constraints and implementation mapping |
-
-The provisional inventory is:
-
-| Kind | Items |
-| --- | --- |
-| Navigation | Header, desktop navigation, mobile navigation, breadcrumbs, pagination |
-| Actions | Button, icon button, text link, newsletter form |
-| Discovery | Featured article card, standard article card, category badge, metadata row |
-| Authorship | Author/byline block and contributor summary |
-| Reading | Article table of contents or accordion, callout, quote, figure/caption, legal citation |
-| Site chrome | Footer |
-| Templates | Homepage, publications/category listing, article, static editorial page, author/contributor page, contribution/contact page |
-| Utility states | Search, empty result and 404 as one compact family |
-
-The definitive list is set at P2 after the content audit. A provisional item with no real use case
-is removed rather than built for completeness.
-
-## 👀 Review gates
-
-The user makes four decisions; AI owns the smaller choices inside those boundaries.
-
-| Gate | Decision |
-| --- | --- |
-| 1 | This brief describes Huella Legal |
-| 2 | Choose concept A or B |
-| 3 | The theme and representative components feel right |
-| 4 | The assembled templates are ready |
-
-Spacing, radii, minor colour values, component states, text sizing, card composition, responsive
-rearrangement and routine visual polish do not need escalation unless they change the brand, scope
-or content strategy.
-
-## ⚙️ Defaults
-
-| Decision | Default |
-| --- | --- |
-| Accessibility | WCAG 2.2 AA |
-| Theme | Light only |
-| Language | Spanish-first |
-| Responsive scope | Desktop and mobile designed explicitly; tablet validated through constraints |
-| Primary conversion | Discover and read quality legal content |
-| Secondary conversions | Subscribe and contribute an article |
-| Article measure | Approximately 65–75 characters per line |
-| Imagery | Restrained editorial or classical legal photography and illustration |
-| Motion | Minimal and functional |
-| Implementation alignment | Tailwind scales and Nuxt UI anatomy for generic controls; custom components only for Huella-specific editorial needs |
-
-## ⚠️ Risks
-
-| Risk | Control |
-| --- | --- |
-| Short hosted history | Export `.penpot` and token JSON snapshots at every gate |
-| Scope expansion | Cover this website and its real content, not a general multi-product system |
-| Community-kit drift | Audit the chosen kit, copy only the required assets locally and record every design-to-code mapping against Nuxt UI |
-| Token drift across files | Keep v1 in one master file; introduce a shared library only with a second consumer and an explicit token-sync procedure |
-| Disconnected AI output | Lock the brief and tokens before screens; require named components and flexible layouts |
-| Extreme legal content | Test long Spanish titles, missing images, multiple authors, footnotes, blockquotes, tables, lists, citations and dense headings |
-| Undefined conversion | Confirm at P2 whether discovery, newsletter signup and contributor submissions are the real goals |
-| False accessibility confidence | Penpot verifies design intent; implementation must later verify semantics, keyboard use, screen readers and performance |
-| Asset licensing | Record the source and licence of every retained photograph, illustration, icon and font |
-| Sleeping browser tab | Pin the active Penpot tab and exclude it from browser memory-saving while MCP work runs |
-
-## ⏱️ Weekend budget
-
-| Work | Budget |
-| --- | --- |
-| P0 workflow validation | 30–45 minutes |
-| Audit, brief and direction boards | 1.5–2 hours |
-| Theme and foundations | 1–2 hours |
-| Components and patterns | 2–3 hours |
-| Templates and responsive states | 2–3 hours |
-| QA, documentation and exports | 1–1.5 hours |
-
-The total is roughly one focused day of design work plus four short reviews. Dark mode, dozens of
-unique pages, advanced prototypes, custom illustration production or a general-purpose component
-library are outside that budget.
+Every lab page is screenshotted at the three widths and checked for overflow, sub-44 px targets
+and long-string wrapping before it reaches a gate.
 
 ## 🧭 Deliberately deferred
 
 | Later need | What changes |
 | --- | --- |
-| A second product or design file | Publish the master file as a shared library, document update ownership and decide how token imports are reconciled before connecting consumers |
-| Upstream kit updates | Compare useful upstream changes manually; local Huella components do not inherit community-library changes automatically |
-| Design tokens in production | Export DTCG JSON, define the transformation into the app's CSS or Nuxt UI theme and test design/code parity |
-| Dark theme | Add a theme set, re-evaluate imagery and elevation, then repeat contrast and content QA |
-| Advanced prototype | Add only the interactions needed for a specific usability question; static handoff does not justify simulating the whole application |
-| Implementation | Translate the approved system into Nuxt UI-backed components owned by `apps/huella-legal`, then test keyboard behaviour, semantics, screen readers and Core Web Vitals in the browser |
-| Self-hosted Penpot | Choose hosting, backups, upgrades and access controls; the hosted free plan is adequate for this design pass |
+| Production components | Rebuild the approved lab pages as components in `app/components/` wired to `@monorepo/content` (issues #28–#35), replace the scoped CSS in `app/pages/articles/*`, then delete `app/pages/lab/`, `app/lab/` and the `$production` hook |
+| Copy in i18n | Lab copy is hard-coded Spanish; production copy moves to `infrastructure/translations/projects/huella-legal/`. `defaultLocale` is still `en-GB` although the site is Spanish-first, a call to make then |
+| Interest calculator | A tool, not editorial design; it keeps the current page until it gets its own design pass |
+| Comments | Dropped from the design pending a moderation decision |
+| Mid-article newsletter | The current site interrupts articles with repeated sign-up blocks; the redesign keeps one band after the article. Add an inline block only if sign-ups drop |
+| Contributor copy | Roles, bios, counts and years in [`app/lab/fixtures.ts`](./app/lab/fixtures.ts) are placeholders on real names; only Raquel Crespo Ruiz's credentials come from the live site. Never copy them into production content |
+| Search overlay | The header search button has no overlay design; it goes to the results page shown on `/lab/estados` |
+| WordPress block mapping | `.hl-prose` uses `hl-law`, `hl-note` and `hl-num` for quoted legislation, editor notes and section numerals; production maps them to Gutenberg block classes or custom blocks |
+| Real imagery | Lab cards use a `§` tile where an image goes; licensed classical legal imagery is chosen per article in the CMS |
+| Dark theme | `ui.colorMode` is off; adding one means a second set of `--ui-*` roles and a new contrast pass |

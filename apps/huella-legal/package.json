@@ -23,6 +23,7 @@
         "@monorepo/observability": "workspace:*",
         "@monorepo/ui": "workspace:*",
         "@nuxt/fonts": "catalog:",
+        "@nuxt/ui": "^4.11.0",
         "@nuxtjs/i18n": "catalog:",
         "@opentelemetry/api": "^1.9.1",
         "@opentelemetry/semantic-conventions": "^1.43.0",
