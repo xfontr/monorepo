@@ -1,9 +1,22 @@
 export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
 
-    modules: ["@monorepo/i18n/nuxt", "@monorepo/content/nuxt", "@nuxt/fonts", "@pinia/nuxt"],
+    modules: ["@monorepo/i18n/nuxt", "@monorepo/content/nuxt", "@nuxt/ui", "@nuxt/fonts", "@pinia/nuxt"],
 
     devtools: false,
+
+    css: ["~/assets/css/main.css"],
+
+    // The design lab under `pages/lab/` is a dev-only review surface, so no build ever ships it
+    $production: {
+        hooks: {
+            "pages:extend"(pages) {
+                for (let index = pages.length - 1; index >= 0; index--) {
+                    if (pages[index]?.path.startsWith("/lab")) pages.splice(index, 1);
+                }
+            },
+        },
+    },
 
     typescript: {
         typeCheck: "build",
@@ -48,9 +61,16 @@ export default defineNuxtConfig({
         },
     },
 
+    ui: {
+        colorMode: false,
+        theme: {
+            colors: ["primary", "secondary", "neutral", "error"],
+        },
+    },
+
     fonts: {
         defaults: {
-            weights: [300, 600, 900],
+            weights: [400, 500, 600, 700],
         },
     },
 

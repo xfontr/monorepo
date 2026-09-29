@@ -1,0 +1,138 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/**
+ * Huella Legal's palette, anchored on the four brand colours of the current site: ivory #F1E9DB
+ * (ivory-100), slate #3E5A6D (huella-slate-500), teal #5DA399 (huella-teal-400) and charcoal
+ * #4E4E4E (huella-ink-700). The names are namespaced so none of them shadows a Tailwind palette,
+ * and every ramp runs to 950 because Nuxt UI generates all eleven shades for each colour alias.
+ */
+@theme static {
+    --color-ivory-50: #fbf8f2;
+    --color-ivory-100: #f1e9db;
+    --color-ivory-200: #e5d8c4;
+    --color-ivory-300: #d2c2a9;
+    --color-ivory-400: #b9a78b;
+    --color-ivory-500: #9b866a;
+    --color-ivory-600: #79674f;
+    --color-ivory-700: #5b4c3a;
+    --color-ivory-800: #3d3328;
+    --color-ivory-900: #261f18;
+    --color-ivory-950: #17120d;
+
+    --color-huella-slate-50: #f3f6f8;
+    --color-huella-slate-100: #dce6eb;
+    --color-huella-slate-200: #b9cdd6;
+    --color-huella-slate-300: #91aebd;
+    --color-huella-slate-400: #6c90a3;
+    --color-huella-slate-500: #3e5a6d;
+    --color-huella-slate-600: #344e60;
+    --color-huella-slate-700: #2b4050;
+    --color-huella-slate-800: #23333f;
+    --color-huella-slate-900: #192630;
+    --color-huella-slate-950: #0f171d;
+
+    --color-huella-teal-50: #f1f8f6;
+    --color-huella-teal-100: #ddefea;
+    --color-huella-teal-200: #bbe0d7;
+    --color-huella-teal-300: #92c7bb;
+    --color-huella-teal-400: #5da399;
+    --color-huella-teal-500: #43877f;
+    --color-huella-teal-600: #326c65;
+    --color-huella-teal-700: #28554f;
+    --color-huella-teal-800: #20423e;
+    --color-huella-teal-900: #17312e;
+    --color-huella-teal-950: #0d1e1c;
+
+    --color-huella-ink-50: #fafaf9;
+    --color-huella-ink-100: #f2f1ef;
+    --color-huella-ink-200: #e6e4e0;
+    --color-huella-ink-300: #cbc8c2;
+    --color-huella-ink-400: #a8a49d;
+    --color-huella-ink-500: #85817b;
+    --color-huella-ink-600: #6b6863;
+    --color-huella-ink-700: #4e4e4e;
+    --color-huella-ink-800: #363636;
+    --color-huella-ink-900: #242424;
+    --color-huella-ink-950: #171717;
+
+    --color-huella-danger-50: #fdf4f2;
+    --color-huella-danger-100: #f9e8e4;
+    --color-huella-danger-200: #f2cfc8;
+    --color-huella-danger-300: #e7aaa0;
+    --color-huella-danger-400: #d47b70;
+    --color-huella-danger-500: #b84d43;
+    --color-huella-danger-600: #9b3d35;
+    --color-huella-danger-700: #7d302a;
+    --color-huella-danger-800: #5f2520;
+    --color-huella-danger-900: #431a17;
+    --color-huella-danger-950: #2a100e;
+
+    --font-serif: Georgia, "Times New Roman", serif;
+    --font-sans: Montserrat, ui-sans-serif, system-ui, sans-serif;
+
+    /* Editorial type scale; each step carries its own leading and tracking */
+    --text-display: 3.25rem;
+    --text-display--line-height: 1.08;
+    --text-display--letter-spacing: -0.02em;
+    --text-h1: 2.5rem;
+    --text-h1--line-height: 1.15;
+    --text-h1--letter-spacing: -0.015em;
+    --text-h2: 1.875rem;
+    --text-h2--line-height: 1.25;
+    --text-h3: 1.5rem;
+    --text-h3--line-height: 1.3;
+    --text-reading: 1.125rem;
+    --text-reading--line-height: 1.7;
+    --text-quote: 1.5rem;
+    --text-quote--line-height: 1.45;
+    --text-citation: 0.9375rem;
+    --text-citation--line-height: 1.55;
+    --text-meta: 0.8125rem;
+    --text-meta--line-height: 1.45;
+
+    /* About 70 characters of Georgia at the reading size */
+    --container-measure: 42.5rem;
+    --container-site: 75rem;
+}
+
+/* Nuxt UI's semantic roles, pointed at the Huella palette. Light only: colour mode is off. */
+:root {
+    --ui-bg: var(--color-ivory-100);
+    --ui-bg-muted: var(--color-ivory-50);
+    --ui-bg-elevated: var(--color-ivory-50);
+    --ui-bg-accented: var(--color-ivory-200);
+    --ui-bg-inverted: var(--color-huella-slate-900);
+
+    --ui-text-dimmed: var(--color-huella-ink-500);
+    --ui-text-muted: var(--color-huella-ink-600);
+    --ui-text-toned: var(--color-huella-ink-700);
+    --ui-text: var(--color-huella-ink-700);
+    --ui-text-highlighted: var(--color-huella-slate-900);
+    --ui-text-inverted: var(--color-ivory-50);
+
+    --ui-border: var(--color-ivory-300);
+    --ui-border-muted: var(--color-ivory-200);
+    --ui-border-accented: var(--color-huella-slate-300);
+    --ui-border-inverted: var(--color-huella-slate-900);
+
+    /* Brand teal (400) fails contrast as text; the 600 step is the legible one */
+    --ui-secondary: var(--color-huella-teal-600);
+    --ui-error: var(--color-huella-danger-600);
+
+    --ui-radius: 0.25rem;
+    --ui-container: var(--container-site);
+}
+
+html {
+    background: var(--ui-bg);
+    color: var(--ui-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* Tailwind v4 preflight leaves native <button> at `cursor: default`, and UButton renders one */
+button:not(:disabled) {
+    cursor: pointer;
+}
