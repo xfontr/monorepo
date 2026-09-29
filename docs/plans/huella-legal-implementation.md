@@ -22,7 +22,7 @@ that files or merges an item.
 
 | Fact | Consequence |
 | --- | --- |
-| WordPress is read-only to us: no plugins, ACF, REST fields or webhooks | Whatever core WP doesn't return is derived from post HTML or terms, or dropped |
+| WordPress is read-only to us: no new plugins, ACF fields, REST fields or webhooks. Installed ones, Yoast among them, are exposed | Whatever WP doesn't return is derived from post HTML or terms, or dropped |
 | [`useContent()`](../../packages/content/src/nuxt/runtime/composables/useContent.ts) only calls the Nitro routes `/api/content/*`, and its vendor config is private | "No BFF" means rewriting the data layer to call WP from the browser, or a full static generate with no server for forms and search |
 | `Entry` has no authors, and nothing for issue, series, reading time, TOC, footnotes, bibliography or views | The content model has to be decided before cards, articles or listings (S1) |
 | The app runs SSR on Netlify's git integration with no preset, no `routeRules` and no Nitro storage | `defineCachedEventHandler` caches live in memory per function instance, so the content TTLs barely hold (S2) |
@@ -129,7 +129,8 @@ Answer each question from the vendors' current pages, not from memory:
 - **Preview deploys** for PRs.
 - **Translations in production:** Tolgee, a hosted `internal` service, or messages baked in at
   build time. See A2.
-- **Search in static mode.** Search from the browser needs WP CORS, which we can't configure.
+- **Search in static mode.** WP's CORS headers already allow any origin, so search can run from
+  the browser, bypassing the BFF's cache.
 
 The lean is to stay on Netlify with Nitro and hybrid `routeRules`. The content package, the forms
 and search all need a server, and read-only WP rules out WP-side form plugins.
@@ -174,24 +175,24 @@ The old board assumed a contact form. The form the design actually has is Public
 
 A1 comes first. A2 can run alongside it.
 
-- **A1 Test harness** (after S5):
+- **A1 🎫 #192 Test harness** (after S5):
   - Copy developer-portal's two-project Vitest config (node + `defineVitestProject` with
     happy-dom) and add `@nuxt/test-utils`.
   - Add Playwright + `@axe-core/playwright`, the fake-WP server, a screenshot helper for the three
     widths, and the CI job.
   - Add one smoke spec per layer to prove the wiring.
-- **A2 Spanish-only locale and copy plumbing:**
+- **A2 🎫 #193 Spanish-only locale and copy plumbing:**
   - `es-ES` only, `strategy: no_prefix`, `lang="es"`. `en-GB` goes, and keys follow a naming
     convention.
   - Pick the vendor explicitly. `nuxt.config.ts` points at Tolgee, but
     `infrastructure/translations/projects/huella-legal/*.json` feeds the `internal` vendor. Keys
     written there never reach the app unless the app switches vendor.
   - From this ticket on, UI tickets use keys, not hard-coded copy.
-- **A3 Content model and view-model mappers** (after S1):
+- **A3 🎫 #194 Content model and view-model mappers** (after S1):
   - The `@monorepo/content` additions S1 decides on.
   - Pure mappers: `Entry` → `ArticleSummary`/`Article`, `Term` → `Category`, user → `Author`. They
     compute reading time, the citation string, and issue and series.
-- **A4 WP HTML pipeline** (after S1):
+- **A4 🎫 #195 WP HTML pipeline** (after S1):
   - Sanitise, add heading ids, extract the TOC, footnotes and bibliography.
   - Map the `hl-*` classes, wrap tables for the scroll shadows, set image loading attributes.
   - Output: HTML that is safe to `v-html`, plus the structured end-matter.
@@ -200,21 +201,21 @@ A1 comes first. A2 can run alongside it.
 
 Promoted from `app/lab/`. B1, B3 and B4 don't depend on any spike.
 
-- **B1 Editorial primitives:** Wordmark, Kicker, MediaFallback, Byline, SectionHeading,
+- **B1 🎫 #196 Editorial primitives:** Wordmark, Kicker, MediaFallback, Byline, SectionHeading,
   Pill/TagPill (count and active states), InitialsAvatar and its stack, StatPair, IssueNumber.
-- **B2 ArticleCard family:** all five variants (lead+split, standard, compact, media, row), typed
-  against `ArticleSummary`, plus grid and list wrappers.
-- **B3 Shell and error surface:**
+- **B2 🎫 #197 ArticleCard family:** all five variants (lead+split, standard, compact, media,
+  row), typed against `ArticleSummary`, plus grid and list wrappers.
+- **B3 🎫 #198 Shell and error surface:**
   - SiteHeader: journal strip, nav with `aria-current`, `USlideover` mobile menu.
   - SiteFooter, and the default layout with its container and skip link.
   - `error.vue`, using the 404 and 500 designs.
-- **B4 Form kit**, presentation only:
+- **B4 🎫 #199 Form kit**, presentation only:
   - Field patterns, FormErrorSummary with anchor links, SuccessPanel, AlertPanel.
   - NewsletterForm in its band, slate and sidebar variants.
   - Lives in `app/components/form/`, apart from validation and submission.
-- **B5 Listing kit:** URL-driven pagination (mobile prev / "n / N" / next, `UPagination` from `sm`
-  up), SortSelect, scrolling FilterPills, EmptyState, NoResults, a skeleton list.
-- **B6 Article reading kit:**
+- **B5 🎫 #200 Listing kit:** URL-driven pagination (mobile prev / "n / N" / next, `UPagination`
+  from `sm` up), SortSelect, scrolling FilterPills, EmptyState, NoResults, a skeleton list.
+- **B6 🎫 #201 Article reading kit:**
   - `.hl-prose` moves out of the lab page into the app CSS.
   - TOC rail and accordion, with a `useScrollSpy` composable.
   - Notes with back-links, Bibliography, CiteBox with copy, ShareBar, AuthorCard, SeriesNav.
