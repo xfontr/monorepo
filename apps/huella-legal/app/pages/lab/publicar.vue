@@ -193,7 +193,7 @@ const states = [
                             <UButton
                                 variant="link"
                                 label="Enviar otra propuesta"
-                                class="-ml-3 px-3"
+                                class="-ml-3"
                                 to="/lab/publicar#formulario"
                             />
                         </div>
@@ -391,7 +391,7 @@ const states = [
                                 label="Ver trabajos publicados"
                                 trailing-icon="i-lucide-arrow-right"
                                 to="/lab/category"
-                                class="mt-2 -ml-3 px-3 text-huella-teal-200 hover:text-ivory-50"
+                                class="mt-2 -ml-3 text-huella-teal-200 hover:text-ivory-50"
                             />
                         </div>
                     </aside>

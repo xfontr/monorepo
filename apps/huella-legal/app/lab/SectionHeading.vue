@@ -30,7 +30,7 @@ withDefaults(defineProps<{ title: string, kicker?: string, link?: string, linkTo
             :label="link"
             :to="linkTo"
             trailing-icon="i-lucide-arrow-right"
-            class="-mr-3 px-3"
+            class="-mr-3"
         />
     </div>
 </template>

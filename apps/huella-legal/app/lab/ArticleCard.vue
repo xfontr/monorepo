@@ -3,6 +3,7 @@ import type { LabArticle } from "./fixtures";
 import Byline from "./Byline.vue";
 import Kicker from "./Kicker.vue";
 import MediaFallback from "./MediaFallback.vue";
+import { useLabHref } from "./variant";
 
 // One card, five densities. The title is the only link to the article, so category and author
 // links inside the card never nest inside another anchor.
@@ -14,6 +15,7 @@ const props = withDefaults(defineProps<{
     split?: boolean
 }>(), { variant: "standard", showExcerpt: true, split: false });
 
+const href = useLabHref();
 const hasMedia = computed(() => props.variant === "media" || props.variant === "row" || (props.variant === "lead" && props.article.media));
 const gap = computed(() => ({ lead: "gap-5", standard: "gap-3", media: "gap-3", row: "gap-3", compact: "gap-2" })[props.variant]);
 </script>
@@ -46,7 +48,7 @@ const gap = computed(() => ({ lead: "gap-5", standard: "gap-3", media: "gap-3", 
             :class="[gap, split && 'lg:col-span-5']"
         >
             <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <Kicker href="/lab/category">
+                <Kicker :href="href('/lab/category')">
                     {{ article.category }}
                 </Kicker>
                 <span
@@ -66,7 +68,7 @@ const gap = computed(() => ({ lead: "gap-5", standard: "gap-3", media: "gap-3", 
                 }"
             >
                 <a
-                    href="/lab/article"
+                    :href="href('/lab/article')"
                     class="decoration-huella-slate-300 decoration-1 underline-offset-[0.2em] group-hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
                 >{{ article.title }}</a>
             </h3>

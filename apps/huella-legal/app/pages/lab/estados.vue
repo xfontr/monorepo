@@ -60,7 +60,7 @@ const found = [articles[0]!, articles[4]!];
                             label="Ir a la portada"
                             trailing-icon="i-lucide-arrow-right"
                             to="/lab/home"
-                            class="mt-4 -ml-3 px-3"
+                            class="mt-4 -ml-3"
                         />
                     </div>
                     <div class="lg:col-span-5">

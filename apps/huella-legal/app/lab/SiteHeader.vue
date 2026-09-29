@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { issn, nav } from "./fixtures";
+import { issn, nav as defaultNav } from "./fixtures";
+import { useLabHref } from "./variant";
 import Wordmark from "./Wordmark.vue";
 
-const props = withDefaults(defineProps<{ current?: string, menuOpen?: boolean }>(), {
+const props = withDefaults(defineProps<{ current?: string, menuOpen?: boolean, nav?: { label: string, to: string }[] }>(), {
     current: undefined,
     menuOpen: false,
+    nav: () => defaultNav,
 });
+
+const href = useLabHref();
 
 const open = ref(props.menuOpen);
 </script>
@@ -31,7 +35,7 @@ const open = ref(props.menuOpen);
 
         <div class="mx-auto flex h-16 max-w-site items-center justify-between gap-6 px-4 md:h-20 md:px-8 lg:px-12">
             <a
-                href="/lab/home"
+                :href="href('/lab/home')"
                 aria-label="Huella Legal, portada"
                 class="focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
             >
@@ -48,7 +52,7 @@ const open = ref(props.menuOpen);
                         :key="item.label"
                     >
                         <a
-                            :href="item.to"
+                            :href="href(item.to)"
                             :aria-current="item.label === current ? 'page' : undefined"
                             class="relative inline-flex min-h-11 items-center px-3 font-sans text-sm font-semibold text-toned transition-colors hover:text-highlighted focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary aria-[current=page]:text-highlighted aria-[current=page]:after:absolute aria-[current=page]:after:inset-x-3 aria-[current=page]:after:-bottom-[1.1875rem] aria-[current=page]:after:h-0.5 aria-[current=page]:after:bg-primary"
                         >{{ item.label }}</a>
@@ -107,7 +111,7 @@ const open = ref(props.menuOpen);
                             :key="item.label"
                         >
                             <a
-                                :href="item.to"
+                                :href="href(item.to)"
                                 :aria-current="item.label === current ? 'page' : undefined"
                                 class="flex min-h-14 items-center justify-between px-4 font-serif text-xl text-highlighted focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary aria-[current=page]:text-primary"
                             >
@@ -131,7 +135,7 @@ const open = ref(props.menuOpen);
                         variant="outline"
                         color="neutral"
                         label="Publicar un artículo"
-                        to="/lab/publicar"
+                        :to="href('/lab/publicar')"
                     />
                     <p class="pt-2 font-sans text-xs text-muted">
                         Revista jurídica de acceso libre · {{ issn }}

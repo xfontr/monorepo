@@ -34,19 +34,20 @@ copy from [`app/lab/fixtures.ts`](./app/lab/fixtures.ts) and never call `@monore
 design review never depends on WordPress being reachable.
 
 Tailwind's incremental scan in the dev server sometimes misses classes in a newly created file under
-`app/lab/` or `app/pages/lab/`. If a fresh page renders with a collapsed grid, restart the server
-before debugging the markup.
+`app/lab/` or `app/pages/lab/`. If a fresh page renders with a collapsed grid, touch
+[`main.css`](./app/assets/css/main.css) to force a rescan, or restart the server, before debugging
+the markup.
 
 ## 🗂 Structure
 
 | Path | Role |
 | --- | --- |
 | [`app/assets/css/main.css`](./app/assets/css/main.css) | Every token: palettes, type scale, measure, and Nuxt UI's semantic roles pointed at them |
-| [`app/app.config.ts`](./app/app.config.ts) | Nuxt UI colour aliases and control defaults (44 px minimum height, paper field surface) |
+| [`app/app.config.ts`](./app/app.config.ts) | Nuxt UI colour aliases and control defaults: 44 px minimum height, paper field surface, and a button theme that darkens on hover, rings outlines in ink and draws the 2 px focus ring the foundations page promises |
 | `app/pages/lab/*.vue` | One review page per site archetype |
 | `app/lab/*.vue` | Lab-only building blocks shared across those pages; loose on purpose |
 | [`app/lab/article-body.ts`](./app/lab/article-body.ts) | The article body as WordPress-style HTML, so the reading styles are tested against CMS output |
-| `.hl-prose` in [`app/pages/lab/article.vue`](./app/pages/lab/article.vue) | Reading typography for that HTML: headings, drop cap, notes, quotes, quoted legislation, tables, figures. It styles plain elements and Gutenberg's own wrappers (`wp-block-table`), so production can reuse it on CMS HTML |
+| `.hl-prose` in [`app/lab/prose.css`](./app/lab/prose.css) | Reading typography for that HTML: headings, drop cap, notes, quotes, quoted legislation, tables, figures. It styles plain elements and Gutenberg's own wrappers (`wp-block-table`), so production can reuse it on CMS HTML |
 
 ## 🎨 Tokens
 
@@ -80,7 +81,7 @@ The Penpot P5 sheet is deleted, so its deviations are recorded here.
 | Token | P5 value | Lab value | Why |
 | --- | --- | --- | --- |
 | Control / card radius | 8 px / 12 px | 4 px (`--ui-radius`) / 2–4 px | Rounded cards read as an app, not a journal; hairline rules carry the structure instead |
-| Focus offset | 4 px | 2 px (Nuxt UI default) | Keeps the ring attached to tight inline links; still a 2 px ring, visible on paper and slate |
+| Focus offset | 4 px | 2 px (set for buttons in `app.config.ts`; Nuxt UI's own is a 3 px ring at 25 % with no offset) | Keeps the ring attached to tight inline links; still a 2 px ring, visible on paper and slate |
 | Heading colour | `slate-800` | `slate-900` | More separation from body copy at regular weight |
 | Kickers | No automatic uppercase | Uppercase, 0.12em tracking | CSS uppercase keeps Spanish accents; approved at Gate A |
 | Canvas | `ivory-100` | `ivory-100` | Unchanged |
@@ -95,11 +96,24 @@ These pages come from the live site, not from an invented sitemap.
 | `/lab` | Foundations | Colour, type, reading, controls, cards; links to every other lab page |
 | `/lab/home` | Homepage | Direction A: statement line, lead article beside the Fundamentos series, subject index; `?menu=1` opens the mobile menu |
 | `/lab/article` | Article | Issue number, series position, TOC rail (accordion on mobile), roman-numbered sections, quoted legislation, scrolling table, notes, bibliography, "Cómo citar", author card, series navigator |
-| `/lab/category` | Category listing | Topic filter, sort, row cards with image fallback, numbered pager (previous/next on phones); `?autor=1` turns it into a contributor profile |
+| `/lab/category` | Category listing | Sort, row cards with image fallback, pager that marks the current page with a 2 px ink rule (numbers collapse to "Página n de m" on phones); `?autor=1` turns it into a contributor profile |
 | `/lab/categorias` | Subject index | Ten areas of law plus the TFG/TFM archive, then tags |
 | `/lab/colaboradores` | About + contributors | Mission, three editorial principles, searchable directory with a no-match state |
 | `/lab/publicar` | Publish an article | Reasons, five-step process, form, FAQ, TFG/TFM track; `?estado=invalid\|submitting\|success\|error` previews each submission state |
 | `/lab/estados` | Utility states | 404, search results, no results, empty subject, server error, loading |
+
+The B routes are proposals from the [benchmark](../../docs/plans/huella-legal-benchmark.md), not
+approved design. They link to one another and fall back to the A page where no B version exists;
+a badge on each lists what changed and which data WordPress can't supply.
+
+| Variant | Against | Proposal |
+| --- | --- | --- |
+| `/lab/home-b` | `/lab/home` | Text-first homepage: lead in type, numbered "Lo último", series band, latest by subject, TFG/TFM band, "Del archivo" |
+| `/lab/category-b` | `/lab/category` | Subtopics, format tabs, result count, text rows grouped by year |
+| `/lab/category-c` | `/lab/category` | One faceted archive (subject, format, series, year, contributor, search); a subject is a saved filter |
+| `/lab/categorias-b` | `/lab/categorias` | Subject, format, series and tag as four separate axes; A–Z tag index |
+| `/lab/article-b` | `/lab/article` | Margin notes from 1280 px, record rail, running head, citation formats, cited legislation, reply invitation |
+| `/lab/serie-b` | — | Series landing page |
 
 ## 🚦 Review gates
 

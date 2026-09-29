@@ -65,6 +65,15 @@ const labPages = [
     { label: "Publicar · con errores", to: "/lab/publicar?estado=invalid#formulario" },
     { label: "Estados", to: "/lab/estados" },
 ];
+
+const variantPages = [
+    { label: "Portada B", to: "/lab/home-b" },
+    { label: "Materia B", to: "/lab/category-b" },
+    { label: "Archivo C", to: "/lab/category-c" },
+    { label: "Materias B", to: "/lab/categorias-b" },
+    { label: "Artículo B", to: "/lab/article-b" },
+    { label: "Serie B", to: "/lab/serie-b" },
+];
 </script>
 
 <template>
@@ -97,6 +106,20 @@ const labPages = [
                     <a
                         :href="page.to"
                         class="inline-flex min-h-11 items-center rounded-full border border-default px-4 font-sans text-sm font-medium text-toned hover:bg-ivory-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    >{{ page.label }}</a>
+                </li>
+            </ul>
+            <p class="mt-5 font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                Variantes en estudio
+            </p>
+            <ul class="mt-2 flex flex-wrap gap-2">
+                <li
+                    v-for="page in variantPages"
+                    :key="page.to"
+                >
+                    <a
+                        :href="page.to"
+                        class="inline-flex min-h-11 items-center rounded-full border border-dashed border-(--ui-border-accented) px-4 font-sans text-sm font-medium text-toned hover:bg-ivory-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                     >{{ page.label }}</a>
                 </li>
             </ul>

@@ -244,7 +244,7 @@ const facts = [
                         :label="item.action"
                         trailing-icon="i-lucide-arrow-right"
                         to="/lab/publicar"
-                        class="mt-auto -ml-3 px-3"
+                        class="mt-auto -ml-3"
                     />
                 </div>
             </section>

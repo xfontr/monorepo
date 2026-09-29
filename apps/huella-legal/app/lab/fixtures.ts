@@ -29,7 +29,7 @@ export interface LabCategory {
     count: number
 }
 
-const author = (name: string, role?: string, bio?: string, articles?: number): LabAuthor => ({
+export const author = (name: string, role?: string, bio?: string, articles?: number): LabAuthor => ({
     name,
     role,
     bio,
