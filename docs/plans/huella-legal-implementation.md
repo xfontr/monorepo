@@ -304,7 +304,7 @@ work.
 | Later need | What changes |
 | --- | --- |
 | Deleting `packages/ui` | Tracked under ADR 0023 (#26), not here |
-| Interest calculator | S4 decides where it lives; building it is a later ticket |
+| Interest calculator | An app page at `/calculo-intereses/` ([0028](../decisions/0028-huella-legal-urls-and-cutover.md)). Building it is a later ticket, but it has to land before F2 |
 | Comments | Need a moderation decision first |
 | Search overlay | Has no design; the header search button goes to `/buscar` |
 | Dark theme | `colorMode` stays off; the tokens would need a second `:root` set |
