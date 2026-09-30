@@ -10,6 +10,11 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   the exception: they select a config type, so they stay literals. So are the observability `version`
   and `environment`, which default to `0.0.0` and `development`. New config goes in `.env.example`
   with a row in the README table, and nowhere else.
+- **No UI copy is hard-coded outside `/lab`.** It goes in
+  [`infrastructure/translations/projects/huella-legal/es-ES.json`](../../infrastructure/translations/projects/huella-legal/es-ES.json)
+  under a key that follows the [naming convention](./README.md#-copy-keys), and the component calls
+  `t()`. Dev reads that file and builds read Tolgee, which is deliberately left behind for now.
+  Don't update Tolgee; the owner brings it up to date.
 - **There is no `app/layers/` directory today.** `app/` holds the whole front end and stays thin: a
   layout, an entry page, an error page, client plugins, and pages that carry no domain logic of
   their own. If feature code with real domain logic lands, it goes in a **Nuxt layer** under

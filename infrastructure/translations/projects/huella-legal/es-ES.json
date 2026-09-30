@@ -1,25 +1,22 @@
 {
-    "meta": {
+    "app": {
         "description": "Un blog jurídico, rediseñado",
         "title": "Huella Legal"
     },
-    "shared": {
-        "health": "Salud"
+    "article": {
+        "back": "← Publicaciones"
     },
-    "user": {
-        "instructions": {
-            "content": "¡Soy un usuario normal!",
-            "title": "Instrucciones"
-        }
+    "articles": {
+        "count": "{shown} de {total}",
+        "pagination": {
+            "label": "Páginas de publicaciones",
+            "next": "Siguiente →",
+            "position": "Página {page} de {total}",
+            "previous": "← Anterior"
+        },
+        "title": "Publicaciones"
     },
-    "user.admin": {
-        "instructions": {
-            "content": "¡Soy un administrador!"
-        }
-    },
-    "user.advanced": {
-        "instructions": {
-            "content": "¡Soy un usuario avanzado!"
-        }
+    "common": {
+        "loading": "Cargando…"
     }
 }

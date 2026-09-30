@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { getEntry } = useContent();
-const { locale } = useI18n();
+const { t, locale } = useI18n();
 const route = useRoute();
 
 const slug = computed(() => String(route.params.slug));
@@ -27,14 +27,14 @@ function formatDate(date: string): string {
             class="back"
             to="/articles"
         >
-            ← Articles
+            {{ t("article.back") }}
         </NuxtLink>
 
         <p
             v-if="status === 'pending'"
             class="notice"
         >
-            Loading…
+            {{ t("common.loading") }}
         </p>
 
         <template v-else-if="entry">
