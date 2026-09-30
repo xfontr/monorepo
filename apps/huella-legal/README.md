@@ -189,13 +189,15 @@ Nuxt modules would otherwise give it:
 | `fontless` | `@nuxt/fonts`, which is built on it | `fonts` in `nuxt.config.ts` |
 | `main.css` in [`preview.ts`](./.storybook/preview.ts) | `css` in `nuxt.config.ts` | — |
 | A `<UApp>` decorator | `app.vue`'s root, which overlays portal into | — |
+| `vue-i18n` in [`preview.ts`](./.storybook/preview.ts) | `@nuxtjs/i18n`: `$t` and `$i18n` in templates | The `es-ES.json` [dev reads](#-i18n), injected by `main.ts` |
+| `autoImport.dirs` | Nuxt's `app/utils` auto-imports, in scripts and templates | `app/utils/` |
 
 Both configs are imported, not copied, so a theme change reaches the stories with no second edit.
 Each script runs `nuxi prepare` first because Vite follows `tsconfig.json` into `.nuxt/`.
 
 A story renders a component **without Nuxt**: no router (`router: false`, so Nuxt UI links are plain
-anchors), no i18n, no Pinia and no `#imports`. That's why the stories so far live in `app/lab/`,
-whose components never call `t()`.
+anchors), no Pinia and no `#imports`. Copy comes through `$t` in the template, never `useI18n()`,
+which Storybook has no auto-import for.
 
 
 Two halves, one per runtime, each from [`@monorepo/observability`](../../packages/observability) and

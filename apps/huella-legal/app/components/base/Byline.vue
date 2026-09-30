@@ -10,24 +10,22 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), { publishedAt: undefined, readingMinutes: undefined, avatars: false });
 
-const { t, locale } = useI18n();
-
 // Intl places the commas and "y", so each name stays its own link in any locale
-const names = computed(() => {
+const names = (locale: string) => {
     let index = 0;
 
-    return new Intl.ListFormat(locale.value, { type: "conjunction" })
+    return new Intl.ListFormat(locale, { type: "conjunction" })
         .formatToParts(props.authors.map((author) => author.name))
         .map((part) => (part.type === "element" ? { author: props.authors[index++] } : { literal: part.value }));
-});
+};
 
 // Pinned to the journal's zone so the server and the browser print the same day
-const date = computed(() => props.publishedAt && new Intl.DateTimeFormat(locale.value, {
+const date = (locale: string) => props.publishedAt && new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "long",
     year: "numeric",
     timeZone: "Europe/Madrid",
-}).format(new Date(props.publishedAt)));
+}).format(new Date(props.publishedAt));
 </script>
 
 <template>
@@ -52,7 +50,7 @@ const date = computed(() => props.publishedAt && new Intl.DateTimeFormat(locale.
                 <li class="text-toned">
                     <span>
                         <template
-                            v-for="(part, index) in names"
+                            v-for="(part, index) in names($i18n.locale)"
                             :key="index"
                         >
                             <template v-if="part.literal">{{ part.literal }}</template>
@@ -69,11 +67,11 @@ const date = computed(() => props.publishedAt && new Intl.DateTimeFormat(locale.
                         </template>
                     </span>
                 </li>
-                <li v-if="date">
-                    <time :datetime="publishedAt">{{ date }}</time>
+                <li v-if="publishedAt">
+                    <time :datetime="publishedAt">{{ date($i18n.locale) }}</time>
                 </li>
                 <li v-if="readingMinutes">
-                    {{ t("byline.readingTime", { minutes: readingMinutes }, readingMinutes) }}
+                    {{ $t("byline.readingTime", { minutes: readingMinutes }, readingMinutes) }}
                 </li>
             </ul>
         </div>

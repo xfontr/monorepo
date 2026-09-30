@@ -10,8 +10,6 @@ withDefaults(defineProps<Props>(), {
     count: undefined,
     active: false,
 });
-
-const { t } = useI18n();
 </script>
 
 <template>
@@ -37,7 +35,7 @@ const { t } = useI18n();
                 :class="active ? 'text-huella-slate-100' : 'text-muted'"
                 aria-hidden="true"
             >{{ count }}</span>
-            <span class="sr-only">{{ t("tagPill.count", { count }, count) }}</span>
+            <span class="sr-only">{{ $t("tagPill.count", { count }, count) }}</span>
         </template>
     </UButton>
 </template>
