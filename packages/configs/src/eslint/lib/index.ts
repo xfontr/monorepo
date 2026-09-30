@@ -7,7 +7,8 @@ import baseIgnores from "./ignores.ts";
 import coreIsolation from "./coreIsolation.ts";
 import layerIsolation from "./layerIsolation.ts";
 import propsInterface from "./propsInterface.ts";
+import templateI18n from "./templateI18n.ts";
 
 const regexp: object = regexpPlugin.configs["flat/recommended"];
 
-export { stylistic, jsonc, boundaries, vitestConfig, baseIgnores, coreIsolation, layerIsolation, propsInterface, regexp };
+export { stylistic, jsonc, boundaries, vitestConfig, baseIgnores, coreIsolation, layerIsolation, propsInterface, templateI18n, regexp };

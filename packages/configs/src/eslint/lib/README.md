@@ -14,6 +14,7 @@ composes it instead — see the [package README](../../../README.md#-what-the-es
 | [`coreIsolation.ts`](./coreIsolation.ts) | `no-restricted-imports` under `**/src/core/**`, keeping the framework-agnostic half of `content`/`i18n` free of the Nuxt and Nitro runtime — the list is in the [package README](../../../README.md#-what-the-eslint-factories-bundle) |
 | [`layerIsolation.ts`](./layerIsolation.ts) | `no-restricted-imports` under `app/` and `server/`, keeping Nuxt's browser-facing layers free of the Node-only `tools/` layer |
 | [`propsInterface.ts`](./propsInterface.ts) | `no-restricted-syntax` under `**/*.vue`, requiring `defineProps<Props>()` with `Props` declared as a separate `interface` rather than an inline type literal. Vue configs only |
+| [`templateI18n.ts`](./templateI18n.ts) | `vue/no-restricted-syntax` under `**/*.vue`, requiring the global `$t`/`$te`/`$tm`/`$rt`/`$d`/`$n` inside `<template>` instead of the `useI18n()` binding. Vue configs only |
 | [`ignores.ts`](./ignores.ts) | `baseIgnores` — the glob list every factory feeds into ESLint's `ignores` |
 | [`jsonc.ts`](./jsonc.ts) | `eslint-plugin-jsonc`'s `sort-keys`, scoped to `**/projects/*/*.json` so the TMS locale files stay diffable |
 | [`stylistic.ts`](./stylistic.ts) | `@stylistic/eslint-plugin`'s `recommended` config plus this repo's four formatting calls: 4-space indent, semicolons, double quotes, parenthesised arrow params |

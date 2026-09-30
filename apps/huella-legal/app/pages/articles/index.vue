@@ -4,7 +4,7 @@ import type { RouteLocationRaw } from "vue-router";
 const PER_PAGE = 6;
 
 const { listEntries } = useContent();
-const { t, locale } = useI18n();
+const { locale } = useI18n();
 const route = useRoute();
 
 // Deliberately unvalidated — the BFF already bounds `page` (README.md § Content)
@@ -52,19 +52,19 @@ function formatDate(date: string): string {
         class="articles"
         :aria-busy="status === 'pending'"
     >
-        <h1>{{ t("articles.title") }}</h1>
+        <h1>{{ $t("articles.title") }}</h1>
 
         <!-- Only while there is nothing to show: past the first page the previous one stays up, dimmed -->
         <p
             v-if="status === 'pending' && !data"
             class="notice"
         >
-            {{ t("common.loading") }}
+            {{ $t("common.loading") }}
         </p>
 
         <template v-else-if="data">
             <p class="count">
-                {{ t("articles.count", { shown: data.items.length, total: data.total }) }}
+                {{ $t("articles.count", { shown: data.items.length, total: data.total }) }}
             </p>
 
             <article
@@ -120,7 +120,7 @@ function formatDate(date: string): string {
             <nav
                 v-if="data.totalPages > 1"
                 class="pagination"
-                :aria-label="t('articles.pagination.label')"
+                :aria-label="$t('articles.pagination.label')"
             >
                 <!-- aria-current-value, because these links only differ from the current URL by
                      their query and vue-router matches on the path: left alone, every one of them
@@ -132,7 +132,7 @@ function formatDate(date: string): string {
                     rel="prev"
                     :to="pageLink(data.page - 1)"
                 >
-                    {{ t("articles.pagination.previous") }}
+                    {{ $t("articles.pagination.previous") }}
                 </NuxtLink>
 
                 <!-- A span, not a disabled link: there is no previous page to point at, and an
@@ -141,11 +141,11 @@ function formatDate(date: string): string {
                     v-else
                     class="pagination__link pagination__link--spent"
                 >
-                    {{ t("articles.pagination.previous") }}
+                    {{ $t("articles.pagination.previous") }}
                 </span>
 
                 <p class="pagination__position">
-                    {{ t("articles.pagination.position", { page: data.page, total: data.totalPages }) }}
+                    {{ $t("articles.pagination.position", { page: data.page, total: data.totalPages }) }}
                 </p>
 
                 <NuxtLink
@@ -155,14 +155,14 @@ function formatDate(date: string): string {
                     rel="next"
                     :to="pageLink(data.page + 1)"
                 >
-                    {{ t("articles.pagination.next") }}
+                    {{ $t("articles.pagination.next") }}
                 </NuxtLink>
 
                 <span
                     v-else
                     class="pagination__link pagination__link--spent"
                 >
-                    {{ t("articles.pagination.next") }}
+                    {{ $t("articles.pagination.next") }}
                 </span>
             </nav>
         </template>
