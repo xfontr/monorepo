@@ -76,7 +76,7 @@ const gap = computed(() => ({ lead: "gap-5", standard: "gap-3", media: "gap-3", 
             <p
                 v-if="showExcerpt && article.excerpt && variant !== 'compact'"
                 class="font-serif text-toned text-pretty"
-                :class="{ lead: 'text-reading max-w-measure', row: 'max-w-measure text-base leading-relaxed line-clamp-2' }[variant] ?? 'text-base leading-relaxed line-clamp-3'"
+                :class="({ lead: 'text-reading max-w-measure', row: 'max-w-measure text-base leading-relaxed line-clamp-2' } as Partial<Record<typeof variant, string>>)[variant] ?? 'text-base leading-relaxed line-clamp-3'"
             >
                 {{ article.excerpt }}
             </p>
