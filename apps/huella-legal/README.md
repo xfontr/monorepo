@@ -199,6 +199,10 @@ A story renders a component **without Nuxt**: no router (`router: false`, so Nux
 anchors), no Pinia and no `#imports`. Copy comes through `$t` in the template, never `useI18n()`,
 which Storybook has no auto-import for.
 
+The published copy lives in the [developer portal](../developer-portal/README.md)'s Pages artifact
+under `/huella-legal-storybook/`, linked from this app's card. `STORYBOOK_BASE_URL` sets its Vite
+base there and is unset locally.
+
 
 Two halves, one per runtime, each from [`@monorepo/observability`](../../packages/observability) and
 each skipped entirely when its URL is unset — which is why local dev ships nothing.
@@ -289,7 +293,6 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | Firefox or WebKit | Another project per browser in the configs preset, and every baseline tripled. Linux WebKit is not Safari, so it won't stand in for iOS readers |
 | A per-glob threshold on view models | A3 adds `shared/**` and `app/utils/**` at 95 alongside the mappers it creates |
 | A story for a component that calls `t()`, a store or `useRoute` | A `setup` in `.storybook/preview.ts` that installs `vue-i18n` with `es-ES.json`, Pinia and a memory router, and `router: true` in `main.ts` |
-| A published Storybook | A deploy job for `storybook-static/`. The developer portal's Storybook path belongs to `@monorepo/ui` and is due to go with it ([0023](../../docs/decisions/0023-huella-legal-owns-its-design-system.md)) |
 | Quote and callout styles | `hl-quote`, `hl-quote-short`, `hl-callout` and `hl-highlight` reach the page unstyled until B6 moves `.hl-prose` into the app CSS and gives them rules |
 | Consuming `/api/articles/:slug` | C1 switches [`articles/[slug].vue`](./app/pages/articles/%5Bslug%5D.vue) to it; until then that page still `v-html`s the raw WordPress body |
 | Parity with the `/lab` pages | Still a human check: the lab is stripped from production builds, and Linux substitutes a serif for Georgia |

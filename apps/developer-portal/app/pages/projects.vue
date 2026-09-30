@@ -21,6 +21,7 @@ const readmeByPath = computed(() => new Map(
 const projectLinks: Record<string, { storybook?: string, deploys?: string, environment?: string, website?: () => string | undefined }> = {
     "@monorepo/ui": { storybook: embedUrl("/storybook/") },
     "@monorepo/huella-legal": {
+        storybook: embedUrl("/huella-legal-storybook/"),
         deploys: `${repoUrl}/actions/workflows/netlify-deployment.yml`,
         environment: "huella-legal",
     },

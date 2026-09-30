@@ -34,7 +34,10 @@ export default defineNuxtConfig({
 
     nitro: {
         prerender: {
-            ignore: [`${process.env.NUXT_APP_BASE_URL ?? "/"}storybook/`],
+            ignore: [
+                `${process.env.NUXT_APP_BASE_URL ?? "/"}storybook/`,
+                `${process.env.NUXT_APP_BASE_URL ?? "/"}huella-legal-storybook/`,
+            ],
         },
 
         // The collectors reach outside `apps/developer-portal` on purpose, and the two vendored report

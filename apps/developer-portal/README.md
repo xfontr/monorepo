@@ -235,10 +235,10 @@ card carries an **Open site** link and a **Deploys** link to its GitHub Actions 
 portal gets the same pair: its Pages URL is derived from the repository name, and its deploy link opens
 the Pages workflow. Neither is an in-app write action.
 
-`@monorepo/ui`'s Storybook is built into the same Pages artifact under `/storybook/`. A second Pages
-deploy would replace this dashboard, so the deploy workflow builds the static Storybook beneath the
-Nuxt app and configures its Vite base from Pages' derived path. The UI card links there without a
-stored public URL.
+`@monorepo/ui`'s Storybook is built into the same Pages artifact under `/storybook/`, and
+`@monorepo/huella-legal`'s under `/huella-legal-storybook/`. A second Pages deploy would replace this
+dashboard, so the deploy workflow builds each static Storybook beneath the Nuxt app and configures its
+Vite base from Pages' derived path. Each card links to its own without a stored public URL.
 
 ## 💾 One store, and it is disposable
 
