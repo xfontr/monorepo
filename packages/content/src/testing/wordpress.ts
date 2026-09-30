@@ -1,7 +1,7 @@
 import { http, HttpResponse, type HttpHandler } from "msw";
 import { API_PATH, TAXONOMIES } from "#core/adapters/providers/wordpress/WordpressConfigs";
-import type { WordpressEntry, WordpressTerm } from "#core/adapters/providers/wordpress/WordpressTypes";
-import type { Entry, EntryResource, RichText, Term, TermResource } from "#core/domain/content";
+import type { WordpressEntry, WordpressTerm, WordpressUser, WordpressYoast } from "#core/adapters/providers/wordpress/WordpressTypes";
+import type { Author, Entry, EntryResource, RichText, SEO, Term, TermResource } from "#core/domain/content";
 
 export type WordpressContent = Partial<Record<EntryResource, Entry[]> & Record<TermResource, Term[]>>;
 
@@ -48,11 +48,13 @@ function toWordpressEntry(entry: Entry): WordpressEntry {
         excerpt: entry.excerpt && { rendered: toRendered(entry.excerpt) },
         date_gmt: entry.publishedAt?.replace(/Z$/, ""),
         modified_gmt: entry.updatedAt?.replace(/Z$/, ""),
+        yoast_head_json: toYoast(entry.seo),
         _embedded: {
             "wp:featuredmedia": entry.image
                 ? [{ id: Number(entry.image.id), source_url: entry.image.url, alt_text: entry.image.alt, media_details: { width: entry.image.width, height: entry.image.height } }]
                 : [],
             "wp:term": [entry.terms.map(toWordpressTerm)],
+            "author": entry.authors.map(toWordpressUser),
         },
     };
 }
@@ -60,7 +62,22 @@ function toWordpressEntry(entry: Entry): WordpressEntry {
 function toWordpressTerm(term: Term): WordpressTerm {
     const taxonomy = Object.keys(TAXONOMIES).find((name) => TAXONOMIES[name] === term.resource) ?? term.resource;
 
-    return { id: Number(term.id), name: term.name, slug: term.slug, taxonomy, description: term.description };
+    return { id: Number(term.id), name: term.name, slug: term.slug, taxonomy, description: term.description, yoast_head_json: toYoast(term.seo) };
+}
+
+// The provider names an avatar after its author, so an avatar's `alt` doesn't survive the trip
+function toWordpressUser(author: Author): WordpressUser {
+    return {
+        id: Number(author.id),
+        name: author.name,
+        slug: author.slug,
+        description: author.bio,
+        simple_local_avatar: author.avatar ? { media_id: Number(author.avatar.id), full: author.avatar.url } : false,
+    };
+}
+
+function toYoast(seo?: SEO): WordpressYoast | undefined {
+    return seo && { title: seo.title, description: seo.description, robots: { index: seo.noindex ? "noindex" : "index" } };
 }
 
 // WordPress only ever renders HTML, so a block document has nothing to stand in for it

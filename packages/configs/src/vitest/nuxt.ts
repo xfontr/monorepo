@@ -15,7 +15,12 @@ export interface NuxtConfigOptions {
     thresholds?: CoverageOptions["thresholds"]
 }
 
-/** A `node` project for `server/`, `shared/` and `tools/`, and a `nuxt` project for `app/`. */
+const NODE_DIRS = ["shared", "server", "tools"];
+
+// Nuxt auto-registers `<rootDir>/layers/*`, and each layer repeats the app's own directory layout
+const LAYER_SOURCES = ["layers/*/{app,server,shared}/**/*.ts", "layers/*/app/**/*.vue"];
+
+/** A `node` project for `server/`, `shared/` and `tools/`, and a `nuxt` project for `app/`, in the root and every layer. */
 async function createNuxtConfig({ root, nodeSpecs = [], coverageExclude = [], thresholds }: NuxtConfigOptions) {
     const nodeConfig = createNodeConfig();
     const { globalSetup, coverage, ...nodeTest } = nodeConfig.test ?? {};
@@ -23,7 +28,7 @@ async function createNuxtConfig({ root, nodeSpecs = [], coverageExclude = [], th
     const nuxtProject = await defineNuxtProject(root, {
         name: "nuxt",
         fileParallelism: false,
-        include: ["app/**/*.spec.ts"],
+        include: ["app/**/*.spec.ts", "layers/*/app/**/*.spec.ts"],
         exclude: nodeSpecs,
         environmentOptions: { nuxt: { rootDir: root, domEnvironment: "happy-dom" } },
     });
@@ -34,6 +39,7 @@ async function createNuxtConfig({ root, nodeSpecs = [], coverageExclude = [], th
             // Vitest reads coverage only from the root, so a block on either project is ignored
             coverage: {
                 ...coverage,
+                include: [...(coverage?.include ?? []), ...LAYER_SOURCES],
                 exclude: [...(coverage?.exclude ?? []), ...coverageExclude],
                 thresholds,
             },
@@ -43,7 +49,7 @@ async function createNuxtConfig({ root, nodeSpecs = [], coverageExclude = [], th
                     test: {
                         ...nodeTest,
                         name: "node",
-                        include: ["shared/**/*.spec.ts", "server/**/*.spec.ts", "tools/**/*.spec.ts", ...nodeSpecs],
+                        include: NODE_DIRS.flatMap((dir) => [`${dir}/**/*.spec.ts`, `layers/*/${dir}/**/*.spec.ts`]).concat(nodeSpecs),
                     },
                 },
                 nuxtProject,

@@ -1,0 +1,5 @@
+{
+    // Playwright and the fake upstream run on plain Node, outside every tsconfig Nuxt generates
+    "extends": "@monorepo/configs/tsconfig/node.json",
+    "include": ["e2e/**/*.ts", "playwright.config.ts"]
+}

@@ -1,3 +1,8 @@
 import { vitest } from "@monorepo/configs";
 
-export default vitest.createNodeConfig();
+export default vitest.createNuxtConfig({
+    root: import.meta.dirname,
+    // The lab never ships, and Playwright covers pages
+    coverageExclude: ["app/lab/**", "app/pages/**"],
+    thresholds: { lines: 90, statements: 90, functions: 85, branches: 80 },
+});

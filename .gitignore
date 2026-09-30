@@ -10,6 +10,9 @@ dist
 storybook-static
 *storybook.log
 
+# Playwright
+.playwright
+
 # Node dependencies
 node_modules
 

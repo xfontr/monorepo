@@ -11,7 +11,9 @@
             "!{projectRoot}/**/*.test.ts",
             "!{projectRoot}/**/*.stories.@(js|jsx|ts|tsx)",
             "!{projectRoot}/vitest.config.ts",
-            "!{projectRoot}/**/*.md"
+            "!{projectRoot}/**/*.md",
+            "!{projectRoot}/e2e/**/*",
+            "!{projectRoot}/playwright.config.ts"
         ],
         "sharedGlobals": [
             "{workspaceRoot}/nx.json",
@@ -91,6 +93,19 @@
             ],
             "outputs": [
                 "{projectRoot}/coverage"
+            ],
+            "cache": true
+        },
+        "e2e": {
+            "dependsOn": [
+                "build"
+            ],
+            "inputs": [
+                "default",
+                "^production"
+            ],
+            "outputs": [
+                "{projectRoot}/.playwright"
             ],
             "cache": true
         },

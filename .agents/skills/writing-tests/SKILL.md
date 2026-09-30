@@ -5,10 +5,9 @@ description: The spec conventions for this repo — globals are off, specs sit b
 
 # Writing specs here
 
-32 specs, one recipe. None of it is configured per project — every `vitest.config.ts` in the
-workspace is a two-line wrapper over
-[`@monorepo/configs`](../../../packages/configs/src/vitest/node.ts), so the conventions below are the
-whole of what makes a spec fit in.
+One recipe. None of it is configured per project — every `vitest.config.ts` in the workspace builds
+on [`@monorepo/configs`](../../../packages/configs/src/vitest/node.ts), so the conventions below are
+the whole of what makes a spec fit in.
 
 ## The two things that break first
 
@@ -17,7 +16,9 @@ whole of what makes a spec fit in.
   somewhere unhelpful.
 - **The spec sits beside its subject**, same basename: `translationsKey.ts` →
   `translationsKey.spec.ts`. There is no `__tests__`, no `__mocks__`, and no fixtures directory
-  anywhere in the workspace. Test data is a `const` at the top of the file it belongs to.
+  anywhere in the workspace. Test data is a `const` at the top of the file it belongs to. The one
+  exception is an app's `e2e/`: Playwright specs, the `server.ts` MSW preload and its `fakes.ts` data sit there, since
+  they test the built app rather than a file, and screenshot baselines in `e2e/__screenshots__/`.
 
 ## Titles name the failure, not the function
 
@@ -56,6 +57,7 @@ beforeEach(() => {
 | A composable | `vi.stubGlobal("$fetch", …)` | [`useContent.spec.ts`](../../../packages/content/src/nuxt/runtime/composables/useContent.spec.ts) |
 | A provider | nothing — inject a fake `HttpClient` through the port | [`TolgeeProvider.spec.ts`](../../../packages/i18n/src/core/adapters/providers/TolgeeProvider.spec.ts) |
 | A Nitro plugin | one `vi.stubGlobal` per Nitro auto-import | [`observability.spec.ts`](../../../apps/huella-legal/server/plugins/observability.spec.ts) |
+| A vendor, from an app's e2e | nothing — preload MSW with the package's `testing` handlers | [`server.ts`](../../../apps/huella-legal/e2e/server.ts) |
 
 A Nitro plugin is the one subject that needs globals rather than module mocks: Nitro auto-imports
 `defineNitroPlugin`, `useRuntimeConfig`, `getRequestHeaders` and the rest at build time, so the file
@@ -88,7 +90,6 @@ pnpm exec nx test @monorepo/<name>
 pnpm exec nx run-many -t test              # the whole workspace
 ```
 
-Every project has a `test` target, `apps/huella-legal` included — its `vitest.config.ts` is the same
-two-line wrapper, on the node preset, because the only thing specced there is the Nitro plugin. A
-spec for anything under `app/` would need the vue preset and a `vite.config.ts` to merge, which the
-app does not have yet.
+Every project has a `test` target, and every `vitest.config.ts` is a short wrapper. The Nuxt apps
+use `vitest.createNuxtConfig`, which adds a `nuxt` project through `@nuxt/test-utils`, so a spec
+under their `app/` can `mountSuspended` a component and `mockNuxtImport` a composable.

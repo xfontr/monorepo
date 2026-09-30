@@ -9,7 +9,7 @@ import { wordpressHandlers } from "./wordpress";
 
 const BASE_URL = "https://cms.test/blog";
 
-const CIVIL: Term = { id: "9", resource: "categories", slug: "civil", name: "Civil", description: "Contracts and family" };
+const CIVIL: Term = { id: "9", resource: "categories", slug: "civil", name: "Civil", description: "Contracts and family", seo: { title: "Civil", noindex: true } };
 const PRECEDENT: Term = { id: "12", resource: "tags", slug: "precedent", name: "Precedent" };
 
 const POSTS: Entry[] = ["1", "2", "3"].map((id) => ({
@@ -22,9 +22,11 @@ const POSTS: Entry[] = ["1", "2", "3"].map((id) => ({
     updatedAt: "2026-02-02T09:00:00Z",
     image: { id: "40", url: "https://cms.test/cover.jpg", alt: "Cover", width: 1200, height: 630 },
     terms: [CIVIL, PRECEDENT],
+    authors: [{ id: "5", slug: "irene", name: "Irene Valdés", bio: "Civil lawyer", avatar: { id: "41", url: "https://cms.test/irene.jpg", alt: "Irene Valdés" } }],
+    seo: { title: `Post ${id} | Blog`, description: `About post ${id}`, noindex: false },
 }));
 
-const BARE_PAGE: Entry = { id: "7", slug: "about", title: "About", body: { format: "html", value: "<p>About us</p>" }, terms: [] };
+const BARE_PAGE: Entry = { id: "7", slug: "about", title: "About", body: { format: "html", value: "<p>About us</p>" }, terms: [], authors: [] };
 
 const server = setupServer(...wordpressHandlers(BASE_URL, { posts: POSTS, pages: [BARE_PAGE], categories: [CIVIL] }));
 

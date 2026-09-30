@@ -41,5 +41,13 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   and `http.route` — a 404 never matches a route, so the fallback is what a crawler hits, and leaving
   the query on it mints an unbounded number of operation names.
   [`observability.spec.ts`](./server/plugins/observability.spec.ts) pins it.
-- `pnpm test` runs on the **node** preset. Nitro's auto-imports don't exist under Vitest, so a spec
-  for anything in `server/` stubs them as globals — `defineNitroPlugin` before the import.
+- `pnpm test` runs two Vitest projects: **node** for `server/`, `shared/` and `tools/`, and **nuxt**
+  for `app/`, each in the app root and in every layer. Nitro's auto-imports don't exist under the node project, so a spec for anything in
+  `server/` stubs them as globals, `defineNitroPlugin` before the import.
+- **`vitest.config.ts` and `playwright.config.ts` are wrappers over `@monorepo/configs`.** A setting
+  every Nuxt app would want goes in the preset; only this app's specifics are passed as options.
+  Don't lower a threshold to get green; write the spec.
+- `e2e/` holds the Playwright specs, `server.ts` (the MSW preload) and `fakes.ts` (its data), and
+  `e2e/__screenshots__/` holds baselines that only CI writes. Both are the workspace's exceptions to
+  "beside its subject" and "no fixtures". Vendor wire formats belong in the packages' `testing`
+  entries, never here.

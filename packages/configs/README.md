@@ -58,8 +58,9 @@ here, and has to be: a `.ts` setup file is transformed by the pipeline it exists
 export default vitest.createNuxtConfig({ root: import.meta.dirname, thresholds: { lines: 90 } });
 ```
 
-Two projects: `node` for `server/`, `shared/` and `tools/`, and `nuxt` for `app/**/*.spec.ts`, booted
-through `@nuxt/test-utils` on happy-dom. The options are only what differs per app:
+Two projects: `node` for `server/`, `shared/` and `tools/`, and `nuxt` for `app/`, booted through
+`@nuxt/test-utils` on happy-dom. Both also cover the same directories inside each `layers/*`, which
+Nuxt auto-registers, and the layers' sources count towards coverage. The options are only what differs per app:
 
 | Option | What it does |
 | --- | --- |

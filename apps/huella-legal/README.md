@@ -17,7 +17,8 @@ pnpm dev                                    # or from this directory
 | `pnpm preview` | Preview the production build |
 | `pnpm lint` | ESLint — the nuxt flavour, deliberately not type-checked |
 | `pnpm typecheck` | `nuxt typecheck`. Redundant before a build: `typescript.typeCheck: "build"` makes `pnpm build` do the same pass, which is why the build is slow |
-| `pnpm test` | Vitest, on the node preset. Covers the [Nitro telemetry plugin](#-telemetry) — see [Testing](#-testing) |
+| `pnpm test` | Vitest in two projects, with coverage and its thresholds on every run — see [Testing](#-testing) |
+| `pnpm e2e` | Playwright against the built `.output/`, with the vendors faked by MSW. Run `pnpm build` first; `nx e2e` does it for you |
 | `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
 
 Two modules beyond the shared ones are installed here: `@nuxt/fonts`, and `@pinia/nuxt` with
@@ -139,10 +140,10 @@ and the gotchas.
 
 ## 🧩 Structure
 
-[`app/`](./app) is the whole front end and stays thin: a layout, an error page, two client plugins
-(Faro telemetry, and a dev-only console filter for a known Nuxt/Vue warning), and three pages — an
-entry page and the two [article pages](#-content). The app's own server code is one Nitro plugin,
-for telemetry.
+[`app/`](./app) is the whole front end and stays thin: a layout, an error page and its dev-only debug
+panel, two client plugins (Faro telemetry, and a dev-only console filter for a known Nuxt/Vue
+warning), and three pages — an entry page and the two [article pages](#-content). The app's own
+server code is one Nitro plugin, for telemetry.
 
 Domain logic lives in Nuxt layers under [`layers/`](./layers), one directory per domain. Nuxt
 auto-registers `<rootDir>/layers/*` by their presence, so there is no `extends` array to add, and
@@ -182,12 +183,63 @@ impossible to aggregate and the keyspace unbounded. That is the property
 
 ## ✅ Testing
 
-`pnpm test` runs Vitest on the [node preset](../../packages/configs/README.md) — the app has no
-`vite.config.ts` to merge, so the vue preset is not wired up and nothing under `app/` is specced yet.
-What is covered is [`server/plugins/observability.ts`](./server/plugins/observability.ts), the one
-piece of app code with logic rather than composition.
+Three layers, each proving something the others can't see.
 
-Nitro auto-imports `defineNitroPlugin`, `useRuntimeConfig` and the `getRequest*` helpers at build
-time, so the plugin imports none of them and they do not exist under Vitest. The spec stubs each as a
-global — `defineNitroPlugin` before the module is imported, since it runs at evaluation. See the
-`writing-tests` skill for the recipe.
+| Layer | Runs | Where | Command |
+| --- | --- | --- | --- |
+| `node` | Vitest on the [node preset](../../packages/configs/README.md) | `server/`, `shared/`, `tools/`, and the same in each `layers/*` | `pnpm test` |
+| `nuxt` | Vitest in a booted Nuxt app on happy-dom, via `@nuxt/test-utils` | `app/`, and each `layers/*/app/` | `pnpm test` |
+| e2e | Playwright, Chromium only, at 390, 768 and 1280 px | [`e2e/`](./e2e) | `pnpm exec nx e2e @monorepo/huella-legal` |
+
+[`vitest.config.ts`](./vitest.config.ts) and [`playwright.config.ts`](./playwright.config.ts) are
+wrappers over the shared presets in [`@monorepo/configs`](../../packages/configs/README.md), which
+own the project split, where coverage lives, the widths and the baseline rules. What stays here is
+what only this app knows: the thresholds (lines and statements 90, functions 85, branches 80), and
+`app/lab/**` and `app/pages/**` kept out of the denominator, because the lab never ships and pages
+are Playwright's. `test` always runs with `--coverage`, so the thresholds gate CI and pre-push.
+[Decision 0028](../../docs/decisions/0028-huella-legal-e2e-and-visual-tooling.md) has the numbers.
+
+- **Nitro auto-imports don't exist under the node project.** A spec for anything in `server/` stubs
+  `defineNitroPlugin`, `useRuntimeConfig` and the `getRequest*` helpers as globals, and
+  `defineNitroPlugin` before the import, since it runs at evaluation. See the `writing-tests` skill.
+- **`import.meta.dev` compiles to `false` in the nuxt project**, as in every build a reader can
+  reach. That is why the error page's debug panel is its own component,
+  [`ErrorDebug.vue`](./app/components/ErrorDebug.vue): it can be mounted directly, where
+  `error.vue` can only prove the panel stays hidden.
+
+### 🎭 e2e
+
+Playwright runs the built `.output/` server with [`e2e/server.ts`](./e2e/server.ts) preloaded through
+`node --import`. That file starts MSW inside the server process with the fake WordPress from
+`@monorepo/content/testing` and the fake Tolgee from `@monorepo/i18n/testing`, so there is no second
+server and no upstream port. The vendor base URLs in `playwright.config.ts` point at `localhost`
+paths nothing listens on, and a request no handler matches is logged by MSW and rejected, so none
+reaches the network.
+
+The data lives apart from the server, in [`e2e/fakes.ts`](./e2e/fakes.ts): a handful of domain
+`Entry` and `Term` values with invented people, plus the committed locale JSON in
+[`infrastructure/translations`](../../infrastructure/translations/projects/huella-legal). The
+packages turn those into each vendor's wire format, so the app never writes a WordPress or Tolgee
+shape itself. There are no fixture files.
+
+Each spec runs an axe scan against WCAG 2.1 AA and takes screenshots once per width. **Baselines are
+written only in CI**, inside `mcr.microsoft.com/playwright:v1.63.0-noble`, which is why
+`ignoreSnapshots` is on everywhere else. A Mac can't produce Linux baselines.
+
+| Situation | What to do |
+| --- | --- |
+| New screenshot, no baseline | CI fails and uploads the `playwright` artifact. Commit its PNG under `e2e/__screenshots__/` |
+| Changed screenshot | Commit the `-actual.png` from the artifact's `.playwright/` in place of the old baseline |
+| Bumping `@playwright/test` | Move the image tag in [`ci.yml`](../../.github/workflows/ci.yml) in the same PR. Dependabot sends it alone for that reason |
+| Running locally | Needs a Chromium that matches `@playwright/test`'s version in Playwright's browser cache. Nothing in the repo downloads one |
+| A page needs new data | Add the `Entry` or `Term` to `e2e/fakes.ts`. A route the fakes don't serve is a change to the package's `testing` entry, with its spec |
+
+Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
+
+## 🧭 Deliberately deferred
+
+| Later need | What changes |
+| --- | --- |
+| Firefox or WebKit | Another project per browser in the configs preset, and every baseline tripled. Linux WebKit is not Safari, so it won't stand in for iOS readers |
+| A per-glob threshold on view models | A3 adds `shared/**` and `app/utils/**` at 95 alongside the mappers it creates |
+| Parity with the `/lab` pages | Still a human check: the lab is stripped from production builds, and Linux substitutes a serif for Georgia |

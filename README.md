@@ -78,10 +78,10 @@ are reserved for upcoming packages; no project uses them yet. The constraints li
   each `package.json` `nx` block.
 - **Raw source packages** — internal packages export TypeScript/Vue source directly (no build step).
   Consumers (Nuxt/Vite) compile them.
-- **Centralized configs** — a project's `eslint.config.ts` / `vitest.config.ts` / `tsconfig.json` is
-  a thin wrapper around a factory or preset from
-  [`@monorepo/configs`](./packages/configs/README.md). ESLint is the only one of the three that
-  reaches every project; that README says where the other two don't.
+- **Centralized configs** — a project's `eslint.config.ts` / `vitest.config.ts` / `tsconfig.json`,
+  and `playwright.config.ts` where it has e2e, is a thin wrapper around a factory or preset from
+  [`@monorepo/configs`](./packages/configs/README.md). ESLint is the only one that reaches every
+  project; that README says where the others don't.
 
 ## 🚀 Getting started
 
