@@ -151,7 +151,25 @@ adding one is the mistake. That is the path `pinia.storesDirs` above is widened 
 
 | Layer | `shared/types/` | `server/` |
 | --- | --- | --- |
-| [`articles`](./layers/articles) | The view models: `ArticleSummary`, `Author`, `Category` | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time use `entities`, `striptags` and `reading-time`, and stay server-side |
+| [`articles`](./layers/articles) | The view models: `Article`, `ArticleBody`, `ArticleSummary`, `Author`, `Category`, `TocItem` | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time use `entities`, `striptags` and `reading-time`, and stay server-side. `toArticleBody` is the WP HTML pipeline, and `GET /api/articles/:slug` serves its `Article` |
+
+### 🧼 The body pipeline
+
+`toArticleBody` turns a post's HTML into markup that is safe to `v-html`, plus its TOC and
+bibliography. It runs on the rehype stack, server-side only, so the parser never ships to the
+browser. [Decision 0027](../../docs/decisions/0027-huella-legal-content-model.md) has the corpus
+counts behind each rule.
+
+| Step | What it does |
+| --- | --- |
+| Class map | `contenedor` → `hl-note`, `cita-larga` → `hl-quote`, `cita-corta` → `hl-quote-short`, `texto-importante` → `hl-callout`, `texto-destacado` → `hl-highlight`; `wp-block-table` is kept for the scroll shadows. Every other class is dropped, since a Tailwind utility would apply |
+| Sanitise | `rehype-sanitize` on GitHub's schema, with ids left unprefixed (the TOC links to them), `figure`, `figcaption` and `cite` allowed, and `srcset` and `sizes` kept. `script` and `style` go with their text |
+| Bibliography | Split from the last top-level *Bibliografía*, *Fuentes* or *Referencias (bibliográficas)* heading, one fragment per paragraph or list item, because the design sets it apart below the body |
+| TOC | Every `h2` and `h3` gets an ASCII id unless it has one, never repeated. Images get `loading="lazy"` |
+
+Footnotes are not extracted: only 4 posts have any, in two shapes, so they render as written.
+`GET /api/articles/:slug` reads the entry through the content module's own route, in-process, so
+the provider, its errors and its cache stay the module's.
 
 ## 📡 Telemetry
 
@@ -243,4 +261,6 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | --- | --- |
 | Firefox or WebKit | Another project per browser in the configs preset, and every baseline tripled. Linux WebKit is not Safari, so it won't stand in for iOS readers |
 | A per-glob threshold on view models | A3 adds `shared/**` and `app/utils/**` at 95 alongside the mappers it creates |
+| Quote and callout styles | `hl-quote`, `hl-quote-short`, `hl-callout` and `hl-highlight` reach the page unstyled until B6 moves `.hl-prose` into the app CSS and gives them rules |
+| Consuming `/api/articles/:slug` | C1 switches [`articles/[slug].vue`](./app/pages/articles/%5Bslug%5D.vue) to it; until then that page still `v-html`s the raw WordPress body |
 | Parity with the `/lab` pages | Still a human check: the lab is stripped from production builds, and Linux substitutes a serif for Georgia |
