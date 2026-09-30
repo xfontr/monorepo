@@ -21,8 +21,12 @@ const config: StorybookConfig = {
     core: {
         disableTelemetry: true,
     },
+    features: {
+        experimentalDocgenServer: true,
+    },
     viteFinal: (config) => ({
         ...config,
+        base: process.env.STORYBOOK_BASE_URL ?? config.base,
         define: { ...config.define, __MESSAGES__: messages },
         plugins: [
             ...config.plugins ?? [],
