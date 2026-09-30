@@ -46,9 +46,9 @@ page but a `500` naming what is missing, on the first request that needs it.
 
 | Variable | What it is |
 | --- | --- |
-| `NUXT_TRANSLATIONS_VENDOR_PROJECT` | The project ID in the TMS |
-| `NUXT_TRANSLATIONS_VENDOR_BASE_URL` | The TMS API base URL (absolute, with scheme) |
-| `NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN` | The TMS API key |
+| `NUXT_TRANSLATIONS_VENDOR_PROJECT` | The Tolgee project ID. Unset in development, where the project is fixed to `huella-legal` |
+| `NUXT_TRANSLATIONS_VENDOR_BASE_URL` | The TMS API base URL (absolute, with scheme): the translations server in development, Tolgee in a build |
+| `NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN` | The Tolgee API key. Unset in development |
 | `NUXT_CONTENT_VENDOR_BASE_URL` | The WordPress site root, **without** `/wp-json` — the provider owns that path. Only `/articles` needs it |
 | `NUXT_PUBLIC_OBSERVABILITY_URL` | Faro collector URL. Leave unset and browser telemetry stays off |
 | `NUXT_PUBLIC_OBSERVABILITY_APP_VERSION` | Stamped on browser *and* server spans. Defaults to `0.0.0`, which nothing can be attributed to — set it at deploy time |
@@ -67,19 +67,51 @@ The vendor **names** are the exception, and they are not env vars: `translations
 
 ## 🌍 i18n
 
-Two blocks in [`nuxt.config.ts`](./nuxt.config.ts) drive it: `i18n` declares the locales
-(`en-GB`, `es-ES`, defaulting to `en-GB`) and `translations.vendor` picks where the messages come
-from. The `@monorepo/i18n/nuxt` module does the rest — installs `@nuxtjs/i18n`, registers a loader
-per locale, and mounts a cached `/api/translations/:locale` route so the TMS base URL and token
-never reach the browser.
+The site is Spanish-only. Two blocks in [`nuxt.config.ts`](./nuxt.config.ts) drive it: `i18n`
+declares the one locale, and `translations.vendor` picks where the messages come from. The
+`@monorepo/i18n/nuxt` module does the rest — installs `@nuxtjs/i18n`, registers a loader, and
+mounts a cached `/api/translations/:locale` route so the TMS base URL and token never reach the
+browser.
 
-The vendor is currently `tolgee`. The other option is the TMS in
-[`infrastructure/translations`](../../infrastructure/translations), which holds the hand-editable
-locale JSON for the `huella-legal` project: run it with `pnpm docker:up`, set
-`translations.vendor.name` to `"internal"` in `nuxt.config.ts`, and point the env at it —
-`NUXT_TRANSLATIONS_VENDOR_BASE_URL=http://localhost:4000/` with
-`NUXT_TRANSLATIONS_VENDOR_PROJECT=huella-legal`. `internal` takes no token. Only `name` is a code
-change: it selects the vendor's config type, so it cannot come from the environment.
+| Setting | Value | Why |
+| --- | --- | --- |
+| `locales` | `es-ES`, `language: "es"` | `language` is what `<html lang>` gets, so it reads `es`, not the locale code |
+| `strategy` | `no_prefix` | Pages live at `/…`. `/es-ES/…` is a 404, not a redirect |
+| `detectBrowserLanguage` | `false` | With one locale there is nothing to detect, and detection makes the server set an `i18n_redirected` cookie on pages the CDN caches |
+
+### 🏷 Which vendor
+
+| Mode | Vendor | Messages live in |
+| --- | --- | --- |
+| `nuxt dev` (the `$development` block) | `internal` | [`infrastructure/translations/projects/huella-legal/es-ES.json`](../../infrastructure/translations/projects/huella-legal/es-ES.json) |
+| Any build, previews and production included | `tolgee` | The Tolgee project |
+
+**This split is provisional, for early development.** Copy changes daily while the app is built,
+and editing a JSON file in the repo is faster than keeping Tolgee current. Once that phase ends the
+app moves to Tolgee everywhere and the `$development` block goes. Until then, Tolgee is **not** kept
+in sync: a build shows raw keys for anything added since its last update, and that is expected.
+
+To run it locally, start the translations server with `pnpm docker:up` in
+[`infrastructure/translations`](../../infrastructure/translations) and set
+`NUXT_TRANSLATIONS_VENDOR_BASE_URL=http://localhost:4000/`. The project is fixed to `huella-legal`,
+and `internal` takes no token. The vendor `name` differs per mode rather than per env var because it
+selects the vendor's config type.
+
+### 🔤 Copy keys
+
+UI copy is never hard-coded outside [`/lab`](./app/pages/lab). It goes in `es-ES.json` under a key:
+
+| Rule | Example |
+| --- | --- |
+| The first segment is who owns the copy: `app` for the shell (head, layout, header, footer), a page by name, singular for a detail page, or a component in camelCase | `app.title`, `articles.title`, `article.back`, `articleCard.readingTime` |
+| Then the element, then its role, all camelCase and nested as objects, never a dotted literal key | `articles.pagination.next` |
+| Name the role, never the wording, so a copy edit never renames a key | `article.back`, not `article.backToArticles` |
+| Parameters are named, and plurals use vue-i18n's `\|` form with the count as the second argument | `"{page} de {total}"`, `t("articleCard.minutes", n)` |
+| `common` holds only copy whose meaning is the same wherever it appears | `common.loading` |
+| Keys are sorted alphabetically at every level | — |
+
+A key used in two places with two meanings is two keys, even while the Spanish happens to match.
+Tolgee gets the same keys when it is next brought up to date.
 
 See the [module README](../../packages/i18n/src/nuxt/README.md) for the options and the gotchas.
 

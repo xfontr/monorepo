@@ -18,9 +18,8 @@ The first of the services under `infrastructure/` — see the
 It backs the `internal` vendor in [`@monorepo/i18n`](../../packages/i18n). Any app
 can point at it by naming that vendor and setting `baseURL`; it takes no API key.
 
-[`@monorepo/huella-legal`](../../apps/huella-legal) is currently configured against Tolgee.
-Which vendor it ends up on isn't settled — swapping is a vendor name and a base
-URL, and the app never learns which one it got. See the
+[`@monorepo/huella-legal`](../../apps/huella-legal) uses it in development and Tolgee in
+production, provisionally, while the app is being built. See the
 [app README](../../apps/huella-legal/README.md#-i18n).
 
 ## 📡 Endpoints
@@ -31,11 +30,11 @@ URL, and the app never learns which one it got. See the
 | `GET` | `/health` | `{"status":"ok"}` — liveness probe for the container |
 
 ```bash
-curl http://localhost:4000/en-GB/huella-legal
+curl http://localhost:4000/es-ES/huella-legal
 ```
 
 `:locale` and `:project` are the JSON file and its directory, so the route above
-serves `projects/huella-legal/en-GB.json`. Adding a locale means adding a file
+serves `projects/huella-legal/es-ES.json`. Adding a locale means adding a file
 here — nothing in this service registers it, but the app has to declare it too; see
 [`docs/guides/adding-a-locale.md`](../../docs/guides/adding-a-locale.md).
 

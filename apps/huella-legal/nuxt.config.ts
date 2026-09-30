@@ -22,7 +22,12 @@ export default defineNuxtConfig({
         typeCheck: "build",
     },
 
-    i18n: { locales: ["en-GB", "es-ES"], defaultLocale: "en-GB" },
+    i18n: {
+        locales: [{ code: "es-ES", language: "es" }],
+        defaultLocale: "es-ES",
+        strategy: "no_prefix",
+        detectBrowserLanguage: false,
+    },
 
     translations: {
         vendor: {
@@ -31,6 +36,17 @@ export default defineNuxtConfig({
             baseURL: "",
             options: {
                 token: "",
+            },
+        },
+    },
+
+    // Provisional until early development ends, then Tolgee everywhere (README.md § i18n)
+    $development: {
+        translations: {
+            vendor: {
+                name: "internal",
+                project: "huella-legal",
+                baseURL: "",
             },
         },
     },
