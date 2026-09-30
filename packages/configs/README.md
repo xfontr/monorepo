@@ -1,6 +1,6 @@
 # 📦 @monorepo/configs
 
-Shared ESLint, Vitest and TypeScript configuration for the workspace. It centralizes rules and
+Shared ESLint, Vitest, Playwright and TypeScript configuration for the workspace. It centralizes rules and
 presets so projects stay consistent without copying configuration.
 
 Only the ESLint half reaches all of them. This package has no `vitest.config.ts` at all, and two
@@ -51,6 +51,47 @@ Both presets also carry one `globalSetup`,
 `files: []` plus references into that directory and every file fails to load while it's missing. It
 returns immediately everywhere else, so no project has to opt in or out. It is the one `.mjs` file
 here, and has to be: a `.ts` setup file is transformed by the pipeline it exists to repair.
+
+**Vitest for a Nuxt app** — `vitest.config.ts`:
+
+```ts
+export default vitest.createNuxtConfig({ root: import.meta.dirname, thresholds: { lines: 90 } });
+```
+
+Two projects: `node` for `server/`, `shared/` and `tools/`, and `nuxt` for `app/**/*.spec.ts`, booted
+through `@nuxt/test-utils` on happy-dom. The options are only what differs per app:
+
+| Option | What it does |
+| --- | --- |
+| `root` | The app root, `import.meta.dirname` |
+| `nodeSpecs` | Specs under `app/` that need no Nuxt runtime; they move to the `node` project |
+| `coverageExclude` | Paths kept out of the denominator |
+| `thresholds` | Vitest's coverage thresholds. They only bite on a `--coverage` run |
+
+- **Coverage is set on the root config**, because Vitest ignores a coverage block on a project.
+- **`@nuxt/test-utils` is resolved from the app, not from here**, so the config half runs the same
+  copy the app's specs import from `@nuxt/test-utils/runtime`. The app installs it along with
+  `@vue/test-utils` and `happy-dom`.
+- **Nuxt boots with `JITI_MODULE_CACHE=0`.** With jiti's module cache on, a TypeScript Nuxt module
+  that installs `@nuxtjs/i18n` (as `@monorepo/i18n/nuxt` does) throws Node's
+  `ERR_INTERNAL_ASSERTION` as an unhandled rejection. `nuxi` logs it and carries on, but Vitest and
+  Nx's plugin worker both die, and the worker loads every `vitest.config.ts` to infer targets, so
+  one broken config stops every `nx` command. The variable is restored once Nuxt has booted.
+
+**Playwright** — `playwright.config.ts`:
+
+```ts
+import { playwright } from "@monorepo/configs";
+
+export default playwright.createConfig({ port: 4310, command: "node .output/server/index.mjs", env: { … } });
+```
+
+Chromium at 390, 768 and 1280 px, one project per width. Specs live in `e2e/`, output in
+`.playwright/`, and screenshot baselines in `e2e/__screenshots__/<spec>/<width>/`. The path has no
+platform segment, because baselines are only written in CI's pinned Playwright image:
+`ignoreSnapshots` is on whenever `CI` isn't set. The factory returns a plain object and only
+imports `@playwright/test`'s types, so the runner's own copy is the only one ever loaded. The app
+installs `@playwright/test` at exactly the version in CI's image tag.
 
 **TypeScript** — `tsconfig.json`:
 
