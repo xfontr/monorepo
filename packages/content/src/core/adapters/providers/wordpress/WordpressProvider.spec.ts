@@ -34,7 +34,7 @@ beforeEach(() => {
 
 describe("WordpressProvider", () => {
     describe("addressing the vendor", () => {
-        it("asks the WordPress REST API for the resource, embedding media and terms in one round trip", async () => {
+        it("asks the WordPress REST API for the resource, embedding media, terms and authors in one round trip", async () => {
             await build().listEntries("posts");
 
             expect(get).toHaveBeenCalledWith(POSTS_URL, {
@@ -43,7 +43,8 @@ describe("WordpressProvider", () => {
                     per_page: 10,
                     slug: undefined,
                     search: undefined,
-                    _embed: "wp:featuredmedia,wp:term",
+                    author: undefined,
+                    _embed: "wp:featuredmedia,wp:term,author",
                 },
             });
         });
@@ -75,6 +76,21 @@ describe("WordpressProvider", () => {
             });
         });
 
+        it("filters by author id", async () => {
+            await build().listEntries("posts", { author: "12" });
+
+            expect(get).toHaveBeenCalledWith(POSTS_URL, {
+                query: {
+                    page: undefined,
+                    per_page: 10,
+                    slug: undefined,
+                    search: undefined,
+                    author: "12",
+                    _embed: "wp:featuredmedia,wp:term,author",
+                },
+            });
+        });
+
         it("filters by the taxonomy the term names", async () => {
             await build().listEntries("posts", { term: { resource: "categories", id: "12" } });
 
@@ -85,7 +101,8 @@ describe("WordpressProvider", () => {
                     slug: undefined,
                     search: undefined,
                     categories: "12",
-                    _embed: "wp:featuredmedia,wp:term",
+                    author: undefined,
+                    _embed: "wp:featuredmedia,wp:term,author",
                 },
             });
         });

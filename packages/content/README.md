@@ -54,8 +54,10 @@ portable and the ports stop being worth their indirection.
 A vendor's shapes never leave its adapter. What consumers see is:
 
 ```ts
-type Entry = { id, slug, title, excerpt?, body, publishedAt?, updatedAt?, image?, terms }
-type Term  = { id, resource, slug, name, description? }
+type Entry  = { id, slug, title, excerpt?, body, publishedAt?, updatedAt?, image?, terms, authors, seo? }
+type Term   = { id, resource, slug, name, description?, seo? }
+type Author = { id, slug, name, bio?, avatar? }
+type SEO    = { title?, description?, noindex? }
 type Page<T> = { items: T[], page, perPage, total, totalPages }
 ```
 
@@ -74,6 +76,11 @@ or `blocks`. The `blocks` case exists from the start so a structured-content ven
 breaking change later. **`title` is not `RichText`, and holds whatever the vendor rendered** —
 for WordPress that is entity-escaped HTML, so a consumer has to render it as HTML. See
 [deferred](#-deliberately-deferred).
+
+`seo` holds only the text an SEO plugin stores: title, description and `noindex`. Its URLs point at
+the CMS host, so the consuming app builds canonicals against its own routes. For WordPress, `seo`
+comes from Yoast and an author's `avatar` from Simple Local Avatars. Each is left unset when its
+plugin isn't installed. `listEntries` also filters by `author`, an author id.
 
 Ids are strings, always, even where the vendor numbers them.
 

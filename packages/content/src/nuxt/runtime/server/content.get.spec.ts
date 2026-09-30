@@ -76,7 +76,8 @@ describe("GET /api/content/:resource", () => {
                 per_page: 6,
                 slug: undefined,
                 search: undefined,
-                _embed: "wp:featuredmedia,wp:term",
+                author: undefined,
+                _embed: "wp:featuredmedia,wp:term,author",
             },
         });
     });
@@ -177,6 +178,7 @@ describe("the list cache", () => {
             slug: undefined,
             search: undefined,
             term: undefined,
+            author: undefined,
         }));
     });
 

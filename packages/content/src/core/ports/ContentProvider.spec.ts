@@ -36,7 +36,7 @@ function build(problems: string[] = []) {
     return new StubProvider({ problems }, http);
 }
 
-const entry = { id: "1", slug: "hello", title: "Hello", body: { format: "html", value: "" }, terms: [] } as Entry;
+const entry = { id: "1", slug: "hello", title: "Hello", body: { format: "html", value: "" }, terms: [], authors: [] } as Entry;
 const term = { id: "1", resource: "categories", slug: "news", name: "News" } as Term;
 
 describe("ContentProvider", () => {

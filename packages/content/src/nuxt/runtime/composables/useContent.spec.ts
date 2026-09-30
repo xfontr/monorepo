@@ -10,6 +10,7 @@ const noQuery = {
     slug: undefined,
     search: undefined,
     term: undefined,
+    author: undefined,
 };
 
 beforeEach(() => {
@@ -42,6 +43,14 @@ describe("useContent", () => {
 
         expect($fetch).toHaveBeenCalledWith(`${CONTENT_API_PATH}/posts`, {
             query: { ...noQuery, term: "categories:12" },
+        });
+    });
+
+    it("sends an author filter", async () => {
+        await useContent().listEntries("posts", () => ({ author: "12" }));
+
+        expect($fetch).toHaveBeenCalledWith(`${CONTENT_API_PATH}/posts`, {
+            query: { ...noQuery, author: "12" },
         });
     });
 

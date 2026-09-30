@@ -2,6 +2,7 @@ export type { HttpClient, HttpResponse, RequestOptions } from "./core/ports/Http
 export { default as ContentProvider } from "./core/ports/ContentProvider";
 export type {
     Asset,
+    Author,
     Entry,
     EntryQuery,
     EntryResource,
@@ -9,6 +10,7 @@ export type {
     Query,
     Resource,
     RichText,
+    SEO,
     Term,
     TermResource,
 } from "./core/domain/content";

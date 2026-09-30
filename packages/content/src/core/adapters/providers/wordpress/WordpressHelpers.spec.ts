@@ -1,6 +1,24 @@
 import { describe, expect, it } from "vitest";
 import { toEntry, toPage, toTerm, toWordpressQuery } from "./WordpressHelpers";
-import type { WordpressEntry, WordpressTerm } from "./WordpressTypes";
+import type { WordpressEntry, WordpressTerm, WordpressUser, WordpressYoast } from "./WordpressTypes";
+
+const user: WordpressUser = {
+    id: 12,
+    name: "Ana Ejemplo",
+    slug: "ana-ejemplo",
+    description: "Invented for this spec.",
+    simple_local_avatar: { media_id: 40, full: "https://wp.test/uploads/ana.jpg" },
+};
+
+// Trimmed from the shape Yoast SEO attaches to every post, term and user
+const yoast = {
+    title: "Hello – World - Site",
+    description: "A hand-written description.",
+    robots: { index: "index", follow: "follow" },
+    canonical: "https://wp.test/hello-world/",
+    og_url: "https://wp.test/hello-world/",
+    schema: { "@graph": [] },
+} as WordpressYoast;
 
 const entry: WordpressEntry = {
     id: 7,
@@ -21,6 +39,7 @@ const entry: WordpressEntry = {
             [{ id: 3, name: "News", slug: "news", taxonomy: "category" }],
             [{ id: 4, name: "Tips", slug: "tips", taxonomy: "post_tag" }],
         ],
+        "author": [user],
     },
 };
 
@@ -108,6 +127,14 @@ describe("toEntry", () => {
                 { id: "3", resource: "categories", slug: "news", name: "News", description: undefined },
                 { id: "4", resource: "tags", slug: "tips", name: "Tips", description: undefined },
             ],
+            authors: [{
+                id: "12",
+                slug: "ana-ejemplo",
+                name: "Ana Ejemplo",
+                bio: "Invented for this spec.",
+                avatar: { id: "40", url: "https://wp.test/uploads/ana.jpg", alt: "Ana Ejemplo" },
+            }],
+            seo: undefined,
         });
     });
 
@@ -158,6 +185,65 @@ describe("toEntry", () => {
 
         expect(result.terms).toEqual([]);
         expect(result.image).toBeUndefined();
+        expect(result.authors).toEqual([]);
+    });
+});
+
+describe("toEntry authors", () => {
+    function authorOf(author: Partial<WordpressUser>) {
+        return toEntry({ ...entry, _embedded: { author: [{ ...user, ...author }] } }).authors[0];
+    }
+
+    // Simple Local Avatars reports an unset avatar as a falsy value rather than omitting the field
+    it.each<WordpressUser["simple_local_avatar"]>([false, "", undefined, {}])("leaves the avatar unset when the plugin reports %o", (simple_local_avatar) => {
+        expect(authorOf({ simple_local_avatar })?.avatar).toBeUndefined();
+    });
+
+    // `avatar_urls` holds a hashless default-Gravatar URL for every author without an upload
+    it("never takes a Gravatar placeholder for an avatar", () => {
+        const withGravatar = { ...user, simple_local_avatar: false, avatar_urls: { 96: "https://secure.gravatar.com/avatar/?s=96&d=mm" } } as WordpressUser;
+
+        expect(toEntry({ ...entry, _embedded: { author: [withGravatar] } }).authors[0]?.avatar).toBeUndefined();
+    });
+
+    it("omits an empty bio", () => {
+        expect(authorOf({ description: "" })?.bio).toBeUndefined();
+    });
+
+    it("names the avatar after the author when the plugin reports no media id", () => {
+        expect(authorOf({ simple_local_avatar: { full: "https://wp.test/uploads/ana.jpg" } })?.avatar?.id).toBe("12");
+    });
+
+    it("drops an embedded author that carries no id or name", () => {
+        const error = { code: "rest_user_invalid_id", message: "Invalid user ID.", data: { status: 404 } } as unknown as WordpressUser;
+
+        expect(toEntry({ ...entry, _embedded: { author: [error] } }).authors).toEqual([]);
+    });
+});
+
+describe("toEntry seo", () => {
+    it("takes Yoast's text fields and nothing that carries the WordPress host", () => {
+        expect(toEntry({ ...entry, yoast_head_json: yoast }).seo).toStrictEqual({
+            title: "Hello – World - Site",
+            description: "A hand-written description.",
+            noindex: false,
+        });
+    });
+
+    it("reports a post the editor marked noindex", () => {
+        const result = toEntry({ ...entry, yoast_head_json: { ...yoast, robots: { index: "noindex" } } });
+
+        expect(result.seo?.noindex).toBe(true);
+    });
+
+    it("omits the fields Yoast left empty rather than handing on empty strings", () => {
+        const result = toEntry({ ...entry, yoast_head_json: { robots: { index: "index" } } });
+
+        expect(result.seo).toStrictEqual({ title: undefined, description: undefined, noindex: false });
+    });
+
+    it("has no seo at all when Yoast is not installed", () => {
+        expect(toEntry(entry).seo).toBeUndefined();
     });
 });
 
@@ -170,6 +256,12 @@ describe("toTerm", () => {
 
     it("omits an empty description", () => {
         expect(toTerm({ ...term, description: "" }, "categories").description).toBeUndefined();
+    });
+
+    it("carries the Yoast text fields a term has", () => {
+        const result = toTerm({ ...term, yoast_head_json: { ...yoast, robots: { index: "noindex" } } }, "categories");
+
+        expect(result.seo).toStrictEqual({ title: "Hello – World - Site", description: "A hand-written description.", noindex: true });
     });
 
     // Falls back to what the caller asked for, so a custom taxonomy is never relabelled as a tag

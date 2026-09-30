@@ -69,7 +69,8 @@ describe("GET /api/content/:resource/:slug", () => {
                 per_page: 1,
                 slug: "hello-world",
                 search: undefined,
-                _embed: "wp:featuredmedia,wp:term",
+                author: undefined,
+                _embed: "wp:featuredmedia,wp:term,author",
             },
         });
     });
