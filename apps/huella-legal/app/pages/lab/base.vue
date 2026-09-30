@@ -78,7 +78,7 @@ const pills = [
                 avatars
             />
             <BaseByline
-                :authors="authors"
+                :authors
                 published-at="2024-03-12T09:00:00Z"
                 :reading-minutes="14"
                 avatars
@@ -149,7 +149,7 @@ const pills = [
                 <UAvatar
                     v-for="size in (['lg', '2xl'] as const)"
                     :key="size"
-                    :size="size"
+                    :size
                     :text="initials(authors[0]!.name)"
                     alt=""
                 />

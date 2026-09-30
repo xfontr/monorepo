@@ -18,7 +18,7 @@ const toneClass = computed(() => (tone === "neutral" ? "text-dimmed" : `tone-${t
 <template>
     <component
         :is="to ? NuxtLink : 'span'"
-        :to="to"
+        :to
         :title="hint"
         class="shrink-0 text-xs font-medium px-1.5 py-0.5 rounded-full border border-current"
         :class="toneClass"

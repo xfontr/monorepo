@@ -465,7 +465,7 @@ const attemptPages = [
                         <ArticleCard
                             v-for="article in articles.slice(1, 4)"
                             :key="article.slug"
-                            :article="article"
+                            :article
                             variant="compact"
                             class="py-4 first:pt-0"
                         />

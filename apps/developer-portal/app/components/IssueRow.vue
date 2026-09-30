@@ -47,7 +47,7 @@ const summary = computed(() => summarize(issue.body, compact ? 100 : 160));
                         color="neutral"
                         variant="subtle"
                         size="sm"
-                        :label="label"
+                        :label
                     />
 
                     <span

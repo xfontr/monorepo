@@ -104,7 +104,7 @@ const searchGroups = computed(() => [{
 
             <template #default="{ collapsed }">
                 <UDashboardSearchButton
-                    :collapsed="collapsed"
+                    :collapsed
                     class="bg-transparent ring-default"
                 />
 
@@ -121,7 +121,7 @@ const searchGroups = computed(() => [{
                     </p>
                     <UNavigationMenu
                         :items="group.items"
-                        :collapsed="collapsed"
+                        :collapsed
                         orientation="vertical"
                     />
                 </div>

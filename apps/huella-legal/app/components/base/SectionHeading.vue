@@ -25,7 +25,7 @@ withDefaults(defineProps<Props>(), {
                 {{ kicker }}
             </p>
             <h2
-                :id="id"
+                :id
                 class="font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
                 :class="kicker && 'mt-1'"
             >
@@ -36,7 +36,7 @@ withDefaults(defineProps<Props>(), {
             v-if="link && to"
             variant="link"
             :label="link"
-            :to="to"
+            :to
             trailing-icon="i-lucide-arrow-right"
             class="-mr-3"
         />

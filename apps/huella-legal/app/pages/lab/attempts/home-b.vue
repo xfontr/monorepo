@@ -53,7 +53,7 @@ const notes = {
 <template>
     <div>
         <SiteHeader
-            :menu-open="menuOpen"
+            :menu-open
             :nav="navB"
         />
 

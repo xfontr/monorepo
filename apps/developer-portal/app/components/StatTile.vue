@@ -19,7 +19,7 @@ const toneClass = computed(() => (tone === "neutral" ? "" : `tone-${tone}`));
 <template>
     <component
         :is="to ? NuxtLink : 'div'"
-        :to="to"
+        :to
         :class="[
             'flex flex-col gap-1 rounded-lg border border-default bg-default p-4',
             to && 'hover:bg-elevated/50 transition-colors',

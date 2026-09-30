@@ -10,7 +10,7 @@ withDefaults(defineProps<Props>(), { tone: "teal" });
 <template>
     <component
         :is="href ? 'a' : 'span'"
-        :href="href"
+        :href
         :data-inline="href ? '' : undefined"
         class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em]"
         :class="[

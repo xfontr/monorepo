@@ -16,8 +16,8 @@ withDefaults(defineProps<Props>(), {
     <!-- A forced `active` never sets `aria-current` in Nuxt UI, so it is passed by hand -->
     <!-- The state classes go in `class`, the only slot input Nuxt UI merges after the neutral outline's compound variant -->
     <UButton
-        :to="to"
-        :active="active"
+        :to
+        :active
         :aria-current="active ? 'page' : undefined"
         color="neutral"
         variant="outline"

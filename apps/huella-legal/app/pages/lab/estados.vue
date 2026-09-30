@@ -74,7 +74,7 @@ const found = [articles[0]!, articles[4]!];
                                 class="py-4"
                             >
                                 <ArticleCard
-                                    :article="article"
+                                    :article
                                     variant="compact"
                                 />
                             </li>
@@ -121,7 +121,7 @@ const found = [articles[0]!, articles[4]!];
                         :key="article.slug"
                         class="py-7 last:pb-0"
                     >
-                        <ArticleCard :article="article" />
+                        <ArticleCard :article />
                     </li>
                 </ol>
             </section>

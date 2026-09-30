@@ -15,7 +15,7 @@ const toneClass = computed(() => ({ teal: "text-secondary", muted: "text-muted",
 <template>
     <ULink
         v-if="to"
-        :to="to"
+        :to
         raw
         class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] underline-offset-4 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         :class="toneClass"

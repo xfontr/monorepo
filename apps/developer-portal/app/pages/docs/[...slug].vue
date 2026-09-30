@@ -63,7 +63,7 @@ const meta = computed(() => snapshot.value?.docs?.pages.find((doc) => toCollecti
             <div class="flex gap-6 items-start">
                 <aside class="hidden lg:block w-60 shrink-0 sticky top-0">
                     <WikiNav
-                        :sections="sections"
+                        :sections
                         :current="path"
                     />
                 </aside>

@@ -68,7 +68,7 @@ const broken = computed(() => pages.value.filter((page) => page.brokenLinks.leng
         <template #body>
             <div class="flex gap-6 items-start">
                 <aside class="hidden lg:block w-60 shrink-0 sticky top-0">
-                    <WikiNav :sections="sections" />
+                    <WikiNav :sections />
                 </aside>
 
                 <div class="flex-1 min-w-0 flex flex-col gap-6">

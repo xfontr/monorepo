@@ -44,7 +44,7 @@ const facts = [
 
 <template>
     <div>
-        <SiteHeader :menu-open="menuOpen" />
+        <SiteHeader :menu-open />
 
         <main class="flex flex-col">
             <section class="mx-auto w-full max-w-site px-4 md:px-8 lg:px-12">
@@ -139,7 +139,7 @@ const facts = [
                     <ArticleCard
                         v-for="article in recent"
                         :key="article.slug"
-                        :article="article"
+                        :article
                         class="border-b border-(--ui-border-muted) py-8 md:[&:nth-last-child(-n+2)]:border-b-0 lg:[&:nth-last-child(-n+3)]:border-b-0"
                     />
                 </div>
