@@ -1,3 +1,17 @@
+## 0.0.9 (2026-09-30)
+
+### 🩹 Fixes
+
+- resolve shared package sonar audit findings ([6b5a53f](https://github.com/xfontr/monorepo/commit/6b5a53f))
+
+### 🧱 Updated Dependencies
+
+- Updated @monorepo/configs to 0.0.13
+
+### ❤️ Thank You
+
+- Xifré Font
+
 ## 0.0.8 (2026-09-20)
 
 ### 🚀 Features
