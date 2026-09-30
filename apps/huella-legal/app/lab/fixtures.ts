@@ -161,7 +161,7 @@ export const stress = {
 };
 
 export const nav = [
-    { label: "Publicaciones", to: "/lab/category" },
+    { label: "Publicaciones", to: "/lab/publicaciones" },
     { label: "Materias", to: "/lab/categorias" },
     { label: "Colaboradores", to: "/lab/colaboradores" },
     { label: "Publicar", to: "/lab/publicar" },

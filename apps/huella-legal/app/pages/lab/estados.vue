@@ -28,10 +28,10 @@ const found = [articles[0]!, articles[4]!];
                 <div class="grid gap-10 lg:grid-cols-12 lg:gap-12">
                     <div class="lg:col-span-7">
                         <Kicker>Error 404</Kicker>
-                        <h1 class="mt-3 font-serif text-[2.25rem] leading-[1.08] tracking-[-0.02em] text-highlighted text-balance md:text-[3rem]">
+                        <h1 class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-highlighted text-balance md:text-[3.5rem]">
                             Esta página no existe o ha cambiado de dirección.
                         </h1>
-                        <p class="mt-4 max-w-measure font-serif text-[1.125rem] leading-relaxed text-toned">
+                        <p class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned">
                             Puede que el artículo se haya movido al reorganizar las materias. Búscalo por su título o empieza por la portada.
                         </p>
                         <form
@@ -89,7 +89,7 @@ const found = [articles[0]!, articles[4]!];
                 class="rounded-sm border border-default px-5 py-10 md:px-12 md:py-14"
             >
                 <form
-                    class="flex max-w-2xl flex-col gap-3 sm:flex-row sm:items-end"
+                    class="flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-end"
                     role="search"
                     @submit.prevent
                 >
@@ -111,7 +111,7 @@ const found = [articles[0]!, articles[4]!];
                 </form>
                 <p
                     role="status"
-                    class="mt-6 border-b-2 border-huella-slate-900 pb-3 font-sans text-sm text-muted"
+                    class="mt-6 max-w-3xl border-b-2 border-huella-slate-900 pb-3 font-sans text-sm text-muted"
                 >
                     <span class="font-semibold text-highlighted">12 resultados</span> para «culpabilidad»
                 </p>
@@ -119,7 +119,7 @@ const found = [articles[0]!, articles[4]!];
                     <li
                         v-for="article in found"
                         :key="article.slug"
-                        class="py-7"
+                        class="py-7 last:pb-0"
                     >
                         <ArticleCard :article="article" />
                     </li>
@@ -130,19 +130,20 @@ const found = [articles[0]!, articles[4]!];
                 <!-- No results -->
                 <section
                     aria-label="Búsqueda sin resultados"
-                    class="flex flex-col items-start gap-4 rounded-sm border border-default px-5 py-10 md:px-10"
+                    class="flex flex-col items-start gap-4 rounded-sm border border-default px-5 py-10 md:px-12"
                 >
                     <UIcon
                         name="i-lucide-search-x"
                         class="size-7 text-dimmed"
                     />
-                    <h2 class="font-serif text-h3 text-highlighted">
+                    <h2 class="font-serif text-h3 text-highlighted text-balance">
                         Ningún resultado para «kardashov»
                     </h2>
                     <ul class="list-disc pl-5 font-serif text-base leading-relaxed text-toned marker:text-huella-teal-500">
                         <li>
 Revisa la ortografía: ¿quizá <a
                             href="#"
+                            data-inline
                             class="text-primary underline underline-offset-2"
                         >«Kardashev»</a>?
 </li>
@@ -157,7 +158,7 @@ Revisa la ortografía: ¿quizá <a
                             :key="item.slug"
                         >
                             <a
-                                href="/lab/category"
+                                href="/lab/publicaciones"
                                 class="inline-flex min-h-11 items-center rounded-full border border-default px-4 font-sans text-sm font-medium text-toned hover:bg-ivory-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                             >{{ item.name }}</a>
                         </li>
@@ -167,19 +168,19 @@ Revisa la ortografía: ¿quizá <a
                 <!-- Empty listing: the empty state doubles as a call for contributors -->
                 <section
                     aria-label="Materia sin publicaciones"
-                    class="flex flex-col items-start gap-4 rounded-sm border border-dashed border-(--ui-border-accented) bg-ivory-50 px-5 py-10 md:px-10"
+                    class="flex flex-col items-start gap-4 rounded-sm border border-dashed border-(--ui-border-accented) bg-ivory-50 px-5 py-10 md:px-12"
                 >
                     <UIcon
                         name="i-lucide-feather"
                         class="size-7 text-huella-teal-500"
                     />
-                    <h2 class="font-serif text-h3 text-highlighted">
+                    <h2 class="font-serif text-h3 text-highlighted text-balance">
                         Todavía no hay publicaciones en Derecho administrativo
                     </h2>
                     <p class="max-w-md font-serif text-base leading-relaxed text-toned">
                         Es una materia nueva en la revista. Si trabajas en ella, tu artículo puede ser el primero.
                     </p>
-                    <div class="flex flex-col gap-3 sm:flex-row">
+                    <div class="flex flex-col gap-3 self-stretch sm:flex-row sm:self-start">
                         <UButton
                             label="Publicar en esta materia"
                             to="/lab/publicar"
@@ -198,18 +199,18 @@ Revisa la ortografía: ¿quizá <a
                 <!-- Server error -->
                 <section
                     aria-label="Error del servidor"
-                    class="flex flex-col items-start gap-4 rounded-sm border border-default px-5 py-10 md:px-10"
+                    class="flex flex-col items-start gap-4 rounded-sm border border-default px-5 py-10 md:px-12"
                 >
                     <Kicker tone="muted">
                         Error 500
                     </Kicker>
-                    <h2 class="font-serif text-h3 text-highlighted">
+                    <h2 class="font-serif text-h3 text-highlighted text-balance">
                         No hemos podido cargar esta página
                     </h2>
                     <p class="max-w-md font-serif text-base leading-relaxed text-toned">
                         El fallo es nuestro y ya está registrado. Vuelve a intentarlo en unos minutos; si continúa, escríbenos.
                     </p>
-                    <div class="flex flex-col gap-3 sm:flex-row">
+                    <div class="flex flex-col gap-3 self-stretch sm:flex-row sm:self-start">
                         <UButton
                             icon="i-lucide-rotate-cw"
                             label="Reintentar"
@@ -228,7 +229,7 @@ Revisa la ortografía: ¿quizá <a
                 <section
                     aria-label="Cargando publicaciones"
                     aria-busy="true"
-                    class="rounded-sm border border-default px-5 py-10 md:px-10"
+                    class="rounded-sm border border-default px-5 py-10 md:px-12"
                 >
                     <p class="sr-only">
                         Cargando publicaciones…

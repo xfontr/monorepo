@@ -124,7 +124,7 @@ const notes = {
             <section class="border-b border-default">
                 <div class="mx-auto max-w-site px-4 pt-6 pb-10 md:px-8 md:pt-10 lg:px-12 lg:pb-12">
                     <UBreadcrumb
-                        :items="[{ label: 'Portada', to: '/lab/home-b' }, { label: 'Publicaciones' }]"
+                        :items="[{ label: 'Portada', to: '/lab/attempts/home-b' }, { label: 'Publicaciones' }]"
                         :ui="{ link: 'font-sans text-meta min-h-11 inline-flex items-center', separatorIcon: 'size-4' }"
                     />
                     <div class="mt-6 grid gap-6 md:mt-8 lg:grid-cols-12 lg:items-end lg:gap-12">
@@ -353,7 +353,7 @@ const notes = {
 
         <VariantNotes
             label="Archivo · variante C"
-            compare="/lab/category"
+            compare="/lab/publicaciones"
             v-bind="notes"
         />
     </div>

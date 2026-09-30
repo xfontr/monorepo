@@ -152,7 +152,7 @@ const notesForVariant = {
         >
             <div class="mx-auto flex h-12 max-w-site items-center gap-4 px-4 md:px-8 lg:px-12">
                 <a
-                    href="/lab/home-b"
+                    href="/lab/attempts/home-b"
                     class="shrink-0"
                     :tabindex="pastHeader ? 0 : -1"
                     aria-label="Huella Legal, portada"
@@ -183,7 +183,7 @@ const notesForVariant = {
                         class="lg:col-start-2 xl:col-span-2"
                     >
                         <UBreadcrumb
-                            :items="[{ label: 'Portada', to: '/lab/home-b' }, { label: 'Publicaciones', to: '/lab/category-c' }, { label: article.category, to: '/lab/category-b' }]"
+                            :items="[{ label: 'Portada', to: '/lab/attempts/home-b' }, { label: 'Publicaciones', to: '/lab/attempts/category-c' }, { label: article.category, to: '/lab/attempts/category-b' }]"
                             :ui="{ link: 'font-sans text-meta min-h-11 inline-flex items-center', separatorIcon: 'size-4' }"
                         />
                         <p class="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-xs md:mt-8">
@@ -193,7 +193,7 @@ const notesForVariant = {
                                 aria-hidden="true"
                             >·</span>
                             <a
-                                href="/lab/category-b"
+                                href="/lab/attempts/category-b"
                                 class="inline-flex min-h-6 items-center font-medium text-muted underline-offset-4 hover:underline"
                             >{{ article.category }}</a>
                             <span
@@ -466,7 +466,7 @@ const notesForVariant = {
                                 :key="tag"
                             >
                                 <a
-                                    href="/lab/category-c"
+                                    href="/lab/attempts/category-c"
                                     data-inline
                                     class="ml-1 text-primary underline decoration-huella-slate-300 underline-offset-4 hover:decoration-current"
                                 >{{ tag }}</a>{{ index < article.tags.length + 1 ? " ·" : "" }}
@@ -551,14 +551,14 @@ const notesForVariant = {
                         <UButton
                             variant="link"
                             label="Ver la serie completa"
-                            to="/lab/serie-b"
+                            to="/lab/attempts/serie-b"
                             class="-ml-3 sm:-mr-3 sm:ml-0"
                         />
                     </div>
                     <div class="mt-3 grid gap-px overflow-hidden rounded-xs border border-default bg-(--ui-border) md:grid-cols-2">
                         <a
                             v-if="previous"
-                            href="/lab/article-b"
+                            href="/lab/attempts/article-b"
                             class="group flex flex-col gap-1 bg-ivory-50 p-5 transition-colors hover:bg-ivory-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
                         >
                             <span class="inline-flex items-center gap-1.5 font-sans text-meta font-semibold text-muted"><UIcon
@@ -569,7 +569,7 @@ const notesForVariant = {
                         </a>
                         <a
                             v-if="next"
-                            href="/lab/article-b"
+                            href="/lab/attempts/article-b"
                             class="group flex flex-col gap-1 bg-ivory-50 p-5 text-right transition-colors hover:bg-ivory-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary md:col-start-2"
                         >
                             <span class="inline-flex items-center justify-end gap-1.5 font-sans text-meta font-semibold text-muted">Siguiente · {{ next.series!.position }} <UIcon
@@ -600,7 +600,7 @@ const notesForVariant = {
                         variant="link"
                         label="Toda la materia"
                         trailing-icon="i-lucide-arrow-right"
-                        to="/lab/category-b"
+                        to="/lab/attempts/category-b"
                         class="-ml-3 self-start sm:-mr-3 sm:ml-0 sm:self-auto"
                     />
                 </div>

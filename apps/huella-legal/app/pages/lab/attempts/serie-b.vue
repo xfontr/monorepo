@@ -45,7 +45,7 @@ const notes = {
                 <div class="mx-auto grid max-w-site gap-8 px-4 pt-6 pb-10 md:px-8 md:pt-10 lg:grid-cols-12 lg:items-end lg:gap-12 lg:px-12 lg:pb-14">
                     <div class="lg:col-span-8">
                         <UBreadcrumb
-                            :items="[{ label: 'Portada', to: '/lab/home-b' }, { label: 'Series' }, { label: current.name }]"
+                            :items="[{ label: 'Portada', to: '/lab/attempts/home-b' }, { label: 'Series' }, { label: current.name }]"
                             :ui="{ link: 'font-sans text-meta min-h-11 inline-flex items-center', separatorIcon: 'size-4' }"
                         />
                         <Kicker class="mt-6 md:mt-8">
@@ -65,7 +65,7 @@ const notes = {
                         <UButton
                             label="Empezar por la primera"
                             trailing-icon="i-lucide-arrow-right"
-                            to="/lab/article-b"
+                            to="/lab/attempts/article-b"
                             class="justify-center self-start"
                         />
                     </div>
@@ -83,7 +83,7 @@ const notes = {
                         <div class="flex flex-col gap-2">
                             <h2 class="font-serif text-[1.5rem] leading-tight text-highlighted md:text-h2">
                                 <a
-                                    href="/lab/article-b"
+                                    href="/lab/attempts/article-b"
                                     class="decoration-huella-slate-300 decoration-1 underline-offset-[0.2em] group-hover:underline after:absolute after:inset-0 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
                                 >{{ item.title }}</a>
                             </h2>
