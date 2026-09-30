@@ -13,11 +13,11 @@ describe("GET /health", () => {
 
 describe("GET /:locale/:project", () => {
     it("serves the locale tree", async () => {
-        const res = await get("/en-GB/huella-legal");
+        const res = await get("/es-ES/huella-legal");
         expect(res.status).toBe(200);
         const body = (await res.json()) as Record<string, unknown>;
         expect(Object.keys(body)).toEqual(
-            expect.arrayContaining(["shared", "meta", "user"]),
+            expect.arrayContaining(["app", "common"]),
         );
     });
 

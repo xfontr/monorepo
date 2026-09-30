@@ -1,4 +1,3 @@
 <template>
-    <p>{{ $t("shared.health") }}</p>
-    <p>{{ $t("meta.title") }}</p>
+    <p>{{ $t("app.title") }}</p>
 </template>

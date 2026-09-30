@@ -3,11 +3,11 @@ import readLocale from "./readLocale";
 
 describe("readLocale", () => {
     it("reads and parses a project's locale file from the source-of-truth tree", async () => {
-        const messages = await readLocale("huella-legal", "en-GB");
+        const messages = await readLocale("huella-legal", "es-ES");
         expect(Object.keys(messages)).toEqual(
-            expect.arrayContaining(["shared", "meta", "user"]),
+            expect.arrayContaining(["app", "common"]),
         );
-        expect(messages.shared).toEqual({ health: "Health" });
+        expect(messages.common).toEqual({ loading: "Cargando…" });
     });
 
     it("rejects when the locale file does not exist", async () => {
