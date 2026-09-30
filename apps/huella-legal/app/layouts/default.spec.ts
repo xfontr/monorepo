@@ -1,4 +1,5 @@
-import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
+import { mockNuxtImport } from "@nuxt/test-utils/runtime";
+import { mount } from "@vue/test-utils";
 import { ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Layout from "./default.vue";
@@ -14,22 +15,22 @@ beforeEach(() => {
 });
 
 describe("default layout", () => {
-    it("renders the page it wraps", async () => {
-        const wrapper = await mountSuspended(Layout, { slots: { default: () => "Article body" } });
+    it("renders the page it wraps", () => {
+        const wrapper = mount(Layout, { slots: { default: () => "Article body" } });
 
         expect(wrapper.text()).toBe("Article body");
     });
 
-    it("tags the document with the active locale, so screen readers pick the right voice", async () => {
-        await mountSuspended(Layout);
+    it("tags the document with the active locale, so screen readers pick the right voice", () => {
+        mount(Layout);
 
         const [{ htmlAttrs }] = head.useHead.mock.calls[0] as [{ htmlAttrs: { lang: () => string } }];
 
         expect(htmlAttrs.lang()).toBe("es");
     });
 
-    it("takes the title and description from translations rather than hard-coded copy", async () => {
-        await mountSuspended(Layout);
+    it("takes the title and description from translations rather than hard-coded copy", () => {
+        mount(Layout);
 
         expect(head.useSeoMeta).toHaveBeenCalledWith({
             title: "t(app.title)",

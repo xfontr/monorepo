@@ -66,6 +66,7 @@ Nuxt auto-registers, and the layers' sources count towards coverage. The options
 | --- | --- |
 | `root` | The app root, `import.meta.dirname` |
 | `nodeSpecs` | Specs under `app/` that need no Nuxt runtime; they move to the `node` project |
+| `setupFiles` | Setup files for the `nuxt` project only, run after the Nuxt entry registers its boot but before it runs |
 | `coverageExclude` | Paths kept out of the denominator |
 | `thresholds` | Vitest's coverage thresholds. They only bite on a `--coverage` run |
 

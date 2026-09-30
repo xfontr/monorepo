@@ -95,4 +95,4 @@ pnpm exec nx run-many -t test              # the whole workspace
 
 Every project has a `test` target, and every `vitest.config.ts` is a short wrapper. The Nuxt apps
 use `vitest.createNuxtConfig`, which adds a `nuxt` project through `@nuxt/test-utils`, so a spec
-under their `app/` can `mountSuspended` a component and `mockNuxtImport` a composable.
+under their `app/` can `mount` a component and `mockNuxtImport` a composable.

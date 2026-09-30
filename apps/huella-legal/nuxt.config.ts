@@ -20,6 +20,7 @@ export default defineNuxtConfig({
 
     typescript: {
         typeCheck: "build",
+        tsConfig: { include: ["../vitest.setup.ts"] },
     },
 
     i18n: {

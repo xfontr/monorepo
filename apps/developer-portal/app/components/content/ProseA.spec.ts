@@ -1,4 +1,4 @@
-import { mountSuspended } from "@nuxt/test-utils/runtime";
+import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import ProseA from "./ProseA.vue";
 
@@ -8,9 +8,9 @@ const NuxtLinkStub = {
 };
 
 describe("ProseA", () => {
-    it("turns a repo target into an external master-branch forge link", async () => {
+    it("turns a repo target into an external master-branch forge link", () => {
         useRuntimeConfig().public.repoUrl = "https://github.com/acme/repo";
-        const wrapper = await mountSuspended(ProseA, {
+        const wrapper = mount(ProseA, {
             props: { href: "repo:packages/ui/README.md" },
             slots: { default: "UI README" },
             global: { stubs: { NuxtLink: NuxtLinkStub } },
@@ -22,9 +22,9 @@ describe("ProseA", () => {
         });
     });
 
-    it("renders an unconfigured repo target as text rather than a dead link", async () => {
+    it("renders an unconfigured repo target as text rather than a dead link", () => {
         useRuntimeConfig().public.repoUrl = "";
-        const wrapper = await mountSuspended(ProseA, {
+        const wrapper = mount(ProseA, {
             props: { href: "repo:packages/ui/README.md" },
             slots: { default: "UI README" },
             global: { stubs: { NuxtLink: NuxtLinkStub } },
@@ -34,9 +34,9 @@ describe("ProseA", () => {
         expect(wrapper.text()).toBe("UI README");
     });
 
-    it("passes normal links and caller targets through unchanged", async () => {
+    it("passes normal links and caller targets through unchanged", () => {
         useRuntimeConfig().public.repoUrl = "";
-        const wrapper = await mountSuspended(ProseA, {
+        const wrapper = mount(ProseA, {
             props: { href: "/docs/readme", target: "_blank" },
             slots: { default: "Readme" },
             global: { stubs: { NuxtLink: NuxtLinkStub } },

@@ -1,10 +1,11 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
+import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import StatusPill from "./StatusPill.vue";
 
 describe("StatusPill", () => {
-    it("uses a span for a non-navigable status", async () => {
-        const wrapper = await mountSuspended(StatusPill, { props: { label: "Implemented" } });
+    it("uses a span for a non-navigable status", () => {
+        const wrapper = mount(StatusPill, { props: { label: "Implemented" } });
 
         expect(wrapper.element.tagName).toBe("SPAN");
         expect(wrapper.text()).toBe("Implemented");

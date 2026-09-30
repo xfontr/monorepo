@@ -10,6 +10,8 @@ export interface NuxtConfigOptions {
     root: string
     /** Specs under `app/` that need no Nuxt runtime, moved to the node project. */
     nodeSpecs?: string[]
+    /** Setup files for the `nuxt` project, run after the Nuxt entry registers its boot but before it runs. */
+    setupFiles?: string[]
     /** Extra paths kept out of the coverage denominator. */
     coverageExclude?: string[]
     thresholds?: CoverageOptions["thresholds"]
@@ -21,7 +23,7 @@ const NODE_DIRS = ["shared", "server", "tools"];
 const LAYER_SOURCES = ["layers/*/{app,server,shared}/**/*.ts", "layers/*/app/**/*.vue"];
 
 /** A `node` project for `server/`, `shared/` and `tools/`, and a `nuxt` project for `app/`, in the root and every layer. */
-async function createNuxtConfig({ root, nodeSpecs = [], coverageExclude = [], thresholds }: NuxtConfigOptions) {
+async function createNuxtConfig({ root, nodeSpecs = [], setupFiles = [], coverageExclude = [], thresholds }: NuxtConfigOptions) {
     const nodeConfig = createNodeConfig();
     const { globalSetup, coverage, ...nodeTest } = nodeConfig.test ?? {};
 
@@ -30,6 +32,7 @@ async function createNuxtConfig({ root, nodeSpecs = [], coverageExclude = [], th
         fileParallelism: false,
         include: ["app/**/*.spec.ts", "layers/*/app/**/*.spec.ts"],
         exclude: nodeSpecs,
+        setupFiles,
         environmentOptions: {
             nuxt: {
                 rootDir: root,

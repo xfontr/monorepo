@@ -1,4 +1,5 @@
-import { mountSuspended, mockNuxtImport } from "@nuxt/test-utils/runtime";
+import { mockNuxtImport } from "@nuxt/test-utils/runtime";
+import { mount } from "@vue/test-utils";
 import { defineComponent, ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Page from "./issues.vue";
@@ -29,7 +30,7 @@ beforeEach(() => {
 
 describe("issues page", () => {
     it("filters by search and label, offers labels from the live data, and sorts newest first", async () => {
-        const wrapper = await mountSuspended(Page, { global });
+        const wrapper = mount(Page, { global });
         expect(wrapper.text()).toContain("Work in progress");
         expect(wrapper.text().indexOf("Fix portal")).toBeLessThan(wrapper.text().indexOf("Add docs"));
         expect(wrapper.findAll("select").at(0)?.text()).toContain("bug");
@@ -40,7 +41,7 @@ describe("issues page", () => {
 
     it("renders live failures and delegates refresh to the composable", async () => {
         state.read = ref({ fetchedAt: "", error: "rate limited", issues: [] });
-        const wrapper = await mountSuspended(Page, { global });
+        const wrapper = mount(Page, { global });
         expect(wrapper.text()).toContain("GitHub could not be reached");
         state.read!.value = { fetchedAt: "", error: null, issues: [] };
         await wrapper.vm.$nextTick();
