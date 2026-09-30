@@ -20,9 +20,24 @@ jobs:
         permissions:
             deployments: write
         steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  fetch-depth: 0
+
+            # Netlify's `ignore` diffs from its last build rather than from `before`, so a push that
+            # ends a failed-build streak can deploy without being recorded here.
+            - id: changes
+              run: |
+                  if bash apps/huella-legal/netlify-ignore.sh "${{ github.event.before }}" "${{ github.sha }}"; then
+                      echo "build=false" >> "$GITHUB_OUTPUT"
+                  else
+                      echo "build=true" >> "$GITHUB_OUTPUT"
+                  fi
+
             # Records the Netlify deploy as a GitHub Deployment; it builds and deploys nothing —
             # huella-legal ships entirely through Netlify's own git integration, outside this repo.
-            - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+            - if: steps.changes.outputs.build == 'true'
+              uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
               env:
                   NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
                   NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
