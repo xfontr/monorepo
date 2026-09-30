@@ -41,7 +41,8 @@ src/
 │   │           └── WordpressTypes.ts         # the WP REST shapes, and the config type
 │   ├── contentKey.ts                         # which upstream document a request resolves to
 │   └── registry.ts                           # vendor name → provider, and the config type
-└── nuxt/                                     # the Nuxt module (separate entry point)
+├── nuxt/                                     # the Nuxt module (separate entry point)
+└── testing/                                  # fake vendors for consumers' e2e (separate entry point)
 ```
 
 Nothing under `core/` imports the Nuxt or Nitro runtime — lint enforces the [list in
@@ -230,6 +231,27 @@ The ceilings in the domain — `MAX_PAGE`, `MAX_PER_PAGE`, `MAX_SEARCH_LENGTH` �
 limits, distinct from any vendor's own. They exist so a public route's key space is finite and a
 crafted query cannot mint an unbounded number of cache entries. Apply them before you build a
 key, not after.
+
+## 🧪 Fake vendors
+
+`@monorepo/content/testing` exports MSW handlers that answer like a vendor, for a consumer's e2e
+run. The consumer brings domain values and the handlers speak the wire format, so a vendor's shapes
+still never leave this package:
+
+```ts
+import { wordpressHandlers } from "@monorepo/content/testing";
+
+setupServer(...wordpressHandlers(baseURL, { posts: entries, categories: terms })).listen();
+```
+
+| Export | Serves | Contract it keeps |
+| --- | --- | --- |
+| `wordpressHandlers(baseURL, content)` | `GET <baseURL>/wp-json/wp/v2/:resource` for each resource given | `?slug=`, `page` and `per_page`, `x-wp-total`/`x-wp-totalpages`, a `400` for a page past the end, a `404` for a resource with no content |
+
+[`wordpress.spec.ts`](./src/testing/wordpress.spec.ts) runs the real `WordpressProvider` on the
+real client against the handlers, and asserts every `Entry` field comes back unchanged, so a fake
+that drifts from the provider fails here rather than in someone's e2e. `msw` is an optional peer,
+like the Nuxt entry's dependencies. Search and term filters aren't faked: nothing consumes them yet.
 
 ## ⚠️ Errors
 
