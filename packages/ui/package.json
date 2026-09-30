@@ -14,7 +14,7 @@
     "lint": "nx eslint:lint",
     "test": "vitest . --watch=false",
     "test:coverage": "vitest . --watch=false --coverage",
-    "build-storybook": "storybook build"
+    "build:storybook": "storybook build"
   },
   "nx": {
     "tags": [

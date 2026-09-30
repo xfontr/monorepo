@@ -33,7 +33,7 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm review:version` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm release` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm release:dry` | [`package.json`](../package.json) | [`README.md`](../README.md) |
-| `pnpm exec nx build-storybook @monorepo/ui` | [`packages/ui/package.json`](../packages/ui/package.json) | [`packages/ui/README.md`](../packages/ui/README.md) |
+| `pnpm exec nx build:storybook @monorepo/ui` | [`packages/ui/package.json`](../packages/ui/package.json) | [`packages/ui/README.md`](../packages/ui/README.md) |
 | `pnpm exec nx nuxt-prepare @monorepo/developer-portal` | [`apps/developer-portal/package.json`](../apps/developer-portal/package.json) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
 | `pnpm exec nx collect @monorepo/developer-portal` | [`apps/developer-portal/package.json`](../apps/developer-portal/package.json) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
 | `pnpm exec nx build:storybook @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |

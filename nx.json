@@ -56,7 +56,7 @@
             ],
             "cache": true
         },
-        "build-storybook": {
+        "build:storybook": {
             "inputs": [
                 "default",
                 "^production"
