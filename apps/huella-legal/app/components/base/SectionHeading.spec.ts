@@ -1,0 +1,28 @@
+import { mountSuspended } from "@nuxt/test-utils/runtime";
+import { describe, expect, it } from "vitest";
+import SectionHeading from "./SectionHeading.vue";
+
+describe("section heading", () => {
+    it("carries the id on the heading itself, so aria-labelledby and anchors reach it", async () => {
+        const wrapper = await mountSuspended(SectionHeading, { props: { title: "Recientes", id: "recientes" } });
+
+        expect(wrapper.find("h2").attributes("id")).toBe("recientes");
+        expect(wrapper.find("h2").text()).toBe("Recientes");
+    });
+
+    it("draws the see-all link only with both a label and a target, never a dead \"#\"", async () => {
+        const labelOnly = await mountSuspended(SectionHeading, { props: { title: "Recientes", link: "Ver todo" } });
+        const linked = await mountSuspended(SectionHeading, { props: { title: "Recientes", link: "Ver todo", to: "/publicaciones" } });
+
+        expect(labelOnly.find("a").exists()).toBe(false);
+        expect(linked.find("a").attributes("href")).toBe("/publicaciones");
+        expect(linked.find("a").text()).toBe("Ver todo");
+    });
+
+    it("prints the kicker above the title only when given one", async () => {
+        const wrapper = await mountSuspended(SectionHeading, { props: { title: "Recientes", kicker: "Archivo" } });
+
+        expect(wrapper.find("p").text()).toBe("Archivo");
+        expect(wrapper.find("h2").classes()).toContain("mt-1");
+    });
+});

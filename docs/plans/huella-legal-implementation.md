@@ -202,7 +202,9 @@ A1 comes first. A2 can run alongside it.
 Promoted from `app/lab/`. B1, B3 and B4 don't depend on any spike.
 
 - **B1 🎫 #196 Editorial primitives:** Wordmark, Kicker, MediaFallback, Byline, SectionHeading,
-  Pill/TagPill (count and active states), InitialsAvatar and its stack, StatPair, IssueNumber.
+  TagPill (count and active states). Author initials and their stack are `UAvatar` and
+  `UAvatarGroup`, themed in `app.config.ts`. The D designs dropped the issue number and the stats,
+  so neither gets a primitive.
 - **B2 🎫 #197 ArticleCard family:** all five variants (lead+split, standard, compact, media,
   row), typed against `ArticleSummary`, plus grid and list wrappers.
 - **B3 🎫 #198 Shell and error surface:**

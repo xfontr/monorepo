@@ -16,7 +16,18 @@
         },
         "title": "Publicaciones"
     },
+    "byline": {
+        "readingTime": "{minutes} min de lectura"
+    },
     "common": {
         "loading": "Cargando…"
+    },
+    "tagPill": {
+        "count": "{count} publicación | {count} publicaciones"
+    },
+    "wordmark": {
+        "accent": "Legal",
+        "lead": "Huella",
+        "tagline": "Revista jurídica"
     }
 }

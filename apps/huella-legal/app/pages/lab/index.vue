@@ -67,6 +67,7 @@ const labPages = [
     { label: "Publicar", to: "/lab/publicar" },
     { label: "Publicar · con errores", to: "/lab/publicar?estado=invalid#formulario" },
     { label: "Estados", to: "/lab/estados" },
+    { label: "Primitivas", to: "/lab/base" },
 ];
 
 const attemptPages = [

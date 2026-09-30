@@ -52,6 +52,19 @@ export default defineAppConfig({
             ],
             defaultVariants: { size: "xl" },
         },
+        avatar: {
+            slots: { fallback: "font-sans font-semibold" },
+            variants: {
+                color: { primary: { root: "bg-huella-slate-100", fallback: "text-primary" } },
+                // Initials are two capitals, so they sit well below Nuxt UI's text size for each step
+                size: {
+                    "lg": { root: "text-[0.6875rem]" },
+                    "2xl": { root: "text-xs" },
+                    "3xl": { root: "text-sm" },
+                },
+            },
+            defaultVariants: { color: "primary" },
+        },
         input: {
             slots: { base: "min-h-11 bg-ivory-50" },
             defaultVariants: { size: "xl" },
