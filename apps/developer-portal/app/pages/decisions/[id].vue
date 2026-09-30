@@ -54,7 +54,7 @@ const around = computed(() => {
                     <span
                         v-if="report"
                         class="text-xs text-muted"
-                    >{{ report.words }} words · updated {{ relativeTime(report.updatedAt) }}</span>
+                    >{{ report.words }} words · created {{ relativeTime(report.createdAt) }}</span>
                     <code class="text-xs text-dimmed font-mono">{{ report?.path ?? `${path.slice(1)}.md` }}</code>
                 </template>
             </UDashboardNavbar>

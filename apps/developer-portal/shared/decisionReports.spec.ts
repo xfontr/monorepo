@@ -9,6 +9,7 @@ function page(path: string, overrides: Partial<DocPage> = {}): DocPage {
         title: "🧭 A decision",
         words: 100,
         updatedAt: null,
+        createdAt: null,
         decisionStatus: "to-implement",
         decisionOutcome: "accepted",
         decisionSupersededBy: null,
@@ -19,10 +20,10 @@ function page(path: string, overrides: Partial<DocPage> = {}): DocPage {
 }
 
 const PAGES: DocPage[] = [
-    page("docs/decisions/0001-feature-discoverability.md", { title: "🧭 Making the feature surface discoverable", decisionStatus: "implemented", updatedAt: "2026-01-04T00:00:00Z" }),
-    page("docs/decisions/0002-docs-drift-detection.md", { title: "🧭 Catching docs drift", decisionStatus: "wont-implement", updatedAt: "2026-03-02T00:00:00Z" }),
-    page("docs/decisions/0003-coverage-report-merge.md", { title: "🧭 Merging the coverage reports", decisionStatus: null, decisionOutcome: null, updatedAt: "2026-02-01T00:00:00Z" }),
-    page("docs/decisions/0004-scripts-architecture.md", { title: "🧭 The scripts architecture", decisionOutcome: "superseded", decisionSupersededBy: "0005-later.md", updatedAt: "2026-01-01T00:00:00Z" }),
+    page("docs/decisions/0001-feature-discoverability.md", { title: "🧭 Making the feature surface discoverable", decisionStatus: "implemented", createdAt: "2026-01-04T00:00:00Z" }),
+    page("docs/decisions/0002-docs-drift-detection.md", { title: "🧭 Catching docs drift", decisionStatus: "wont-implement", createdAt: "2026-03-02T00:00:00Z" }),
+    page("docs/decisions/0003-coverage-report-merge.md", { title: "🧭 Merging the coverage reports", decisionStatus: null, decisionOutcome: null, createdAt: "2026-02-01T00:00:00Z" }),
+    page("docs/decisions/0004-scripts-architecture.md", { title: "🧭 The scripts architecture", decisionOutcome: "superseded", decisionSupersededBy: "0005-later.md", createdAt: "2026-01-01T00:00:00Z" }),
     page("docs/decisions/README.md", { kind: "doc", title: "🧭 Decisions" }),
     page("docs/guides/first-hour.md", { kind: "doc", title: "🌱 First hour" }),
 ];
@@ -78,8 +79,8 @@ describe("sortDecisions", () => {
         expect(numbersOf(sortDecisions(REPORTS, "oldest"))).toEqual(["0001", "0002", "0003", "0004"]);
     });
 
-    it("sorts by last commit, so a report edited long after it was filed surfaces", () => {
-        expect(numbersOf(sortDecisions(REPORTS, "updated"))).toEqual(["0002", "0003", "0001", "0004"]);
+    it("sorts by creation date, so a report edited long after it was filed stays in its original place", () => {
+        expect(numbersOf(sortDecisions(REPORTS, "created"))).toEqual(["0002", "0003", "0001", "0004"]);
     });
 
     it("groups by status in the order the vocabulary lists them, unparsed last rather than under a guess", () => {

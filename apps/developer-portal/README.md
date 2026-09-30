@@ -168,13 +168,14 @@ spinner while it arrives.
 The wiki nav is derived from paths alone, so the one question a reader brings to a list of decisions —
 which of these decisions have actually landed — is the one thing it cannot answer, and it gets worse
 with every report filed. [`/decisions`](./app/pages/decisions/index.vue) answers it instead: the counts per
-`status:`, filters over both frontmatter axes, and a sort by number, by last commit or by status.
+`status:`, filters over both frontmatter axes, and a sort by number, by creation date or by status.
 
 | Fact | Where it comes from |
 | --- | --- |
 | The `status:` and `decision:` values | Each report's own frontmatter, parsed by the collector into `docs.json` — never re-derived here |
 | The counts, the filters, the ordering | [`shared/decisionReports.ts`](./shared/decisionReports.ts), pure and specced beside itself |
 | Newest first | A string compare on the number, which the four-digit padding in [`docs/decisions/README.md`](../../docs/decisions/README.md#-numbering) makes a numeric one |
+| Recently created | The first commit that added the report, so later edits do not change its reference date |
 | Prev/next on a report | The number again, so one report reads on to the next decision made rather than the next row of whatever sort was left on |
 
 `status` shows as a pill on a report and as a tone beside it in the list — good for `implemented`,
@@ -283,6 +284,13 @@ root, and `NUXT_PUBLIC_REPO_URL`. The workflow derives both from the run — the
 `actions/configure-pages`, the second from the repo it is running in — so neither is written down
 here. A `public/` path that Nuxt does not rewrite goes through
 [`embedUrl`](./app/utils/embed.ts) for the same reason.
+
+### Browser telemetry
+
+The portal uses Grafana Faro in the browser because GitHub Pages serves only prerendered static
+files. `NUXT_PUBLIC_OBSERVABILITY_URL` is empty locally by default and is the off switch; the deploy
+workflow supplies the collector URL and sets the app version to the commit SHA for release
+attribution. There is no server telemetry because the deployed portal has no server process.
 
 **Every page is as old as the last deploy**, which is the price of the snapshot and worth reading off
 the Overview's own `manifest.commit`: the docs travel with the build rather than being read in place,

@@ -13,7 +13,7 @@ const global = { stubs: {
     StatusPill: { props: { label: String, to: String }, template: "<a :href='to'>{{ label }}</a>" }, UPageBody: { template: "<div><slot /></div>" }, ContentRenderer: { props: { value: Object }, template: "<div>{{ value?.title }}</div>" }, USeparator: true, UContentToc: { template: "<aside>toc</aside>" }, NuxtLink: { props: { to: String }, template: "<a :href='to'><slot /></a>" },
 } };
 
-const report = (id: string, status: "implemented" | "to-implement", decision: "accepted" | "superseded", supersededBy: string | null) => ({ id, path: `docs/decisions/${id}.md`, number: id.slice(0, 4), title: id, status, decision, supersededBy, updatedAt: "2026-09-20", words: 10 });
+const report = (id: string, status: "implemented" | "to-implement", decision: "accepted" | "superseded", supersededBy: string | null) => ({ id, path: `docs/decisions/${id}.md`, number: id.slice(0, 4), title: id, status, decision, supersededBy, createdAt: "2026-09-20", words: 10 });
 beforeEach(() => {
     state.reports = ref([report("0001-first", "implemented", "accepted", null), report("0002-second", "to-implement", "superseded", "0003-third.md"), report("0003-third", "implemented", "accepted", null)]);
     state.route = reactive({ params: { id: "0002-second" } });

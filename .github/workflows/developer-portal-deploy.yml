@@ -61,6 +61,9 @@ jobs:
                   # trailing slash is what keeps the second case a valid URL.
                   NUXT_APP_BASE_URL: ${{ steps.pages.outputs.base_path }}/
                   NUXT_PUBLIC_REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+                  NUXT_PUBLIC_OBSERVABILITY_URL: ${{ vars.DEVELOPER_PORTAL_OBSERVABILITY_URL }}
+                  NUXT_PUBLIC_OBSERVABILITY_APP_VERSION: ${{ github.sha }}
+                  NUXT_PUBLIC_OBSERVABILITY_APP_ENVIRONMENT: production
 
             - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
               with:

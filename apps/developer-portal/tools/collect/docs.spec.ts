@@ -9,6 +9,7 @@ const state = vi.hoisted(() => ({
     paths: [] as string[],
     sources: new Map<string, string>(),
     updatedAt: new Map<string, string>(),
+    createdAt: new Map<string, string>(),
 }));
 const fs = vi.hoisted(() => ({ access: vi.fn(), readFile: vi.fn() }));
 const run = vi.hoisted(() => ({ git: vi.fn() }));
@@ -16,11 +17,12 @@ const run = vi.hoisted(() => ({ git: vi.fn() }));
 vi.mock("node:fs/promises", () => fs);
 vi.mock("../lib/run.ts", () => run);
 
-function addFile(path: string, source: string, updatedAt = "2026-09-20T10:00:00Z"): void {
+function addFile(path: string, source: string, updatedAt = "2026-09-20T10:00:00Z", createdAt = updatedAt): void {
     const absolute = resolve(WORKSPACE_ROOT, path);
     state.files.add(absolute);
     state.sources.set(absolute, source);
     state.updatedAt.set(path, updatedAt);
+    state.createdAt.set(path, createdAt);
 }
 
 beforeEach(() => {
@@ -29,6 +31,7 @@ beforeEach(() => {
     state.paths = [];
     state.sources.clear();
     state.updatedAt.clear();
+    state.createdAt.clear();
     fs.access.mockImplementation(async (path: string) => {
         if (!state.files.has(path)) throw new Error("missing");
     });
@@ -38,7 +41,7 @@ beforeEach(() => {
 
         const path = args.at(-1) as string;
 
-        return state.updatedAt.get(path) ?? "";
+        return args.includes("--diff-filter=A") ? state.createdAt.get(path) ?? "" : state.updatedAt.get(path) ?? "";
     });
 });
 
@@ -144,6 +147,7 @@ describe("collectDocs", () => {
 
         expect(result.pages.map((page) => page.path)).toEqual(files.map(([path]) => path).sort((a, b) => a.localeCompare(b)));
         expect(result.pages.find((page) => page.path === "README.md")).toMatchObject({ kind: "readme", title: "Workspace", updatedAt: "2026-09-01T10:00:00Z" });
+        expect(result.pages.find((page) => page.path === "README.md")).toMatchObject({ createdAt: null });
         expect(result.pages.find((page) => page.path === "AGENTS.md")).toMatchObject({ kind: "agent", title: "Agent guidance" });
         expect(result.pages.find((page) => page.path === ".agents/skills/example/SKILL.md")).toMatchObject({ kind: "skill", title: "Skill" });
         expect(result.pages.find((page) => page.path === "packages/ui/CHANGELOG.md")).toMatchObject({ kind: "changelog" });
@@ -152,6 +156,15 @@ describe("collectDocs", () => {
         expect(result.pages.find((page) => page.path === "docs/guides/no-heading.md")).toMatchObject({ kind: "doc", title: "docs/guides/no-heading.md", words: 2 });
         expect(result.pages.find((page) => page.path === "docs/README.md")).toMatchObject({ kind: "doc" });
         expect(result.pages).toHaveLength(files.length);
+    });
+
+    it("uses the first adding commit for a decision's reference date, not its last commit", async () => {
+        addFile("docs/decisions/0001-first.md", "# Decision\n", "2026-09-20T10:00:00Z", "2026-09-01T10:00:00Z");
+        state.paths = ["docs/decisions/0001-first.md"];
+
+        const result = await collectDocs([], "now");
+
+        expect(result.pages[0]).toMatchObject({ updatedAt: "2026-09-20T10:00:00Z", createdAt: "2026-09-01T10:00:00Z" });
     });
 
     it("counts missing relative targets while excluding external, anchor, mailto, placeholder and existing-directory links", async () => {

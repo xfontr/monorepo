@@ -21,7 +21,7 @@ const global = { stubs: {
     UInput: ControlStub, USelect: ControlStub, SnapshotAge: true, StatTile: { props: { label: String, value: [String, Number] }, template: "<div>{{ label }} {{ value }}</div>" }, UCard: { template: "<article><slot name='header' /><slot /></article>" }, StatusPill: { props: { label: String, hint: String }, template: "<span>{{ label }} {{ hint }}</span>" }, UIcon: true,
 } };
 
-const report = (id: string, status: DecisionReport["status"], decision: DecisionReport["decision"], title: string, updatedAt: string, supersededBy: string | null = null): DecisionReport => ({ path: `docs/decisions/${id}.md`, id, number: id.slice(0, 4), title, status, decision, supersededBy, updatedAt, words: 10 });
+const report = (id: string, status: DecisionReport["status"], decision: DecisionReport["decision"], title: string, createdAt: string, supersededBy: string | null = null): DecisionReport => ({ path: `docs/decisions/${id}.md`, id, number: id.slice(0, 4), title, status, decision, supersededBy, createdAt, words: 10 });
 beforeEach(() => {
     state.reports = ref([report("0002-new", "implemented", "accepted", "New", "2026-09-20"), report("0001-old", "to-implement", "superseded", "Old", "2026-09-19")]);
 });

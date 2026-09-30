@@ -29,7 +29,7 @@ describe("useDecisionReports", () => {
                     kind: "decision",
                     title: "🧭 Use a cache",
                     words: 20,
-                    updatedAt: "2026-09-20",
+                    createdAt: "2026-09-20",
                     decisionStatus: "implemented",
                     decisionOutcome: "accepted",
                     decisionSupersededBy: null,

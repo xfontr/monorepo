@@ -111,6 +111,8 @@ export interface DocPage {
     title: string
     words: number
     updatedAt: string | null
+    /** The first commit that added the file; collected for decision reports, null for other docs. */
+    createdAt: string | null
     /** Parsed from a decision report's frontmatter; null for anything that isn't one. */
     decisionStatus: DecisionStatus | null
     decisionOutcome: DecisionOutcome | null

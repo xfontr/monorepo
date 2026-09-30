@@ -2,14 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { H3Event } from "h3";
 import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 import {
-    ATTR_CLIENT_ADDRESS,
     ATTR_HTTP_REQUEST_METHOD,
     ATTR_HTTP_RESPONSE_STATUS_CODE,
     ATTR_HTTP_ROUTE,
     ATTR_SERVER_ADDRESS,
     ATTR_URL_PATH,
-    ATTR_URL_QUERY,
-    ATTR_USER_AGENT_ORIGINAL,
 } from "@opentelemetry/semantic-conventions";
 
 const otel = vi.hoisted(() => {
@@ -43,14 +40,14 @@ vi.mock("@opentelemetry/api", async (importOriginal) => ({
 vi.mock("@monorepo/observability/node", () => ({ startNodeTelemetry: telemetry.startNodeTelemetry }));
 
 const APP = { name: "@monorepo/huella-legal", version: "1.4.0", environment: "production" };
+const BUILD_ID = "d34db33f";
+const TELEMETRY_APP = { ...APP, version: BUILD_ID };
 
 const COLLECTOR = "https://otlp-gateway-prod-eu-west-0.grafana.net/otlp";
 
 const PARENT = "parent-context";
 const ACTIVE = "active-context";
 const TRACEPARENT = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01";
-const USER_AGENT = "Mozilla/5.0";
-const CLIENT_IP = "203.0.113.4";
 const BODY = { ok: true };
 
 // Nitro auto-imports these at build time, so the plugin never imports them and they do not exist
@@ -64,8 +61,6 @@ vi.stubGlobal("defineEventHandler", (handler: unknown) => handler);
 vi.stubGlobal("useRuntimeConfig", () => runtimeConfig);
 vi.stubGlobal("getRequestHeaders", () => ({ traceparent: TRACEPARENT }));
 vi.stubGlobal("getRequestHost", () => "huella-legal.test");
-vi.stubGlobal("getRequestHeader", (_event: unknown, name: string) => (name === "user-agent" ? USER_AGENT : undefined));
-vi.stubGlobal("getRequestIP", () => CLIENT_IP);
 vi.stubGlobal("getResponseStatus", () => responseStatus);
 vi.stubGlobal("createError", (error: { statusCode?: number }) => ({ statusCode: error.statusCode ?? 500 }));
 
@@ -78,7 +73,7 @@ type NitroApp = ReturnType<typeof createNitroApp>;
 function createConfig(url: string = COLLECTOR) {
     return {
         observability: { url, instanceId: "123456", token: "glc_token" },
-        public: { observability: { url: "", app: APP } },
+        public: { observability: { url: "", app: { ...APP, buildId: BUILD_ID } } },
     };
 }
 
@@ -175,10 +170,10 @@ describe("the nitro observability plugin", () => {
             url: COLLECTOR,
             instanceId: "123456",
             token: "glc_token",
-            app: APP,
+            app: TELEMETRY_APP,
         });
 
-        expect(otel.getTracer).toHaveBeenCalledWith(APP.name, APP.version);
+        expect(otel.getTracer).toHaveBeenCalledWith(APP.name, BUILD_ID);
     });
 
     it("returns the handler's body untouched", async () => {
@@ -208,6 +203,7 @@ describe("the nitro observability plugin", () => {
         expect(spanCall()[0]).toBe("GET /articles/hello-world");
         expect(otel.span.updateName).toHaveBeenCalledWith("GET /articles/:slug");
         expect(attributes()[ATTR_HTTP_ROUTE]).toBe("/articles/:slug");
+        expect(attributes()[ATTR_URL_PATH]).toBe("/articles/:slug");
     });
 
     it("falls back to the request path when nothing matched, rather than leaving the span unnamed", async () => {
@@ -226,17 +222,20 @@ describe("the nitro observability plugin", () => {
         expect(attributes()[ATTR_HTTP_ROUTE]).toBe("/nope");
     });
 
-    it("stamps the request attributes, keeping the query out of the path", async () => {
+    it("keeps client identifiers and the query out while recording the matched route", async () => {
         await traced("/articles?page=2", "/articles");
 
         expect(spanCall()[1].attributes).toEqual({
             [ATTR_HTTP_REQUEST_METHOD]: "GET",
-            [ATTR_URL_PATH]: "/articles",
-            [ATTR_URL_QUERY]: "page=2",
             [ATTR_SERVER_ADDRESS]: "huella-legal.test",
-            [ATTR_USER_AGENT_ORIGINAL]: USER_AGENT,
-            [ATTR_CLIENT_ADDRESS]: CLIENT_IP,
         });
+        expect(attributes()).toMatchObject({
+            [ATTR_HTTP_ROUTE]: "/articles",
+            [ATTR_URL_PATH]: "/articles",
+        });
+        expect(attributes()).not.toHaveProperty("client.address");
+        expect(attributes()).not.toHaveProperty("user_agent.original");
+        expect(attributes()).not.toHaveProperty("url.query");
     });
 
     it("records the response status and closes the span", async () => {

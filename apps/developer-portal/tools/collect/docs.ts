@@ -158,15 +158,20 @@ export async function collectDocs(generatedAt: string): Promise<DocsArtifact> {
             if (broken) brokenLinks.push(broken);
         }
 
+        const kind = kindOf(path);
         const updatedAt = (await git(["log", "-1", "--format=%cI", "--", path])).trim();
+        const createdAt = kind === "decision"
+            ? (await git(["log", "--follow", "--diff-filter=A", "-1", "--format=%cI", "--", path])).trim()
+            : "";
         const decisionMeta = decisionMetaOf(path, source);
 
         pages.push({
             path,
-            kind: kindOf(path),
+            kind,
             title: title?.trim() ?? path,
             words: source.split(/\s+/).filter(Boolean).length,
             updatedAt: updatedAt || null,
+            createdAt: createdAt || null,
             decisionStatus: decisionMeta.status,
             decisionOutcome: decisionMeta.decision,
             decisionSupersededBy: decisionMeta.supersededBy,

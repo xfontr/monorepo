@@ -32,7 +32,7 @@ const decisionItems = [
 const sortItems: { label: string, value: DecisionSort }[] = [
     { label: "Newest first", value: "newest" },
     { label: "Oldest first", value: "oldest" },
-    { label: "Recently updated", value: "updated" },
+    { label: "Recently created", value: "created" },
     { label: "By status", value: "status" },
 ];
 </script>
@@ -203,7 +203,7 @@ const sortItems: { label: string, value: DecisionSort }[] = [
                                 :tone="decisionStatusTone(report.status)"
                             />
 
-                            <span class="text-[11px] text-dimmed shrink-0 w-24 text-right">{{ relativeTime(report.updatedAt) }}</span>
+                            <span class="text-[11px] text-dimmed shrink-0 w-24 text-right">created {{ relativeTime(report.createdAt) }}</span>
                         </NuxtLink>
                     </div>
                 </UCard>

@@ -15,7 +15,10 @@
         "test:coverage": "vitest . --watch=false --coverage"
     },
     "nx": {
-        "tags": ["type:app", "scope:huella-legal"]
+        "tags": [
+            "type:app",
+            "scope:huella-legal"
+        ]
     },
     "dependencies": {
         "@monorepo/content": "workspace:*",
@@ -34,6 +37,7 @@
         "tailwindcss": "^4.3.3"
     },
     "devDependencies": {
+        "@grafana/faro-rollup-plugin": "^0.13.0",
         "@monorepo/configs": "workspace:*",
         "@vitest/coverage-v8": "catalog:",
         "eslint": "catalog:",
