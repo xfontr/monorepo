@@ -63,6 +63,7 @@ function createBaseVueConfig(typeChecked?: boolean): object[] {
                 "vue/multi-word-component-names": "off",
                 "vue/html-indent": "off",
                 "vue/v-bind-style": ["error", "shorthand", { sameNameShorthand: "always" }],
+                "vue/prefer-separate-static-class": "error",
                 "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
             },
         },

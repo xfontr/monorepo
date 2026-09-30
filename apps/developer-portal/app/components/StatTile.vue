@@ -20,10 +20,8 @@ const toneClass = computed(() => (tone === "neutral" ? "" : `tone-${tone}`));
     <component
         :is="to ? NuxtLink : 'div'"
         :to
-        :class="[
-            'flex flex-col gap-1 rounded-lg border border-default bg-default p-4',
-            to && 'hover:bg-elevated/50 transition-colors',
-        ]"
+        class="flex flex-col gap-1 rounded-lg border border-default bg-default p-4"
+        :class="to && 'hover:bg-elevated/50 transition-colors'"
     >
         <div class="flex items-center gap-1.5 text-xs text-muted">
             <UIcon
