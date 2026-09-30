@@ -59,7 +59,7 @@ const states = [
 
         <main>
             <section class="border-b border-default">
-                <div class="mx-auto grid max-w-site grid-cols-1 gap-8 px-4 pt-6 pb-12 md:px-8 md:pt-10 md:pb-16 lg:grid-cols-12 lg:gap-12 lg:px-12">
+                <div class="mx-auto grid max-w-site grid-cols-1 gap-x-12 gap-y-6 px-4 pt-6 pb-10 md:gap-y-8 md:px-8 md:pt-10 lg:grid-cols-12 lg:px-12 lg:pb-12">
                     <div class="lg:col-span-12">
                         <UBreadcrumb
                             :items="[{ label: 'Portada', to: '/lab/home' }, { label: 'Publicar' }]"
@@ -68,10 +68,10 @@ const states = [
                     </div>
                     <div class="lg:col-span-7">
                         <Kicker>Publicar en Huella Legal</Kicker>
-                        <h1 class="mt-2 font-serif text-[2.5rem] leading-[1.06] tracking-[-0.02em] text-highlighted text-balance md:text-[3.5rem]">
+                        <h1 class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-highlighted text-balance md:text-[3.5rem]">
                             Tu artículo, leído con la atención que merece.
                         </h1>
-                        <p class="mt-5 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned">
+                        <p class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned text-pretty">
                             Publicamos trabajos jurídicos rigurosos de cualquier rama del Derecho. Gratis, con revisión editorial y una decisión razonada en cinco días como máximo.
                         </p>
                         <div class="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -89,7 +89,7 @@ const states = [
                             />
                         </div>
                     </div>
-                    <ul class="flex flex-col divide-y divide-(--ui-border-muted) self-end border-y border-default lg:col-span-5">
+                    <ul class="flex flex-col divide-y divide-(--ui-border-muted) mt-6 self-end border-t border-default md:mt-4 lg:col-span-5 lg:mt-0">
                         <li
                             v-for="item in reasons"
                             :key="item.title"
@@ -103,7 +103,7 @@ const states = [
                             </span>
                             <span>
                                 <span class="block font-serif text-xl text-highlighted">{{ item.title }}</span>
-                                <span class="mt-1 block font-serif text-[0.9375rem] leading-relaxed text-toned">{{ item.body }}</span>
+                                <span class="mt-1 block font-serif text-base leading-relaxed text-toned">{{ item.body }}</span>
                             </span>
                         </li>
                     </ul>
@@ -113,12 +113,12 @@ const states = [
             <!-- Process -->
             <section
                 aria-labelledby="proceso"
-                class="mx-auto max-w-site px-4 py-14 md:px-8 lg:px-12 lg:py-20"
+                class="mx-auto max-w-site px-4 py-16 md:px-8 lg:px-12 lg:py-20"
             >
                 <div class="border-t-2 border-huella-slate-900 pt-4">
                     <h2
                         id="proceso"
-                        class="font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
+                        class="border-t-2 border-huella-slate-900 pt-4 font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
                     >
                         Cómo funciona
                     </h2>
@@ -140,7 +140,7 @@ const states = [
                         />
                         <span>
                             <span class="block font-serif text-xl text-highlighted">{{ step.title }}</span>
-                            <span class="mt-1 block font-serif text-[0.9375rem] leading-relaxed text-toned">{{ step.body }}</span>
+                            <span class="mt-1 block font-serif text-base leading-relaxed text-toned">{{ step.body }}</span>
                         </span>
                     </li>
                 </ol>
@@ -152,7 +152,7 @@ const states = [
                 aria-labelledby="formulario-titulo"
                 class="border-y border-default bg-ivory-50"
             >
-                <div class="mx-auto grid max-w-site grid-cols-1 gap-12 px-4 py-14 md:px-8 lg:grid-cols-12 lg:gap-12 lg:px-12 lg:py-20">
+                <div class="mx-auto grid max-w-site grid-cols-1 gap-12 px-4 py-16 md:px-8 lg:grid-cols-12 lg:gap-12 lg:px-12 lg:py-20">
                     <div class="lg:col-span-7">
                         <h2
                             id="formulario-titulo"
@@ -352,7 +352,7 @@ const states = [
 
                     <aside
                         aria-labelledby="faq"
-                        class="flex flex-col gap-10 lg:col-span-5"
+                        class="flex flex-col gap-12 lg:col-span-5 lg:gap-16"
                     >
                         <div class="border-t-2 border-huella-slate-900 pt-4">
                             <h2
@@ -365,7 +365,7 @@ const states = [
                                 :items="faq"
                                 :default-value="'faq-0'"
                                 class="mt-2"
-                                :ui="{ item: 'border-(--ui-border-muted)', trigger: 'min-h-14 py-3 font-serif text-base text-highlighted text-left', body: 'font-serif text-[0.9375rem] leading-relaxed text-toned pb-4' }"
+                                :ui="{ item: 'border-(--ui-border-muted)', trigger: 'min-h-14 py-3 font-serif text-base text-highlighted text-left', body: 'font-serif text-base leading-relaxed text-toned pb-4' }"
                             />
                         </div>
 
@@ -390,7 +390,7 @@ const states = [
                                 color="neutral"
                                 label="Ver trabajos publicados"
                                 trailing-icon="i-lucide-arrow-right"
-                                to="/lab/category"
+                                to="/lab/publicaciones?formato=tfg-tfm"
                                 class="mt-2 -ml-3 text-huella-teal-200 hover:text-ivory-50"
                             />
                         </div>

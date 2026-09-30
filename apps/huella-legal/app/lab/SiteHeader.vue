@@ -22,7 +22,7 @@ const open = ref(props.menuOpen);
                 <span>Revista jurídica de acceso libre · {{ issn }}</span>
                 <a
                     href="#newsletter"
-                    class="inline-flex h-9 items-center gap-1.5 font-semibold text-primary hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    class="relative inline-flex h-9 items-center gap-1.5 font-semibold text-primary after:absolute after:inset-x-0 after:top-0 after:-bottom-2 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
                     <UIcon
                         name="i-lucide-mail"
@@ -37,7 +37,7 @@ const open = ref(props.menuOpen);
             <a
                 :href="href('/lab/home')"
                 aria-label="Huella Legal, portada"
-                class="focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                class="flex min-h-11 items-center focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
             >
                 <Wordmark />
             </a>

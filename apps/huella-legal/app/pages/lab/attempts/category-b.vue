@@ -100,7 +100,7 @@ const notes = {
                 <div class="mx-auto grid max-w-site gap-8 px-4 pt-6 pb-10 md:px-8 md:pt-10 lg:grid-cols-12 lg:gap-12 lg:px-12 lg:pb-12">
                     <div class="lg:col-span-8">
                         <UBreadcrumb
-                            :items="[{ label: 'Portada', to: '/lab/home-b' }, { label: 'Materias', to: '/lab/categorias-b' }, { label: subject.name }]"
+                            :items="[{ label: 'Portada', to: '/lab/attempts/home-b' }, { label: 'Materias', to: '/lab/attempts/categorias-b' }, { label: subject.name }]"
                             :ui="{ link: 'font-sans text-meta min-h-11 inline-flex items-center', separatorIcon: 'size-4' }"
                         />
                         <Kicker class="mt-6 md:mt-8">
@@ -137,7 +137,7 @@ const notes = {
                     <a
                         v-for="item in subjectSeries"
                         :key="item.slug"
-                        href="/lab/serie-b"
+                        href="/lab/attempts/serie-b"
                         class="group flex flex-col gap-2 self-end border-t-2 border-huella-slate-900 pt-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary lg:col-span-4"
                     >
                         <Kicker>Serie · {{ seriesEntries(item.slug).length }} lecturas en orden</Kicker>
@@ -296,7 +296,7 @@ const notes = {
                                 class="border-b border-(--ui-border-muted)"
                             >
                                 <a
-                                    href="/lab/category-c"
+                                    href="/lab/attempts/category-c"
                                     class="group flex min-h-11 items-center justify-between gap-3 font-serif text-base text-highlighted focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary"
                                 >
                                     <span class="decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline">{{ name }}</span>
@@ -316,7 +316,7 @@ const notes = {
                                 :key="item.slug"
                             >
                                 <a
-                                    :href="`/lab/category-b?materia=${item.slug}`"
+                                    :href="`/lab/attempts/category-b?materia=${item.slug}`"
                                     data-inline
                                     class="text-highlighted underline decoration-huella-slate-300 underline-offset-[0.2em] hover:decoration-current"
                                 >{{ item.name }}</a><span v-if="index < subjects.length - 2"> · </span>
@@ -333,7 +333,7 @@ const notes = {
 
         <VariantNotes
             label="Materia · variante B"
-            compare="/lab/category"
+            compare="/lab/publicaciones"
             v-bind="notes"
         />
     </div>

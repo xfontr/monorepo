@@ -27,11 +27,11 @@ const sort = ref("Más recientes");
         <main>
             <!-- Intro: category or contributor -->
             <section class="border-b border-default">
-                <div class="mx-auto max-w-site px-4 pt-6 pb-10 md:px-8 md:pt-10 md:pb-14 lg:px-12">
+                <div class="mx-auto max-w-site px-4 pt-6 pb-10 md:px-8 md:pt-10 lg:px-12 lg:pb-12">
                     <UBreadcrumb
                         :items="isAuthor
                             ? [{ label: 'Portada', to: '/lab/home' }, { label: 'Colaboradores', to: '/lab/colaboradores' }, { label: author.name }]
-                            : [{ label: 'Portada', to: '/lab/home' }, { label: 'Publicaciones', to: '/lab/category' }, { label: category.name }]"
+                            : [{ label: 'Portada', to: '/lab/home' }, { label: 'Publicaciones', to: '/lab/publicaciones' }, { label: category.name }]"
                         :ui="{ link: 'font-sans text-meta min-h-11 inline-flex items-center', separatorIcon: 'size-4' }"
                     />
 
@@ -58,13 +58,13 @@ const sort = ref("Más recientes");
                         >{{ author.initials }}</span>
                         <div>
                             <Kicker>Colaboradora</Kicker>
-                            <h1 class="mt-2 font-serif text-[2.375rem] leading-[1.08] tracking-[-0.02em] text-highlighted md:text-[3rem]">
+                            <h1 class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-highlighted text-balance md:text-[3.5rem]">
                                 {{ author.name }}
                             </h1>
-                            <p class="mt-1 font-sans text-sm font-medium text-muted">
+                            <p class="mt-1 font-sans text-meta text-muted">
                                 {{ author.role }}
                             </p>
-                            <p class="mt-4 max-w-measure font-serif text-[1.125rem] leading-relaxed text-toned">
+                            <p class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned text-pretty">
                                 {{ author.bio }}
                             </p>
                             <div class="-ml-3 mt-3 flex flex-wrap gap-1">
@@ -73,12 +73,14 @@ const sort = ref("Más recientes");
                                     color="neutral"
                                     icon="i-lucide-linkedin"
                                     label="LinkedIn"
+                                    class="px-3"
                                 />
                                 <UButton
                                     variant="ghost"
                                     color="neutral"
                                     icon="i-lucide-globe"
                                     label="Web personal"
+                                    class="px-3"
                                 />
                             </div>
                         </div>
@@ -104,24 +106,27 @@ const sort = ref("Más recientes");
                 </div>
             </section>
 
-            <div class="mx-auto grid max-w-site grid-cols-1 gap-12 px-4 py-10 md:px-8 md:py-12 lg:grid-cols-12 lg:gap-x-12 lg:px-12">
+            <div class="mx-auto grid max-w-site grid-cols-1 gap-12 px-4 pt-6 pb-16 md:px-8 lg:grid-cols-12 lg:gap-x-12 lg:px-12 lg:pb-20">
                 <section
                     aria-label="Publicaciones"
                     class="min-w-0 lg:col-span-8"
                 >
-                    <div class="flex flex-wrap items-center justify-between gap-x-6 border-b border-default py-2">
-                        <h2 class="flex min-h-11 items-center font-serif text-xl text-highlighted">
+                    <div class="flex flex-wrap items-center justify-between gap-x-6 border-b border-default">
+                        <h2 class="flex min-h-12 items-center font-sans text-meta text-muted">
                             {{ isAuthor ? `Publicaciones de ${author.name.split(" ")[0]}` : "Publicaciones" }}
                         </h2>
-                        <label class="flex shrink-0 items-center sm:-mr-2 font-sans text-meta text-muted">
-                            <span aria-hidden="true">Ordenar:</span>
+                        <label class="-mr-2 flex shrink-0 items-center font-sans text-meta text-muted">
+                            <span
+                                aria-hidden="true"
+                                class="hidden sm:inline"
+                            >Ordenar:</span>
                             <USelect
                                 v-model="sort"
                                 aria-label="Ordenar publicaciones"
                                 variant="ghost"
                                 trailing-icon="i-lucide-chevron-down"
-                                :items="['Más recientes', 'Más antiguas', 'Más leídas']"
-                                :ui="{ base: 'bg-transparent ps-2 pe-8 font-sans text-sm font-semibold text-highlighted hover:bg-huella-slate-900/6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary', trailing: 'pe-2', trailingIcon: 'size-4 text-muted' }"
+                                :items="['Más recientes', 'Más antiguas']"
+                                :ui="{ base: 'min-h-11 bg-transparent ps-2 pe-8 font-sans text-sm font-semibold text-highlighted hover:bg-huella-slate-900/6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary', trailing: 'pe-2', trailingIcon: 'size-4 text-muted' }"
                             />
                         </label>
                     </div>
@@ -130,10 +135,10 @@ const sort = ref("Más recientes");
                         <li
                             v-for="article in (isAuthor ? listing.slice(0, 4) : listing)"
                             :key="article.slug"
-                            class="py-8"
+                            class="py-6 md:py-8"
                         >
                             <ArticleCard
-                                :article="isAuthor ? { ...article, authors: [author] } : { ...article, category: category.name }"
+                                :article="isAuthor ? { ...article, authors: [author], issue: undefined } : { ...article, category: category.name }"
                                 variant="row"
                             />
                         </li>
@@ -197,17 +202,17 @@ const sort = ref("Más recientes");
                     class="flex flex-col gap-10 lg:col-span-4"
                 >
                     <div>
-                        <h2 class="mt-2 flex min-h-11 items-center font-serif text-xl text-highlighted">
+                        <h2 class="flex min-h-12 items-center font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted">
                             {{ isAuthor ? 'Escribe sobre' : 'Otras materias' }}
                         </h2>
-                        <ul class="mt-3 flex flex-col">
+                        <ul class="flex flex-col border-t border-(--ui-border-muted)">
                             <li
                                 v-for="item in (isAuthor ? [categories[0]!, categories[1]!] : categories.slice(1))"
                                 :key="item.slug"
                                 class="border-b border-(--ui-border-muted)"
                             >
                                 <a
-                                    href="/lab/category"
+                                    :href="`/lab/publicaciones?materia=${item.slug}`"
                                     class="group flex min-h-11 items-center justify-between gap-3 py-1 font-serif text-base text-highlighted focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary"
                                 >
                                     <span class="decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline">{{ item.name }}</span>

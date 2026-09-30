@@ -25,8 +25,8 @@ const principles = [
         <main>
             <!-- About: the "Sobre" page lives here, as it does on the current site -->
             <section class="border-b border-default">
-                <div class="mx-auto grid max-w-site grid-cols-1 gap-10 px-4 pt-6 pb-12 md:px-8 md:pt-10 md:pb-16 lg:grid-cols-12 lg:gap-12 lg:px-12">
-                    <div class="lg:col-span-12">
+                <div class="mx-auto grid max-w-site grid-cols-1 gap-4 px-4 pt-6 pb-10 md:px-8 md:pt-10 lg:grid-cols-12 lg:gap-x-12 lg:px-12 lg:pb-12">
+                    <div class="mb-2 md:mb-4 lg:col-span-12">
                         <UBreadcrumb
                             :items="[{ label: 'Portada', to: '/lab/home' }, { label: 'Colaboradores' }]"
                             :ui="{ link: 'font-sans text-meta min-h-11 inline-flex items-center', separatorIcon: 'size-4' }"
@@ -38,7 +38,7 @@ const principles = [
                             Una revista escrita por quienes practican, enseñan y estudian el Derecho.
                         </h1>
                     </div>
-                    <div class="flex flex-col gap-5 font-serif text-[1.125rem] leading-relaxed text-toned lg:col-span-5 lg:pt-10">
+                    <div class="flex max-w-measure flex-col gap-5 font-serif text-[1.125rem] leading-relaxed text-toned lg:col-span-5 lg:pt-10">
                         <p>
                             Huella Legal nació para acercar el Derecho a cualquier lector sin rebajar el rigor. Hoy reúne a más de cuarenta colaboradores de España, Argentina, Chile, México, Cuba y Colombia: estudiantes, abogados, fiscales, jueces y profesores.
                         </p>
@@ -64,15 +64,15 @@ const principles = [
 
             <section
                 aria-label="Principios editoriales"
-                class="mx-auto max-w-site px-4 py-12 md:px-8 lg:px-12"
+                class="mx-auto max-w-site px-4 py-16 md:px-8 lg:px-12 lg:py-20"
             >
-                <ol class="grid gap-x-10 gap-y-8 md:grid-cols-3">
+                <ol class="grid gap-x-10 gap-y-8 lg:grid-cols-3">
                     <li
                         v-for="(item, index) in principles"
                         :key="item.title"
                         class="border-t-2 border-huella-slate-900 pt-4"
                     >
-                        <span class="font-serif text-2xl leading-none text-huella-teal-400 tabular-nums">{{ index + 1 }}</span>
+                        <span class="font-serif text-2xl leading-none text-huella-teal-600 tabular-nums">{{ index + 1 }}</span>
                         <h2 class="mt-3 font-serif text-h3 text-highlighted">
                             {{ item.title }}
                         </h2>
@@ -87,7 +87,7 @@ const principles = [
                 aria-labelledby="directorio"
                 class="border-t border-default bg-ivory-50"
             >
-                <div class="mx-auto max-w-site px-4 py-12 md:px-8 lg:px-12 lg:py-16">
+                <div class="mx-auto max-w-site px-4 py-16 md:px-8 lg:px-12 lg:py-20">
                     <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
                         <div>
                             <h2
@@ -128,7 +128,7 @@ const principles = [
                                         aria-hidden="true"
                                     >{{ person.initials }}</span>
                                     <div class="min-w-0">
-                                        <h3 class="font-serif text-xl leading-snug text-highlighted">
+                                        <h3 class="font-serif text-xl leading-snug text-highlighted text-balance">
                                             <a
                                                 href="/lab/category?autor=1"
                                                 class="decoration-huella-slate-300 underline-offset-[0.2em] after:absolute after:inset-0 group-hover:underline focus-visible:outline-none after:rounded-sm focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-primary"

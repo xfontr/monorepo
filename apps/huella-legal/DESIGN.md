@@ -44,7 +44,8 @@ the markup.
 | --- | --- |
 | [`app/assets/css/main.css`](./app/assets/css/main.css) | Every token: palettes, type scale, measure, and Nuxt UI's semantic roles pointed at them |
 | [`app/app.config.ts`](./app/app.config.ts) | Nuxt UI colour aliases and control defaults: 44 px minimum height, paper field surface, and a button theme that darkens on hover, rings outlines in ink and draws the 2 px focus ring the foundations page promises |
-| `app/pages/lab/*.vue` | One review page per site archetype |
+| `app/pages/lab/*.vue` | One review page per site archetype: the approved design |
+| `app/pages/lab/attempts/*.vue` | The A, B and C pages the approved set replaced, kept for reference |
 | `app/lab/*.vue` | Lab-only building blocks shared across those pages; loose on purpose |
 | [`app/lab/article-body.ts`](./app/lab/article-body.ts) | The article body as WordPress-style HTML, so the reading styles are tested against CMS output |
 | `.hl-prose` in [`app/lab/prose.css`](./app/lab/prose.css) | Reading typography for that HTML: headings, drop cap, notes, quotes, quoted legislation, tables, figures. It styles plain elements and Gutenberg's own wrappers (`wp-block-table`), so production can reuse it on CMS HTML |
@@ -68,10 +69,11 @@ from hex values mirrored from `main.css`, so a token change must be copied there
 | Type step | Spec | Use |
 | --- | --- | --- |
 | `text-display` | Georgia 52/1.08, −0.02em | Homepage statement; 36 px on mobile |
-| `text-h1` / `h2` / `h3` | Georgia 40 / 30 / 24 | Page, section and subsection titles, always regular weight |
+| Page title | Georgia 42/1.06, −0.02em; 56 from `md` | The h1 of every listing, index and utility page. Not a token yet: it is `text-[2.625rem] leading-[1.06] md:text-[3.5rem]` wherever it appears |
+| `text-h1` / `h2` / `h3` | Georgia 40 / 30 / 24 | Lead-article titles, section titles and subsection titles, always regular weight |
 | `text-reading` | Georgia 18/1.7 | Article body inside `max-w-measure` (680 px, about 70 characters) |
 | `text-quote` / `text-citation` | Georgia italic 24 / Georgia 15 | Pull quotes / legal citations and footnotes |
-| `text-meta` | Montserrat 500 13 | Author, date, reading time |
+| `text-meta` | Montserrat 400 13 | Date and reading time; author names set it at 600 |
 | Kicker | Montserrat 600 12, uppercase, 0.12em | Category labels, section numbers |
 
 ### Where the lab departs from the Penpot tokens
@@ -89,31 +91,45 @@ The Penpot P5 sheet is deleted, so its deviations are recorded here.
 
 ## 🗺️ Site inventory
 
-These pages come from the live site, not from an invented sitemap.
+These pages come from the live site, not from an invented sitemap. They are the approved design:
+the benchmark's D set where it proposed a page, and the original A page where it did not.
 
 | Lab page | Archetype | Notes |
 | --- | --- | --- |
 | `/lab` | Foundations | Colour, type, reading, controls, cards; links to every other lab page |
-| `/lab/home` | Homepage | Direction A: statement line, lead article beside the Fundamentos series, subject index; `?menu=1` opens the mobile menu |
-| `/lab/article` | Article | Issue number, series position, TOC rail (accordion on mobile), roman-numbered sections, quoted legislation, scrolling table, notes, bibliography, "Cómo citar", author card, series navigator |
-| `/lab/category` | Category listing | Sort, row cards with image fallback, pager that marks the current page with a 2 px ink rule (numbers collapse to "Página n de m" on phones); `?autor=1` turns it into a contributor profile |
-| `/lab/categorias` | Subject index | Ten areas of law plus the TFG/TFM archive, then tags |
+| `/lab/home` | Homepage | Statement line, lead image beside a numbered "Lo último", three image cards, subjects with formats split out, TFG/TFM band, one publish line; `?menu=1` opens the mobile menu |
+| `/lab/article` | Article | The image after the first paragraph, section-only rail, APA 7 and Huella citations, print styles; `?sin-notas=1&sin-imagen=1` previews the common post |
+| `/lab/publicaciones` | Archive and subject listing | One listing for the archive and, with `?materia=`, each subject: text rows with a thumbnail from `sm`, accent-insensitive search and format tabs on the archive only |
+| `/lab/categorias` | Subject index | Subject, format and tag as three separate axes; A–Z tag index |
+| `/lab/category?autor=1` | Contributor profile | Profile header over the contributor's listing. Without `?autor=1` it is A's subject listing, kept only as the attempt `/lab/publicaciones` replaced |
 | `/lab/colaboradores` | About + contributors | Mission, three editorial principles, searchable directory with a no-match state |
 | `/lab/publicar` | Publish an article | Reasons, five-step process, form, FAQ, TFG/TFM track; `?estado=invalid\|submitting\|success\|error` previews each submission state |
 | `/lab/estados` | Utility states | 404, search results, no results, empty subject, server error, loading |
 
-The B routes are proposals from the [benchmark](../../docs/plans/huella-legal-benchmark.md), not
-approved design. They link to one another and fall back to the A page where no B version exists;
-a badge on each lists what changed and which data WordPress can't supply.
+The approved pages keep their benchmark badge, because its "De dónde salen los datos" list is what
+the production components need to wire each element to WordPress. D kept A's structure and took
+only the B ideas that have data today:
+[ADR 0027](../../docs/decisions/0027-huella-legal-content-model.md) found none for series or issue
+numbers, and subtopics would first need every post reclassified into child categories.
 
-| Variant | Against | Proposal |
+### Earlier attempts
+
+The pages D replaced stay under `/lab/attempts/` as reference, never as a source for production.
+Each set links within itself and falls back to the approved page where it has no version
+([`app/lab/variant.ts`](./app/lab/variant.ts)).
+
+| Attempt | Replaced by | What it tried |
 | --- | --- | --- |
-| `/lab/home-b` | `/lab/home` | Text-first homepage: lead in type, numbered "Lo último", series band, latest by subject, TFG/TFM band, "Del archivo" |
-| `/lab/category-b` | `/lab/category` | Subtopics, format tabs, result count, text rows grouped by year |
-| `/lab/category-c` | `/lab/category` | One faceted archive (subject, format, series, year, contributor, search); a subject is a saved filter |
-| `/lab/categorias-b` | `/lab/categorias` | Subject, format, series and tag as four separate axes; A–Z tag index |
-| `/lab/article-b` | `/lab/article` | Margin notes from 1280 px, record rail, running head, citation formats, cited legislation, reply invitation |
-| `/lab/serie-b` | — | Series landing page |
+| `/lab/attempts/home-a` | `/lab/home` | Statement line, lead article beside the Fundamentos series, subject index |
+| `/lab/attempts/article-a` | `/lab/article` | Issue number, series position, TOC rail, roman-numbered sections, "Cómo citar", author card, series navigator |
+| `/lab/category` | `/lab/publicaciones` | Sort, row cards with image fallback, a pager with a 2 px ink rule on the current page |
+| `/lab/attempts/categorias-a` | `/lab/categorias` | Ten areas of law plus the TFG/TFM archive, then tags |
+| `/lab/attempts/home-b` | `/lab/home` | Text-first homepage: lead in type, numbered "Lo último", series band, latest by subject, TFG/TFM band, "Del archivo" |
+| `/lab/attempts/category-b` | `/lab/publicaciones` | Subtopics, format tabs, result count, text rows grouped by year |
+| `/lab/attempts/category-c` | `/lab/publicaciones` | One faceted archive (subject, format, series, year, contributor, search); a subject is a saved filter |
+| `/lab/attempts/categorias-b` | `/lab/categorias` | Subject, format, series and tag as four separate axes; A–Z tag index |
+| `/lab/attempts/article-b` | `/lab/article` | Margin notes from 1280 px, record rail, running head, citation formats, cited legislation, reply invitation |
+| `/lab/attempts/serie-b` | — | Series landing page; there is no series data to fill it |
 
 ## 🚦 Review gates
 
@@ -122,6 +138,7 @@ a badge on each lists what changed and which data WordPress can't supply.
 | A | Do the foundations feel like Huella? | Approved 29 Sep 2026 |
 | B | Which homepage direction? | Approved 29 Sep 2026: A · Revista, opened by B's statement line |
 | C | Is the whole site ready at 390 / 768 / 1280? | Approved 29 Sep 2026 |
+| D | Which benchmark proposals make it in? | Approved 30 Sep 2026: the D set, A wherever D has no page |
 
 Every lab page is screenshotted at the three widths and checked for overflow, sub-44 px targets
 and long-string wrapping before it reaches a gate.

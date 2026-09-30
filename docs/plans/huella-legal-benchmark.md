@@ -6,6 +6,9 @@ furniture. Each finding worth trying is built as a variant route next to the app
 two can be compared in a browser rather than argued about. None of it changes the pages that passed
 gates A–C in [`DESIGN.md`](../../apps/huella-legal/DESIGN.md).
 
+On 30 Sep 2026 the D set below was approved and took the place of the A pages it proposes. A, B and
+C moved under `/lab/attempts/`; every route and anchor here is the one it has now.
+
 ## 🧪 Variant routes
 
 B pages link to one another. Where no B version exists, they fall back to the approved page (see
@@ -16,12 +19,12 @@ it.
 
 | Route | Compare with | Proposal |
 | --- | --- | --- |
-| `/lab/home-b` | `/lab/home` | Text-first homepage: an editor's pick set in type beside a numbered "Lo último" list, then the series as its own band, the latest pieces for three subjects, a TFG/TFM band, "Del archivo", and a single publish line in place of the facts block and the two cards |
-| `/lab/category-b` | `/lab/category` | Subject page: subtopics as text links, format tabs with counts, the result count, text-only rows grouped by year with the year in the margin, the subject's series in the header |
-| `/lab/category-c` | `/lab/category` | The other model: one archive with facets (subject, format, series, year, contributor) and accent-insensitive search. A subject page becomes a saved filter. Counts account for the other active facets, and every facet lives in the URL |
-| `/lab/categorias-b` | `/lab/categorias` | One index for four separate axes (subject with subtopics, format, series, tag), with tags as an A–Z index instead of pills |
-| `/lab/article-b` | `/lab/article` | No hero image; the standfirst sits between rules; notes in the margin from 1280 px; a record rail (format, issue, published and revised dates, word count); a running head with reading progress; "Cómo citar" in three formats plus a PDF; "Normas y resoluciones citadas"; an invitation to reply; previous/next within the series |
-| `/lab/serie-b` | — (new) | Series landing page: introduction, numbered readings with standfirsts, total time and status, and a signed editor's note |
+| `/lab/attempts/home-b` | `/lab/attempts/home-a` | Text-first homepage: an editor's pick set in type beside a numbered "Lo último" list, then the series as its own band, the latest pieces for three subjects, a TFG/TFM band, "Del archivo", and a single publish line in place of the facts block and the two cards |
+| `/lab/attempts/category-b` | `/lab/category` | Subject page: subtopics as text links, format tabs with counts, the result count, text-only rows grouped by year with the year in the margin, the subject's series in the header |
+| `/lab/attempts/category-c` | `/lab/category` | The other model: one archive with facets (subject, format, series, year, contributor) and accent-insensitive search. A subject page becomes a saved filter. Counts account for the other active facets, and every facet lives in the URL |
+| `/lab/attempts/categorias-b` | `/lab/attempts/categorias-a` | One index for four separate axes (subject with subtopics, format, series, tag), with tags as an A–Z index instead of pills |
+| `/lab/attempts/article-b` | `/lab/attempts/article-a` | No hero image; the standfirst sits between rules; notes in the margin from 1280 px; a record rail (format, issue, published and revised dates, word count); a running head with reading progress; "Cómo citar" in three formats plus a PDF; "Normas y resoluciones citadas"; an invitation to reply; previous/next within the series |
+| `/lab/attempts/serie-b` | — (new) | Series landing page: introduction, numbered readings with standfirsts, total time and status, and a signed editor's note |
 
 The B pages share [`fixtures-b.ts`](../../apps/huella-legal/app/lab/fixtures-b.ts), which has 29
 entries:
@@ -29,6 +32,29 @@ entries:
   placeholders.
 - The other pieces by real people are the ones already in `fixtures.ts`.
 - Everything else is invented and credited to invented people.
+
+## 🎯 Fit for Huella's readers
+
+The nineteen sites serve academics who browse an archive. Most of Huella's readers are students and
+general readers who arrive from search, on a phone, at one article. That puts the article first,
+listings second and the home page third. Two facts outrank the benchmark:
+- [ADR 0027](../decisions/0027-huella-legal-content-model.md) found no source for series (one run of
+  two posts) or issue numbers, and footnotes in only 4 of 105 posts. Subtopics would work as child
+  categories, but only after all 105 posts are reclassified.
+- Most live posts do carry a featured image.
+
+Neither A nor B fits as it stands, so a D set keeps A's structure and takes only the B ideas that
+have data:
+
+| Page | A | B / C | D |
+| --- | --- | --- | --- |
+| Home | Leans on the Fundamentos series and a facts block | Drops the statement line approved at Gate B, so a first visit never says what Huella is; adds a Series nav item | Statement and lead image, "Lo último", subjects with formats split out, TFG/TFM band |
+| Article | First line of the body at 1,102 px on a phone, 1,287 at 1280 | 788 / 743 px, but margin notes, issue, PDF, cited laws and series navigation have no data | 787 / 727 px with the image kept after the first paragraph; APA 7 citation; print styles |
+| Listing | Kicker repeats the subject; "Más leídas" has no data | B's subtopics need all 105 posts reclassified; C's five facets cover about 7 posts per subject | One template for archive and subject; search and format tabs only where they have something to filter |
+
+D was built at `/lab/home-d`, `/lab/publicaciones-d`, `/lab/article-d` and `/lab/categorias-d`,
+and now lives at `/lab/home`, `/lab/publicaciones`, `/lab/article` and `/lab/categorias`. It applies
+the small fixes below, whose line anchors point at the A pages under `attempts/`.
 
 ## 🗂 The taxonomy change behind every B page
 
@@ -96,17 +122,17 @@ them.
 
 | Where | Problem | Fix |
 | --- | --- | --- |
-| [`home.vue:117`](../../apps/huella-legal/app/pages/lab/home.vue#L117) | Series titles are 21 px tall targets | Stretch the link over the row (`after:absolute after:inset-0` on a `relative` item), as `ArchiveRow` does |
-| [`article.vue:207`](../../apps/huella-legal/app/pages/lab/article.vue#L207) | The "↩" note return is a 12 × 16 px target | Make the note number the return link, at least 44 px tall |
+| [`home-a.vue:119`](../../apps/huella-legal/app/pages/lab/attempts/home-a.vue#L119) | Series titles are 21 px tall targets | Stretch the link over the row (`after:absolute after:inset-0` on a `relative` item), as `ArchiveRow` does |
+| [`article-a.vue:209`](../../apps/huella-legal/app/pages/lab/attempts/article-a.vue#L209) | The "↩" note return is a 12 × 16 px target | Make the note number the return link, at least 44 px tall |
 | [`SectionHeading.vue:33`](../../apps/huella-legal/app/lab/SectionHeading.vue#L33) | On phones "Ver todas" wraps under the title and sits 12 px in from the left edge, because only `-mr-3` is set | `flex-col sm:flex-row` with `-ml-3 sm:ml-0 sm:-mr-3` |
 | [`category.vue:136`](../../apps/huella-legal/app/pages/lab/category.vue#L136) | Every row repeats "DERECHO PENAL" on the Derecho penal page | Show format or subtopic in the kicker instead |
 | [`category.vue:123`](../../apps/huella-legal/app/pages/lab/category.vue#L123) | "Más leídas" has no data source without a plugin (S1 already expects to drop it) | Remove the option |
 | [`category.vue:30`](../../apps/huella-legal/app/pages/lab/category.vue#L30), [`:107`](../../apps/huella-legal/app/pages/lab/category.vue#L107) | Header `md:pb-14` meets the list's `md:py-12`, a 104 px gap before the toolbar | One section gap; B uses `pb-10`/`lg:pb-12` then `pt-6` |
-| [`home.vue:61–223`](../../apps/huella-legal/app/pages/lab/home.vue#L61) | Five vertical rhythms: `pb-16`, `pb-20`, `py-16 lg:py-20`, `py-20 lg:py-24`, `pb-20` | Two steps: 64/80 px for bands, 48/64 px inside them |
-| [`home.vue:39`](../../apps/huella-legal/app/pages/lab/home.vue#L39) | "ISSN" is presented as a statistic | Drop the facts block, or move the ISSN to the header strip, where it already is |
-| [`categorias.vue:43`](../../apps/huella-legal/app/pages/lab/categorias.vue#L43) | Ten areas in three columns leave Abogacía alone on the last row | Nine subjects, as in B, fill the grid |
-| [`categorias.vue:73`](../../apps/huella-legal/app/pages/lab/categorias.vue#L73) | The TFG band's button uses `rounded-md` against the 4 px `--ui-radius` | `rounded-(--ui-radius)` or a `UButton` |
-| [`article.vue:117`](../../apps/huella-legal/app/pages/lab/article.vue#L117) | A 21:9 placeholder pushes the first line of the body to about 1,300 px at 1280 | Remove the placeholder when an article has no image, or place the image in the body |
+| [`home-a.vue:63–225`](../../apps/huella-legal/app/pages/lab/attempts/home-a.vue#L63) | Five vertical rhythms: `pb-16`, `pb-20`, `py-16 lg:py-20`, `py-20 lg:py-24`, `pb-20` | Two steps: 64/80 px for bands, 48/64 px inside them |
+| [`home-a.vue:41`](../../apps/huella-legal/app/pages/lab/attempts/home-a.vue#L41) | "ISSN" is presented as a statistic | Drop the facts block, or move the ISSN to the header strip, where it already is |
+| [`categorias-a.vue:45`](../../apps/huella-legal/app/pages/lab/attempts/categorias-a.vue#L45) | Ten areas in three columns leave Abogacía alone on the last row | Nine subjects, as in B, fill the grid |
+| [`categorias-a.vue:75`](../../apps/huella-legal/app/pages/lab/attempts/categorias-a.vue#L75) | The TFG band's button uses `rounded-md` against the 4 px `--ui-radius` | `rounded-(--ui-radius)` or a `UButton` |
+| [`article-a.vue:119`](../../apps/huella-legal/app/pages/lab/attempts/article-a.vue#L119) | A 21:9 placeholder pushes the first line of the body to about 1,300 px at 1280 | Remove the placeholder when an article has no image, or place the image in the body |
 
 ## 🧭 Deliberately deferred
 

@@ -8,7 +8,7 @@ withDefaults(defineProps<{ tone?: "paper" | "slate" }>(), { tone: "paper" });
         aria-labelledby="newsletter-title"
         :class="tone === 'slate' ? 'bg-huella-slate-800 text-huella-slate-200' : 'bg-ivory-200'"
     >
-        <div class="mx-auto grid max-w-site gap-8 px-4 py-14 md:px-8 lg:grid-cols-12 lg:items-center lg:gap-12 lg:px-12 lg:py-16">
+        <div class="mx-auto grid max-w-site gap-12 px-4 py-16 md:px-8 lg:grid-cols-12 lg:items-center lg:gap-12 lg:px-12 lg:py-20">
             <div class="lg:col-span-6">
                 <p
                     class="font-sans text-xs font-semibold uppercase tracking-[0.12em]"
@@ -18,7 +18,7 @@ withDefaults(defineProps<{ tone?: "paper" | "slate" }>(), { tone: "paper" });
                 </p>
                 <h2
                     id="newsletter-title"
-                    class="mt-2 font-serif text-[1.75rem] leading-tight md:text-h2"
+                    class="mt-2 font-serif text-[1.75rem] leading-tight text-balance md:text-h2"
                     :class="tone === 'slate' ? 'text-ivory-50' : 'text-highlighted'"
                 >
                     Un correo al mes con lo que hemos publicado. Nada más.
