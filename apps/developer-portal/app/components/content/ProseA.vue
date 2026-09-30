@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { REPO_SCHEME } from "#shared/docLinks.ts";
 
-const props = defineProps<{ href?: string, target?: string }>();
+interface Props {
+    href?: string
+    target?: string
+}
+
+const props = defineProps<Props>();
 
 const { public: { repoUrl } } = useRuntimeConfig();
 

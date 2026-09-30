@@ -1,10 +1,10 @@
 export type IssueSource = "live" | "cache" | "auth-error";
 
-export type IssueSourceInput = {
+export interface IssueSourceInput {
     knownOffline: boolean
     requestFailed: boolean
     online: boolean
-};
+}
 
 export const issueSource = ({ knownOffline, requestFailed, online }: IssueSourceInput): IssueSource => {
     if (knownOffline || (requestFailed && !online)) return "cache";

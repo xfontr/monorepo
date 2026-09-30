@@ -10,10 +10,10 @@ export const METHOD_ARTIFACTS = [
 
 export type Digests = Record<string, string>;
 
-export type Manifest = {
+export interface Manifest {
     version: number
     digests: Digests
-};
+}
 
 const VERSION_LINE = /(Method \*\*version )(\d+)(\*\*)/;
 const DIGEST_ROW = /^\| `([^`]+)` \| `([0-9a-f]+)` \|$/;

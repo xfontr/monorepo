@@ -2,23 +2,23 @@ import { cached, readCache, writeCache } from "../../shared/adapters/cache.ts";
 import { gh } from "../../shared/adapters/gh.ts";
 import { slugify } from "../domain/branch.ts";
 
-export type Project = {
+export interface Project {
     title: string
     number: number
     url: string
-};
+}
 
-export type Label = {
+export interface Label {
     name: string
     description: string
-};
+}
 
-export type Issue = {
+export interface Issue {
     number: number
     title: string
     url: string
     labels: string[]
-};
+}
 
 // `gh project list` demands an owner, and the owner of the repo you're standing in is the only
 // one this CLI ever has a reason to ask about.

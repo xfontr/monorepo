@@ -2,14 +2,16 @@
 import { NuxtLink } from "#components";
 import type { Tone } from "../utils/format.ts";
 
-const { label, value, hint = undefined, icon = undefined, tone = "neutral", to = undefined } = defineProps<{
+interface Props {
     label: string
     value: string | number
     hint?: string
     icon?: string
     tone?: Tone
     to?: string
-}>();
+}
+
+const { label, value, hint = undefined, icon = undefined, tone = "neutral", to = undefined } = defineProps<Props>();
 
 const toneClass = computed(() => (tone === "neutral" ? "" : `tone-${tone}`));
 </script>

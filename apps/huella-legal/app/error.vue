@@ -1,7 +1,11 @@
 <script lang="ts" setup>
 import type { NuxtError } from "#app";
 
-const { error } = defineProps<{ error: NuxtError<{ message?: string }> }>();
+interface Props {
+    error: NuxtError<{ message?: string }>
+}
+
+const { error } = defineProps<Props>();
 
 const isDev = import.meta.dev;
 

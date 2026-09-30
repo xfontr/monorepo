@@ -1,5 +1,13 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ title: string, kicker?: string, link?: string, linkTo?: string, id?: string }>(), {
+interface Props {
+    title: string
+    kicker?: string
+    link?: string
+    linkTo?: string
+    id?: string
+}
+
+withDefaults(defineProps<Props>(), {
     kicker: undefined,
     link: undefined,
     linkTo: "#",

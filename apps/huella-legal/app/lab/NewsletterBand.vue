@@ -1,5 +1,9 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ tone?: "paper" | "slate" }>(), { tone: "paper" });
+interface Props {
+    tone?: "paper" | "slate"
+}
+
+withDefaults(defineProps<Props>(), { tone: "paper" });
 </script>
 
 <template>

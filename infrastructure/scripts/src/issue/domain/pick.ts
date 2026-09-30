@@ -1,10 +1,10 @@
 import { matchesIssue, matchesLabel, type SearchableIssue } from "./search.ts";
 
-export type ProjectSummary = {
+export interface ProjectSummary {
     title: string
     number: number
     url: string
-};
+}
 
 export type ProjectSource = "live" | "cache" | "empty";
 
@@ -12,11 +12,11 @@ export type PickIssue = SearchableIssue & {
     url: string
 };
 
-export type IssueOption<T> = {
+export interface IssueOption<T> {
     value: T | PickIssue
     label: string
     hint?: string
-};
+}
 
 export const projectLoad = (
     live: ProjectSummary[],
@@ -51,11 +51,11 @@ export const labelOptionMatches = (
 export const issueCountMessage = (count: number): string =>
     `${count} open issue${count === 1 ? "" : "s"}.`;
 
-export type IssuePromptText = {
+export interface IssuePromptText {
     message: string
     placeholder: string | undefined
     emptyWarning: string | undefined
-};
+}
 
 export const issuePromptText = (count: number): IssuePromptText => count === 0
     ? {

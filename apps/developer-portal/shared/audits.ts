@@ -26,7 +26,7 @@ function isSeparator(line: string): boolean {
     return /^\|?\s*:?-{3,}/.test(line.trim());
 }
 
-type FindingColumns = { id: number, status: number };
+interface FindingColumns { id: number, status: number }
 
 function findingColumns(cells: string[]): FindingColumns {
     const header = cells.map((cell) => cell.toLowerCase());

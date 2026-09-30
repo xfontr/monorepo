@@ -98,25 +98,42 @@ function websiteFor(project: ProjectNode): string | undefined {
                     <UDashboardSidebarCollapse />
                 </template>
                 <template #right>
-                    <SnapshotAge :manifest="snapshot?.manifest ?? null" artifact="metrics" />
+                    <SnapshotAge
+:manifest="snapshot?.manifest ?? null"
+artifact="metrics"
+/>
                 </template>
             </UDashboardNavbar>
         </template>
 
         <template #body>
             <div class="flex flex-col gap-4">
-                <UAlert v-if="live.error" color="warning" variant="subtle" icon="i-lucide-cloud-off"
-                    title="Live deployment status is unavailable" :description="live.error" />
+                <UAlert
+v-if="live.error"
+color="warning"
+variant="subtle"
+icon="i-lucide-cloud-off"
+                    title="Live deployment status is unavailable"
+:description="live.error"
+/>
 
                 <div class="grid gap-4 xl:grid-cols-2">
-                    <UCard v-for="project in orderedProjects" :key="project.name"
-                        :ui="{ root: 'h-full flex flex-col', body: 'flex-1 flex flex-col gap-4' }">
+                    <UCard
+v-for="project in orderedProjects"
+:key="project.name"
+                        :ui="{ root: 'h-full flex flex-col', body: 'flex-1 flex flex-col gap-4' }"
+>
                         <template #header>
                             <div class="flex flex-wrap items-center gap-2">
                                 <h2 class="font-semibold">
                                     {{ readmeFor(project)?.title ?? project.name }}
                                 </h2>
-                                <UBadge :label="categoryFor(project)" color="primary" variant="subtle" size="sm" />
+                                <UBadge
+:label="categoryFor(project)"
+color="primary"
+variant="subtle"
+size="sm"
+/>
                             </div>
                         </template>
 
@@ -132,24 +149,48 @@ function websiteFor(project: ProjectNode): string | undefined {
                                 <div v-if="project.dependedOnBy.length > 0">
                                     <span class="text-dimmed">Used by:</span> {{ project.dependedOnBy.join(", ") }}
                                 </div>
-                                <p v-if="project.dependsOn.length === 0 && project.dependedOnBy.length === 0"
-                                    class="text-dimmed">
+                                <p
+v-if="project.dependsOn.length === 0 && project.dependedOnBy.length === 0"
+                                    class="text-dimmed"
+>
                                     No project relationships recorded.
                                 </p>
                             </div>
-
-                        </div>
+</div>
 
                         <div class="mt-auto flex flex-col gap-3">
                             <div class="flex flex-wrap gap-2">
-                                <UButton v-if="websiteFor(project)" :to="websiteFor(project)" label="Open site"
-                                    icon="i-lucide-external-link" size="xs" target="_blank" />
-                                <UButton :to="`/docs/${project.root.toLowerCase()}/readme`" label="Docs"
-                                    icon="i-lucide-book-open" size="xs" variant="soft" />
-                                <UButton v-if="storybookFor(project)" :to="storybookFor(project)" label="Storybook"
-                                    icon="i-lucide-panels-top-left" size="xs" target="_blank" />
-                                <UButton v-if="deploysFor(project)" :to="deploysFor(project)" label="Deploys" size="xs"
-                                    variant="soft" target="_blank" />
+                                <UButton
+v-if="websiteFor(project)"
+:to="websiteFor(project)"
+label="Open site"
+                                    icon="i-lucide-external-link"
+size="xs"
+target="_blank"
+/>
+                                <UButton
+:to="`/docs/${project.root.toLowerCase()}/readme`"
+label="Docs"
+                                    icon="i-lucide-book-open"
+size="xs"
+variant="soft"
+/>
+                                <UButton
+v-if="storybookFor(project)"
+:to="storybookFor(project)"
+label="Storybook"
+                                    icon="i-lucide-panels-top-left"
+size="xs"
+target="_blank"
+/>
+                                <UButton
+v-if="deploysFor(project)"
+:to="deploysFor(project)"
+label="Deploys"
+size="xs"
+                                    variant="soft"
+target="_blank"
+/>
                             </div>
 
                             <div class="border-t border-default pt-3 text-sm text-muted">
@@ -160,8 +201,10 @@ function websiteFor(project: ProjectNode): string | undefined {
                                         </p>
                                         <p class="font-semibold">
                                             {{ metricFor(project)?.commits ?? "—" }}
-                                            <span v-if="typeof metricFor(project)?.commitsLastTwoWeeks === 'number'"
-                                                class="font-normal text-muted">
+                                            <span
+v-if="typeof metricFor(project)?.commitsLastTwoWeeks === 'number'"
+                                                class="font-normal text-muted"
+>
                                                 ({{ metricFor(project)?.commitsLastTwoWeeks }} last two weeks)</span>
                                         </p>
                                     </div>
@@ -171,8 +214,10 @@ function websiteFor(project: ProjectNode): string | undefined {
                                         </p>
                                         <p class="font-semibold">
                                             {{ metricFor(project)?.specs ?? "—" }}
-                                            <span v-if="typeof metricFor(project)?.coverageLinesPct === 'number'"
-                                                class="font-normal text-muted"> ({{ metricFor(project)?.coverageLinesPct
+                                            <span
+v-if="typeof metricFor(project)?.coverageLinesPct === 'number'"
+                                                class="font-normal text-muted"
+> ({{ metricFor(project)?.coverageLinesPct
                                                 }}% coverage)</span>
                                         </p>
                                     </div>

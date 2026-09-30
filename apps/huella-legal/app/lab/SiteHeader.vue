@@ -3,7 +3,13 @@ import { issn, nav as defaultNav } from "./fixtures";
 import { useLabHref } from "./variant";
 import Wordmark from "./Wordmark.vue";
 
-const props = withDefaults(defineProps<{ current?: string, menuOpen?: boolean, nav?: { label: string, to: string }[] }>(), {
+interface Props {
+    current?: string
+    menuOpen?: boolean
+    nav?: { label: string, to: string }[]
+}
+
+const props = withDefaults(defineProps<Props>(), {
     current: undefined,
     menuOpen: false,
     nav: () => defaultNav,

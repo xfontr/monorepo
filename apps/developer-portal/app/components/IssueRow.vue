@@ -2,7 +2,12 @@
 import { summarize } from "#shared/issues.ts";
 import type { Issue } from "#shared/issues.ts";
 
-const { issue, compact = false } = defineProps<{ issue: Issue, compact?: boolean }>();
+interface Props {
+    issue: Issue
+    compact?: boolean
+}
+
+const { issue, compact = false } = defineProps<Props>();
 
 const expanded = ref(false);
 

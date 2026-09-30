@@ -1,13 +1,13 @@
-export type ShipOutcome = {
+export interface ShipOutcome {
     checksPassed: boolean
     merged: boolean
-};
+}
 
-export type ShipReport = {
+export interface ShipReport {
     message: string
     exitCode: number | undefined
     syncMaster: boolean
-};
+}
 
 /** A passed check can still be unmerged because auto-merge only queues the merge. */
 export const shipMessage = ({ checksPassed, merged }: ShipOutcome): string => {

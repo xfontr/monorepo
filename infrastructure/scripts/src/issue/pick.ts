@@ -22,10 +22,10 @@ const or = <T>(value: Cancellable<T>): T => orExit(value, CANCELLED);
 
 const BACK = Symbol("back to project list");
 
-type Picked<T> = {
+interface Picked<T> {
     value: T | undefined
     offline: boolean
-};
+}
 
 const pickProject = async (): Promise<Picked<Project>> => {
     const loading = out.spinner();
