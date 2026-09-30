@@ -1,6 +1,6 @@
 import type { Entry, Term } from "@monorepo/content";
 import { describe, expect, it } from "vitest";
-import { toArticleSummary } from "./articles";
+import { toArticleSummary } from "./articleSummary";
 
 const category = (slug: string, name = slug): Term => ({ id: slug, resource: "categories", slug, name });
 const tag = (slug: string, name = slug): Term => ({ id: slug, resource: "tags", slug, name });
