@@ -41,7 +41,8 @@ src/
 │   │       └── TolgeeProvider.ts             # the `tolgee` vendor
 │   ├── translationsKey.ts                    # which upstream document a request resolves to
 │   └── registry.ts                           # vendor name → provider, and the config type
-└── nuxt/                                     # the Nuxt module (separate entry point)
+├── nuxt/                                     # the Nuxt module (separate entry point)
+└── testing/                                  # fake vendors for consumers' e2e (separate entry point)
 ```
 
 Nothing under `core/` imports the Nuxt or Nitro runtime — lint enforces the [list in
@@ -180,6 +181,25 @@ cache key here can't carry anything else.
 identity — two tokens for the same project fetch the same document, so they should share an entry,
 and a secret has no business in a cache storage path. A future vendor whose options genuinely pick
 the document (a branch, an export profile) belongs on `Vendor`, not in `options`.
+
+## 🧪 Fake vendors
+
+`@monorepo/i18n/testing` exports MSW handlers that answer like a vendor, for a consumer's e2e run.
+The consumer passes each locale's `TranslationMap`, and the handlers wrap it the way the vendor does:
+
+```ts
+import { tolgeeHandlers } from "@monorepo/i18n/testing";
+
+setupServer(...tolgeeHandlers(baseURL, { "es-ES": messages })).listen();
+```
+
+| Export | Serves | Contract it keeps |
+| --- | --- | --- |
+| `tolgeeHandlers(baseURL, translations)` | `GET <baseURL>/v2/projects/:project/translations/:locale` | The map nested under its locale, and a `404` for a locale it wasn't given |
+
+[`tolgee.spec.ts`](./src/testing/tolgee.spec.ts) runs the real `TolgeeProvider` against the
+handlers. `msw` is an optional peer, like the Nuxt entry's dependencies. There's no fake for the
+`internal` vendor: an app on it can run the real TMS from `infrastructure/translations`.
 
 ## ⚠️ Errors
 

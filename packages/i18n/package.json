@@ -15,6 +15,9 @@
     },
     "./nuxt": {
       "import": "./src/nuxt/module.ts"
+    },
+    "./testing": {
+      "import": "./src/testing/index.ts"
     }
   },
   "scripts": {
@@ -38,6 +41,7 @@
     "@nuxt/kit": "^4.5.0",
     "@nuxtjs/i18n": "catalog:",
     "h3": "^1.15.11",
+    "msw": "^3.0.1",
     "nitropack": "^2.13.4"
   },
   "peerDependenciesMeta": {
@@ -48,6 +52,9 @@
       "optional": true
     },
     "h3": {
+      "optional": true
+    },
+    "msw": {
       "optional": true
     },
     "nitropack": {
@@ -63,6 +70,7 @@
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
     "h3": "^1.15.11",
+    "msw": "^3.0.1",
     "nitropack": "^2.13.4",
     "typescript": "catalog:",
     "vitest": "catalog:"
