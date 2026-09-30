@@ -1,4 +1,4 @@
-import { mountSuspended } from "@nuxt/test-utils/runtime";
+import { mount } from "@vue/test-utils";
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { defineComponent, ref } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -46,7 +46,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("useIssues", () => {
-    async function execute(wrapper: Awaited<ReturnType<typeof mountSuspended>>) {
+    async function execute(wrapper: ReturnType<typeof mount>) {
         const state = wrapper.vm.state as { data: { value: IssuesRead }, handler: () => Promise<IssuesRead> };
         state.data.value = await state.handler();
 
@@ -54,14 +54,14 @@ describe("useIssues", () => {
     }
 
     it("returns a displayable configuration error without making a request", async () => {
-        const wrapper = await mountSuspended(Harness, { props: { repoUrl: "" } });
+        const wrapper = mount(Harness, { props: { repoUrl: "" } });
         expect((await execute(wrapper)).error).toContain("no repo to read");
         expect(fetch).not.toHaveBeenCalled();
     });
 
     it("requests one hundred open issues and removes pull requests from the normalized result", async () => {
         fetch.mockResolvedValue([githubIssue(1), githubIssue(2, true)]);
-        const wrapper = await mountSuspended(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
+        const wrapper = mount(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
         const result = await execute(wrapper);
 
         expect(fetch).toHaveBeenCalledWith(
@@ -74,7 +74,7 @@ describe("useIssues", () => {
 
     it("prefers GitHub's API message and caps it at three hundred characters", async () => {
         fetch.mockRejectedValue({ data: { message: "x".repeat(400) } });
-        const wrapper = await mountSuspended(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
+        const wrapper = mount(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
 
         expect((await execute(wrapper)).error).toHaveLength(300);
     });
@@ -84,14 +84,14 @@ describe("useIssues", () => {
         ["unknown failure", "GitHub could not be read"],
     ])("keeps the intended fallback for a %s failure", async (cause, message) => {
         fetch.mockRejectedValue(cause);
-        const wrapper = await mountSuspended(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
+        const wrapper = mount(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
 
         expect((await execute(wrapper)).error).toBe(message);
     });
 
     it("exposes refresh through reload and starts with the empty client-only state", async () => {
         fetch.mockResolvedValue([]);
-        const wrapper = await mountSuspended(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
+        const wrapper = mount(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
         const result = await execute(wrapper);
 
         expect(wrapper.vm.state.reload).toBeTypeOf("function");

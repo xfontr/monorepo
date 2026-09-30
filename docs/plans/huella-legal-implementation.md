@@ -38,8 +38,8 @@ app. `app/layers/` stays out until there's real domain logic.
 | Layer | Lives in | Does | Never does | Tested with |
 | --- | --- | --- | --- | --- |
 | Theme | `main.css`, `app.config.ts` | Tokens, Nuxt UI defaults | — | Visual snapshots |
-| Primitives | `app/components/base/` | Wordmark, Kicker, Pill, Avatar… Nuxt UI is used directly; `UButton` gets no wrapper | Fetch, know about WP | `mountSuspended` |
-| Kits | `app/components/{article,listing,form,shell}/` | Props in, events out, typed against view models | Fetch, read the route | `mountSuspended` |
+| Primitives | `app/components/base/` | Wordmark, Kicker, Pill, Avatar… Nuxt UI is used directly; `UButton` gets no wrapper | Fetch, know about WP | `mount` |
+| Kits | `app/components/{article,listing,form,shell}/` | Props in, events out, typed against view models | Fetch, read the route | `mount` |
 | View models | `shared/` or `app/utils/`, pure TS | `Entry` → `ArticleSummary`, `Article`, `Author`, `Category`: reading time, TOC, footnotes, citation | Touch Vue or Nuxt | Vitest node, the heaviest suite |
 | Controllers | `app/composables/use*.ts` | Wrap `useContent()`, own query↔URL state, run form state machines | Render | Nuxt Vitest project + `mockNuxtImport` |
 | Pages | `app/pages/` | Call one controller, compose kits, set SEO meta | Hold logic | Playwright + axe + screenshots |
@@ -53,7 +53,7 @@ components, but each one is cheap because the lab version already exists.
 | Level | Covers | Tool |
 | --- | --- | --- |
 | Unit | Mappers, the HTML pipeline, server routes and utils. Every WP quirk found in S1 is pinned as an inline sample beside its spec | Vitest node |
-| Component | Each kit component's variants, emits and ARIA state (`aria-current`, `aria-busy`, error wiring) | Vitest Nuxt project, `mountSuspended` |
+| Component | Each kit component's variants, emits and ARIA state (`aria-current`, `aria-busy`, error wiring) | Vitest Nuxt project, `mount` |
 | Controller | URL↔state round-trips, error mapping (400 → 404), form state transitions | Vitest Nuxt project, `mockNuxtImport` |
 | E2E | One spec per page archetype against the built app, each with an axe scan (zero violations) and screenshots at 390, 768 and 1280 | Playwright + `@axe-core/playwright` |
 | Coverage | App threshold, number set in S5 | Vitest v8 |

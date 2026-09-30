@@ -1,4 +1,4 @@
-import { mountSuspended } from "@nuxt/test-utils/runtime";
+import { mount } from "@vue/test-utils";
 import { defineComponent, ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useDecisionReports } from "./useDecisionReports.ts";
@@ -14,14 +14,14 @@ beforeEach(() => {
 });
 
 describe("useDecisionReports", () => {
-    it("returns no reports while the docs snapshot is absent", async () => {
-        const wrapper = await mountSuspended(Harness);
+    it("returns no reports while the docs snapshot is absent", () => {
+        const wrapper = mount(Harness);
 
         expect(wrapper.vm.reports).toEqual([]);
     });
 
     it("derives decision reports from pages and reacts when the snapshot changes", async () => {
-        const wrapper = await mountSuspended(Harness);
+        const wrapper = mount(Harness);
         state.snapshot!.value = {
             docs: {
                 pages: [{
