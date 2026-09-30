@@ -29,7 +29,7 @@ function createBaseVueConfig(typeChecked?: boolean): object[] {
                 parser: tseslint.parser,
 
                 parserOptions: {
-                    projectService: true,
+                    projectService: typeChecked,
                     tsconfigRootDir: process.cwd(),
                 },
             },
@@ -54,7 +54,7 @@ function createBaseVueConfig(typeChecked?: boolean): object[] {
                 parserOptions: {
                     parser: tseslint.parser,
                     extraFileExtensions: [".vue"],
-                    projectService: true,
+                    projectService: typeChecked,
                     tsconfigRootDir: process.cwd(),
                 },
             },
@@ -62,11 +62,12 @@ function createBaseVueConfig(typeChecked?: boolean): object[] {
             rules: {
                 "vue/multi-word-component-names": "off",
                 "vue/html-indent": "off",
+                "vue/v-bind-style": ["error", "shorthand", { sameNameShorthand: "always" }],
                 "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
             },
         },
 
-        vitestConfig,
+        typeChecked ? vitestConfig : { ...vitestConfig, settings: { vitest: { typecheck: false } } },
         stylistic,
         jsonc,
         boundaries,
