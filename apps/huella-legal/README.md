@@ -51,19 +51,24 @@ page but a `500` naming what is missing, on the first request that needs it.
 | `NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN` | The TMS API key |
 | `NUXT_CONTENT_VENDOR_BASE_URL` | The WordPress site root, **without** `/wp-json` — the provider owns that path. Only `/articles` needs it |
 | `NUXT_PUBLIC_OBSERVABILITY_URL` | Faro collector URL. Leave unset and browser telemetry stays off |
-| `NUXT_PUBLIC_OBSERVABILITY_APP_VERSION` | Stamped on browser *and* server spans. Defaults to `0.0.0`, which nothing can be attributed to — set it at deploy time |
 | `NUXT_PUBLIC_OBSERVABILITY_APP_ENVIRONMENT` | Stamped the same way. Defaults to `development` |
 | `NUXT_OBSERVABILITY_URL` | Grafana OTLP gateway URL. Leave unset and server telemetry stays off |
 | `NUXT_OBSERVABILITY_INSTANCE_ID` | Grafana Cloud instance ID, the user half of the OTLP credentials |
 | `NUXT_OBSERVABILITY_TOKEN` | Grafana Cloud access token, the password half |
+| `GRAFANA_FARO_SOURCEMAP_API_KEY` | Optional Netlify build secret with source-map read, write and delete scopes |
+| `GRAFANA_FARO_SOURCEMAP_ENDPOINT` | Source-map upload endpoint from Frontend Observability settings |
+| `GRAFANA_FARO_SOURCEMAP_APP_ID` | Frontend Observability application ID for source-map uploads |
+| `GRAFANA_FARO_SOURCEMAP_STACK_ID` | Grafana Cloud stack ID for source-map uploads |
 
-No URL or credential has a default in `nuxt.config.ts`, and no real URL or key belongs in the repo.
-Every variable is read at **startup**, not at build time, so one build artifact runs in any
-environment — the [i18n module](../../packages/i18n/src/nuxt/README.md#-usage) has the mechanism and
-why nothing here reads `process.env`.
+No real URL or key belongs in the repo. Runtime settings are read at startup, so a built artifact
+does not contain runtime telemetry credentials. The build reads Netlify's `COMMIT_REF` and optional
+source-map settings; these stamp the immutable build ID and upload client maps, and the upload key
+stays in the build process. `nuxt.config.ts` declares runtime config keys empty.
 
 The vendor **names** are the exception, and they are not env vars: `translations.vendor.name` and
 `content.vendor.name` select each vendor's config type, so they stay literals in `nuxt.config.ts`.
+The build ID comes from Netlify's `COMMIT_REF`; a local build uses Git `HEAD` and falls back to
+`0.0.0` only when no Git metadata exists outside a production build.
 
 ## 🌍 i18n
 
@@ -134,9 +139,8 @@ Gotchas](../../packages/observability/README.md#️-gotchas) say why. Wrapping t
 internal `$fetch` calls nest under the request that made them, and an incoming `traceparent`
 continues the browser's trace rather than starting a second one.
 
-Both halves read `app.version` and `app.environment` from the same public runtime config, so one
-`NUXT_PUBLIC_OBSERVABILITY_APP_VERSION` stamps browser and server alike. It defaults to `0.0.0` —
-set it at deploy time or nothing can be attributed to a release. Static assets and Nuxt's own dev
+Both halves use the same immutable build ID for `app.version`, and the same runtime environment label.
+Static assets and Nuxt's own dev
 endpoints (`/_nuxt`, `/_fonts`, `/__nuxt`, `/favicon.ico`) are left untraced on purpose; the list
 lives in the plugin.
 
@@ -145,6 +149,15 @@ nothing has matched a route yet, and is renamed once the response is known. Anyt
 rename gives every slug and every query string a span name of its own, which makes the operation
 impossible to aggregate and the keyspace unbounded. That is the property
 [the spec](./server/plugins/observability.spec.ts) spends most of its assertions on.
+
+## 🗺 Source maps
+
+The client build adds the official Faro Rollup plugin only when all four source-map settings are
+present. It uploads maps for the client bundle using the Netlify build ID and removes generated
+JavaScript maps from the output even if the upload fails. Server sourcemaps stay disabled, and the
+API key never enters the deployed bundle. The key needs Grafana's `sourcemaps:read`,
+`sourcemaps:write` and `sourcemaps:delete` scopes. A fresh Netlify deploy is required after the
+settings are added; without them, source maps remain disabled and browser stacks stay minified.
 
 ## ✅ Testing
 

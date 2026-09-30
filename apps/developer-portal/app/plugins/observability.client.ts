@@ -5,11 +5,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     if (!observability.url) return;
 
-    const { name, environment, version, buildId } = observability.app;
-    const faro = startWebTelemetry({
-        ...observability,
-        app: { name, environment, version: buildId || version },
-    });
+    const faro = startWebTelemetry(observability);
 
     nuxtApp.hook("vue:error", (error) => {
         faro.api.pushError(error as Error);

@@ -25,4 +25,4 @@ export const EMBED_DIR = resolve(PUBLIC_DIR, "embed");
 export const GRAPH_DIR = resolve(EMBED_DIR, "graph");
 export const COVERAGE_DIR = resolve(EMBED_DIR, "coverage");
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;

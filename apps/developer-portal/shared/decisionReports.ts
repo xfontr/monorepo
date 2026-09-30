@@ -12,7 +12,7 @@ export interface DecisionReport {
     status: DecisionStatus | null
     decision: DecisionOutcome | null
     supersededBy: string | null
-    updatedAt: string | null
+    createdAt: string | null
     words: number
 }
 
@@ -31,7 +31,7 @@ export function toDecisionReports(pages: DocPage[]): DecisionReport[] {
                 status: page.decisionStatus,
                 decision: page.decisionOutcome,
                 supersededBy: page.decisionSupersededBy,
-                updatedAt: page.updatedAt,
+                createdAt: page.createdAt,
                 words: page.words,
             };
         });
@@ -55,7 +55,7 @@ export function filterDecisions(reports: DecisionReport[], filter: DecisionRepor
     });
 }
 
-export const DECISION_SORTS = ["newest", "oldest", "updated", "status"] as const;
+export const DECISION_SORTS = ["newest", "oldest", "created", "status"] as const;
 
 export type DecisionSort = typeof DECISION_SORTS[number];
 
@@ -73,7 +73,7 @@ function byNumberDescending(a: DecisionReport, b: DecisionReport): number {
 export function sortDecisions(reports: DecisionReport[], sort: DecisionSort): DecisionReport[] {
     return reports.slice().sort((a, b) => {
         if (sort === "oldest") return a.number.localeCompare(b.number);
-        if (sort === "updated") return (b.updatedAt ?? "").localeCompare(a.updatedAt ?? "") || byNumberDescending(a, b);
+        if (sort === "created") return (b.createdAt ?? "").localeCompare(a.createdAt ?? "") || byNumberDescending(a, b);
         if (sort === "status") return statusRank(a.status) - statusRank(b.status) || byNumberDescending(a, b);
 
         return byNumberDescending(a, b);

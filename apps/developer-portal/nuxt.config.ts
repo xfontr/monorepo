@@ -69,6 +69,14 @@ export default defineNuxtConfig({
 
         public: {
             repoUrl: "",
+            observability: {
+                url: "",
+                app: {
+                    name: "@monorepo/developer-portal",
+                    version: "0.0.0",
+                    environment: "development",
+                },
+            },
         },
     },
 

@@ -1,14 +1,11 @@
 import { startNodeTelemetry } from "@monorepo/observability/node";
 import { context, propagation, SpanKind, SpanStatusCode, trace, type Span } from "@opentelemetry/api";
 import {
-    ATTR_CLIENT_ADDRESS,
     ATTR_HTTP_REQUEST_METHOD,
     ATTR_HTTP_RESPONSE_STATUS_CODE,
     ATTR_HTTP_ROUTE,
     ATTR_SERVER_ADDRESS,
     ATTR_URL_PATH,
-    ATTR_URL_QUERY,
-    ATTR_USER_AGENT_ORIGINAL,
 } from "@opentelemetry/semantic-conventions";
 import type { H3Event } from "h3";
 
@@ -21,8 +18,9 @@ export default defineNitroPlugin((nitroApp) => {
 
     if (!observability.url) return;
 
-    const provider = startNodeTelemetry({ ...observability, app });
-    const tracer = trace.getTracer(app.name, app.version);
+    const telemetryApp = { name: app.name, version: app.buildId || app.version, environment: app.environment };
+    const provider = startNodeTelemetry({ ...observability, app: telemetryApp });
+    const tracer = trace.getTracer(telemetryApp.name, telemetryApp.version);
     const handle = nitroApp.h3App.handler;
 
     nitroApp.h3App.handler = defineEventHandler((event) => {
@@ -56,15 +54,9 @@ export default defineNitroPlugin((nitroApp) => {
 
 // #region utils
 function requestAttributes(event: H3Event) {
-    const [path, query] = event.path.split("?");
-
     return {
         [ATTR_HTTP_REQUEST_METHOD]: event.method,
-        [ATTR_URL_PATH]: path,
-        [ATTR_URL_QUERY]: query,
         [ATTR_SERVER_ADDRESS]: getRequestHost(event),
-        [ATTR_USER_AGENT_ORIGINAL]: getRequestHeader(event, "user-agent"),
-        [ATTR_CLIENT_ADDRESS]: getRequestIP(event, { xForwardedFor: true }),
     };
 }
 
@@ -73,7 +65,11 @@ function end(span: Span, event: H3Event, status: number) {
     const route = event.context.matchedRoute?.path ?? path;
 
     span.updateName(`${event.method} ${route}`);
-    span.setAttributes({ [ATTR_HTTP_ROUTE]: route, [ATTR_HTTP_RESPONSE_STATUS_CODE]: status });
+    span.setAttributes({
+        [ATTR_HTTP_ROUTE]: route,
+        [ATTR_HTTP_RESPONSE_STATUS_CODE]: status,
+        [ATTR_URL_PATH]: route,
+    });
 
     if (status >= 500) span.setStatus({ code: SpanStatusCode.ERROR });
 
