@@ -75,6 +75,7 @@ describe("parseQuery", () => {
             slug: undefined,
             search: undefined,
             term: undefined,
+            author: undefined,
         });
     });
 
@@ -92,6 +93,7 @@ describe("parseQuery", () => {
             slug: undefined,
             search: undefined,
             term: undefined,
+            author: undefined,
         });
     });
 
@@ -119,6 +121,16 @@ describe("parseQuery", () => {
 
         it("is not an axis a term list has", () => {
             expect(parseQuery(createEvent({}, "?term=categories:12"), "categories").term).toBeUndefined();
+        });
+    });
+
+    describe("the author filter", () => {
+        it("parses the author id an entry list filters by", () => {
+            expect(parseQuery(createEvent({}, "?author=%2012%20"), "posts").author).toBe("12");
+        });
+
+        it("is not an axis a term list has", () => {
+            expect(parseQuery(createEvent({}, "?author=12"), "tags").author).toBeUndefined();
         });
     });
 });

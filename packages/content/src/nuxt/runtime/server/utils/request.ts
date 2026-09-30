@@ -49,6 +49,7 @@ export function parseQuery(event: H3Event<EventHandlerRequest>, resource: Resour
         slug: toText(query.slug),
         search: toSearch(query.search),
         term: isEntryResource(resource) ? toTerm(query.term) : undefined,
+        author: isEntryResource(resource) ? toText(query.author) : undefined,
     };
 }
 

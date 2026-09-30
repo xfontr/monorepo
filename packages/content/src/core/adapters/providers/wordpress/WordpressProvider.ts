@@ -14,7 +14,8 @@ class WordpressProvider extends ContentProvider<WordpressProviderConfig> {
             query: {
                 ...toWordpressQuery(query),
                 ...(query?.term ? { [query.term.resource]: query.term.id } : {}),
-                _embed: "wp:featuredmedia,wp:term",
+                author: query?.author,
+                _embed: "wp:featuredmedia,wp:term,author",
             },
         });
 

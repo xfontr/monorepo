@@ -65,6 +65,7 @@ function toRequestQuery(query?: EntryQuery): Record<string, string | number | un
         slug: query?.slug,
         search: query?.search,
         term: query?.term && `${query.term.resource}:${query.term.id}`,
+        author: query?.author,
     };
 }
 // #endregion

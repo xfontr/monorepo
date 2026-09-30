@@ -28,12 +28,27 @@ export type Asset = {
     height?: number
 };
 
+export type SEO = {
+    title?: string
+    description?: string
+    noindex?: boolean
+};
+
+export type Author = {
+    id: string
+    slug: string
+    name: string
+    bio?: string
+    avatar?: Asset
+};
+
 export type Term = {
     id: string
     resource: TermResource
     slug: string
     name: string
     description?: string
+    seo?: SEO
 };
 
 export type Entry = {
@@ -46,6 +61,8 @@ export type Entry = {
     updatedAt?: string
     image?: Asset
     terms: Term[]
+    authors: Author[]
+    seo?: SEO
 };
 
 export type Page<T> = {
@@ -65,6 +82,7 @@ export type Query = {
 
 export type EntryQuery = Query & {
     term?: { resource: TermResource, id: string }
+    author?: string
 };
 
 export function isEntryResource(resource: string | undefined): resource is EntryResource {

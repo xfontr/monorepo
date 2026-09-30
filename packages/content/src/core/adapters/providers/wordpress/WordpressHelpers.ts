@@ -1,8 +1,8 @@
-import type { Asset, Entry, Page, Query, Term, TermResource } from "#core/domain/content";
+import type { Asset, Author, Entry, Page, Query, SEO, Term, TermResource } from "#core/domain/content";
 import { DEFAULT_PER_PAGE } from "#core/domain/content";
 import type { HttpResponse, RequestOptions } from "#core/ports/HttpClient";
 import { TAXONOMIES, WP_MAX_PER_PAGE } from "./WordpressConfigs";
-import type { WordpressEntry, WordpressMedia, WordpressTerm } from "./WordpressTypes";
+import type { WordpressEntry, WordpressMedia, WordpressTerm, WordpressUser, WordpressYoast } from "./WordpressTypes";
 
 function toPerPage(perPage?: number): number {
     return Math.min(perPage ?? DEFAULT_PER_PAGE, WP_MAX_PER_PAGE);
@@ -53,6 +53,8 @@ export function toEntry(entry: WordpressEntry): Entry {
         updatedAt: toIsoDate(entry.modified_gmt),
         image: toAsset(entry._embedded?.["wp:featuredmedia"]?.[0]),
         terms: (entry._embedded?.["wp:term"] ?? []).flat().flatMap(toEmbeddedTerm),
+        authors: (entry._embedded?.author ?? []).flatMap(toAuthor),
+        seo: toSEO(entry.yoast_head_json),
     };
 }
 
@@ -71,6 +73,42 @@ export function toTerm(term: WordpressTerm, resource: TermResource): Term {
         slug: term.slug,
         name: term.name,
         description: term.description || undefined,
+        seo: toSEO(term.yoast_head_json),
+    };
+}
+
+// An embed with no id or name is not a user, so it is dropped rather than rendered as a blank byline
+function toAuthor(user: WordpressUser): Author[] {
+    if (user.id === undefined || !user.name) return [];
+
+    return [{
+        id: String(user.id),
+        slug: user.slug,
+        name: user.name,
+        bio: user.description || undefined,
+        avatar: toAvatar(user),
+    }];
+}
+
+function toAvatar(user: WordpressUser): Asset | undefined {
+    const avatar = user.simple_local_avatar;
+
+    if (!avatar || !avatar.full) return undefined;
+
+    return {
+        id: String(avatar.media_id ?? user.id),
+        url: avatar.full,
+        alt: user.name,
+    };
+}
+
+function toSEO(yoast?: WordpressYoast): SEO | undefined {
+    if (!yoast) return undefined;
+
+    return {
+        title: yoast.title || undefined,
+        description: yoast.description || undefined,
+        noindex: yoast.robots?.index === "noindex",
     };
 }
 
