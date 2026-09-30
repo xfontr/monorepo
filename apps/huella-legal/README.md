@@ -19,6 +19,8 @@ pnpm dev                                    # or from this directory
 | `pnpm typecheck` | `nuxt typecheck`. Redundant before a build: `typescript.typeCheck: "build"` makes `pnpm build` do the same pass, which is why the build is slow |
 | `pnpm test` | Vitest in two projects, with coverage and its thresholds on every run — see [Testing](#-testing) |
 | `pnpm test:e2e` | Playwright against the built `.output/`, with the vendors faked by MSW. Run `pnpm build` first; `nx test:e2e` does it for you |
+| `pnpm storybook` | Storybook on port 6007 — see [Storybook](#-storybook) |
+| `pnpm build-storybook` | Static Storybook build (output in `storybook-static/`) |
 | `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
 
 Two modules beyond the shared ones are installed here: `@nuxt/fonts`, and `@pinia/nuxt` with
@@ -153,7 +155,30 @@ adding one is the mistake. That is the path `pinia.storesDirs` above is widened 
 | --- | --- | --- |
 | [`articles`](./layers/articles) | The view models: `ArticleSummary`, `Author`, `Category` | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time use `entities`, `striptags` and `reading-time`, and stay server-side |
 
-## 📡 Telemetry
+## 📚 Storybook
+
+Components are worked on in isolation here, with a story beside the component it renders
+(`app/**` or `layers/*/app/**`, as `*.stories.ts`). The setup follows
+[`@monorepo/ui`](../../packages/ui/README.md) — `@storybook/vue3-vite`, not a Nuxt integration,
+because the Nuxt one (`@storybook-vue/nuxt`) stops at Nuxt 3, Vite 7 and Storybook 9.
+
+So Storybook is a plain Vite app, and [`.storybook/main.ts`](./.storybook/main.ts) gets back what
+Nuxt modules would otherwise give it:
+
+| Piece | Stands in for | Read from |
+| --- | --- | --- |
+| `@nuxt/ui/vite` + `@nuxt/ui/vue-plugin` | The `@nuxt/ui` module: components, theme and Vue auto-imports | `ui` in `nuxt.config.ts` and `ui` in `app/app.config.ts` |
+| `fontless` | `@nuxt/fonts`, which is built on it | `fonts` in `nuxt.config.ts` |
+| `main.css` in [`preview.ts`](./.storybook/preview.ts) | `css` in `nuxt.config.ts` | — |
+| A `<UApp>` decorator | `app.vue`'s root, which overlays portal into | — |
+
+Both configs are imported, not copied, so a theme change reaches the stories with no second edit.
+Each script runs `nuxi prepare` first because Vite follows `tsconfig.json` into `.nuxt/`.
+
+A story renders a component **without Nuxt**: no router (`router: false`, so Nuxt UI links are plain
+anchors), no i18n, no Pinia and no `#imports`. That's why the stories so far live in `app/lab/`,
+whose components never call `t()`.
+
 
 Two halves, one per runtime, each from [`@monorepo/observability`](../../packages/observability) and
 each skipped entirely when its URL is unset — which is why local dev ships nothing.
@@ -243,4 +268,6 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | --- | --- |
 | Firefox or WebKit | Another project per browser in the configs preset, and every baseline tripled. Linux WebKit is not Safari, so it won't stand in for iOS readers |
 | A per-glob threshold on view models | A3 adds `shared/**` and `app/utils/**` at 95 alongside the mappers it creates |
+| A story for a component that calls `t()`, a store or `useRoute` | A `setup` in `.storybook/preview.ts` that installs `vue-i18n` with `es-ES.json`, Pinia and a memory router, and `router: true` in `main.ts` |
+| A published Storybook | A deploy job for `storybook-static/`. The developer portal's Storybook path belongs to `@monorepo/ui` and is due to go with it ([0023](../../docs/decisions/0023-huella-legal-owns-its-design-system.md)) |
 | Parity with the `/lab` pages | Still a human check: the lab is stripped from production builds, and Linux substitutes a serif for Georgia |

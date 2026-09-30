@@ -5,6 +5,8 @@
     "type": "module",
     "scripts": {
         "build": "nx nuxt:build",
+        "build:storybook": "nuxi prepare && storybook build",
+        "storybook": "nuxi prepare && storybook dev -p 6007",
         "dev": "nx serve",
         "preview": "nuxt preview",
         "lint": "nx eslint:lint",
@@ -58,14 +60,19 @@
         "@monorepo/configs": "workspace:*",
         "@nuxt/test-utils": "^4.3.2",
         "@playwright/test": "1.63.0",
+        "@storybook/vue3-vite": "^10.6.0",
         "@types/node": "catalog:",
+        "@vitejs/plugin-vue": "^6.0.9",
         "@vitest/coverage-v8": "catalog:",
         "@vue/test-utils": "^2.4.11",
         "eslint": "catalog:",
+        "fontless": "^0.2.1",
         "happy-dom": "^20.10.6",
         "msw": "^3.0.1",
+        "storybook": "^10.6.0",
         "typescript": "catalog:",
         "vitest": "catalog:",
+        "vue": "catalog:",
         "vue-tsc": "catalog:"
     }
 }
