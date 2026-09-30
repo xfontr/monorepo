@@ -1,4 +1,4 @@
-import { mount } from "@vue/test-utils";
+import { mount, type VueWrapper } from "@vue/test-utils";
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { defineComponent, ref } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -31,8 +31,8 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("useDeployments", () => {
-    async function execute(wrapper: ReturnType<typeof mount>) {
-        const state = wrapper.vm as { data: { value: { deployments: unknown[], error: string | null } }, handler: () => Promise<unknown> };
+    async function execute(wrapper: VueWrapper<InstanceType<typeof Harness>>) {
+        const state = wrapper.vm as unknown as { data: { value: { deployments: unknown[], error: string | null } }, handler: () => Promise<unknown> };
         state.data.value = await state.handler() as typeof state.data.value;
 
         return state.data.value;
