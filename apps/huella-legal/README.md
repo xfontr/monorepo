@@ -20,7 +20,7 @@ pnpm dev                                    # or from this directory
 | `pnpm test` | Vitest in two projects, with coverage and its thresholds on every run — see [Testing](#-testing) |
 | `pnpm test:e2e` | Playwright against the built `.output/`, with the vendors faked by MSW. Run `pnpm build` first; `nx test:e2e` does it for you |
 | `pnpm storybook` | Storybook on port 6007 — see [Storybook](#-storybook) |
-| `pnpm build-storybook` | Static Storybook build (output in `storybook-static/`) |
+| `pnpm build:storybook` | Static Storybook build (output in `storybook-static/`) |
 | `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
 
 Two modules beyond the shared ones are installed here: `@nuxt/fonts`, and `@pinia/nuxt` with
