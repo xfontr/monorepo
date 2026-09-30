@@ -1,41 +1,40 @@
 import type { Entry, Term } from "@monorepo/content";
+import { faker, fakeAsset, fakeAuthor, fakeEntry, fakeTerm } from "@monorepo/content/testing";
 import { describe, expect, it } from "vitest";
 import { toArticleSummary } from "./articleSummary";
 
-const category = (slug: string, name = slug): Term => ({ id: slug, resource: "categories", slug, name });
-const tag = (slug: string, name = slug): Term => ({ id: slug, resource: "tags", slug, name });
+const category = (slug: string, name = slug): Term => fakeTerm({ slug, name });
+const tag = (slug: string, name = slug): Term => fakeTerm({ resource: "tags", slug, name });
 
 const words = (count: number) => `<p>${"palabra ".repeat(count)}</p>`;
 
-// Synthetic, in the shape `@monorepo/content` maps a WordPress post to
-const entry: Entry = {
-    id: "31",
-    slug: "la-prueba-de-la-culpa",
+const CATEGORY = fakeTerm();
+const TAG = fakeTerm({ resource: "tags" });
+
+const entry: Entry = fakeEntry({
     title: "La &#8220;prueba&#8221; de la culpa &#8211; notas",
     excerpt: { format: "html", value: "<p>Un resumen de la culpa [&hellip;]</p>\n" },
     body: { format: "html", value: words(460) },
-    publishedAt: "2025-03-11T23:30:00Z",
-    updatedAt: "2025-04-01T10:00:00Z",
-    image: { id: "8", url: "https://wp.test/uploads/culpa.jpg", alt: "" },
-    terms: [category("derecho-penal", "Derecho penal"), tag("dogmatica", "Dogmática")],
-    authors: [{ id: "4", slug: "ana-ejemplo", name: "Ana Ejemplo", bio: "Inventada." }],
-};
+    image: fakeAsset({ alt: "" }),
+    terms: [CATEGORY, TAG],
+    authors: [fakeAuthor({ bio: faker.lorem.sentence() })],
+});
 
 const summarise = (overrides: Partial<Entry>) => toArticleSummary({ ...entry, ...overrides });
 
 describe("toArticleSummary", () => {
     it("maps an entry into the shape the cards are typed against", () => {
         expect(toArticleSummary(entry)).toEqual({
-            id: "31",
-            slug: "la-prueba-de-la-culpa",
+            id: entry.id,
+            slug: entry.slug,
             title: "La “prueba” de la culpa – notas",
             excerpt: "Un resumen de la culpa",
-            publishedAt: "2025-03-11T23:30:00Z",
-            updatedAt: "2025-04-01T10:00:00Z",
-            image: { id: "8", url: "https://wp.test/uploads/culpa.jpg", alt: "" },
-            authors: [{ id: "4", slug: "ana-ejemplo", name: "Ana Ejemplo", bio: "Inventada." }],
-            category: { id: "derecho-penal", slug: "derecho-penal", name: "Derecho penal" },
-            tags: [{ id: "dogmatica", slug: "dogmatica", name: "Dogmática" }],
+            publishedAt: entry.publishedAt,
+            updatedAt: entry.updatedAt,
+            image: entry.image,
+            authors: entry.authors,
+            category: { id: CATEGORY.id, slug: CATEGORY.slug, name: CATEGORY.name },
+            tags: [{ id: TAG.id, slug: TAG.slug, name: TAG.name }],
             format: "articulo",
             readingMinutes: 2,
         });
@@ -44,7 +43,7 @@ describe("toArticleSummary", () => {
     it("decodes the names WordPress escaped", () => {
         const result = summarise({
             terms: [category("tfg", "TFG &amp; TFM")],
-            authors: [{ id: "1", slug: "a", name: "Ana &amp; Bruno" }],
+            authors: [fakeAuthor({ name: "Ana &amp; Bruno" })],
         });
 
         expect(result.category?.name).toBe("TFG & TFM");
@@ -52,7 +51,7 @@ describe("toArticleSummary", () => {
     });
 
     it("leaves an unset avatar unset, so UAvatar falls back to initials", () => {
-        expect(toArticleSummary(entry).authors[0]?.avatar).toBeUndefined();
+        expect(summarise({ authors: [fakeAuthor({ avatar: undefined })] }).authors[0]?.avatar).toBeUndefined();
     });
 });
 

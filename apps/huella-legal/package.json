@@ -54,6 +54,7 @@
     },
     "devDependencies": {
         "@axe-core/playwright": "^4.13.0",
+        "@faker-js/faker": "^10.6.0",
         "@monorepo/configs": "workspace:*",
         "@nuxt/test-utils": "^4.3.2",
         "@playwright/test": "1.63.0",

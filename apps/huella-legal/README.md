@@ -216,8 +216,9 @@ server and no upstream port. The vendor base URLs in `playwright.config.ts` poin
 paths nothing listens on, and a request no handler matches is logged by MSW and rejected, so none
 reaches the network.
 
-The data lives apart from the server, in [`e2e/fakes.ts`](./e2e/fakes.ts): a handful of domain
-`Entry` and `Term` values with invented people, plus the committed locale JSON in
+The data lives apart from the server, in [`e2e/fakes.ts`](./e2e/fakes.ts): domain entries built by
+the seeded factories in `@monorepo/content/testing`, two of them pinned to the values the smoke spec
+asserts on, plus the committed locale JSON in
 [`infrastructure/translations`](../../infrastructure/translations/projects/huella-legal). The
 packages turn those into each vendor's wire format, so the app never writes a WordPress or Tolgee
 shape itself. There are no fixture files.

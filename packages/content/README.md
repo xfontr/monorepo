@@ -250,8 +250,29 @@ setupServer(...wordpressHandlers(baseURL, { posts: entries, categories: terms })
 
 [`wordpress.spec.ts`](./src/testing/wordpress.spec.ts) runs the real `WordpressProvider` on the
 real client against the handlers, and asserts every `Entry` field comes back unchanged, so a fake
-that drifts from the provider fails here rather than in someone's e2e. `msw` is an optional peer,
-like the Nuxt entry's dependencies. Search and term filters aren't faked: nothing consumes them yet.
+that drifts from the provider fails here rather than in someone's e2e. Search and term filters
+aren't faked: nothing consumes them yet.
+
+The same entry exports seeded `@faker-js/faker` factories for the domain types, so a spec
+states only the fields it asserts on and the rest is filled in:
+
+```ts
+const entry = fakeEntry({ title: "La &#8220;prueba&#8221;", terms: [fakeTerm({ slug: "derecho-penal" })] });
+```
+
+| Export | Builds |
+| --- | --- |
+| `fakeEntry(overrides)` | An `Entry` with a category, an invented Spanish author and four paragraphs |
+| `fakeTerm(overrides)` | A category `Term`; pass `resource: "tags"` for a tag |
+| `fakeAuthor(overrides)` | An `Author` with an invented Spanish name |
+| `fakeAsset(overrides)` | An `Asset` whose URL is an inline image, so no page fetches a real host |
+| `faker` | The seeded `fakerES` instance itself, for any other value a spec or an e2e data file needs |
+
+They use `fakerES` with a fixed seed and reference date, so every run builds the same values and a
+screenshot baseline stays still. The order of calls decides the values, so adding a call moves every
+value generated after it. Draw other values from the exported `faker` rather than a consumer's own
+import, which is a separate, unseeded instance whenever the two resolve to different copies. Slugs come out the way WordPress writes them. `msw` and `@faker-js/faker`
+are optional peers, like the Nuxt entry's dependencies.
 
 ## ⚠️ Errors
 

@@ -5,6 +5,7 @@ import { OfetchHttpClient } from "#core/adapters/clients/OfetchHttpClient";
 import type { Entry, Term } from "#core/domain/content";
 import { NotFoundError, UpstreamError } from "#core/domain/errors";
 import createProvider from "#core/registry";
+import { fakeEntry } from "./factories";
 import { wordpressHandlers } from "./wordpress";
 
 const BASE_URL = "https://cms.test/blog";
@@ -28,7 +29,9 @@ const POSTS: Entry[] = ["1", "2", "3"].map((id) => ({
 
 const BARE_PAGE: Entry = { id: "7", slug: "about", title: "About", body: { format: "html", value: "<p>About us</p>" }, terms: [], authors: [] };
 
-const server = setupServer(...wordpressHandlers(BASE_URL, { posts: POSTS, pages: [BARE_PAGE], categories: [CIVIL] }));
+const GENERATED = fakeEntry({ slug: "generated" });
+
+const server = setupServer(...wordpressHandlers(BASE_URL, { posts: [...POSTS, GENERATED], pages: [BARE_PAGE], categories: [CIVIL] }));
 
 // The real provider on the real client, so the fake is held to what WordpressProvider parses
 function provider() {
@@ -42,7 +45,11 @@ describe("the fake WordPress", () => {
     it("round-trips every entry field through the provider unchanged", async () => {
         const page = await (await provider()).listEntries("posts", { page: 2, perPage: 2 });
 
-        expect(page).toEqual({ items: [POSTS[2]], page: 2, perPage: 2, total: 3, totalPages: 2 });
+        expect(page).toEqual({ items: [POSTS[2], GENERATED], page: 2, perPage: 2, total: 4, totalPages: 2 });
+    });
+
+    it("round-trips what the factories build, so an app's e2e data is always servable", async () => {
+        await expect((await provider()).getEntry("posts", "generated")).resolves.toEqual(GENERATED);
     });
 
     it("leaves out what an entry doesn't have instead of inventing it", async () => {

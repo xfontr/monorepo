@@ -16,7 +16,10 @@ the whole of what makes a spec fit in.
   somewhere unhelpful.
 - **The spec sits beside its subject**, same basename: `translationsKey.ts` →
   `translationsKey.spec.ts`. There is no `__tests__`, no `__mocks__`, and no fixtures directory
-  anywhere in the workspace. Test data is a `const` at the top of the file it belongs to. The one
+  anywhere in the workspace. Test data is a `const` at the top of the file it belongs to, and a
+  content domain value (`Entry`, `Term`, `Author`, `Asset`) comes from the seeded `fake*` factories
+  in `@monorepo/content/testing`, overriding only the fields the test asserts on. Any other
+  incidental value (a bio, a heading, a paragraph) comes from the same entry's seeded `faker`. The one
   exception is an app's `e2e/`: Playwright specs, the `server.ts` MSW preload and its `fakes.ts` data sit there, since
   they test the built app rather than a file, and screenshot baselines in `e2e/__screenshots__/`.
 
