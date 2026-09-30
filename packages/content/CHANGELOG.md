@@ -1,3 +1,18 @@
+## 0.0.9 (2026-09-30)
+
+### 🚀 Features
+
+- [#192] implement Playwright in Huella Legal ([#192](https://github.com/xfontr/monorepo/issues/192))
+- add SEO ([c78ee57](https://github.com/xfontr/monorepo/commit/c78ee57))
+
+### 🧱 Updated Dependencies
+
+- Updated @monorepo/configs to 0.0.14
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.8 (2026-09-30)
 
 ### 🩹 Fixes

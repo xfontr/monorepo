@@ -1,3 +1,14 @@
+## 0.0.14 (2026-09-30)
+
+### 🚀 Features
+
+- [#192] implement Playwright in Huella Legal ([#192](https://github.com/xfontr/monorepo/issues/192))
+- [#192] expose playwright config ([#192](https://github.com/xfontr/monorepo/issues/192))
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.13 (2026-09-30)
 
 This was a version bump only for @monorepo/configs to align it with other projects, there were no code changes.
