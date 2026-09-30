@@ -18,6 +18,7 @@ const messages = await readFile(new URL("../../../infrastructure/translations/pr
 const config: StorybookConfig = {
     framework: "@storybook/vue3-vite",
     stories: ["../{app,layers/*/app}/**/*.stories.ts"],
+    staticDirs: [{ from: "../public/favicon.ico", to: "/favicon.ico" }],
     core: {
         disableTelemetry: true,
     },
