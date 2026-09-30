@@ -10,11 +10,11 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   the exception: they select a config type, so they stay literals. So are the observability `version`
   and `environment`, which default to `0.0.0` and `development`. New config goes in `.env.example`
   with a row in the README table, and nowhere else.
-- **There is no `app/layers/` directory today.** `app/` holds the whole front end and stays thin: a
-  layout, an entry page, an error page, client plugins, and pages that carry no domain logic of
-  their own. If feature code with real domain logic lands, it goes in a **Nuxt layer** under
-  `app/layers/`, one directory per domain — layers auto-register by being there, so never add an
-  `extends` array, and that is the path `pinia.storesDirs` is already widened for.
+- **Domain logic lives in a Nuxt layer under `layers/`**, one directory per domain, beside `app/`
+  rather than inside it: Nuxt auto-registers only `<rootDir>/layers/*`, so never add an `extends`
+  array. `app/` stays thin, with no domain logic of its own. A layer's view-model types go in
+  `shared/types/`, one per file, and its `server/` maps vendor shapes into them, so an `Entry` never
+  reaches the browser.
 - Typechecking runs on build (`typescript.typeCheck: "build"`), so `pnpm build` is slow and already
   covers what `pnpm typecheck` would.
 - [`tsconfig.json`](./tsconfig.json) only references `./.nuxt/tsconfig.*.json`, which `nuxi

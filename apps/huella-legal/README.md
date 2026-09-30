@@ -21,7 +21,7 @@ pnpm dev                                    # or from this directory
 | `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
 
 Two modules beyond the shared ones are installed here: `@nuxt/fonts`, and `@pinia/nuxt` with
-`pinia.storesDirs` widened to `./app/layers/**/app/stores/**`. That second path is load-bearing — a
+`pinia.storesDirs` widened to `./layers/*/app/stores/**`. That second path is load-bearing — a
 store inside a layer is not picked up without it, and the failure looks like a missing composable
 rather than a missing config.
 
@@ -109,14 +109,16 @@ and the gotchas.
 
 [`app/`](./app) is the whole front end and stays thin: a layout, an error page, two client plugins
 (Faro telemetry, and a dev-only console filter for a known Nuxt/Vue warning), and three pages — an
-entry page and the two [article pages](#-content). Server code is just as thin: one Nitro plugin,
+entry page and the two [article pages](#-content). The app's own server code is one Nitro plugin,
 for telemetry.
 
-There is no `app/layers/` directory. Every page here is the shell's own reading surface and carries
-no domain logic, so splitting them into Nuxt layers would be a directory per feature with nothing in
-it. When feature code with real domain logic does land, it goes in a layer under `app/layers/`, one
-directory per domain — Nuxt auto-registers them by their presence, so there is no `extends` array to
-add and adding one is the mistake. That is the path `pinia.storesDirs` above is already widened for.
+Domain logic lives in Nuxt layers under [`layers/`](./layers), one directory per domain. Nuxt
+auto-registers `<rootDir>/layers/*` by their presence, so there is no `extends` array to add, and
+adding one is the mistake. That is the path `pinia.storesDirs` above is widened for.
+
+| Layer | `shared/types/` | `server/` |
+| --- | --- | --- |
+| [`articles`](./layers/articles) | The view models: `ArticleSummary`, `Author`, `Category` | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time use `entities`, `striptags` and `reading-time`, and stay server-side |
 
 ## 📡 Telemetry
 

@@ -75,7 +75,7 @@ export default defineNuxtConfig({
     },
 
     pinia: {
-        storesDirs: ["./app/stores/**", "./app/layers/**/app/stores/**"],
+        storesDirs: ["./app/stores/**", "./layers/*/app/stores/**"],
     },
 
     nitro: {
