@@ -1,20 +1,20 @@
 export type Kind = "command" | "hook" | "workflow" | "skill";
 
-export type Capability = {
+export interface Capability {
     kind: Kind
     invocation: string
     source: string
     token: string
-};
+}
 
 /** Omit commands already exposed by the root so the map stays focused on project-specific capabilities. */
 export const STANDARD_TARGETS = ["lint", "typecheck", "test", "test:dev", "test:coverage", "build"];
 
-export type ProjectScripts = {
+export interface ProjectScripts {
     root: string
     name: string
     scripts: string[]
-};
+}
 
 export const rootCommands = (scripts: string[]): Capability[] =>
     scripts.map((script) => ({
@@ -83,7 +83,7 @@ const audience = (path: string): number => {
     return 1;
 };
 
-export type Doc = { path: string, text: string };
+export interface Doc { path: string, text: string }
 
 const SKILL_INDEX = "AGENTS.md";
 

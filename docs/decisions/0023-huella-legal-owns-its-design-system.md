@@ -112,7 +112,7 @@ implementations before choosing whether to extract behaviour, tokens, or the who
 | The speculative shared project is gone | `pnpm exec nx show projects | rg '^@monorepo/ui$'` returns no match |
 | Huella owns its UI dependency and theme | `rg -n '@nuxt/ui|main.css' apps/huella-legal/package.json apps/huella-legal/nuxt.config.ts apps/huella-legal/app` finds the module, stylesheet and app config only under the app |
 | No app reaches through the retired package | `rg -n '@monorepo/ui' apps packages --glob '!**/coverage/**'` returns no match |
-| Storybook plumbing for the placeholder is gone | `rg -n 'storybook' .github/workflows/developer-portal-deploy.yml apps/developer-portal/nuxt.config.ts apps/developer-portal/app/pages/projects.vue` returns no match |
+| Storybook plumbing for the placeholder is gone | `rg -n '[/}]storybook' .github/workflows/developer-portal-deploy.yml apps/developer-portal/nuxt.config.ts apps/developer-portal/app/pages/projects.vue` returns no match; Huella's own sits at `huella-legal-storybook` and stays |
 | Generated and written docs agree with the workspace | `pnpm docs:map --check` and the `doc-drift-check` pass report no drift |
 | The affected projects remain healthy | `pnpm exec nx run-many -t lint test typecheck --projects=@monorepo/huella-legal,@monorepo/developer-portal` passes, followed by `pnpm exec nx build @monorepo/huella-legal` |
 

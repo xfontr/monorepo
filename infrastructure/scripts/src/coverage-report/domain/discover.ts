@@ -1,16 +1,16 @@
 import { join } from "node:path";
 import { ExpectedError } from "../../shared/errors.ts";
 
-export type ProjectTarget = {
+export interface ProjectTarget {
     name: string
     root: string
     outputs: string[]
-};
+}
 
-export type ProjectReport = {
+export interface ProjectReport {
     name: string
     coverageFinal: string
-};
+}
 
 const resolveOutput = (name: string, root: string, outputs: string[]): string => {
     const [output] = outputs;

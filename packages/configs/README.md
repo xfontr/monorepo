@@ -142,6 +142,18 @@ Node types even in a package that otherwise doesn't.
 - `no-restricted-imports` under Nuxt `app/` and `server/`, from
   [`lib/layerIsolation.ts`](./src/eslint/lib/layerIsolation.ts) — neither layer may import the
   Node-only `tools/` tree, keeping collection commands out of browser and server bundles
+- `no-restricted-syntax` under `**/*.vue`, from [`lib/propsInterface.ts`](./src/eslint/lib/propsInterface.ts) — Vue
+  configs only. `defineProps` takes a type reference named `Props`, and `Props` is declared with
+  `interface`. No plugin rule covers this; `vue/define-props-declaration` only picks type-based over
+  runtime, and an inline literal satisfies it. Runtime `defineProps({…})` is left alone
+- `vue/no-restricted-syntax` under `**/*.vue`, from [`lib/templateI18n.ts`](./src/eslint/lib/templateI18n.ts) —
+  Vue configs only. A `<template>` translates with the global `$t` (and `$te`, `$tm`, `$rt`, `$d`,
+  `$n`), never the `t` from `useI18n()`, so a template-only component needs no `useI18n()` call.
+  `<script>` is untouched, since `useHead` and friends still need `t`. `$t` reads global messages
+  only, so a component with `useScope: "local"` needs a disable comment
+- `@typescript-eslint/consistent-type-definitions: interface`, in [`node.ts`](./src/eslint/node.ts) and [`vue.ts`](./src/eslint/vue.ts) —
+  a plain object shape is an `interface`, never `type X = { … }`. Unions, intersections and mapped types stay
+  `type`, and `--fix` rewrites the rest
 
 The shared pieces live in [`src/eslint/lib`](./src/eslint/lib) and are composed by
 [`node.ts`](./src/eslint/node.ts) and [`vue.ts`](./src/eslint/vue.ts). If you're adding a rule for

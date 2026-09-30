@@ -81,10 +81,10 @@ Every PR, and every push to `master`, runs [`ci.yml`](../../.github/workflows/ci
 
 | Step | Runs on | Pre-push ran it? |
 | --- | --- | --- |
-| `lint`, `typecheck`, `test` | Affected projects | Yes |
-| `build` | Affected projects | No |
 | `pnpm docs:map --check` | The whole workspace | No — pre-commit did |
 | `pnpm review:version --check` | The whole workspace | No — pre-commit did |
+| `lint`, `typecheck`, `test` | Affected projects | Yes |
+| `build` | Affected projects | No |
 | `actions/dependency-review-action` | The PR's own diff, `warn-only` | No — the local stand-in is `pnpm audit` |
 
 `build` is the asymmetry worth knowing before trusting a green push: `apps/huella-legal` typechecks

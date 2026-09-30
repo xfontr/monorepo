@@ -24,11 +24,11 @@ import {
     staleTargets,
 } from "./domain/generate.ts";
 
-type Output = {
+interface Output {
     target: string
     contents: string | Buffer
     mode: number
-};
+}
 
 const outputs = (): Output[] => [
     ...instructionFiles().map((source) => ({

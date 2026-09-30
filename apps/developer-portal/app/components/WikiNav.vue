@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { WikiGroup, WikiSection } from "#shared/wiki.ts";
 
-const { sections, current = "" } = defineProps<{
+interface Props {
     sections: WikiSection[]
     current?: string
-}>();
+}
+
+const { sections, current = "" } = defineProps<Props>();
 
 function holdsCurrent(group: WikiGroup): boolean {
     return group.entries.some((entry) => entry.path === current);

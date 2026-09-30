@@ -1,17 +1,17 @@
 import { posix } from "node:path";
 
-export type PackageSource = {
+export interface PackageSource {
     directory: string
     files: string[]
     manifest: unknown
     readError?: string
-};
+}
 
-export type PackageReport = {
+export interface PackageReport {
     packageName: string
     errors: string[]
     skipped: string[]
-};
+}
 
 type JsonObject = Record<string, unknown>;
 

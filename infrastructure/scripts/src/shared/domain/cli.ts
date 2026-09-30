@@ -1,29 +1,29 @@
 import { relative } from "node:path";
 import { CancelledError, ExpectedError } from "../errors.ts";
 
-export type Args = {
+export interface Args {
     flags: ReadonlySet<string>
     positionals: string[]
-};
+}
 
-export type ErrorReport = {
+export interface ErrorReport {
     cancelled: boolean
     message: string
-};
+}
 
-type MatchedDispatch<T> = {
+interface MatchedDispatch<T> {
     matched: true
     command: T
     args: {
         flags: ReadonlySet<string>
         positionalsWithoutCommandName: string[]
     }
-};
+}
 
-type UnmatchedDispatch = {
+interface UnmatchedDispatch {
     matched: false
     usage: string
-};
+}
 
 export type Dispatch<T> = MatchedDispatch<T> | UnmatchedDispatch;
 

@@ -7,7 +7,12 @@ export interface FacetGroup {
     limit?: number
 }
 
-defineProps<{ groups: FacetGroup[], idPrefix: string }>();
+interface Props {
+    groups: FacetGroup[]
+    idPrefix: string
+}
+
+defineProps<Props>();
 defineEmits<{ toggle: [key: string, value: string] }>();
 
 const expanded = ref<string[]>([]);

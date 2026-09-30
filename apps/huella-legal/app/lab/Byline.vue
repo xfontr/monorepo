@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import type { LabAuthor } from "./fixtures";
 
-// Separators hang in a clipped negative margin, so a wrapped line never starts with "·"
-withDefaults(defineProps<{
+interface Props {
     authors: LabAuthor[]
     date?: string
     readingMinutes?: number
     avatars?: boolean
-}>(), { avatars: false });
+}
+
+// Separators hang in a clipped negative margin, so a wrapped line never starts with "·"
+withDefaults(defineProps<Props>(), { avatars: false });
 </script>
 
 <template>

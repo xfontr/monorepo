@@ -9,10 +9,10 @@ import type { ProjectTarget } from "../domain/discover.ts";
 const TARGET = "test:coverage";
 const PATH = "/usr/bin:/bin";
 
-type NxProject = {
+interface NxProject {
     root: string
     targets: Record<string, { outputs?: string[] }>
-};
+}
 
 const nx = (args: string[]): Promise<string> =>
     new Promise((resolve, reject) => {

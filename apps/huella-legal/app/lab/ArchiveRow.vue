@@ -4,15 +4,17 @@ import MediaFallback from "./MediaFallback.vue";
 import { formats, seriesEntries, type ArchiveEntry } from "./fixtures-b";
 import { useLabHref } from "./variant";
 
-// Text-only listing row: the kicker names what the page doesn't already say. The title link
-// stretches over the row so a one-line title is still a 44 px target; other links sit above it.
-const props = withDefaults(defineProps<{
+interface Props {
     entry: ArchiveEntry
     showSubject?: boolean
     density?: "default" | "compact"
     // A thumbnail on the right from `sm` up; an entry without an image gets the paper tile
     media?: boolean
-}>(), { showSubject: false, density: "default", media: false });
+}
+
+// Text-only listing row: the kicker names what the page doesn't already say. The title link
+// stretches over the row so a one-line title is still a 44 px target; other links sit above it.
+const props = withDefaults(defineProps<Props>(), { showSubject: false, density: "default", media: false });
 
 const href = useLabHref();
 const format = computed(() => formats.find((item) => item.slug === props.entry.format)!);

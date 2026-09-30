@@ -6,10 +6,10 @@ const SELF = "@monorepo/scripts";
 
 const ROOT_ORDER = ["apps", "infrastructure", "packages"];
 
-export type Runnable = {
+export interface Runnable {
     root: string
     name: string
-};
+}
 
 export type DevProject = Runnable & {
     label: string

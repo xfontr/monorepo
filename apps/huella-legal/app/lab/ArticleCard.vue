@@ -5,15 +5,17 @@ import Kicker from "./Kicker.vue";
 import MediaFallback from "./MediaFallback.vue";
 import { useLabHref } from "./variant";
 
-// One card, five densities. The title is the only link to the article, so category and author
-// links inside the card never nest inside another anchor.
-const props = withDefaults(defineProps<{
+interface Props {
     article: LabArticle
     variant?: "lead" | "standard" | "compact" | "media" | "row"
     showExcerpt?: boolean
     // Lead only: image beside the text from `lg` up instead of above it
     split?: boolean
-}>(), { variant: "standard", showExcerpt: true, split: false });
+}
+
+// One card, five densities. The title is the only link to the article, so category and author
+// links inside the card never nest inside another anchor.
+const props = withDefaults(defineProps<Props>(), { variant: "standard", showExcerpt: true, split: false });
 
 const href = useLabHref();
 const hasMedia = computed(() => props.variant === "media" || props.variant === "row" || (props.variant === "lead" && props.article.media));

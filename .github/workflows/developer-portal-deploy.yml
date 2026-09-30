@@ -52,6 +52,12 @@ jobs:
               env:
                   STORYBOOK_BASE_URL: ${{ steps.pages.outputs.base_path }}/storybook/
 
+            # The script, not a bare `storybook build`, because it runs `nuxi prepare` first.
+            - name: Build Huella Legal Storybook
+              run: pnpm --filter @monorepo/huella-legal run build:storybook --output-dir ../developer-portal/public/huella-legal-storybook
+              env:
+                  STORYBOOK_BASE_URL: ${{ steps.pages.outputs.base_path }}/huella-legal-storybook/
+
             # An Nx cache restore would never hit: the step above re-stamps the snapshot, which this
             # project's `production` input hashes, so every run is a new task hash by construction.
             - name: Prerender the site

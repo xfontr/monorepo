@@ -1,5 +1,10 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ href?: string, tone?: "teal" | "muted" | "paper" }>(), { tone: "teal" });
+interface Props {
+    href?: string
+    tone?: "teal" | "muted" | "paper"
+}
+
+withDefaults(defineProps<Props>(), { tone: "teal" });
 </script>
 
 <template>

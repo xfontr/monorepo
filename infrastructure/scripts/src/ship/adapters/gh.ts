@@ -19,11 +19,11 @@ export const enableAutoMerge = (url: string, method: string): void => {
     gh("pr", "merge", "--auto", `--${method}`, assertNotFlagLike(url, "PR url"));
 };
 
-export type ChecksResult = {
+export interface ChecksResult {
     passed: boolean
     /** `gh`'s per-check table, shown when a check fails. */
     output: string
-};
+}
 
 // ~7 checks across 3 services, each registering on its own schedule after a push
 const CHECK_REGISTRATION_BUDGET_MS = 60_000;

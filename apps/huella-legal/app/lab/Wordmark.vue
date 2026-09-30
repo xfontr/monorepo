@@ -1,5 +1,11 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ size?: "sm" | "md" | "lg", tone?: "ink" | "paper", tagline?: boolean }>(), {
+interface Props {
+    size?: "sm" | "md" | "lg"
+    tone?: "ink" | "paper"
+    tagline?: boolean
+}
+
+withDefaults(defineProps<Props>(), {
     size: "md",
     tone: "ink",
     tagline: false,

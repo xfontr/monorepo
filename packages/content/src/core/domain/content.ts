@@ -20,38 +20,38 @@ export type RichText
     = | { format: "html" | "markdown", value: string }
       | { format: "blocks", value: unknown[] };
 
-export type Asset = {
+export interface Asset {
     id: string
     url: string
     alt: string
     width?: number
     height?: number
-};
+}
 
-export type SEO = {
+export interface SEO {
     title?: string
     description?: string
     noindex?: boolean
-};
+}
 
-export type Author = {
+export interface Author {
     id: string
     slug: string
     name: string
     bio?: string
     avatar?: Asset
-};
+}
 
-export type Term = {
+export interface Term {
     id: string
     resource: TermResource
     slug: string
     name: string
     description?: string
     seo?: SEO
-};
+}
 
-export type Entry = {
+export interface Entry {
     id: string
     slug: string
     title: string
@@ -63,22 +63,22 @@ export type Entry = {
     terms: Term[]
     authors: Author[]
     seo?: SEO
-};
+}
 
-export type Page<T> = {
+export interface Page<T> {
     items: T[]
     page: number
     perPage: number
     total: number
     totalPages: number
-};
+}
 
-export type Query = {
+export interface Query {
     page?: number
     perPage?: number
     slug?: string
     search?: string
-};
+}
 
 export type EntryQuery = Query & {
     term?: { resource: TermResource, id: string }

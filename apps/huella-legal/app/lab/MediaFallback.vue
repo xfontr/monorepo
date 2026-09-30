@@ -1,6 +1,11 @@
 <script setup lang="ts">
+interface Props {
+    label?: string
+    tone?: "paper" | "slate"
+}
+
 // The treatment for an article without an image: a quiet paper tile, never a broken-image icon
-defineProps<{ label?: string, tone?: "paper" | "slate" }>();
+defineProps<Props>();
 </script>
 
 <template>

@@ -29,10 +29,6 @@ jobs:
               with:
                   main-branch-name: master
 
-            - run: pnpm exec nx affected --base="$NX_BASE" --head="$NX_HEAD" -t lint typecheck test build
-              env:
-                  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
-
             # Not an Nx target and deliberately not `affected`: the map indexes every project at
             # once, so "nothing changed here" is never a reason to skip it. Adding a script, hook,
             # workflow or skill without re-rendering fails this step.
@@ -41,6 +37,10 @@ jobs:
             # The four artifacts that decide a review's score carry no version between them, so a
             # change to one moves every future score while the history table reads the old number.
             - run: pnpm review:version --check
+
+            - run: pnpm exec nx affected --base="$NX_BASE" --head="$NX_HEAD" -t lint typecheck test build
+              env:
+                  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
 
     e2e:
         needs: checks

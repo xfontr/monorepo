@@ -1,11 +1,13 @@
 <script setup lang="ts">
-// Review aid, not design: a collapsed badge so screenshots of the page itself stay clean
-withDefaults(defineProps<{
+interface Props {
     label: string
     compare?: string
     changes: string[]
     sources: { element: string, source: string, risk?: boolean }[]
-}>(), { compare: undefined });
+}
+
+// Review aid, not design: a collapsed badge so screenshots of the page itself stay clean
+withDefaults(defineProps<Props>(), { compare: undefined });
 
 const route = useRoute();
 const open = ref(route.query.notas === "1");

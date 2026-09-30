@@ -3,7 +3,7 @@ import tseslint from "typescript-eslint";
 import vue from "eslint-plugin-vue";
 import vueParser from "vue-eslint-parser";
 
-import { stylistic, jsonc, boundaries, vitestConfig, baseIgnores, coreIsolation, layerIsolation, regexp } from "./lib/index.ts";
+import { stylistic, jsonc, boundaries, vitestConfig, baseIgnores, coreIsolation, layerIsolation, propsInterface, templateI18n, regexp } from "./lib/index.ts";
 
 const ignores = {
     ignores: [...baseIgnores, ".nuxt/**", ".output/**"],
@@ -36,6 +36,7 @@ function createBaseVueConfig(typeChecked?: boolean): object[] {
             rules: {
                 "@typescript-eslint/explicit-function-return-type": "off",
                 "@typescript-eslint/no-explicit-any": "error",
+                "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
             },
         },
 
@@ -61,6 +62,7 @@ function createBaseVueConfig(typeChecked?: boolean): object[] {
             rules: {
                 "vue/multi-word-component-names": "off",
                 "vue/html-indent": "off",
+                "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
             },
         },
 
@@ -70,6 +72,8 @@ function createBaseVueConfig(typeChecked?: boolean): object[] {
         boundaries,
         coreIsolation,
         layerIsolation,
+        propsInterface,
+        templateI18n,
         regexp,
     ];
 }

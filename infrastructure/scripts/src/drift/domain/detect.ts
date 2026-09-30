@@ -22,10 +22,10 @@ export const hasRename = (nameStatus: string[]): boolean =>
 // Stable SHA-256 fingerprints suppress repeated warnings without treating this as security.
 export const fingerprint = (diff: string): string => createHash("sha256").update(diff).digest("hex");
 
-export type FingerprintTransition = {
+export interface FingerprintTransition {
     seen: Record<string, string>
     isNew: boolean
-};
+}
 
 export const recordFingerprint = (
     seen: Record<string, string>,
@@ -44,11 +44,11 @@ export const STALE_DOCS_MS = 120 * 24 * 60 * 60 * 1000;
 export const BIG_CHANGE_LINES = 200;
 export const BIG_CHANGE_FILES = 8;
 
-export type ChangeSize = {
+export interface ChangeSize {
     linesChanged: number
     filesChanged: number
     renamed: boolean
-};
+}
 
 /** `undefined` means no markdown file under the project has ever been committed — treated as stale. */
 export const isStale = (lastMdCommitMs: number | undefined, now: number): boolean =>

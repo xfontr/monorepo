@@ -10,7 +10,7 @@ import {
     ATTR_SERVICE_VERSION,
 } from "@opentelemetry/semantic-conventions";
 
-export type NodeTelemetryConfig = {
+export interface NodeTelemetryConfig {
     url: string
     instanceId: string
     token: string
@@ -20,7 +20,7 @@ export type NodeTelemetryConfig = {
         version: string
         environment: string
     }
-};
+}
 
 export function startNodeTelemetry({ url, instanceId, token, app }: NodeTelemetryConfig): NodeTracerProvider {
     const credentials = Buffer.from(`${instanceId}:${token}`).toString("base64");

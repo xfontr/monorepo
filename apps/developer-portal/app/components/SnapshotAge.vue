@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import type { Manifest } from "#shared/types.ts";
 
-const { manifest, artifact = undefined } = defineProps<{ manifest: Manifest | null, artifact?: string }>();
+interface Props {
+    manifest: Manifest | null
+    artifact?: string
+}
+
+const { manifest, artifact = undefined } = defineProps<Props>();
 
 const status = computed(() => (artifact ? manifest?.artifacts[artifact] : undefined));
 

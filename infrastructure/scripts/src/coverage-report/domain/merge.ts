@@ -3,10 +3,10 @@ import type { CoverageMap, CoverageMapData } from "istanbul-lib-coverage";
 import libCoverage from "istanbul-lib-coverage";
 import { ExpectedError } from "../../shared/errors.ts";
 
-export type LoadedReport = {
+export interface LoadedReport {
     name: string
     data: CoverageMapData | undefined // undefined when coverage-final.json wasn't found on disk
-};
+}
 
 export const assertComplete = (reports: LoadedReport[]): void => {
     const missing = reports.filter((report) => report.data === undefined).map((report) => report.name);

@@ -1,14 +1,14 @@
 /** Structural typing keeps the domain independent of the GitHub adapter. */
-export type SearchableIssue = {
+export interface SearchableIssue {
     number: number
     title: string
     labels: string[]
-};
+}
 
-export type SearchableLabel = {
+export interface SearchableLabel {
     name: string
     description: string
-};
+}
 
 const needleOf = (search: string): string => search.trim().toLowerCase();
 
