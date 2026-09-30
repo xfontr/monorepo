@@ -17,7 +17,7 @@ pnpm dev                                    # or from this directory
 | `pnpm preview` | Preview the production build |
 | `pnpm lint` | ESLint — the nuxt flavour, deliberately not type-checked |
 | `pnpm typecheck` | `nuxt typecheck`. Redundant before a build: `typescript.typeCheck: "build"` makes `pnpm build` do the same pass, which is why the build is slow |
-| `pnpm test` | Vitest in two projects, with coverage and its thresholds on every run — see [Testing](#-testing) |
+| `pnpm test` | Vitest in two projects, without coverage. `pnpm test:coverage` adds it and enforces the thresholds — see [Testing](#-testing) |
 | `pnpm test:e2e` | Playwright against the built `.output/`, with the vendors faked by MSW. Run `pnpm build` first; `nx test:e2e` does it for you |
 | `pnpm storybook` | Storybook on port 6007 — see [Storybook](#-storybook) |
 | `pnpm build:storybook` | Static Storybook build (output in `storybook-static/`) |
@@ -239,7 +239,7 @@ wrappers over the shared presets in [`@monorepo/configs`](../../packages/configs
 own the project split, where coverage lives, the widths and the baseline rules. What stays here is
 what only this app knows: the thresholds (lines and statements 90, functions 85, branches 80), and
 `app/lab/**` and `app/pages/**` kept out of the denominator, because the lab never ships and pages
-are Playwright's. `test` always runs with `--coverage`, so the thresholds gate CI and pre-push.
+are Playwright's. `test` runs without coverage, so the thresholds only bite on `pnpm test:coverage`.
 [Decision 0028](../../docs/decisions/0028-huella-legal-e2e-and-visual-tooling.md) has the numbers.
 
 - **Nitro auto-imports don't exist under the node project.** A spec for anything in `server/` stubs
