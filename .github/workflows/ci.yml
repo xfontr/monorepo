@@ -67,7 +67,7 @@ jobs:
               with:
                   main-branch-name: master
 
-            - run: pnpm exec nx affected --base="$NX_BASE" --head="$NX_HEAD" -t e2e
+            - run: pnpm exec nx affected --base="$NX_BASE" --head="$NX_HEAD" -t test:e2e
               env:
                   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
 

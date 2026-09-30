@@ -3,17 +3,18 @@
 A vendor-neutral translations client for locale messages, with a framework-agnostic core and an
 optional Nuxt module that wires the selected TMS into an application.
 
-Two entry points, kept apart by the `exports` map:
+Three entry points, kept apart by the `exports` map:
 
 | Import | Contains | Depends on |
 | --- | --- | --- |
 | `@monorepo/i18n` | domain, ports, adapters, vendor registry | `ofetch`, `ohash` |
 | `@monorepo/i18n/nuxt` | the Nuxt module and its runtime files — see [`src/nuxt/README.md`](./src/nuxt/README.md) | `@nuxt/kit`, `@nuxtjs/i18n`, `h3`, `nitropack` |
+| `@monorepo/i18n/testing` | `tolgeeHandlers(baseURL, translations)`, MSW handlers faking a Tolgee upstream for e2e | `msw` |
 
 A React, Vue or plain Node consumer resolves the first and can never reach the second, so
 nothing framework-specific leaks. That is enforced by module resolution, not discipline.
 
-Everything the second entry point needs is an **optional peer dependency**, so resolving the
+Everything the other two entry points need is an **optional peer dependency**, so resolving the
 first installs none of it. Only `ofetch` and `ohash` are real dependencies — the second because a
 cache key has to survive Nitro stripping it, see [caching](#-framework-agnostic-use). If a non-Nuxt consumer ever
 ships to production, split the Nuxt half into its own package — a package that is a Nuxt

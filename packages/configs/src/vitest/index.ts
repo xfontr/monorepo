@@ -1,5 +1,3 @@
-import createNodeConfig from "./node.ts";
-import createNuxtConfig, { type NuxtConfigOptions } from "./nuxt.ts";
-import createVueConfig from "./vue.ts";
-
-export { createNodeConfig, createNuxtConfig, createVueConfig, type NuxtConfigOptions };
+export { default as createNodeConfig } from "./node.ts";
+export { default as createNuxtConfig, type NuxtConfigOptions } from "./nuxt.ts";
+export { default as createVueConfig } from "./vue.ts";

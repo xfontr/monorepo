@@ -73,6 +73,10 @@ Nuxt auto-registers, and the layers' sources count towards coverage. The options
 - **`@nuxt/test-utils` is resolved from the app, not from here**, so the config half runs the same
   copy the app's specs import from `@nuxt/test-utils/runtime`. The app installs it along with
   `@vue/test-utils` and `happy-dom`.
+- **The test boot builds into `node_modules/.cache/nuxt-vitest`, never the app's `.nuxt`.** Nx
+  loads every `vitest.config.ts` to build its project graph, so this boot runs before any task,
+  including `build`. Booting into `.nuxt` left it half-written, with no `tsconfig.*.json`, and
+  `nuxt build`'s typecheck then failed on the app's `tsconfig.json` references (`TS5083`).
 - **Nuxt boots with `JITI_MODULE_CACHE=0`.** With jiti's module cache on, a TypeScript Nuxt module
   that installs `@nuxtjs/i18n` (as `@monorepo/i18n/nuxt` does) throws Node's
   `ERR_INTERNAL_ASSERTION` as an unhandled rejection. `nuxi` logs it and carries on, but Vitest and

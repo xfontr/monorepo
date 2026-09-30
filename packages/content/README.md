@@ -3,17 +3,18 @@
 A vendor-neutral content client for entries and taxonomies, with a framework-agnostic core and an
 optional Nuxt module that exposes a cached BFF.
 
-Two entry points, kept apart by the `exports` map:
+Three entry points, kept apart by the `exports` map:
 
 | Import | Contains | Depends on |
 | --- | --- | --- |
 | `@monorepo/content` | domain, ports, adapters, vendor registry, cache key | `ofetch`, `ohash` |
 | `@monorepo/content/nuxt` | the Nuxt module and its runtime files — see [`src/nuxt/README.md`](./src/nuxt/README.md) | `@nuxt/kit`, `h3`, `nitropack` |
+| `@monorepo/content/testing` | `faker` (Spanish locale), `fakeAsset`, `fakeAuthor`, `fakeEntry`, `fakeTerm` and `wordpressHandlers(baseURL, content)`, MSW handlers faking a WordPress upstream for e2e | `msw`, `@faker-js/faker` |
 
 A React, Vue or plain Node consumer resolves the first and can never reach the second, so
 nothing framework-specific leaks. That is enforced by module resolution, not discipline.
 
-Everything the second entry point needs is an **optional peer dependency**, so resolving the
+Everything the other two entry points need is an **optional peer dependency**, so resolving the
 first installs none of it. If a non-Nuxt consumer ever ships to production, split the Nuxt half
 into its own package — the optional-peer trick only holds while every consumer lives in this
 workspace.

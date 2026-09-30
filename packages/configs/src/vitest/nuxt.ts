@@ -30,7 +30,15 @@ async function createNuxtConfig({ root, nodeSpecs = [], coverageExclude = [], th
         fileParallelism: false,
         include: ["app/**/*.spec.ts", "layers/*/app/**/*.spec.ts"],
         exclude: nodeSpecs,
-        environmentOptions: { nuxt: { rootDir: root, domEnvironment: "happy-dom" } },
+        environmentOptions: {
+            nuxt: {
+                rootDir: root,
+                domEnvironment: "happy-dom",
+                // Nx loads this config to build its graph, and a boot into `.nuxt` leaves it without
+                // the tsconfigs `nuxt build`'s typecheck reads through the app's tsconfig.json
+                overrides: { buildDir: join(root, "node_modules/.cache/nuxt-vitest") },
+            },
+        },
     });
 
     return defineConfig({

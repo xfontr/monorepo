@@ -99,7 +99,7 @@ drift cost that row names.
 **Order.** Rows 3–4 go first. Two-project config narrows Vitest's `include` to `app`, `server`,
 `shared` and `tools`. Until it lands, `vitest .` collects `e2e/*.spec.ts` and crashes importing
 `@playwright/test`. Row 1 goes before rows 5–6, so adding those files never busts the build cache.
-Rows 8–9 go last, once `pnpm exec nx e2e @monorepo/huella-legal` passes locally with snapshots
+Rows 8–9 go last, once `pnpm exec nx test:e2e @monorepo/huella-legal` passes locally with snapshots
 ignored. A1 does not wait for A2. A2 changes the translations route in `upstream.ts` if it switches
 vendor, and that is its only e2e cost.
 

@@ -17,7 +17,7 @@ apps/
     huella-legal/     @monorepo/huella-legal — Huella Legal, a WIP law blog redesign (Nuxt 4)
     developer-portal/ @monorepo/developer-portal — the repository's public portal/front door over its docs, projects, architecture and engineering health
 packages/
-    configs/          @monorepo/configs — shared ESLint, Vitest and tsconfig presets
+    configs/          @monorepo/configs — shared ESLint, Vitest, Playwright and tsconfig presets
     content/          @monorepo/content — CMS entries and taxonomies + a Nuxt module
     i18n/             @monorepo/i18n — translations core + a Nuxt module
     observability/    @monorepo/observability — Grafana Faro in the browser, OpenTelemetry on the server

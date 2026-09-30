@@ -38,7 +38,7 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm exec nx collect @monorepo/developer-portal` | [`apps/developer-portal/package.json`](../apps/developer-portal/package.json) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
 | `pnpm exec nx preview @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
-| `pnpm exec nx e2e @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
+| `pnpm exec nx test:e2e @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `pnpm exec nx coverage @monorepo/scripts` | [`infrastructure/scripts/package.json`](../infrastructure/scripts/package.json) | [`infrastructure/scripts/README.md`](../infrastructure/scripts/README.md) |
 | `pnpm exec nx serve @monorepo/translations` | [`infrastructure/translations/package.json`](../infrastructure/translations/package.json) | [`infrastructure/translations/README.md`](../infrastructure/translations/README.md) |
 | `pnpm exec nx docker:up @monorepo/translations` | [`infrastructure/translations/package.json`](../infrastructure/translations/package.json) | [`infrastructure/translations/README.md`](../infrastructure/translations/README.md) |
