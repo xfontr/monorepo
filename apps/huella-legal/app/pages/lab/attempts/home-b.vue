@@ -70,7 +70,7 @@ const notes = {
                             aria-hidden="true"
                         >·</span>
                         <a
-                            :href="`/lab/category-b?materia=${lead.subject}`"
+                            :href="`/lab/attempts/category-b?materia=${lead.subject}`"
                             data-inline
                             class="font-medium text-muted underline-offset-4 hover:underline"
                         >{{ lead.category }}</a>
@@ -82,7 +82,7 @@ const notes = {
                     </p>
                     <h1 class="mt-4 max-w-[16ch] font-serif text-[2.625rem] leading-[1.04] tracking-[-0.025em] text-highlighted text-balance md:text-[4rem] lg:text-[4.5rem]">
                         <a
-                            href="/lab/article-b"
+                            href="/lab/attempts/article-b"
                             class="decoration-huella-slate-300 decoration-2 underline-offset-[0.12em] group-hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
                         >{{ lead.title }}</a>
                     </h1>
@@ -118,7 +118,7 @@ const notes = {
                             <span class="flex flex-col gap-1">
                                 <span class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary">{{ formatName(item.format) }}</span>
                                 <a
-                                    href="/lab/article-b"
+                                    href="/lab/attempts/article-b"
                                     class="font-serif text-lg leading-snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                                 >{{ item.title }}</a>
                                 <span class="font-sans text-meta text-muted">{{ item.authors.map((person) => person.name).join(", ") }}</span>
@@ -129,7 +129,7 @@ const notes = {
                         variant="link"
                         label="Todas las publicaciones"
                         trailing-icon="i-lucide-arrow-right"
-                        to="/lab/category-c"
+                        to="/lab/attempts/category-c"
                         class="-ml-3"
                     />
                 </aside>
@@ -147,7 +147,7 @@ const notes = {
                             class="mt-1 font-serif text-h3 text-highlighted"
                         >
                             <a
-                                href="/lab/serie-b"
+                                href="/lab/attempts/serie-b"
                                 class="decoration-huella-slate-300 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                             >{{ series[0]!.name }}</a>
                         </h2>
@@ -162,7 +162,7 @@ const notes = {
                             class="border-t border-(--ui-border-muted) first:border-huella-slate-900 sm:border-huella-slate-900"
                         >
                             <a
-                                href="/lab/article-b"
+                                href="/lab/attempts/article-b"
                                 class="group grid h-full grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-2 py-3 focus-visible:rounded-xs sm:flex sm:flex-col sm:gap-2 sm:pb-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                             >
                                 <span class="font-serif text-2xl leading-none text-huella-teal-600 tabular-nums sm:text-[2rem]">{{ item.series!.position }}</span>
@@ -189,7 +189,7 @@ const notes = {
                         variant="link"
                         :label="`Las ${subjects.length} materias`"
                         trailing-icon="i-lucide-arrow-right"
-                        to="/lab/categorias-b"
+                        to="/lab/attempts/categorias-b"
                         class="-ml-3 self-start sm:-mr-3 sm:ml-0 sm:self-auto"
                     />
                 </div>
@@ -205,7 +205,7 @@ const notes = {
                             class="flex items-baseline justify-between gap-4"
                         >
                             <a
-                                :href="`/lab/category-b?materia=${shelf.subject.slug}`"
+                                :href="`/lab/attempts/category-b?materia=${shelf.subject.slug}`"
                                 class="inline-flex min-h-11 items-center font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary underline-offset-4 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary"
                             >{{ shelf.subject.name }}</a>
                             <span class="font-sans text-meta tabular-nums text-muted">{{ shelf.total }}</span>
@@ -249,7 +249,7 @@ const notes = {
                                 variant="link"
                                 label="Ver los trabajos"
                                 trailing-icon="i-lucide-arrow-right"
-                                to="/lab/category-c?formato=tfg-tfm"
+                                to="/lab/attempts/category-c?formato=tfg-tfm"
                                 class="text-ivory-50 hover:text-ivory-50"
                             />
                             <UButton
@@ -270,7 +270,7 @@ const notes = {
                                 {{ item.category }}
                             </p>
                             <a
-                                href="/lab/article-b"
+                                href="/lab/attempts/article-b"
                                 class="mt-2 block font-serif text-lg leading-snug text-ivory-50 decoration-huella-slate-500 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ivory-50"
                             >{{ item.title }}</a>
                             <p class="mt-2 font-sans text-meta text-huella-slate-300">

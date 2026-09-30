@@ -39,16 +39,17 @@ const pairs = [
 ];
 
 const typeScale = [
-    { token: "display", spec: "Georgia 52/1.08", sample: "Derecho riguroso, escrito para ser leído", cls: "font-serif text-[2.25rem] leading-[1.12] md:text-display text-highlighted" },
-    { token: "h1", spec: "Georgia 40/1.15", sample: "La teoría jurídica del delito", cls: "font-serif text-[2rem] leading-[1.18] md:text-h1 text-highlighted" },
+    { token: "display", spec: "Georgia 52/1.08", sample: "Derecho riguroso, escrito para ser leído", cls: "font-serif text-[2.25rem] leading-[1.12] md:text-display md:leading-(--text-display--line-height) text-highlighted" },
+    { token: "title", spec: "Georgia 42/1.06, 56 desde md", sample: "Publicaciones", cls: "font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] md:text-[3.5rem] text-highlighted" },
+    { token: "h1", spec: "Georgia 40/1.15", sample: "La teoría jurídica del delito", cls: "font-serif text-[2rem] leading-[1.18] md:text-h1 md:leading-(--text-h1--line-height) text-highlighted" },
     { token: "h2", spec: "Georgia 30/1.25", sample: "Tipicidad, antijuridicidad y culpabilidad", cls: "font-serif text-h2 text-highlighted" },
     { token: "h3", spec: "Georgia 24/1.3", sample: "El error de prohibición invencible", cls: "font-serif text-h3 text-highlighted" },
     { token: "reading", spec: "Georgia 18/1.7", sample: "El delito se define como una acción típica, antijurídica y culpable. Cada una de estas categorías funciona como un filtro sucesivo.", cls: "font-serif text-reading max-w-measure" },
     { token: "quote", spec: "Georgia italic 24/1.45", sample: "«No hay pena sin culpabilidad» es algo más que un aforismo.", cls: "font-serif italic text-quote text-highlighted" },
     { token: "citation", spec: "Georgia 15/1.55", sample: stress.citation, cls: "font-serif text-citation text-toned" },
     { token: "label", spec: "Montserrat 600 14", sample: "Suscribirme al boletín", cls: "font-sans text-sm font-semibold text-highlighted" },
-    { token: "meta", spec: "Montserrat 500 13", sample: "Xifré Font · 12 de marzo de 2024 · 24 min de lectura", cls: "font-sans text-meta font-medium text-muted" },
-    { token: "kicker", spec: "Montserrat 600 12 · versalitas", sample: "Derecho penal", cls: "font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary" },
+    { token: "meta", spec: "Montserrat 400 13", sample: "Xifré Font · 12 de marzo de 2024 · 24 min de lectura", cls: "font-sans text-meta text-muted" },
+    { token: "kicker", spec: "Montserrat 600 12 · mayúsculas, 0.12em", sample: "Derecho penal", cls: "font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary" },
 ];
 
 const email = ref("lucia.martin@");
@@ -57,7 +58,9 @@ const labPages = [
     { label: "Portada", to: "/lab/home" },
     { label: "Portada · menú móvil abierto", to: "/lab/home?menu=1" },
     { label: "Artículo", to: "/lab/article" },
-    { label: "Materia", to: "/lab/category" },
+    { label: "Artículo · sin notas ni imagen", to: "/lab/article?sin-notas=1&sin-imagen=1" },
+    { label: "Publicaciones", to: "/lab/publicaciones" },
+    { label: "Materia", to: "/lab/publicaciones?materia=derecho-penal" },
     { label: "Ficha de colaborador", to: "/lab/category?autor=1" },
     { label: "Materias", to: "/lab/categorias" },
     { label: "Colaboradores", to: "/lab/colaboradores" },
@@ -66,13 +69,17 @@ const labPages = [
     { label: "Estados", to: "/lab/estados" },
 ];
 
-const variantPages = [
-    { label: "Portada B", to: "/lab/home-b" },
-    { label: "Materia B", to: "/lab/category-b" },
-    { label: "Archivo C", to: "/lab/category-c" },
-    { label: "Materias B", to: "/lab/categorias-b" },
-    { label: "Artículo B", to: "/lab/article-b" },
-    { label: "Serie B", to: "/lab/serie-b" },
+const attemptPages = [
+    { label: "Portada A", to: "/lab/attempts/home-a" },
+    { label: "Artículo A", to: "/lab/attempts/article-a" },
+    { label: "Materia A", to: "/lab/category" },
+    { label: "Materias A", to: "/lab/attempts/categorias-a" },
+    { label: "Portada B", to: "/lab/attempts/home-b" },
+    { label: "Materia B", to: "/lab/attempts/category-b" },
+    { label: "Archivo C", to: "/lab/attempts/category-c" },
+    { label: "Materias B", to: "/lab/attempts/categorias-b" },
+    { label: "Artículo B", to: "/lab/attempts/article-b" },
+    { label: "Serie B", to: "/lab/attempts/serie-b" },
 ];
 </script>
 
@@ -110,11 +117,11 @@ const variantPages = [
                 </li>
             </ul>
             <p class="mt-5 font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                Variantes en estudio
+                Intentos anteriores
             </p>
             <ul class="mt-2 flex flex-wrap gap-2">
                 <li
-                    v-for="page in variantPages"
+                    v-for="page in attemptPages"
                     :key="page.to"
                 >
                     <a
@@ -126,7 +133,7 @@ const variantPages = [
         </nav>
 
         <!-- Colour -->
-        <section class="grid gap-10 border-b border-default py-14 lg:grid-cols-[14rem_1fr]">
+        <section class="grid gap-12 border-b border-default py-16 lg:grid-cols-[14rem_1fr] lg:py-20">
             <div>
                 <Kicker>01</Kicker>
                 <h2 class="mt-2 font-serif text-h2 text-highlighted">
@@ -182,7 +189,7 @@ const variantPages = [
         </section>
 
         <!-- Type -->
-        <section class="grid gap-10 border-b border-default py-14 lg:grid-cols-[14rem_1fr]">
+        <section class="grid gap-12 border-b border-default py-16 lg:grid-cols-[14rem_1fr] lg:py-20">
             <div>
                 <Kicker>02</Kicker>
                 <h2 class="mt-2 font-serif text-h2 text-highlighted">
@@ -211,14 +218,14 @@ const variantPages = [
         </section>
 
         <!-- Reading -->
-        <section class="grid gap-10 border-b border-default py-14 lg:grid-cols-[14rem_1fr]">
+        <section class="grid gap-12 border-b border-default py-16 lg:grid-cols-[14rem_1fr] lg:py-20">
             <div>
                 <Kicker>03</Kicker>
                 <h2 class="mt-2 font-serif text-h2 text-highlighted">
                     Lectura
                 </h2>
                 <p class="mt-3 font-serif text-base leading-relaxed text-toned">
-                    Columna de 680 px: unos 70 caracteres por línea. Enlaces subrayados, notas al pie numeradas y citas legales en cuerpo menor.
+                    Columna de 680&nbsp;px: unos 70 caracteres por línea. Enlaces subrayados, notas al pie numeradas y citas legales en cuerpo menor.
                 </p>
             </div>
 
@@ -265,14 +272,14 @@ const variantPages = [
         </section>
 
         <!-- Controls -->
-        <section class="grid gap-10 border-b border-default py-14 lg:grid-cols-[14rem_1fr]">
+        <section class="grid gap-12 border-b border-default py-16 lg:grid-cols-[14rem_1fr] lg:py-20">
             <div>
                 <Kicker>04</Kicker>
                 <h2 class="mt-2 font-serif text-h2 text-highlighted">
                     Controles
                 </h2>
                 <p class="mt-3 font-serif text-base leading-relaxed text-toned">
-                    Componentes de Nuxt UI con los tokens de Huella. Todo objetivo táctil mide al menos 44 px; el foco de teclado es un anillo de 2 px separado 2 px.
+                    Componentes de Nuxt UI con los tokens de Huella. Todo objetivo táctil mide al menos 44&nbsp;px; el foco de teclado es un anillo de 2&nbsp;px separado 2&nbsp;px.
                 </p>
             </div>
 
@@ -423,7 +430,7 @@ const variantPages = [
         </section>
 
         <!-- Cards -->
-        <section class="grid gap-10 py-14 lg:grid-cols-[14rem_1fr]">
+        <section class="grid gap-12 py-16 lg:grid-cols-[14rem_1fr] lg:py-20">
             <div>
                 <Kicker>05</Kicker>
                 <h2 class="mt-2 font-serif text-h2 text-highlighted">

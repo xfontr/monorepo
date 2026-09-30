@@ -124,9 +124,9 @@ export const tagIndex = [...tags.map(([name]) => name), "Culpabilidad", "Código
     .sort((a, b) => a.localeCompare(b, "es"));
 
 export const navB = [
-    { label: "Publicaciones", to: "/lab/category-c" },
-    { label: "Materias", to: "/lab/categorias-b" },
-    { label: "Series", to: "/lab/serie-b" },
+    { label: "Publicaciones", to: "/lab/attempts/category-c" },
+    { label: "Materias", to: "/lab/attempts/categorias-b" },
+    { label: "Series", to: "/lab/attempts/serie-b" },
     { label: "Colaboradores", to: "/lab/colaboradores" },
     { label: "Publicar", to: "/lab/publicar" },
 ];

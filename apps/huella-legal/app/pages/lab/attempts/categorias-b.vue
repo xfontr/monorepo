@@ -54,7 +54,7 @@ const notes = {
             <section class="border-b border-default">
                 <div class="mx-auto max-w-site px-4 pt-6 pb-10 md:px-8 md:pt-10 lg:px-12 lg:pb-12">
                     <UBreadcrumb
-                        :items="[{ label: 'Portada', to: '/lab/home-b' }, { label: 'Materias' }]"
+                        :items="[{ label: 'Portada', to: '/lab/attempts/home-b' }, { label: 'Materias' }]"
                         :ui="{ link: 'font-sans text-meta min-h-11 inline-flex items-center', separatorIcon: 'size-4' }"
                     />
                     <Kicker class="mt-6 md:mt-8">
@@ -101,7 +101,7 @@ const notes = {
                             <span class="font-medium text-muted">{{ publications(count((entry) => entry.subject === item.slug)) }}</span>
                         </span>
                         <a
-                            :href="`/lab/category-b?materia=${item.slug}`"
+                            :href="`/lab/attempts/category-b?materia=${item.slug}`"
                             class="font-serif text-h3 text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
                         >{{ item.name }}</a>
                         <p class="font-serif text-base leading-relaxed text-toned">
@@ -114,7 +114,7 @@ const notes = {
                                 class="border-b border-(--ui-border-muted)"
                             >
                                 <a
-                                    :href="`/lab/category-b?materia=${item.slug}&subtema=${encodeURIComponent(name)}`"
+                                    :href="`/lab/attempts/category-b?materia=${item.slug}&subtema=${encodeURIComponent(name)}`"
                                     class="group flex min-h-11 items-center justify-between gap-3 py-1 font-sans text-sm font-medium text-toned focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary"
                                 >
                                     <span class="decoration-huella-slate-300 underline-offset-4 group-hover:text-highlighted group-hover:underline">{{ name }}</span>
@@ -145,7 +145,7 @@ const notes = {
                             :class="item.slug === 'tfg-tfm' && 'bg-huella-slate-900!'"
                         >
                             <a
-                                :href="`/lab/category-c?formato=${item.slug}`"
+                                :href="`/lab/attempts/category-c?formato=${item.slug}`"
                                 class="group flex h-full flex-col gap-2 p-5 transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary md:p-6"
                                 :class="item.slug === 'tfg-tfm' ? 'hover:bg-huella-slate-800' : 'hover:bg-ivory-100'"
                             >
@@ -180,7 +180,7 @@ const notes = {
                     <a
                         v-for="item in series"
                         :key="item.slug"
-                        href="/lab/serie-b"
+                        href="/lab/attempts/serie-b"
                         class="mt-4 block font-serif text-h2 text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
                     >{{ item.name }}</a>
                     <p class="mt-3 font-serif text-base leading-relaxed text-toned">
@@ -194,7 +194,7 @@ const notes = {
                         class="border-b border-(--ui-border-muted)"
                     >
                         <a
-                            href="/lab/article-b"
+                            href="/lab/attempts/article-b"
                             class="group grid min-h-14 grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-2 py-3 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary"
                         >
                             <span class="font-serif text-2xl leading-none text-huella-teal-600 tabular-nums">{{ entry.series!.position }}</span>
@@ -242,7 +242,7 @@ const notes = {
                                     :key="name"
                                 >
                                     <a
-                                        href="/lab/category-c"
+                                        href="/lab/attempts/category-c"
                                         class="group flex min-h-11 items-center justify-between gap-3 font-serif text-base text-highlighted focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary"
                                     >
                                         <span class="decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline">{{ name }}</span>

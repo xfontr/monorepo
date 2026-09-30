@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<{
 
 const href = useLabHref();
 const hasMedia = computed(() => props.variant === "media" || props.variant === "row" || (props.variant === "lead" && props.article.media));
-const gap = computed(() => ({ lead: "gap-5", standard: "gap-3", media: "gap-3", row: "gap-3", compact: "gap-2" })[props.variant]);
+const gap = computed(() => ({ lead: "gap-5", standard: "gap-3", media: "gap-3", row: "gap-2", compact: "gap-2" })[props.variant]);
 </script>
 
 <template>
@@ -26,7 +26,7 @@ const gap = computed(() => ({ lead: "gap-5", standard: "gap-3", media: "gap-3", 
         :class="[
             gap,
             split && 'lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-12',
-            variant === 'row' && 'sm:grid sm:grid-cols-[1fr_9rem] sm:items-start sm:gap-x-6 md:grid-cols-[1fr_13rem] md:gap-x-10',
+            variant === 'row' && 'sm:grid sm:grid-cols-[1fr_9rem] sm:items-start sm:gap-x-6 md:grid-cols-[1fr_11rem] md:gap-x-8',
         ]"
     >
         <div
@@ -47,8 +47,8 @@ const gap = computed(() => ({ lead: "gap-5", standard: "gap-3", media: "gap-3", 
             class="flex min-w-0 flex-col"
             :class="[gap, split && 'lg:col-span-5']"
         >
-            <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <Kicker :href="href('/lab/category')">
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 [&_a]:relative [&_a]:z-10">
+                <Kicker :href="href('/lab/publicaciones')">
                     {{ article.category }}
                 </Kicker>
                 <span
@@ -69,14 +69,14 @@ const gap = computed(() => ({ lead: "gap-5", standard: "gap-3", media: "gap-3", 
             >
                 <a
                     :href="href('/lab/article')"
-                    class="decoration-huella-slate-300 decoration-1 underline-offset-[0.2em] group-hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                    class="decoration-huella-slate-300 decoration-1 underline-offset-[0.2em] after:absolute after:inset-0 group-hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
                 >{{ article.title }}</a>
             </h3>
 
             <p
                 v-if="showExcerpt && article.excerpt && variant !== 'compact'"
-                class="font-serif text-toned"
-                :class="variant === 'lead' ? 'text-reading max-w-measure' : 'text-base leading-relaxed line-clamp-3'"
+                class="font-serif text-toned text-pretty"
+                :class="({ lead: 'text-reading max-w-measure', row: 'max-w-measure text-base leading-relaxed line-clamp-2' } as Partial<Record<typeof variant, string>>)[variant] ?? 'text-base leading-relaxed line-clamp-3'"
             >
                 {{ article.excerpt }}
             </p>
@@ -86,6 +86,7 @@ const gap = computed(() => ({ lead: "gap-5", standard: "gap-3", media: "gap-3", 
                 :date="article.date"
                 :reading-minutes="variant === 'compact' ? undefined : article.readingMinutes"
                 :class="variant === 'lead' ? 'mt-1' : ''"
+            class="[&_a]:relative [&_a]:z-10"
             />
         </div>
     </article>

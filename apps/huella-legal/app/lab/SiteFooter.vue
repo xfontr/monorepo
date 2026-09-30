@@ -23,7 +23,7 @@ const social = [
                     tone="paper"
                     tagline
                 />
-                <p class="max-w-xs font-serif text-base leading-relaxed text-huella-slate-200">
+                <p class="max-w-xs font-serif text-base leading-relaxed text-huella-slate-200 text-balance">
                     Divulgación jurídica rigurosa y de acceso libre, escrita por profesionales, docentes y estudiantes de todo el ámbito hispanohablante.
                 </p>
             </div>
