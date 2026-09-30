@@ -39,3 +39,5 @@ allowBuilds:
   esbuild: false
   nx: false
   vue-demi: false
+minimumReleaseAgeExclude:
+  - msw@3.0.1

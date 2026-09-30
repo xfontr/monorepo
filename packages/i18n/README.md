@@ -3,17 +3,18 @@
 A vendor-neutral translations client for locale messages, with a framework-agnostic core and an
 optional Nuxt module that wires the selected TMS into an application.
 
-Two entry points, kept apart by the `exports` map:
+Three entry points, kept apart by the `exports` map:
 
 | Import | Contains | Depends on |
 | --- | --- | --- |
 | `@monorepo/i18n` | domain, ports, adapters, vendor registry | `ofetch`, `ohash` |
 | `@monorepo/i18n/nuxt` | the Nuxt module and its runtime files — see [`src/nuxt/README.md`](./src/nuxt/README.md) | `@nuxt/kit`, `@nuxtjs/i18n`, `h3`, `nitropack` |
+| `@monorepo/i18n/testing` | `tolgeeHandlers(baseURL, translations)`, MSW handlers faking a Tolgee upstream for e2e | `msw` |
 
 A React, Vue or plain Node consumer resolves the first and can never reach the second, so
 nothing framework-specific leaks. That is enforced by module resolution, not discipline.
 
-Everything the second entry point needs is an **optional peer dependency**, so resolving the
+Everything the other two entry points need is an **optional peer dependency**, so resolving the
 first installs none of it. Only `ofetch` and `ohash` are real dependencies — the second because a
 cache key has to survive Nitro stripping it, see [caching](#-framework-agnostic-use). If a non-Nuxt consumer ever
 ships to production, split the Nuxt half into its own package — a package that is a Nuxt
@@ -41,7 +42,8 @@ src/
 │   │       └── TolgeeProvider.ts             # the `tolgee` vendor
 │   ├── translationsKey.ts                    # which upstream document a request resolves to
 │   └── registry.ts                           # vendor name → provider, and the config type
-└── nuxt/                                     # the Nuxt module (separate entry point)
+├── nuxt/                                     # the Nuxt module (separate entry point)
+└── testing/                                  # fake vendors for consumers' e2e (separate entry point)
 ```
 
 Nothing under `core/` imports the Nuxt or Nitro runtime — lint enforces the [list in
@@ -180,6 +182,25 @@ cache key here can't carry anything else.
 identity — two tokens for the same project fetch the same document, so they should share an entry,
 and a secret has no business in a cache storage path. A future vendor whose options genuinely pick
 the document (a branch, an export profile) belongs on `Vendor`, not in `options`.
+
+## 🧪 Fake vendors
+
+`@monorepo/i18n/testing` exports MSW handlers that answer like a vendor, for a consumer's e2e run.
+The consumer passes each locale's `TranslationMap`, and the handlers wrap it the way the vendor does:
+
+```ts
+import { tolgeeHandlers } from "@monorepo/i18n/testing";
+
+setupServer(...tolgeeHandlers(baseURL, { "es-ES": messages })).listen();
+```
+
+| Export | Serves | Contract it keeps |
+| --- | --- | --- |
+| `tolgeeHandlers(baseURL, translations)` | `GET <baseURL>/v2/projects/:project/translations/:locale` | The map nested under its locale, and a `404` for a locale it wasn't given |
+
+[`tolgee.spec.ts`](./src/testing/tolgee.spec.ts) runs the real `TolgeeProvider` against the
+handlers. `msw` is an optional peer, like the Nuxt entry's dependencies. There's no fake for the
+`internal` vendor: an app on it can run the real TMS from `infrastructure/translations`.
 
 ## ⚠️ Errors
 

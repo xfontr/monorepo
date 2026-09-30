@@ -10,15 +10,28 @@
         "lint": "nx eslint:lint",
         "nuxt-prepare": "nuxi prepare",
         "typecheck": "nuxt typecheck",
-        "test": "vitest . --watch=false",
+        "test": "vitest . --watch=false --coverage",
         "test:dev": "vitest .",
-        "test:coverage": "vitest . --watch=false --coverage"
+        "test:coverage": "vitest . --watch=false --coverage",
+        "test:e2e": "playwright test"
     },
     "nx": {
         "tags": [
             "type:app",
             "scope:huella-legal"
-        ]
+        ],
+        "targets": {
+            "test:e2e": {
+                "inputs": [
+                    "default",
+                    "^production",
+                    "{workspaceRoot}/infrastructure/translations/projects/huella-legal/*.json",
+                    {
+                        "env": "CI"
+                    }
+                ]
+            }
+        }
     },
     "dependencies": {
         "@monorepo/content": "workspace:*",
@@ -40,9 +53,17 @@
         "tailwindcss": "^4.3.3"
     },
     "devDependencies": {
+        "@axe-core/playwright": "^4.13.0",
+        "@faker-js/faker": "^10.6.0",
         "@monorepo/configs": "workspace:*",
+        "@nuxt/test-utils": "^4.3.2",
+        "@playwright/test": "1.63.0",
+        "@types/node": "catalog:",
         "@vitest/coverage-v8": "catalog:",
+        "@vue/test-utils": "^2.4.11",
         "eslint": "catalog:",
+        "happy-dom": "^20.10.6",
+        "msw": "^3.0.1",
         "typescript": "catalog:",
         "vitest": "catalog:",
         "vue-tsc": "catalog:"

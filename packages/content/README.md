@@ -3,17 +3,18 @@
 A vendor-neutral content client for entries and taxonomies, with a framework-agnostic core and an
 optional Nuxt module that exposes a cached BFF.
 
-Two entry points, kept apart by the `exports` map:
+Three entry points, kept apart by the `exports` map:
 
 | Import | Contains | Depends on |
 | --- | --- | --- |
 | `@monorepo/content` | domain, ports, adapters, vendor registry, cache key | `ofetch`, `ohash` |
 | `@monorepo/content/nuxt` | the Nuxt module and its runtime files — see [`src/nuxt/README.md`](./src/nuxt/README.md) | `@nuxt/kit`, `h3`, `nitropack` |
+| `@monorepo/content/testing` | `faker` (Spanish locale), `fakeAsset`, `fakeAuthor`, `fakeEntry`, `fakeTerm` and `wordpressHandlers(baseURL, content)`, MSW handlers faking a WordPress upstream for e2e | `msw`, `@faker-js/faker` |
 
 A React, Vue or plain Node consumer resolves the first and can never reach the second, so
 nothing framework-specific leaks. That is enforced by module resolution, not discipline.
 
-Everything the second entry point needs is an **optional peer dependency**, so resolving the
+Everything the other two entry points need is an **optional peer dependency**, so resolving the
 first installs none of it. If a non-Nuxt consumer ever ships to production, split the Nuxt half
 into its own package — the optional-peer trick only holds while every consumer lives in this
 workspace.
@@ -41,7 +42,8 @@ src/
 │   │           └── WordpressTypes.ts         # the WP REST shapes, and the config type
 │   ├── contentKey.ts                         # which upstream document a request resolves to
 │   └── registry.ts                           # vendor name → provider, and the config type
-└── nuxt/                                     # the Nuxt module (separate entry point)
+├── nuxt/                                     # the Nuxt module (separate entry point)
+└── testing/                                  # fake vendors for consumers' e2e (separate entry point)
 ```
 
 Nothing under `core/` imports the Nuxt or Nitro runtime — lint enforces the [list in
@@ -230,6 +232,48 @@ The ceilings in the domain — `MAX_PAGE`, `MAX_PER_PAGE`, `MAX_SEARCH_LENGTH` �
 limits, distinct from any vendor's own. They exist so a public route's key space is finite and a
 crafted query cannot mint an unbounded number of cache entries. Apply them before you build a
 key, not after.
+
+## 🧪 Fake vendors
+
+`@monorepo/content/testing` exports MSW handlers that answer like a vendor, for a consumer's e2e
+run. The consumer brings domain values and the handlers speak the wire format, so a vendor's shapes
+still never leave this package:
+
+```ts
+import { wordpressHandlers } from "@monorepo/content/testing";
+
+setupServer(...wordpressHandlers(baseURL, { posts: entries, categories: terms })).listen();
+```
+
+| Export | Serves | Contract it keeps |
+| --- | --- | --- |
+| `wordpressHandlers(baseURL, content)` | `GET <baseURL>/wp-json/wp/v2/:resource` for each resource given | `?slug=`, `page` and `per_page`, `x-wp-total`/`x-wp-totalpages`, a `400` for a page past the end, a `404` for a resource with no content |
+
+[`wordpress.spec.ts`](./src/testing/wordpress.spec.ts) runs the real `WordpressProvider` on the
+real client against the handlers, and asserts every `Entry` field comes back unchanged, so a fake
+that drifts from the provider fails here rather than in someone's e2e. Search and term filters
+aren't faked: nothing consumes them yet.
+
+The same entry exports seeded `@faker-js/faker` factories for the domain types, so a spec
+states only the fields it asserts on and the rest is filled in:
+
+```ts
+const entry = fakeEntry({ title: "La &#8220;prueba&#8221;", terms: [fakeTerm({ slug: "derecho-penal" })] });
+```
+
+| Export | Builds |
+| --- | --- |
+| `fakeEntry(overrides)` | An `Entry` with a category, an invented Spanish author and four paragraphs |
+| `fakeTerm(overrides)` | A category `Term`; pass `resource: "tags"` for a tag |
+| `fakeAuthor(overrides)` | An `Author` with an invented Spanish name |
+| `fakeAsset(overrides)` | An `Asset` whose URL is an inline image, so no page fetches a real host |
+| `faker` | The seeded `fakerES` instance itself, for any other value a spec or an e2e data file needs |
+
+They use `fakerES` with a fixed seed and reference date, so every run builds the same values and a
+screenshot baseline stays still. The order of calls decides the values, so adding a call moves every
+value generated after it. Draw other values from the exported `faker` rather than a consumer's own
+import, which is a separate, unseeded instance whenever the two resolve to different copies. Slugs come out the way WordPress writes them. `msw` and `@faker-js/faker`
+are optional peers, like the Nuxt entry's dependencies.
 
 ## ⚠️ Errors
 

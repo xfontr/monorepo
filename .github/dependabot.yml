@@ -35,6 +35,10 @@ updates:
               patterns:
                   - "vitest"
                   - "@vitest/coverage-*"
+          # CI's Playwright image tag has to move in the same PR, or e2e can't find its browsers.
+          playwright:
+              patterns:
+                  - "@playwright/test"
           # Everything else that's a non-breaking bump batches into one PR instead of one per package.
           dependencies:
               patterns:

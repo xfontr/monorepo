@@ -17,7 +17,7 @@ apps/
     huella-legal/     @monorepo/huella-legal — Huella Legal, a WIP law blog redesign (Nuxt 4)
     developer-portal/ @monorepo/developer-portal — the repository's public portal/front door over its docs, projects, architecture and engineering health
 packages/
-    configs/          @monorepo/configs — shared ESLint, Vitest and tsconfig presets
+    configs/          @monorepo/configs — shared ESLint, Vitest, Playwright and tsconfig presets
     content/          @monorepo/content — CMS entries and taxonomies + a Nuxt module
     i18n/             @monorepo/i18n — translations core + a Nuxt module
     observability/    @monorepo/observability — Grafana Faro in the browser, OpenTelemetry on the server
@@ -78,10 +78,10 @@ are reserved for upcoming packages; no project uses them yet. The constraints li
   each `package.json` `nx` block.
 - **Raw source packages** — internal packages export TypeScript/Vue source directly (no build step).
   Consumers (Nuxt/Vite) compile them.
-- **Centralized configs** — a project's `eslint.config.ts` / `vitest.config.ts` / `tsconfig.json` is
-  a thin wrapper around a factory or preset from
-  [`@monorepo/configs`](./packages/configs/README.md). ESLint is the only one of the three that
-  reaches every project; that README says where the other two don't.
+- **Centralized configs** — a project's `eslint.config.ts` / `vitest.config.ts` / `tsconfig.json`,
+  and `playwright.config.ts` where it has e2e, is a thin wrapper around a factory or preset from
+  [`@monorepo/configs`](./packages/configs/README.md). ESLint is the only one that reaches every
+  project; that README says where the others don't.
 
 ## 🚀 Getting started
 
