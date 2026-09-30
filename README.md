@@ -6,7 +6,6 @@
 [![Developer Portal deploy](https://github.com/xfontr/monorepo/actions/workflows/developer-portal-deploy.yml/badge.svg)](https://github.com/xfontr/monorepo/actions/workflows/developer-portal-deploy.yml)
 [![Release](https://github.com/xfontr/monorepo/actions/workflows/release.yml/badge.svg)](https://github.com/xfontr/monorepo/actions/workflows/release.yml)
 [![Netlify deployment](https://github.com/xfontr/monorepo/actions/workflows/netlify-deployment.yml/badge.svg)](https://github.com/xfontr/monorepo/actions/workflows/netlify-deployment.yml)
-[![Known Vulnerabilities](https://snyk.io/test/github/xfontr/monorepo/badge.svg)](https://snyk.io/test/github/xfontr/monorepo)
 
 A pnpm + Nx monorepo hosting personal projects: Nuxt frontend(s), the shared packages they build
 on, and the supporting services they depend on.
