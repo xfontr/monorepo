@@ -71,7 +71,7 @@
         "@vitest/coverage-v8": "catalog:",
         "@vue/test-utils": "^2.4.11",
         "eslint": "catalog:",
-        "fontless": "^0.2.1",
+        "fontless": "^1.2.1",
         "happy-dom": "^20.10.6",
         "msw": "^3.0.1",
         "storybook": "^10.6.0",
