@@ -6,8 +6,8 @@ import Byline from "./Byline.vue";
 const global = { mocks: { $t: (key: string, params: Record<string, unknown>) => `t(${key}, ${JSON.stringify(params)})` } };
 
 const ANA = { ...fakeAuthor({ name: "Ana de la Torre" }), to: "/autores/ana" };
-const LUIS = fakeAuthor({ name: "Luis Martín" });
-const MARTA = fakeAuthor({ name: "Marta Gil" });
+const LUIS = { ...fakeAuthor({ name: "Luis Martín" }), to: "/autores/luis" };
+const MARTA = { ...fakeAuthor({ name: "Marta Gil" }), to: "/autores/marta" };
 
 describe("byline", () => {
     it("joins names the Spanish way, with commas and a final \"y\"", async () => {
@@ -16,13 +16,12 @@ describe("byline", () => {
         expect(wrapper.find("li").text()).toBe("Ana de la Torre, Luis Martín y Marta Gil");
     });
 
-    it("links only the authors that have a profile to link to", async () => {
+    it("links each name to its own author's profile, not the separators", async () => {
         const wrapper = await mountSuspended(Byline, { props: { authors: [ANA, LUIS] }, global });
 
-        const links = wrapper.findAll("a");
+        const links = wrapper.findAll("a").map((link) => [link.text(), link.attributes("href")]);
 
-        expect(links.map((link) => link.text())).toEqual(["Ana de la Torre"]);
-        expect(links[0]?.attributes("href")).toBe("/autores/ana");
+        expect(links).toEqual([["Ana de la Torre", "/autores/ana"], ["Luis Martín", "/autores/luis"]]);
     });
 
     it("prints the date in Madrid, so a late-night post never shows the day before", async () => {

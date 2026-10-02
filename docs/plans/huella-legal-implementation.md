@@ -32,14 +32,15 @@ that files or merges an item.
 
 ## 🧱 Layers
 
-Per [ADR 0023](../decisions/0023-huella-legal-owns-its-design-system.md), everything lives in the
-app. `app/layers/` stays out until there's real domain logic.
+Per [ADR 0023](../decisions/0023-huella-legal-owns-its-design-system.md), the design system lives in
+the app, not a package. Anything typed against a domain's view models lives in that domain's layer
+under `layers/`, as `layers/articles` does.
 
 | Layer | Lives in | Does | Never does | Tested with |
 | --- | --- | --- | --- | --- |
 | Theme | `main.css`, `app.config.ts` | Tokens, Nuxt UI defaults | — | Visual snapshots |
-| Primitives | `app/components/base/` | Wordmark, Kicker, Pill, Avatar… Nuxt UI is used directly; `UButton` gets no wrapper | Fetch, know about WP | `mount` |
-| Kits | `app/components/{article,listing,form,shell}/` | Props in, events out, typed against view models | Fetch, read the route | `mount` |
+| Primitives | `app/components/base/` | Wordmark, Kicker, TagPill… Plain props only. Nuxt UI is used directly; `UButton` gets no wrapper | Fetch, know about WP, take a view model | `mount` |
+| Kits | `layers/<domain>/app/components/` when typed against that domain's view models, else `app/components/{listing,form,shell}/` | Props in, events out | Fetch, read the route | `mount` |
 | View models | `shared/` or `app/utils/`, pure TS | `Entry` → `ArticleSummary`, `Article`, `Author`, `Category`: reading time, TOC, footnotes, citation | Touch Vue or Nuxt | Vitest node, the heaviest suite |
 | Controllers | `app/composables/use*.ts` | Wrap `useContent()`, own query↔URL state, run form state machines | Render | Nuxt Vitest project + `mockNuxtImport` |
 | Pages | `app/pages/` | Call one controller, compose kits, set SEO meta | Hold logic | Playwright + axe + screenshots |
@@ -201,10 +202,10 @@ A1 comes first. A2 can run alongside it.
 
 Promoted from `app/lab/`. B1, B3 and B4 don't depend on any spike.
 
-- **B1 🎫 #196 Editorial primitives:** Wordmark, Kicker, MediaFallback, Byline, SectionHeading,
-  TagPill (count and active states). Author initials and their stack are `UAvatar` and
-  `UAvatarGroup`, themed in `app.config.ts`. The D designs dropped the issue number and the stats,
-  so neither gets a primitive.
+- **B1 🎫 #196 Editorial primitives:** Wordmark, Kicker, MediaFallback, SectionHeading, TagPill
+  (count and active states), plus Byline, which takes `Author` and so lives in the articles layer.
+  Author initials and their stack are `UAvatar` and `UAvatarGroup`, themed in `app.config.ts`. The
+  D designs dropped the issue number and the stats, so neither gets a primitive.
 - **B2 🎫 #197 ArticleCard family:** all five variants (lead+split, standard, compact, media,
   row), typed against `ArticleSummary`, plus grid and list wrappers.
 - **B3 🎫 #198 Shell and error surface:**

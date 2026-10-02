@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// The treatment for an article without an image: a quiet paper tile, never a broken-image icon
 interface Props {
     label?: string
     tone?: "paper" | "slate"

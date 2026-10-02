@@ -1,4 +1,12 @@
 <script setup lang="ts">
+const TONES = {
+    teal: "text-secondary",
+    muted: "text-muted",
+    paper: "text-huella-teal-200",
+} as const;
+
+type Tone = typeof TONES[keyof typeof TONES];
+
 interface Props {
     to?: string
     tone?: "teal" | "muted" | "paper"
@@ -9,7 +17,7 @@ const props = withDefaults(defineProps<Props>(), {
     tone: "teal",
 });
 
-const toneClass = computed(() => ({ teal: "text-secondary", muted: "text-muted", paper: "text-huella-teal-200" })[props.tone]);
+const toneClass = computed<Tone>(() => TONES[props.tone]);
 </script>
 
 <template>

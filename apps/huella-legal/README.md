@@ -157,7 +157,7 @@ and the gotchas.
 
 ## 🧩 Structure
 
-[`app/`](./app) is the whole front end and stays thin: a layout, an error page and its dev-only debug
+[`app/`](./app) is the front-end shell and stays thin: a layout, an error page and its dev-only debug
 panel, two client plugins (Faro telemetry, and a dev-only console filter for a known Nuxt/Vue
 warning), and three pages — an entry page and the two [article pages](#-content). The app's own
 server code is one Nitro plugin, for telemetry.
@@ -166,9 +166,9 @@ Domain logic lives in Nuxt layers under [`layers/`](./layers), one directory per
 auto-registers `<rootDir>/layers/*` by their presence, so there is no `extends` array to add, and
 adding one is the mistake. That is the path `pinia.storesDirs` above is widened for.
 
-| Layer | `shared/types/` | `server/` |
-| --- | --- | --- |
-| [`articles`](./layers/articles) | The view models: `Article`, `ArticleBody`, `ArticleSummary`, `Author`, `Category`, `TocItem` | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time use `entities`, `striptags` and `reading-time`, and stay server-side. `toArticleBody` is the WP HTML pipeline, and `GET /api/articles/:slug` serves its `Article` |
+| Layer | `shared/types/` | `app/components/` | `server/` |
+| --- | --- | --- | --- |
+| [`articles`](./layers/articles) | The view models: `Article`, `ArticleBody`, `ArticleSummary`, `Author`, `Category`, `TocItem` | `Byline`: authors, date and reading time | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time use `entities`, `striptags` and `reading-time`, and stay server-side. `toArticleBody` is the WP HTML pipeline, and `GET /api/articles/:slug` serves its `Article` |
 
 ### 🧼 The body pipeline
 

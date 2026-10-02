@@ -4,7 +4,7 @@ import Byline from "./Byline.vue";
 
 const MARIA = { id: "1", name: "María José Fernández de la Vega", to: "#" };
 const LUIS = { id: "2", name: "Luis Martín Ortega", to: "#" };
-const MARTA = { id: "3", name: "Marta Gil" };
+const MARTA = { id: "3", name: "Marta Gil", to: "#" };
 
 const meta: Meta<typeof Byline> = {
     component: Byline,
