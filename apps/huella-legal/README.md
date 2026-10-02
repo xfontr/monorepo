@@ -30,12 +30,27 @@ rather than a missing config.
 
 ## 🚢 Deployment
 
-The app ships through Netlify's own git integration — there is no `netlify.toml` and no build or
-deploy step in this repo. [`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml)
+The app ships through Netlify's own git integration, with build settings in the Netlify UI and no
+build or deploy step in this repo. [`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml)
 builds and deploys nothing itself: once Netlify's own pipeline publishes a commit, it polls
 Netlify's Deploys API for that commit and records a GitHub Deployment against the
 `huella-legal` environment, so the live URL shows up on the repo's Deployments page
 alongside `developer-portal` instead of only in Netlify's own dashboard.
+
+The root [`netlify.toml`](../../netlify.toml) holds only an `ignore` command, which runs
+[`netlify-ignore.sh`](./netlify-ignore.sh). It cancels the build unless the diff touches this app,
+`content`, `i18n`, `observability` or the pnpm and Node pins. Docs, specs, stories, e2e and lint
+config don't count.
+
+| Build | Diffed from |
+| --- | --- |
+| Production | Netlify's last build |
+| Deploy preview | The PR's merge base with `master` |
+| `netlify-deployment.yml` | The push's `before`, and it skips recording when the script says so |
+
+The ignore command runs before dependencies are installed, so it can't ask Nx and the list is kept
+by hand. A new runtime `@monorepo/*` import needs a line there. Any `pnpm-lock.yaml` change still
+builds, even one that only touches another project.
 
 The site ID and auth token never enter this repo: `NETLIFY_SITE_ID` is a GitHub Actions repo
 variable and `NETLIFY_AUTH_TOKEN` a secret, both read at workflow runtime with no default. Netlify
@@ -142,7 +157,7 @@ and the gotchas.
 
 ## 🧩 Structure
 
-[`app/`](./app) is the whole front end and stays thin: a layout, an error page and its dev-only debug
+[`app/`](./app) is the front-end shell and stays thin: a layout, an error page and its dev-only debug
 panel, two client plugins (Faro telemetry, and a dev-only console filter for a known Nuxt/Vue
 warning), and three pages — an entry page and the two [article pages](#-content). The app's own
 server code is one Nitro plugin, for telemetry.
@@ -151,9 +166,9 @@ Domain logic lives in Nuxt layers under [`layers/`](./layers), one directory per
 auto-registers `<rootDir>/layers/*` by their presence, so there is no `extends` array to add, and
 adding one is the mistake. That is the path `pinia.storesDirs` above is widened for.
 
-| Layer | `shared/types/` | `server/` |
-| --- | --- | --- |
-| [`articles`](./layers/articles) | The view models: `Article`, `ArticleBody`, `ArticleSummary`, `Author`, `Category`, `TocItem` | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time use `entities`, `striptags` and `reading-time`, and stay server-side. `toArticleBody` is the WP HTML pipeline, and `GET /api/articles/:slug` serves its `Article` |
+| Layer | `shared/types/` | `app/components/` | `server/` |
+| --- | --- | --- | --- |
+| [`articles`](./layers/articles) | The view models: `Article`, `ArticleBody`, `ArticleSummary`, `Author`, `Category`, `TocItem` | `Byline`: authors, date and reading time | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time use `entities`, `striptags` and `reading-time`, and stay server-side. `toArticleBody` is the WP HTML pipeline, and `GET /api/articles/:slug` serves its `Article` |
 
 ### 🧼 The body pipeline
 

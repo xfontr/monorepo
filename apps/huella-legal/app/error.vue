@@ -30,7 +30,7 @@ useHead({
 
         <ErrorDebug
             v-if="isDev"
-            :error="error"
+            :error
         />
     </main>
 </template>

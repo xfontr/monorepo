@@ -1,4 +1,12 @@
 <script setup lang="ts">
+const TONES = {
+    teal: "text-secondary",
+    muted: "text-muted",
+    paper: "text-huella-teal-200",
+} as const;
+
+type Tone = typeof TONES[keyof typeof TONES];
+
 interface Props {
     to?: string
     tone?: "teal" | "muted" | "paper"
@@ -9,13 +17,13 @@ const props = withDefaults(defineProps<Props>(), {
     tone: "teal",
 });
 
-const toneClass = computed(() => ({ teal: "text-secondary", muted: "text-muted", paper: "text-huella-teal-200" })[props.tone]);
+const toneClass = computed<Tone>(() => TONES[props.tone]);
 </script>
 
 <template>
     <ULink
         v-if="to"
-        :to="to"
+        :to
         raw
         class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em] underline-offset-4 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         :class="toneClass"

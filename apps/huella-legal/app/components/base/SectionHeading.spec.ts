@@ -19,6 +19,15 @@ describe("section heading", () => {
         expect(linked.find("a").text()).toBe("Ver todo");
     });
 
+    it("describes the see-all link by its heading, so a links list never reads \"Ver todo\" twice", async () => {
+        const named = await mountSuspended(SectionHeading, { props: { title: "Recientes", link: "Ver todo", to: "/publicaciones", id: "recientes" } });
+        const unnamed = await mountSuspended(SectionHeading, { props: { title: "Recientes", link: "Ver todo", to: "/publicaciones" } });
+
+        expect(named.find("a").attributes("aria-describedby")).toBe("recientes");
+        expect(unnamed.find("a").attributes("aria-describedby")).toBe(unnamed.find("h2").attributes("id"));
+        expect(unnamed.find("h2").attributes("id")).toBeTruthy();
+    });
+
     it("prints the kicker above the title only when given one", async () => {
         const wrapper = await mountSuspended(SectionHeading, { props: { title: "Recientes", kicker: "Archivo" } });
 

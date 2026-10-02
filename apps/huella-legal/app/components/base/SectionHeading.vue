@@ -7,12 +7,15 @@ interface Props {
     id?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
     kicker: undefined,
     link: undefined,
     to: undefined,
     id: undefined,
 });
+
+const fallbackId = useId();
+const headingId = computed<string>(() => props.id ?? fallbackId);
 </script>
 
 <template>
@@ -20,12 +23,12 @@ withDefaults(defineProps<Props>(), {
         <div>
             <p
                 v-if="kicker"
-                class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary"
+                class="flex"
             >
-                {{ kicker }}
+                <BaseKicker>{{ kicker }}</BaseKicker>
             </p>
             <h2
-                :id="id"
+                :id="headingId"
                 class="font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
                 :class="kicker && 'mt-1'"
             >
@@ -36,7 +39,8 @@ withDefaults(defineProps<Props>(), {
             v-if="link && to"
             variant="link"
             :label="link"
-            :to="to"
+            :to
+            :aria-describedby="headingId"
             trailing-icon="i-lucide-arrow-right"
             class="-mr-3"
         />

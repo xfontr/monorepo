@@ -45,7 +45,7 @@ const notes = {
 <template>
     <div>
         <SiteHeader
-            :menu-open="menuOpen"
+            :menu-open
         />
 
         <main class="flex flex-col">
@@ -160,7 +160,7 @@ const notes = {
                     <ArticleCard
                         v-for="(article, index) in recent"
                         :key="article.slug"
-                        :article="article"
+                        :article
                         variant="media"
                         :class="index === 2 && 'md:hidden lg:flex'"
                     />

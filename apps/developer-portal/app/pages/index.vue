@@ -329,7 +329,7 @@ class="divide-y divide-default"
                                 <IssueRow
 v-for="issue in next"
 :key="issue.number"
-:issue="issue"
+:issue
 compact
 />
                             </div>

@@ -1,0 +1,2 @@
+[build]
+ignore = "bash \"$(git rev-parse --show-toplevel)/apps/huella-legal/netlify-ignore.sh\" \"$CACHED_COMMIT_REF\" \"$COMMIT_REF\""

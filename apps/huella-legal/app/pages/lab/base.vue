@@ -22,7 +22,7 @@ const pills = [
     <main class="mx-auto flex max-w-site flex-col gap-12 px-4 py-10 md:px-8 lg:px-12">
         <p class="font-sans text-sm text-muted">
             <span class="rounded-full bg-huella-ink-900 px-2 py-0.5 text-xs font-semibold text-white">Laboratorio</span>
-            Arriba el original del laboratorio, abajo la primitiva de <code>components/base</code>.
+            Arriba el original del laboratorio, abajo el componente que lo sustituye.
         </p>
 
         <section class="flex flex-col gap-4">
@@ -77,8 +77,8 @@ const pills = [
                 :reading-minutes="14"
                 avatars
             />
-            <BaseByline
-                :authors="authors"
+            <Byline
+                :authors
                 published-at="2024-03-12T09:00:00Z"
                 :reading-minutes="14"
                 avatars
@@ -149,7 +149,7 @@ const pills = [
                 <UAvatar
                     v-for="size in (['lg', '2xl'] as const)"
                     :key="size"
-                    :size="size"
+                    :size
                     :text="initials(authors[0]!.name)"
                     alt=""
                 />

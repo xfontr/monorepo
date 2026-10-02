@@ -9,8 +9,8 @@ if ! git rev-parse --verify "$1^{commit}" >/dev/null 2>&1 || \
     exit 0
 fi
 
-git diff --quiet "$1" "$2" -- pnpm-lock.yaml >/dev/null 2>&1
-STATUS=$?
+STATUS=0
+git diff --quiet "$1" "$2" -- pnpm-lock.yaml >/dev/null 2>&1 || STATUS=$?
 
 if [ "$STATUS" -eq 1 ]; then
     printf '%s\n' '⚠ pnpm-lock.yaml changed; run pnpm install.'

@@ -160,7 +160,7 @@ const notes = {
                 >
                     <div class="sticky top-6">
                         <FacetPanel
-                            :groups="groups"
+                            :groups
                             id-prefix="rail"
                             @toggle="toggle"
                         />
@@ -324,7 +324,7 @@ const notes = {
                 </template>
                 <template #body>
                     <FacetPanel
-                        :groups="groups"
+                        :groups
                         id-prefix="sheet"
                         @toggle="toggle"
                     />

@@ -135,7 +135,7 @@ async function refresh(): Promise<void> {
                         <IssueRow
                             v-for="issue in visible"
                             :key="issue.number"
-                            :issue="issue"
+                            :issue
                         />
                     </div>
                 </UCard>

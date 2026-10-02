@@ -151,6 +151,11 @@ Node types even in a package that otherwise doesn't.
   `$n`), never the `t` from `useI18n()`, so a template-only component needs no `useI18n()` call.
   `<script>` is untouched, since `useHead` and friends still need `t`. `$t` reads global messages
   only, so a component with `useScope: "local"` needs a disable comment
+- `vue/v-bind-style` with `sameNameShorthand: "always"`, in [`vue.ts`](./src/eslint/vue.ts) — a binding whose
+  name and value match is written `:id`, never `:id="id"`. `--fix` rewrites it
+- `vue/prefer-separate-static-class`, in [`vue.ts`](./src/eslint/vue.ts) — a class that never
+  changes goes in the static `class` attribute, never as a string literal inside `:class`.
+  Conditional expressions are left alone, and `--fix` moves the rest
 - `@typescript-eslint/consistent-type-definitions: interface`, in [`node.ts`](./src/eslint/node.ts) and [`vue.ts`](./src/eslint/vue.ts) —
   a plain object shape is an `interface`, never `type X = { … }`. Unions, intersections and mapped types stay
   `type`, and `--fix` rewrites the rest

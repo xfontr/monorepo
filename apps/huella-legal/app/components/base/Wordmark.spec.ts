@@ -9,7 +9,7 @@ describe("wordmark", () => {
         const wrapper = await mountSuspended(Wordmark, { global });
 
         expect(wrapper.text()).toBe("t(wordmark.lead) t(wordmark.accent)");
-        expect(wrapper.find("em").text()).toBe("t(wordmark.accent)");
+        expect(wrapper.find(".italic").text()).toBe("t(wordmark.accent)");
     });
 
     it("leaves the tagline out unless asked, so the header strip stays one line", async () => {
@@ -23,6 +23,6 @@ describe("wordmark", () => {
     it("switches the accent to light teal on slate, where the ink accent would vanish", async () => {
         const wrapper = await mountSuspended(Wordmark, { props: { tone: "paper" }, global });
 
-        expect(wrapper.find("em").classes()).toContain("text-huella-teal-300");
+        expect(wrapper.find(".italic").classes()).toContain("text-huella-teal-300");
     });
 });

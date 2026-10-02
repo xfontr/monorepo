@@ -25,7 +25,7 @@ withDefaults(defineProps<Props>(), {
                 {{ kicker }}
             </p>
             <h2
-                :id="id"
+                :id
                 class="font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
                 :class="kicker && 'mt-1'"
             >
