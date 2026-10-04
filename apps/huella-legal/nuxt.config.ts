@@ -1,9 +1,13 @@
 export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
 
-    modules: ["@monorepo/i18n/nuxt", "@monorepo/content/nuxt", "@nuxt/ui", "@nuxt/fonts", "@pinia/nuxt"],
+    modules: [async () => { await import("vue-router/unplugin"); }, "@monorepo/i18n/nuxt", "@monorepo/content/nuxt", "@nuxt/ui", "@nuxt/fonts", "@pinia/nuxt"],
 
     devtools: false,
+
+    experimental: {
+        typedPages: true,
+    },
 
     css: ["~/assets/css/main.css"],
 

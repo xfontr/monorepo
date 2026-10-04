@@ -2,18 +2,21 @@ import ui from "@nuxt/ui/vite";
 import type { StorybookConfig } from "@storybook/vue3-vite";
 import vue from "@vitejs/plugin-vue";
 import { fontless } from "fontless";
-import { readFile } from "node:fs/promises";
+import { glob, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 const identity = <T>(config: T): T => config;
 
-Object.assign(globalThis, { defineAppConfig: identity, defineNuxtConfig: identity });
+Object.assign(globalThis, { defineAppConfig: identity, defineI18nConfig: identity, defineNuxtConfig: identity });
 
 const { default: appConfig } = await import("../app/app.config.ts");
 const { default: nuxtConfig } = await import("../nuxt.config.ts");
+const { default: i18nConfig } = await import("../i18n/i18n.config.ts");
 
 // Read here because a relative import of another project's file fails the Nx boundary rule
 const messages = await readFile(new URL("../../../infrastructure/translations/projects/huella-legal/es-ES.json", import.meta.url), "utf8");
+
+const componentDirs = await Array.fromAsync(glob(["app/components", "layers/*/app/components"], { cwd: fileURLToPath(new URL("..", import.meta.url)) }));
 
 const config: StorybookConfig = {
     framework: "@storybook/vue3-vite",
@@ -28,17 +31,18 @@ const config: StorybookConfig = {
     viteFinal: (config) => ({
         ...config,
         base: process.env.STORYBOOK_BASE_URL ?? config.base,
-        define: { ...config.define, __MESSAGES__: messages },
+        define: { ...config.define, __MESSAGES__: messages, __DATETIME_FORMATS__: JSON.stringify(i18nConfig().datetimeFormats) },
         plugins: [
             ...config.plugins ?? [],
             vue(),
             ui({
                 ...nuxtConfig.ui,
                 ui: appConfig.ui,
-                router: false,
+                router: true,
                 dts: false,
+                components: { dirs: componentDirs, directoryAsNamespace: true },
                 autoImport: {
-                    imports: ["vue"],
+                    imports: ["vue", "vue-i18n"],
                     dirs: [fileURLToPath(new URL("../app/utils", import.meta.url))],
                     vueTemplate: true,
                 },

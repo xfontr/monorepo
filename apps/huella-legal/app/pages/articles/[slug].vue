@@ -1,4 +1,6 @@
 <script setup lang="ts">
+definePageMeta({ name: "article", path: "/:slug/" });
+
 const { getEntry } = useContent();
 const { locale } = useI18n();
 const route = useRoute();
