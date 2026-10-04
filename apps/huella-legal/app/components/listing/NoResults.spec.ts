@@ -7,7 +7,7 @@ const MESSAGES = {
     noResults: {
         broaden: "broaden",
         browse: "browse",
-        name: "name",
+        label: "label",
         spelling: "spelling: «{suggestion}»?",
         title: "title: {query}",
     },

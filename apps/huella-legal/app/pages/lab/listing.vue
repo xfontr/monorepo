@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PAGE_PARAM } from "~/config/listing";
 import LabKicker from "~/lab/Kicker.vue";
 
 useHead({ title: "Listados · Laboratorio Huella Legal", htmlAttrs: { lang: "es" } });
@@ -50,12 +51,13 @@ const subjects = ["Derecho penal", "Derecho civil", "Derecho constitucional", "T
 
         <section class="flex flex-col gap-4">
             <LabKicker href="/lab/publicaciones">
-                FilterPills · SortSelect · /lab/publicaciones
+                FilterPills · /lab/publicaciones · SortSelect · /lab/category
             </LabKicker>
             <div class="flex flex-wrap items-center justify-between gap-x-6">
                 <ListingFilterPills
                     label="Formato"
                     :items="pills"
+                    class="-mx-4 basis-[calc(100%+2rem)] px-4 sm:mx-0 sm:basis-full sm:px-0"
                 />
                 <h2 class="flex min-h-12 items-center font-sans text-meta text-muted">
                     <span><strong class="font-semibold text-highlighted tabular-nums">29</strong> publicaciones</span>

@@ -5,11 +5,10 @@ import SkeletonList from "./SkeletonList.vue";
 const global = { mocks: { $t: (key: string) => `t(${key})` } };
 
 describe("skeleton list", () => {
-    it("announces the load once instead of reading out empty placeholder rows", async () => {
+    it("reads as one loading line instead of empty placeholder rows", async () => {
         const wrapper = await mountSuspended(SkeletonList, { global });
 
-        expect(wrapper.attributes("aria-busy")).toBe("true");
-        expect(wrapper.find("[role=status]").text()).toBe("t(skeletonList.loading)");
+        expect(wrapper.find(".sr-only").text()).toBe("t(skeletonList.loading)");
         expect(wrapper.find("ul").attributes("aria-hidden")).toBe("true");
     });
 
@@ -19,5 +18,12 @@ describe("skeleton list", () => {
 
         expect(fallback.findAll("li")).toHaveLength(3);
         expect(five.findAll("li")).toHaveLength(5);
+    });
+
+    it("is no live region, since one mounted with its text is never announced", async () => {
+        const wrapper = await mountSuspended(SkeletonList, { global });
+
+        expect(wrapper.attributes("aria-busy")).toBeUndefined();
+        expect(wrapper.find(".sr-only").attributes("role")).toBeUndefined();
     });
 });

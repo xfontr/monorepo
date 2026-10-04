@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { RouteLocationRaw } from "vue-router";
+
 interface Link {
     label: string
     to: string
@@ -7,7 +9,7 @@ interface Link {
 interface Props {
     query: string
     subjects: Link[]
-    suggestion?: Link
+    suggestion?: { label: string, to: RouteLocationRaw }
 }
 
 withDefaults(defineProps<Props>(), {
@@ -17,7 +19,7 @@ withDefaults(defineProps<Props>(), {
 
 <template>
     <section
-        :aria-label="$t('noResults.name')"
+        :aria-label="$t('noResults.label')"
         class="flex flex-col items-start gap-4 rounded-sm border border-default px-5 py-10 md:px-12"
     >
         <UIcon

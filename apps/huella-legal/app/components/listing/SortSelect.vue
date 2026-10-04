@@ -7,10 +7,10 @@ const sort = defineModel<"newest" | "oldest">({ required: true });
         <span
             aria-hidden="true"
             class="hidden sm:inline"
-        >{{ $t("sortSelect.label") }}</span>
+        >{{ $t("sortSelect.prefix") }}</span>
         <USelect
             v-model="sort"
-            :aria-label="$t('sortSelect.name')"
+            :aria-label="$t('sortSelect.label')"
             variant="ghost"
             trailing-icon="i-lucide-chevron-down"
             :items="[

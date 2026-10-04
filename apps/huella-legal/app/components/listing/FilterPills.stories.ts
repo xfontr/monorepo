@@ -20,7 +20,7 @@ export default meta;
 
 type Story = StoryObj<typeof FilterPills>;
 
-export const AllActive: Story = {};
+export const AllFormats: Story = {};
 
 export const FormatActive: Story = {
     args: {

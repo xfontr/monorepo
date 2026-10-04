@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { RouteLocationRaw } from "vue-router";
+import { PAGE_PARAM } from "../../config/listing";
 
 interface Props {
     page: number
@@ -15,7 +16,6 @@ const pageCount = computed<number>(() => Math.max(1, Math.ceil(props.total / pro
 const previousLink = computed(() => (props.page > 1 ? pageLink(props.page - 1) : undefined));
 const nextLink = computed(() => (props.page < pageCount.value ? pageLink(props.page + 1) : undefined));
 
-// Page one keeps the bare URL, so each listing has a single canonical address
 function pageLink(target: number): RouteLocationRaw {
     return { query: { ...route.query, [PAGE_PARAM]: target > 1 ? String(target) : undefined } };
 }
@@ -43,7 +43,7 @@ function pageLink(target: number): RouteLocationRaw {
                     variant="link"
                     icon="i-lucide-arrow-left"
                     :label="$t('pagination.previous.text')"
-                    :aria-label="$t('pagination.previous.name')"
+                    :aria-label="$t('pagination.previous.label')"
                     :to="previousLink"
                     :disabled="!previousLink"
                     class="-ml-3 min-h-12"
@@ -69,7 +69,7 @@ function pageLink(target: number): RouteLocationRaw {
                     variant="link"
                     trailing-icon="i-lucide-arrow-right"
                     :label="$t('pagination.next.text')"
-                    :aria-label="$t('pagination.next.name')"
+                    :aria-label="$t('pagination.next.label')"
                     :to="nextLink"
                     :disabled="!nextLink"
                     class="-mr-3 min-h-12"

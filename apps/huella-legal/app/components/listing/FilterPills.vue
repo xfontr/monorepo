@@ -19,7 +19,7 @@ defineProps<Props>();
 <template>
     <nav
         :aria-label="label"
-        class="-mx-4 basis-[calc(100%+2rem)] overflow-x-auto border-b border-default px-4 [scrollbar-width:none] sm:mx-0 sm:basis-full sm:px-0"
+        class="overflow-x-auto border-b border-default [scrollbar-width:none]"
     >
         <ul class="-ml-3 flex">
             <li

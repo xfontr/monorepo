@@ -73,6 +73,9 @@ export default defineAppConfig({
         pagination: {
             slots: { root: "w-full", list: "w-full gap-0", prev: "me-auto", next: "ms-auto", ellipsis: "max-sm:hidden" },
         },
+        skeleton: {
+            base: "bg-ivory-200",
+        },
         select: {
             slots: { base: "min-h-11 bg-ivory-50" },
             compoundVariants: [

@@ -22,6 +22,44 @@
     "common": {
         "loading": "Cargando…"
     },
+    "emptyState": {
+        "browse": "Ver otras materias",
+        "description": "Es una materia nueva en la revista. Si trabajas en ella, tu artículo puede ser el primero.",
+        "publish": "Publicar en esta materia",
+        "title": "Todavía no hay publicaciones en {subject}"
+    },
+    "filterPills": {
+        "count": "{count} publicación | {count} publicaciones"
+    },
+    "noResults": {
+        "broaden": "Prueba con una palabra más general o con el apellido del autor.",
+        "browse": "O explora por materia",
+        "label": "Búsqueda sin resultados",
+        "spelling": "Revisa la ortografía: ¿quizá «{suggestion}»?",
+        "title": "Ningún resultado para «{query}»"
+    },
+    "pagination": {
+        "label": "Paginación",
+        "next": {
+            "label": "Página siguiente",
+            "text": "Siguiente"
+        },
+        "page": "Página {page}",
+        "position": "Página {page} de {total}",
+        "previous": {
+            "label": "Página anterior",
+            "text": "Anterior"
+        }
+    },
+    "skeletonList": {
+        "loading": "Cargando publicaciones…"
+    },
+    "sortSelect": {
+        "label": "Ordenar publicaciones",
+        "newest": "Más recientes",
+        "oldest": "Más antiguas",
+        "prefix": "Ordenar:"
+    },
     "tagPill": {
         "count": "{count} publicación | {count} publicaciones"
     },

@@ -13,7 +13,8 @@ describe("empty state", () => {
         const title = "t(emptyState.title, {\"subject\":\"Derecho administrativo\"})";
 
         expect(wrapper.find("h2").text()).toBe(title);
-        expect(wrapper.find("section").attributes("aria-label")).toBe(title);
+        expect(wrapper.find("section").attributes("aria-labelledby")).toBe(wrapper.find("h2").attributes("id"));
+        expect(wrapper.find("h2").attributes("id")).toBeTruthy();
     });
 
     it("offers to publish first, then a way out to the other subjects", async () => {

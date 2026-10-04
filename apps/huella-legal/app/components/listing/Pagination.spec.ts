@@ -26,7 +26,7 @@ describe("pagination", () => {
     it("keeps the rest of the query, so paging never drops the sort or the filter", async () => {
         const wrapper = await mountAt(1, 48, "/?orden=antiguas");
 
-        expect(wrapper.find("[aria-label='t(pagination.next.name)']").attributes("href")).toBe("/?orden=antiguas&page=2");
+        expect(wrapper.find("[aria-label='t(pagination.next.label)']").attributes("href")).toBe("/?orden=antiguas&page=2");
     });
 
     it("marks only the current page with aria-current", async () => {
@@ -42,21 +42,21 @@ describe("pagination", () => {
     it("has no live previous link on the first page", async () => {
         const wrapper = await mountAt(1);
 
-        const previous = wrapper.find("[aria-label='t(pagination.previous.name)']");
+        const previous = wrapper.find("[aria-label='t(pagination.previous.label)']");
 
         expect(previous.element.tagName).toBe("BUTTON");
         expect(previous.attributes("disabled")).toBeDefined();
-        expect(wrapper.find("[aria-label='t(pagination.next.name)']").attributes("href")).toBe("/?page=2");
+        expect(wrapper.find("[aria-label='t(pagination.next.label)']").attributes("href")).toBe("/?page=2");
     });
 
     it("has no live next link on the last page", async () => {
         const wrapper = await mountAt(7);
 
-        const next = wrapper.find("[aria-label='t(pagination.next.name)']");
+        const next = wrapper.find("[aria-label='t(pagination.next.label)']");
 
         expect(next.element.tagName).toBe("BUTTON");
         expect(next.attributes("disabled")).toBeDefined();
-        expect(wrapper.find("[aria-label='t(pagination.previous.name)']").attributes("href")).toBe("/?page=6");
+        expect(wrapper.find("[aria-label='t(pagination.previous.label)']").attributes("href")).toBe("/?page=6");
     });
 
     it("counts pages from the total, rounding a partial last page up", async () => {

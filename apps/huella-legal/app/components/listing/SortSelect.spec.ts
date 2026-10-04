@@ -8,8 +8,8 @@ describe("sort select", () => {
     it("names the control for what it sorts, since the visible prefix is hidden from assistive tech", async () => {
         const wrapper = await mountSuspended(SortSelect, { props: { modelValue: "newest" }, global });
 
-        expect(wrapper.find("[role=combobox]").attributes("aria-label")).toBe("t(sortSelect.name)");
-        expect(wrapper.find("span[aria-hidden=true]").text()).toBe("t(sortSelect.label)");
+        expect(wrapper.find("[role=combobox]").attributes("aria-label")).toBe("t(sortSelect.label)");
+        expect(wrapper.find("span[aria-hidden=true]").text()).toBe("t(sortSelect.prefix)");
     });
 
     it("shows the label of the chosen order", async () => {
