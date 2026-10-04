@@ -142,10 +142,17 @@ Node types even in a package that otherwise doesn't.
 - `no-restricted-imports` under Nuxt `app/` and `server/`, from
   [`lib/layerIsolation.ts`](./src/eslint/lib/layerIsolation.ts) — neither layer may import the
   Node-only `tools/` tree, keeping collection commands out of browser and server bundles
+- `no-restricted-syntax` under `**/*.ts` and `**/*.vue`, from
+  [`lib/constTables.ts`](./src/eslint/lib/constTables.ts) — a module-scope lookup table keyed by a
+  closed union is `UPPER_SNAKE = { … } as const satisfies Record<K, V>`, never annotated: the
+  annotation widens the values and `Partial` makes every lookup `| undefined`. `Record<string, …>`
+  and `Record<number, …>` are left alone, since those tables are indexed by keys nobody can list
 - `no-restricted-syntax` under `**/*.vue`, from [`lib/propsInterface.ts`](./src/eslint/lib/propsInterface.ts) — Vue
   configs only. `defineProps` takes a type reference named `Props`, and `Props` is declared with
   `interface`. No plugin rule covers this; `vue/define-props-declaration` only picks type-based over
-  runtime, and an inline literal satisfies it. Runtime `defineProps({…})` is left alone
+  runtime, and an inline literal satisfies it. Runtime `defineProps({…})` is left alone. Both sets of
+  selectors reach ESLint through [`lib/restrictedSyntax.ts`](./src/eslint/lib/restrictedSyntax.ts), the
+  rule's only config
 - `vue/no-restricted-syntax` under `**/*.vue`, from [`lib/templateI18n.ts`](./src/eslint/lib/templateI18n.ts) —
   Vue configs only. A `<template>` translates with the global `$t` (and `$te`, `$tm`, `$rt`, `$d`,
   `$n`), never the `t` from `useI18n()`, so a template-only component needs no `useI18n()` call.

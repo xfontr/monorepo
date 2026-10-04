@@ -21,12 +21,4 @@ const constTableSelectors: object[] = [
     },
 ];
 
-const constTables: object = {
-    files: ["**/*.ts"],
-    rules: {
-        "no-restricted-syntax": ["error", ...constTableSelectors],
-    },
-};
-
-export { constTableSelectors };
-export default constTables;
+export default constTableSelectors;
