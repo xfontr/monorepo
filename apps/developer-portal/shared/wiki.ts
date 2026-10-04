@@ -43,7 +43,7 @@ const SECTION_ORDER = ["workspace", "docs", ...PROJECT_AREAS, "agents"] as const
 
 type SectionId = typeof SECTION_ORDER[number];
 
-const SECTIONS: Record<SectionId, { label: string, icon: string, blurb: string }> = {
+const SECTIONS = {
     workspace: {
         label: "Workspace",
         icon: "i-lucide-home",
@@ -74,7 +74,7 @@ const SECTIONS: Record<SectionId, { label: string, icon: string, blurb: string }
         icon: "i-lucide-bot",
         blurb: "The skills and subagents an agent working in this repo loads.",
     },
-};
+} as const satisfies Record<SectionId, { label: string, icon: string, blurb: string }>;
 
 /** Ordered where the order carries meaning; anything new falls through to alphabetical. */
 const DOCS_GROUPS = ["concepts", "guides", "decisions", "audits", "reviews"];

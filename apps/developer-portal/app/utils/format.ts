@@ -45,71 +45,71 @@ export function kindIcon(kind: string): string {
     return KIND_ICONS[kind] ?? "i-lucide-file-text";
 }
 
-const DECISION_STATUS_LABELS: Record<DecisionStatus, string> = {
+const DECISION_STATUS_LABELS = {
     "to-implement": "To implement",
     "implemented": "Implemented",
     "wont-implement": "Won't implement",
-};
+} as const satisfies Record<DecisionStatus, string>;
 
 export function decisionStatusLabel(status: DecisionStatus): string {
     return DECISION_STATUS_LABELS[status];
 }
 
 /** Reuses the same validated three-tone palette everything else on this page uses for a verdict. */
-const DECISION_STATUS_TONES: Record<DecisionStatus, Tone> = {
+const DECISION_STATUS_TONES = {
     "to-implement": "warn",
     "implemented": "good",
     "wont-implement": "neutral",
-};
+} as const satisfies Record<DecisionStatus, Tone>;
 
 export function decisionStatusTone(status: DecisionStatus): Tone {
     return DECISION_STATUS_TONES[status];
 }
 
-const DECISION_OUTCOME_LABELS: Record<DecisionOutcome, string> = {
+const DECISION_OUTCOME_LABELS = {
     accepted: "Accepted",
     superseded: "Superseded",
-};
+} as const satisfies Record<DecisionOutcome, string>;
 
 export function decisionOutcomeLabel(decision: DecisionOutcome): string {
     return DECISION_OUTCOME_LABELS[decision];
 }
 
-const FINDING_STATUS_LABELS: Record<FindingStatus, string> = {
+const FINDING_STATUS_LABELS = {
     "open": "Open",
     "fixed": "Fixed",
     "wont-fix": "Won't fix",
-};
+} as const satisfies Record<FindingStatus, string>;
 
 export function findingStatusLabel(status: FindingStatus): string {
     return FINDING_STATUS_LABELS[status];
 }
 
-const FINDING_STATUS_TONES: Record<FindingStatus, Tone> = {
+const FINDING_STATUS_TONES = {
     "open": "warn",
     "fixed": "good",
     "wont-fix": "neutral",
-};
+} as const satisfies Record<FindingStatus, Tone>;
 
 export function findingStatusTone(status: FindingStatus): Tone {
     return FINDING_STATUS_TONES[status];
 }
 
-const AUDIT_STATE_LABELS: Record<AuditState, string> = {
+const AUDIT_STATE_LABELS = {
     "open": "Open",
     "in-progress": "In progress",
     "closed": "Closed",
-};
+} as const satisfies Record<AuditState, string>;
 
 export function auditStateLabel(state: AuditState): string {
     return AUDIT_STATE_LABELS[state];
 }
 
-const AUDIT_STATE_TONES: Record<AuditState, Tone> = {
+const AUDIT_STATE_TONES = {
     "open": "warn",
     "in-progress": "warn",
     "closed": "good",
-};
+} as const satisfies Record<AuditState, Tone>;
 
 export function auditStateTone(state: AuditState): Tone {
     return AUDIT_STATE_TONES[state];

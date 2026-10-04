@@ -1,9 +1,14 @@
 export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
 
-    modules: ["@monorepo/i18n/nuxt", "@monorepo/content/nuxt", "@nuxt/ui", "@nuxt/fonts", "@pinia/nuxt"],
+    // Loaded first because `typedPages` importing it while `@nuxtjs/i18n` loads trips a Node ESM-loader assert
+    modules: [async () => { await import("vue-router/unplugin"); }, "@monorepo/i18n/nuxt", "@monorepo/content/nuxt", "@nuxt/ui", "@nuxt/fonts", "@pinia/nuxt"],
 
     devtools: false,
+
+    experimental: {
+        typedPages: true,
+    },
 
     css: ["~/assets/css/main.css"],
 

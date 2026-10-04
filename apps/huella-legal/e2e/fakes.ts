@@ -34,4 +34,4 @@ function locale(code: string): TranslationMap {
 
 export const CONTENT: WordpressContent = { posts: POSTS, categories: CATEGORIES };
 
-export const TRANSLATIONS: Record<Locale, TranslationMap> = { "es-ES": locale("es-ES") };
+export const TRANSLATIONS = { "es-ES": locale("es-ES") } as const satisfies Record<Locale, TranslationMap>;

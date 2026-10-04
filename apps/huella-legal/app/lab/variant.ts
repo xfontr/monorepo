@@ -3,6 +3,7 @@ import { inject, provide, type InjectionKey } from "vue";
 type Variant = "a" | "b";
 
 // Attempt pages link to their siblings, and fall back to the approved page where none exists
+// eslint-disable-next-line no-restricted-syntax -- the inner tables are looked up by any route path
 const siblings: Record<Variant, Record<string, string>> = {
     a: {
         "/lab/home": "/lab/attempts/home-a",

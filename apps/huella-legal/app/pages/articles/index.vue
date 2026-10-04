@@ -74,7 +74,7 @@ function formatDate(date: string): string {
             >
                 <NuxtLink
                     class="entry__link"
-                    :to="`/articles/${entry.slug}`"
+                    :to="{ name: 'article', params: { slug: entry.slug } }"
                 >
                     <img
                         v-if="entry.image"

@@ -39,14 +39,14 @@ test("lists articles from the WordPress upstream, one page at a time", async ({ 
 });
 
 test("opens an article by its slug", async ({ page }) => {
-    await page.goto(`/articles/${ESCAPED.slug}`);
+    await page.goto(`/${ESCAPED.slug}/`);
 
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(ESCAPED.title.replace("&amp;", "&"));
     await expect(page.getByRole("heading", { level: 2, name: HEADING })).toBeVisible();
 });
 
 test("answers an unknown slug with a real 404", async ({ page }) => {
-    const response = await page.goto("/articles/no-existe");
+    const response = await page.goto("/no-existe/");
 
     expect(response?.status()).toBe(404);
 });
