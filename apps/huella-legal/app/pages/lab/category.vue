@@ -29,9 +29,11 @@ const sort = ref("Más recientes");
             <section class="border-b border-default">
                 <div class="mx-auto max-w-site px-4 pt-6 pb-10 md:px-8 md:pt-10 lg:px-12 lg:pb-12">
                     <UBreadcrumb
-                        :items="isAuthor
-                            ? [{ label: 'Portada', to: '/lab/home' }, { label: 'Colaboradores', to: '/lab/colaboradores' }, { label: author.name }]
-                            : [{ label: 'Portada', to: '/lab/home' }, { label: 'Publicaciones', to: '/lab/publicaciones' }, { label: category.name }]"
+                        :items="[
+                            { label: 'Portada', to: '/lab/home' },
+                            isAuthor ? { label: 'Colaboradores', to: '/lab/colaboradores' } : { label: 'Publicaciones', to: '/lab/publicaciones' },
+                            { label: isAuthor ? author.name : category.name },
+                        ]"
                         :ui="{ link: 'font-sans text-meta min-h-11 inline-flex items-center', separatorIcon: 'size-4' }"
                     />
 

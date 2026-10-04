@@ -174,8 +174,8 @@ adding one is the mistake. That is the path `pinia.storesDirs` above is widened 
 
 The router is the only owner of a URL. A page names itself and sets its path in `definePageMeta`,
 and components link by that name — `{ name: "article", params: { slug } }` — never by a built
-string, so moving a URL is one edit in one page. An unknown name throws when the link renders,
-which is what fails the card specs if a page and its links drift apart.
+string, so moving a URL is one edit in one page. `experimental.typedPages` generates the route map
+from those pages, so a wrong name or a missing param fails typecheck.
 
 | Name | Path | Page |
 | --- | --- | --- |
@@ -324,7 +324,6 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | Firefox or WebKit | Another project per browser in the configs preset, and every baseline tripled. Linux WebKit is not Safari, so it won't stand in for iOS readers |
 | A per-glob threshold on view models | A3 adds `shared/**` and `app/utils/**` at 95 alongside the mappers it creates |
 | A story for a component that reads a store | Pinia in the `setup` in `.storybook/preview.ts` |
-| Route names checked at compile time | `experimental.typedPages`. Today it makes `nuxi prepare` die on a Node assert while `@nuxtjs/i18n` loads, on Node 22 and 24 alike, so a wrong name only fails at render |
 | Author and category pages | Replace the 404 bodies of the two [link-holding pages](#-links); their names and paths stay |
 | Quote and callout styles | `hl-quote`, `hl-quote-short`, `hl-callout` and `hl-highlight` reach the page unstyled until B6 moves `.hl-prose` into the app CSS and gives them rules |
 | Consuming `/api/articles/:slug` | C1 switches [`articles/[slug].vue`](./app/pages/articles/%5Bslug%5D.vue) to it; until then that page still `v-html`s the raw WordPress body |
