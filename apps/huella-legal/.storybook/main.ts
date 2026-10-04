@@ -42,7 +42,7 @@ const config: StorybookConfig = {
                 dts: false,
                 components: { dirs: componentDirs, directoryAsNamespace: true },
                 autoImport: {
-                    imports: ["vue", "vue-i18n"],
+                    imports: ["vue", "vue-i18n", "vue-router"],
                     dirs: [fileURLToPath(new URL("../app/utils", import.meta.url))],
                     vueTemplate: true,
                 },
