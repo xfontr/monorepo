@@ -12,13 +12,13 @@ const props = defineProps<Props>();
 
 const route = useRoute();
 
-const pageCount = computed<number>(() => Math.max(1, Math.ceil(props.total / props.perPage)));
-const previousLink = computed(() => (props.page > 1 ? pageLink(props.page - 1) : undefined));
-const nextLink = computed(() => (props.page < pageCount.value ? pageLink(props.page + 1) : undefined));
-
 function pageLink(target: number): RouteLocationRaw {
     return { query: { ...route.query, [PAGE_PARAM]: target > 1 ? String(target) : undefined } };
 }
+
+const pageCount = computed<number>(() => Math.max(1, Math.ceil(props.total / props.perPage)));
+const previousLink = computed(() => (props.page > 1 ? pageLink(props.page - 1) : undefined));
+const nextLink = computed(() => (props.page < pageCount.value ? pageLink(props.page + 1) : undefined));
 </script>
 
 <template>
