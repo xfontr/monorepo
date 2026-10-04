@@ -3,7 +3,7 @@ import tseslint from "typescript-eslint";
 import vue from "eslint-plugin-vue";
 import vueParser from "vue-eslint-parser";
 
-import { stylistic, jsonc, boundaries, vitestConfig, baseIgnores, coreIsolation, layerIsolation, propsInterface, templateI18n, regexp } from "./lib/index.ts";
+import { stylistic, jsonc, boundaries, vitestConfig, baseIgnores, coreIsolation, layerIsolation, propsInterface, constTables, templateI18n, regexp } from "./lib/index.ts";
 
 const ignores = {
     ignores: [...baseIgnores, ".nuxt/**", ".output/**"],
@@ -74,6 +74,7 @@ function createBaseVueConfig(typeChecked?: boolean): object[] {
         boundaries,
         coreIsolation,
         layerIsolation,
+        constTables,
         propsInterface,
         templateI18n,
         regexp,

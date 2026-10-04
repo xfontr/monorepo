@@ -1,3 +1,5 @@
+import { constTableSelectors } from "./constTables.ts";
+
 const DEFINE_PROPS = "CallExpression[callee.name='defineProps'] > TSTypeParameterInstantiation";
 
 const propsInterface: object = {
@@ -16,6 +18,7 @@ const propsInterface: object = {
                 selector: "Program > TSTypeAliasDeclaration[id.name='Props']",
                 message: "Declare `Props` with `interface`, not `type`.",
             },
+            ...constTableSelectors,
         ],
     },
 };
