@@ -69,8 +69,23 @@ export default defineAppConfig({
             slots: { base: "min-h-11 bg-ivory-50" },
             defaultVariants: { size: "xl" },
         },
+        // Previous and next sit at the ends of the row, and the ellipses go on phones with the numbers
+        pagination: {
+            slots: { root: "w-full", list: "w-full gap-0", prev: "me-auto", next: "ms-auto", ellipsis: "max-sm:hidden" },
+        },
         select: {
             slots: { base: "min-h-11 bg-ivory-50" },
+            compoundVariants: [
+                // The ghost select is the inline sort control beside a listing's count, not a form field
+                {
+                    variant: "ghost",
+                    class: {
+                        base: "bg-transparent ps-2 pe-8 font-sans text-sm font-semibold text-highlighted hover:bg-huella-slate-900/6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                        trailing: "pe-2",
+                        trailingIcon: "size-4 text-muted",
+                    },
+                },
+            ],
             defaultVariants: { size: "xl" },
         },
         textarea: {

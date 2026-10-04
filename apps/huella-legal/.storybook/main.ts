@@ -38,7 +38,7 @@ const config: StorybookConfig = {
                 router: false,
                 dts: false,
                 autoImport: {
-                    imports: ["vue"],
+                    imports: ["vue", { from: fileURLToPath(new URL("./route.ts", import.meta.url)), imports: ["useRoute"] }],
                     dirs: [fileURLToPath(new URL("../app/utils", import.meta.url))],
                     vueTemplate: true,
                 },
