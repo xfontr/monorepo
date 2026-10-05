@@ -219,9 +219,12 @@ Promoted from `app/lab/`. B1, B3 and B4 don't depend on any spike.
 - **B5 🎫 #200 Listing kit:** URL-driven pagination (mobile prev / "n / N" / next, `UPagination`
   from `sm` up), SortSelect, scrolling FilterPills, EmptyState, NoResults, a skeleton list.
 - **B6 🎫 #201 Article reading kit:**
-  - `.hl-prose` moves out of the lab page into the app CSS.
-  - TOC rail and accordion, with a `useScrollSpy` composable.
-  - Notes with back-links, Bibliography, CiteBox with copy, ShareBar, AuthorCard, SeriesNav.
+  - `.hl-prose` gets a production copy in the articles layer. The lab keeps its own.
+  - TOC rail and accordion, lit by Nuxt UI's `useScrollspy`.
+  - Notes with back-links, Bibliography, CiteBox with copy, ShareBar, AuthorCard, all in the
+    articles layer. D replaced SeriesNav with "También en la materia", so it gets no component.
+  - Two inputs have no producer yet: `ArticleBody` carries no notes, and no mapper builds the
+    citation strings. C1 supplies both. AuthorCard's count waits for the authors route in C4.
 
 ### C: Pages
 

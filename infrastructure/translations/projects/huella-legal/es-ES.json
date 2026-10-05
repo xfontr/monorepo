@@ -6,6 +6,16 @@
     "article": {
         "back": "← Publicaciones"
     },
+    "articleBibliography": {
+        "title": "Bibliografía"
+    },
+    "articleNotes": {
+        "back": "Nota {number}, volver al texto",
+        "title": "Notas"
+    },
+    "articleToc": {
+        "title": "En este artículo"
+    },
     "articles": {
         "count": "{shown} de {total}",
         "pagination": {
@@ -16,11 +26,27 @@
         },
         "title": "Publicaciones"
     },
+    "authorCard": {
+        "kicker": "Sobre el autor",
+        "profile": "Ver sus publicaciones",
+        "profileCount": "Ver su publicación | Ver sus {count} publicaciones"
+    },
     "byline": {
         "readingTime": "{minutes} min de lectura"
     },
+    "citeBox": {
+        "copied": "Cita copiada",
+        "copy": "Copiar cita",
+        "title": "Cómo citar este artículo"
+    },
     "common": {
         "loading": "Cargando…"
+    },
+    "shareBar": {
+        "cite": "Citar",
+        "linkCopied": "Enlace copiado",
+        "print": "Imprimir",
+        "share": "Compartir"
     },
     "tagPill": {
         "count": "{count} publicación | {count} publicaciones"

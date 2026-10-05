@@ -46,6 +46,7 @@
         "@opentelemetry/api": "^1.9.1",
         "@opentelemetry/semantic-conventions": "^1.43.0",
         "@pinia/nuxt": "^1.0.2",
+        "@vueuse/core": "^14.4.0",
         "entities": "^8.1.0",
         "idb": "^8.0.3",
         "nuxt": "catalog:",

@@ -168,7 +168,7 @@ adding one is the mistake. That is the path `pinia.storesDirs` above is widened 
 
 | Layer | `shared/types/` | `app/components/` | `server/` |
 | --- | --- | --- | --- |
-| [`articles`](./layers/articles) | The view models: `Article`, `ArticleBody`, `ArticleSummary`, `Author`, `Category`, `TocItem` | `Byline`: authors, date and reading time | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time use `entities`, `striptags` and `reading-time`, and stay server-side. `toArticleBody` is the WP HTML pipeline, and `GET /api/articles/:slug` serves its `Article` |
+| [`articles`](./layers/articles) | The view models the server returns: `Article`, `ArticleBody`, `ArticleSummary`, `Author`, `Category`, `TocItem`. Component-only props (`Citation`, `Note`) live in `app/types/` | `Byline`: authors, date and reading time. The reading kit: `ArticleToc` (rail and accordion, lit by Nuxt UI's `useScrollspy`), `ArticleNotes`, `ArticleBibliography`, `CiteBox`, `ShareBar` and `AuthorCard`. `.hl-prose` in [`app/assets/prose.css`](./layers/articles/app/assets/prose.css) styles the sanitised body | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time use `entities`, `striptags` and `reading-time`, and stay server-side. `toArticleBody` is the WP HTML pipeline, and `GET /api/articles/:slug` serves its `Article` |
 
 ### 🧼 The body pipeline
 
@@ -308,6 +308,6 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | Firefox or WebKit | Another project per browser in the configs preset, and every baseline tripled. Linux WebKit is not Safari, so it won't stand in for iOS readers |
 | A per-glob threshold on view models | A3 adds `shared/**` and `app/utils/**` at 95 alongside the mappers it creates |
 | A story for a component that calls `t()`, a store or `useRoute` | A `setup` in `.storybook/preview.ts` that installs `vue-i18n` with `es-ES.json`, Pinia and a memory router, and `router: true` in `main.ts` |
-| Quote and callout styles | `hl-quote`, `hl-quote-short`, `hl-callout` and `hl-highlight` reach the page unstyled until B6 moves `.hl-prose` into the app CSS and gives them rules |
+| Quote and callout styles | `hl-quote`, `hl-quote-short`, `hl-callout` and `hl-highlight` reach the page unstyled. B6 moved `.hl-prose` into the articles layer without rules for them, because no D design covers them |
 | Consuming `/api/articles/:slug` | C1 switches [`articles/[slug].vue`](./app/pages/articles/%5Bslug%5D.vue) to it; until then that page still `v-html`s the raw WordPress body |
 | Parity with the `/lab` pages | Still a human check: the lab is stripped from production builds, and Linux substitutes a serif for Georgia |

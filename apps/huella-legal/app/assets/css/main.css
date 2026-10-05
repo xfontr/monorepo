@@ -132,6 +132,16 @@ html {
     text-rendering: optimizeLegibility;
 }
 
+@utility text-kicker {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ui-text-muted);
+}
+
 /* Tailwind v4 preflight leaves native <button> at `cursor: default`, and UButton renders one */
 button:not(:disabled) {
     cursor: pointer;
