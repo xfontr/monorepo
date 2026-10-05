@@ -1,5 +1,7 @@
 <script setup lang="ts">
-type BylineAuthor = Pick<Author, "id" | "name" | "avatar"> & { to: string };
+import type { RouteLocationRaw } from "vue-router";
+
+type BylineAuthor = Pick<Author, "id" | "name" | "avatar"> & { to: RouteLocationRaw };
 
 interface Props {
     authors: BylineAuthor[]

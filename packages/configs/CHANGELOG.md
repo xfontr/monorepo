@@ -1,3 +1,17 @@
+## 0.0.15 (2026-10-04)
+
+### 🚀 Features
+
+- [#223] enforce separate static class ([#223](https://github.com/xfontr/monorepo/issues/223))
+- [#223] enforce same name shorthand, fix hooks ([#223](https://github.com/xfontr/monorepo/issues/223))
+- [#196] require global $t in vue templates ([#196](https://github.com/xfontr/monorepo/issues/196))
+- consistently use interface for object types ([8011e61](https://github.com/xfontr/monorepo/commit/8011e61))
+- lint rule for interfaces ([4e09e9f](https://github.com/xfontr/monorepo/commit/4e09e9f))
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.14 (2026-09-30)
 
 ### 🚀 Features

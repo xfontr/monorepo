@@ -1,4 +1,8 @@
 export default defineAppConfig({
+    journal: {
+        issn: "2696-7618",
+    },
+
     ui: {
         // tailwind-merge reads the custom type steps in main.css as colours, so `text-meta` next to a
         // colour class was silently dropped from every Nuxt UI `class` and `:ui` override
@@ -52,6 +56,69 @@ export default defineAppConfig({
             ],
             defaultVariants: { size: "xl" },
         },
+        container: {
+            base: "px-4 sm:px-4 md:px-8 lg:px-12",
+        },
+        header: {
+            slots: {
+                root: "static z-auto h-auto bg-default backdrop-blur-none",
+                container: "h-16 gap-6 md:h-20",
+                title: "min-h-11 items-center font-normal rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary",
+                right: "gap-1 md:gap-2",
+                content: "max-w-sm bg-ivory-50",
+            },
+        },
+        navigationMenu: {
+            compoundVariants: [
+                {
+                    variant: "link",
+                    orientation: "horizontal",
+                    class: {
+                        list: "gap-1",
+                        // The underline's offset puts it on the header's bottom edge, so it follows
+                        // `header.container`'s height
+                        link: "min-h-11 px-3 font-sans text-sm font-semibold text-toned aria-[current]:text-highlighted focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary after:inset-x-3 after:-bottom-[1.1875rem] after:h-0.5",
+                    },
+                },
+                {
+                    variant: "link",
+                    orientation: "vertical",
+                    class: {
+                        list: "divide-y divide-(--ui-border-muted) border-b border-default",
+                        link: "min-h-14 px-4 font-serif text-xl text-highlighted aria-[current]:text-primary focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary",
+                    },
+                },
+            ],
+        },
+        footer: {
+            slots: {
+                root: "bg-huella-slate-900 text-huella-slate-200",
+                top: "border-b border-huella-slate-700 py-16 lg:py-20",
+                container: "flex flex-col gap-4 py-6 font-sans text-xs text-huella-slate-300 md:flex-row md:items-center md:justify-between lg:py-6",
+                left: "mt-0 justify-start md:order-1",
+                center: "hidden",
+                right: "justify-start md:order-3 lg:flex-none",
+            },
+        },
+        footerColumns: {
+            slots: {
+                root: "xl:block",
+                center: "grid grid-flow-row grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3",
+                label: "font-sans text-xs font-semibold uppercase tracking-[0.12em] text-huella-teal-300",
+                list: "mt-3 flex flex-col space-y-0",
+                // The default truncates, which clips "Publicar un TFG o TFM" in the two-column grid at 390px
+                linkLabel: "overflow-visible whitespace-normal",
+                link: "min-h-11 font-sans text-sm font-normal underline-offset-4 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ivory-50",
+            },
+            // The colour lives on the active variant because it outranks the `link` slot, whose muted and
+            // primary defaults fail contrast on slate
+            variants: {
+                active: {
+                    true: { link: "font-normal text-ivory-50" },
+                    false: { link: "text-ivory-100 hover:text-ivory-100" },
+                },
+            },
+        },
         avatar: {
             slots: { fallback: "font-sans font-semibold" },
             variants: {
@@ -69,8 +136,26 @@ export default defineAppConfig({
             slots: { base: "min-h-11 bg-ivory-50" },
             defaultVariants: { size: "xl" },
         },
+        // Previous and next sit at the ends of the row, and the ellipses go on phones with the numbers
+        pagination: {
+            slots: { root: "w-full", list: "w-full gap-0", prev: "me-auto", next: "ms-auto", ellipsis: "max-sm:hidden" },
+        },
+        skeleton: {
+            base: "bg-ivory-200",
+        },
         select: {
             slots: { base: "min-h-11 bg-ivory-50" },
+            compoundVariants: [
+                // The ghost select is the inline sort control beside a listing's count, not a form field
+                {
+                    variant: "ghost",
+                    class: {
+                        base: "bg-transparent ps-2 pe-8 font-sans text-sm font-semibold text-highlighted hover:bg-huella-slate-900/6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                        trailing: "pe-2",
+                        trailingIcon: "size-4 text-muted",
+                    },
+                },
+            ],
             defaultVariants: { size: "xl" },
         },
         textarea: {

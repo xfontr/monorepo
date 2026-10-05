@@ -1,4 +1,6 @@
 <script setup lang="ts">
+definePageMeta({ name: "article", path: "/:slug/" });
+
 const { getEntry } = useContent();
 const { locale } = useI18n();
 const route = useRoute();
@@ -24,10 +26,10 @@ const publishedOn = computed(() => {
 </script>
 
 <template>
-    <main class="article">
+    <article class="article">
         <NuxtLink
             class="back"
-            to="/articles"
+            :to="{ name: 'publications' }"
         >
             {{ $t("article.back") }}
         </NuxtLink>
@@ -78,7 +80,7 @@ const publishedOn = computed(() => {
                 v-html="entry.body.value"
             />
         </template>
-    </main>
+    </article>
 </template>
 
 <style scoped>

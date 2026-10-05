@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { RouteLocationRaw } from "vue-router";
+
 const TONES = {
     teal: "text-secondary",
     muted: "text-muted",
@@ -8,7 +10,7 @@ const TONES = {
 type Tone = typeof TONES[keyof typeof TONES];
 
 interface Props {
-    to?: string
+    to?: RouteLocationRaw
     tone?: "teal" | "muted" | "paper"
 }
 

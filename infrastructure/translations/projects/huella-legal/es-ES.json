@@ -1,6 +1,58 @@
 {
     "app": {
         "description": "Un blog jurídico, rediseñado",
+        "footer": {
+            "about": "Divulgación jurídica rigurosa y de acceso libre, escrita por profesionales, docentes y estudiantes de todo el ámbito hispanohablante.",
+            "columns": {
+                "journal": "Revista",
+                "legal": "Legal",
+                "participate": "Participa"
+            },
+            "copyright": "© {year} Huella Legal · ISSN {issn}",
+            "label": "Mapa del sitio",
+            "links": {
+                "about": "Sobre Huella Legal",
+                "collaborators": "Colaboradores",
+                "contact": "Contacto",
+                "cookies": "Política de cookies",
+                "legalNotice": "Aviso legal",
+                "newsletter": "Boletín mensual",
+                "privacy": "Política de privacidad",
+                "publications": "Publicaciones",
+                "publish": "Publicar un artículo",
+                "publishThesis": "Publicar un TFG o TFM",
+                "subjects": "Materias"
+            },
+            "social": {
+                "external": "{network} (se abre en una pestaña nueva)",
+                "instagram": "Instagram",
+                "label": "Redes sociales",
+                "linkedin": "LinkedIn",
+                "x": "X (Twitter)"
+            }
+        },
+        "header": {
+            "home": "Huella Legal, portada",
+            "menu": {
+                "close": "Cerrar menú",
+                "description": "Secciones de la revista",
+                "publish": "Publicar un artículo",
+                "subscribe": "Suscribirse al boletín",
+                "title": "Menú"
+            },
+            "nav": {
+                "collaborators": "Colaboradores",
+                "label": "Principal",
+                "publications": "Publicaciones",
+                "publish": "Publicar",
+                "subjects": "Materias"
+            },
+            "newsletter": "Un correo al mes con lo nuevo",
+            "search": "Buscar",
+            "strip": "Revista jurídica de acceso libre · ISSN {issn}",
+            "subscribe": "Suscribirse"
+        },
+        "skipLink": "Saltar al contenido",
         "title": "Huella Legal"
     },
     "article": {
@@ -42,11 +94,69 @@
     "common": {
         "loading": "Cargando…"
     },
+    "emptyState": {
+        "browse": "Ver otras materias",
+        "description": "Es una materia nueva en la revista. Si trabajas en ella, tu artículo puede ser el primero.",
+        "publish": "Publicar en esta materia",
+        "title": "Todavía no hay publicaciones en {subject}"
+    },
+    "error": {
+        "head": "Error {status}",
+        "kicker": "Error {status}",
+        "notFound": {
+            "home": "Ir a la portada",
+            "lead": "Puede que el artículo se haya movido al reorganizar las materias. Búscalo por su título o empieza por la portada.",
+            "title": "Esta página no existe o ha cambiado de dirección."
+        },
+        "search": {
+            "label": "Buscar en Huella Legal",
+            "placeholder": "Título, autor o materia",
+            "submit": "Buscar"
+        },
+        "server": {
+            "contact": "Contactar",
+            "lead": "El fallo es nuestro y ya está registrado. Vuelve a intentarlo en unos minutos; si continúa, escríbenos.",
+            "retry": "Reintentar",
+            "title": "No hemos podido cargar esta página"
+        }
+    },
+    "filterPills": {
+        "count": "{count} publicación | {count} publicaciones"
+    },
+    "noResults": {
+        "broaden": "Prueba con una palabra más general o con el apellido del autor.",
+        "browse": "O explora por materia",
+        "label": "Búsqueda sin resultados",
+        "spelling": "Revisa la ortografía: ¿quizá «{suggestion}»?",
+        "title": "Ningún resultado para «{query}»"
+    },
+    "pagination": {
+        "label": "Paginación",
+        "next": {
+            "label": "Página siguiente",
+            "text": "Siguiente"
+        },
+        "page": "Página {page}",
+        "position": "Página {page} de {total}",
+        "previous": {
+            "label": "Página anterior",
+            "text": "Anterior"
+        }
+    },
     "shareBar": {
         "cite": "Citar",
         "linkCopied": "Enlace copiado",
         "print": "Imprimir",
         "share": "Compartir"
+    },
+    "skeletonList": {
+        "loading": "Cargando publicaciones…"
+    },
+    "sortSelect": {
+        "label": "Ordenar publicaciones",
+        "newest": "Más recientes",
+        "oldest": "Más antiguas",
+        "prefix": "Ordenar:"
     },
     "tagPill": {
         "count": "{count} publicación | {count} publicaciones"
