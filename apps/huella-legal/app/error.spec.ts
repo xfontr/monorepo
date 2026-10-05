@@ -51,12 +51,12 @@ describe("error page", () => {
         expect(wrapper.text()).toContain(`t(error.kicker, {"status":${status}})`);
     });
 
-    it("retries by reloading the page the reader was on", async () => {
+    it("retries every time it is clicked, not once per ten seconds as a bare reloadNuxtApp would", async () => {
         const wrapper = mountError(SERVER);
 
         await wrapper.find("[data-error='server'] button").trigger("click");
 
-        expect(head.reloadNuxtApp).toHaveBeenCalledOnce();
+        expect(head.reloadNuxtApp).toHaveBeenCalledExactlyOnceWith({ force: true });
     });
 
     it("keeps error pages out of search results", () => {

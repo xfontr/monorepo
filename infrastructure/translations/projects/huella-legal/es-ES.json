@@ -9,7 +9,7 @@
                 "participate": "Participa"
             },
             "copyright": "© {year} Huella Legal · ISSN {issn}",
-            "label": "Pie de página",
+            "label": "Mapa del sitio",
             "links": {
                 "about": "Sobre Huella Legal",
                 "collaborators": "Colaboradores",
@@ -24,6 +24,7 @@
                 "subjects": "Materias"
             },
             "social": {
+                "external": "{network} (se abre en una pestaña nueva)",
                 "instagram": "Instagram",
                 "label": "Redes sociales",
                 "linkedin": "LinkedIn",

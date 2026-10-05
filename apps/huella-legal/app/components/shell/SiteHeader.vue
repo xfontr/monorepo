@@ -1,45 +1,20 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from "@nuxt/ui";
-import type { RouteMap } from "vue-router";
 
-interface Nav {
-    key: string
-    to: {
-        name: keyof RouteMap
-    }
+interface Props {
+    sections: NavigationMenuItem[]
+    issn: string
 }
 
-const NAV = [
-    { key: "publications", to: { name: "publications" } },
-    { key: "subjects", to: { name: "categories" } },
-    { key: "collaborators", to: { name: "authors" } },
-    { key: "publish", to: { name: "publish" } },
-] as const satisfies readonly Nav[];
+defineProps<Props>();
 
 const NEWSLETTER = { name: "index", hash: "#newsletter" } as const;
 
-const { t } = useI18n();
-const route = useRoute();
 const router = useRouter();
-const { journal } = useAppConfig();
-
-const open = ref<boolean>(false);
-
-const items = computed<NavigationMenuItem[]>(() => NAV.map(({ key, to }) => {
-    const { path } = router.resolve(to);
-    const current = route.path === path ? "page" : route.path.startsWith(path) ? "true" : undefined;
-
-    return {
-        "label": t(`app.header.nav.${key}`),
-        to,
-        "active": !!current,
-        "aria-current": current };
-}));
 </script>
 
 <template>
     <UHeader
-        v-model:open="open"
         :to="router.resolve({ name: 'index' }).path"
         mode="slideover"
         :title="$t('app.header.home')"
@@ -48,7 +23,7 @@ const items = computed<NavigationMenuItem[]>(() => NAV.map(({ key, to }) => {
         <template #top>
             <div class="hidden border-b border-(--ui-border-muted) md:block">
                 <UContainer class="flex h-9 items-center justify-between font-sans text-xs text-muted">
-                    <span>{{ $t("app.header.strip", { issn: journal.issn }) }}</span>
+                    <span>{{ $t("app.header.strip", { issn }) }}</span>
                     <ULink
                         :to="NEWSLETTER"
                         raw
@@ -69,7 +44,7 @@ const items = computed<NavigationMenuItem[]>(() => NAV.map(({ key, to }) => {
         </template>
 
         <UNavigationMenu
-            :items
+            :items="sections"
             variant="link"
             color="neutral"
             highlight
@@ -109,7 +84,7 @@ const items = computed<NavigationMenuItem[]>(() => NAV.map(({ key, to }) => {
 
             <div class="overflow-y-auto">
                 <UNavigationMenu
-                    :items
+                    :items="sections"
                     orientation="vertical"
                     variant="link"
                     color="primary"
@@ -137,7 +112,7 @@ const items = computed<NavigationMenuItem[]>(() => NAV.map(({ key, to }) => {
                         :label="$t('app.header.menu.publish')"
                     />
                     <p class="pt-2 font-sans text-xs text-muted">
-                        {{ $t("app.header.strip", { issn: journal.issn }) }}
+                        {{ $t("app.header.strip", { issn }) }}
                     </p>
                 </div>
             </div>

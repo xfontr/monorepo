@@ -1,66 +1,16 @@
 <script setup lang="ts">
 import type { FooterColumn } from "@nuxt/ui";
-import type { RouteMap } from "vue-router";
+import type { SocialLink } from "~/composables/useSiteNav";
 
-interface Column {
-    key: string
-    links: readonly {
-        key: string
-        to: {
-            name: keyof RouteMap
-            params?: { slug: string }
-            hash?: string
-        }
-    }[]
+interface Props {
+    columns: FooterColumn[]
+    social: SocialLink[]
+    issn: string
 }
 
-const COLUMNS = [
-    {
-        key: "journal",
-        links: [
-            { key: "publications", to: { name: "publications" } },
-            { key: "subjects", to: { name: "categories" } },
-            { key: "collaborators", to: { name: "authors" } },
-            { key: "about", to: { name: "article", params: { slug: "sobre" } } },
-        ],
-    },
-    {
-        key: "participate",
-        links: [
-            { key: "publish", to: { name: "publish" } },
-            { key: "publishThesis", to: { name: "publish", hash: "#tesis" } },
-            { key: "newsletter", to: { name: "index", hash: "#newsletter" } },
-            { key: "contact", to: { name: "article", params: { slug: "contacto" } } },
-        ],
-    },
-    {
-        key: "legal",
-        links: [
-            { key: "legalNotice", to: { name: "article", params: { slug: "aviso-legal" } } },
-            { key: "privacy", to: { name: "article", params: { slug: "aviso-legal" }, hash: "#privacidad" } },
-            { key: "cookies", to: { name: "article", params: { slug: "aviso-legal" }, hash: "#cookies" } },
-        ],
-    },
-] as const satisfies readonly Column[];
-
-const SOCIAL = [
-    { key: "instagram", icon: "i-lucide-instagram" },
-    { key: "linkedin", icon: "i-lucide-linkedin" },
-    { key: "x", icon: "i-lucide-twitter" },
-] as const;
-
-const { t } = useI18n();
-const { journal } = useAppConfig();
-const { public: { social: profiles } } = useRuntimeConfig();
+defineProps<Props>();
 
 const year = new Date().getFullYear();
-
-const columns = computed<FooterColumn[]>(() => COLUMNS.map(({ key, links }) => ({
-    label: t(`app.footer.columns.${key}`),
-    children: links.map((link) => ({ label: t(`app.footer.links.${link.key}`), to: link.to })),
-})));
-
-const social = SOCIAL.filter(({ key }) => profiles[key]).map(({ key, icon }) => ({ key, icon, to: profiles[key] }));
 </script>
 
 <template>
@@ -82,16 +32,12 @@ const social = SOCIAL.filter(({ key }) => profiles[key]).map(({ key, icon }) => 
                     :aria-label="$t('app.footer.label')"
                     :columns
                     class="lg:col-span-7 lg:col-start-6"
-                >
-                    <template #link="{ link }">
-                        {{ link.label }}
-                    </template>
-                </UFooterColumns>
+                />
             </UContainer>
         </template>
 
         <template #left>
-            <p>{{ $t("app.footer.copyright", { year, issn: journal.issn }) }}</p>
+            <p>{{ $t("app.footer.copyright", { year, issn }) }}</p>
         </template>
 
         <template #right>
@@ -101,7 +47,7 @@ const social = SOCIAL.filter(({ key }) => profiles[key]).map(({ key, icon }) => 
                 class="-ml-3 flex items-center gap-1 md:-mr-3 md:ml-0"
             >
                 <li
-                    v-for="{ key, to, icon } in social"
+                    v-for="{ key, to, icon, label } in social"
                     :key
                 >
                     <UButton
@@ -111,7 +57,7 @@ const social = SOCIAL.filter(({ key }) => profiles[key]).map(({ key, icon }) => 
                         variant="ghost"
                         color="neutral"
                         :icon
-                        :aria-label="$t(`app.footer.social.${key}`)"
+                        :aria-label="label"
                         class="rounded-full text-huella-slate-200 hover:bg-huella-slate-800 hover:text-ivory-50 focus-visible:outline-ivory-50"
                     />
                 </li>

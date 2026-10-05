@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { t, localeProperties } = useI18n();
+const { sections, columns, social, issn } = useSiteNav();
 
 useHead({
     meta: [
@@ -23,7 +24,10 @@ useSeoMeta({
             class="sr-only z-50 rounded-xs bg-primary font-sans text-sm font-semibold text-inverted focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:px-4 focus:py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >{{ $t("app.skipLink") }}</a>
 
-        <ShellSiteHeader />
+        <ShellSiteHeader
+            :sections
+            :issn
+        />
 
         <UMain
             id="contenido"
@@ -33,6 +37,10 @@ useSeoMeta({
             <slot />
         </UMain>
 
-        <ShellSiteFooter />
+        <ShellSiteFooter
+            :columns
+            :social
+            :issn
+        />
     </div>
 </template>

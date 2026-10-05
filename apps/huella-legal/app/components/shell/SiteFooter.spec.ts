@@ -1,59 +1,44 @@
-import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { FooterColumn } from "@nuxt/ui";
+import { mountSuspended } from "@nuxt/test-utils/runtime";
+import { describe, expect, it } from "vitest";
 import SiteFooter from "./SiteFooter.vue";
 
 const translate = (key: string, params?: Record<string, unknown>) => params ? `t(${key}, ${JSON.stringify(params)})` : `t(${key})`;
 
-const global = { mocks: { $t: translate } };
+const COLUMNS: FooterColumn[] = [{ label: "Legal", children: [{ label: "Aviso legal", to: { name: "article", params: { slug: "aviso-legal" } } }] }];
 
-const social = vi.hoisted(() => ({ profiles: {} as Record<string, string> }));
+const SOCIAL = [{ key: "x", icon: "i-lucide-twitter", to: "https://x.test/huella", label: "X (se abre en una pestaña nueva)" }];
 
-mockNuxtImport("useI18n", () => () => ({ t: translate }));
-mockNuxtImport("useRuntimeConfig", (original) => () => {
-    const config = original();
-
-    return { ...config, public: { ...config.public, social: social.profiles } };
-});
-
-beforeEach(() => {
-    social.profiles = { instagram: "", linkedin: "", x: "" };
-});
+function mountFooter(social = SOCIAL) {
+    return mountSuspended(SiteFooter, { props: { columns: COLUMNS, social, issn: "2696-7618" }, global: { mocks: { $t: translate } } });
+}
 
 describe("site footer", () => {
-    it("sends every link to a route the URL decision settled, never to a placeholder", async () => {
-        const wrapper = await mountSuspended(SiteFooter, { global });
+    it("renders the columns inside the named footer nav", async () => {
+        const wrapper = await mountFooter();
 
-        const hrefs = wrapper.findAll("nav a").map((link) => link.attributes("href"));
+        const nav = wrapper.find("nav[aria-label='t(app.footer.label)']");
 
-        expect(hrefs).toEqual([
-            "/publicaciones/", "/materias/", "/colaboradores/", "/sobre/",
-            "/publicar/", "/publicar/#tesis", "/#newsletter", "/contacto/",
-            "/aviso-legal/", "/aviso-legal/#privacidad", "/aviso-legal/#cookies",
-        ]);
+        expect(nav.findAll("a").map((link) => [link.attributes("href"), link.text()])).toEqual([["/aviso-legal/", "Aviso legal"]]);
     });
 
     it("prints the ISSN and the current year beside the copyright", async () => {
-        const wrapper = await mountSuspended(SiteFooter, { global });
+        const wrapper = await mountFooter();
 
         expect(wrapper.text()).toContain(`t(app.footer.copyright, {"year":${new Date().getFullYear()},"issn":"2696-7618"})`);
     });
 
     it("leaves the social list out while no profile is configured", async () => {
-        const wrapper = await mountSuspended(SiteFooter, { global });
+        const wrapper = await mountFooter([]);
 
         expect(wrapper.find("[aria-label='t(app.footer.social.label)']").exists()).toBe(false);
     });
 
-    it("links only the profiles that are set, each named for screen readers", async () => {
-        social.profiles = { instagram: "https://instagram.test/huella", linkedin: "", x: "https://x.test/huella" };
-
-        const wrapper = await mountSuspended(SiteFooter, { global });
+    it("names each profile link with its new-tab warning, since the icon is all a sighted reader gets", async () => {
+        const wrapper = await mountFooter();
 
         const links = wrapper.findAll("[aria-label='t(app.footer.social.label)'] a").map((link) => [link.attributes("href"), link.attributes("aria-label")]);
 
-        expect(links).toEqual([
-            ["https://instagram.test/huella", "t(app.footer.social.instagram)"],
-            ["https://x.test/huella", "t(app.footer.social.x)"],
-        ]);
+        expect(links).toEqual([["https://x.test/huella", "X (se abre en una pestaña nueva)"]]);
     });
 });

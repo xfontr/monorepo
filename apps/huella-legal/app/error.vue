@@ -20,10 +20,6 @@ useHead({
         { name: "robots", content: "noindex" },
     ],
 }, { tagPriority: "high" });
-
-function retry() {
-    reloadNuxtApp();
-}
 </script>
 
 <template>
@@ -36,10 +32,10 @@ function retry() {
                     class="lg:w-7/12"
                 >
                     <BaseKicker>{{ $t("error.kicker", { status: error.status }) }}</BaseKicker>
-                    <h1 class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-balance text-highlighted md:text-[3.5rem]">
+                    <h1 class="mt-2 font-serif text-h1 text-balance text-highlighted md:text-display">
                         {{ $t("error.notFound.title") }}
                     </h1>
-                    <p class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned">
+                    <p class="mt-4 max-w-measure font-serif text-reading text-toned">
                         {{ $t("error.notFound.lead") }}
                     </p>
                     <form
@@ -94,7 +90,7 @@ function retry() {
                             icon="i-lucide-rotate-cw"
                             :label="$t('error.server.retry')"
                             class="justify-center"
-                            @click="retry"
+                            @click="reloadNuxtApp({ force: true })"
                         />
                         <UButton
                             :to="{ name: 'article', params: { slug: 'contacto' } }"

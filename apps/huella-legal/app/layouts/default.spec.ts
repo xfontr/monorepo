@@ -9,6 +9,7 @@ const head = vi.hoisted(() => ({ useHead: vi.fn(), useSeoMeta: vi.fn() }));
 mockNuxtImport("useI18n", () => () => ({ t: (key: string) => `t(${key})`, localeProperties: ref({ language: "es" }) }));
 mockNuxtImport("useHead", () => head.useHead);
 mockNuxtImport("useSeoMeta", () => head.useSeoMeta);
+mockNuxtImport("useSiteNav", () => () => ({ sections: ref([]), columns: ref([]), social: ref([]), issn: "2696-7618" }));
 
 const global = {
     mocks: { $t: (key: string) => `t(${key})` },
