@@ -8,7 +8,7 @@ const WCAG_AA = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 test("serves the entry page with copy from the translations upstream", async ({ page }) => {
     await page.goto("/");
 
-    await expect(page.getByText("Huella Legal", { exact: true })).toBeVisible();
+    await expect(page.getByRole("main").getByText("Huella Legal", { exact: true })).toBeVisible();
     await expect(page).toHaveTitle("Huella Legal");
 });
 
@@ -27,12 +27,12 @@ test("the entry page matches its baseline", async ({ page }) => {
 });
 
 test("lists articles from the WordPress upstream, one page at a time", async ({ page }) => {
-    await page.goto("/articles");
+    await page.goto("/publicaciones/");
 
     await expect(page.getByText(`6 de ${POSTS.length}`)).toBeVisible();
     await expect(page.getByRole("heading", { level: 2, name: LEAD.title })).toBeVisible();
 
-    await page.goto("/articles?page=2");
+    await page.goto("/publicaciones/?page=2");
 
     await expect(page.getByText(`${POSTS.length - 6} de ${POSTS.length}`)).toBeVisible();
     await expect(page.getByText("Página 2 de 2")).toBeVisible();

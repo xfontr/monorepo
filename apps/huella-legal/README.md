@@ -67,13 +67,14 @@ page but a `500` naming what is missing, on the first request that needs it.
 | `NUXT_TRANSLATIONS_VENDOR_PROJECT` | The Tolgee project ID. Unset in development, where the project is fixed to `huella-legal` |
 | `NUXT_TRANSLATIONS_VENDOR_BASE_URL` | The TMS API base URL (absolute, with scheme): the translations server in development, Tolgee in a build |
 | `NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN` | The Tolgee API key. Unset in development |
-| `NUXT_CONTENT_VENDOR_BASE_URL` | The WordPress site root, **without** `/wp-json` — the provider owns that path. Only `/articles` needs it |
+| `NUXT_CONTENT_VENDOR_BASE_URL` | The WordPress site root, **without** `/wp-json` — the provider owns that path. Only `/publicaciones/` and `/:slug/` need it |
 | `NUXT_PUBLIC_OBSERVABILITY_URL` | Faro collector URL. Leave unset and browser telemetry stays off |
 | `NUXT_PUBLIC_OBSERVABILITY_APP_VERSION` | Stamped on browser *and* server spans. Defaults to `0.0.0`, which nothing can be attributed to — set it at deploy time |
 | `NUXT_PUBLIC_OBSERVABILITY_APP_ENVIRONMENT` | Stamped the same way. Defaults to `development` |
 | `NUXT_OBSERVABILITY_URL` | Grafana OTLP gateway URL. Leave unset and server telemetry stays off |
 | `NUXT_OBSERVABILITY_INSTANCE_ID` | Grafana Cloud instance ID, the user half of the OTLP credentials |
 | `NUXT_OBSERVABILITY_TOKEN` | Grafana Cloud access token, the password half |
+| `NUXT_PUBLIC_SOCIAL_INSTAGRAM`, `_LINKEDIN`, `_X` | Profile URLs for the footer's icons. Each one left unset drops its icon, and with none set the list is gone |
 
 No URL or credential has a default in `nuxt.config.ts`, and no real URL or key belongs in the repo.
 Every variable is read at **startup**, not at build time, so one build artifact runs in any
@@ -159,8 +160,19 @@ and the gotchas.
 
 [`app/`](./app) is the front-end shell and stays thin: a layout, an error page and its dev-only debug
 panel, two client plugins (Faro telemetry, and a dev-only console filter for a known Nuxt/Vue
-warning), and three pages — an entry page and the two [article pages](#-content). The app's own
-server code is one Nitro plugin, for telemetry.
+warning), and five pages — an entry page, the two [article pages](#-content), and the `publish` and
+`search` placeholders. The app's own server code is one Nitro plugin, for telemetry.
+
+| Piece | What it holds |
+| --- | --- |
+| [`layouts/default.vue`](./app/layouts/default.vue) | The skip link, `SiteHeader`, the one `<main id="contenido">` and `SiteFooter`, fed by `useSiteNav`. A page never renders its own `<main>` |
+| [`composables/useSiteNav.ts`](./app/composables/useSiteNav.ts) | The shell's links: the header sections with their `aria-current`, the footer columns, the configured social profiles and the ISSN. The layout calls it and hands the results to the shell |
+| [`components/shell/`](./app/components/shell) | `SiteHeader` (`UHeader` with a slideover menu below `lg`) and `SiteFooter` (`UFooter` + `UFooterColumns`), both props-in. Every link is a [route name](#-links). WordPress pages such as `sobre`, `contacto` and `aviso-legal` are `article` slugs, and the privacy and cookies links are anchors on `aviso-legal`, per [0028](../../docs/decisions/0028-huella-legal-urls-and-cutover.md) |
+| [`error.vue`](./app/error.vue) | The 404 design for a 404 and the server design for anything else, inside the same layout. It wraps itself in `UApp`, since Nuxt renders it in place of `app.vue` |
+| [`app.config.ts`](./app/app.config.ts) | The ISSN under `journal`, and the `UContainer` gutters every section shares |
+
+`/lab` pages draw their own lab header and footer, so a `$development` hook in `nuxt.config.ts` sets
+`layout: false` on them.
 
 Domain logic lives in Nuxt layers under [`layers/`](./layers), one directory per domain. Nuxt
 auto-registers `<rootDir>/layers/*` by their presence, so there is no `extends` array to add, and
@@ -179,8 +191,14 @@ from those pages, so a wrong name or a missing param fails typecheck.
 
 | Name | Path | Page |
 | --- | --- | --- |
+| `index` | `/` | [`app/pages/index.vue`](./app/pages/index.vue) |
+| `publications` | `/publicaciones/` | [`app/pages/articles/index.vue`](./app/pages/articles/index.vue) |
 | `article` | `/:slug/` | [`app/pages/articles/[slug].vue`](./app/pages/articles/%5Bslug%5D.vue) |
+| `publish` | `/publicar/` | [`app/pages/publicar.vue`](./app/pages/publicar.vue) — a 404 until the publish page is built |
+| `search` | `/buscar/` | [`app/pages/buscar.vue`](./app/pages/buscar.vue) — a 404 until the search page is built |
+| `authors` | `/colaboradores/` | [`layers/articles/app/pages/colaboradores/index.vue`](./layers/articles/app/pages/colaboradores/index.vue) — a 404 until the authors page is built |
 | `author` | `/colaboradores/:slug/` | [`layers/articles/app/pages/colaboradores/[slug].vue`](./layers/articles/app/pages/colaboradores/%5Bslug%5D.vue) — a 404 until the author page is built |
+| `categories` | `/materias/` | [`layers/articles/app/pages/materias/index.vue`](./layers/articles/app/pages/materias/index.vue) — a 404 until the categories page is built |
 | `category` | `/materias/:slug/` | [`layers/articles/app/pages/materias/[slug].vue`](./layers/articles/app/pages/materias/%5Bslug%5D.vue) — a 404 until the category page is built |
 
 ### 🧼 The body pipeline
@@ -324,7 +342,7 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | Firefox or WebKit | Another project per browser in the configs preset, and every baseline tripled. Linux WebKit is not Safari, so it won't stand in for iOS readers |
 | A per-glob threshold on view models | A3 adds `shared/**` and `app/utils/**` at 95 alongside the mappers it creates |
 | A story for a component that reads a store | Pinia in the `setup` in `.storybook/preview.ts` |
-| Author and category pages | Replace the 404 bodies of the two [link-holding pages](#-links); their names and paths stay |
+| Author, category, publish and search pages | Replace the 404 bodies of the six [link-holding pages](#-links); their names and paths stay |
 | Quote and callout styles | `hl-quote`, `hl-quote-short`, `hl-callout` and `hl-highlight` reach the page unstyled until B6 moves `.hl-prose` into the app CSS and gives them rules |
 | Consuming `/api/articles/:slug` | C1 switches [`articles/[slug].vue`](./app/pages/articles/%5Bslug%5D.vue) to it; until then that page still `v-html`s the raw WordPress body |
 | Parity with the `/lab` pages | Still a human check: the lab is stripped from production builds, and Linux substitutes a serif for Georgia |
