@@ -24,10 +24,10 @@ function formatDate(date: string): string {
 </script>
 
 <template>
-    <main class="article">
+    <article class="article">
         <NuxtLink
             class="back"
-            to="/articles"
+            :to="{ name: 'publications' }"
         >
             {{ $t("article.back") }}
         </NuxtLink>
@@ -78,7 +78,7 @@ function formatDate(date: string): string {
                 v-html="entry.body.value"
             />
         </template>
-    </main>
+    </article>
 </template>
 
 <style scoped>

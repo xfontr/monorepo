@@ -46,8 +46,17 @@ export default defineNuxtConfig({
         },
     },
 
-    // Provisional until early development ends, then Tolgee everywhere (README.md § i18n)
     $development: {
+        // Lab pages draw their own lab header and footer, so the site shell would render twice
+        hooks: {
+            "pages:extend"(pages) {
+                for (const page of pages) {
+                    if (page.path.startsWith("/lab")) page.meta = { ...page.meta, layout: false };
+                }
+            },
+        },
+
+        // Provisional until early development ends, then Tolgee everywhere (README.md § i18n)
         translations: {
             vendor: {
                 name: "internal",
@@ -79,6 +88,12 @@ export default defineNuxtConfig({
                     version: "0.0.0",
                     environment: "development",
                 },
+            },
+
+            social: {
+                instagram: "",
+                linkedin: "",
+                x: "",
             },
         },
     },

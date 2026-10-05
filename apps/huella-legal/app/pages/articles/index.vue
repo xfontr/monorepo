@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { RouteLocationRaw } from "vue-router";
 
+definePageMeta({ name: "publications", path: "/publicaciones/" });
+
 const PER_PAGE = 6;
 
 const { listEntries } = useContent();
@@ -37,7 +39,7 @@ watch(error, raiseIfMissing);
 // Nuxt's default scrollBehavior stays put when only the query changes
 watch(page, () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
-// Page one keeps the bare /articles URL, so the list has a single canonical address
+// Page one keeps the bare URL, so the list has a single canonical address
 function pageLink(target: number): RouteLocationRaw {
     return { query: target > 1 ? { page: target } : {} };
 }
@@ -48,7 +50,7 @@ function formatDate(date: string): string {
 </script>
 
 <template>
-    <main
+    <div
         class="articles"
         :aria-busy="status === 'pending'"
     >
@@ -166,7 +168,7 @@ function formatDate(date: string): string {
                 </span>
             </nav>
         </template>
-    </main>
+    </div>
 </template>
 
 <style scoped>
