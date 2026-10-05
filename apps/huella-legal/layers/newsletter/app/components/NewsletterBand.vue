@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { RouteLocationRaw } from "vue-router";
-
-type Tone = "paper" | "slate";
+import type { NewsletterTone } from "../types/Newsletter";
 
 interface Recipe {
     root: string
@@ -12,7 +11,7 @@ interface Recipe {
 
 interface Props {
     privacyTo: RouteLocationRaw
-    tone?: Tone
+    tone?: NewsletterTone
     pending?: boolean
     error?: string
 }
@@ -30,7 +29,7 @@ const email = defineModel<string>("email", { default: "" });
 const TONES = {
     paper: { root: "bg-ivory-200", kicker: "teal", title: "text-highlighted", note: "text-muted" },
     slate: { root: "bg-huella-slate-800 text-huella-slate-200", kicker: "paper", title: "text-ivory-50", note: "text-huella-slate-300" },
-} as const satisfies Record<Tone, Recipe>;
+} as const satisfies Record<NewsletterTone, Recipe>;
 
 const ui = computed<Recipe>(() => TONES[props.tone]);
 const titleId = useId();

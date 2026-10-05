@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@nuxt/ui";
 import { type Subscription, subscriptionSchema } from "../../shared/schemas/subscription";
+import type { NewsletterTone } from "../types/Newsletter";
 
 type Layout = "stacked" | "inline";
-type Tone = "paper" | "slate";
 
 interface LayoutRecipe {
     row: string
@@ -20,20 +20,10 @@ interface ToneRecipe {
 
 interface Props {
     layout?: Layout
-    tone?: Tone
+    tone?: NewsletterTone
     pending?: boolean
     error?: string
 }
-
-const LAYOUTS = {
-    stacked: { row: "flex flex-col gap-3", field: undefined, button: undefined, block: true },
-    inline: { row: "flex flex-col gap-3 sm:flex-row", field: "flex-1", button: "justify-center sm:self-end", block: false },
-} as const satisfies Record<Layout, LayoutRecipe>;
-
-const TONES = {
-    paper: { label: undefined, error: undefined, button: "primary" },
-    slate: { label: "text-huella-slate-200", error: "text-huella-danger-200", button: "secondary" },
-} as const satisfies Record<Tone, ToneRecipe>;
 
 const props = withDefaults(defineProps<Props>(), {
     layout: "stacked",
@@ -45,6 +35,16 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{ submit: [email: string] }>();
 
 const email = defineModel<string>("email", { default: "" });
+
+const LAYOUTS = {
+    stacked: { row: "flex flex-col gap-3", field: undefined, button: undefined, block: true },
+    inline: { row: "flex flex-col gap-3 sm:flex-row", field: "flex-1", button: "justify-center sm:self-end", block: false },
+} as const satisfies Record<Layout, LayoutRecipe>;
+
+const TONES = {
+    paper: { label: undefined, error: undefined, button: "primary" },
+    slate: { label: "text-huella-slate-200", error: "text-huella-danger-200", button: "secondary" },
+} as const satisfies Record<NewsletterTone, ToneRecipe>;
 
 const { t } = useI18n();
 

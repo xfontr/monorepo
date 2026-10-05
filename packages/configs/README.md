@@ -170,6 +170,10 @@ Node types even in a package that otherwise doesn't.
 - `vue/prefer-separate-static-class`, in [`vue.ts`](./src/eslint/vue.ts) — a class that never
   changes goes in the static `class` attribute, never as a string literal inside `:class`.
   Conditional expressions are left alone, and `--fix` moves the rest
+- `vue/define-macros-order`, in [`vue.ts`](./src/eslint/vue.ts) — `<script setup>` reads imports,
+  then types, then `defineProps`, `defineEmits`, `defineModel` and `defineSlots` in that order,
+  then everything else. Types are exempt from the ordering; by convention the helper types come first
+  and `Props` sits last, just above `defineProps`. `--fix` moves the macros up
 - `@typescript-eslint/consistent-type-definitions: interface`, in [`node.ts`](./src/eslint/node.ts) and [`vue.ts`](./src/eslint/vue.ts) —
   a plain object shape is an `interface`, never `type X = { … }`. Unions, intersections and mapped types stay
   `type`, and `--fix` rewrites the rest
