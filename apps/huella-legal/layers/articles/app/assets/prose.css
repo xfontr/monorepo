@@ -1,0 +1,196 @@
+/* Reading typography for the sanitised WordPress body. Only plain elements and the classes the
+   articles layer's pipeline emits are styled; anything else never survives the sanitiser. */
+.hl-prose {
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--ui-text);
+    text-wrap: pretty;
+}
+
+@media (min-width: 768px) {
+    .hl-prose { font-size: 1.125rem; }
+}
+
+.hl-prose > * + * { margin-top: 1.25em; }
+
+.hl-prose h2 {
+    margin-top: 2.4em;
+    font-size: 1.625rem;
+    line-height: 1.25;
+    color: var(--ui-text-highlighted);
+    scroll-margin-top: 2rem;
+    text-wrap: balance;
+}
+
+@media (min-width: 768px) {
+    .hl-prose h2 { font-size: 1.875rem; }
+}
+
+.hl-prose h2:first-child { margin-top: 0; }
+
+.hl-prose h3 {
+    margin-top: 1.9em;
+    font-size: 1.3125rem;
+    line-height: 1.3;
+    color: var(--ui-text-highlighted);
+    scroll-margin-top: 2rem;
+}
+
+@media (min-width: 768px) {
+    .hl-prose h3 { font-size: 1.5rem; }
+}
+
+.hl-prose h2 + *, .hl-prose h3 + * { margin-top: 0.75em; }
+
+.hl-prose > h2:first-child + p::first-letter {
+    float: left;
+    margin: 0.06em 0.1em 0 0;
+    font-size: 3.9em;
+    line-height: 0.84;
+    color: var(--ui-text-highlighted);
+}
+
+.hl-prose a {
+    color: var(--ui-primary);
+    text-decoration: underline;
+    text-decoration-color: var(--color-huella-slate-300);
+    text-underline-offset: 0.18em;
+}
+
+.hl-prose a:hover { text-decoration-color: currentColor; }
+
+.hl-prose a:focus-visible {
+    border-radius: 2px;
+    outline: 2px solid var(--ui-primary);
+    outline-offset: 2px;
+}
+
+.hl-prose sup { line-height: 0; }
+
+.hl-prose sup a {
+    padding: 0 0.15em;
+    font-family: var(--font-sans);
+    font-size: 0.7em;
+    font-weight: 600;
+    color: var(--color-huella-teal-600);
+    text-decoration: none;
+}
+
+.hl-prose strong { font-weight: 700; color: var(--ui-text-highlighted); }
+
+.hl-prose ul, .hl-prose ol { padding-left: 1.5em; }
+.hl-prose ul { list-style: disc; }
+.hl-prose ol { list-style: decimal; }
+.hl-prose li + li { margin-top: 0.5em; }
+.hl-prose li::marker { color: var(--color-huella-teal-500); }
+.hl-prose ol li::marker { font-family: var(--font-sans); font-size: 0.85em; font-weight: 600; color: var(--color-huella-teal-600); }
+
+.hl-prose blockquote {
+    margin-block: 2.25em;
+    padding-left: 1.5rem;
+    border-left: 3px solid var(--color-huella-teal-400);
+}
+
+.hl-prose blockquote p {
+    font-size: 1.3125rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--ui-text-highlighted);
+}
+
+@media (min-width: 768px) {
+    .hl-prose blockquote p { font-size: 1.5rem; }
+}
+
+.hl-prose blockquote cite {
+    display: block;
+    margin-top: 0.9rem;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-style: normal;
+    color: var(--ui-text-muted);
+}
+
+.hl-prose blockquote cite::before { content: "— "; }
+
+.hl-prose .hl-note {
+    padding: 1.1rem 1.25rem;
+    border-radius: 2px;
+    background: var(--color-huella-teal-50);
+    box-shadow: inset 0 0 0 1px var(--color-huella-teal-200);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* Tables scroll inside Gutenberg's own figure wrapper, so the table keeps its semantics */
+.hl-prose .wp-block-table {
+    max-width: 100%;
+    overflow-x: auto;
+    margin-block: 2em;
+    /* Scroll shadows: a soft edge appears only on the side that has more table to reveal */
+    background:
+        linear-gradient(to right, var(--ui-bg) 30%, transparent) left / 2.5rem 100% no-repeat local,
+        linear-gradient(to left, var(--ui-bg) 30%, transparent) right / 2.5rem 100% no-repeat local,
+        radial-gradient(farthest-side at 0 50%, color-mix(in srgb, var(--color-huella-slate-900) 16%, transparent), transparent) left / 0.875rem 100% no-repeat scroll,
+        radial-gradient(farthest-side at 100% 50%, color-mix(in srgb, var(--color-huella-slate-900) 16%, transparent), transparent) right / 0.875rem 100% no-repeat scroll;
+}
+
+.hl-prose table {
+    width: 100%;
+    min-width: 36rem;
+    border-collapse: collapse;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.hl-prose .wp-block-table figcaption {
+    position: sticky;
+    left: 0;
+}
+
+.hl-prose th {
+    padding: 0 1rem 0.6rem 0;
+    border-bottom: 2px solid var(--color-huella-slate-900);
+    font-weight: 600;
+    text-align: left;
+    color: var(--ui-text-highlighted);
+    white-space: nowrap;
+}
+
+.hl-prose td {
+    min-width: 8rem;
+    padding: 0.7rem 1rem 0.7rem 0;
+    border-bottom: 1px solid var(--ui-border);
+    vertical-align: top;
+}
+
+.hl-prose td:first-child { font-weight: 600; color: var(--ui-text-highlighted); }
+
+.hl-prose figure { margin-block: 2.5em; }
+
+.hl-prose figure img {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    border-radius: 2px;
+    background: var(--color-ivory-200);
+    object-fit: cover;
+}
+
+.hl-prose figcaption {
+    margin-top: 0.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--ui-text-muted);
+}
+
+/* A printed page can't be clicked, so it spells out where each external link goes */
+@media print {
+    .hl-prose a[href^="http"]::after {
+        content: " (" attr(href) ")";
+        font-size: 0.8em;
+        word-break: break-all;
+    }
+}

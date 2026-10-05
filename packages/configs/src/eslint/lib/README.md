@@ -19,6 +19,7 @@ The exceptions are `constTables.ts` and `propsInterface.ts`, which export select
 | [`constTables.ts`](./constTables.ts) | Selectors, not a config: a module-scope lookup table keyed by a closed union is `UPPER_SNAKE = { … } as const satisfies Record<K, V>` — never annotated, never `Partial`. `Record<string, …>` and `Record<number, …>` are left alone |
 | [`propsInterface.ts`](./propsInterface.ts) | Selectors, not a config: `defineProps<Props>()` with `Props` declared as a separate `interface` rather than an inline type literal. `.vue` only |
 | [`templateI18n.ts`](./templateI18n.ts) | `vue/no-restricted-syntax` under `**/*.vue`, requiring the global `$t`/`$te`/`$tm`/`$rt`/`$d`/`$n` inside `<template>` instead of the `useI18n()` binding. Vue configs only |
+| [`templateCalls.ts`](./templateCalls.ts) | `monorepo/no-template-call` under `**/*.vue`, a local rule that moves template calls reading only component state into a `computed`. `$` globals, `v-on` handlers and calls on `v-for`/slot variables pass. Vue configs only |
 | [`ignores.ts`](./ignores.ts) | `baseIgnores` — the glob list every factory feeds into ESLint's `ignores` |
 | [`jsonc.ts`](./jsonc.ts) | `eslint-plugin-jsonc`'s `sort-keys`, scoped to `**/projects/*/*.json` so the TMS locale files stay diffable |
 | [`stylistic.ts`](./stylistic.ts) | `@stylistic/eslint-plugin`'s `recommended` config plus this repo's four formatting calls: 4-space indent, semicolons, double quotes, parenthesised arrow params |
@@ -27,7 +28,8 @@ The exceptions are `constTables.ts` and `propsInterface.ts`, which export select
 ## 🚫 What doesn't belong here
 
 A file earns its place by **customizing** a plugin's config — a `files` glob, a merged or
-overridden rule, a `settings` block. A plugin preset used exactly as the plugin ships it has nothing
+overridden rule, a `settings` block — or by defining a rule no plugin ships, as `templateCalls.ts`
+does. A plugin preset used exactly as the plugin ships it has nothing
 to customize, so it doesn't need a file to hide that fact in: import the plugin and assign its
 preset to a const directly in [`index.ts`](./index.ts). The moment it needs a glob or an override,
 it graduates into its own file, same as everything else here.

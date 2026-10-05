@@ -44,6 +44,9 @@ function pageLink(target: number): RouteLocationRaw {
     return { query: target > 1 ? { page: target } : {} };
 }
 
+const previousLink = computed(() => pageLink((data.value?.page ?? 1) - 1));
+const nextLink = computed(() => pageLink((data.value?.page ?? 1) + 1));
+
 function formatDate(date: string): string {
     return new Date(date).toLocaleDateString(locale.value, { dateStyle: "long" });
 }
@@ -132,7 +135,7 @@ function formatDate(date: string): string {
                     aria-current-value="false"
                     class="pagination__link"
                     rel="prev"
-                    :to="pageLink(data.page - 1)"
+                    :to="previousLink"
                 >
                     {{ $t("articles.pagination.previous") }}
                 </NuxtLink>
@@ -155,7 +158,7 @@ function formatDate(date: string): string {
                     aria-current-value="false"
                     class="pagination__link"
                     rel="next"
-                    :to="pageLink(data.page + 1)"
+                    :to="nextLink"
                 >
                     {{ $t("articles.pagination.next") }}
                 </NuxtLink>

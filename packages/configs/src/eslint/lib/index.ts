@@ -8,7 +8,8 @@ import coreIsolation from "./coreIsolation.ts";
 import layerIsolation from "./layerIsolation.ts";
 import { restrictedSyntax, restrictedSyntaxVue } from "./restrictedSyntax.ts";
 import templateI18n from "./templateI18n.ts";
+import templateCalls from "./templateCalls.ts";
 
 const regexp: object = regexpPlugin.configs["flat/recommended"];
 
-export { stylistic, jsonc, boundaries, vitestConfig, baseIgnores, coreIsolation, layerIsolation, restrictedSyntax, restrictedSyntaxVue, templateI18n, regexp };
+export { stylistic, jsonc, boundaries, vitestConfig, baseIgnores, coreIsolation, layerIsolation, restrictedSyntax, restrictedSyntaxVue, templateI18n, templateCalls, regexp };

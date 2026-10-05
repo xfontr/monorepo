@@ -41,6 +41,8 @@ function metricsFor(path: string) {
 const unreleased = computed(() =>
     metrics.value.filter((project) => !project.hasChangelog && (project.unreleasedCommits ?? 0) > 0));
 
+const unreleasedNames = computed(() => unreleased.value.map((project) => displayName(project.root)).join(", "));
+
 const conventional = computed(() => snapshot.value?.metrics?.conventionalCommitRate ?? null);
 </script>
 
@@ -117,7 +119,7 @@ const conventional = computed(() => snapshot.value?.metrics?.conventionalCommitR
                         variant="subtle"
                         icon="i-lucide-package-open"
                         title="Never released"
-                        :description="`${unreleased.map((project) => displayName(project.root)).join(', ')} — commits waiting on a first release, so no changelog yet.`"
+                        :description="`${unreleasedNames} — commits waiting on a first release, so no changelog yet.`"
                     />
 
                     <!-- Both changelogs and versions are derived from commit subjects, so a subject

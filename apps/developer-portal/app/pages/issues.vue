@@ -9,6 +9,7 @@ const label = ref<string>("all");
 const search = ref("");
 
 const all = computed(() => issues.value.issues);
+const read = computed(() => (issues.value.fetchedAt ? `read ${relativeTime(issues.value.fetchedAt)}` : "not read yet"));
 
 const visible = computed(() => sortIssues(filterIssues(all.value, {
     label: label.value,
@@ -38,7 +39,7 @@ async function refresh(): Promise<void> {
                 </template>
                 <template #right>
                     <span class="text-xs text-muted">
-                        {{ issues.fetchedAt ? `read ${relativeTime(issues.fetchedAt)}` : "not read yet" }}
+                        {{ read }}
                     </span>
                     <UButton
                         icon="i-lucide-refresh-cw"

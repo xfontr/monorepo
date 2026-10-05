@@ -15,6 +15,10 @@ const weakest = computed(() => {
 function idOf(path: string): string {
     return toCollectionPath(path).split("/").at(-1) ?? path;
 }
+
+const totalTone = computed(() => scoreTone(latest.value?.total));
+const latestLink = computed(() => (latest.value ? `/reviews/${idOf(latest.value.path)}` : "/reviews"));
+const weakestTone = computed(() => (weakest.value ? scoreTone(weakest.value.score) : "neutral"));
 </script>
 
 <template>
@@ -72,14 +76,14 @@ function idOf(path: string): string {
                         label="Total"
                         :value="`${latest.total}/5`"
                         :hint="latest.totalDelta === '—' || latest.totalDelta === '' ? 'first review' : `${latest.totalDelta} since the previous one`"
-                        :tone="scoreTone(latest.total)"
+                        :tone="totalTone"
                     />
                     <StatTile
                         label="Latest review"
                         :value="latest.date"
                         :hint="`commit ${latest.commit}`"
                         icon="i-lucide-clipboard-check"
-                        :to="`/reviews/${idOf(latest.path)}`"
+                        :to="latestLink"
                     />
                     <StatTile
                         label="Reviews collected"
@@ -92,7 +96,7 @@ function idOf(path: string): string {
                         label="Weakest card"
                         :value="weakest ? weakest.card : '—'"
                         :hint="weakest ? `${weakest.score}/5` : 'nothing parsed'"
-                        :tone="weakest ? scoreTone(weakest.score) : 'neutral'"
+                        :tone="weakestTone"
                     />
                 </div>
 

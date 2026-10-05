@@ -17,6 +17,13 @@ const { data: page } = await useAsyncData(
 
 const report = computed(() => reports.value.find((candidate) => candidate.id === id.value) ?? null);
 
+const state = computed(() => report.value && {
+    label: auditStateLabel(report.value.state),
+    tone: auditStateTone(report.value.state),
+});
+
+const source = computed(() => report.value?.path ?? `${path.value.slice(1)}.md`);
+
 const crumbs = computed<BreadcrumbItem[]>(() => [
     { label: "Audits", to: "/audits", icon: "i-lucide-scan-search" },
     { label: report.value?.date ?? id.value, class: "font-mono" },
@@ -32,15 +39,15 @@ const crumbs = computed<BreadcrumbItem[]>(() => [
                 </template>
                 <template #right>
                     <StatusPill
-                        v-if="report"
-                        :label="auditStateLabel(report.state)"
-                        :tone="auditStateTone(report.state)"
+                        v-if="state"
+                        :label="state.label"
+                        :tone="state.tone"
                     />
                     <span
                         v-if="report?.commit"
                         class="text-xs text-muted"
                     >read at <code class="font-mono">{{ report.commit }}</code></span>
-                    <code class="text-xs text-dimmed font-mono">{{ report?.path ?? `${path.slice(1)}.md` }}</code>
+                    <code class="text-xs text-dimmed font-mono">{{ source }}</code>
                 </template>
             </UDashboardNavbar>
         </template>

@@ -17,6 +17,8 @@ const expanded = ref(false);
  * one click from the place it was written for.
  */
 const summary = computed(() => summarize(issue.body, compact ? 100 : 160));
+const updated = computed(() => relativeTime(issue.updatedAt));
+const assignees = computed(() => issue.assignees.join(", "));
 </script>
 
 <template>
@@ -53,7 +55,7 @@ const summary = computed(() => summarize(issue.body, compact ? 100 : 160));
                     <span
                         v-if="!compact"
                         class="text-[11px] text-dimmed"
-                    >updated {{ relativeTime(issue.updatedAt) }}</span>
+                    >updated {{ updated }}</span>
                 </div>
 
                 <div
@@ -89,7 +91,7 @@ const summary = computed(() => summarize(issue.body, compact ? 100 : 160));
                         <span
                             v-if="issue.assignees.length > 0"
                             class="text-xs text-dimmed"
-                        >{{ issue.assignees.join(", ") }}</span>
+                        >{{ assignees }}</span>
                     </div>
                 </div>
             </div>

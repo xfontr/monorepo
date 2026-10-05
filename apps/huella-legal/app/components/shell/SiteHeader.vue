@@ -11,11 +11,12 @@ defineProps<Props>();
 const NEWSLETTER = { name: "index", hash: "#newsletter" } as const;
 
 const router = useRouter();
+const homePath = computed(() => router.resolve({ name: "index" }).path);
 </script>
 
 <template>
     <UHeader
-        :to="router.resolve({ name: 'index' }).path"
+        :to="homePath"
         mode="slideover"
         :title="$t('app.header.home')"
         :menu="{ title: $t('app.header.menu.title'), description: $t('app.header.menu.description') }"

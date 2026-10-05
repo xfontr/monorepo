@@ -20,8 +20,11 @@ const { data: issues } = await useIssues();
 const { data: reviews } = await useReviewPages();
 
 const open = computed(() => issues.value.issues.length);
+const issuesRead = computed(() => issues.value.fetchedAt ? `read ${relativeTime(issues.value.fetchedAt)}` : "reading…");
+const recentReviews = computed(() => reviews.value.slice(0, 5));
 
 const coverage = computed(() => coverageSnapshot.value?.coverage?.totals?.lines ?? null);
+const coverageTileTone = computed(() => coverageTone(coverage.value));
 const projectNodes = computed(() => projectsSnapshot.value?.projects?.projects ?? []);
 const projects = computed(() => projectNodes.value.length);
 const docs = computed(() => docsSnapshot.value?.docs ?? null);
@@ -48,6 +51,8 @@ const worstSeverity = computed(() => {
 
     return (["critical", "high", "moderate", "low", "info"] as const).find((severity) => counts[severity] > 0) ?? null;
 });
+
+const vulnerabilityTone = computed(() => (worstSeverity.value ? severityTone(worstSeverity.value) : "neutral"));
 
 const findings = computed(() => metricsSnapshot.value?.metrics?.invariantFindings ?? []);
 
@@ -215,7 +220,7 @@ Collected repository signals and live work in progress.
                             label="Line coverage"
                             :value="coverage === null ? '—' : `${coverage}%`"
                             hint="weighted, collected projects only"
-                            :tone="coverageTone(coverage)"
+                            :tone="coverageTileTone"
                             icon="i-lucide-shield-check"
                             to="/coverage"
                         />
@@ -230,9 +235,7 @@ Collected repository signals and live work in progress.
                         <StatTile
                             label="Open issues"
                             :value="issues.error ? '—' : open"
-                            :hint="issues.error
-                                ? 'GitHub could not be read'
-                                : issues.fetchedAt ? `read ${relativeTime(issues.fetchedAt)}` : 'reading…'"
+                            :hint="issues.error ? 'GitHub could not be read' : issuesRead"
                             :tone="issues.error ? 'warn' : 'neutral'"
                             icon="i-lucide-circle-dot"
                             to="/issues"
@@ -245,7 +248,7 @@ Collected repository signals and live work in progress.
                                     ? 'none known'
                                     : `worst: ${worstSeverity}`
                                 : 'not collected'"
-                            :tone="worstSeverity ? severityTone(worstSeverity) : 'neutral'"
+                            :tone="vulnerabilityTone"
                             icon="i-lucide-shield-alert"
                             to="/deps"
                         />
@@ -367,7 +370,7 @@ v-else
 class="divide-y divide-default"
 >
                                 <NuxtLink
-                                    v-for="review in reviews.slice(0, 5)"
+                                    v-for="review in recentReviews"
                                     :key="review.path"
                                     :to="`/reviews/${review.path.split('/').at(-1)}`"
                                     class="flex items-center gap-3 px-4 py-2.5 hover:bg-elevated/40 transition-colors"

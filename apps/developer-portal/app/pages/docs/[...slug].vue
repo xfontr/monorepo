@@ -40,6 +40,9 @@ const around = computed(() => {
 });
 
 const meta = computed(() => snapshot.value?.docs?.pages.find((doc) => toCollectionPath(doc.path) === path.value) ?? null);
+const updated = computed(() => relativeTime(meta.value?.updatedAt));
+const source = computed(() => meta.value?.path ?? `${path.value.slice(1)}.md`);
+const brokenLinks = computed(() => meta.value?.brokenLinks.map((link) => link.href).join(", ") ?? "");
 </script>
 
 <template>
@@ -53,8 +56,8 @@ const meta = computed(() => snapshot.value?.docs?.pages.find((doc) => toCollecti
                     <span
                         v-if="meta"
                         class="text-xs text-muted"
-                    >{{ meta.words }} words · updated {{ relativeTime(meta.updatedAt) }}</span>
-                    <code class="text-xs text-dimmed font-mono">{{ meta?.path ?? `${path.slice(1)}.md` }}</code>
+                    >{{ meta.words }} words · updated {{ updated }}</span>
+                    <code class="text-xs text-dimmed font-mono">{{ source }}</code>
                 </template>
             </UDashboardNavbar>
         </template>
@@ -82,12 +85,12 @@ const meta = computed(() => snapshot.value?.docs?.pages.find((doc) => toCollecti
 
                     <template v-else>
                         <UAlert
-                            v-if="(meta?.brokenLinks.length ?? 0) > 0"
+                            v-if="brokenLinks"
                             color="warning"
                             variant="subtle"
                             icon="i-lucide-link-2-off"
                             title="This page links to something that is not there"
-                            :description="meta?.brokenLinks.map((link) => link.href).join(', ')"
+                            :description="brokenLinks"
                             :ui="{ description: 'text-xs font-mono' }"
                         />
 
