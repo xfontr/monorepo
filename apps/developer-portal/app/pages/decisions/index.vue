@@ -19,6 +19,12 @@ const visible = computed(() => sortDecisions(
 
 const counts = computed(() => countByStatus(reports.value));
 
+const statusTiles: { status: DecisionStatus, hint: string }[] = [
+    { status: "to-implement", hint: "decided, not in the repo yet" },
+    { status: "implemented", hint: "the work has landed" },
+    { status: "wont-implement", hint: "decided against, deliberately" },
+];
+
 const statusItems = [
     { label: "Every status", value: "all" },
     ...DECISION_STATUSES.map((value) => ({ label: decisionStatusLabel(value), value })),
@@ -133,22 +139,12 @@ const sortItems: { label: string, value: DecisionSort }[] = [
                         icon="i-lucide-compass"
                     />
                     <StatTile
-                        :label="decisionStatusLabel('to-implement')"
-                        :value="counts['to-implement']"
-                        hint="decided, not in the repo yet"
-                        :tone="decisionStatusTone('to-implement')"
-                    />
-                    <StatTile
-                        :label="decisionStatusLabel('implemented')"
-                        :value="counts.implemented"
-                        hint="the work has landed"
-                        :tone="decisionStatusTone('implemented')"
-                    />
-                    <StatTile
-                        :label="decisionStatusLabel('wont-implement')"
-                        :value="counts['wont-implement']"
-                        hint="decided against, deliberately"
-                        :tone="decisionStatusTone('wont-implement')"
+                        v-for="tile in statusTiles"
+                        :key="tile.status"
+                        :label="decisionStatusLabel(tile.status)"
+                        :value="counts[tile.status]"
+                        :hint="tile.hint"
+                        :tone="decisionStatusTone(tile.status)"
                     />
                 </div>
 

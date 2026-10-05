@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AuditState } from "#shared/audits.ts";
+import type { AuditState, FindingStatus } from "#shared/audits.ts";
 import type { AuditSort } from "#shared/auditReports.ts";
 import { countAll, filterAudits, scopesOf, sortAudits } from "#shared/auditReports.ts";
 import { AUDIT_STATES } from "#shared/audits.ts";
@@ -18,6 +18,12 @@ const visible = computed(() => sortAudits(
 ));
 
 const totals = computed(() => countAll(reports.value));
+
+const findingTiles: { status: FindingStatus, hint: string }[] = [
+    { status: "open", hint: "findings still owed work" },
+    { status: "fixed", hint: "the fix has landed" },
+    { status: "wont-fix", hint: "decided against, deliberately" },
+];
 
 const stateItems = [
     { label: "Every state", value: "all" },
@@ -131,22 +137,12 @@ const sortItems: { label: string, value: AuditSort }[] = [
                             icon="i-lucide-scan-search"
                         />
                         <StatTile
-                            :label="findingStatusLabel('open')"
-                            :value="totals.findings.open"
-                            hint="findings still owed work"
-                            :tone="findingStatusTone('open')"
-                        />
-                        <StatTile
-                            :label="findingStatusLabel('fixed')"
-                            :value="totals.findings.fixed"
-                            hint="the fix has landed"
-                            :tone="findingStatusTone('fixed')"
-                        />
-                        <StatTile
-                            :label="findingStatusLabel('wont-fix')"
-                            :value="totals.findings['wont-fix']"
-                            hint="decided against, deliberately"
-                            :tone="findingStatusTone('wont-fix')"
+                            v-for="{ status, hint } in findingTiles"
+                            :key="status"
+                            :label="findingStatusLabel(status)"
+                            :value="totals.findings[status]"
+                            :hint
+                            :tone="findingStatusTone(status)"
                         />
                     </div>
 

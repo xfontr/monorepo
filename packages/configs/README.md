@@ -151,6 +151,13 @@ Node types even in a package that otherwise doesn't.
   `$n`), never the `t` from `useI18n()`, so a template-only component needs no `useI18n()` call.
   `<script>` is untouched, since `useHead` and friends still need `t`. `$t` reads global messages
   only, so a component with `useScope: "local"` needs a disable comment
+- `monorepo/no-template-call` under `**/*.vue`, from [`lib/templateCalls.ts`](./src/eslint/lib/templateCalls.ts) —
+  Vue configs only. A template call that reads nothing but component state belongs in a `computed`,
+  which caches it instead of re-running it on every render. Calls on a `$` global, inside a `v-on`
+  handler, or reading a `v-for` or slot variable are allowed, since a `computed` cannot take the row
+  as an argument. Only the outermost offending call in an expression is reported. No plugin rule
+  covers this, and `vue/no-restricted-syntax` can't express the variable check, so it is a local
+  rule under an inline `monorepo` plugin. `apps/huella-legal` turns it off for its `/lab` studies
 - `vue/v-bind-style` with `sameNameShorthand: "always"`, in [`vue.ts`](./src/eslint/vue.ts) — a binding whose
   name and value match is written `:id`, never `:id="id"`. `--fix` rewrites it
 - `vue/prefer-separate-static-class`, in [`vue.ts`](./src/eslint/vue.ts) — a class that never

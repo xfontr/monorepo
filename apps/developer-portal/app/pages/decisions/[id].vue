@@ -17,6 +17,20 @@ const { data: page } = await useAsyncData(
 
 const report = computed(() => reports.value.find((candidate) => candidate.id === id.value) ?? null);
 
+const supersession = computed(() => {
+    const by = report.value?.decision === "superseded" ? report.value.supersededBy : null;
+
+    return by ? { label: decisionOutcomeLabel("superseded"), to: `/decisions/${by.replace(/\.md$/, "")}`, hint: `Superseded by ${by}` } : null;
+});
+
+const statusPill = computed(() => report.value?.status && {
+    label: decisionStatusLabel(report.value.status),
+    tone: decisionStatusTone(report.value.status),
+});
+
+const updated = computed(() => relativeTime(report.value?.updatedAt));
+const source = computed(() => report.value?.path ?? `${path.value.slice(1)}.md`);
+
 const crumbs = computed<BreadcrumbItem[]>(() => [
     { label: "Decisions", to: "/decisions", icon: "i-lucide-compass" },
     { label: report.value?.number ?? id.value, class: "font-mono" },
@@ -40,22 +54,22 @@ const around = computed(() => {
                 </template>
                 <template #right>
                     <StatusPill
-                        v-if="report?.decision === 'superseded' && report.supersededBy"
-                        :label="decisionOutcomeLabel(report.decision)"
+                        v-if="supersession"
+                        :label="supersession.label"
                         tone="bad"
-                        :to="`/decisions/${report.supersededBy.replace(/\.md$/, '')}`"
-                        :hint="`Superseded by ${report.supersededBy}`"
+                        :to="supersession.to"
+                        :hint="supersession.hint"
                     />
                     <StatusPill
-                        v-if="report?.status"
-                        :label="decisionStatusLabel(report.status)"
-                        :tone="decisionStatusTone(report.status)"
+                        v-if="statusPill"
+                        :label="statusPill.label"
+                        :tone="statusPill.tone"
                     />
                     <span
                         v-if="report"
                         class="text-xs text-muted"
-                    >{{ report.words }} words · updated {{ relativeTime(report.updatedAt) }}</span>
-                    <code class="text-xs text-dimmed font-mono">{{ report?.path ?? `${path.slice(1)}.md` }}</code>
+                    >{{ report.words }} words · updated {{ updated }}</span>
+                    <code class="text-xs text-dimmed font-mono">{{ source }}</code>
                 </template>
             </UDashboardNavbar>
         </template>

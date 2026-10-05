@@ -16,6 +16,7 @@ const status = computed(() => (artifact ? manifest?.artifacts[artifact] : undefi
  * is "never collected".
  */
 const failed = computed(() => status.value?.ok === false);
+const collected = computed(() => relativeTime(status.value?.generatedAt ?? manifest?.generatedAt));
 </script>
 
 <template>
@@ -35,7 +36,7 @@ const failed = computed(() => status.value?.ok === false);
         </template>
 
         <template v-else>
-            Collected {{ relativeTime(status?.generatedAt ?? manifest.generatedAt) }}
+            Collected {{ collected }}
             at <code class="font-mono text-default">{{ manifest.commit }}</code>
             on {{ manifest.branch }}
         </template>

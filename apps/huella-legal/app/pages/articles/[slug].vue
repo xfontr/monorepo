@@ -16,9 +16,11 @@ if (error.value) {
     });
 }
 
-function formatDate(date: string): string {
-    return new Date(date).toLocaleDateString(locale.value, { dateStyle: "long" });
-}
+const publishedOn = computed(() => {
+    const date = entry.value?.publishedAt;
+
+    return date ? new Date(date).toLocaleDateString(locale.value, { dateStyle: "long" }) : "";
+});
 </script>
 
 <template>
@@ -43,7 +45,7 @@ function formatDate(date: string): string {
                 class="date"
                 :datetime="entry.publishedAt"
             >
-                {{ formatDate(entry.publishedAt) }}
+                {{ publishedOn }}
             </time>
 
             <!-- Deliberate: WordPress already renders this field to HTML (README.md § Content) -->
