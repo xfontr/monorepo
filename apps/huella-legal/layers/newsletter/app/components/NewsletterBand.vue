@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { RouteLocationRaw } from "vue-router";
-import type { NewsletterTone } from "../types/Newsletter";
+import NewsletterForm, { type Tone } from "./NewsletterForm.vue";
 
 interface Recipe {
     root: string
@@ -11,7 +11,7 @@ interface Recipe {
 
 interface Props {
     privacyTo: RouteLocationRaw
-    tone?: NewsletterTone
+    tone?: Tone
     pending?: boolean
     error?: string
 }
@@ -29,7 +29,7 @@ const email = defineModel<string>("email", { default: "" });
 const TONES = {
     paper: { root: "bg-ivory-200", kicker: "teal", title: "text-highlighted", note: "text-muted" },
     slate: { root: "bg-huella-slate-800 text-huella-slate-200", kicker: "paper", title: "text-ivory-50", note: "text-huella-slate-300" },
-} as const satisfies Record<NewsletterTone, Recipe>;
+} as const satisfies Record<Tone, Recipe>;
 
 const ui = computed<Recipe>(() => TONES[props.tone]);
 const titleId = useId();
@@ -64,26 +64,24 @@ const titleId = useId();
                 @submit="emit('submit', $event)"
             >
                 <template #note>
-                    <p
+                    <i18nT
+                        keypath="newsletterBand.note"
+                        scope="global"
+                        tag="p"
                         class="font-sans text-meta"
                         :class="ui.note"
                     >
-                        <i18nT
-                            keypath="newsletterBand.note"
-                            scope="global"
-                        >
-                            <template #privacy>
-                                <ULink
-                                    raw
-                                    :to="privacyTo"
-                                    data-inline
-                                    class="underline underline-offset-2"
-                                >
-                                    {{ $t("newsletterBand.privacy") }}
-                                </ULink>
-                            </template>
-                        </i18nT>
-                    </p>
+                        <template #privacy>
+                            <ULink
+                                raw
+                                :to="privacyTo"
+                                data-inline
+                                class="underline underline-offset-2"
+                            >
+                                {{ $t("newsletterBand.privacy") }}
+                            </ULink>
+                        </template>
+                    </i18nT>
                 </template>
             </NewsletterForm>
         </div>

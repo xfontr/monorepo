@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@nuxt/ui";
 import { type Subscription, subscriptionSchema } from "../../shared/schemas/subscription";
-import type { NewsletterTone } from "../types/Newsletter";
+
+export type Tone = "paper" | "slate";
 
 type Layout = "stacked" | "inline";
 
@@ -20,7 +21,7 @@ interface ToneRecipe {
 
 interface Props {
     layout?: Layout
-    tone?: NewsletterTone
+    tone?: Tone
     pending?: boolean
     error?: string
 }
@@ -44,7 +45,7 @@ const LAYOUTS = {
 const TONES = {
     paper: { label: undefined, error: undefined, button: "primary" },
     slate: { label: "text-huella-slate-200", error: "text-huella-danger-200", button: "secondary" },
-} as const satisfies Record<NewsletterTone, ToneRecipe>;
+} as const satisfies Record<Tone, ToneRecipe>;
 
 const { t } = useI18n();
 

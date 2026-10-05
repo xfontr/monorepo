@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import NewsletterForm from "./NewsletterForm.vue";
+
 interface Props {
     subject?: string
     pending?: boolean
