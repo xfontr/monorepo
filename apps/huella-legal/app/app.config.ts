@@ -136,6 +136,12 @@ export default defineAppConfig({
             slots: { base: "min-h-11 bg-ivory-50" },
             defaultVariants: { size: "xl" },
         },
+        checkbox: {
+            defaultVariants: { size: "lg" },
+        },
+        fileUpload: {
+            slots: { base: "min-h-32 bg-ivory-100" },
+        },
         // Previous and next sit at the ends of the row, and the ellipses go on phones with the numbers
         pagination: {
             slots: { root: "w-full", list: "w-full gap-0", prev: "me-auto", next: "ms-auto", ellipsis: "max-sm:hidden" },
@@ -161,6 +167,25 @@ export default defineAppConfig({
         textarea: {
             slots: { base: "bg-ivory-50" },
             defaultVariants: { size: "xl" },
+        },
+        alert: {
+            slots: {
+                root: "gap-3 rounded-sm",
+                icon: "mt-0.5",
+                title: "font-sans font-semibold",
+                description: "font-sans opacity-100",
+            },
+            compoundVariants: [
+                {
+                    color: "error",
+                    variant: "subtle",
+                    class: {
+                        root: "bg-huella-danger-50 ring-huella-danger-500",
+                        title: "text-huella-danger-800",
+                        description: "text-huella-danger-800",
+                    },
+                },
+            ],
         },
     },
 });

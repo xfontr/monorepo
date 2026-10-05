@@ -123,6 +123,32 @@
     "filterPills": {
         "count": "{count} publicación | {count} publicaciones"
     },
+    "formErrorSummary": {
+        "item": "{field}: {message}",
+        "title": "Revisa un campo antes de enviar | Revisa {count} campos antes de enviar"
+    },
+    "newsletterBand": {
+        "kicker": "Boletín mensual",
+        "note": "Puedes darte de baja desde cualquier correo. Tratamos tu dirección según la {privacy}.",
+        "privacy": "política de privacidad",
+        "title": "Un correo al mes con lo que hemos publicado. Nada más."
+    },
+    "newsletterCard": {
+        "kicker": "Boletín mensual",
+        "lead": "Lo nuevo de la revista, una vez al mes.",
+        "subjectLead": "Lo nuevo en {subject} y el resto de materias, una vez al mes."
+    },
+    "newsletterForm": {
+        "email": {
+            "errors": {
+                "invalid": "Revisa la dirección: por ejemplo, nombre@ejemplo.es",
+                "required": "Escribe tu correo electrónico"
+            },
+            "label": "Correo electrónico",
+            "placeholder": "nombre@ejemplo.es"
+        },
+        "submit": "Suscribirme"
+    },
     "noResults": {
         "broaden": "Prueba con una palabra más general o con el apellido del autor.",
         "browse": "O explora por materia",

@@ -1,0 +1,42 @@
+<script setup lang="ts">
+import type { RouteLocationRaw } from "vue-router";
+
+interface Props {
+    title: string
+    action?: { label: string, to: RouteLocationRaw }
+}
+
+withDefaults(defineProps<Props>(), {
+    action: undefined,
+});
+</script>
+
+<template>
+    <div
+        role="status"
+        class="flex flex-col items-start gap-4 rounded-sm border border-huella-teal-200 bg-huella-teal-50 p-6 md:p-8"
+    >
+        <span class="flex size-11 items-center justify-center rounded-full bg-huella-teal-600 text-white">
+            <UIcon
+                name="i-lucide-check"
+                class="size-5"
+            />
+        </span>
+        <h3 class="font-serif text-h3 text-highlighted">
+            {{ title }}
+        </h3>
+        <p
+            v-if="$slots.default"
+            class="max-w-measure font-serif text-base leading-relaxed text-toned"
+        >
+            <slot />
+        </p>
+        <UButton
+            v-if="action"
+            variant="link"
+            :label="action.label"
+            :to="action.to"
+            class="-ml-3"
+        />
+    </div>
+</template>

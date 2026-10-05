@@ -21,6 +21,8 @@ interface Props {
     variant?: Variant
 }
 
+const props = withDefaults(defineProps<Props>(), { variant: "standard" });
+
 const VARIANTS = {
     lead: {
         gap: "gap-5",
@@ -83,8 +85,6 @@ const VARIANTS = {
         eager: false,
     },
 } as const satisfies Record<Variant, Recipe>;
-
-const props = withDefaults(defineProps<Props>(), { variant: "standard" });
 
 const ui = computed<Recipe>(() => VARIANTS[props.variant]);
 const hasMedia = computed<boolean>(() => ui.value.media === "always" || (ui.value.media === "image" && !!props.article.image));

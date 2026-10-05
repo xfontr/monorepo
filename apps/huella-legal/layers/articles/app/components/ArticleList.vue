@@ -6,13 +6,13 @@ interface Props {
     variant?: Variant
 }
 
+withDefaults(defineProps<Props>(), { variant: "row" });
+
 const SPACING = {
     standard: "py-7",
     compact: "py-4",
     row: "py-6 md:py-8",
 } as const satisfies Record<Variant, string>;
-
-withDefaults(defineProps<Props>(), { variant: "row" });
 </script>
 
 <template>
