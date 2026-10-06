@@ -29,7 +29,7 @@ const headingId = computed<string>(() => props.id ?? fallbackId);
             </p>
             <h2
                 :id="headingId"
-                class="font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
+                class="font-serif text-section text-highlighted md:text-h2"
                 :class="kicker && 'mt-1'"
             >
                 {{ title }}

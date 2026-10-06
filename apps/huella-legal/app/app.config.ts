@@ -8,7 +8,7 @@ export default defineAppConfig({
         // colour class was silently dropped from every Nuxt UI `class` and `:ui` override
         tv: {
             twMergeConfig: {
-                extend: { theme: { text: ["display", "h1", "h2", "h3", "reading", "quote", "citation", "meta"] } },
+                extend: { theme: { text: ["display", "h1", "h2", "h3", "section", "card", "reading", "quote", "citation", "meta", "kicker"] } },
             },
         },
 
@@ -104,7 +104,7 @@ export default defineAppConfig({
             slots: {
                 root: "xl:block",
                 center: "grid grid-flow-row grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3",
-                label: "font-sans text-xs font-semibold uppercase tracking-[0.12em] text-huella-teal-300",
+                label: "text-kicker text-huella-teal-300",
                 list: "mt-3 flex flex-col space-y-0",
                 // The default truncates, which clips "Publicar un TFG o TFM" in the two-column grid at 390px
                 linkLabel: "overflow-visible whitespace-normal",

@@ -47,7 +47,7 @@ const titleId = useId();
                 </BaseKicker>
                 <h2
                     :id="titleId"
-                    class="mt-2 font-serif text-[1.75rem] leading-tight text-balance md:text-h2"
+                    class="mt-2 font-serif text-section text-balance md:text-h2"
                     :class="ui.title"
                 >
                     {{ $t("newsletterBand.title") }}

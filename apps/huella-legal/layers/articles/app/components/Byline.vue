@@ -49,7 +49,7 @@ const date = computed<string | undefined>(() => props.publishedAt && d(props.pub
                             v-else-if="author"
                             :to="author.to"
                             raw
-                            class="font-semibold text-highlighted underline-offset-3 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                            class="font-semibold text-highlighted underline-offset-3 hover:underline focus-visible:rounded-xs"
                         >{{ author.name }}</ULink>
                     </span>
                 </li>

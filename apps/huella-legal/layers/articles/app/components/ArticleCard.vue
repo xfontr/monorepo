@@ -42,7 +42,7 @@ const VARIANTS = {
         media: false,
         frame: "",
         body: "",
-        title: "text-[1.375rem] leading-[1.28]",
+        title: "text-card",
         excerpt: "text-base leading-relaxed line-clamp-3",
         byline: "",
         readingTime: true,
@@ -54,7 +54,7 @@ const VARIANTS = {
         media: "always",
         frame: "aspect-[3/2]",
         body: "",
-        title: "text-[1.375rem] leading-[1.28]",
+        title: "text-card",
         excerpt: "text-base leading-relaxed line-clamp-3",
         byline: "",
         readingTime: true,
@@ -66,7 +66,7 @@ const VARIANTS = {
         media: "always",
         frame: "hidden aspect-[4/3] sm:order-last sm:block",
         body: "",
-        title: "text-[1.375rem] leading-[1.28] md:text-h3",
+        title: "text-card md:text-h3",
         excerpt: "max-w-measure text-base leading-relaxed line-clamp-2",
         byline: "",
         readingTime: true,
@@ -136,7 +136,7 @@ const authors = computed(() =>
                 <ULink
                     :to="{ name: 'article', params: { slug: article.slug } }"
                     raw
-                    class="decoration-huella-slate-300 decoration-1 underline-offset-[0.2em] after:absolute after:inset-0 group-hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                    class="decoration-huella-slate-300 decoration-1 underline-offset-[0.2em] after:absolute after:inset-0 group-hover:underline focus-visible:rounded-xs focus-visible:outline-offset-4"
                 >
                     {{ article.title }}
                 </ULink>

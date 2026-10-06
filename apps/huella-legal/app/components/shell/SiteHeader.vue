@@ -28,7 +28,7 @@ const homePath = computed(() => router.resolve({ name: "index" }).path);
                     <ULink
                         :to="NEWSLETTER"
                         raw
-                        class="relative inline-flex h-9 items-center gap-1.5 font-semibold text-primary after:absolute after:inset-x-0 after:top-0 after:-bottom-2 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                        class="relative inline-flex h-9 items-center gap-1.5 font-semibold text-primary after:absolute after:inset-x-0 after:top-0 after:-bottom-2 hover:underline focus-visible:rounded-xs"
                     >
                         <UIcon
                             name="i-lucide-mail"
