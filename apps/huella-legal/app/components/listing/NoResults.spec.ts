@@ -28,7 +28,9 @@ describe("no results", () => {
     it("names its region by that heading, so the landmark says what was searched too", async () => {
         const wrapper = await mountSuspended(NoResults, { props: { query: "kardashov", subjects: SUBJECTS } });
 
-        expect(wrapper.find("section").attributes("aria-labelledby")).toBe(wrapper.find("h2").attributes("id"));
+        const labelledBy = wrapper.find("section").attributes("aria-labelledby");
+
+        expect(wrapper.find(`h2 [id="${labelledBy}"]`).text()).toBe("title: kardashov");
     });
 
     it("links the spelling suggestion inside its sentence", async () => {

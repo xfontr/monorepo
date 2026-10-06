@@ -40,7 +40,7 @@ const titleId = useId();
         :aria-labelledby="titleId"
         :class="ui.root"
     >
-        <div class="mx-auto grid max-w-site gap-12 px-4 py-16 md:px-8 lg:grid-cols-12 lg:items-center lg:gap-12 lg:px-12 lg:py-20">
+        <UContainer class="grid gap-12 py-16 lg:grid-cols-12 lg:items-center lg:gap-12 lg:py-20">
             <div class="lg:col-span-6">
                 <BaseKicker :tone="ui.kicker">
                     {{ $t("newsletterBand.kicker") }}
@@ -84,6 +84,6 @@ const titleId = useId();
                     </i18nT>
                 </template>
             </NewsletterForm>
-        </div>
+        </UContainer>
     </section>
 </template>

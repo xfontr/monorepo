@@ -20,40 +20,45 @@ const titleId = useId();
 </script>
 
 <template>
-    <section
+    <UEmpty
+        as="section"
         :aria-labelledby="titleId"
-        class="flex flex-col items-start gap-4 rounded-sm border border-default px-5 py-10 md:px-12"
+        :ui="{ description: 'max-w-none' }"
     >
-        <UIcon
-            name="i-lucide-search-x"
-            class="size-7 text-dimmed"
-        />
-        <h2
-            :id="titleId"
-            class="font-serif text-h3 text-highlighted text-balance"
+        <template #leading>
+            <UIcon
+                name="i-lucide-search-x"
+                class="size-7 text-dimmed"
+            />
+        </template>
+        <template #title>
+            <span :id="titleId">{{ $t("noResults.title", { query }) }}</span>
+        </template>
+        <template #description>
+            <ul class="list-disc pl-5 marker:text-huella-teal-500">
+                <li v-if="suggestion">
+                    <i18nT
+                        keypath="noResults.spelling"
+                        scope="global"
+                    >
+                        <template #suggestion>
+                            <ULink
+                                raw
+                                :to="suggestion.to"
+                                class="text-primary underline underline-offset-2"
+                            >
+                                {{ suggestion.label }}
+                            </ULink>
+                        </template>
+                    </i18nT>
+                </li>
+                <li>{{ $t("noResults.broaden") }}</li>
+            </ul>
+        </template>
+        <template
+            v-if="subjects.length"
+            #body
         >
-            {{ $t("noResults.title", { query }) }}
-        </h2>
-        <ul class="list-disc pl-5 font-serif text-base leading-relaxed text-toned marker:text-huella-teal-500">
-            <li v-if="suggestion">
-                <i18nT
-                    keypath="noResults.spelling"
-                    scope="global"
-                >
-                    <template #suggestion>
-                        <ULink
-                            raw
-                            :to="suggestion.to"
-                            class="text-primary underline underline-offset-2"
-                        >
-                            {{ suggestion.label }}
-                        </ULink>
-                    </template>
-                </i18nT>
-            </li>
-            <li>{{ $t("noResults.broaden") }}</li>
-        </ul>
-        <template v-if="subjects.length">
             <p class="mt-2 font-sans text-meta font-semibold text-highlighted">
                 {{ $t("noResults.browse") }}
             </p>
@@ -69,5 +74,5 @@ const titleId = useId();
                 </li>
             </ul>
         </template>
-    </section>
+    </UEmpty>
 </template>
