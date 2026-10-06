@@ -3,12 +3,12 @@ import { describe, expect, it } from "vitest";
 import SuccessPanel from "./SuccessPanel.vue";
 
 describe("success panel", () => {
-    it("is a polite status rather than an alert, since nothing went wrong", async () => {
-        const wrapper = await mountSuspended(SuccessPanel, { props: { title: "Recibido." } });
+    it("takes focus to its heading on mount, since it replaces the form and the submit button that held focus", async () => {
+        const wrapper = await mountSuspended(SuccessPanel, { props: { title: "Recibido." }, attachTo: document.body });
 
-        expect(wrapper.find("[role=status]").exists()).toBe(true);
-        expect(wrapper.find("[role=alert]").exists()).toBe(false);
-        expect(wrapper.find("h3").text()).toBe("Recibido.");
+        expect(document.activeElement?.tagName).toBe("H3");
+        expect(document.activeElement?.textContent?.trim()).toBe("Recibido.");
+        wrapper.unmount();
     });
 
     it("renders the slot as the body, and drops the paragraph without one", async () => {

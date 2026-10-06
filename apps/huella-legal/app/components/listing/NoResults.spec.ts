@@ -7,7 +7,6 @@ const MESSAGES = {
     noResults: {
         broaden: "broaden",
         browse: "browse",
-        label: "label",
         spelling: "spelling: «{suggestion}»?",
         title: "title: {query}",
     },
@@ -24,6 +23,12 @@ describe("no results", () => {
         const wrapper = await mountSuspended(NoResults, { props: { query: "kardashov", subjects: SUBJECTS } });
 
         expect(wrapper.find("h2").text()).toBe("title: kardashov");
+    });
+
+    it("names its region by that heading, so the landmark says what was searched too", async () => {
+        const wrapper = await mountSuspended(NoResults, { props: { query: "kardashov", subjects: SUBJECTS } });
+
+        expect(wrapper.find("section").attributes("aria-labelledby")).toBe(wrapper.find("h2").attributes("id"));
     });
 
     it("links the spelling suggestion inside its sentence", async () => {

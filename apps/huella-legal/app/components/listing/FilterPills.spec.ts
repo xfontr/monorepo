@@ -29,10 +29,10 @@ describe("filter pills", () => {
         expect(wrapper.findAll("a").map((link) => link.attributes("href"))).toEqual(ITEMS.map((item) => item.to));
     });
 
-    it("marks only the active filter as current", async () => {
+    it("marks only the active filter as the current page, since its link is the address being shown", async () => {
         const wrapper = await mountSuspended(FilterPills, { props: { label: "Formato", items: ITEMS }, global });
 
-        expect(wrapper.findAll("a").map((link) => link.attributes("aria-current"))).toEqual(["true", undefined, undefined]);
+        expect(wrapper.findAll("a").map((link) => link.attributes("aria-current"))).toEqual(["page", undefined, undefined]);
     });
 
     it("reads each count as a phrase, since a bare number means nothing out loud", async () => {

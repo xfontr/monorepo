@@ -15,18 +15,23 @@ interface Props {
 withDefaults(defineProps<Props>(), {
     suggestion: undefined,
 });
+
+const titleId = useId();
 </script>
 
 <template>
     <section
-        :aria-label="$t('noResults.label')"
+        :aria-labelledby="titleId"
         class="flex flex-col items-start gap-4 rounded-sm border border-default px-5 py-10 md:px-12"
     >
         <UIcon
             name="i-lucide-search-x"
             class="size-7 text-dimmed"
         />
-        <h2 class="font-serif text-h3 text-highlighted text-balance">
+        <h2
+            :id="titleId"
+            class="font-serif text-h3 text-highlighted text-balance"
+        >
             {{ $t("noResults.title", { query }) }}
         </h2>
         <ul class="list-disc pl-5 font-serif text-base leading-relaxed text-toned marker:text-huella-teal-500">

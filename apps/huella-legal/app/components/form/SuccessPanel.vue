@@ -9,11 +9,14 @@ interface Props {
 withDefaults(defineProps<Props>(), {
     action: undefined,
 });
+
+const heading = useTemplateRef("heading");
+
+onMounted(() => heading.value?.focus());
 </script>
 
 <template>
     <div
-        role="status"
         class="flex flex-col items-start gap-4 rounded-sm border border-huella-teal-200 bg-huella-teal-50 p-6 md:p-8"
     >
         <span class="flex size-11 items-center justify-center rounded-full bg-huella-teal-600 text-white">
@@ -22,7 +25,11 @@ withDefaults(defineProps<Props>(), {
                 class="size-5"
             />
         </span>
-        <h3 class="font-serif text-h3 text-highlighted">
+        <h3
+            ref="heading"
+            tabindex="-1"
+            class="font-serif text-h3 text-highlighted outline-none"
+        >
             {{ title }}
         </h3>
         <p

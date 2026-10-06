@@ -4,7 +4,7 @@ import Pagination from "./Pagination.vue";
 
 const meta: Meta<typeof Pagination> = {
     component: Pagination,
-    args: { page: 1, total: 48, perPage: 7 },
+    args: { page: 1, total: 48, perPage: 7, to: (page: number) => ({ query: { page } }) },
 };
 
 export default meta;
