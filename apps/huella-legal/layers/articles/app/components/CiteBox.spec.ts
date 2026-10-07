@@ -10,8 +10,8 @@ mockNuxtImport("useToast", () => () => toast);
 const global = { mocks: { $t: (key: string) => `t(${key})` } };
 
 const CITATIONS = [
-    { label: "APA 7", value: "Gil, M. (2024, 12 de marzo). La acción. Huella Legal." },
-    { label: "Huella Legal", value: "GIL, M., «La acción», Huella Legal, 12 de marzo de 2024." },
+    { style: "APA 7", text: "Gil, M. (2024, 12 de marzo). La acción. Huella Legal." },
+    { style: "Huella Legal", text: "GIL, M., «La acción», Huella Legal, 12 de marzo de 2024." },
 ];
 
 const clipboard = { write: vi.fn() };
@@ -49,12 +49,12 @@ describe("cite box", () => {
     it("shows the first style until another tab is picked", async () => {
         const wrapper = await mountSuspended(CiteBox, { props: { citations: CITATIONS }, global });
 
-        expect(wrapper.text()).toContain(CITATIONS[0]!.value);
+        expect(wrapper.text()).toContain(CITATIONS[0]!.text);
 
         await selectTab(wrapper, 1);
 
-        expect(wrapper.text()).toContain(CITATIONS[1]!.value);
-        expect(wrapper.text()).not.toContain(CITATIONS[0]!.value);
+        expect(wrapper.text()).toContain(CITATIONS[1]!.text);
+        expect(wrapper.text()).not.toContain(CITATIONS[0]!.text);
     });
 
     it("copies the style on screen, not the first one", async () => {
@@ -63,7 +63,7 @@ describe("cite box", () => {
         await selectTab(wrapper, 1);
         await wrapper.find("button:not([role=tab])").trigger("click");
 
-        expect(clipboard.write).toHaveBeenCalledWith([new ClipboardItem({ "text/plain": CITATIONS[1]!.value })]);
+        expect(clipboard.write).toHaveBeenCalledWith([new ClipboardItem({ "text/plain": CITATIONS[1]!.text })]);
     });
 
     it("confirms the copy in a toast, since the button itself doesn't change", async () => {
@@ -79,7 +79,7 @@ describe("cite box", () => {
 
         const controls = wrapper.find("[role=tab][aria-selected=true]").attributes("aria-controls");
 
-        expect(document.getElementById(controls!)?.textContent).toContain(CITATIONS[0]!.value);
+        expect(document.getElementById(controls!)?.textContent).toContain(CITATIONS[0]!.text);
 
         wrapper.unmount();
     });
@@ -95,7 +95,7 @@ describe("cite box", () => {
         const wrapper = await mountSuspended(CiteBox, { props: { citations: [CITATIONS[0]!] }, global });
 
         expect(wrapper.find("[role=tablist]").exists()).toBe(false);
-        expect(wrapper.text()).toContain(CITATIONS[0]!.value);
+        expect(wrapper.text()).toContain(CITATIONS[0]!.text);
     });
 
     it("renders nothing with no citation to show", async () => {

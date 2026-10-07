@@ -21,7 +21,7 @@ describe("wordmark", () => {
     });
 
     it("switches the accent to light teal on slate, where the ink accent would vanish", async () => {
-        const wrapper = await mountSuspended(Wordmark, { props: { tone: "paper" }, global });
+        const wrapper = await mountSuspended(Wordmark, { props: { tone: "slate" }, global });
 
         expect(wrapper.find(".italic").classes()).toContain("text-huella-teal-300");
     });

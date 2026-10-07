@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import type { RouteLocationRaw } from "vue-router";
+import type { LinkAction } from "~/types/LinkAction";
 
-export interface FilterPill {
-    label: string
-    to: RouteLocationRaw
+export interface FilterPill extends LinkAction {
     count: number
     active?: boolean
 }

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@nuxt/ui";
+import type { Tone } from "~/types/Tone";
 import { type Subscription, subscriptionSchema } from "../../shared/schemas/subscription";
-
-export type Tone = "paper" | "slate";
 
 type Layout = "stacked" | "inline";
 

@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import type { RouteLocationRaw } from "vue-router";
+
 interface Props {
     label: string
-    to: string
+    to: RouteLocationRaw
     count?: number
     active?: boolean
 }

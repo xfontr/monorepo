@@ -15,4 +15,4 @@ export const TitleOnly: Story = {};
 
 export const WithKicker: Story = { args: { kicker: "Archivo" } };
 
-export const WithLink: Story = { args: { kicker: "Archivo", link: "Ver todas", to: "#" } };
+export const WithLink: Story = { args: { kicker: "Archivo", action: { label: "Ver todas", to: "#" } } };

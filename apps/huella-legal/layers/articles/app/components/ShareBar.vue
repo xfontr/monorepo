@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { useClipboard, useShare } from "@vueuse/core";
+import type { RouteLocationRaw } from "vue-router";
 
 interface Props {
     title: string
     url: string
-    citeTo?: string
+    citeTo?: RouteLocationRaw
 }
 
 const props = withDefaults(defineProps<Props>(), { citeTo: undefined });

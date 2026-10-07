@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { NuxtError } from "#app";
 import { es } from "@nuxt/ui/locale";
+import { DESTINATIONS } from "~/composables/useSiteNav";
 
 interface Props {
     error: NuxtError<{ message?: string }>
@@ -76,7 +77,7 @@ useHead({
                     data-error="server"
                     class="flex flex-col items-start gap-4"
                 >
-                    <BaseKicker tone="muted">
+                    <BaseKicker muted>
                         {{ $t("error.kicker", { status: error.status }) }}
                     </BaseKicker>
                     <h1 class="font-serif text-h3 text-balance text-highlighted">
@@ -93,7 +94,7 @@ useHead({
                             @click="reloadNuxtApp({ force: true })"
                         />
                         <UButton
-                            :to="{ name: 'article', params: { slug: 'contacto' } }"
+                            :to="DESTINATIONS.contact"
                             variant="outline"
                             color="neutral"
                             :label="$t('error.server.contact')"

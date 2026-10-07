@@ -62,10 +62,10 @@ const pills = [
                 <BaseKicker to="#">
                     Derecho penal
                 </BaseKicker>
-                <BaseKicker tone="muted">
+                <BaseKicker muted>
                     Ensayo
                 </BaseKicker>
-                <span class="bg-huella-slate-900 px-2"><BaseKicker tone="paper">Materia</BaseKicker></span>
+                <span class="bg-huella-slate-900 px-2"><BaseKicker tone="slate">Materia</BaseKicker></span>
             </div>
         </section>
 

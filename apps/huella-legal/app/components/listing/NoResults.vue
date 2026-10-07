@@ -1,15 +1,10 @@
 <script setup lang="ts">
-import type { RouteLocationRaw } from "vue-router";
-
-interface Link {
-    label: string
-    to: string
-}
+import type { LinkAction } from "~/types/LinkAction";
 
 interface Props {
     query: string
-    subjects: Link[]
-    suggestion?: { label: string, to: RouteLocationRaw }
+    subjects: LinkAction[]
+    suggestion?: LinkAction
 }
 
 withDefaults(defineProps<Props>(), {

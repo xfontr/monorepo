@@ -42,7 +42,7 @@ the markup.
 
 | Path | Role |
 | --- | --- |
-| [`app/assets/css/main.css`](./app/assets/css/main.css) | Every token: palettes, type scale, measure, and Nuxt UI's semantic roles pointed at them |
+| [`app/assets/css/main.css`](./app/assets/css/main.css) | Every token: palettes, type scale, measure, Nuxt UI's semantic roles pointed at them, and the base focus ring any element without its own falls back to |
 | [`app/app.config.ts`](./app/app.config.ts) | Nuxt UI colour aliases and control defaults: 44 px minimum height, paper field surface, and a button theme that darkens on hover, rings outlines in ink and draws the 2 px focus ring the foundations page promises |
 | `app/pages/lab/*.vue` | One review page per site archetype: the approved design |
 | `app/pages/lab/attempts/*.vue` | The A, B and C pages the approved set replaced, kept for reference |
@@ -83,7 +83,7 @@ The Penpot P5 sheet is deleted, so its deviations are recorded here.
 | Token | P5 value | Lab value | Why |
 | --- | --- | --- | --- |
 | Control / card radius | 8 px / 12 px | 4 px (`--ui-radius`) / 2–4 px | Rounded cards read as an app, not a journal; hairline rules carry the structure instead |
-| Focus offset | 4 px | 2 px (set for buttons in `app.config.ts`; Nuxt UI's own is a 3 px ring at 25 % with no offset) | Keeps the ring attached to tight inline links; still a 2 px ring, visible on paper and slate |
+| Focus offset | 4 px | 2 px (the base `:focus-visible` rule in `main.css`, restated for buttons in `app.config.ts` because Nuxt UI's own is a 3 px ring at 25 % with no offset) | Keeps the ring attached to tight inline links; still a 2 px ring, visible on paper and slate |
 | Heading colour | `slate-800` | `slate-900` | More separation from body copy at regular weight |
 | Kickers | No automatic uppercase | Uppercase, 0.12em tracking | CSS uppercase keeps Spanish accents; approved at Gate A |
 | Canvas | `ivory-100` | `ivory-100` | Unchanged |

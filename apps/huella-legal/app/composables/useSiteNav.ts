@@ -6,6 +6,12 @@ interface Link {
     to: RouteLocationRaw
 }
 
+export const DESTINATIONS = {
+    newsletter: { name: "index", hash: "#newsletter" },
+    contact: { name: "article", params: { slug: "contacto" } },
+    legal: { name: "article", params: { slug: "aviso-legal" } },
+} as const satisfies Record<string, RouteLocationRaw>;
+
 const SECTIONS = [
     { key: "publications", to: { name: "publications" } },
     { key: "subjects", to: { name: "categories" } },
@@ -28,16 +34,16 @@ const COLUMNS = [
         links: [
             { key: "publish", to: { name: "publish" } },
             { key: "publishThesis", to: { name: "publish", hash: "#tesis" } },
-            { key: "newsletter", to: { name: "index", hash: "#newsletter" } },
-            { key: "contact", to: { name: "article", params: { slug: "contacto" } } },
+            { key: "newsletter", to: DESTINATIONS.newsletter },
+            { key: "contact", to: DESTINATIONS.contact },
         ],
     },
     {
         key: "legal",
         links: [
-            { key: "legalNotice", to: { name: "article", params: { slug: "aviso-legal" } } },
-            { key: "privacy", to: { name: "article", params: { slug: "aviso-legal" }, hash: "#privacidad" } },
-            { key: "cookies", to: { name: "article", params: { slug: "aviso-legal" }, hash: "#cookies" } },
+            { key: "legalNotice", to: DESTINATIONS.legal },
+            { key: "privacy", to: { ...DESTINATIONS.legal, hash: "#privacidad" } },
+            { key: "cookies", to: { ...DESTINATIONS.legal, hash: "#cookies" } },
         ],
     },
 ] as const satisfies readonly { key: string, links: readonly Link[] }[];

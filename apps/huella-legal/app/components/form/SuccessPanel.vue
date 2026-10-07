@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { RouteLocationRaw } from "vue-router";
+import type { LinkAction } from "~/types/LinkAction";
 
 interface Props {
     title: string
-    action?: { label: string, to: RouteLocationRaw }
+    action?: LinkAction
 }
 
 withDefaults(defineProps<Props>(), {

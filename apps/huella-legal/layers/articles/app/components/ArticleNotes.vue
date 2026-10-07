@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { Note } from "../types/Note";
-
 interface Props {
     notes: Note[]
 }

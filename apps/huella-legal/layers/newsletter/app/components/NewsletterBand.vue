@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { RouteLocationRaw } from "vue-router";
-import NewsletterForm, { type Tone } from "./NewsletterForm.vue";
+import type { Tone } from "~/types/Tone";
+import NewsletterForm from "./NewsletterForm.vue";
 
 interface Recipe {
     root: string
-    kicker: "teal" | "paper"
     title: string
     note: string
 }
@@ -27,8 +27,8 @@ const emit = defineEmits<{ submit: [email: string] }>();
 const email = defineModel<string>("email", { default: "" });
 
 const TONES = {
-    paper: { root: "bg-ivory-200", kicker: "teal", title: "text-highlighted", note: "text-muted" },
-    slate: { root: "bg-huella-slate-800 text-huella-slate-200", kicker: "paper", title: "text-ivory-50", note: "text-huella-slate-300" },
+    paper: { root: "bg-ivory-200", title: "text-highlighted", note: "text-muted" },
+    slate: { root: "bg-huella-slate-800 text-huella-slate-200", title: "text-ivory-50", note: "text-huella-slate-300" },
 } as const satisfies Record<Tone, Recipe>;
 
 const ui = computed<Recipe>(() => TONES[props.tone]);
@@ -42,7 +42,7 @@ const titleId = useId();
     >
         <UContainer class="grid gap-12 py-16 lg:grid-cols-12 lg:items-center lg:gap-12 lg:py-20">
             <div class="lg:col-span-6">
-                <BaseKicker :tone="ui.kicker">
+                <BaseKicker :tone>
                     {{ $t("newsletterBand.kicker") }}
                 </BaseKicker>
                 <h2

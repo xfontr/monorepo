@@ -6,7 +6,7 @@ const meta: Meta<typeof Wordmark> = {
     component: Wordmark,
     argTypes: {
         size: { control: "inline-radio", options: ["sm", "md", "lg"] },
-        tone: { control: "inline-radio", options: ["ink", "paper"] },
+        tone: { control: "inline-radio", options: ["paper", "slate"] },
     },
 };
 
@@ -22,7 +22,7 @@ export const Large: Story = { args: { size: "lg" } };
 
 export const WithTagline: Story = { args: { tagline: true } };
 
-export const Paper: Story = {
-    args: { tone: "paper", tagline: true },
+export const Slate: Story = {
+    args: { tone: "slate", tagline: true },
     decorators: [() => ({ template: "<div class=\"inline-block bg-huella-slate-900 p-4\"><story /></div>" })],
 };

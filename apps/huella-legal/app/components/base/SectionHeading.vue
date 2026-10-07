@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import type { LinkAction } from "~/types/LinkAction";
+
 interface Props {
     title: string
     kicker?: string
-    link?: string
-    to?: string
+    action?: LinkAction
     id?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
     kicker: undefined,
-    link: undefined,
-    to: undefined,
+    action: undefined,
     id: undefined,
 });
 
@@ -36,10 +36,10 @@ const headingId = computed<string>(() => props.id ?? fallbackId);
             </h2>
         </div>
         <UButton
-            v-if="link && to"
+            v-if="action"
             variant="link"
-            :label="link"
-            :to
+            :label="action.label"
+            :to="action.to"
             :aria-describedby="headingId"
             trailing-icon="i-lucide-arrow-right"
             class="-mr-3"
