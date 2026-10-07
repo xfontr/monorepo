@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useClipboard } from "@vueuse/core";
-import type { Citation } from "../types/Citation";
 
 interface Props {
     citations: Citation[]
@@ -12,15 +11,15 @@ const { t } = useI18n();
 const toast = useToast();
 const headingId = useId();
 const { copy: copyText, isSupported: canCopy } = useClipboard();
-const tab = ref(props.citations[0]?.label);
+const tab = ref(props.citations[0]?.style);
 
-const tabs = computed<(Citation & { text: string })[]>(() => props.citations.map(({ label, value }) => ({ label, value: label, text: value })));
-const citation = computed<Citation | undefined>(() => props.citations.find(({ label }) => label === tab.value) ?? props.citations[0]);
+const tabs = computed(() => props.citations.map(({ style, text }) => ({ label: style, value: style, text })));
+const citation = computed<Citation | undefined>(() => props.citations.find(({ style }) => style === tab.value) ?? props.citations[0]);
 
 async function copy(): Promise<void> {
     if (!citation.value) return;
 
-    await copyText(citation.value.value);
+    await copyText(citation.value.text);
     toast.add({ title: t("citeBox.copied"), icon: "i-lucide-check" });
 }
 </script>
@@ -55,7 +54,7 @@ async function copy(): Promise<void> {
             v-else
             class="mt-4 font-serif text-citation break-words text-toned"
         >
-            {{ citation.value }}
+            {{ citation.text }}
         </p>
         <UButton
             v-if="canCopy"

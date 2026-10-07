@@ -20,6 +20,4 @@ type Story = StoryObj<typeof NoResults>;
 
 export const Default: Story = {};
 
-export const WithSuggestion: Story = { args: { suggestion: { label: "Kardashev", to: "#" } } };
-
 export const NoSubjects: Story = { args: { subjects: [] } };

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { PAGE_PARAM } from "~/config/listing";
 import LabKicker from "~/lab/Kicker.vue";
 
 useHead({ title: "Listados · Laboratorio Huella Legal", htmlAttrs: { lang: "es" } });
 
 const route = useRoute();
-const page = computed(() => Number(route.query[PAGE_PARAM] ?? 1));
+const page = computed(() => Number(route.query.page ?? 1));
+const pageLink = (target: number) => ({ query: { ...route.query, page: target > 1 ? String(target) : undefined } });
 
 const sort = ref<"newest" | "oldest">("newest");
 
@@ -41,11 +41,13 @@ const subjects = ["Derecho penal", "Derecho civil", "Derecho constitucional", "T
                 :page
                 :total="48"
                 :per-page="7"
+                :to="pageLink"
             />
             <ListingPagination
                 :page="10"
                 :total="140"
                 :per-page="7"
+                :to="pageLink"
             />
         </section>
 
@@ -74,7 +76,6 @@ const subjects = ["Derecho penal", "Derecho civil", "Derecho constitucional", "T
                 <ListingNoResults
                     query="kardashov"
                     :subjects
-                    :suggestion="{ label: 'Kardashev', to: '/lab/publicaciones?q=kardashev' }"
                 />
                 <ListingEmptyState
                     subject="Derecho administrativo"

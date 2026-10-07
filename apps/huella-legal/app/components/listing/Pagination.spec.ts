@@ -4,8 +4,10 @@ import Pagination from "./Pagination.vue";
 
 const global = { mocks: { $t: (key: string, params?: Record<string, unknown>) => `t(${key}${params ? `, ${JSON.stringify(params)}` : ""})` } };
 
-async function mountAt(page: number, total = 48, route = "/") {
-    return mountSuspended(Pagination, { props: { page, total, perPage: 7 }, global, route });
+const to = (page: number) => `/listado/${page}`;
+
+async function mountAt(page: number, total = 48) {
+    return mountSuspended(Pagination, { props: { page, total, perPage: 7, to }, global });
 }
 
 describe("pagination", () => {
@@ -15,18 +17,12 @@ describe("pagination", () => {
         expect(wrapper.find("nav").exists()).toBe(false);
     });
 
-    it("links every page by its query, with page one on the bare URL so the listing has one address", async () => {
+    it("takes every page's address from `to`, so the listing's controller alone owns the URL", async () => {
         const wrapper = await mountAt(10, 140);
 
         const pages = wrapper.findAll("a[aria-label^='t(pagination.page']").map((link) => [link.text(), link.attributes("href")]);
 
-        expect(pages).toEqual([["1", "/"], ["9", "/?page=9"], ["10", "/?page=10"], ["11", "/?page=11"], ["20", "/?page=20"]]);
-    });
-
-    it("keeps the rest of the query, so paging never drops the sort or the filter", async () => {
-        const wrapper = await mountAt(1, 48, "/?orden=antiguas");
-
-        expect(wrapper.find("[aria-label='t(pagination.next.label)']").attributes("href")).toBe("/?orden=antiguas&page=2");
+        expect(pages).toEqual([["1", "/listado/1"], ["9", "/listado/9"], ["10", "/listado/10"], ["11", "/listado/11"], ["20", "/listado/20"]]);
     });
 
     it("marks only the current page with aria-current", async () => {
@@ -46,7 +42,7 @@ describe("pagination", () => {
 
         expect(previous.element.tagName).toBe("BUTTON");
         expect(previous.attributes("disabled")).toBeDefined();
-        expect(wrapper.find("[aria-label='t(pagination.next.label)']").attributes("href")).toBe("/?page=2");
+        expect(wrapper.find("[aria-label='t(pagination.next.label)']").attributes("href")).toBe("/listado/2");
     });
 
     it("has no live next link on the last page", async () => {
@@ -56,7 +52,7 @@ describe("pagination", () => {
 
         expect(next.element.tagName).toBe("BUTTON");
         expect(next.attributes("disabled")).toBeDefined();
-        expect(wrapper.find("[aria-label='t(pagination.previous.label)']").attributes("href")).toBe("/?page=6");
+        expect(wrapper.find("[aria-label='t(pagination.previous.label)']").attributes("href")).toBe("/listado/6");
     });
 
     it("counts pages from the total, rounding a partial last page up", async () => {

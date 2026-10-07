@@ -3,12 +3,13 @@ interface Props {
     articles: ArticleSummary[]
     variant?: "standard" | "media"
     columns?: 2 | 3
+    hideOrphan?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), { variant: "media", columns: 3 });
+const props = withDefaults(defineProps<Props>(), { variant: "media", columns: 3, hideOrphan: false });
 
 const orphan = computed<number>(() =>
-    props.columns === 3 && props.articles.length > 1 && props.articles.length % 2 === 1 ? props.articles.length - 1 : -1,
+    props.hideOrphan && props.columns === 3 && props.articles.length > 1 && props.articles.length % 2 === 1 ? props.articles.length - 1 : -1,
 );
 </script>
 

@@ -3,17 +3,14 @@ import { useScrollspy } from "@nuxt/ui/composables/useScrollspy";
 
 interface Props {
     items: TocItem[]
-    active?: string
 }
 
-const props = withDefaults(defineProps<Props>(), { active: undefined });
+const props = defineProps<Props>();
 
 const sections = computed(() => props.items.filter(({ level }) => level === 2));
 const { activeHeadings, updateHeadings } = useScrollspy();
 
 const lit = computed(() => {
-    if (props.active) return [props.active];
-
     const visible = sections.value.filter(({ id }) => activeHeadings.value.includes(id)).map(({ id }) => id);
 
     return visible.length ? visible : sections.value.slice(0, 1).map(({ id }) => id);
@@ -63,7 +60,7 @@ watch(lit, measure, { flush: "post" });
                         <ULink
                             :to="`#${item.id}`"
                             raw
-                            class="-ml-px flex min-h-11 items-center border-l-2 border-transparent pl-4 font-sans text-sm text-toned focus-visible:outline-2 focus-visible:outline-primary"
+                            class="-ml-px flex min-h-11 items-center border-l-2 border-transparent pl-4 font-sans text-sm text-toned focus-visible:outline-offset-0"
                         >
                             {{ item.label }}
                         </ULink>
@@ -96,7 +93,7 @@ watch(lit, measure, { flush: "post" });
                             raw
                             :data-lit="lit.includes(item.id) || undefined"
                             :aria-current="lit[0] === item.id ? 'location' : undefined"
-                            class="flex min-h-11 items-center py-1 pl-4 font-sans text-sm leading-snug text-muted transition-colors hover:text-highlighted focus-visible:outline-2 focus-visible:outline-primary data-lit:font-semibold data-lit:text-highlighted"
+                            class="flex min-h-11 items-center py-1 pl-4 font-sans text-sm leading-snug text-muted transition-colors hover:text-highlighted focus-visible:outline-offset-0 data-lit:font-semibold data-lit:text-highlighted"
                         >
                             {{ item.label }}
                         </ULink>

@@ -14,4 +14,4 @@ export const Default: Story = {};
 
 export const Subject: Story = { args: { subject: "derecho penal" } };
 
-export const Invalid: Story = { args: { email: "lucia.martin@", error: "Falta el dominio: por ejemplo, lucia.martin@ejemplo.es" } };
+export const Invalid: Story = { args: { error: "Falta el dominio: por ejemplo, lucia.martin@ejemplo.es" } };

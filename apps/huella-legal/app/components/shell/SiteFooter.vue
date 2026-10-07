@@ -19,7 +19,7 @@ const year = new Date().getFullYear();
             <UContainer class="grid gap-12 lg:grid-cols-12 lg:gap-8">
                 <div class="flex flex-col gap-5 lg:col-span-4">
                     <BaseWordmark
-                        tone="paper"
+                        tone="slate"
                         tagline
                     />
                     <p class="max-w-xs font-serif text-base leading-relaxed text-balance text-huella-slate-200">

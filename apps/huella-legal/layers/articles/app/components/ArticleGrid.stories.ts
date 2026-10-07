@@ -33,3 +33,5 @@ type Story = StoryObj<typeof ArticleGrid>;
 export const ThreeColumns: Story = {};
 
 export const TwoColumnsStandard: Story = { args: { articles: ARTICLES.slice(0, 2), variant: "standard", columns: 2 } };
+
+export const HideOrphan: Story = { args: { hideOrphan: true } };

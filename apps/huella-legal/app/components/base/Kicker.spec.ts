@@ -12,8 +12,8 @@ describe("kicker", () => {
         expect(plain.text()).toBe("Derecho penal");
     });
 
-    it("keeps its tone on a link instead of taking Nuxt UI's link colours", async () => {
-        const wrapper = await mountSuspended(Kicker, { props: { to: "/materias", tone: "muted" }, slots: { default: () => "Materia" } });
+    it("keeps its colour on a link instead of taking Nuxt UI's link colours", async () => {
+        const wrapper = await mountSuspended(Kicker, { props: { to: "/materias", muted: true }, slots: { default: () => "Materia" } });
 
         expect(wrapper.find("a").classes()).toContain("text-muted");
         expect(wrapper.find("a").classes()).not.toContain("text-primary");

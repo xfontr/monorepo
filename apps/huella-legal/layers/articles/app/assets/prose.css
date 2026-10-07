@@ -51,20 +51,20 @@
     color: var(--ui-text-highlighted);
 }
 
-.hl-prose a {
+/* `.hl-links` carries the same links into end-matter fragments that don't take the prose type */
+.hl-prose a,
+.hl-links a {
     color: var(--ui-primary);
     text-decoration: underline;
     text-decoration-color: var(--color-huella-slate-300);
     text-underline-offset: 0.18em;
 }
 
-.hl-prose a:hover { text-decoration-color: currentColor; }
+.hl-prose a:hover,
+.hl-links a:hover { text-decoration-color: currentColor; }
 
-.hl-prose a:focus-visible {
-    border-radius: 2px;
-    outline: 2px solid var(--ui-primary);
-    outline-offset: 2px;
-}
+.hl-prose a:focus-visible,
+.hl-links a:focus-visible { border-radius: 2px; }
 
 .hl-prose sup { line-height: 0; }
 

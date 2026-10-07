@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from "@nuxt/ui";
+import { DESTINATIONS } from "~/composables/useSiteNav";
 
 interface Props {
     sections: NavigationMenuItem[]
@@ -7,8 +8,6 @@ interface Props {
 }
 
 defineProps<Props>();
-
-const NEWSLETTER = { name: "index", hash: "#newsletter" } as const;
 
 const router = useRouter();
 const homePath = computed(() => router.resolve({ name: "index" }).path);
@@ -26,9 +25,9 @@ const homePath = computed(() => router.resolve({ name: "index" }).path);
                 <UContainer class="flex h-9 items-center justify-between font-sans text-xs text-muted">
                     <span>{{ $t("app.header.strip", { issn }) }}</span>
                     <ULink
-                        :to="NEWSLETTER"
+                        :to="DESTINATIONS.newsletter"
                         raw
-                        class="relative inline-flex h-9 items-center gap-1.5 font-semibold text-primary after:absolute after:inset-x-0 after:top-0 after:-bottom-2 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                        class="relative inline-flex h-9 items-center gap-1.5 font-semibold text-primary after:absolute after:inset-x-0 after:top-0 after:-bottom-2 hover:underline focus-visible:rounded-xs"
                     >
                         <UIcon
                             name="i-lucide-mail"
@@ -63,7 +62,7 @@ const homePath = computed(() => router.resolve({ name: "index" }).path);
                 :aria-label="$t('app.header.search')"
             />
             <UButton
-                :to="NEWSLETTER"
+                :to="DESTINATIONS.newsletter"
                 :label="$t('app.header.subscribe')"
                 class="hidden md:inline-flex"
             />
@@ -102,7 +101,7 @@ const homePath = computed(() => router.resolve({ name: "index" }).path);
                 <div class="flex flex-col gap-3 p-4">
                     <UButton
                         block
-                        :to="NEWSLETTER"
+                        :to="DESTINATIONS.newsletter"
                         :label="$t('app.header.menu.subscribe')"
                     />
                     <UButton

@@ -8,7 +8,7 @@ export default defineAppConfig({
         // colour class was silently dropped from every Nuxt UI `class` and `:ui` override
         tv: {
             twMergeConfig: {
-                extend: { theme: { text: ["display", "h1", "h2", "h3", "reading", "quote", "citation", "meta"] } },
+                extend: { theme: { text: ["display", "h1", "h2", "h3", "section", "card", "reading", "quote", "citation", "meta", "kicker"] } },
             },
         },
 
@@ -104,7 +104,7 @@ export default defineAppConfig({
             slots: {
                 root: "xl:block",
                 center: "grid grid-flow-row grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3",
-                label: "font-sans text-xs font-semibold uppercase tracking-[0.12em] text-huella-teal-300",
+                label: "text-kicker text-huella-teal-300",
                 list: "mt-3 flex flex-col space-y-0",
                 // The default truncates, which clips "Publicar un TFG o TFM" in the two-column grid at 390px
                 linkLabel: "overflow-visible whitespace-normal",
@@ -145,6 +145,26 @@ export default defineAppConfig({
         // Previous and next sit at the ends of the row, and the ellipses go on phones with the numbers
         pagination: {
             slots: { root: "w-full", list: "w-full gap-0", prev: "me-auto", next: "ms-auto", ellipsis: "max-sm:hidden" },
+        },
+        // Empty states are left-aligned panels in the reading column, not centred app placeholders
+        empty: {
+            slots: {
+                // Nuxt UI pads per breakpoint, so each step is restated rather than overridden once
+                root: "items-start rounded-sm px-5 py-10 sm:px-5 sm:py-10 md:px-12 lg:px-12 lg:py-10",
+                header: "max-w-none items-start gap-4 text-left",
+                title: "font-serif font-normal text-balance",
+                description: "max-w-md text-left text-pretty font-serif",
+                body: "max-w-none items-start self-stretch sm:self-start",
+                actions: "flex-col justify-start self-stretch gap-3 sm:flex-row sm:self-start",
+            },
+            variants: {
+                // Line height sits beside the size because tailwind-merge drops a `leading-*` before a `text-*`
+                size: { md: { title: "text-h3", description: "text-base leading-relaxed" } },
+                variant: {
+                    outline: { description: "text-toned" },
+                    naked: { description: "text-toned" },
+                },
+            },
         },
         skeleton: {
             base: "bg-ivory-200",

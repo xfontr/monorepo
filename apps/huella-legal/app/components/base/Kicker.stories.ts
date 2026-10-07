@@ -15,12 +15,12 @@ export default meta;
 
 type Story = StoryObj<typeof Kicker>;
 
-export const Teal: Story = {};
+export const Paper: Story = {};
 
-export const Muted: Story = { args: { tone: "muted" } };
+export const Muted: Story = { args: { muted: true } };
 
-export const Paper: Story = {
-    args: { tone: "paper" },
+export const Slate: Story = {
+    args: { tone: "slate" },
     decorators: [() => ({ template: "<div class=\"bg-huella-slate-900 p-4\"><story /></div>" })],
 };
 

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { Note } from "../types/Note";
-
 interface Props {
     notes: Note[]
 }
@@ -34,13 +32,13 @@ const headingId = useId();
                     :to="`#ref-${note.id}`"
                     raw
                     :aria-label="$t('articleNotes.back', { number: note.id })"
-                    class="-my-2.5 flex min-h-11 items-start pt-2.5 font-sans text-xs font-semibold leading-5 text-secondary hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary"
+                    class="-my-2.5 flex min-h-11 items-start pt-2.5 font-sans text-xs font-semibold leading-5 text-secondary hover:underline focus-visible:rounded-xs focus-visible:outline-offset-0"
                 >
                     {{ note.id }}
                 </ULink>
                 <!-- eslint-disable vue/no-v-html -- only ever fed from the articles layer's sanitising body mapper -->
                 <span
-                    class="break-words [&_a]:text-primary [&_a]:underline [&_a]:decoration-huella-slate-300 [&_a]:underline-offset-2 [&_a:hover]:decoration-current"
+                    class="break-words hl-links"
                     v-html="note.html"
                 />
                 <!-- eslint-enable vue/no-v-html -->

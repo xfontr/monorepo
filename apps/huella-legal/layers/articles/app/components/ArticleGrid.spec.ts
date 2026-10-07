@@ -26,8 +26,14 @@ describe("article grid", () => {
         expect(wrapper.findAll("ul > li > article")).toHaveLength(3);
     });
 
-    it("hides an odd last card while three columns drop to two, so no card sits alone on its row", async () => {
+    it("keeps every card unless asked, since hiding one drops an article at `md`", async () => {
         const wrapper = await mountSuspended(ArticleGrid, { props: { articles: THREE }, global });
+
+        expect(wrapper.find(".md\\:hidden").exists()).toBe(false);
+    });
+
+    it("hides an odd last card on request while three columns drop to two, so no card sits alone on its row", async () => {
+        const wrapper = await mountSuspended(ArticleGrid, { props: { articles: THREE, hideOrphan: true }, global });
 
         const hidden = [...wrapper.element.children].map((item) => item.classList.contains("md:hidden"));
 
@@ -35,13 +41,13 @@ describe("article grid", () => {
     });
 
     it("never hides a lone card, which would leave the grid empty at `md`", async () => {
-        const wrapper = await mountSuspended(ArticleGrid, { props: { articles: THREE.slice(0, 1) }, global });
+        const wrapper = await mountSuspended(ArticleGrid, { props: { articles: THREE.slice(0, 1), hideOrphan: true }, global });
 
         expect(wrapper.find(".md\\:hidden").exists()).toBe(false);
     });
 
     it("hides nothing in a two-column grid, which never changes column count", async () => {
-        const wrapper = await mountSuspended(ArticleGrid, { props: { articles: THREE, columns: 2 }, global });
+        const wrapper = await mountSuspended(ArticleGrid, { props: { articles: THREE, columns: 2, hideOrphan: true }, global });
 
         expect(wrapper.find(".md\\:hidden").exists()).toBe(false);
         expect(wrapper.classes()).not.toContain("lg:grid-cols-3");

@@ -1,24 +1,18 @@
 <script setup lang="ts">
 import type { RouteLocationRaw } from "vue-router";
-import { PAGE_PARAM } from "../../config/listing";
 
 interface Props {
     page: number
     total: number
     perPage: number
+    to: (page: number) => RouteLocationRaw
 }
 
 const props = defineProps<Props>();
 
-const route = useRoute();
-
-function pageLink(target: number): RouteLocationRaw {
-    return { query: { ...route.query, [PAGE_PARAM]: target > 1 ? String(target) : undefined } };
-}
-
 const pageCount = computed<number>(() => Math.max(1, Math.ceil(props.total / props.perPage)));
-const previousLink = computed(() => (props.page > 1 ? pageLink(props.page - 1) : undefined));
-const nextLink = computed(() => (props.page < pageCount.value ? pageLink(props.page + 1) : undefined));
+const previousLink = computed(() => (props.page > 1 ? props.to(props.page - 1) : undefined));
+const nextLink = computed(() => (props.page < pageCount.value ? props.to(props.page + 1) : undefined));
 </script>
 
 <template>
@@ -53,10 +47,10 @@ const nextLink = computed(() => (props.page < pageCount.value ? pageLink(props.p
                 <ULink
                     v-if="item.type === 'page'"
                     raw
-                    :to="pageLink(item.value)"
+                    :to="to(item.value)"
                     :aria-label="$t('pagination.page', { page: item.value })"
                     :aria-current="item.value === page ? 'page' : undefined"
-                    class="relative inline-flex min-h-12 min-w-11 items-center justify-center font-sans text-sm font-semibold text-muted tabular-nums transition-colors before:absolute before:inset-x-1.5 before:-top-px before:h-0.5 before:transition-colors hover:text-highlighted hover:before:bg-ivory-400 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-[current=page]:text-highlighted aria-[current=page]:before:bg-huella-slate-900 max-sm:hidden"
+                    class="relative inline-flex min-h-12 min-w-11 items-center justify-center font-sans text-sm font-semibold text-muted tabular-nums transition-colors before:absolute before:inset-x-1.5 before:-top-px before:h-0.5 before:transition-colors hover:text-highlighted hover:before:bg-ivory-400 focus-visible:rounded-xs aria-[current=page]:text-highlighted aria-[current=page]:before:bg-huella-slate-900 max-sm:hidden"
                 >
                     {{ item.value }}
                 </ULink>

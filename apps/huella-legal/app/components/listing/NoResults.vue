@@ -1,54 +1,36 @@
 <script setup lang="ts">
-import type { RouteLocationRaw } from "vue-router";
-
-interface Link {
-    label: string
-    to: string
-}
+import type { LinkAction } from "~/types/LinkAction";
 
 interface Props {
     query: string
-    subjects: Link[]
-    suggestion?: { label: string, to: RouteLocationRaw }
+    subjects: LinkAction[]
 }
 
-withDefaults(defineProps<Props>(), {
-    suggestion: undefined,
-});
+defineProps<Props>();
+
+const titleId = useId();
 </script>
 
 <template>
-    <section
-        :aria-label="$t('noResults.label')"
-        class="flex flex-col items-start gap-4 rounded-sm border border-default px-5 py-10 md:px-12"
+    <UEmpty
+        as="section"
+        :aria-labelledby="titleId"
+        :description="$t('noResults.broaden')"
+        :ui="{ description: 'max-w-none' }"
     >
-        <UIcon
-            name="i-lucide-search-x"
-            class="size-7 text-dimmed"
-        />
-        <h2 class="font-serif text-h3 text-highlighted text-balance">
-            {{ $t("noResults.title", { query }) }}
-        </h2>
-        <ul class="list-disc pl-5 font-serif text-base leading-relaxed text-toned marker:text-huella-teal-500">
-            <li v-if="suggestion">
-                <i18nT
-                    keypath="noResults.spelling"
-                    scope="global"
-                >
-                    <template #suggestion>
-                        <ULink
-                            raw
-                            :to="suggestion.to"
-                            class="text-primary underline underline-offset-2"
-                        >
-                            {{ suggestion.label }}
-                        </ULink>
-                    </template>
-                </i18nT>
-            </li>
-            <li>{{ $t("noResults.broaden") }}</li>
-        </ul>
-        <template v-if="subjects.length">
+        <template #leading>
+            <UIcon
+                name="i-lucide-search-x"
+                class="size-7 text-dimmed"
+            />
+        </template>
+        <template #title>
+            <span :id="titleId">{{ $t("noResults.title", { query }) }}</span>
+        </template>
+        <template
+            v-if="subjects.length"
+            #body
+        >
             <p class="mt-2 font-sans text-meta font-semibold text-highlighted">
                 {{ $t("noResults.browse") }}
             </p>
@@ -64,5 +46,5 @@ withDefaults(defineProps<Props>(), {
                 </li>
             </ul>
         </template>
-    </section>
+    </UEmpty>
 </template>

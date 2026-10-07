@@ -25,7 +25,7 @@ const headingId = useId();
             <li
                 v-for="(entry, index) in entries"
                 :key="index"
-                class="pl-6 -indent-6 font-serif text-citation break-words text-toned [&_a]:text-primary [&_a]:underline [&_a]:decoration-huella-slate-300 [&_a]:underline-offset-2 [&_a:hover]:decoration-current"
+                class="pl-6 -indent-6 font-serif text-citation break-words text-toned hl-links"
                 v-html="entry"
             />
             <!-- eslint-enable vue/no-v-html -->

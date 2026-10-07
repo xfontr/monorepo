@@ -57,12 +57,6 @@ describe("article TOC", () => {
         ]);
     });
 
-    it("marks the active section as the current location", async () => {
-        const wrapper = await mountSuspended(ArticleToc, { props: { items, active: "tipicidad" }, global });
-
-        expect(rail(wrapper).map((link) => link.attributes("aria-current"))).toEqual([undefined, undefined, "location"]);
-    });
-
     it("lights the first section before any heading is reached", async () => {
         const wrapper = await mountSuspended(ArticleToc, { props: { items }, global });
 

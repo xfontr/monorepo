@@ -12,9 +12,10 @@ describe("empty state", () => {
 
         const title = "t(emptyState.title, {\"subject\":\"Derecho administrativo\"})";
 
+        const labelledBy = wrapper.find("section").attributes("aria-labelledby");
+
         expect(wrapper.find("h2").text()).toBe(title);
-        expect(wrapper.find("section").attributes("aria-labelledby")).toBe(wrapper.find("h2").attributes("id"));
-        expect(wrapper.find("h2").attributes("id")).toBeTruthy();
+        expect(wrapper.find(`h2 [id="${labelledBy}"]`).text()).toBe(title);
     });
 
     it("offers to publish first, then a way out to the other subjects", async () => {
