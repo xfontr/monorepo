@@ -83,6 +83,17 @@ describe("share bar", () => {
         expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({ title: "shareBar.linkCopied" }));
     });
 
+    it("claims no copy when the share sheet fails and there is no clipboard to fall back on", async () => {
+        withoutClipboard();
+        withShareSheet(browser.share.mockRejectedValue(new DOMException("", "NotAllowedError")));
+        const wrapper = await mountSuspended(ShareBar, { props: PROPS, global });
+
+        await button(wrapper, "share").trigger("click");
+        await flushPromises();
+
+        expect(toast.add).not.toHaveBeenCalled();
+    });
+
     it("copies the URL where there is no share sheet, and confirms it in a toast", async () => {
         const wrapper = await mountSuspended(ShareBar, { props: PROPS, global });
 

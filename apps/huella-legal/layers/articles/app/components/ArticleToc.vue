@@ -3,17 +3,14 @@ import { useScrollspy } from "@nuxt/ui/composables/useScrollspy";
 
 interface Props {
     items: TocItem[]
-    active?: string
 }
 
-const props = withDefaults(defineProps<Props>(), { active: undefined });
+const props = defineProps<Props>();
 
 const sections = computed(() => props.items.filter(({ level }) => level === 2));
 const { activeHeadings, updateHeadings } = useScrollspy();
 
 const lit = computed(() => {
-    if (props.active) return [props.active];
-
     const visible = sections.value.filter(({ id }) => activeHeadings.value.includes(id)).map(({ id }) => id);
 
     return visible.length ? visible : sections.value.slice(0, 1).map(({ id }) => id);

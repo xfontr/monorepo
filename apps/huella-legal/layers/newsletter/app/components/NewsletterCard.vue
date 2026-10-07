@@ -15,7 +15,6 @@ withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{ submit: [email: string] }>();
 
-const email = defineModel<string>("email", { default: "" });
 </script>
 
 <template>
@@ -25,7 +24,6 @@ const email = defineModel<string>("email", { default: "" });
             {{ subject ? $t("newsletterCard.subjectLead", { subject }) : $t("newsletterCard.lead") }}
         </p>
         <NewsletterForm
-            v-model:email="email"
             :pending
             :error
             class="mt-4"

@@ -34,8 +34,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{ submit: [email: string] }>();
 
-const email = defineModel<string>("email", { default: "" });
-
 const LAYOUTS = {
     stacked: { row: "flex flex-col gap-3", field: undefined, button: undefined, block: true },
     inline: { row: "flex flex-col gap-3 sm:flex-row", field: "flex-1", button: "justify-center sm:self-end", block: false },
@@ -50,8 +48,7 @@ const { t } = useI18n();
 
 const schema = subscriptionSchema((issue) => t(`newsletterForm.email.errors.${issue}`));
 
-// `reactive` unwraps the model ref, so `UForm` writing `state.email` updates `v-model:email`
-const state = reactive({ email });
+const state = reactive({ email: "" });
 
 function onSubmit({ data }: FormSubmitEvent<Subscription>) {
     emit("submit", data.email);

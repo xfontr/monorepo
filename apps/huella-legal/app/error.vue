@@ -17,7 +17,6 @@ const isDev = import.meta.dev;
 useHead({
     title: t("error.head", { status: error.status }),
     meta: [
-        { name: "viewport", content: "width=device-width, initial-scale=1" },
         { name: "robots", content: "noindex" },
     ],
 }, { tagPriority: "high" });

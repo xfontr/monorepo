@@ -20,8 +20,9 @@ describe("newsletter form", () => {
     });
 
     it("emits the trimmed address on submit and leaves sending it to the caller", async () => {
-        const wrapper = await mountSuspended(NewsletterForm, { props: { email: " lucia@ejemplo.es " } });
+        const wrapper = await mountSuspended(NewsletterForm);
 
+        await wrapper.find("input").setValue(" lucia@ejemplo.es ");
         await wrapper.find("form").trigger("submit");
         await flushPromises();
 
@@ -33,8 +34,9 @@ describe("newsletter form", () => {
         ["a blank field", "   ", "required"],
         ["an address with no domain", "lucia@", "invalid"],
     ])("withholds the submit and shows the field error on %s", async (_, email, message) => {
-        const wrapper = await mountSuspended(NewsletterForm, { props: { email } });
+        const wrapper = await mountSuspended(NewsletterForm);
 
+        await wrapper.find("input").setValue(email);
         await wrapper.find("form").trigger("submit");
         await flushPromises();
 
@@ -42,16 +44,11 @@ describe("newsletter form", () => {
         expect(wrapper.find("[data-slot=error]").text()).toBe(message);
     });
 
-    it("keeps the address in a model, so the caller can clear or restore it", async () => {
+    it("marks the form busy and locks the field while pending, without unmounting what was typed", async () => {
         const wrapper = await mountSuspended(NewsletterForm);
 
         await wrapper.find("input").setValue("lucia@ejemplo.es");
-
-        expect(wrapper.emitted("update:email")).toEqual([["lucia@ejemplo.es"]]);
-    });
-
-    it("marks the form busy and locks the field while pending, without unmounting what was typed", async () => {
-        const wrapper = await mountSuspended(NewsletterForm, { props: { email: "lucia@ejemplo.es", pending: true } });
+        await wrapper.setProps({ pending: true });
 
         expect(wrapper.find("form").attributes("aria-busy")).toBe("true");
         expect(wrapper.find("input").attributes("disabled")).toBeDefined();

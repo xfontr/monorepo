@@ -24,8 +24,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{ submit: [email: string] }>();
 
-const email = defineModel<string>("email", { default: "" });
-
 const TONES = {
     paper: { root: "bg-ivory-200", title: "text-highlighted", note: "text-muted" },
     slate: { root: "bg-huella-slate-800 text-huella-slate-200", title: "text-ivory-50", note: "text-huella-slate-300" },
@@ -55,7 +53,6 @@ const titleId = useId();
             </div>
 
             <NewsletterForm
-                v-model:email="email"
                 layout="inline"
                 :tone
                 :pending

@@ -39,9 +39,8 @@ const pills = [
             <div class="flex flex-wrap items-end gap-8">
                 <BaseWordmark size="sm" />
                 <BaseWordmark tagline />
-                <BaseWordmark size="lg" />
                 <span class="bg-huella-slate-900 p-4"><BaseWordmark
-                    tone="paper"
+                    tone="slate"
                     tagline
                 /></span>
             </div>

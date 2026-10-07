@@ -58,14 +58,13 @@ describe("newsletter band", () => {
         });
     });
 
-    it("passes the address and the submit through, so the caller drives the band like the form", async () => {
+    it("passes the submit through, so the caller drives the band like the form", async () => {
         const wrapper = await mountSuspended(NewsletterBand, { props: PROPS });
 
         await wrapper.find("input").setValue("lucia@ejemplo.es");
         await wrapper.find("form").trigger("submit");
         await flushPromises();
 
-        expect(wrapper.emitted("update:email")).toEqual([["lucia@ejemplo.es"]]);
         expect(wrapper.emitted("submit")).toEqual([["lucia@ejemplo.es"]]);
     });
 });

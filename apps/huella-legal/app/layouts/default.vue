@@ -3,9 +3,6 @@ const { t, localeProperties } = useI18n();
 const { sections, columns, social, issn } = useSiteNav();
 
 useHead({
-    meta: [
-        { name: "viewport", content: "width=device-width, initial-scale=1" },
-    ],
     htmlAttrs: { lang: () => localeProperties.value.language },
 });
 

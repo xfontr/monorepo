@@ -21,5 +21,3 @@ export default meta;
 type Story = StoryObj<typeof ArticleToc>;
 
 export const Idle: Story = {};
-
-export const ActiveSection: Story = { args: { active: "tipicidad" } };

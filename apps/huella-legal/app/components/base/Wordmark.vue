@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Tone } from "~/types/Tone";
 
-type Size = "sm" | "md" | "lg";
+type Size = "sm" | "md";
 
 interface Recipe {
     name: string
@@ -24,7 +24,6 @@ const props = withDefaults(defineProps<Props>(), {
 const SIZES = {
     sm: "text-xl",
     md: "text-[1.625rem]",
-    lg: "text-5xl",
 } as const satisfies Record<Size, string>;
 
 const TONES = {

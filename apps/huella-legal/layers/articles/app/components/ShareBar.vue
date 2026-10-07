@@ -15,24 +15,19 @@ const toast = useToast();
 const { share: nativeShare, isSupported: canNativeShare } = useShare();
 const { copy, isSupported: canCopy } = useClipboard();
 
-async function tryNativeShare(): Promise<boolean> {
-    if (!canNativeShare.value) return Promise.resolve(false);
-
-    try {
-        await nativeShare({ title: props.title, url: props.url });
-        return true;
-    }
-    catch (error) {
-        // Dismissing the sheet is the reader's choice
-        if (error instanceof DOMException && error.name === "AbortError") return true;
-    }
-
-    return false;
-}
-
 async function share(): Promise<void> {
-    const success = await tryNativeShare();
-    if (success) return;
+    if (canNativeShare.value) {
+        try {
+            await nativeShare({ title: props.title, url: props.url });
+            return;
+        }
+        catch (error) {
+            // Dismissing the sheet is the reader's choice
+            if (error instanceof DOMException && error.name === "AbortError") return;
+        }
+    }
+
+    if (!canCopy.value) return;
 
     await copy(props.url);
     toast.add({ title: t("shareBar.linkCopied"), icon: "i-lucide-check" });

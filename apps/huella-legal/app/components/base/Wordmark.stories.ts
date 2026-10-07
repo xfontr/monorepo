@@ -5,7 +5,7 @@ import Wordmark from "./Wordmark.vue";
 const meta: Meta<typeof Wordmark> = {
     component: Wordmark,
     argTypes: {
-        size: { control: "inline-radio", options: ["sm", "md", "lg"] },
+        size: { control: "inline-radio", options: ["sm", "md"] },
         tone: { control: "inline-radio", options: ["paper", "slate"] },
     },
 };
@@ -17,8 +17,6 @@ type Story = StoryObj<typeof Wordmark>;
 export const Default: Story = {};
 
 export const Small: Story = { args: { size: "sm" } };
-
-export const Large: Story = { args: { size: "lg" } };
 
 export const WithTagline: Story = { args: { tagline: true } };
 
