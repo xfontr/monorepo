@@ -2,7 +2,7 @@ import type { Asset } from "@monorepo/content";
 import type { Author } from "./Author";
 import type { Category } from "./Category";
 
-export type ArticleSummary = {
+export interface ArticleSummary {
     id: string
     slug: string
     title: string
@@ -15,4 +15,4 @@ export type ArticleSummary = {
     tags: Category[]
     format: "articulo" | "comentario" | "ensayo" | "tfg-tfm"
     readingMinutes: number
-};
+}
