@@ -7,7 +7,6 @@ const MESSAGES = {
     noResults: {
         broaden: "broaden",
         browse: "browse",
-        spelling: "spelling: «{suggestion}»?",
         title: "title: {query}",
     },
 };
@@ -33,22 +32,10 @@ describe("no results", () => {
         expect(wrapper.find(`h2 [id="${labelledBy}"]`).text()).toBe("title: kardashov");
     });
 
-    it("links the spelling suggestion inside its sentence", async () => {
-        const wrapper = await mountSuspended(NoResults, {
-            props: { query: "kardashov", subjects: [], suggestion: { label: "Kardashev", to: "/?q=kardashev" } },
-        });
-
-        const tip = wrapper.find("li");
-
-        expect(tip.text()).toBe("spelling: «Kardashev»?");
-        expect(tip.find("a").attributes("href")).toBe("/?q=kardashev");
-    });
-
-    it("drops the spelling tip when there is no suggestion, rather than inventing one", async () => {
+    it("suggests broadening the search, since the query matched nothing", async () => {
         const wrapper = await mountSuspended(NoResults, { props: { query: "kardashov", subjects: SUBJECTS } });
 
-        expect(wrapper.text()).not.toContain("spelling");
-        expect(wrapper.find("ul").findAll("li")).toHaveLength(1);
+        expect(wrapper.find("[data-slot=description]").text()).toBe("broaden");
     });
 
     it("offers the subjects as a way out, and leaves the row out when there are none", async () => {

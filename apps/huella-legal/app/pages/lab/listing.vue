@@ -76,7 +76,6 @@ const subjects = ["Derecho penal", "Derecho civil", "Derecho constitucional", "T
                 <ListingNoResults
                     query="kardashov"
                     :subjects
-                    :suggestion="{ label: 'Kardashev', to: '/lab/publicaciones?q=kardashev' }"
                 />
                 <ListingEmptyState
                     subject="Derecho administrativo"

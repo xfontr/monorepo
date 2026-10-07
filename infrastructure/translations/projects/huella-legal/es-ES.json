@@ -152,7 +152,6 @@
     "noResults": {
         "broaden": "Prueba con una palabra más general o con el apellido del autor.",
         "browse": "O explora por materia",
-        "spelling": "Revisa la ortografía: ¿quizá «{suggestion}»?",
         "title": "Ningún resultado para «{query}»"
     },
     "pagination": {
