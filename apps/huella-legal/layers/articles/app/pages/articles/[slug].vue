@@ -1,15 +1,14 @@
 <script setup lang="ts">
 definePageMeta({ name: "article", path: "/:slug/" });
 
-const { getEntry } = useContent();
 const { locale } = useI18n();
 const route = useRoute();
 
 const slug = computed(() => String(route.params.slug));
 
-const { data: entry, error, status } = await getEntry("posts", () => slug.value);
+const { data: article, error, status } = await useFetch<Article>(() => `/api/articles/${slug.value}`);
 
-// The BFF answers a miss with a real 404, so hand it to error.vue instead of printing it inline
+// The route answers a miss with a real 404, so hand it to error.vue instead of printing it inline
 if (error.value) {
     throw createError({
         statusCode: error.value.statusCode ?? 502,
@@ -18,8 +17,10 @@ if (error.value) {
     });
 }
 
+const terms = computed(() => [article.value?.category, ...article.value?.tags ?? []].filter((term) => term !== undefined));
+
 const publishedOn = computed(() => {
-    const date = entry.value?.publishedAt;
+    const date = article.value?.publishedAt;
 
     return date ? new Date(date).toLocaleDateString(locale.value, { dateStyle: "long" }) : "";
 });
@@ -41,27 +42,25 @@ const publishedOn = computed(() => {
             {{ $t("common.loading") }}
         </p>
 
-        <template v-else-if="entry">
+        <template v-else-if="article">
             <time
-                v-if="entry.publishedAt"
+                v-if="article.publishedAt"
                 class="date"
-                :datetime="entry.publishedAt"
+                :datetime="article.publishedAt"
             >
                 {{ publishedOn }}
             </time>
 
-            <!-- Deliberate: WordPress already renders this field to HTML (README.md § Content) -->
-            <h1
-                class="title"
-                v-html="entry.title"
-            />
+            <h1 class="title">
+                {{ article.title }}
+            </h1>
 
             <ul
-                v-if="entry.terms.length"
+                v-if="terms.length"
                 class="terms"
             >
                 <li
-                    v-for="term in entry.terms"
+                    v-for="term in terms"
                     :key="term.id"
                 >
                     {{ term.name }}
@@ -69,15 +68,16 @@ const publishedOn = computed(() => {
             </ul>
 
             <img
-                v-if="entry.image"
+                v-if="article.image"
                 class="image"
-                :src="entry.image.url"
-                :alt="entry.image.alt"
+                :src="article.image.url"
+                :alt="article.image.alt"
             >
 
+            <!-- eslint-disable-next-line vue/no-v-html -- sanitised by the articles layer's body mapper -->
             <div
                 class="body"
-                v-html="entry.body.value"
+                v-html="article.body.html"
             />
         </template>
     </article>

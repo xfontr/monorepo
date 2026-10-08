@@ -2,9 +2,13 @@ import { fakeEntry } from "@monorepo/content/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Article } from "../../../shared/types/Article";
 
-const nitro = vi.hoisted(() => ({ fetch: vi.fn(), slug: "la-culpa" }));
+const nitro = vi.hoisted(() => ({ fetch: vi.fn(), slug: "la-culpa", cache: {} as { getKey?: (event: unknown) => string, maxAge?: number } }));
 
-vi.stubGlobal("defineEventHandler", (handler: unknown) => handler);
+vi.stubGlobal("defineCachedEventHandler", (handler: unknown, options: typeof nitro.cache) => {
+    nitro.cache = options;
+
+    return handler;
+});
 vi.stubGlobal("getRouterParam", () => nitro.slug);
 vi.stubGlobal("createError", (input: { statusCode?: number }) => Object.assign(new Error("http"), input));
 vi.stubGlobal("$fetch", nitro.fetch);
@@ -32,6 +36,11 @@ describe("GET /api/articles/:slug", () => {
 
         expect(article.slug).toBe("la-culpa");
         expect(article.body.toc).toEqual([{ id: "uno", label: "Uno", level: 2 }]);
+    });
+
+    it("caches the mapped article per slug, so the sanitiser doesn't run on every request", () => {
+        expect(nitro.cache.getKey?.({})).toBe("la-culpa");
+        expect(nitro.cache.maxAge).toBeGreaterThan(0);
     });
 
     it("keeps the content module's status, so a missing post is a 404 and not a 500", async () => {

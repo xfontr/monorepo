@@ -141,17 +141,17 @@ One block in [`nuxt.config.ts`](./nuxt.config.ts) drives it: `content.vendor` pi
 `useContent()`, so the CMS base URL never reaches the browser and a list costs one upstream request.
 
 The vendor is `wordpress`, pointed at an external WordPress install — the CMS is not in this repo, so
-`infrastructure/` has nothing to do with it. Two pages consume it, both in `app/` rather than a
-layer because they are the shell's own reading surface and carry no domain logic of their own:
+`infrastructure/` has nothing to do with it. Two pages consume it, both in the `articles` layer:
 
 | Page | Reads | Notes |
 | --- | --- | --- |
-| [`app/pages/articles/index.vue`](./app/pages/articles/index.vue) | `listEntries("posts")` | Paginated by `?page`. It does **not** re-validate the page number — the BFF already bounds it and a second copy of those bounds is a second place for them to drift. A `400` from the BFF is turned into a `404`, because a query-parameter complaint is not something a reader should see |
-| [`app/pages/articles/[slug].vue`](./app/pages/articles/%5Bslug%5D.vue) | `getEntry("posts", slug)` | Served at `/:slug/`, the root permalink WordPress had, so indexed URLs still resolve. No `locale` is passed: the content locale is the vendor's axis and WordPress refuses one outright |
+| [`layers/articles/app/pages/articles/index.vue`](./layers/articles/app/pages/articles/index.vue) | `listEntries("posts")` | Paginated by `?page`. It does **not** re-validate the page number — the BFF already bounds it and a second copy of those bounds is a second place for them to drift. A `400` from the BFF is turned into a `404`, because a query-parameter complaint is not something a reader should see |
+| [`layers/articles/app/pages/articles/[slug].vue`](./layers/articles/app/pages/articles/%5Bslug%5D.vue) | `GET /api/articles/:slug` | Served at `/:slug/`, the root permalink WordPress had, so indexed URLs still resolve. The route returns the sanitised `Article` view model, cached per slug. No `locale` is passed: the content locale is the vendor's axis and WordPress refuses one outright |
 
-Both `v-html` the entry's `title`, `excerpt` and `body`. That is not an oversight — WordPress renders
-every text field to HTML, entities and all, and nothing sanitises it, which is fine only while the
-CMS is first-party. See the [package README](../../packages/content/README.md#-deliberately-deferred).
+The listing still `v-html`s the entry's `title` and `excerpt`, because WordPress renders every text
+field to HTML, entities and all, and nothing on that path sanitises it. That is fine only while the
+CMS is first-party, and it ends when the listing reads `ArticleSummary` from the articles layer. The
+article page already renders the sanitised body. See the [package README](../../packages/content/README.md#-deliberately-deferred).
 
 See the [module README](../../packages/content/src/nuxt/README.md) for the options, the cache windows
 and the gotchas.
@@ -160,8 +160,7 @@ and the gotchas.
 
 [`app/`](./app) is the front-end shell and stays thin: a layout, an error page and its dev-only debug
 panel, two client plugins (Faro telemetry, and a dev-only console filter for a known Nuxt/Vue
-warning), and five pages — an entry page, the two [article pages](#-content), and the `publish` and
-`search` placeholders. The app's own server code is one Nitro plugin, for telemetry.
+warning), and three pages — an entry page, and the `publish` and `search` placeholders. The app's own server code is one Nitro plugin, for telemetry.
 
 | Piece | What it holds |
 | --- | --- |
@@ -195,8 +194,8 @@ from those pages, so a wrong name or a missing param fails typecheck.
 | Name | Path | Page |
 | --- | --- | --- |
 | `index` | `/` | [`app/pages/index.vue`](./app/pages/index.vue) |
-| `publications` | `/publicaciones/` | [`app/pages/articles/index.vue`](./app/pages/articles/index.vue) |
-| `article` | `/:slug/` | [`app/pages/articles/[slug].vue`](./app/pages/articles/%5Bslug%5D.vue) |
+| `publications` | `/publicaciones/` | [`layers/articles/app/pages/articles/index.vue`](./layers/articles/app/pages/articles/index.vue) |
+| `article` | `/:slug/` | [`layers/articles/app/pages/articles/[slug].vue`](./layers/articles/app/pages/articles/%5Bslug%5D.vue) |
 | `publish` | `/publicar/` | [`app/pages/publicar.vue`](./app/pages/publicar.vue) — a 404 until the publish page is built |
 | `search` | `/buscar/` | [`app/pages/buscar.vue`](./app/pages/buscar.vue) — a 404 until the search page is built |
 | `authors` | `/colaboradores/` | [`layers/articles/app/pages/colaboradores/index.vue`](./layers/articles/app/pages/colaboradores/index.vue) — a 404 until the authors page is built |
@@ -347,5 +346,5 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | A story for a component that reads a store | Pinia in the `setup` in `.storybook/preview.ts` |
 | Author, category, publish and search pages | Replace the 404 bodies of the six [link-holding pages](#-links); their names and paths stay |
 | Quote and callout styles | `hl-quote`, `hl-quote-short`, `hl-callout` and `hl-highlight` reach the page unstyled. B6 moved `.hl-prose` into the articles layer without rules for them, because no D design covers them |
-| Consuming `/api/articles/:slug` | C1 switches [`articles/[slug].vue`](./app/pages/articles/%5Bslug%5D.vue) to it; until then that page still `v-html`s the raw WordPress body |
+| Consuming `/api/articles/:slug` | C1 switches [`articles/[slug].vue`](./layers/articles/app/pages/articles/%5Bslug%5D.vue) to it; until then that page still `v-html`s the raw WordPress body |
 | Parity with the `/lab` pages | Still a human check: the lab is stripped from production builds, and Linux substitutes a serif for Georgia |
