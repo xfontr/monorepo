@@ -10,7 +10,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    current: undefined,
     menuOpen: false,
     nav: () => defaultNav,
 });

@@ -8,11 +8,7 @@ interface Props {
     id?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
-    kicker: undefined,
-    action: undefined,
-    id: undefined,
-});
+const props = defineProps<Props>();
 
 const fallbackId = useId();
 const headingId = computed<string>(() => props.id ?? fallbackId);

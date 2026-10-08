@@ -10,7 +10,7 @@ interface Props {
     avatars?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), { publishedAt: undefined, readingMinutes: undefined, avatars: false });
+const props = withDefaults(defineProps<Props>(), { avatars: false });
 
 const { locale, d } = useI18n();
 

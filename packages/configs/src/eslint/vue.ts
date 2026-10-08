@@ -61,6 +61,7 @@ function createBaseVueConfig(typeChecked?: boolean): object[] {
 
             rules: {
                 "vue/multi-word-component-names": "off",
+                "vue/require-default-prop": "off",
                 "vue/html-indent": "off",
                 "vue/v-bind-style": ["error", "shorthand", { sameNameShorthand: "always" }],
                 "vue/prefer-separate-static-class": "error",

@@ -150,7 +150,9 @@ Node types even in a package that otherwise doesn't.
 - `no-restricted-syntax` under `**/*.vue`, from [`lib/propsInterface.ts`](./src/eslint/lib/propsInterface.ts) — Vue
   configs only. `defineProps` takes a type reference named `Props`, and `Props` is declared with
   `interface`. No plugin rule covers this; `vue/define-props-declaration` only picks type-based over
-  runtime, and an inline literal satisfies it. Runtime `defineProps({…})` is left alone. Both sets of
+  runtime, and an inline literal satisfies it. Runtime `defineProps({…})` is left alone. An optional
+  prop never defaults to `undefined`, in `withDefaults` or a destructure, because that is already its
+  value when omitted; `vue/require-default-prop` asked for exactly that, so it is off. Both sets of
   selectors reach ESLint through [`lib/restrictedSyntax.ts`](./src/eslint/lib/restrictedSyntax.ts), the
   rule's only config
 - `vue/no-restricted-syntax` under `**/*.vue`, from [`lib/templateI18n.ts`](./src/eslint/lib/templateI18n.ts) —

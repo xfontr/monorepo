@@ -109,10 +109,10 @@ const pills = [
                     <LabMediaFallback tone="slate" />
                 </div>
                 <div class="aspect-[3/2] @container">
-                    <BaseMediaFallback label="Imagen del artículo" />
+                    <MediaFallback label="Imagen del artículo" />
                 </div>
                 <div class="aspect-[3/2] @container">
-                    <BaseMediaFallback tone="slate" />
+                    <MediaFallback tone="slate" />
                 </div>
             </div>
         </section>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useScrollspy } from "@nuxt/ui/composables/useScrollspy";
+import { useResizeObserver } from "@vueuse/core";
 
 interface Props {
     items: TocItem[]
@@ -38,6 +39,8 @@ onMounted(() => {
 
 watch(() => sections.value.map(({ id }) => id), observeHeadings, { flush: "post" });
 watch(lit, measure, { flush: "post" });
+
+useResizeObserver(rail, measure);
 </script>
 
 <template>

@@ -11,7 +11,7 @@ interface Props {
     to?: string
 }
 
-const { label, value, hint = undefined, icon = undefined, tone = "neutral", to = undefined } = defineProps<Props>();
+const { label, value, hint, icon, tone = "neutral", to } = defineProps<Props>();
 
 const toneClass = computed(() => (tone === "neutral" ? "" : `tone-${tone}`));
 </script>

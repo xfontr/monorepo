@@ -16,10 +16,8 @@ const tab = ref(props.citations[0]?.style);
 const tabs = computed(() => props.citations.map(({ style, text }) => ({ label: style, value: style, text })));
 const citation = computed<Citation | undefined>(() => props.citations.find(({ style }) => style === tab.value) ?? props.citations[0]);
 
-async function copy(): Promise<void> {
-    if (!citation.value) return;
-
-    await copyText(citation.value.text);
+async function copy(text: string): Promise<void> {
+    await copyText(text);
     toast.add({ title: t("citeBox.copied"), icon: "i-lucide-check" });
 }
 </script>
@@ -63,7 +61,7 @@ async function copy(): Promise<void> {
             icon="i-lucide-copy"
             :label="$t('citeBox.copy')"
             class="mt-4 print:hidden"
-            @click="copy"
+            @click="copy(citation.text)"
         />
     </section>
 </template>

@@ -8,10 +8,7 @@ interface Props {
 }
 
 withDefaults(defineProps<Props>(), {
-    kicker: undefined,
-    link: undefined,
     linkTo: "#",
-    id: undefined,
 });
 </script>
 

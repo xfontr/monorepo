@@ -232,11 +232,24 @@ Each page ticket delivers a controller, the page, and its e2e spec with axe and 
 
 - **C1 Article page** (needs A3, A4, B2, B6): `useArticle`, related posts, series navigation, SEO
   meta.
+  - `useArticle` reads `GET /api/articles/:slug`, which already serves the sanitised, cached
+    `Article`; the page in `layers/articles` is a scaffold to replace.
+  - The server builds `Citation[]`, and the pipeline parses `_ftn` anchors and bare `<sup>` numbers
+    into `ArticleBody.notes`.
+  - Dates go through i18n `d(…, "long")`, which carries the `Europe/Madrid` time zone.
 - **C2 Listing template:**
   - One controller, `useArticleListing`, owns page, sort and tag filter in the URL, and maps a 400
     to a 404.
   - Four instances: all publications, category, tag, and author profile. The author profile gets
     its own route instead of the lab's `?autor`.
+  - Needs a `GET /api/articles` list route returning `ArticleSummary[]`, which doesn't exist yet.
+    Reading time needs full bodies, about 550 KB upstream per 10 posts (ADR 0027).
+  - The publications scaffold still `v-html`s raw WordPress titles and excerpts until it reads that
+    route.
+  - The controller feeds `ListingPagination`'s `to` builder. Scrolling to the top on a page change
+    belongs in `app/router.options.ts`, not a `watch`.
+  - The fetch-error to `createError` mapping, written today in both article pages and the article
+    route, becomes one helper shared with C1.
 - **C3 Home:**
   - Hero statement, and the featured article with the Fundamentos aside.
   - Recent posts, the Materias band, editorial stats.
@@ -258,7 +271,8 @@ These come after S2 and S3.
 
 - **E1 Newsletter:**
   - A server route with a provider adapter.
-  - A `useNewsletter` state machine behind every NewsletterForm.
+  - A `useNewsletter` state machine behind every NewsletterForm, so NewsletterBand and
+    NewsletterCard stop forwarding `pending`, `error` and `submit`.
   - Spam protection, and specs against a mocked provider.
 - **E2 Publish submission:**
   - A server route: multipart, with file type and size checks, sending to S3's destination.

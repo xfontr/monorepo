@@ -16,7 +16,9 @@ const { default: i18nConfig } = await import("../i18n/i18n.config.ts");
 // Read here because a relative import of another project's file fails the Nx boundary rule
 const messages = await readFile(new URL("../../../infrastructure/translations/projects/huella-legal/es-ES.json", import.meta.url), "utf8");
 
-const componentDirs = await Array.fromAsync(glob(["app/components", "layers/*/app/components"], { cwd: fileURLToPath(new URL("..", import.meta.url)) }));
+const root = fileURLToPath(new URL("..", import.meta.url));
+const componentDirs = await Array.fromAsync(glob(["app/components", "layers/*/app/components"], { cwd: root }));
+const utilDirs = await Array.fromAsync(glob(["app/utils", "layers/*/app/utils"], { cwd: root }), (dir) => `${root}${dir}`);
 
 const config: StorybookConfig = {
     framework: "@storybook/vue3-vite",
@@ -31,6 +33,7 @@ const config: StorybookConfig = {
     viteFinal: (config) => ({
         ...config,
         base: process.env.STORYBOOK_BASE_URL ?? config.base,
+        resolve: { ...config.resolve, alias: { ...config.resolve?.alias, "~": `${root}app` } },
         define: { ...config.define, __MESSAGES__: messages, __DATETIME_FORMATS__: JSON.stringify(i18nConfig().datetimeFormats) },
         plugins: [
             ...config.plugins ?? [],
@@ -43,7 +46,7 @@ const config: StorybookConfig = {
                 components: { dirs: componentDirs, directoryAsNamespace: true },
                 autoImport: {
                     imports: ["vue", "vue-i18n", "vue-router"],
-                    dirs: [fileURLToPath(new URL("../app/utils", import.meta.url))],
+                    dirs: utilDirs,
                     vueTemplate: true,
                 },
             }),

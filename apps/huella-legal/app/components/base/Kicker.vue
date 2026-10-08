@@ -9,7 +9,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    to: undefined,
     tone: "paper",
     muted: false,
 });

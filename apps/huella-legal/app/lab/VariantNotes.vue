@@ -7,7 +7,7 @@ interface Props {
 }
 
 // Review aid, not design: a collapsed badge so screenshots of the page itself stay clean
-withDefaults(defineProps<Props>(), { compare: undefined });
+defineProps<Props>();
 
 const route = useRoute();
 const open = ref(route.query.notas === "1");

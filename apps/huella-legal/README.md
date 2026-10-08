@@ -23,10 +23,7 @@ pnpm dev                                    # or from this directory
 | `pnpm build:storybook` | Static Storybook build (output in `storybook-static/`) |
 | `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
 
-Two modules beyond the shared ones are installed here: `@nuxt/fonts`, and `@pinia/nuxt` with
-`pinia.storesDirs` widened to `./layers/*/app/stores/**`. That second path is load-bearing — a
-store inside a layer is not picked up without it, and the failure looks like a missing composable
-rather than a missing config.
+One module beyond the shared ones is installed here: `@nuxt/fonts`.
 
 ## 🚢 Deployment
 
@@ -141,17 +138,17 @@ One block in [`nuxt.config.ts`](./nuxt.config.ts) drives it: `content.vendor` pi
 `useContent()`, so the CMS base URL never reaches the browser and a list costs one upstream request.
 
 The vendor is `wordpress`, pointed at an external WordPress install — the CMS is not in this repo, so
-`infrastructure/` has nothing to do with it. Two pages consume it, both in `app/` rather than a
-layer because they are the shell's own reading surface and carry no domain logic of their own:
+`infrastructure/` has nothing to do with it. Two pages consume it, both in the `articles` layer:
 
 | Page | Reads | Notes |
 | --- | --- | --- |
-| [`app/pages/articles/index.vue`](./app/pages/articles/index.vue) | `listEntries("posts")` | Paginated by `?page`. It does **not** re-validate the page number — the BFF already bounds it and a second copy of those bounds is a second place for them to drift. A `400` from the BFF is turned into a `404`, because a query-parameter complaint is not something a reader should see |
-| [`app/pages/articles/[slug].vue`](./app/pages/articles/%5Bslug%5D.vue) | `getEntry("posts", slug)` | Served at `/:slug/`, the root permalink WordPress had, so indexed URLs still resolve. No `locale` is passed: the content locale is the vendor's axis and WordPress refuses one outright |
+| [`layers/articles/app/pages/articles/index.vue`](./layers/articles/app/pages/articles/index.vue) | `listEntries("posts")` | Paginated by `?page`. It does **not** re-validate the page number — the BFF already bounds it and a second copy of those bounds is a second place for them to drift. A `400` from the BFF is turned into a `404`, because a query-parameter complaint is not something a reader should see |
+| [`layers/articles/app/pages/articles/[slug].vue`](./layers/articles/app/pages/articles/%5Bslug%5D.vue) | `GET /api/articles/:slug` | Served at `/:slug/`, the root permalink WordPress had, so indexed URLs still resolve. The route returns the sanitised `Article` view model, cached per slug. No `locale` is passed: the content locale is the vendor's axis and WordPress refuses one outright |
 
-Both `v-html` the entry's `title`, `excerpt` and `body`. That is not an oversight — WordPress renders
-every text field to HTML, entities and all, and nothing sanitises it, which is fine only while the
-CMS is first-party. See the [package README](../../packages/content/README.md#-deliberately-deferred).
+The listing still `v-html`s the entry's `title` and `excerpt`, because WordPress renders every text
+field to HTML, entities and all, and nothing on that path sanitises it. That is fine only while the
+CMS is first-party, and it ends when the listing reads `ArticleSummary` from the articles layer. The
+article page already renders the sanitised body. See the [package README](../../packages/content/README.md#-deliberately-deferred).
 
 See the [module README](../../packages/content/src/nuxt/README.md) for the options, the cache windows
 and the gotchas.
@@ -160,8 +157,7 @@ and the gotchas.
 
 [`app/`](./app) is the front-end shell and stays thin: a layout, an error page and its dev-only debug
 panel, two client plugins (Faro telemetry, and a dev-only console filter for a known Nuxt/Vue
-warning), and five pages — an entry page, the two [article pages](#-content), and the `publish` and
-`search` placeholders. The app's own server code is one Nitro plugin, for telemetry.
+warning), and three pages — an entry page, and the `publish` and `search` placeholders. The app's own server code is one Nitro plugin, for telemetry.
 
 | Piece | What it holds |
 | --- | --- |
@@ -178,11 +174,11 @@ warning), and five pages — an entry page, the two [article pages](#-content), 
 
 Domain logic lives in Nuxt layers under [`layers/`](./layers), one directory per domain. Nuxt
 auto-registers `<rootDir>/layers/*` by their presence, so there is no `extends` array to add, and
-adding one is the mistake. That is the path `pinia.storesDirs` above is widened for.
+adding one is the mistake.
 
 | Layer | `shared/` | `app/components/` | `server/` |
 | --- | --- | --- | --- |
-| [`articles`](./layers/articles) | The view models the server returns: `Article`, `ArticleBody`, `ArticleSummary`, `Author`, `Category`, `Citation`, `Note`, `TocItem`. `Citation` and `Note` have no producer until the article page's mapper builds them | `Byline`: authors, date and reading time. `ArticleCard` in five variants (lead, optionally split, standard, compact, media, row), and `ArticleGrid` and `ArticleList` to lay them out. The reading kit: `ArticleToc` (rail and accordion, lit by Nuxt UI's `useScrollspy`), `ArticleNotes`, `ArticleBibliography`, `CiteBox`, `ShareBar` and `AuthorCard`. `.hl-prose` in [`app/assets/prose.css`](./layers/articles/app/assets/prose.css) styles the sanitised body | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time use `entities`, `striptags` and `reading-time`, and stay server-side. `toArticleBody` is the WP HTML pipeline, and `GET /api/articles/:slug` serves its `Article` |
+| [`articles`](./layers/articles) | The view models the server returns: `Article`, `ArticleBody`, `ArticleSummary`, `Author`, `Category`, `Citation`, `Note`, `TocItem`. `Citation` and `Note` have no producer until the article page's mapper builds them | `Byline`: authors, date and reading time. `ArticleCard` in five variants (lead, optionally split, standard, compact, media, row), and `ArticleGrid` and `ArticleList` to lay them out. The reading kit: `ArticleToc` (rail and accordion, lit by Nuxt UI's `useScrollspy`), `ArticleNotes`, `ArticleBibliography`, `CiteBox`, `ShareBar` and `AuthorCard`. `.hl-prose` in [`app/assets/prose.css`](./layers/articles/app/assets/prose.css) styles the sanitised body | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time parse with the same rehype stack and `hast-util-to-text`, and stay server-side. `toArticleBody` is the WP HTML pipeline, and `GET /api/articles/:slug` serves its `Article` |
 | [`newsletter`](./layers/newsletter) | `subscriptionSchema`, the Valibot rules a subscription must pass, worded by the caller so the server can reuse them | `NewsletterForm`, the field and button, stacked or inline, in a paper or slate tone. It emits `submit` only once the schema passes, and takes `pending` and a server `error`. It is private to the layer: the layer's `nuxt.config.ts` keeps it out of auto-registration, so only `NewsletterBand` and `NewsletterCard` import it. `NewsletterBand` (a landmark with the privacy note; the home page gives it `id="newsletter"`, which the header's newsletter links target) and `NewsletterCard` (the sidebar, naming an optional `subject`) wrap it and pass `pending`, `error` and `submit` through. The field keeps its own value, so a caller that needs it empty again remounts the form with a new `key` | — until E1 adds the subscribe route |
 
 ### 🔗 Links
@@ -195,8 +191,8 @@ from those pages, so a wrong name or a missing param fails typecheck.
 | Name | Path | Page |
 | --- | --- | --- |
 | `index` | `/` | [`app/pages/index.vue`](./app/pages/index.vue) |
-| `publications` | `/publicaciones/` | [`app/pages/articles/index.vue`](./app/pages/articles/index.vue) |
-| `article` | `/:slug/` | [`app/pages/articles/[slug].vue`](./app/pages/articles/%5Bslug%5D.vue) |
+| `publications` | `/publicaciones/` | [`layers/articles/app/pages/articles/index.vue`](./layers/articles/app/pages/articles/index.vue) |
+| `article` | `/:slug/` | [`layers/articles/app/pages/articles/[slug].vue`](./layers/articles/app/pages/articles/%5Bslug%5D.vue) |
 | `publish` | `/publicar/` | [`app/pages/publicar.vue`](./app/pages/publicar.vue) — a 404 until the publish page is built |
 | `search` | `/buscar/` | [`app/pages/buscar.vue`](./app/pages/buscar.vue) — a 404 until the search page is built |
 | `authors` | `/colaboradores/` | [`layers/articles/app/pages/colaboradores/index.vue`](./layers/articles/app/pages/colaboradores/index.vue) — a 404 until the authors page is built |
@@ -239,13 +235,13 @@ Nuxt modules would otherwise give it:
 | `main.css` in [`preview.ts`](./.storybook/preview.ts) | `css` in `nuxt.config.ts` | — |
 | A `<UApp>` decorator | `app.vue`'s root, which overlays portal into | — |
 | `vue-i18n` in [`preview.ts`](./.storybook/preview.ts) | `@nuxtjs/i18n`: `$t` in templates, `useI18n()` in scripts | The `es-ES.json` [dev reads](#-i18n) and `i18n.config.ts`'s date formats, injected by `main.ts` |
-| `autoImport.dirs` | Nuxt's `app/utils` auto-imports, in scripts and templates | `app/utils/` |
+| `autoImport.dirs` | Nuxt's `utils` auto-imports, in scripts and templates | `app/utils/`, `layers/*/app/utils/` |
 | `components.dirs` | Nuxt's component auto-imports, namespaced by directory so `base/Kicker.vue` is `BaseKicker` | `app/components/`, `layers/*/app/components/` |
 
 Both configs are imported, not copied, so a theme change reaches the stories with no second edit.
 Each script runs `nuxi prepare` first because Vite follows `tsconfig.json` into `.nuxt/`.
 
-A story renders a component **without Nuxt**: no Pinia and no `#imports`. Links resolve through a
+A story renders a component **without Nuxt**: no `#imports`. Links resolve through a
 memory router in [`preview.ts`](./.storybook/preview.ts) (`router: true` in `main.ts`), whose route
 table repeats the [names and paths](#-links) by hand. `vue-i18n` is auto-imported, with the messages and the
 `datetimeFormats` from [`i18n.config.ts`](./i18n/i18n.config.ts), so `$t`, `useI18n()` and `d()`
@@ -343,9 +339,9 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | Later need | What changes |
 | --- | --- |
 | Firefox or WebKit | Another project per browser in the configs preset, and every baseline tripled. Linux WebKit is not Safari, so it won't stand in for iOS readers |
-| A per-glob threshold on view models | A3 adds `shared/**` and `app/utils/**` at 95 alongside the mappers it creates |
-| A story for a component that reads a store | Pinia in the `setup` in `.storybook/preview.ts` |
+| A per-glob threshold on view models | A3 adds `shared/**` and `layers/*/app/utils/**` at 95 alongside the mappers it creates |
+| Shared client state | `@pinia/nuxt`, with `pinia.storesDirs` widened to `./layers/*/app/stores/**`: without it a layer's store isn't picked up, and the failure looks like a missing composable. Stories then need Pinia in the `setup` in `.storybook/preview.ts` |
 | Author, category, publish and search pages | Replace the 404 bodies of the six [link-holding pages](#-links); their names and paths stay |
 | Quote and callout styles | `hl-quote`, `hl-quote-short`, `hl-callout` and `hl-highlight` reach the page unstyled. B6 moved `.hl-prose` into the articles layer without rules for them, because no D design covers them |
-| Consuming `/api/articles/:slug` | C1 switches [`articles/[slug].vue`](./app/pages/articles/%5Bslug%5D.vue) to it; until then that page still `v-html`s the raw WordPress body |
+| Consuming `/api/articles/:slug` | C1 switches [`articles/[slug].vue`](./layers/articles/app/pages/articles/%5Bslug%5D.vue) to it; until then that page still `v-html`s the raw WordPress body |
 | Parity with the `/lab` pages | Still a human check: the lab is stripped from production builds, and Linux substitutes a serif for Georgia |

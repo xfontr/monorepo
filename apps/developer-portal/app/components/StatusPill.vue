@@ -9,7 +9,7 @@ interface Props {
     hint?: string
 }
 
-const { label, tone = "neutral", to = undefined, hint = undefined } = defineProps<Props>();
+const { label, tone = "neutral", to, hint } = defineProps<Props>();
 
 /** `main.css` defines a class for `good`, `warn` and `bad` only, so the fourth tone has to name a colour of its own. */
 const toneClass = computed(() => (tone === "neutral" ? "text-dimmed" : `tone-${tone}`));

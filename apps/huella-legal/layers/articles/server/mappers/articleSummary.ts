@@ -1,12 +1,14 @@
 import type { Author as ContentAuthor, Entry, RichText, Term } from "@monorepo/content";
-import { decodeHTML } from "entities";
-import readingTime from "reading-time";
-import striptags from "striptags";
+import { toText as hastToText } from "hast-util-to-text";
+import rehypeParse from "rehype-parse";
+import { unified } from "unified";
 import type { ArticleSummary } from "../../shared/types/ArticleSummary";
 import type { Author } from "../../shared/types/Author";
 import type { Category } from "../../shared/types/Category";
 
 const WORDS_PER_MINUTE = 230;
+
+const parser = unified().use(rehypeParse, { fragment: true });
 
 const FORMAT_SLUGS = {
     thesisTag: "trabajos-de-fin-de-grado",
@@ -64,13 +66,14 @@ function toAuthor(author: ContentAuthor): Author {
 
 function toReadingMinutes(body: RichText): number {
     const text = body.format === "blocks" ? "" : toText(body.value);
+    const words = text.split(" ").filter(Boolean).length;
 
-    return Math.max(1, Math.ceil(readingTime(text, { wordsPerMinute: WORDS_PER_MINUTE }).minutes));
+    return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
 }
 
 // WordPress renders titles and excerpts as entity-escaped HTML; this is display text, not sanitising
 function toText(html: string): string {
-    return decodeHTML(striptags(html, [], " ")).replace(/\s+/g, " ").trim();
+    return hastToText(parser.parse(html)).replace(/\s+/g, " ").trim();
 }
 
 // WordPress closes an excerpt it generated itself with a bracketed ellipsis
