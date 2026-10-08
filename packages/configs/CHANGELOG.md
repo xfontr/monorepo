@@ -1,3 +1,18 @@
+## 0.0.16 (2026-10-08)
+
+### 🚀 Features
+
+- [#201] forbid template calls that only read component state ([#201](https://github.com/xfontr/monorepo/issues/201))
+- [#197] lint closed lookup tables into as const satisfies ([#197](https://github.com/xfontr/monorepo/issues/197))
+
+### 🩹 Fixes
+
+- [#234] lint hand-written types folders ([#234](https://github.com/xfontr/monorepo/issues/234))
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.15 (2026-10-04)
 
 ### 🚀 Features
