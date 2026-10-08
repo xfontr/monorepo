@@ -10,7 +10,7 @@ the part worth reading first.
 | --- | --- | --- | --- |
 | `PROJECTS_TOKEN` | [`pr-metadata.yml`](../../.github/workflows/pr-metadata.yml) | Classic PAT, `repo` + `project` | The workflow fails on the first PR with `gh`'s "set the GH_TOKEN environment variable" error |
 | `NX_CLOUD_ACCESS_TOKEN` | [`ci.yml`](../../.github/workflows/ci.yml) `nx affected` step | Nx Cloud access token, **Read & Write** | Nothing fails: `nx affected` runs everything locally with no remote cache |
-| `RELEASE_TOKEN` | [`release.yml`](../../.github/workflows/release.yml) final push | Classic PAT, `repo`, on an account in the `master` ruleset's bypass list | The release commit and tags build, then `git push --follow-tags` is rejected with "Changes must be made through a pull request" |
+| `RELEASE_TOKEN` | [`release.yml`](../../.github/workflows/release.yml) push of the release commit and tags | Classic PAT, `repo`, on an account in the `master` ruleset's bypass list | The release commit and tags build, then `nx release`'s push is rejected with "Changes must be made through a pull request" and no GitHub Release is created |
 | `COPILOT_GITHUB_TOKEN` | [`docs-review.yml`](../../.github/workflows/docs-review.yml) | Fine-grained PAT, account permission **Copilot Requests** | The advisory review is skipped; it is not a required check |
 
 Every one is added the same way. The command reads the value from standard input, so it never
