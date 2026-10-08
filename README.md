@@ -176,5 +176,6 @@ Versions and changelogs are derived from commit messages by `nx release` — no 
 
 Run the **Release** workflow ([`release.yml`](./.github/workflows/release.yml), `workflow_dispatch`)
 to cut versions. Leave `dry-run` on to preview;
-tick `first-release` only when a project has no git tag yet. Locally: `pnpm release:dry`. Its final
-push needs the `RELEASE_TOKEN` secret — see [`docs/guides/repo-secrets.md`](./docs/guides/repo-secrets.md).
+tick `first-release` only when a project has no git tag yet. Locally: `pnpm release:dry`. Each
+bumped package also gets a GitHub Release carrying its changelog entry. The push needs the
+`RELEASE_TOKEN` secret — see [`docs/guides/repo-secrets.md`](./docs/guides/repo-secrets.md).
