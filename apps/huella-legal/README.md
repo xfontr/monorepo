@@ -23,10 +23,7 @@ pnpm dev                                    # or from this directory
 | `pnpm build:storybook` | Static Storybook build (output in `storybook-static/`) |
 | `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
 
-Two modules beyond the shared ones are installed here: `@nuxt/fonts`, and `@pinia/nuxt` with
-`pinia.storesDirs` widened to `./layers/*/app/stores/**`. That second path is load-bearing — a
-store inside a layer is not picked up without it, and the failure looks like a missing composable
-rather than a missing config.
+One module beyond the shared ones is installed here: `@nuxt/fonts`.
 
 ## 🚢 Deployment
 
@@ -177,7 +174,7 @@ warning), and three pages — an entry page, and the `publish` and `search` plac
 
 Domain logic lives in Nuxt layers under [`layers/`](./layers), one directory per domain. Nuxt
 auto-registers `<rootDir>/layers/*` by their presence, so there is no `extends` array to add, and
-adding one is the mistake. That is the path `pinia.storesDirs` above is widened for.
+adding one is the mistake.
 
 | Layer | `shared/` | `app/components/` | `server/` |
 | --- | --- | --- | --- |
@@ -238,13 +235,13 @@ Nuxt modules would otherwise give it:
 | `main.css` in [`preview.ts`](./.storybook/preview.ts) | `css` in `nuxt.config.ts` | — |
 | A `<UApp>` decorator | `app.vue`'s root, which overlays portal into | — |
 | `vue-i18n` in [`preview.ts`](./.storybook/preview.ts) | `@nuxtjs/i18n`: `$t` in templates, `useI18n()` in scripts | The `es-ES.json` [dev reads](#-i18n) and `i18n.config.ts`'s date formats, injected by `main.ts` |
-| `autoImport.dirs` | Nuxt's `app/utils` auto-imports, in scripts and templates | `app/utils/` |
+| `autoImport.dirs` | Nuxt's `utils` auto-imports, in scripts and templates | `app/utils/`, `layers/*/app/utils/` |
 | `components.dirs` | Nuxt's component auto-imports, namespaced by directory so `base/Kicker.vue` is `BaseKicker` | `app/components/`, `layers/*/app/components/` |
 
 Both configs are imported, not copied, so a theme change reaches the stories with no second edit.
 Each script runs `nuxi prepare` first because Vite follows `tsconfig.json` into `.nuxt/`.
 
-A story renders a component **without Nuxt**: no Pinia and no `#imports`. Links resolve through a
+A story renders a component **without Nuxt**: no `#imports`. Links resolve through a
 memory router in [`preview.ts`](./.storybook/preview.ts) (`router: true` in `main.ts`), whose route
 table repeats the [names and paths](#-links) by hand. `vue-i18n` is auto-imported, with the messages and the
 `datetimeFormats` from [`i18n.config.ts`](./i18n/i18n.config.ts), so `$t`, `useI18n()` and `d()`
@@ -342,8 +339,8 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | Later need | What changes |
 | --- | --- |
 | Firefox or WebKit | Another project per browser in the configs preset, and every baseline tripled. Linux WebKit is not Safari, so it won't stand in for iOS readers |
-| A per-glob threshold on view models | A3 adds `shared/**` and `app/utils/**` at 95 alongside the mappers it creates |
-| A story for a component that reads a store | Pinia in the `setup` in `.storybook/preview.ts` |
+| A per-glob threshold on view models | A3 adds `shared/**` and `layers/*/app/utils/**` at 95 alongside the mappers it creates |
+| Shared client state | `@pinia/nuxt`, with `pinia.storesDirs` widened to `./layers/*/app/stores/**`: without it a layer's store isn't picked up, and the failure looks like a missing composable. Stories then need Pinia in the `setup` in `.storybook/preview.ts` |
 | Author, category, publish and search pages | Replace the 404 bodies of the six [link-holding pages](#-links); their names and paths stay |
 | Quote and callout styles | `hl-quote`, `hl-quote-short`, `hl-callout` and `hl-highlight` reach the page unstyled. B6 moved `.hl-prose` into the articles layer without rules for them, because no D design covers them |
 | Consuming `/api/articles/:slug` | C1 switches [`articles/[slug].vue`](./layers/articles/app/pages/articles/%5Bslug%5D.vue) to it; until then that page still `v-html`s the raw WordPress body |

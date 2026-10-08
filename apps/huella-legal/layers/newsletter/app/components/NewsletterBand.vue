@@ -19,7 +19,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
     tone: "paper",
     pending: false,
-    error: undefined,
 });
 
 const emit = defineEmits<{ submit: [email: string] }>();

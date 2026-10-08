@@ -8,7 +8,7 @@ interface Props {
     citeTo?: RouteLocationRaw
 }
 
-const props = withDefaults(defineProps<Props>(), { citeTo: undefined });
+const props = defineProps<Props>();
 
 const { t } = useI18n();
 const toast = useToast();

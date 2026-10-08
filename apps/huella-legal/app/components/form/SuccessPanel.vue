@@ -6,9 +6,7 @@ interface Props {
     action?: LinkAction
 }
 
-withDefaults(defineProps<Props>(), {
-    action: undefined,
-});
+defineProps<Props>();
 
 const heading = useTemplateRef("heading");
 

@@ -7,7 +7,7 @@ interface Props {
     count?: number
 }
 
-const props = withDefaults(defineProps<Props>(), { count: undefined });
+const props = defineProps<Props>();
 
 const id = useId();
 const authorInitials = computed<string>(() => initials(props.author.name));

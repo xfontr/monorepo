@@ -9,7 +9,6 @@ interface Props {
 }
 
 withDefaults(defineProps<Props>(), {
-    count: undefined,
     active: false,
 });
 </script>

@@ -114,7 +114,7 @@ const authors = computed(() =>
                 :loading="ui.eager ? 'eager' : 'lazy'"
                 class="size-full object-cover"
             >
-            <BaseMediaFallback v-else />
+            <MediaFallback v-else />
         </div>
 
         <div

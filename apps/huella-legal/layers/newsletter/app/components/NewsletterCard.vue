@@ -8,9 +8,7 @@ interface Props {
 }
 
 withDefaults(defineProps<Props>(), {
-    subject: undefined,
     pending: false,
-    error: undefined,
 });
 
 const emit = defineEmits<{ submit: [email: string] }>();

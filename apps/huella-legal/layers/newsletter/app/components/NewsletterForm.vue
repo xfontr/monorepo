@@ -29,7 +29,6 @@ const props = withDefaults(defineProps<Props>(), {
     layout: "stacked",
     tone: "paper",
     pending: false,
-    error: undefined,
 });
 
 const emit = defineEmits<{ submit: [email: string] }>();
