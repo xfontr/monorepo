@@ -6,7 +6,7 @@ interface Props {
     artifact?: string
 }
 
-const { manifest, artifact = undefined } = defineProps<Props>();
+const { manifest, artifact } = defineProps<Props>();
 
 const status = computed(() => (artifact ? manifest?.artifacts[artifact] : undefined));
 
