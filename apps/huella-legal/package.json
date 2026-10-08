@@ -45,7 +45,7 @@
         "@nuxtjs/i18n": "catalog:",
         "@opentelemetry/api": "^1.9.1",
         "@opentelemetry/semantic-conventions": "^1.43.0",
-        "@vueuse/core": "^14.4.0",
+        "@vueuse/core": "^15.0.0",
         "hast-util-to-text": "^4.0.2",
         "idb": "^8.0.3",
         "nuxt": "catalog:",
