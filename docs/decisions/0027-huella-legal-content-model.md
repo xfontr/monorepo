@@ -43,7 +43,7 @@ and SEO.** `WordpressProvider.listEntries` never embeds `author`, and `toEntry` 
 | Canonical, `og:url`, JSON-LD, breadcrumbs | Yoast, with the WP host in every URL | Not taken; E3 generates them against the new routes |
 | Reading time | Word count ÷ 230. Yoast's own figures have a median of 230 wpm, and a strip-tags count lands within 10% of its `wordCount` on 86 of 105 posts | App mapper |
 | TOC | h2 (586) and h3 (826); 13 posts already carry heading ids | App pipeline, existing ids kept |
-| Footnotes | No `wp-block-footnotes`. Word `_ftn` anchors appear in 1 post and bare `<sup>` numbers in 3 | Dropped; rendered as they are |
+| Footnotes | No `wp-block-footnotes`. Word `_ftn` anchors appear in 1 post and bare `<sup>` numbers in 3 | App pipeline, in C1: both shapes become `ArticleBody.notes` |
 | Bibliography | The last heading matching `bibliografía`, `fuentes` or `referencias`, in 56 posts | App pipeline: split from that heading to the end |
 | Citation | Authors, title, date, new URL | App mapper |
 | Issue "Nº" | Nothing | Dropped |
@@ -100,9 +100,10 @@ client navigation. The library is the rehype stack. Line numbers are as of this 
 
 ## Consequences
 
-This unlocks A3 and A4, and lets B2 type against `ArticleSummary`. Five pieces of the kit lose their
-data: Notes with back-links, SeriesNav, IssueNumber, "Más leídas" and the author role. B1, B6 and C3
-drop them, or the design is revised first.
+This unlocks A3 and A4, and lets B2 type against `ArticleSummary`. Four pieces of the kit lose their
+data: SeriesNav, IssueNumber, "Más leídas" and the author role. B1 and C3 drop them, or the design is
+revised first. Notes with back-links keep theirs, because B6 built the component and C1 parses the
+four posts' footnotes into it.
 
 **Order.** Changes 1–9 come first, in one package change, because every app mapper types against
 `Entry.authors`. Then 10 and 11 (A4), then 13 (A3). Change 12 lands with C4, which is its only
