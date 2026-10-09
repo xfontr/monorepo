@@ -18,7 +18,7 @@ const messages = await readFile(new URL("../../../infrastructure/translations/pr
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const componentDirs = await Array.fromAsync(glob(["app/components", "layers/*/app/components"], { cwd: root }));
-const utilDirs = await Array.fromAsync(glob(["app/utils", "layers/*/app/utils"], { cwd: root }), (dir) => `${root}${dir}`);
+const utilDirs = await Array.fromAsync(glob(["app/utils", "layers/*/app/utils", "layers/*/shared/utils"], { cwd: root }), (dir) => `${root}${dir}`);
 
 const config: StorybookConfig = {
     framework: "@storybook/vue3-vite",

@@ -1,8 +1,7 @@
+import { JOURNAL_LOCALE, LONG_DATE } from "./dateFormats";
+
 export default defineI18nConfig(() => ({
     datetimeFormats: {
-        "es-ES": {
-            // Pinned to the journal's zone so the server and the browser print the same day
-            long: { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Madrid" },
-        },
+        [JOURNAL_LOCALE]: { long: LONG_DATE },
     },
 }));

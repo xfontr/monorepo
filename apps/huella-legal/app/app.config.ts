@@ -1,5 +1,6 @@
 export default defineAppConfig({
     journal: {
+        name: "Huella Legal",
         issn: "2696-7618",
     },
 
@@ -8,7 +9,7 @@ export default defineAppConfig({
         // colour class was silently dropped from every Nuxt UI `class` and `:ui` override
         tv: {
             twMergeConfig: {
-                extend: { theme: { text: ["display", "h1", "h2", "h3", "section", "card", "reading", "quote", "citation", "meta", "kicker"] } },
+                extend: { theme: { text: ["display-sm", "display", "display-lg", "h1", "h2", "h3", "section", "card", "reading", "standfirst", "standfirst-lg", "quote", "citation", "meta", "kicker"] } },
             },
         },
 

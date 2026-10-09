@@ -1,7 +1,7 @@
-import { addImports, addServerHandler, createResolver, defineNuxtModule } from "@nuxt/kit";
+import { addServerImports, createResolver, defineNuxtModule } from "@nuxt/kit";
 import { UndefinedVendorError } from "#core/domain/errors";
 import { isVendorName, VENDOR_NAMES } from "#core/registry";
-import { CONTENT_API_PATH, type ContentConfig } from "./config";
+import type { ContentConfig } from "./config";
 
 export default defineNuxtModule<ContentConfig>({
     meta: { name: "@monorepo/content/nuxt", configKey: "content" },
@@ -15,21 +15,9 @@ export default defineNuxtModule<ContentConfig>({
 
         nuxt.options.runtimeConfig.content = resolvedOptions;
 
-        addServerHandler({
-            route: `${CONTENT_API_PATH}/:resource`,
-            method: "get",
-            handler: resolver.resolve("./runtime/server/content.get"),
-        });
-
-        addServerHandler({
-            route: `${CONTENT_API_PATH}/:resource/:slug`,
-            method: "get",
-            handler: resolver.resolve("./runtime/server/contentItem.get"),
-        });
-
-        addImports({
+        addServerImports([{
             name: "useContent",
-            from: resolver.resolve("./runtime/composables/useContent"),
-        });
+            from: resolver.resolve("./runtime/server/utils/useContent"),
+        }]);
     },
 });

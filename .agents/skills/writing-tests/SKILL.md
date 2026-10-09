@@ -57,7 +57,8 @@ beforeEach(() => {
 | --- | --- | --- |
 | A Nuxt module | `@nuxt/kit` | [`module.spec.ts`](../../../packages/content/src/nuxt/module.spec.ts) |
 | A cached server route | `nitropack/runtime` + `ofetch` | [`translations.get.spec.ts`](../../../packages/i18n/src/nuxt/runtime/server/translations.get.spec.ts) |
-| A composable | `vi.stubGlobal("$fetch", …)` | [`useContent.spec.ts`](../../../packages/content/src/nuxt/runtime/composables/useContent.spec.ts) |
+| A cached server function | `nitropack/runtime` + `ofetch` | [`useContent.spec.ts`](../../../packages/content/src/nuxt/runtime/server/utils/useContent.spec.ts) |
+| A composable | `vi.stubGlobal("$fetch", …)` | [`useIssues.spec.ts`](../../../apps/developer-portal/app/composables/useIssues.spec.ts) |
 | A provider | nothing — inject a fake `HttpClient` through the port | [`TolgeeProvider.spec.ts`](../../../packages/i18n/src/core/adapters/providers/TolgeeProvider.spec.ts) |
 | A Nitro plugin | one `vi.stubGlobal` per Nitro auto-import | [`observability.spec.ts`](../../../apps/huella-legal/server/plugins/observability.spec.ts) |
 | A vendor, from an app's e2e | nothing — preload MSW with the package's `testing` handlers | [`server.ts`](../../../apps/huella-legal/e2e/server.ts) |

@@ -164,7 +164,7 @@ the symptom is `lint` failing to parse every file rather than anything mentionin
 | Skill | Use it when |
 | --- | --- |
 | `new-package` | Adding a project under `packages/`, `apps/` or `infrastructure/` |
-| `nuxt-module-route` | Adding a BFF route or composable to a package's `src/nuxt/runtime` |
+| `nuxt-module-route` | Adding a BFF route or a cached server import to a package's `src/nuxt/runtime` |
 | `writing-tests` | Adding or changing any `*.spec.ts` |
 | `house-docs` | Writing or editing any markdown |
 | `doc-drift-check` | A change altered a project's public surface — exports, CLI flags, config shape, documented commands |

@@ -1,20 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Nuxt } from "@nuxt/schema";
-import { CONTENT_API_PATH, type ContentConfig } from "./config";
+import type { ContentConfig } from "./config";
 import { UndefinedVendorError } from "#core/domain/errors";
 import type { VendorConfig } from "#core/registry";
 
 const kit = vi.hoisted(() => ({
-    addServerHandler: vi.fn(),
-    addImports: vi.fn(),
+    addServerImports: vi.fn(),
     resolve: vi.fn((path: string) => `resolved(${path})`),
 }));
 
 vi.mock("@nuxt/kit", () => ({
     defineNuxtModule: (definition: unknown) => definition,
     createResolver: () => ({ resolve: kit.resolve }),
-    addServerHandler: kit.addServerHandler,
-    addImports: kit.addImports,
+    addServerImports: kit.addServerImports,
 }));
 
 const { setup } = (await import("./module")).default as unknown as {
@@ -38,39 +36,17 @@ beforeEach(() => {
 });
 
 describe("content nuxt module", () => {
-    it("publishes the vendor config where the server handlers read it back", () => {
+    it("publishes the vendor config where useContent reads it back", () => {
         expect(install({ vendor }).options.runtimeConfig.content).toEqual({ vendor });
     });
 
-    it("mounts the list route on the path the composable fetches", () => {
+    it("auto-imports useContent into server code, and mounts no route", () => {
         install({ vendor });
 
-        expect(kit.addServerHandler).toHaveBeenCalledWith({
-            route: `${CONTENT_API_PATH}/:resource`,
-            method: "get",
-            handler: "resolved(./runtime/server/content.get)",
-        });
-    });
-
-    // A slug lookup lives on the server so a miss answers with a real 404, and so a vendor with a
-    // native single-document endpoint can serve it without a list round-trip
-    it("mounts a route of its own for a single document", () => {
-        install({ vendor });
-
-        expect(kit.addServerHandler).toHaveBeenCalledWith({
-            route: `${CONTENT_API_PATH}/:resource/:slug`,
-            method: "get",
-            handler: "resolved(./runtime/server/contentItem.get)",
-        });
-    });
-
-    it("auto-imports the composable, so a page needs no import of its own", () => {
-        install({ vendor });
-
-        expect(kit.addImports).toHaveBeenCalledWith({
+        expect(kit.addServerImports).toHaveBeenCalledWith([{
             name: "useContent",
-            from: "resolved(./runtime/composables/useContent)",
-        });
+            from: "resolved(./runtime/server/utils/useContent)",
+        }]);
     });
 
     // Failing the build beats throwing on the first request, which is a page nobody is watching
@@ -84,7 +60,7 @@ describe("content nuxt module", () => {
 
             expect(() => install(options)).toThrow(UndefinedVendorError);
             expect(() => install(options)).toThrow(/wordpress/);
-            expect(kit.addServerHandler).not.toHaveBeenCalled();
+            expect(kit.addServerImports).not.toHaveBeenCalled();
         });
     });
 
@@ -94,6 +70,6 @@ describe("content nuxt module", () => {
         const unset: VendorConfig = { name: "wordpress", baseURL: "" };
 
         expect(install({ vendor: unset }).options.runtimeConfig.content).toEqual({ vendor: unset });
-        expect(kit.addServerHandler).toHaveBeenCalledTimes(2);
+        expect(kit.addServerImports).toHaveBeenCalledOnce();
     });
 });

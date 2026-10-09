@@ -23,8 +23,8 @@ The invariants worth losing a build over:
   key, so a crafted query can't mint unbounded entries.
 - `statusMessage` reaches the client, so no error message may repeat the vendor's URL or the
   transport's own message.
-- No service layer over the provider port, and no caching in the core — the Nuxt route caches, other
-  consumers bring their own.
+- No service layer over the provider port, and no caching in the core — the Nuxt half's `useContent`
+  caches, other consumers bring their own.
 
 Tagged `type:content`, so it may depend only on `@monorepo/configs`. That is why nothing here emits
 a span; instrument from the consuming app.

@@ -1,8 +1,9 @@
 # 🟢 @monorepo/content/nuxt
 
-The Nuxt integration for [`@monorepo/content`](../../README.md). One config block mounts a
-cached BFF that proxies the vendor and auto-imports the composable that reads it — so the CMS
-base URL (and, for a vendor that needs one, its credentials) never reach the client.
+The Nuxt integration for [`@monorepo/content`](../../README.md). One config block gives server code
+a cached `useContent(event)`, so the CMS base URL (and, for a vendor that needs one, its
+credentials) never leave the server. Nothing here is reachable from the browser: an app decides what
+content reaches it, through routes of its own.
 
 ## 🚀 Usage
 
@@ -19,26 +20,22 @@ export default defineNuxtConfig({
 });
 ```
 
-```vue
-<script setup lang="ts">
-const { listEntries } = useContent();
-const page = computed(() => Number(useRoute().query.page ?? 1));
+```ts
+// server/api/articles/[slug].get.ts
+export default defineEventHandler(async (event) => {
+    const entry = await useContent(event).getEntry("posts", getRouterParam(event, "slug", { decode: true }) ?? "");
 
-const { data, error } = await listEntries("posts", () => ({ page: page.value, perPage: 6 }));
-</script>
+    return toArticle(entry);
+});
 ```
 
-`useContent` is auto-imported and returns four `useAsyncData` wrappers — `listEntries`, `getEntry`,
-`listTerms`, `getTerm` — that hit this module's own routes. The SSR strategy is not per-page: the
-key is derived from the resource and the query, and the query (or a `getEntry`/`getTerm` slug) is a
-getter rather than a plain value so that a change to it — a page number, a route param — is picked
-up and refetched the same way a `watch` option would, without the caller wiring one. A static call needs no getter ceremony beyond the arrow function itself: `getEntry("posts", ()
-=> "hello-world")`.
+`useContent` is a Nitro auto-import, so it exists in `server/` and nowhere else. It returns the
+port's four reads — `listEntries`, `getEntry`, `listTerms`, `getTerm` — each cached, bounded and
+mapped to an HTTP status, so a route calling it needs no casts, no URLs and no error handling of its
+own. A miss throws a real `404`, which renders as an error page unless the route catches it.
 
-`error` still carries whatever the route answered — a miss is the server's real 404, not one
-invented client-side — so a page decides for itself whether that is a soft failure (fall back to
-"not found") or a fatal one (`throw createError(...)`); see
-[`apps/huella-legal/app/pages/articles`](../../../../apps/huella-legal/app/pages/articles) for both.
+The event is the first argument because Nitro's cache only hands a stale-while-revalidate refresh to
+the platform's `waitUntil` when it is given one; without it, the refresh runs unawaited.
 
 ### Options
 
@@ -46,8 +43,8 @@ invented client-side — so a page decides for itself whether that is a soft fai
 vendor from the registry, and the shape of the rest follows from that name, so an invalid
 combination fails to typecheck in `nuxt.config`.
 
-`runtimeConfig` (server-side, not `public`) carries the vendor for the routes to read per
-request, so every field of it is overridable per deployment with the `NUXT_`-prefixed form —
+`runtimeConfig` (server-side, not `public`) carries the vendor for `useContent` to read per call, so
+every field of it is overridable per deployment with the `NUXT_`-prefixed form —
 `NUXT_CONTENT_VENDOR_BASE_URL`. Declare the field empty, as above, and never read `process.env` in
 `nuxt.config` instead — the [i18n module](../../../i18n/src/nuxt/README.md#-usage) says why, and why
 `name` stays a literal.
@@ -56,53 +53,37 @@ request, so every field of it is overridable per deployment with the `NUXT_`-pre
 
 ```
 module.ts                          # build-time: runs in Node during the consumer's build (@nuxt/kit)
-config.ts                          # the contract between both halves: the API path, the windows, the config shape
-runtime/
-├── composables/useContent.ts       # the client-side useAsyncData wrappers, compiled by the consumer's Vite
-├── composables/nuxt.d.ts           # declares `useAsyncData`, which this package's own tsc never sees
-└── server/
-    ├── content.get.ts              # cached BFF route: a list
-    ├── contentItem.get.ts          # cached BFF route: one document
-    └── utils/
-        ├── request.ts              # everything both routes do to an incoming request
-        └── parsing.ts              # one validator per query or route param, each throwing a typed 400 or 404
+config.ts                          # the contract between both halves: the windows, the config shape
+runtime/server/utils/
+├── useContent.ts                  # the Nitro auto-import: two cached functions over the provider
+└── query.ts                       # defaults and ceilings for a typed query, each refusal a typed 400 or 404
 ```
 
 `module.ts` and `runtime/**` are separate runtimes. Never import across that line except with
-`import type` — anything shared at value level (`CONTENT_API_PATH`, the cache windows) goes in
-`config.ts`.
+`import type` — anything shared at value level (the cache windows) goes in `config.ts`.
 
-`utils/request.ts` is where the routes are thin: ceilings, provider construction and the error
-mapping all live there, with the per-param validation in `utils/parsing.ts`, so each handler is its
-own six lines of orchestration.
-
-## 🔁 The request path
+## 🔁 The read path
 
 ```
-listEntries("posts", { perPage: 6 })
-  → GET /api/content/posts?perPage=6                 (content.get.ts, cached)
-    → :resource must be one of posts|pages|categories|tags, or 404
-    → the query is parsed, defaulted and bounded, or 400
-    → createProvider(vendor, http) → provider.listEntries("posts", query)
+useContent(event).listEntries("posts", { perPage: 6 })
+  → the query is defaulted and bounded, or 400               (query.ts)
+  → content-list cache, keyed by contentKey(vendor, "posts", query)
+    → createProvider(vendor, http) → provider.listEntries("posts", query)    (on a miss only)
       → GET :baseURL/wp-json/wp/v2/posts?per_page=6&_embed=…   (WordPress)
 
-getEntry("posts", "hello-world")
-  → GET /api/content/posts/hello-world               (contentItem.get.ts, cached)
+useContent(event).getEntry("posts", "hello-world")
+  → content-item cache, keyed by the slug alone
     → provider.getEntry(...) → a one-item list by slug, since WordPress has no single-document endpoint
 ```
 
 Media and taxonomies come back in the same round trip (`_embed`), so rendering a list costs one
 upstream request rather than one per entry.
 
-The single document has a route of its own rather than being resolved in the composable, so a
-miss answers with a real `404` that renders as an error page — and so a vendor with a native
-single-document endpoint can serve it without a list round-trip.
-
 ## 🗃 Caching
 
-Both routes are `defineCachedEventHandler`, keyed by `contentKey` from the core rather than by
-the request URL. The windows are fixed in `config.ts` rather than configurable, because Nitro
-reads them when the handler module loads and they cannot vary per request:
+Both reads are `defineCachedFunction`s, created once when the module loads so concurrent misses for
+one key share a single upstream request. They are keyed by `contentKey` from the core, and the
+windows are fixed in `config.ts`:
 
 | | `maxAge` | `staleMaxAge` |
 | --- | --- | --- |
@@ -110,41 +91,46 @@ reads them when the handler module loads and they cannot vary per request:
 | one document | 6 h | 7 d |
 
 A document addressed by slug stays valid far longer than any list that a newly published entry
-reorders. Dev bypasses both. Override from `nuxt.config` with a nitro route rule if a deployment
-needs to.
+reorders. Dev bypasses both. A failed read is never stored: the next call tries the vendor again,
+and a failed background refresh keeps serving the stale value.
 
 The key comes from the core so a non-Nuxt consumer caching the same documents keys them the same
-way instead of reinventing it — and it is built from the **parsed** query, so `?page=1`, `?page=01`
-and no page at all are one entry rather than three. See
+way instead of reinventing it — and it is built from the **normalised** query, so `{}`,
+`{ page: 1 }` and `{ page: 1, perPage: 10 }` are one entry rather than three. See
 [the key](../../README.md#-framework-agnostic-use) for what goes into it and why.
 
-Nitro does not store a custom key verbatim: it strips every non-word character first (`escapeKey`,
-in its cache runtime). `contentKey` is word characters only for that reason, so nothing is lost
-between building the key and storing it — a key that spelled its query out would arrive with the
-separators gone, and `search=b,slug=a` would collide with `search=bsluga`.
+`contentKey` is word characters only because Nitro hands it to unstorage as-is, and unstorage's
+`normalizeKey` cuts a key at `?` and treats `/`, `\` and `:` as separators. A key that spelled its
+query out would lose or nest part of itself on the way to storage.
 
-Note that `getKey` runs *before* the handler, so it parses the request too: a malformed query
-throws there and mints no entry at all. That is what makes the ceilings a keyspace bound rather
-than a validation nicety.
+The query is bounded **before** the cached function is called, so a malformed one throws without
+minting an entry. That is what makes the ceilings a keyspace bound for whatever a caller forwards
+from its own request, rather than a validation nicety.
+
+An app that maps content into view models usually doesn't need a cache of its own on top: a mapper
+that runs in a few milliseconds is cheaper than a second window of staleness and a second set of keys
+to purge.
 
 ## ⚠️ Gotchas
 
-- **A slug is decoded from the path, and encoded into it.** `useContent` encodes; the route
-  decodes with `getRouterParam(event, "slug", { decode: true })`. Anything hand-rolling a
-  request has to encode too, or an accented slug reaches WordPress encoded twice and 404s.
-- **The list route serves both families.** `/api/content/:resource` answers `Page<Entry>` or
-  `Page<Term>` depending on the resource, and the composable is what narrows it. One route,
-  keyed by resource — but the response type is only as good as the method you called.
+- **A slug from the router arrives encoded.** Read it with
+  `getRouterParam(event, "slug", { decode: true })`, or an accented slug reaches WordPress encoded
+  twice and 404s.
 - **`title` and `body` are the vendor's HTML.** WordPress renders every text field, entities and
-  all, so a page needs `v-html` for them — see
+  all, so whatever reaches a page has to be rendered as HTML or decoded first — see
   [deferred](../../README.md#-deliberately-deferred).
-- **The vendor config is checked at request time, not build time.** It has to be: `baseURL` can
-  be replaced at boot by `NUXT_CONTENT_VENDOR_BASE_URL`, so the values present during the build
-  are not necessarily the deployed ones. Unset config fails on the first content request with a
-  `500` naming what is missing — see [validation](../../README.md#-validation). The vendor
-  *name* is checked at build time as well, since an unknown one is a typo worth catching before
-  deploy rather than on the first request — but `NUXT_CONTENT_VENDOR_NAME` can still replace it
-  at boot, in which case the route is what refuses it.
-- **The provider is built per request.** Cheap (the vendor module is import-cached) but not free,
-  and it means a misconfigured deployment answers `500` on every request with nothing said at
-  boot.
+- **The vendor config is checked at read time, not build time.** It has to be: `baseURL` can be
+  replaced at boot by `NUXT_CONTENT_VENDOR_BASE_URL`, so the values present during the build are not
+  necessarily the deployed ones. Unset config fails on the first cache miss with a `500` naming what
+  is missing — see [validation](../../README.md#-validation). The vendor *name* is checked at build
+  time as well, since an unknown one is a typo worth catching before deploy — but
+  `NUXT_CONTENT_VENDOR_NAME` can still replace it at boot, in which case the read is what refuses it.
+- **The provider is built per cache miss.** Cheap (the vendor module is import-cached) but not free,
+  and it means a misconfigured deployment answers `500` on every miss with nothing said at boot.
+
+## 🧭 Deliberately deferred
+
+| Later need | What changes |
+| --- | --- |
+| The browser reading content directly | There is no public content route, on purpose: an app's own route over `useContent` decides what reaches the browser, and a raw `Entry` carries unsanitised vendor HTML. A route that forwards query parameters gets the same ceilings for free |
+| Purging an entry when the CMS changes | Both caches live in Nitro's `cache` storage under the `content` group, and `contentKey` is the only thing that knows the key format, so a purge belongs here rather than in the app |
