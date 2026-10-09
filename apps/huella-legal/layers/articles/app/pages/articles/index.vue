@@ -1,18 +1,16 @@
 <script setup lang="ts">
+import type { Page } from "@monorepo/content";
 import type { RouteLocationRaw } from "vue-router";
 
 definePageMeta({ name: "publications", path: "/publicaciones/" });
 
-const PER_PAGE = 6;
-
-const { listEntries } = useContent();
 const { locale } = useI18n();
 const route = useRoute();
 
-// Deliberately unvalidated — the BFF already bounds `page` (README.md § Content)
-const page = computed(() => Number(route.query.page ?? 1));
+// Deliberately unvalidated — the content module already bounds `page` (README.md § Content)
+const page = computed(() => route.query.page);
 
-const { data, error, status } = await listEntries("posts", () => ({ page: page.value, perPage: PER_PAGE }));
+const { data, error, status } = await useFetch<Page<ArticleSummary>>("/api/articles", { query: { page } });
 
 function raiseIfMissing(): void {
     if (!error.value) return;
@@ -43,6 +41,10 @@ function pageLink(target: number): RouteLocationRaw {
 const previousLink = computed(() => pageLink((data.value?.page ?? 1) - 1));
 const nextLink = computed(() => pageLink((data.value?.page ?? 1) + 1));
 
+function termsOf({ category, tags }: ArticleSummary): Category[] {
+    return category ? [category, ...tags] : tags;
+}
+
 function formatDate(date: string): string {
     return new Date(date).toLocaleDateString(locale.value, { dateStyle: "long" });
 }
@@ -69,48 +71,47 @@ function formatDate(date: string): string {
             </p>
 
             <article
-                v-for="entry in data.items"
-                :key="entry.id"
+                v-for="summary in data.items"
+                :key="summary.id"
                 class="entry"
             >
                 <NuxtLink
                     class="entry__link"
-                    :to="{ name: 'article', params: { slug: entry.slug } }"
+                    :to="{ name: 'article', params: { slug: summary.slug } }"
                 >
                     <img
-                        v-if="entry.image"
+                        v-if="summary.image"
                         class="entry__image"
-                        :src="entry.image.url"
-                        :alt="entry.image.alt"
+                        :src="summary.image.url"
+                        :alt="summary.image.alt"
                     >
 
                     <time
-                        v-if="entry.publishedAt"
+                        v-if="summary.publishedAt"
                         class="entry__date"
-                        :datetime="entry.publishedAt"
+                        :datetime="summary.publishedAt"
                     >
-                        {{ formatDate(entry.publishedAt) }}
+                        {{ formatDate(summary.publishedAt) }}
                     </time>
 
-                    <!-- Deliberate: WordPress already renders this field to HTML (README.md § Content) -->
-                    <h2
-                        class="entry__title"
-                        v-html="entry.title"
-                    />
+                    <h2 class="entry__title">
+                        {{ summary.title }}
+                    </h2>
                 </NuxtLink>
 
-                <div
-                    v-if="entry.excerpt"
+                <p
+                    v-if="summary.excerpt"
                     class="entry__excerpt"
-                    v-html="entry.excerpt.value"
-                />
+                >
+                    {{ summary.excerpt }}
+                </p>
 
                 <ul
-                    v-if="entry.terms.length"
+                    v-if="termsOf(summary).length"
                     class="entry__terms"
                 >
                     <li
-                        v-for="term in entry.terms"
+                        v-for="term in termsOf(summary)"
                         :key="term.id"
                     >
                         {{ term.name }}
@@ -233,7 +234,7 @@ h1 {
     margin: 0.25rem 0 0.5rem;
 }
 
-.entry__excerpt :deep(p) {
+.entry__excerpt {
     margin: 0;
 }
 

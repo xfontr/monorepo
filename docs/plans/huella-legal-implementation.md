@@ -23,7 +23,7 @@ that files or merges an item.
 | Fact | Consequence |
 | --- | --- |
 | WordPress is read-only to us: no new plugins, ACF fields, REST fields or webhooks. Installed ones, Yoast among them, are exposed | Whatever WP doesn't return is derived from post HTML or terms, or dropped |
-| [`useContent()`](../../packages/content/src/nuxt/runtime/composables/useContent.ts) only calls the Nitro routes `/api/content/*`, and its vendor config is private | "No BFF" means rewriting the data layer to call WP from the browser, or a full static generate with no server for forms and search |
+| [`useContent()`](../../packages/content/src/nuxt/runtime/server/utils/useContent.ts) is server-only and its vendor config is private, so every read goes through a layer's Nitro route ([0031](../decisions/0031-content-server-accessor.md)) | "No BFF" means rewriting the data layer to call WP from the browser, or a full static generate with no server for forms and search |
 | `Entry` has no authors, and nothing for issue, series, reading time, TOC, footnotes, bibliography or views | The content model has to be decided before cards, articles or listings (S1) |
 | The app runs SSR on Netlify's git integration with no preset, no `routeRules` and no Nitro storage | `defineCachedEventHandler` caches live in memory per function instance, so the content TTLs barely hold (S2) |
 | i18n is `defaultLocale: en-GB` with the default `prefix_except_default` strategy | Spanish pages would sit under `/es-ES/`. The site launches Spanish-only (A2) |
@@ -42,9 +42,9 @@ under `layers/`, as `layers/articles` does.
 | Primitives | `app/components/base/` | Wordmark, Kicker, TagPill… Plain props only. Nuxt UI is used directly; `UButton` gets no wrapper | Fetch, know about WP, take a view model | `mount` |
 | Kits | `layers/<domain>/app/components/` when typed against that domain's view models or owned by one feature, else `app/components/{listing,form,shell}/` | Props in, events out | Fetch, read the route | `mount` |
 | View models | `shared/` or `app/utils/`, pure TS | `Entry` → `ArticleSummary`, `Article`, `Author`, `Category`: reading time, TOC, footnotes, citation | Touch Vue or Nuxt | Vitest node, the heaviest suite |
-| Controllers | `app/composables/use*.ts` | Wrap `useContent()`, own query↔URL state, run form state machines | Render | Nuxt Vitest project + `mockNuxtImport` |
+| Controllers | `app/composables/use*.ts` | `useFetch` their layer's routes, own query↔URL state, run form state machines | Render | Nuxt Vitest project + `mockNuxtImport` |
 | Pages | `app/pages/` | Call one controller, compose kits, set SEO meta | Hold logic | Playwright + axe + screenshots |
-| Server | `server/api/`, `server/utils/` | Newsletter and submission endpoints, the WP HTML pipeline if it runs server-side | Render | Vitest node, like [`content.get.spec.ts`](../../packages/content/src/nuxt/runtime/server/content.get.spec.ts) |
+| Server | `server/api/`, `server/utils/` | Newsletter and submission endpoints, the WP HTML pipeline if it runs server-side | Render | Vitest node, like [`[slug].get.spec.ts`](../../apps/huella-legal/layers/articles/server/api/articles/%5Bslug%5D.get.spec.ts) |
 
 Components are promoted from `app/lab/` rather than rebuilt. A kit ticket covers a lot of
 components, but each one is cheap because the lab version already exists.
@@ -259,7 +259,7 @@ Each page ticket delivers a controller, the page, and its e2e spec with axe and 
   - Area grid, TFG/TFM band, tag cloud.
   - About, principles, and the directory with filter, no-match state and load-more. How much of
     the directory is possible depends on S1.
-- **C5 🎫 #248 Search and utility states:** `/buscar` on `useContent`'s `search`, with results, no results,
+- **C5 🎫 #248 Search and utility states:** `/buscar` on a route over `useContent`'s `search`, with results, no results,
   empty subject and loading.
 - **C6 🎫 #249 Standard page template:**
   - Legal pages (aviso legal, privacidad, cookies), and Contacto per S3, from WP `pages`, using the

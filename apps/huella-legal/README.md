@@ -135,21 +135,19 @@ See the [module README](../../packages/i18n/src/nuxt/README.md) for the options 
 ## 📄 Content
 
 One block in [`nuxt.config.ts`](./nuxt.config.ts) drives it: `content.vendor` picks the CMS, and the
-`@monorepo/content/nuxt` module mounts a cached `/api/content/*` BFF plus an auto-imported
-`useContent()`, so the CMS base URL never reaches the browser and a list costs one upstream request.
+`@monorepo/content/nuxt` module gives server code a cached `useContent(event)`. Nothing reads content
+from the browser: the `articles` layer's routes call `useContent`, map each `Entry` into a view model
+and serve that, so the CMS base URL and its unsanitised HTML stay on the server. Content is cached
+once, inside `useContent`; the routes map on every request, since mapping a post takes a few
+milliseconds and a second cache would add its own window of staleness.
 
 The vendor is `wordpress`, pointed at an external WordPress install — the CMS is not in this repo, so
 `infrastructure/` has nothing to do with it. Two pages consume it, both in the `articles` layer:
 
 | Page | Reads | Notes |
 | --- | --- | --- |
-| [`layers/articles/app/pages/articles/index.vue`](./layers/articles/app/pages/articles/index.vue) | `listEntries("posts")` | Paginated by `?page`. It does **not** re-validate the page number — the BFF already bounds it and a second copy of those bounds is a second place for them to drift. A `400` from the BFF is turned into a `404`, because a query-parameter complaint is not something a reader should see |
-| [`layers/articles/app/pages/articles/[slug].vue`](./layers/articles/app/pages/articles/%5Bslug%5D.vue) | `GET /api/articles/:slug`, through `useArticle` | Served at `/:slug/`, the root permalink WordPress had, so indexed URLs still resolve. The route returns the sanitised `Article` view model with its citations, cached per slug. `GET /api/articles/:slug/related` serves up to three posts from its first category, cached separately and server-rendered without blocking client navigation; when it fails, that band is hidden and the article is unaffected. No `locale` is passed: the content locale is the vendor's axis and WordPress refuses one outright |
-
-The listing still `v-html`s the entry's `title` and `excerpt`, because WordPress renders every text
-field to HTML, entities and all, and nothing on that path sanitises it. That is fine only while the
-CMS is first-party, and it ends when the listing reads `ArticleSummary` from the articles layer. The
-article page already renders the sanitised body. See the [package README](../../packages/content/README.md#-deliberately-deferred).
+| [`layers/articles/app/pages/articles/index.vue`](./layers/articles/app/pages/articles/index.vue) | `GET /api/articles?page=` | Six `ArticleSummary`s per page. Only `page` is forwarded, and the page does **not** re-validate it — `useContent` already bounds it, and a second copy of those bounds is a second place for them to drift. A `400` is turned into a `404`, because a query-parameter complaint is not something a reader should see. Provisional until C2 (#241) extends the route with filters |
+| [`layers/articles/app/pages/articles/[slug].vue`](./layers/articles/app/pages/articles/%5Bslug%5D.vue) | `GET /api/articles/:slug`, through `useArticle` | Served at `/:slug/`, the root permalink WordPress had, so indexed URLs still resolve. The route returns the sanitised `Article` view model with its citations. `GET /api/articles/:slug/related` serves up to three posts from its first category, server-rendered without blocking client navigation; when it fails, that band is hidden and the article is unaffected. No `locale` is passed: the content locale is the vendor's axis and WordPress refuses one outright |
 
 See the [module README](../../packages/content/src/nuxt/README.md) for the options, the cache windows
 and the gotchas.
@@ -219,9 +217,9 @@ counts behind each rule.
 | Images | Every one gets `loading="lazy"` and `decoding="async"` |
 | Lead | Everything up to and including the first top-level paragraph goes in `lead`, and the page sets the featured image after it, as the lab design does |
 
-Both article routes read the content module's own routes in-process through `fetchContent`, so the
-provider, its cache and its error statuses stay the module's: a failed read reaches the page with
-the status the content route answered, or `502` when it never answered.
+The article routes read posts through the content module's `useContent(event)`, so the provider,
+its cache and its error statuses stay the module's: a failed read reaches the page with the status
+`useContent` settled on, `404` for a missing post and `502` when the vendor failed.
 
 Citations are worded in the style they follow (*s. f.*, *Disponible en*), in the journal's language,
 so that wording lives in `toCitations` rather than in the copy keys. The date shares
