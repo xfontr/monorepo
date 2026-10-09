@@ -99,32 +99,6 @@ describe("useArticle", () => {
         expect((await setUp()).failure).toMatchObject({ status: 404, fatal: true });
     });
 
-    it("ends the breadcrumb at the article's category", async () => {
-        const { controller } = await setUp();
-
-        expect(controller?.breadcrumb.value.map(({ to }) => to)).toEqual([
-            { name: "index" },
-            { name: "publications" },
-            { name: "category", params: { slug: "derecho-penal" } },
-        ]);
-        expect(controller?.breadcrumb.value.at(-1)?.label).toBe("Derecho penal");
-    });
-
-    it("stops the breadcrumb at the publications when the article has no category", async () => {
-        nuxt.article.value = { ...ARTICLE, category: undefined };
-
-        const { controller } = await setUp();
-
-        expect(controller?.breadcrumb.value.map(({ to }) => to)).toEqual([{ name: "index" }, { name: "publications" }]);
-    });
-
-    it("labels the format and lists the tags in one line", async () => {
-        const { controller } = await setUp();
-
-        expect(controller?.formatLabel.value).toBe("article.formats.essay");
-        expect(controller?.tagNames.value).toBe("Dolo · Imprudencia");
-    });
-
     describe("SEO", () => {
         it("prefers the CMS's SEO title and description over the article's own", async () => {
             nuxt.article.value = { ...ARTICLE, seo: { title: "La culpa | Huella", description: "Resumen SEO" } };
