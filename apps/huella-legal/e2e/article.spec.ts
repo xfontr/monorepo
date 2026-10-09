@@ -36,7 +36,16 @@ test("moves the bibliography out of the text, so its heading isn't in the TOC", 
     const wide = (page.viewportSize()?.width ?? 0) >= DESKTOP;
     const toc = page.getByRole("navigation", { name: "En este artículo" });
 
-    if (!wide) await toc.getByRole("button", { name: "En este artículo" }).click();
+    if (!wide) {
+        const trigger = toc.getByRole("button", { name: "En este artículo" });
+
+        // CI's runner can click before hydration, which focuses the trigger without opening it
+        await expect(async () => {
+            if ((await trigger.getAttribute("aria-expanded")) !== "true") await trigger.click();
+
+            await expect(trigger).toHaveAttribute("aria-expanded", "true", { timeout: 500 });
+        }).toPass();
+    }
 
     await expect(toc.getByRole("link")).toHaveText(SECTIONS);
 });
