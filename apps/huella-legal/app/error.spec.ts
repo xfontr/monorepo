@@ -28,9 +28,8 @@ const SERVER = {
     stack: "Error: Upstream unavailable\n    at fetch",
 };
 
-function mountError(error: Record<string, unknown>) {
-    return mount(ErrorPage, { props: { error: error as never }, global });
-}
+const mountError = (error: Record<string, unknown>) =>
+    mount(ErrorPage, { props: { error: error as never }, global });
 
 beforeEach(() => {
     vi.clearAllMocks();

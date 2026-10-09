@@ -43,9 +43,8 @@ const featuredProjects = computed(() =>
     projectNodes.value.filter((project) => project.root.startsWith("apps/")),
 );
 
-function readmeFor(project: ProjectNode) {
-    return readmeByPath.value.get(`/${project.root.toLowerCase()}/readme`);
-}
+const readmeFor = (project: ProjectNode) =>
+    readmeByPath.value.get(`/${project.root.toLowerCase()}/readme`);
 
 const deps = computed(() => depsSnapshot.value?.deps ?? null);
 const advisories = computed(() => deps.value?.advisories.length ?? 0);

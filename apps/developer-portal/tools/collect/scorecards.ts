@@ -15,7 +15,7 @@ const FILENAME = /^(\d{4}-\d{2}-\d{2})-([0-9a-f]+)\.md$/;
  * names why, and `cards` holds whatever rows were still readable, the same "absent is its own
  * state" the coverage collector uses for a project with nothing collected.
  */
-export async function collectScorecards(generatedAt: string): Promise<ScorecardsArtifact> {
+export const collectScorecards = async (generatedAt: string): Promise<ScorecardsArtifact> => {
     const files = await listReviewFiles();
     const reviews: ReviewScorecard[] = [];
 
@@ -44,4 +44,4 @@ export async function collectScorecards(generatedAt: string): Promise<Scorecards
     reviews.reverse();
 
     return { generatedAt, reviews };
-}
+};

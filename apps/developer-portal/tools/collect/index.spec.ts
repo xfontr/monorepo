@@ -44,7 +44,7 @@ const projects = {
 };
 const coverage = { generatedAt: "generated", totals: null, report: false, projects: [] };
 
-function successfulCollectors(): void {
+const successfulCollectors = (): void => {
     state.collectGraph.mockImplementation(async (generatedAt: string) => ({
         ...projects,
         generatedAt,
@@ -80,12 +80,12 @@ function successfulCollectors(): void {
         generatedAt,
         reviews: [],
     }));
-}
+};
 
-async function runCollector(): Promise<void> {
+const runCollector = async (): Promise<void> => {
     vi.resetModules();
     await import("./index.ts");
-}
+};
 
 beforeEach(() => {
     vi.clearAllMocks();

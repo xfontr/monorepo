@@ -14,7 +14,7 @@ const { data, error, status } = await useFetch<Page<ArticleSummary>>("/api/artic
     query: { page },
 });
 
-function raiseIfMissing(): void {
+const raiseIfMissing = (): void => {
     if (!error.value) return;
 
     // A 400 here means "bad or past-the-end page", mapped to 404 (README.md § Content)
@@ -25,7 +25,7 @@ function raiseIfMissing(): void {
     }
 
     showError(createPageError(error.value));
-}
+};
 
 raiseIfMissing();
 
@@ -36,20 +36,18 @@ watch(error, raiseIfMissing);
 watch(page, () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
 // Page one keeps the bare URL, so the list has a single canonical address
-function pageLink(target: number): RouteLocationRaw {
-    return { query: target > 1 ? { page: target } : {} };
-}
+const pageLink = (target: number): RouteLocationRaw => ({
+    query: target > 1 ? { page: target } : {},
+});
 
 const previousLink = computed(() => pageLink((data.value?.page ?? 1) - 1));
 const nextLink = computed(() => pageLink((data.value?.page ?? 1) + 1));
 
-function termsOf({ category, tags }: ArticleSummary): Category[] {
-    return category ? [category, ...tags] : tags;
-}
+const termsOf = ({ category, tags }: ArticleSummary): Category[] =>
+    category ? [category, ...tags] : tags;
 
-function formatDate(date: string): string {
-    return new Date(date).toLocaleDateString(locale.value, { dateStyle: "long" });
-}
+const formatDate = (date: string): string =>
+    new Date(date).toLocaleDateString(locale.value, { dateStyle: "long" });
 </script>
 
 <template>

@@ -38,10 +38,10 @@ interface RawOutdatedEntry {
     dependentPackages: { name: string; location: string }[];
 }
 
-async function collectAudit(): Promise<Pick<
+const collectAudit = async (): Promise<Pick<
     DepsArtifact,
     "vulnerabilities" | "totalDependencies" | "advisories"
-> | null> {
+> | null> => {
     const result = await tryRun(async () => {
         const stdout = await runAllowFailure("pnpm", ["audit", "--json"], WORKSPACE_ROOT);
 
@@ -65,9 +65,9 @@ async function collectAudit(): Promise<Pick<
             paths: advisory.findings.flatMap((finding) => finding.paths),
         })),
     };
-}
+};
 
-async function collectOutdated(): Promise<OutdatedPackage[] | null> {
+const collectOutdated = async (): Promise<OutdatedPackage[] | null> => {
     const result = await tryRun(async () => {
         const stdout = await runAllowFailure(
             "pnpm",
@@ -88,9 +88,9 @@ async function collectOutdated(): Promise<OutdatedPackage[] | null> {
         isDeprecated: entry.isDeprecated,
         dependents: entry.dependentPackages.map((pkg) => relative(WORKSPACE_ROOT, pkg.location)),
     }));
-}
+};
 
-export async function collectDeps(generatedAt: string): Promise<DepsArtifact> {
+export const collectDeps = async (generatedAt: string): Promise<DepsArtifact> => {
     const [audit, outdated] = await Promise.all([collectAudit(), collectOutdated()]);
 
     return {
@@ -100,4 +100,4 @@ export async function collectDeps(generatedAt: string): Promise<DepsArtifact> {
         advisories: audit?.advisories ?? [],
         outdated,
     };
-}
+};

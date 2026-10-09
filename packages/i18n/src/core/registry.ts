@@ -26,14 +26,13 @@ export type VendorConfig = {
 
 type ProviderConstructor = new (vendor: VendorConfig, http: HttpClient) => TranslationProvider;
 
-export function isVendorName(name: string | undefined): name is VendorName {
-    return VENDOR_NAMES.includes(name as VendorName);
-}
+export const isVendorName = (name: string | undefined): name is VendorName =>
+    VENDOR_NAMES.includes(name as VendorName);
 
-async function createProvider(
+const createProvider = async (
     vendor: VendorConfig,
     http: HttpClient,
-): Promise<TranslationProvider> {
+): Promise<TranslationProvider> => {
     const name = vendor?.name;
 
     if (!isVendorName(name)) throw new UndefinedVendorError(name, VENDOR_NAMES);
@@ -43,6 +42,6 @@ async function createProvider(
     const Provider = module.default as ProviderConstructor;
 
     return new Provider(vendor, http);
-}
+};
 
 export default createProvider;

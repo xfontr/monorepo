@@ -3,30 +3,31 @@ import type { AuditFinding } from "./audits.ts";
 import type { DocPage } from "./types.ts";
 import { countAll, filterAudits, scopesOf, sortAudits, toAuditReports } from "./auditReports.ts";
 
-function row(id: string, status: AuditFinding["status"]): AuditFinding {
-    return { id, category: "Bugs", status, ref: null };
-}
+const row = (id: string, status: AuditFinding["status"]): AuditFinding => ({
+    id,
+    category: "Bugs",
+    status,
+    ref: null,
+});
 
-function page(
+const page = (
     path: string,
     scope: string | null,
     findings: AuditFinding[],
     overrides: Partial<DocPage> = {},
-): DocPage {
-    return {
-        path,
-        kind: "audit",
-        title: "🔎 An audit",
-        words: 100,
-        updatedAt: null,
-        decisionStatus: null,
-        decisionOutcome: null,
-        decisionSupersededBy: null,
-        audit: { scope, commit: "61b6f7f", findings },
-        brokenLinks: [],
-        ...overrides,
-    };
-}
+): DocPage => ({
+    path,
+    kind: "audit",
+    title: "🔎 An audit",
+    words: 100,
+    updatedAt: null,
+    decisionStatus: null,
+    decisionOutcome: null,
+    decisionSupersededBy: null,
+    audit: { scope, commit: "61b6f7f", findings },
+    brokenLinks: [],
+    ...overrides,
+});
 
 const PAGES: DocPage[] = [
     page("docs/audits/2026-09-20-scripts.md", "@monorepo/scripts", [
@@ -46,9 +47,7 @@ const PAGES: DocPage[] = [
 
 const REPORTS = toAuditReports(PAGES);
 
-function idsOf(reports: { id: string }[]): string[] {
-    return reports.map((report) => report.id);
-}
+const idsOf = (reports: { id: string }[]): string[] => reports.map((report) => report.id);
 
 describe("toAuditReports", () => {
     it("takes only dated audits, so the rubric beside them isn't listed as one", () => {

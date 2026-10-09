@@ -9,9 +9,7 @@ const { app } = await import("../app.ts");
 
 const get = (path: string) => app.request(path);
 
-function fsError(code: string) {
-    return Object.assign(new Error(code), { code });
-}
+const fsError = (code: string) => Object.assign(new Error(code), { code });
 
 beforeEach(() => {
     vi.clearAllMocks();

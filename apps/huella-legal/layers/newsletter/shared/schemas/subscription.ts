@@ -2,8 +2,8 @@ import * as v from "valibot";
 
 export type SubscriptionIssue = "invalid" | "required";
 
-export function subscriptionSchema(message: (issue: SubscriptionIssue) => string) {
-    return v.config(
+export const subscriptionSchema = (message: (issue: SubscriptionIssue) => string) =>
+    v.config(
         v.object({
             email: v.pipe(
                 v.string(),
@@ -14,6 +14,5 @@ export function subscriptionSchema(message: (issue: SubscriptionIssue) => string
         }),
         { abortPipeEarly: true },
     );
-}
 
 export type Subscription = v.InferOutput<ReturnType<typeof subscriptionSchema>>;

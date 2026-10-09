@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import { fakeAsset, fakeAuthor, fakeEntry, fakeTerm } from "./factories";
 
-async function freshFactories() {
+const freshFactories = async () => {
     vi.resetModules();
 
     return import("./factories");
-}
+};
 
 describe("the domain factories", () => {
     // A screenshot baseline is only as stable as the data behind it

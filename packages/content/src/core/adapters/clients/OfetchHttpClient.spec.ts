@@ -3,23 +3,22 @@ import { FetchError, type $Fetch } from "ofetch";
 import { OfetchHttpClient } from "./OfetchHttpClient";
 import { UpstreamError } from "#core/domain/errors";
 
-function createFetch(response: unknown) {
+const createFetch = (response: unknown) => {
     const raw = vi.fn().mockResolvedValue(response);
 
     return { raw, $fetch: { raw } as unknown as $Fetch };
-}
+};
 
-function createFailingFetch(cause: unknown) {
+const createFailingFetch = (cause: unknown) => {
     const raw = vi.fn().mockRejectedValue(cause);
 
     return { raw, $fetch: { raw } as unknown as $Fetch };
-}
+};
 
-function fetchError(status: number): FetchError {
-    return Object.assign(new FetchError("upstream said no"), {
+const fetchError = (status: number): FetchError =>
+    Object.assign(new FetchError("upstream said no"), {
         response: { status } as unknown as FetchError["response"],
     });
-}
 
 describe("OfetchHttpClient", () => {
     // Vendors report pagination in headers, and a body alone cannot build a Page

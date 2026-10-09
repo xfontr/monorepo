@@ -47,13 +47,13 @@ mockNuxtImport("useSeoMeta", () => (input: Record<string, unknown>) => {
     nuxt.seo = input;
 });
 
-async function setUp(route = "/la-culpa/") {
+const setUp = async (route = "/la-culpa/") => {
     let controller: Awaited<ReturnType<typeof useArticle>> | undefined;
     let failure: unknown;
 
     await mountSuspended(
         defineComponent({
-            async setup() {
+            setup: async () => {
                 try {
                     controller = await useArticle();
                 } catch (error) {
@@ -67,7 +67,7 @@ async function setUp(route = "/la-culpa/") {
     );
 
     return { controller, failure };
-}
+};
 
 const seo = (field: string) => (nuxt.seo[field] as () => unknown)();
 

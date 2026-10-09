@@ -1,6 +1,6 @@
 /** `README.md`, `TEMPLATE.md` and `SCORECARDS.md` share the directory but aren't reviews — filtered out by the dated-filename pattern below. */
-export function useReviewPages() {
-    return useAsyncData(
+export const useReviewPages = () =>
+    useAsyncData(
         "reviews",
         () =>
             queryCollection("docs")
@@ -13,4 +13,3 @@ export function useReviewPages() {
             transform: (pages) => pages.filter((page) => /\/docs\/reviews\/\d{4}-/.test(page.path)),
         },
     );
-}

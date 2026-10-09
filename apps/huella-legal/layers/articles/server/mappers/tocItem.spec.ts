@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest";
 import { parseFragment, stringifyNodes } from "../utils/hast";
 import { annotateHeadings } from "./tocItem";
 
-function annotate(html: string) {
+const annotate = (html: string) => {
     const tree = parseFragment(html);
     const toc = annotateHeadings(tree);
 
     return { toc, html: stringifyNodes(tree.children) };
-}
+};
 
 describe("annotateHeadings", () => {
     it("gives each h2 and h3 an ASCII id and lists them in order", () => {

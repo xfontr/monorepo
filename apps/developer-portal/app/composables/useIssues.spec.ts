@@ -11,7 +11,7 @@ mockNuxtImport("$fetch", () => fetch);
 mockNuxtImport("useAsyncData", () => asyncData.useAsyncData);
 const Harness = defineComponent({
     props: { repoUrl: { type: String, default: "" } },
-    setup(props) {
+    setup: (props) => {
         useRuntimeConfig().public.repoUrl = props.repoUrl;
         return { state: useIssues() };
     },
@@ -52,7 +52,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("useIssues", () => {
-    async function execute(wrapper: VueWrapper<InstanceType<typeof Harness>>) {
+    const execute = async (wrapper: VueWrapper<InstanceType<typeof Harness>>) => {
         const state = wrapper.vm.state as unknown as {
             data: { value: IssuesRead };
             handler: () => Promise<IssuesRead>;
@@ -60,7 +60,7 @@ describe("useIssues", () => {
         state.data.value = await state.handler();
 
         return state.data.value;
-    }
+    };
 
     it("returns a displayable configuration error without making a request", async () => {
         const wrapper = mount(Harness, { props: { repoUrl: "" } });

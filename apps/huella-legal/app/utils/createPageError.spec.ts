@@ -2,19 +2,19 @@ import { describe, expect, it } from "vitest";
 import { createPageError } from "./createPageError";
 
 // Shaped like ofetch's FetchError, wrapped the way useAsyncData wraps it before it reaches error.value
-function fetchFailure(fields: {
+const fetchFailure = (fields: {
     statusCode?: number;
     statusMessage?: string;
     data?: unknown;
     response?: unknown;
     cause?: Error;
-}) {
+}) => {
     const { cause, ...rest } = fields;
 
     return createError(
         Object.assign(new Error('[GET] "/api/articles/la-culpa": fetch failed', { cause }), rest),
     );
-}
+};
 
 const NOT_FOUND = fetchFailure({
     statusCode: 404,

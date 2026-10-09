@@ -4,8 +4,8 @@ import { configDefaults, coverageConfigDefaults, defineConfig } from "vitest/con
 // A `globalSetup` path resolves against the consuming project's root, never against this file.
 const prepareNuxt = fileURLToPath(new URL("./prepareNuxt.mjs", import.meta.url));
 
-function createNodeConfig() {
-    return defineConfig({
+const createNodeConfig = () =>
+    defineConfig({
         test: {
             globals: false,
             exclude: [...configDefaults.exclude, "dist/**/*"],
@@ -36,6 +36,5 @@ function createNodeConfig() {
         },
         plugins: [],
     });
-}
 
 export default createNodeConfig;

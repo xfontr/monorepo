@@ -62,12 +62,11 @@ const server = setupServer(
 );
 
 // The real provider on the real client, so the fake is held to what WordpressProvider parses
-function provider() {
-    return createProvider(
+const provider = () =>
+    createProvider(
         { name: "wordpress", baseURL: BASE_URL },
         new OfetchHttpClient(ofetch.create({})),
     );
-}
 
 beforeAll(() => server.listen({ onUnhandledFrame: "error" }));
 afterAll(() => server.close());

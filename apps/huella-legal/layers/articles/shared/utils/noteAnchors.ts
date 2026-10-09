@@ -1,7 +1,3 @@
-export function noteAnchor(id: string): string {
-    return `nota-${id}`;
-}
+export const noteAnchor = (id: string): string => `nota-${id}`;
 
-export function noteReferenceAnchor(id: string): string {
-    return `ref-${id}`;
-}
+export const noteReferenceAnchor = (id: string): string => `ref-${id}`;

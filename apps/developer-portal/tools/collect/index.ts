@@ -10,15 +10,15 @@ import { collectScorecards } from "./scorecards.ts";
 import { SCHEMA_VERSION, SNAPSHOT_DIR } from "../lib/paths.ts";
 import { git, tryRun } from "../lib/run.ts";
 
-async function write(name: string, value: unknown): Promise<void> {
+const write = async (name: string, value: unknown): Promise<void> => {
     await writeFile(
         resolve(SNAPSHOT_DIR, `${name}.json`),
         `${JSON.stringify(value, null, 4)}\n`,
         "utf8",
     );
-}
+};
 
-async function main(): Promise<void> {
+const main = async (): Promise<void> => {
     const generatedAt = new Date().toISOString();
     const artifacts: Record<string, ArtifactStatus> = {};
 
@@ -139,6 +139,6 @@ async function main(): Promise<void> {
     } satisfies Manifest);
 
     console.log(`\nSnapshot written to ${SNAPSHOT_DIR}`);
-}
+};
 
 await main();

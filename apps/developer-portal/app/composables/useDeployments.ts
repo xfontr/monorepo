@@ -13,7 +13,7 @@ interface DeploymentsResponse {
 }
 
 /** Reads live deploy state in the browser: a static build cannot know what happened after it shipped. */
-export function useDeployments() {
+export const useDeployments = () => {
     const {
         public: { repoUrl },
     } = useRuntimeConfig();
@@ -62,4 +62,4 @@ export function useDeployments() {
         },
         { server: false, default: () => ({ deployments: [], error: null }) },
     );
-}
+};

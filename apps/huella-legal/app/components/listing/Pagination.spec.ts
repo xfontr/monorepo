@@ -11,9 +11,8 @@ const global = {
 
 const to = (page: number) => `/listado/${page}`;
 
-async function mountAt(page: number, total = 48) {
-    return mountSuspended(Pagination, { props: { page, total, perPage: 7, to }, global });
-}
+const mountAt = async (page: number, total = 48) =>
+    mountSuspended(Pagination, { props: { page, total, perPage: 7, to }, global });
 
 describe("pagination", () => {
     it("renders nothing for a single page, so a short listing has no dead controls", async () => {

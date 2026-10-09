@@ -16,13 +16,13 @@ mockNuxtImport("useRuntimeConfig", (original) => () => {
     return { ...config, public: { ...config.public, social: social.profiles } };
 });
 
-async function navAt(route: string) {
+const navAt = async (route: string) => {
     let nav!: ReturnType<typeof useSiteNav>;
     let href!: (to: RouteLocationRaw) => string;
 
     await mountSuspended(
         defineComponent({
-            setup() {
+            setup: () => {
                 nav = useSiteNav();
                 const router = useRouter();
                 href = (to) => router.resolve(to).href;
@@ -33,11 +33,10 @@ async function navAt(route: string) {
     );
 
     return Object.assign(nav, { href });
-}
+};
 
-function currentOf(nav: ReturnType<typeof useSiteNav>) {
-    return nav.sections.value.map((item) => item["aria-current"]);
-}
+const currentOf = (nav: ReturnType<typeof useSiteNav>) =>
+    nav.sections.value.map((item) => item["aria-current"]);
 
 beforeEach(() => {
     social.profiles = { instagram: "", linkedin: "", x: "" };

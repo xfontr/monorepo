@@ -5,7 +5,7 @@ const NO_ISSUES: IssuesRead = { fetchedAt: "", error: null, issues: [] };
 
 const PER_PAGE = 100;
 
-async function read(repoUrl: string): Promise<IssuesRead> {
+const read = async (repoUrl: string): Promise<IssuesRead> => {
     const fetchedAt = new Date().toISOString();
     const url = issuesApiUrl(repoUrl);
 
@@ -25,9 +25,9 @@ async function read(repoUrl: string): Promise<IssuesRead> {
     } catch (cause) {
         return { fetchedAt, error: messageOf(cause, "GitHub could not be read"), issues: [] };
     }
-}
+};
 
-export function useIssues() {
+export const useIssues = () => {
     const {
         public: { repoUrl },
     } = useRuntimeConfig();
@@ -38,4 +38,4 @@ export function useIssues() {
     });
 
     return { ...state, reload: state.refresh };
-}
+};

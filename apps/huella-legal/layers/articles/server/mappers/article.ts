@@ -9,7 +9,7 @@ export interface Publication {
     journal: Journal;
 }
 
-export function toArticle(entry: Entry, { siteUrl, journal }: Publication): Article {
+export const toArticle = (entry: Entry, { siteUrl, journal }: Publication): Article => {
     const summary = toArticleSummary(entry);
     const permalink = new URL(`${entry.slug}/`, siteUrl.endsWith("/") ? siteUrl : `${siteUrl}/`)
         .href;
@@ -21,4 +21,4 @@ export function toArticle(entry: Entry, { siteUrl, journal }: Publication): Arti
         permalink,
         citations: toCitations(summary, journal, permalink),
     };
-}
+};

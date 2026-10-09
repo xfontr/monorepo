@@ -12,7 +12,7 @@ const FORMAT_SLUGS = {
     caseCommentTagPrefix: "jurisprudencia-",
 } as const;
 
-export function toArticleSummary(entry: Entry): ArticleSummary {
+export const toArticleSummary = (entry: Entry): ArticleSummary => {
     const categories = entry.terms.filter((term) => term.resource === "categories").map(toCategory);
     const tags = entry.terms.filter((term) => term.resource === "tags").map(toCategory);
 
@@ -33,52 +33,46 @@ export function toArticleSummary(entry: Entry): ArticleSummary {
         ),
         readingMinutes: toReadingMinutes(entry.body),
     };
-}
+};
 
 // A post carrying more than one marker takes the first rule that matches
-function toFormat(categorySlugs: string[], tagSlugs: string[]): ArticleSummary["format"] {
+const toFormat = (categorySlugs: string[], tagSlugs: string[]): ArticleSummary["format"] => {
     if (tagSlugs.includes(FORMAT_SLUGS.thesisTag)) return "tfg-tfm";
     if (categorySlugs.includes(FORMAT_SLUGS.essayCategory)) return "ensayo";
     if (tagSlugs.some((slug) => slug.startsWith(FORMAT_SLUGS.caseCommentTagPrefix)))
         return "comentario";
 
     return "articulo";
-}
+};
 
-function toCategory(term: Term): Category {
-    return {
-        id: term.id,
-        slug: term.slug,
-        name: toText(term.name),
-        description: term.description && toText(term.description),
-    };
-}
+const toCategory = (term: Term): Category => ({
+    id: term.id,
+    slug: term.slug,
+    name: toText(term.name),
+    description: term.description && toText(term.description),
+});
 
-function toAuthor(author: ContentAuthor): Author {
-    return {
-        id: author.id,
-        slug: author.slug,
-        name: toText(author.name),
-        bio: author.bio && toText(author.bio),
-        avatar: author.avatar,
-    };
-}
+const toAuthor = (author: ContentAuthor): Author => ({
+    id: author.id,
+    slug: author.slug,
+    name: toText(author.name),
+    bio: author.bio && toText(author.bio),
+    avatar: author.avatar,
+});
 
-function toReadingMinutes(body: RichText): number {
+const toReadingMinutes = (body: RichText): number => {
     const text = body.format === "blocks" ? "" : toText(body.value);
     const words = text.split(" ").filter(Boolean).length;
 
     return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
-}
+};
 
 // WordPress renders titles and excerpts as entity-escaped HTML; this is display text, not sanitising
-function toText(html: string): string {
-    return textContent(parseFragment(html));
-}
+const toText = (html: string): string => textContent(parseFragment(html));
 
 // WordPress closes an excerpt it generated itself with a bracketed ellipsis
-function toExcerpt(excerpt?: RichText): string | undefined {
+const toExcerpt = (excerpt?: RichText): string | undefined => {
     if (!excerpt || excerpt.format === "blocks") return undefined;
 
     return toText(excerpt.value).replace(/\s*\[…\]$/, "") || undefined;
-}
+};

@@ -1,6 +1,6 @@
 import type { NuxtError } from "#app";
 
-export function createPageError(error: NuxtError): NuxtError {
+export const createPageError = (error: NuxtError): NuxtError => {
     const status = (error.cause as { response?: { status?: number } } | undefined)?.response
         ?.status;
 
@@ -13,4 +13,4 @@ export function createPageError(error: NuxtError): NuxtError {
         cause: error,
         fatal: true,
     });
-}
+};

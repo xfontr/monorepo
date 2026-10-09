@@ -34,7 +34,7 @@ const global = {
     },
 };
 
-function setupAsyncData(): void {
+const setupAsyncData = (): void => {
     const entries = ref(state.changelogs);
     const query = {
         where: vi.fn().mockReturnThis(),
@@ -65,7 +65,7 @@ function setupAsyncData(): void {
             return { data, status: ref("success"), execute: vi.fn() };
         },
     );
-}
+};
 
 beforeEach(() => {
     vi.clearAllMocks();

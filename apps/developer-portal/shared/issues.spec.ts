@@ -2,19 +2,17 @@ import { describe, expect, it } from "vitest";
 import { filterIssues, issuesApiUrl, labelsOf, sortIssues, summarize, toIssues } from "./issues.ts";
 import type { Issue } from "./issues.ts";
 
-function issueOf(overrides: Partial<Issue>): Issue {
-    return {
-        number: 1,
-        title: "an issue",
-        body: "",
-        url: "https://example.invalid/1",
-        labels: [],
-        assignees: [],
-        createdAt: "2026-09-01T12:00:00Z",
-        updatedAt: "2026-09-01T12:00:00Z",
-        ...overrides,
-    };
-}
+const issueOf = (overrides: Partial<Issue>): Issue => ({
+    number: 1,
+    title: "an issue",
+    body: "",
+    url: "https://example.invalid/1",
+    labels: [],
+    assignees: [],
+    createdAt: "2026-09-01T12:00:00Z",
+    updatedAt: "2026-09-01T12:00:00Z",
+    ...overrides,
+});
 
 describe("summarize", () => {
     it("strips the markdown instead of clamping it, so a row never ends mid-syntax", () => {

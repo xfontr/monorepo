@@ -75,15 +75,13 @@ const orderedProjects = computed(() =>
     }),
 );
 
-function metricFor(project: ProjectNode): ProjectMetrics | undefined {
-    return metrics.value.get(project.name);
-}
+const metricFor = (project: ProjectNode): ProjectMetrics | undefined =>
+    metrics.value.get(project.name);
 
-function readmeFor(project: ProjectNode) {
-    return readmeByPath.value.get(`/${project.root.toLowerCase()}/readme`);
-}
+const readmeFor = (project: ProjectNode) =>
+    readmeByPath.value.get(`/${project.root.toLowerCase()}/readme`);
 
-function categoryFor(project: ProjectNode): string {
+const categoryFor = (project: ProjectNode): string => {
     const [area] = project.root.split("/");
 
     return (
@@ -93,26 +91,23 @@ function categoryFor(project: ProjectNode): string {
             infrastructure: "Repository tooling",
         }[area ?? ""] ?? "Repository project"
     );
-}
+};
 
-function storybookFor(project: ProjectNode): string | undefined {
-    return projectLinks[project.name]?.storybook;
-}
+const storybookFor = (project: ProjectNode): string | undefined =>
+    projectLinks[project.name]?.storybook;
 
-function deploysFor(project: ProjectNode): string | undefined {
-    return projectLinks[project.name]?.deploys;
-}
+const deploysFor = (project: ProjectNode): string | undefined =>
+    projectLinks[project.name]?.deploys;
 
-function deploymentsFor(project: ProjectNode) {
-    return projectLinks[project.name]?.environment ? deployments.value : [];
-}
+const deploymentsFor = (project: ProjectNode) =>
+    projectLinks[project.name]?.environment ? deployments.value : [];
 
-function websiteFor(project: ProjectNode): string | undefined {
+const websiteFor = (project: ProjectNode): string | undefined => {
     const links = projectLinks[project.name];
     if (links?.environment) return deploymentUrlFor(deploymentsFor(project), links.environment);
 
     return links?.website?.();
-}
+};
 </script>
 
 <template>

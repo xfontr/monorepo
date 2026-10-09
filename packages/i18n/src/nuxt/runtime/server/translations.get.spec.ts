@@ -40,11 +40,10 @@ const handler = (await import("./translations.get")).default as unknown as (
 
 const messages = { shared: { health: "Health" } };
 
-function createEvent(locale?: string) {
-    return {
+const createEvent = (locale?: string) =>
+    ({
         context: { params: locale === undefined ? {} : { locale } },
-    } as unknown as H3Event<EventHandlerRequest>;
-}
+    }) as unknown as H3Event<EventHandlerRequest>;
 
 beforeEach(() => {
     vi.clearAllMocks();

@@ -22,15 +22,15 @@ const lit = computed(() => {
 const rail = useTemplateRef("rail");
 const indicator = shallowRef<{ top: number; height: number }>();
 
-function observeHeadings(): void {
+const observeHeadings = (): void => {
     updateHeadings(
         sections.value
             .map(({ id }) => document.getElementById(id))
             .filter((heading) => heading !== null),
     );
-}
+};
 
-function measure(): void {
+const measure = (): void => {
     const links = [...(rail.value?.querySelectorAll<HTMLElement>("[data-lit]") ?? [])];
     const first = links.at(0);
     const last = links.at(-1);
@@ -39,7 +39,7 @@ function measure(): void {
         first && last
             ? { top: first.offsetTop, height: last.offsetTop + last.offsetHeight - first.offsetTop }
             : undefined;
-}
+};
 
 onMounted(() => {
     observeHeadings();

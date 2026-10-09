@@ -36,13 +36,15 @@ class StubProvider extends ContentProvider<{ problems: string[] }> {
     }
 }
 
-function page<T>(...items: T[]): Page<T> {
-    return { items, page: 1, perPage: 1, total: items.length, totalPages: 1 };
-}
+const page = <T>(...items: T[]): Page<T> => ({
+    items,
+    page: 1,
+    perPage: 1,
+    total: items.length,
+    totalPages: 1,
+});
 
-function build(problems: string[] = []) {
-    return new StubProvider({ problems }, http);
-}
+const build = (problems: string[] = []) => new StubProvider({ problems }, http);
 
 const entry = {
     id: "1",

@@ -33,7 +33,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("useDeployments", () => {
-    async function execute(wrapper: VueWrapper<InstanceType<typeof Harness>>) {
+    const execute = async (wrapper: VueWrapper<InstanceType<typeof Harness>>) => {
         const state = wrapper.vm as unknown as {
             data: { value: { deployments: unknown[]; error: string | null } };
             handler: () => Promise<unknown>;
@@ -41,7 +41,7 @@ describe("useDeployments", () => {
         state.data.value = (await state.handler()) as typeof state.data.value;
 
         return state.data.value;
-    }
+    };
 
     it("returns the repository configuration error before attempting GitHub", async () => {
         const wrapper = mount(Harness, { props: { repoUrl: "" } });

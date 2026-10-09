@@ -71,7 +71,7 @@ export default defineNitroPlugin((nitroApp) => {
 });
 
 // #region utils
-function requestAttributes(event: H3Event) {
+const requestAttributes = (event: H3Event) => {
     const [path, query] = event.path.split("?");
 
     return {
@@ -82,9 +82,9 @@ function requestAttributes(event: H3Event) {
         [ATTR_USER_AGENT_ORIGINAL]: getRequestHeader(event, "user-agent"),
         [ATTR_CLIENT_ADDRESS]: getRequestIP(event, { xForwardedFor: true }),
     };
-}
+};
 
-function end(span: Span, event: H3Event, status: number) {
+const end = (span: Span, event: H3Event, status: number) => {
     const [path] = event.path.split("?");
     const route = event.context.matchedRoute?.path ?? path;
 
@@ -94,5 +94,5 @@ function end(span: Span, event: H3Event, status: number) {
     if (status >= 500) span.setStatus({ code: SpanStatusCode.ERROR });
 
     span.end();
-}
+};
 // #endregion

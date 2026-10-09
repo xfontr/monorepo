@@ -36,9 +36,12 @@ commit: 61b6f7f
 | D2 | two kindOfs | one | done |
 `;
 
-function finding(status: AuditFinding["status"]): AuditFinding {
-    return { id: "B1", category: "Bugs", status, ref: null };
-}
+const finding = (status: AuditFinding["status"]): AuditFinding => ({
+    id: "B1",
+    category: "Bugs",
+    status,
+    ref: null,
+});
 
 describe("parseFindings", () => {
     const findings = parseFindings(AUDIT);

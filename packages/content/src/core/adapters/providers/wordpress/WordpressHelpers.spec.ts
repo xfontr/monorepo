@@ -50,9 +50,7 @@ const entry: WordpressEntry = {
     },
 };
 
-function headers(values: Record<string, string> = {}): Headers {
-    return new Headers(values);
-}
+const headers = (values: Record<string, string> = {}): Headers => new Headers(values);
 
 describe("toWordpressQuery", () => {
     it("forwards the axes WordPress names differently", () => {
@@ -243,9 +241,8 @@ describe("toEntry", () => {
 });
 
 describe("toEntry authors", () => {
-    function authorOf(author: Partial<WordpressUser>) {
-        return toEntry({ ...entry, _embedded: { author: [{ ...user, ...author }] } }).authors[0];
-    }
+    const authorOf = (author: Partial<WordpressUser>) =>
+        toEntry({ ...entry, _embedded: { author: [{ ...user, ...author }] } }).authors[0];
 
     // Simple Local Avatars reports an unset avatar as a falsy value rather than omitting the field
     it.each<WordpressUser["simple_local_avatar"]>([false, "", undefined, {}])(

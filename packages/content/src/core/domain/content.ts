@@ -84,10 +84,8 @@ export type EntryQuery = Query & {
     author?: string;
 };
 
-export function isEntryResource(resource: string | undefined): resource is EntryResource {
-    return ENTRY_RESOURCES.includes(resource as EntryResource);
-}
+export const isEntryResource = (resource: string | undefined): resource is EntryResource =>
+    ENTRY_RESOURCES.includes(resource as EntryResource);
 
-export function isTermResource(resource: string | undefined): resource is TermResource {
-    return TERM_RESOURCES.includes(resource as TermResource);
-}
+export const isTermResource = (resource: string | undefined): resource is TermResource =>
+    TERM_RESOURCES.includes(resource as TermResource);

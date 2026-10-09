@@ -24,7 +24,7 @@ const typescript = tseslint.configs.recommendedTypeChecked.map((config) => ({
     files: ["**/*.ts", "*.ts"],
 }));
 
-function createNodeConfig(): object[] {
+const createNodeConfig = (): object[] => {
     const nodeTs = {
         files: ["**/*.ts", "*.ts"],
         languageOptions: {
@@ -57,6 +57,6 @@ function createNodeConfig(): object[] {
         restrictedSyntax,
         regexp,
     ];
-}
+};
 
 export default createNodeConfig;

@@ -21,14 +21,14 @@ class ClipboardItem {
 }
 
 // happy-dom defines clipboard on Navigator.prototype, and useClipboard checks `"clipboard" in navigator`.
-function withoutClipboard(): void {
+const withoutClipboard = (): void => {
     const prototype = Object.getPrototypeOf(navigator);
     const descriptor = Object.getOwnPropertyDescriptor(prototype, "clipboard")!;
 
     Reflect.deleteProperty(navigator, "clipboard");
     Reflect.deleteProperty(prototype, "clipboard");
     onTestFinished(() => Object.defineProperty(prototype, "clipboard", descriptor));
-}
+};
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -41,9 +41,9 @@ afterEach(() => {
     vi.unstubAllGlobals();
 });
 
-async function selectTab(wrapper: VueWrapper, index: number) {
+const selectTab = async (wrapper: VueWrapper, index: number) => {
     await wrapper.findAll("[role=tab]")[index]!.trigger("mousedown", { button: 0 });
-}
+};
 
 describe("cite box", () => {
     it("shows the first style until another tab is picked", async () => {

@@ -24,12 +24,11 @@ const SOCIAL = [
     },
 ];
 
-function mountFooter(social = SOCIAL) {
-    return mountSuspended(SiteFooter, {
+const mountFooter = (social = SOCIAL) =>
+    mountSuspended(SiteFooter, {
         props: { columns: COLUMNS, social, issn: "2696-7618" },
         global: { mocks: { $t: translate } },
     });
-}
 
 describe("site footer", () => {
     it("renders the columns inside the named footer nav", async () => {

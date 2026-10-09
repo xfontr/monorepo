@@ -11,13 +11,12 @@ const SECTIONS: NavigationMenuItem[] = [
     { label: "Materias", to: { name: "categories" }, active: true, "aria-current": "page" },
 ];
 
-function mountHeader() {
-    return mountSuspended(SiteHeader, {
+const mountHeader = () =>
+    mountSuspended(SiteHeader, {
         route: "/",
         props: { sections: SECTIONS, issn: "0000-0000" },
         global: { mocks: { $t: translate } },
     });
-}
 
 afterEach(() => {
     document.body.innerHTML = "";

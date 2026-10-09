@@ -22,14 +22,14 @@ mockNuxtImport("useRuntimeConfig", (original) => () => {
 
 const COLLECTOR = "https://faro-collector.test/collect";
 
-function run() {
+const run = () => {
     const hooks = new Map<string, (error: unknown) => void>();
     const nuxtApp = { hook: (name: string, fn: (error: unknown) => void) => hooks.set(name, fn) };
 
     (plugin as unknown as (app: typeof nuxtApp) => void)(nuxtApp);
 
     return hooks;
-}
+};
 
 beforeEach(() => {
     vi.clearAllMocks();

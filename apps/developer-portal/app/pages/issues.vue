@@ -29,11 +29,11 @@ const labelItems = computed(() => [
 
 const reloading = ref(false);
 
-async function refresh(): Promise<void> {
+const refresh = async (): Promise<void> => {
     reloading.value = true;
     await reload();
     reloading.value = false;
-}
+};
 </script>
 
 <template>

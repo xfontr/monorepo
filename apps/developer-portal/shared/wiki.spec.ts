@@ -25,17 +25,12 @@ const PAGES = [
     { path: "/.agents/skills/house-docs/skill", title: "Writing docs here" },
 ];
 
-function sectionOf(id: string) {
-    return buildWiki(PAGES).find((section) => section.id === id);
-}
+const sectionOf = (id: string) => buildWiki(PAGES).find((section) => section.id === id);
 
-function labelsIn(id: string, group: string): string[] {
-    return (
-        sectionOf(id)
-            ?.groups.find((entry) => entry.key === group)
-            ?.entries.map((entry) => entry.label) ?? []
-    );
-}
+const labelsIn = (id: string, group: string): string[] =>
+    sectionOf(id)
+        ?.groups.find((entry) => entry.key === group)
+        ?.entries.map((entry) => entry.label) ?? [];
 
 describe("buildWiki", () => {
     it("files a project's nested README under the project, not as a project of its own", () => {

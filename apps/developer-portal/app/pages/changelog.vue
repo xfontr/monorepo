@@ -26,20 +26,14 @@ const { data: page } = await useAsyncData(
 );
 
 /** `packages/ui/changelog` → `packages/ui`, which is how metrics keys its projects. */
-function rootOf(path: string): string {
-    return path.replace(/^\//, "").replace(/\/changelog$/i, "");
-}
+const rootOf = (path: string): string => path.replace(/^\//, "").replace(/\/changelog$/i, "");
 
 /** `packages/i18n` → `I18n` — the project's own name, not the area it lives under. */
-function displayName(root: string): string {
-    return toTitleCase(root.split("/").at(-1) ?? root);
-}
+const displayName = (root: string): string => toTitleCase(root.split("/").at(-1) ?? root);
 
 const metrics = computed(() => snapshot.value?.metrics?.projects ?? []);
 
-function metricsFor(path: string) {
-    return metrics.value.find((project) => project.root === rootOf(path));
-}
+const metricsFor = (path: string) => metrics.value.find((project) => project.root === rootOf(path));
 
 /** Projects that have shipped commits but no CHANGELOG.md — the gap this page should surface. */
 const unreleased = computed(() =>

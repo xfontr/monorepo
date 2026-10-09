@@ -19,11 +19,11 @@ export class DisallowedGitSubcommandError extends Error {
 }
 
 /** Runs a command from the workspace root and returns stdout. Never invoked from a server route. */
-export async function run(
+export const run = async (
     command: string,
     args: string[],
     timeout = DEFAULT_TIMEOUT_MS,
-): Promise<string> {
+): Promise<string> => {
     const { stdout } = await execFileAsync(command, args, {
         cwd: WORKSPACE_ROOT,
         timeout,
@@ -31,19 +31,19 @@ export async function run(
     });
 
     return stdout;
-}
+};
 
 /**
  * Like {@link run}, but a non-zero exit still resolves with whatever reached stdout. Linters report
  * findings *by* failing, so treating their exit code as an error would discard the findings.
  */
-export function runAllowFailure(
+export const runAllowFailure = (
     command: string,
     args: string[],
     cwd: string,
     timeout = DEFAULT_TIMEOUT_MS,
-): Promise<string> {
-    return new Promise((settle, reject) => {
+): Promise<string> =>
+    new Promise((settle, reject) => {
         const child = spawn(command, args, { cwd, timeout });
 
         let stdout = "";
@@ -75,24 +75,23 @@ export function runAllowFailure(
             );
         });
     });
-}
 
-export async function git(args: string[], timeout?: number): Promise<string> {
+export const git = async (args: string[], timeout?: number): Promise<string> => {
     const subcommand = args[0] ?? "";
 
     if (!ALLOWED_GIT_SUBCOMMANDS.has(subcommand))
         throw new DisallowedGitSubcommandError(subcommand);
 
     return run("git", args, timeout);
-}
+};
 
 /** Resolves to an error instead of throwing, so one broken collector cannot empty the whole snapshot. */
-export async function tryRun<T>(
+export const tryRun = async <T>(
     task: () => Promise<T>,
-): Promise<{ ok: true; value: T } | { ok: false; error: string }> {
+): Promise<{ ok: true; value: T } | { ok: false; error: string }> => {
     try {
         return { ok: true, value: await task() };
     } catch (cause) {
         return { ok: false, error: cause instanceof Error ? cause.message : String(cause) };
     }
-}
+};

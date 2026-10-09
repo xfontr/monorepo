@@ -15,7 +15,7 @@ const toast = useToast();
 const { share: nativeShare, isSupported: canNativeShare } = useShare();
 const { copy, isSupported: canCopy } = useClipboard();
 
-async function share(): Promise<void> {
+const share = async (): Promise<void> => {
     if (canNativeShare.value) {
         try {
             await nativeShare({ title: props.title, url: props.url });
@@ -30,11 +30,11 @@ async function share(): Promise<void> {
 
     await copy(props.url);
     toast.add({ title: t("shareBar.linkCopied"), icon: "i-lucide-check" });
-}
+};
 
-function print(): void {
+const print = (): void => {
     window.print();
-}
+};
 </script>
 
 <template>

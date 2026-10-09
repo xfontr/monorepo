@@ -61,11 +61,9 @@ export interface SocialLink {
     label: string;
 }
 
-function withTrailingSlash(path: string): string {
-    return path.endsWith("/") ? path : `${path}/`;
-}
+const withTrailingSlash = (path: string): string => (path.endsWith("/") ? path : `${path}/`);
 
-export function useSiteNav() {
+export const useSiteNav = () => {
     const { t } = useI18n();
     const route = useRoute();
     const router = useRouter();
@@ -110,4 +108,4 @@ export function useSiteNav() {
     );
 
     return { sections, columns, social, issn: journal.issn };
-}
+};

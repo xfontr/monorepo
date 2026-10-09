@@ -21,15 +21,13 @@ const { setup } = (await import("./module")).default as unknown as {
 
 const vendor: VendorConfig = { name: "wordpress", baseURL: "https://wp.test/" };
 
-function createNuxt() {
-    return { options: { runtimeConfig: {} as Record<string, unknown> } };
-}
+const createNuxt = () => ({ options: { runtimeConfig: {} as Record<string, unknown> } });
 
-function install(options: ContentConfig, nuxt = createNuxt()) {
+const install = (options: ContentConfig, nuxt = createNuxt()) => {
     setup(options, nuxt as unknown as Nuxt);
 
     return nuxt;
-}
+};
 
 beforeEach(() => {
     vi.clearAllMocks();

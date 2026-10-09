@@ -5,9 +5,9 @@ import remarkDocLinks from "./remarkDocLinks.ts";
 
 const sourcePath = resolve(WORKSPACE_ROOT, "README.md");
 
-function transform(tree: unknown, path?: string): void {
+const transform = (tree: unknown, path?: string): void => {
     remarkDocLinks()(tree as never, { path });
-}
+};
 
 describe("remarkDocLinks", () => {
     it("leaves a tree untouched when the markdown source has no path", () => {

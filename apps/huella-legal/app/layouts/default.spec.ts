@@ -27,9 +27,7 @@ const global = {
     },
 };
 
-function mountLayout() {
-    return mount(Layout, { slots: { default: () => "Article body" }, global });
-}
+const mountLayout = () => mount(Layout, { slots: { default: () => "Article body" }, global });
 
 beforeEach(() => {
     vi.clearAllMocks();

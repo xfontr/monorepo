@@ -4,9 +4,8 @@ import { auditProblems } from "./audits.ts";
 const TABLE = "## Bugs\n\n| ID | Where | Status |\n| --- | --- | --- |\n| B1 | a.ts | open |\n";
 const VALID = `---\nscope: "@monorepo/ui"\ncommit: 61b6f7f\n---\n\n# 🔎 UI\n\n${TABLE}`;
 
-function messagesOf(file: string, source: string): string[] {
-    return auditProblems([{ file, source }]).map((problem) => problem.message);
-}
+const messagesOf = (file: string, source: string): string[] =>
+    auditProblems([{ file, source }]).map((problem) => problem.message);
 
 describe("auditProblems", () => {
     it("passes an audit shaped like the template", () => {

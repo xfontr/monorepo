@@ -20,14 +20,10 @@ vi.mock("@grafana/faro-web-tracing", () => ({
 const url = "https://faro-collector.grafana.net/collect/abc123";
 const app = { name: "@monorepo/external", version: "1.0.0", environment: "production" };
 
-function start() {
-    return startWebTelemetry({ url, app });
-}
+const start = () => startWebTelemetry({ url, app });
 
-function instrumentations() {
-    return (faro.initializeFaro.mock.calls[0]?.[0] as { instrumentations: unknown[] })
-        .instrumentations;
-}
+const instrumentations = () =>
+    (faro.initializeFaro.mock.calls[0]?.[0] as { instrumentations: unknown[] }).instrumentations;
 
 beforeEach(() => {
     vi.clearAllMocks();

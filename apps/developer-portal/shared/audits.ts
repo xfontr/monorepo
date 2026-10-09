@@ -18,35 +18,32 @@ export interface AuditFinding {
 const FENCE = /^(?:```|~~~)/;
 const HEADING = /^##[^\S\n]+(\S.*)$/;
 
-function cellsOf(line: string): string[] {
-    return line
+const cellsOf = (line: string): string[] =>
+    line
         .trim()
         .replace(/^\|/, "")
         .replace(/\|$/, "")
         .split(/(?<!\\)\|/)
         .map((cell) => cell.trim());
-}
 
-function isSeparator(line: string): boolean {
-    return /^\|?\s*:?-{3,}/.test(line.trim());
-}
+const isSeparator = (line: string): boolean => /^\|?\s*:?-{3,}/.test(line.trim());
 
 interface FindingColumns {
     id: number;
     status: number;
 }
 
-function findingColumns(cells: string[]): FindingColumns {
+const findingColumns = (cells: string[]): FindingColumns => {
     const header = cells.map((cell) => cell.toLowerCase());
 
     return { id: header.indexOf("id"), status: header.indexOf("status") };
-}
+};
 
-function findingOf(
+const findingOf = (
     cells: string[],
     columns: FindingColumns,
     category: string,
-): AuditFinding | null {
+): AuditFinding | null => {
     if (columns.id === -1 || columns.status === -1) return null;
 
     const id = (cells[columns.id] ?? "").replace(/[*`]/g, "").trim();
@@ -61,14 +58,13 @@ function findingOf(
         status: isFindingStatus(status) ? status : null,
         ref: rest.join(" ") || null,
     };
-}
+};
 
-export function isFindingStatus(value: string): value is FindingStatus {
-    return (FINDING_STATUSES as readonly string[]).includes(value);
-}
+export const isFindingStatus = (value: string): value is FindingStatus =>
+    (FINDING_STATUSES as readonly string[]).includes(value);
 
 /** Every row of every table whose header has both an `ID` and a `Status` column; any other table is prose. */
-export function parseFindings(markdown: string): AuditFinding[] {
+export const parseFindings = (markdown: string): AuditFinding[] => {
     const findings: AuditFinding[] = [];
     let category = "";
     let inFence = false;
@@ -109,10 +105,10 @@ export function parseFindings(markdown: string): AuditFinding[] {
     }
 
     return findings;
-}
+};
 
 /** An unparsed status counts as open, so a typo keeps an audit on the list instead of quietly closing it. */
-export function auditStateOf(findings: AuditFinding[]): AuditState {
+export const auditStateOf = (findings: AuditFinding[]): AuditState => {
     const open = findings.filter(
         (finding) => finding.status === "open" || finding.status === null,
     ).length;
@@ -121,4 +117,4 @@ export function auditStateOf(findings: AuditFinding[]): AuditState {
     if (open === findings.length) return "open";
 
     return "in-progress";
-}
+};

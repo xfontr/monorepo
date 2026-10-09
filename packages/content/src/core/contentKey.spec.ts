@@ -5,9 +5,7 @@ import type { VendorConfig } from "./registry";
 const vendor: VendorConfig = { name: "wordpress", baseURL: "https://wp.test/" };
 
 // What Nitro does to a custom cache key before storing it — `escapeKey` in its cache runtime
-function escapeKey(key: string): string {
-    return key.replace(/\W/g, "");
-}
+const escapeKey = (key: string): string => key.replace(/\W/g, "");
 
 describe("contentKey", () => {
     it("names the vendor and the resource, so nothing has to be decoded to read a key", () => {

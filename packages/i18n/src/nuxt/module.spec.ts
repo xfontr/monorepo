@@ -30,25 +30,23 @@ const vendor: VendorConfig = {
 
 type LayerLocales = (string | LocaleObject)[] | undefined;
 
-function createNuxt(...layers: LayerLocales[]) {
-    return {
-        options: {
-            runtimeConfig: {} as Record<string, unknown>,
-            _layers: layers.map((locales) => ({ config: { i18n: locales && { locales } } })),
-        },
-        hook: vi.fn<(name: string, callback: unknown) => void>(),
-    };
-}
+const createNuxt = (...layers: LayerLocales[]) => ({
+    options: {
+        runtimeConfig: {} as Record<string, unknown>,
+        _layers: layers.map((locales) => ({ config: { i18n: locales && { locales } } })),
+    },
+    hook: vi.fn<(name: string, callback: unknown) => void>(),
+});
 
 type Layer = ReturnType<typeof createNuxt>["options"]["_layers"][number];
 
-function declareDefaultLocale(nuxt: ReturnType<typeof createNuxt>, defaultLocale: string) {
+const declareDefaultLocale = (nuxt: ReturnType<typeof createNuxt>, defaultLocale: string) => {
     nuxt.options._layers.push({ config: { i18n: { defaultLocale } } } as unknown as Layer);
 
     return nuxt;
-}
+};
 
-function registerLocales(nuxt: ReturnType<typeof createNuxt>) {
+const registerLocales = (nuxt: ReturnType<typeof createNuxt>) => {
     const register = vi.fn();
     const hook = nuxt.hook.mock.calls.find(([name]) => name === "i18n:registerModule")?.[1];
 
@@ -58,7 +56,7 @@ function registerLocales(nuxt: ReturnType<typeof createNuxt>) {
         langDir: string;
         locales: { code: string; file: string }[];
     };
-}
+};
 
 beforeEach(() => {
     vi.clearAllMocks();

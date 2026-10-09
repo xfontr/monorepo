@@ -54,9 +54,9 @@ const schema = subscriptionSchema((issue) => t(`newsletterForm.email.errors.${is
 
 const state = reactive({ email: "" });
 
-function onSubmit({ data }: FormSubmitEvent<Subscription>) {
+const onSubmit = ({ data }: FormSubmitEvent<Subscription>) => {
     emit("submit", data.email);
-}
+};
 
 const arrangement = computed<LayoutRecipe>(() => LAYOUTS[props.layout]);
 const colors = computed<ToneRecipe>(() => TONES[props.tone]);

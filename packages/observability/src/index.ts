@@ -11,10 +11,9 @@ export interface WebTelemetryConfig {
     };
 }
 
-export function startWebTelemetry({ url, app }: WebTelemetryConfig): Faro {
-    return initializeFaro({
+export const startWebTelemetry = ({ url, app }: WebTelemetryConfig): Faro =>
+    initializeFaro({
         url,
         app,
         instrumentations: [...getWebInstrumentations(), new TracingInstrumentation()],
     });
-}

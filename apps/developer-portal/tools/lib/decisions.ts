@@ -15,7 +15,7 @@ const FILENAME = /^\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
  * rather than an empty set of fields — `@nuxt/content` reads these same bytes as YAML to render the
  * page, so the checker has to agree with it about what parses.
  */
-export function frontmatterFields(source: string): Record<string, string> | null {
+export const frontmatterFields = (source: string): Record<string, string> | null => {
     const block = FRONTMATTER.exec(source)?.[1];
 
     if (block === undefined) return {};
@@ -33,9 +33,9 @@ export function frontmatterFields(source: string): Record<string, string> | null
     } catch {
         return null;
     }
-}
+};
 
-function reportProblems(file: string, source: string, filed: ReadonlySet<string>): string[] {
+const reportProblems = (file: string, source: string, filed: ReadonlySet<string>): string[] => {
     const problems: string[] = [];
 
     if (!FILENAME.test(file)) {
@@ -75,14 +75,16 @@ function reportProblems(file: string, source: string, filed: ReadonlySet<string>
     }
 
     return problems;
-}
+};
 
 /**
  * Every rule `docs/decisions/README.md` states about a report's filename and frontmatter. A reused
  * number is a problem here where a reused `issue:` is not: two questions off one issue is normal,
  * two reports answering to the same `NNNN` is the collision consecutive numbering exists to prevent.
  */
-export function decisionProblems(reports: { file: string; source: string }[]): DecisionProblem[] {
+export const decisionProblems = (
+    reports: { file: string; source: string }[],
+): DecisionProblem[] => {
     const filed = new Set(reports.map((report) => report.file));
     const seen = new Map<string, string>();
     const problems: DecisionProblem[] = [];
@@ -98,4 +100,4 @@ export function decisionProblems(reports: { file: string; source: string }[]): D
     }
 
     return problems;
-}
+};

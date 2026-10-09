@@ -8,9 +8,8 @@ const NOT_FOUND = {
     stack: "Error: Page not found\n    at render",
 };
 
-function mountDebug(error: Record<string, unknown>) {
-    return mount(ErrorDebug, { props: { error: error as never } });
-}
+const mountDebug = (error: Record<string, unknown>) =>
+    mount(ErrorDebug, { props: { error: error as never } });
 
 describe("error debug panel", () => {
     it("opens the upstream message first when the error carries one", () => {

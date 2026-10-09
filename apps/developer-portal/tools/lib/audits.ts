@@ -8,7 +8,7 @@ export interface AuditProblem {
 
 const FILENAME = /^\d{4}-\d{2}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 
-function problemsOf(file: string, source: string): string[] {
+const problemsOf = (file: string, source: string): string[] => {
     const problems: string[] = [];
 
     if (!FILENAME.test(file)) problems.push("filename doesn't match <YYYY-MM-DD>-<scope-slug>.md");
@@ -35,11 +35,10 @@ function problemsOf(file: string, source: string): string[] {
     }
 
     return problems;
-}
+};
 
 /** Every rule `docs/audits/README.md` states about an audit's filename, frontmatter and findings tables. */
-export function auditProblems(audits: { file: string; source: string }[]): AuditProblem[] {
-    return audits.flatMap(({ file, source }) =>
+export const auditProblems = (audits: { file: string; source: string }[]): AuditProblem[] =>
+    audits.flatMap(({ file, source }) =>
         problemsOf(file, source).map((message) => ({ file, message })),
     );
-}

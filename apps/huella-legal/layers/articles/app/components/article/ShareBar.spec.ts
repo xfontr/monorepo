@@ -18,23 +18,22 @@ class ClipboardItem {
 }
 
 // happy-dom defines clipboard on Navigator.prototype, and useClipboard checks `"clipboard" in navigator`.
-function withoutClipboard(): void {
+const withoutClipboard = (): void => {
     const prototype = Object.getPrototypeOf(navigator);
     const descriptor = Object.getOwnPropertyDescriptor(prototype, "clipboard")!;
 
     Reflect.deleteProperty(navigator, "clipboard");
     Reflect.deleteProperty(prototype, "clipboard");
     onTestFinished(() => Object.defineProperty(prototype, "clipboard", descriptor));
-}
+};
 
-function withShareSheet(share: typeof browser.share): void {
+const withShareSheet = (share: typeof browser.share): void => {
     Object.defineProperty(navigator, "share", { value: share, configurable: true });
     Object.defineProperty(navigator, "canShare", { value: () => true, configurable: true });
-}
+};
 
-function button(wrapper: VueWrapper, key: string) {
-    return wrapper.find(`button[aria-label="t(shareBar.${key})"]`);
-}
+const button = (wrapper: VueWrapper, key: string) =>
+    wrapper.find(`button[aria-label="t(shareBar.${key})"]`);
 
 beforeEach(() => {
     vi.clearAllMocks();

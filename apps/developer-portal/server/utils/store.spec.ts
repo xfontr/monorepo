@@ -14,12 +14,12 @@ afterEach(async () => {
     );
 });
 
-async function snapshotDir(): Promise<string> {
+const snapshotDir = async (): Promise<string> => {
     const directory = await mkdtemp(join(tmpdir(), "developer-portal-store-"));
     directories.push(directory);
 
     return directory;
-}
+};
 
 describe("readArtifact", () => {
     it("reads valid JSON from the configured snapshot directory", async () => {

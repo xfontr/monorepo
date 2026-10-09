@@ -7,21 +7,19 @@ import {
     toDecisionReports,
 } from "./decisionReports.ts";
 
-function page(path: string, overrides: Partial<DocPage> = {}): DocPage {
-    return {
-        path,
-        kind: "decision",
-        title: "🧭 A decision",
-        words: 100,
-        updatedAt: null,
-        decisionStatus: "to-implement",
-        decisionOutcome: "accepted",
-        decisionSupersededBy: null,
-        audit: null,
-        brokenLinks: [],
-        ...overrides,
-    };
-}
+const page = (path: string, overrides: Partial<DocPage> = {}): DocPage => ({
+    path,
+    kind: "decision",
+    title: "🧭 A decision",
+    words: 100,
+    updatedAt: null,
+    decisionStatus: "to-implement",
+    decisionOutcome: "accepted",
+    decisionSupersededBy: null,
+    audit: null,
+    brokenLinks: [],
+    ...overrides,
+});
 
 const PAGES: DocPage[] = [
     page("docs/decisions/0001-feature-discoverability.md", {
@@ -52,9 +50,8 @@ const PAGES: DocPage[] = [
 
 const REPORTS = toDecisionReports(PAGES);
 
-function numbersOf(reports: { number: string }[]): string[] {
-    return reports.map((report) => report.number);
-}
+const numbersOf = (reports: { number: string }[]): string[] =>
+    reports.map((report) => report.number);
 
 describe("toDecisionReports", () => {
     it("takes only the numbered reports, so the rubric beside them isn't listed as a decision", () => {

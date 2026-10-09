@@ -22,9 +22,7 @@ const { data: page } = await useAsyncData(
     { watch: [selected] },
 );
 
-function idOf(path: string): string {
-    return path.split("/").at(-1) ?? path;
-}
+const idOf = (path: string): string => path.split("/").at(-1) ?? path;
 </script>
 
 <template>

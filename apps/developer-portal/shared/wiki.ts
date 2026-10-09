@@ -91,14 +91,14 @@ const NAME_OVERRIDES: Record<string, string> = {
     i18n: "i18n",
 };
 
-export function toTitleCase(name: string): string {
+export const toTitleCase = (name: string): string => {
     if (NAME_OVERRIDES[name]) return NAME_OVERRIDES[name];
 
     return name
         .split("-")
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ");
-}
+};
 
 const GROUP_LABELS: Record<string, string> = {
     concepts: "Concepts",
@@ -110,22 +110,19 @@ const GROUP_LABELS: Record<string, string> = {
     agents: "Subagents",
 };
 
-function segmentsOf(path: string): string[] {
-    return path.split("/").filter(Boolean);
-}
+const segmentsOf = (path: string): string[] => path.split("/").filter(Boolean);
 
 /** Titles here open with an emoji by house style; in a dense nav it is noise twice over. */
-export function stripLeadingEmoji(title: string): string {
-    return title.replace(/^[^\p{L}\p{N}`@]+/u, "").trim();
-}
+export const stripLeadingEmoji = (title: string): string =>
+    title.replace(/^[^\p{L}\p{N}`@]+/u, "").trim();
 
-function kindOf(path: string): DocKind {
+const kindOf = (path: string): DocKind => {
     if (path.endsWith("/skill")) return "skill";
     if (path.endsWith("/agents") || path === "/agents") return "agent";
     if (path.startsWith("/docs/")) return "doc";
 
     return "readme";
-}
+};
 
 interface Placed {
     section: SectionId;
@@ -135,7 +132,7 @@ interface Placed {
 }
 
 /** Generic labels for README/AGENTS.md — the group name already says the project; the real title is still the page's own heading. */
-function labelWithin(root: string, path: string, title: string): string {
+const labelWithin = (root: string, path: string, title: string): string => {
     const raw = segmentsOf(path.slice(root.length));
     // `src` is where the code lives, not a taxonomy a reader navigates by — a nested README's own directory names it.
     const rest = raw[0] === "src" ? raw.slice(1) : raw;
@@ -147,9 +144,9 @@ function labelWithin(root: string, path: string, title: string): string {
     if (file === "readme") return directory === "" ? "Overview" : directory;
 
     return stripLeadingEmoji(title);
-}
+};
 
-function place(page: WikiPage): Placed {
+const place = (page: WikiPage): Placed => {
     const path = page.path;
     const title = page.title ?? path;
     const segments = segmentsOf(path);
@@ -199,17 +196,17 @@ function place(page: WikiPage): Placed {
         groupLabel: toTitleCase(group),
         entry: { path, label: labelWithin(root, path, title), kind },
     };
-}
+};
 
 /** Overview, then the agent notes, then everything else by label — the order you would read them. */
-function rankEntry(entry: WikiEntry): number {
+const rankEntry = (entry: WikiEntry): number => {
     if (entry.label === "Overview") return 0;
     if (entry.label === "Agent notes") return 1;
 
     return 2;
-}
+};
 
-function rankGroup(section: SectionId, key: string): number {
+const rankGroup = (section: SectionId, key: string): number => {
     if (section === "docs") {
         // `docs` itself is the tree's own front matter and sorts above its subdirectories.
         if (key === "docs") return -1;
@@ -220,9 +217,9 @@ function rankGroup(section: SectionId, key: string): number {
     }
 
     return 0;
-}
+};
 
-export function buildWiki(pages: WikiPage[]): WikiSection[] {
+export const buildWiki = (pages: WikiPage[]): WikiSection[] => {
     const placed = pages
         .filter((page) => !EXCLUDED.some((pattern) => pattern.test(page.path)))
         .map(place);
@@ -246,18 +243,17 @@ export function buildWiki(pages: WikiPage[]): WikiSection[] {
 
         return { id, ...SECTIONS[id], groups };
     }).filter((section) => section.groups.length > 0);
-}
+};
 
 /** `@nuxt/content` keys a page by a lower-cased, extension-less route; the collector keys it by the real repo path — anything joining the two must cross here first. */
-export function toCollectionPath(repoPath: string): string {
-    return `/${repoPath.replace(/\.mdx?$/i, "").toLowerCase()}`;
-}
+export const toCollectionPath = (repoPath: string): string =>
+    `/${repoPath.replace(/\.mdx?$/i, "").toLowerCase()}`;
 
 /** The section and group a path sits in, for the breadcrumb above a page. */
-export function locate(
+export const locate = (
     sections: WikiSection[],
     path: string,
-): { section: WikiSection; group: WikiGroup; entry: WikiEntry } | null {
+): { section: WikiSection; group: WikiGroup; entry: WikiEntry } | null => {
     for (const section of sections) {
         for (const group of section.groups) {
             const entry = group.entries.find((candidate) => candidate.path === path);
@@ -267,4 +263,4 @@ export function locate(
     }
 
     return null;
-}
+};

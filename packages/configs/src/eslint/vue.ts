@@ -24,7 +24,7 @@ const ignores = {
     ignores: [...baseIgnores, ".nuxt/**", ".output/**"],
 };
 
-function createBaseVueConfig(typeChecked?: boolean): object[] {
+const createBaseVueConfig = (typeChecked?: boolean): object[] => {
     const vueBaseRaw = vue.configs["flat/strongly-recommended"];
 
     const vueBase = Array.isArray(vueBaseRaw) ? vueBaseRaw : [vueBaseRaw];
@@ -103,12 +103,8 @@ function createBaseVueConfig(typeChecked?: boolean): object[] {
         templateCalls,
         regexp,
     ];
-}
+};
 
-export function createVueConfig(): object[] {
-    return createBaseVueConfig(true);
-}
+export const createVueConfig = (): object[] => createBaseVueConfig(true);
 
-export function createNuxtConfig(): object[] {
-    return createBaseVueConfig(false);
-}
+export const createNuxtConfig = (): object[] => createBaseVueConfig(false);

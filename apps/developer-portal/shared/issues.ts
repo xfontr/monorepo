@@ -24,7 +24,7 @@ export interface Issue {
  * one line of it, so the syntax is stripped rather than rendered: half-parsed markdown in a clamped
  * string reads as damage, and the full body is one click away on GitHub anyway.
  */
-export function summarize(body: string, length = 140): string {
+export const summarize = (body: string, length = 140): string => {
     const text = body
         .replace(FENCE, " ")
         .replace(HTML_COMMENT, " ")
@@ -43,18 +43,17 @@ export function summarize(body: string, length = 140): string {
     const space = cut.lastIndexOf(" ");
 
     return `${(space > length * 0.6 ? cut.slice(0, space) : cut).trimEnd()}…`;
-}
+};
 
-export function labelsOf(issues: Issue[]): string[] {
-    return [...new Set(issues.flatMap((issue) => issue.labels))].sort();
-}
+export const labelsOf = (issues: Issue[]): string[] =>
+    [...new Set(issues.flatMap((issue) => issue.labels))].sort();
 
 export interface IssueFilter {
     label?: string;
     search?: string;
 }
 
-export function filterIssues(issues: Issue[], filter: IssueFilter): Issue[] {
+export const filterIssues = (issues: Issue[], filter: IssueFilter): Issue[] => {
     const needle = filter.search?.trim().toLowerCase() ?? "";
 
     return issues.filter((issue) => {
@@ -64,7 +63,7 @@ export function filterIssues(issues: Issue[], filter: IssueFilter): Issue[] {
 
         return `#${issue.number} ${issue.title} ${issue.body}`.toLowerCase().includes(needle);
     });
-}
+};
 
 /** The half of GitHub's REST issue payload this app reads; everything else is dropped. */
 export interface GithubIssue {
@@ -81,27 +80,22 @@ export interface GithubIssue {
 }
 
 /** `html_url`, not `url` — the latter is the API's own address for the issue and renders as JSON. */
-export function toIssue(issue: GithubIssue): Issue {
-    return {
-        number: issue.number,
-        title: issue.title,
-        body: issue.body ?? "",
-        url: issue.html_url,
-        labels: issue.labels.map(({ name }) => name),
-        assignees: issue.assignees.map(({ login }) => login),
-        createdAt: issue.created_at,
-        updatedAt: issue.updated_at,
-    };
-}
+export const toIssue = (issue: GithubIssue): Issue => ({
+    number: issue.number,
+    title: issue.title,
+    body: issue.body ?? "",
+    url: issue.html_url,
+    labels: issue.labels.map(({ name }) => name),
+    assignees: issue.assignees.map(({ login }) => login),
+    createdAt: issue.created_at,
+    updatedAt: issue.updated_at,
+});
 
 /** A pull request is an issue to this endpoint and is not one here. */
-export function toIssues(payload: GithubIssue[]): Issue[] {
-    return payload.filter((item) => item.pull_request === undefined).map(toIssue);
-}
+export const toIssues = (payload: GithubIssue[]): Issue[] =>
+    payload.filter((item) => item.pull_request === undefined).map(toIssue);
 
-export function issuesApiUrl(repoUrl: string): string | null {
-    return repoApiUrl(repoUrl, "issues");
-}
+export const issuesApiUrl = (repoUrl: string): string | null => repoApiUrl(repoUrl, "issues");
 
 /** The browser-side GitHub read, including a displayable error when it could not complete. */
 export interface IssuesRead {
@@ -110,8 +104,5 @@ export interface IssuesRead {
     issues: Issue[];
 }
 
-export function sortIssues(issues: Issue[]): Issue[] {
-    return issues
-        .slice()
-        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || b.number - a.number);
-}
+export const sortIssues = (issues: Issue[]): Issue[] =>
+    issues.slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || b.number - a.number);

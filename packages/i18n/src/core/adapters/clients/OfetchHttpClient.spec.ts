@@ -3,15 +3,13 @@ import { FetchError, type $Fetch } from "ofetch";
 import { OfetchHttpClient } from "./OfetchHttpClient";
 import { UpstreamError } from "#core/domain/errors";
 
-function failingFetch(cause: unknown): $Fetch {
-    return vi.fn().mockRejectedValue(cause) as unknown as $Fetch;
-}
+const failingFetch = (cause: unknown): $Fetch =>
+    vi.fn().mockRejectedValue(cause) as unknown as $Fetch;
 
-function fetchError(status: number): FetchError {
-    return Object.assign(new FetchError("upstream said no"), {
+const fetchError = (status: number): FetchError =>
+    Object.assign(new FetchError("upstream said no"), {
         response: { status } as unknown as FetchError["response"],
     });
-}
 
 describe("OfetchHttpClient", () => {
     it("passes the url through untouched so the ofetch baseURL applies", async () => {

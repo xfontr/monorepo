@@ -6,9 +6,7 @@ const baseURL = "https://translations.test/";
 const internal: VendorConfig = { name: "internal", baseURL, project: "external" };
 
 // What Nitro does to a custom cache key before storing it — `escapeKey` in its cache runtime
-function escapeKey(key: string): string {
-    return key.replace(/\W/g, "");
-}
+const escapeKey = (key: string): string => key.replace(/\W/g, "");
 
 describe("translationsKey", () => {
     it("names the vendor and the locale, so nothing has to be decoded to read a key", () => {

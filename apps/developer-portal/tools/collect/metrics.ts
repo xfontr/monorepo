@@ -17,22 +17,22 @@ const SPEC_SUFFIX = ".spec.ts";
 const CONVENTIONAL =
     /^(?:build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(?:\([^)]+\))?!?: (?:\[\d+\] )?[a-z0-9]/;
 
-async function filesIn(root: string): Promise<string[]> {
+const filesIn = async (root: string): Promise<string[]> => {
     const stdout = await git(["ls-files", "--", root]);
 
     return stdout.split("\n").filter(Boolean);
-}
+};
 
 /** Latest `<project>@<version>` tag. Tags under an older scope never match the glob. */
-async function latestTag(name: string): Promise<string | null> {
+const latestTag = async (name: string): Promise<string | null> => {
     const stdout = await git(["tag", "--list", `${name}@*`, "--sort=-v:refname"]);
     const newest = stdout.split("\n").find(Boolean);
 
     return newest ?? null;
-}
+};
 
 /** `nx.json`'s `release.projects`: roots or names that `nx release` versions, so they owe a first release. */
-async function releaseProjects(): Promise<string[]> {
+const releaseProjects = async (): Promise<string[]> => {
     try {
         const raw = await readFile(resolve(WORKSPACE_ROOT, "nx.json"), "utf8");
         const projects =
@@ -43,13 +43,13 @@ async function releaseProjects(): Promise<string[]> {
     } catch {
         return [];
     }
-}
+};
 
-async function unreleasedCommits(
+const unreleasedCommits = async (
     name: string,
     root: string,
     released: boolean,
-): Promise<number | null> {
+): Promise<number | null> => {
     const tag = await latestTag(name);
 
     if (!tag && !released) return null;
@@ -57,11 +57,11 @@ async function unreleasedCommits(
     const stdout = await git(["rev-list", "--count", tag ? `${tag}..HEAD` : "HEAD", "--", root]);
 
     return Number.parseInt(stdout.trim(), 10);
-}
+};
 
-async function commitStats(
+const commitStats = async (
     root: string,
-): Promise<{ commits: number; commitsLastTwoWeeks: number }> {
+): Promise<{ commits: number; commitsLastTwoWeeks: number }> => {
     const [counted, recent] = await Promise.all([
         git(["rev-list", "--count", "HEAD", "--", root]),
         git(["log", "--since=2 weeks ago", "--format=%H", "--", root]),
@@ -71,9 +71,9 @@ async function commitStats(
         commits: Number.parseInt(counted.trim(), 10),
         commitsLastTwoWeeks: recent.split("\n").filter(Boolean).length,
     };
-}
+};
 
-async function versionOf(root: string): Promise<string | null> {
+const versionOf = async (root: string): Promise<string | null> => {
     try {
         const raw = await readFile(resolve(WORKSPACE_ROOT, root, "package.json"), "utf8");
 
@@ -81,23 +81,23 @@ async function versionOf(root: string): Promise<string | null> {
     } catch {
         return null;
     }
-}
+};
 
-async function unreleasedFor(
+const unreleasedFor = async (
     name: string,
     root: string,
     released: boolean,
-): Promise<number | null> {
+): Promise<number | null> => {
     const result = await tryRun(() => unreleasedCommits(name, root, released));
 
     return result.ok ? result.value : null;
-}
+};
 
 /**
  * `nx release` commits are all literally `chore(release): Publish`, which makes them exact release
  * boundaries in the log. Counting from the newest one answers "how much is waiting to ship".
  */
-async function commitsSinceRelease(): Promise<number | null> {
+const commitsSinceRelease = async (): Promise<number | null> => {
     const stdout = await git(["log", "--format=%H", "--grep=^chore(release)", "-1"]);
     const sha = stdout.split("\n").find(Boolean);
 
@@ -106,13 +106,13 @@ async function commitsSinceRelease(): Promise<number | null> {
     const counted = await git(["rev-list", "--count", `${sha}..HEAD`]);
 
     return Number.parseInt(counted.trim(), 10);
-}
+};
 
-export async function collectMetrics(
+export const collectMetrics = async (
     projects: ProjectNode[],
     coverage: CoverageArtifact,
     generatedAt: string,
-): Promise<MetricsArtifact> {
+): Promise<MetricsArtifact> => {
     const measured: ProjectMetrics[] = [];
     const releasePatterns = await releaseProjects();
 
@@ -164,4 +164,4 @@ export async function collectMetrics(
             subjects.length === 0 ? null : Math.round((conforming.length / subjects.length) * 100),
         commitsSinceLastRelease: release.ok ? release.value : null,
     };
-}
+};

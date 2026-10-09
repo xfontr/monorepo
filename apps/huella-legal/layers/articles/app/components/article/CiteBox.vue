@@ -20,10 +20,10 @@ const citation = computed<Citation | undefined>(
     () => props.citations[Number(tab.value)] ?? props.citations[0],
 );
 
-async function copy(text: string): Promise<void> {
+const copy = async (text: string): Promise<void> => {
     await copyText(text);
     toast.add({ title: t("citeBox.copied"), icon: "i-lucide-check" });
-}
+};
 </script>
 
 <template>

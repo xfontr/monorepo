@@ -72,46 +72,44 @@ const readItem = defineCachedFunction(
     },
 );
 
-export function useContent(event: H3Event) {
-    return {
-        listEntries: async (resource: EntryResource, query?: EntryQuery) =>
-            (await readList(event, resource, toEntryQuery(query))) as Page<Entry>,
+export const useContent = (event: H3Event) => ({
+    listEntries: async (resource: EntryResource, query?: EntryQuery) =>
+        (await readList(event, resource, toEntryQuery(query))) as Page<Entry>,
 
-        listTerms: async (resource: TermResource, query?: Query) =>
-            (await readList(event, resource, toQuery(query))) as Page<Term>,
+    listTerms: async (resource: TermResource, query?: Query) =>
+        (await readList(event, resource, toQuery(query))) as Page<Term>,
 
-        getEntry: async (resource: EntryResource, slug: string) =>
-            (await readItem(event, resource, toSlug(slug))) as Entry,
+    getEntry: async (resource: EntryResource, slug: string) =>
+        (await readItem(event, resource, toSlug(slug))) as Entry,
 
-        getTerm: async (resource: TermResource, slug: string) =>
-            (await readItem(event, resource, toSlug(slug))) as Term,
-    };
-}
+    getTerm: async (resource: TermResource, slug: string) =>
+        (await readItem(event, resource, toSlug(slug))) as Term,
+});
 
 // #region utils
-function readVendor(event: H3Event): VendorConfig {
+const readVendor = (event: H3Event): VendorConfig => {
     const { vendor } = useRuntimeConfig(event).content as ContentConfig;
 
     return vendor;
-}
+};
 
-async function resolveProvider(vendor: VendorConfig): Promise<ContentProvider> {
+const resolveProvider = async (vendor: VendorConfig): Promise<ContentProvider> => {
     try {
         return await createProvider(vendor, new OfetchHttpClient(ofetch));
     } catch (cause) {
         return rethrowAsHttpError(cause);
     }
-}
+};
 
-function rethrowAsHttpError(cause: unknown): never {
+const rethrowAsHttpError = (cause: unknown): never => {
     if (cause instanceof ContentError) throw createError(cause);
 
     throw cause;
-}
+};
 
-function throwUnavailableError(cause: unknown, resource: string): never {
+const throwUnavailableError = (cause: unknown, resource: string): never => {
     if (cause instanceof ContentError) throw createError(cause);
 
     throw createError(new ContentUnavailableError(resource, cause));
-}
+};
 // #endregion

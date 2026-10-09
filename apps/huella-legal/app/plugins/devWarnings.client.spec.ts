@@ -6,9 +6,9 @@ const SUSPENSE_WARNING = "<Suspense> is an experimental feature and its API will
 const originalInfo = console.info;
 const info = vi.fn();
 
-function run() {
+const run = () => {
     (plugin as unknown as () => void)();
-}
+};
 
 beforeEach(() => {
     info.mockClear();

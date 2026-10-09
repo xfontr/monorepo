@@ -51,17 +51,17 @@ function assertLocale(locale: string | undefined, locales: string[]): asserts lo
     throw createError(new UndefinedLocaleError(locale));
 }
 
-function rethrowAsHttpError(cause: unknown): never {
+const rethrowAsHttpError = (cause: unknown): never => {
     if (cause instanceof TranslationsError) throw createError(cause);
 
     throw cause;
-}
+};
 
-function throwUnavailableError(cause: unknown, locale: string): never {
+const throwUnavailableError = (cause: unknown, locale: string): never => {
     if (cause instanceof TranslationsError) throw createError(cause);
 
     throw createError(new TranslationsUnavailableError(locale, cause));
-}
+};
 
 function getKey(event: H3Event<EventHandlerRequest>) {
     const locale = getRouterParam(event, "locale");

@@ -23,13 +23,13 @@ const NODE_DIRS = ["shared", "server", "tools"];
 const LAYER_SOURCES = ["layers/*/{app,server,shared}/**/*.ts", "layers/*/app/**/*.vue"];
 
 /** A `node` project for `server/`, `shared/` and `tools/`, and a `nuxt` project for `app/`, in the root and every layer. */
-async function createNuxtConfig({
+const createNuxtConfig = async ({
     root,
     nodeSpecs = [],
     setupFiles = [],
     coverageExclude = [],
     thresholds,
-}: NuxtConfigOptions) {
+}: NuxtConfigOptions) => {
     const nodeConfig = createNodeConfig();
     const { globalSetup, coverage, ...nodeTest } = nodeConfig.test ?? {};
 
@@ -76,10 +76,10 @@ async function createNuxtConfig({
             ],
         },
     });
-}
+};
 
 // Resolved from the app, so this runs the same copy its specs import `@nuxt/test-utils/runtime` from
-async function defineNuxtProject(root: string, test: object) {
+const defineNuxtProject = async (root: string, test: object) => {
     const entry = createRequire(join(root, "package.json")).resolve("@nuxt/test-utils/config");
     const { defineVitestProject } = (await import(
         pathToFileURL(entry).href
@@ -96,6 +96,6 @@ async function defineNuxtProject(root: string, test: object) {
         if (jitiModuleCache === undefined) delete process.env.JITI_MODULE_CACHE;
         else process.env.JITI_MODULE_CACHE = jitiModuleCache;
     }
-}
+};
 
 export default createNuxtConfig;

@@ -6,6 +6,8 @@ const provider = vi.hoisted(() => {
 
     return {
         instance,
+        // The code under test calls this with `new`, which an arrow cannot be.
+        // eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions, prefer-arrow-callback
         NodeTracerProvider: vi.fn<(config: object) => typeof instance>(function () {
             return instance;
         }),
@@ -38,22 +40,19 @@ const app = { name: "@monorepo/external", version: "1.0.0", environment: "produc
 
 type Config = Parameters<typeof startNodeTelemetry>[0];
 
-function start(config: Partial<Config> = {}) {
-    return startNodeTelemetry({ url, instanceId: "123456", token: "glc_token", app, ...config });
-}
+const start = (config: Partial<Config> = {}) =>
+    startNodeTelemetry({ url, instanceId: "123456", token: "glc_token", app, ...config });
 
-function exporterOptions() {
-    return exporter.OTLPTraceExporter.mock.calls[0]?.[0] as {
+const exporterOptions = () =>
+    exporter.OTLPTraceExporter.mock.calls[0]?.[0] as {
         url: string;
         headers: Record<string, string>;
     };
-}
 
-function providerOptions() {
-    return provider.NodeTracerProvider.mock.calls[0]?.[0] as {
+const providerOptions = () =>
+    provider.NodeTracerProvider.mock.calls[0]?.[0] as {
         resource: { attributes: Record<string, string> };
     };
-}
 
 beforeEach(() => {
     vi.clearAllMocks();

@@ -10,7 +10,7 @@ const NuxtStub = defineComponent({
         label: { type: String, default: undefined },
         ariaLabel: { type: String, default: undefined },
     },
-    setup(props, { slots }) {
+    setup: (props, { slots }) => {
         const tag = props.to ? "a" : props.label ? "span" : "button";
 
         return () =>

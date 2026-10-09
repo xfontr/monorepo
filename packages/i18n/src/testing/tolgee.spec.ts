@@ -13,8 +13,8 @@ const ES = { meta: { title: "Huella Legal" }, shared: { health: "Salud" } };
 const server = setupServer(...tolgeeHandlers(BASE_URL, { "es-ES": ES }));
 
 // The real provider on the real client, so the fake is held to what TolgeeProvider parses
-function provider() {
-    return createProvider(
+const provider = () =>
+    createProvider(
         {
             name: "tolgee",
             baseURL: BASE_URL,
@@ -23,7 +23,6 @@ function provider() {
         },
         new OfetchHttpClient(ofetch.create({ baseURL: BASE_URL })),
     );
-}
 
 beforeAll(() => server.listen({ onUnhandledFrame: "error" }));
 afterAll(() => server.close());

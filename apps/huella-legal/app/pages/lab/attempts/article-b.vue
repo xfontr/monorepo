@@ -84,7 +84,7 @@ const activeSection = computed(
 );
 const progress = ref(0);
 
-function placeNotes() {
+const placeNotes = () => {
     wide.value = window.matchMedia("(min-width: 80rem)").matches;
     if (!wide.value || !layout.value) return;
 
@@ -107,9 +107,9 @@ function placeNotes() {
     }
 
     noteTops.value = tops;
-}
+};
 
-function onScroll() {
+const onScroll = () => {
     const header = document.getElementById("cabecera");
     const main = layout.value;
 
@@ -122,7 +122,7 @@ function onScroll() {
             Math.max(0, -box.top / Math.max(1, box.height - window.innerHeight)),
         );
     }
-}
+};
 
 onMounted(() => {
     const observer = new IntersectionObserver(

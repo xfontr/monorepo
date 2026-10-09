@@ -23,8 +23,7 @@ const getTranslations: Handler = async ({ req, json }) => {
     }
 };
 
-function isMissingFile(cause: unknown): boolean {
-    return cause instanceof Error && "code" in cause && cause.code === "ENOENT";
-}
+const isMissingFile = (cause: unknown): boolean =>
+    cause instanceof Error && "code" in cause && cause.code === "ENOENT";
 
 export default getTranslations;

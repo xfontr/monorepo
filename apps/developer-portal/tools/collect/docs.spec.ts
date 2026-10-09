@@ -16,12 +16,12 @@ const run = vi.hoisted(() => ({ git: vi.fn() }));
 vi.mock("node:fs/promises", () => fs);
 vi.mock("../lib/run.ts", () => run);
 
-function addFile(path: string, source: string, updatedAt = "2026-09-20T10:00:00Z"): void {
+const addFile = (path: string, source: string, updatedAt = "2026-09-20T10:00:00Z"): void => {
     const absolute = resolve(WORKSPACE_ROOT, path);
     state.files.add(absolute);
     state.sources.set(absolute, source);
     state.updatedAt.set(path, updatedAt);
-}
+};
 
 beforeEach(() => {
     vi.clearAllMocks();

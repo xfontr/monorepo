@@ -15,7 +15,7 @@ class FakeObserver {
     }
 }
 
-function show(...ids: string[]): void {
+const show = (...ids: string[]): void => {
     const entries = ids.map((id) => ({
         target: document.getElementById(id),
         isIntersecting: true,
@@ -24,7 +24,7 @@ function show(...ids: string[]): void {
     observers
         .at(-1)!
         .callback(entries as unknown as IntersectionObserverEntry[], {} as IntersectionObserver);
-}
+};
 
 const global = { mocks: { $t: (key: string) => `t(${key})` } };
 
@@ -37,9 +37,7 @@ const TOC = [
 
 const items = [...TOC];
 
-function rail(wrapper: VueWrapper) {
-    return wrapper.findAll(".lg\\:block a");
-}
+const rail = (wrapper: VueWrapper) => wrapper.findAll(".lg\\:block a");
 
 beforeEach(() => {
     observers.length = 0;

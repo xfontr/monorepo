@@ -2,7 +2,7 @@ import type { Root } from "hast";
 import type { TocItem } from "../../shared/types/TocItem";
 import { eachElement, slugify, textContent } from "../utils/hast";
 
-export function annotateHeadings(tree: Root): TocItem[] {
+export const annotateHeadings = (tree: Root): TocItem[] => {
     const toc: TocItem[] = [];
     const used = new Set<string>();
 
@@ -25,4 +25,4 @@ export function annotateHeadings(tree: Root): TocItem[] {
     });
 
     return toc;
-}
+};

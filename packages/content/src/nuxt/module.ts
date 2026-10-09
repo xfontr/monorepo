@@ -6,7 +6,7 @@ import type { ContentConfig } from "./config";
 export default defineNuxtModule<ContentConfig>({
     meta: { name: "@monorepo/content/nuxt", configKey: "content" },
 
-    setup(resolvedOptions, nuxt) {
+    setup: (resolvedOptions, nuxt) => {
         const resolver = createResolver(import.meta.url);
 
         if (!isVendorName(resolvedOptions.vendor?.name)) {

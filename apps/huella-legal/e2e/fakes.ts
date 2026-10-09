@@ -67,9 +67,8 @@ export const POSTS: Entry[] = [
     ),
 ];
 
-function locale(code: string): TranslationMap {
-    return JSON.parse(readFileSync(new URL(`${code}.json`, LOCALES), "utf8")) as TranslationMap;
-}
+const locale = (code: string): TranslationMap =>
+    JSON.parse(readFileSync(new URL(`${code}.json`, LOCALES), "utf8")) as TranslationMap;
 
 export const CONTENT: WordpressContent = { posts: POSTS, categories: CATEGORIES };
 

@@ -49,21 +49,20 @@ const ENTRY = {
     content: { rendered: "<p>Body</p>" },
 };
 
-function respond(data: unknown, headers: Record<string, string> = {}) {
+const respond = (data: unknown, headers: Record<string, string> = {}) => {
     transport.raw.mockResolvedValue({ _data: data, headers: new Headers(headers) });
-}
+};
 
-function upstreamStatus(status: number) {
+const upstreamStatus = (status: number) => {
     transport.raw.mockRejectedValue(
         Object.assign(new FetchError("upstream said no"), {
             response: { status } as unknown as FetchError["response"],
         }),
     );
-}
+};
 
-function keyOf(name: string): string | undefined {
-    return nitro.calls.filter((call) => call.name === name).at(-1)?.key;
-}
+const keyOf = (name: string): string | undefined =>
+    nitro.calls.filter((call) => call.name === name).at(-1)?.key;
 
 beforeEach(() => {
     vi.clearAllMocks();

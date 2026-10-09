@@ -49,18 +49,18 @@ const citations = [
 const citationTab = ref("0");
 const copied = ref(false);
 
-async function copyCitation() {
+const copyCitation = async () => {
     if (!navigator.clipboard) return;
     await navigator.clipboard.writeText(citations[Number(citationTab.value)]!.value);
     copied.value = true;
     setTimeout(() => (copied.value = false), 2000);
-}
+};
 
-async function share() {
+const share = async () => {
     if (navigator.share)
         await navigator.share({ title: article.title, url: location.href }).catch(() => {});
     else await navigator.clipboard?.writeText(location.href);
-}
+};
 
 const printPage = () => window.print();
 

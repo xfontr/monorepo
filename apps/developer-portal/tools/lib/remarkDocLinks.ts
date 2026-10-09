@@ -18,10 +18,10 @@ interface SourceFile {
  * Reference definitions and bare autolinks are not used anywhere in these docs, so an inline `link`
  * is every link there is. Takes the parent, because a placeholder is replaced by its own children.
  */
-function eachLink(
+const eachLink = (
     parent: MarkdownNode,
     apply: (link: MarkdownNode) => MarkdownNode[] | null,
-): void {
+): void => {
     const children = parent.children ?? [];
 
     for (let index = children.length - 1; index >= 0; index -= 1) {
@@ -37,21 +37,21 @@ function eachLink(
 
         if (replacement) children.splice(index, 1, ...replacement);
     }
-}
+};
 
 /** The `.md` is appended rather than required, because a link may omit it and `checkLink` accepts that. */
-function isPage(repoPath: string): boolean {
+const isPage = (repoPath: string): boolean => {
     const absolute = resolve(WORKSPACE_ROOT, repoPath);
 
     return /\.mdx?$/i.test(repoPath) ? existsSync(absolute) : existsSync(`${absolute}.md`);
-}
+};
 
 /**
  * Remark, not rehype: the mdast-to-hast step strips `.md` from a relative href on its way through,
  * and that extension is the only thing distinguishing a page from a directory. Do not move this later.
  */
 export default function remarkDocLinks() {
-    return function transform(tree: MarkdownNode, file: SourceFile): void {
+    return (tree: MarkdownNode, file: SourceFile): void => {
         if (!file.path) return;
 
         const from = relative(WORKSPACE_ROOT, file.path);

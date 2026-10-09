@@ -12,12 +12,12 @@ export interface PlaywrightOptions {
  * Chromium at each width, specs in `e2e/`, and screenshot baselines that only CI writes.
  * Returns a plain object, so the runner's own copy of `@playwright/test` is the only one loaded.
  */
-export function createConfig({
+export const createConfig = ({
     port,
     command,
     env = {},
     widths = [390, 768, 1280],
-}: PlaywrightOptions): PlaywrightTestConfig {
+}: PlaywrightOptions): PlaywrightTestConfig => {
     const baseURL = `http://localhost:${port}`;
 
     return {
@@ -40,4 +40,4 @@ export function createConfig({
             reuseExistingServer: false,
         },
     };
-}
+};

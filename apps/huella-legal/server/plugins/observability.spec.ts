@@ -109,49 +109,42 @@ function createNitroApp(handle: Handler) {
     };
 }
 
-function createEvent(path: string, matchedRoute?: string): H3Event {
-    return {
+const createEvent = (path: string, matchedRoute?: string): H3Event =>
+    ({
         path,
         method: "GET",
         context: matchedRoute === undefined ? {} : { matchedRoute: { path: matchedRoute } },
-    } as unknown as H3Event;
-}
+    }) as unknown as H3Event;
 
 // The plugin replaces `h3App.handler` in place, so what it installed is what a request goes through
-function start(handle: Handler = () => BODY) {
+const start = (handle: Handler = () => BODY) => {
     const nitroApp = createNitroApp(handle);
 
     plugin(nitroApp);
 
     return { nitroApp, handler: nitroApp.h3App.handler };
-}
+};
 
 // Always a promise: the span callback is async, so a traced request is awaited whatever the inner
 // handler returned
-function traced(
+const traced = (
     path: string,
     matchedRoute?: string,
     handler: Handler = () => BODY,
-): Promise<unknown> {
-    return start(handler).handler(createEvent(path, matchedRoute)) as Promise<unknown>;
-}
+): Promise<unknown> => start(handler).handler(createEvent(path, matchedRoute)) as Promise<unknown>;
 
 // Never a promise of its own: the untraced path hands the inner handler's value straight back
-function untraced(path: string): unknown {
-    return start().handler(createEvent(path));
-}
+const untraced = (path: string): unknown => start().handler(createEvent(path));
 
-function spanCall() {
-    return otel.tracer.startActiveSpan.mock.calls[0] as unknown as [
+const spanCall = () =>
+    otel.tracer.startActiveSpan.mock.calls[0] as unknown as [
         string,
         { kind: SpanKind; attributes: Record<string, string | undefined> },
         string,
     ];
-}
 
-function attributes() {
-    return otel.span.setAttributes.mock.calls[0]?.[0] as Record<string, string | number>;
-}
+const attributes = () =>
+    otel.span.setAttributes.mock.calls[0]?.[0] as Record<string, string | number>;
 
 beforeEach(() => {
     vi.clearAllMocks();

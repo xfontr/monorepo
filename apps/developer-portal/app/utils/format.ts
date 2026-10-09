@@ -5,30 +5,30 @@ import type { DecisionOutcome, DecisionStatus } from "#shared/types.ts";
 export type Tone = "good" | "warn" | "bad" | "neutral";
 
 /** The one threshold pair in the app, so the overview tile and the coverage table cannot disagree. */
-export function coverageTone(pct: number | null | undefined): Tone {
+export const coverageTone = (pct: number | null | undefined): Tone => {
     if (pct === null || pct === undefined) return "neutral";
     if (pct >= 80) return "good";
     if (pct >= 60) return "warn";
 
     return "bad";
-}
+};
 
 /** SCORECARDS.md's own scale: 4-5 is sound or better, 3 is mixed, 1-2 is costing something now. */
-export function scoreTone(score: number | null | undefined): Tone {
+export const scoreTone = (score: number | null | undefined): Tone => {
     if (score === null || score === undefined) return "neutral";
     if (score >= 4) return "good";
     if (score >= 3) return "warn";
 
     return "bad";
-}
+};
 
 /** `pnpm audit`'s own five-band scale, collapsed to the app's three tones. */
-export function severityTone(severity: "info" | "low" | "moderate" | "high" | "critical"): Tone {
+export const severityTone = (severity: "info" | "low" | "moderate" | "high" | "critical"): Tone => {
     if (severity === "critical" || severity === "high") return "bad";
     if (severity === "moderate") return "warn";
 
     return "neutral";
-}
+};
 
 const KIND_ICONS: Record<string, string> = {
     readme: "i-lucide-file-text",
@@ -41,9 +41,7 @@ const KIND_ICONS: Record<string, string> = {
     audit: "i-lucide-scan-search",
 };
 
-export function kindIcon(kind: string): string {
-    return KIND_ICONS[kind] ?? "i-lucide-file-text";
-}
+export const kindIcon = (kind: string): string => KIND_ICONS[kind] ?? "i-lucide-file-text";
 
 const DECISION_STATUS_LABELS = {
     "to-implement": "To implement",
@@ -51,9 +49,8 @@ const DECISION_STATUS_LABELS = {
     "wont-implement": "Won't implement",
 } as const satisfies Record<DecisionStatus, string>;
 
-export function decisionStatusLabel(status: DecisionStatus): string {
-    return DECISION_STATUS_LABELS[status];
-}
+export const decisionStatusLabel = (status: DecisionStatus): string =>
+    DECISION_STATUS_LABELS[status];
 
 /** Reuses the same validated three-tone palette everything else on this page uses for a verdict. */
 const DECISION_STATUS_TONES = {
@@ -62,18 +59,15 @@ const DECISION_STATUS_TONES = {
     "wont-implement": "neutral",
 } as const satisfies Record<DecisionStatus, Tone>;
 
-export function decisionStatusTone(status: DecisionStatus): Tone {
-    return DECISION_STATUS_TONES[status];
-}
+export const decisionStatusTone = (status: DecisionStatus): Tone => DECISION_STATUS_TONES[status];
 
 const DECISION_OUTCOME_LABELS = {
     accepted: "Accepted",
     superseded: "Superseded",
 } as const satisfies Record<DecisionOutcome, string>;
 
-export function decisionOutcomeLabel(decision: DecisionOutcome): string {
-    return DECISION_OUTCOME_LABELS[decision];
-}
+export const decisionOutcomeLabel = (decision: DecisionOutcome): string =>
+    DECISION_OUTCOME_LABELS[decision];
 
 const FINDING_STATUS_LABELS = {
     open: "Open",
@@ -81,9 +75,7 @@ const FINDING_STATUS_LABELS = {
     "wont-fix": "Won't fix",
 } as const satisfies Record<FindingStatus, string>;
 
-export function findingStatusLabel(status: FindingStatus): string {
-    return FINDING_STATUS_LABELS[status];
-}
+export const findingStatusLabel = (status: FindingStatus): string => FINDING_STATUS_LABELS[status];
 
 const FINDING_STATUS_TONES = {
     open: "warn",
@@ -91,9 +83,7 @@ const FINDING_STATUS_TONES = {
     "wont-fix": "neutral",
 } as const satisfies Record<FindingStatus, Tone>;
 
-export function findingStatusTone(status: FindingStatus): Tone {
-    return FINDING_STATUS_TONES[status];
-}
+export const findingStatusTone = (status: FindingStatus): Tone => FINDING_STATUS_TONES[status];
 
 const AUDIT_STATE_LABELS = {
     open: "Open",
@@ -101,9 +91,7 @@ const AUDIT_STATE_LABELS = {
     closed: "Closed",
 } as const satisfies Record<AuditState, string>;
 
-export function auditStateLabel(state: AuditState): string {
-    return AUDIT_STATE_LABELS[state];
-}
+export const auditStateLabel = (state: AuditState): string => AUDIT_STATE_LABELS[state];
 
 const AUDIT_STATE_TONES = {
     open: "warn",
@@ -111,12 +99,10 @@ const AUDIT_STATE_TONES = {
     closed: "good",
 } as const satisfies Record<AuditState, Tone>;
 
-export function auditStateTone(state: AuditState): Tone {
-    return AUDIT_STATE_TONES[state];
-}
+export const auditStateTone = (state: AuditState): Tone => AUDIT_STATE_TONES[state];
 
 /** "3 hours ago" beats a timestamp for the one question a report page has to answer. */
-export function relativeTime(iso: string | null | undefined): string {
+export const relativeTime = (iso: string | null | undefined): string => {
     if (!iso) return "never";
 
     const seconds = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
@@ -139,4 +125,4 @@ export function relativeTime(iso: string | null | undefined): string {
         -Math.round(seconds / step.size),
         step.unit,
     );
-}
+};

@@ -12,9 +12,7 @@ const weakest = computed(() => {
     return latest.value.cards.reduce((worst, card) => (card.score < worst.score ? card : worst));
 });
 
-function idOf(path: string): string {
-    return toCollectionPath(path).split("/").at(-1) ?? path;
-}
+const idOf = (path: string): string => toCollectionPath(path).split("/").at(-1) ?? path;
 
 const totalTone = computed(() => scoreTone(latest.value?.total));
 const latestLink = computed(() =>

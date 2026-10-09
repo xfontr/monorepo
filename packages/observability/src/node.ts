@@ -22,12 +22,12 @@ export interface NodeTelemetryConfig {
     };
 }
 
-export function startNodeTelemetry({
+export const startNodeTelemetry = ({
     url,
     instanceId,
     token,
     app,
-}: NodeTelemetryConfig): NodeTracerProvider {
+}: NodeTelemetryConfig): NodeTracerProvider => {
     const credentials = Buffer.from(`${instanceId}:${token}`).toString("base64");
     const provider = new NodeTracerProvider({
         resource: defaultResource().merge(
@@ -52,4 +52,4 @@ export function startNodeTelemetry({
     registerInstrumentations({ instrumentations: [new UndiciInstrumentation()] });
 
     return provider;
-}
+};

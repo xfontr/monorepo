@@ -7,12 +7,12 @@ const TEXT =
 const NOTES =
     '<p><a href="#_ftnref1" id="_ftn1">[1]</a> ROXIN, <em>Derecho penal</em>.</p><p><a href="#_ftnref2" id="_ftn2">[2]</a>&nbsp;MIR PUIG.</p>';
 
-function extract(html: string) {
+const extract = (html: string) => {
     const tree = parseFragment(html);
     const notes = extractNotes(tree);
 
     return { notes, html: stringifyNodes(tree.children) };
-}
+};
 
 describe("extractNotes", () => {
     it("turns `_ftn` references into the links the notes list answers", () => {

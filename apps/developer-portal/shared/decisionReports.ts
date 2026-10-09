@@ -17,8 +17,8 @@ export interface DecisionReport {
 }
 
 /** Everything the collector already parsed off a report's frontmatter, as one row per file. */
-export function toDecisionReports(pages: DocPage[]): DecisionReport[] {
-    return pages
+export const toDecisionReports = (pages: DocPage[]): DecisionReport[] =>
+    pages
         .filter((page) => page.kind === "decision")
         .map((page) => {
             const id = (page.path.split("/").at(-1) ?? page.path).replace(/\.md$/i, "");
@@ -35,7 +35,6 @@ export function toDecisionReports(pages: DocPage[]): DecisionReport[] {
                 words: page.words,
             };
         });
-}
 
 export interface DecisionReportFilter {
     status?: DecisionStatus | "all";
@@ -43,10 +42,10 @@ export interface DecisionReportFilter {
     search?: string;
 }
 
-export function filterDecisions(
+export const filterDecisions = (
     reports: DecisionReport[],
     filter: DecisionReportFilter,
-): DecisionReport[] {
+): DecisionReport[] => {
     const needle = filter.search?.trim().toLowerCase() ?? "";
 
     return reports.filter((report) => {
@@ -58,25 +57,23 @@ export function filterDecisions(
 
         return `${report.number} ${report.title}`.toLowerCase().includes(needle);
     });
-}
+};
 
 export const DECISION_SORTS = ["newest", "oldest", "updated", "status"] as const;
 
 export type DecisionSort = (typeof DECISION_SORTS)[number];
 
 /** A report whose `status` didn't parse sorts last rather than under a guessed value. */
-function statusRank(status: DecisionStatus | null): number {
-    return status === null ? DECISION_STATUSES.length : DECISION_STATUSES.indexOf(status);
-}
+const statusRank = (status: DecisionStatus | null): number =>
+    status === null ? DECISION_STATUSES.length : DECISION_STATUSES.indexOf(status);
 
 // The number is zero-padded to four digits by the naming rule in `docs/decisions/README.md`, so
 // comparing it as a string is comparing it as a number.
-function byNumberDescending(a: DecisionReport, b: DecisionReport): number {
-    return b.number.localeCompare(a.number);
-}
+const byNumberDescending = (a: DecisionReport, b: DecisionReport): number =>
+    b.number.localeCompare(a.number);
 
-export function sortDecisions(reports: DecisionReport[], sort: DecisionSort): DecisionReport[] {
-    return reports.slice().sort((a, b) => {
+export const sortDecisions = (reports: DecisionReport[], sort: DecisionSort): DecisionReport[] =>
+    reports.slice().sort((a, b) => {
         if (sort === "oldest") return a.number.localeCompare(b.number);
         if (sort === "updated")
             return (b.updatedAt ?? "").localeCompare(a.updatedAt ?? "") || byNumberDescending(a, b);
@@ -85,10 +82,9 @@ export function sortDecisions(reports: DecisionReport[], sort: DecisionSort): De
 
         return byNumberDescending(a, b);
     });
-}
 
 /** Seeded from the vocabulary rather than from the reports, so a status nothing carries yet still shows its zero. */
-export function countByStatus(reports: DecisionReport[]): Record<DecisionStatus, number> {
+export const countByStatus = (reports: DecisionReport[]): Record<DecisionStatus, number> => {
     const counts = Object.fromEntries(DECISION_STATUSES.map((status) => [status, 0])) as Record<
         DecisionStatus,
         number
@@ -99,4 +95,4 @@ export function countByStatus(reports: DecisionReport[]): Record<DecisionStatus,
     }
 
     return counts;
-}
+};

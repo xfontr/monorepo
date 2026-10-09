@@ -15,17 +15,13 @@ const entry = {
     content: { rendered: "<p>Body</p>" },
 };
 
-function respond(data: unknown, headers: Record<string, string> = {}) {
+const respond = (data: unknown, headers: Record<string, string> = {}) => {
     get.mockResolvedValue({ data, headers: new Headers(headers) });
-}
+};
 
-function build(baseURL = "https://wp.test") {
-    return new WordpressProvider({ baseURL }, http);
-}
+const build = (baseURL = "https://wp.test") => new WordpressProvider({ baseURL }, http);
 
-function requestedUrl(): unknown {
-    return get.mock.calls[0]?.[0] as unknown;
-}
+const requestedUrl = (): unknown => get.mock.calls[0]?.[0] as unknown;
 
 beforeEach(() => {
     vi.clearAllMocks();

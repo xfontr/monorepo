@@ -1,4 +1,4 @@
-export async function useArticle() {
+export const useArticle = async () => {
     const route = useRoute("article");
 
     // Not awaited, so a failing list only hides its band instead of failing the article
@@ -32,4 +32,4 @@ export async function useArticle() {
     if (error.value) throw createPageError(error.value);
 
     return { article, related };
-}
+};

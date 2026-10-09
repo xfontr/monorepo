@@ -34,7 +34,7 @@ const SCHEMA: Schema = {
 
 const sanitizer = unified().use(rehypeSanitize, SCHEMA);
 
-export function toArticleBody(html: string): ArticleBody {
+export const toArticleBody = (html: string): ArticleBody => {
     const tree = sanitize(parseFragment(html));
     // Notes close the post, after the bibliography, so they must leave before it is split off
     const notes = extractNotes(tree);
@@ -46,9 +46,9 @@ export function toArticleBody(html: string): ArticleBody {
     const [lead, rest] = splitLead(tree.children);
 
     return { lead: stringifyNodes(lead), html: stringifyNodes(rest), toc, notes, bibliography };
-}
+};
 
-function sanitize(tree: Root): Root {
+const sanitize = (tree: Root): Root => {
     eachElement(tree, (element) => {
         const { className } = element.properties;
 
@@ -57,9 +57,9 @@ function sanitize(tree: Root): Root {
     });
 
     return sanitizer.runSync(tree) as Root;
-}
+};
 
-function splitBibliography(tree: Root): string[] {
+const splitBibliography = (tree: Root): string[] => {
     const start = tree.children.findLastIndex(isBibliographyHeading);
 
     if (start === -1) return [];
@@ -77,30 +77,27 @@ function splitBibliography(tree: Root): string[] {
     if (references.length) tree.children = tree.children.slice(0, start);
 
     return references;
-}
+};
 
-function isBibliographyHeading(node: RootContent): boolean {
-    return (
-        node.type === "element" &&
-        /^h[1-6]$/.test(node.tagName) &&
-        BIBLIOGRAPHY_HEADING.test(slugify(textContent(node)))
-    );
-}
+const isBibliographyHeading = (node: RootContent): boolean =>
+    node.type === "element" &&
+    /^h[1-6]$/.test(node.tagName) &&
+    BIBLIOGRAPHY_HEADING.test(slugify(textContent(node)));
 
-function lazyLoadImages(tree: Root): void {
+const lazyLoadImages = (tree: Root): void => {
     eachElement(tree, (element) => {
         if (element.tagName !== "img") return;
 
         element.properties.loading = "lazy";
         element.properties.decoding = "async";
     });
-}
+};
 
-function splitLead(nodes: RootContent[]): [RootContent[], RootContent[]] {
+const splitLead = (nodes: RootContent[]): [RootContent[], RootContent[]] => {
     const end = nodes.findIndex((node) => node.type === "element" && node.tagName === "p") + 1;
 
     return [nodes.slice(0, end), nodes.slice(end)];
-}
+};
 
 function withoutClassLists(attributes: NonNullable<Schema["attributes"]>): Schema["attributes"] {
     return Object.fromEntries(
