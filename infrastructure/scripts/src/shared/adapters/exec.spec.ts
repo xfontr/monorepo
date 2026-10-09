@@ -13,26 +13,31 @@ describe("run", () => {
             vi.stubEnv("PATH", bin);
 
             expect(run("git", ["-e", "process.stdout.write('PATH git')"])).toBe("PATH git");
-        }
-        finally {
+        } finally {
             vi.unstubAllEnvs();
             rmSync(bin, { recursive: true, force: true });
         }
     });
 
     it("returns stdout past Node's 1 MiB default buffer instead of throwing ENOBUFS", () => {
-        expect(run(process.execPath, ["-e", "process.stdout.write('x'.repeat(2 * 1024 * 1024))"])).toHaveLength(2 * 1024 * 1024);
+        expect(
+            run(process.execPath, ["-e", "process.stdout.write('x'.repeat(2 * 1024 * 1024))"]),
+        ).toHaveLength(2 * 1024 * 1024);
     });
 
     it("propagates a subprocess failure instead of hiding its stderr", () => {
-        expect(() => run(process.execPath, ["-e", "process.stderr.write('failure'); process.exit(2)"])).toThrow();
+        expect(() =>
+            run(process.execPath, ["-e", "process.stderr.write('failure'); process.exit(2)"]),
+        ).toThrow();
     });
 });
 
 describe("inherit", () => {
     it("returns the child exit status and preserves a null signal status", () => {
         expect(inherit(process.execPath, ["-e", "process.exit(3)"])).toBe(3);
-        expect(inherit(process.execPath, ["-e", "process.kill(process.pid, 'SIGTERM')"])).toBeNull();
+        expect(
+            inherit(process.execPath, ["-e", "process.kill(process.pid, 'SIGTERM')"]),
+        ).toBeNull();
     });
 });
 

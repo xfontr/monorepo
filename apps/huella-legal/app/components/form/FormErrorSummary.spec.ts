@@ -27,7 +27,9 @@ describe("form error summary", () => {
     });
 
     it("counts the fields in the title with the plural form", async () => {
-        const one = await mountSuspended(FormErrorSummary, { props: { errors: ERRORS.slice(0, 1) } });
+        const one = await mountSuspended(FormErrorSummary, {
+            props: { errors: ERRORS.slice(0, 1) },
+        });
         const two = await mountSuspended(FormErrorSummary, { props: { errors: ERRORS } });
 
         expect(one.get("[data-slot=title]").text()).toBe("one field");
@@ -39,8 +41,14 @@ describe("form error summary", () => {
 
         const items = wrapper.findAll("li");
 
-        expect(items.map((item) => item.text())).toEqual(["Correo electrónico — falta el dominio.", "Resumen — es obligatorio."]);
-        expect(items.map((item) => item.find("a").attributes("href"))).toEqual(["#email", "#resumen"]);
+        expect(items.map((item) => item.text())).toEqual([
+            "Correo electrónico — falta el dominio.",
+            "Resumen — es obligatorio.",
+        ]);
+        expect(items.map((item) => item.find("a").attributes("href"))).toEqual([
+            "#email",
+            "#resumen",
+        ]);
     });
 
     it("renders nothing when there are no errors, rather than an empty alert", async () => {

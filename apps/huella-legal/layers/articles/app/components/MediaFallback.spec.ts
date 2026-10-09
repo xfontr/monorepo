@@ -4,7 +4,9 @@ import MediaFallback from "./MediaFallback.vue";
 
 describe("media fallback", () => {
     it("is hidden from assistive tech, since it stands in for an image that has no alt to give", async () => {
-        const wrapper = await mountSuspended(MediaFallback, { props: { label: "Imagen del artículo" } });
+        const wrapper = await mountSuspended(MediaFallback, {
+            props: { label: "Imagen del artículo" },
+        });
 
         expect(wrapper.attributes("aria-hidden")).toBe("true");
         expect(wrapper.text()).toContain("Imagen del artículo");

@@ -1,6 +1,14 @@
 import { access, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import type { AuditMeta, DecisionOutcome, DecisionStatus, DocKind, DocLink, DocPage, DocsArtifact } from "../../shared/types.ts";
+import type {
+    AuditMeta,
+    DecisionOutcome,
+    DecisionStatus,
+    DocKind,
+    DocLink,
+    DocPage,
+    DocsArtifact,
+} from "../../shared/types.ts";
 import { parseFindings } from "../../shared/audits.ts";
 import { DECISION_OUTCOMES, DECISION_STATUSES } from "../../shared/decisions.ts";
 import { frontmatterFields } from "../lib/decisions.ts";
@@ -18,7 +26,7 @@ const CODE_SPAN = /(?<!`)(`+)(?:[^`\n]|\n(?![^\S\n]*\n))+\1(?!`)/g;
  * Every inline link's href outside code. A docs page that shows link syntax in a sample is
  * describing a link, not making one, and the remark plugin never sees it as one.
  */
-export function hrefsIn(source: string): string[] {
+export const hrefsIn = (source: string): string[] => {
     const prose: string[] = [];
     let fence: string | null = null;
 
@@ -26,12 +34,15 @@ export function hrefsIn(source: string): string[] {
         const marker = FENCE.exec(line)?.[1];
 
         if (fence === null && marker) fence = marker;
-        else if (fence !== null && marker?.startsWith(fence) && line.trim() === marker) fence = null;
+        else if (fence !== null && marker?.startsWith(fence) && line.trim() === marker)
+            fence = null;
         else if (fence === null) prose.push(line);
     }
 
-    return [...prose.join("\n").replace(CODE_SPAN, " ").matchAll(LINK)].map((match) => match.groups?.href ?? "");
-}
+    return [...prose.join("\n").replace(CODE_SPAN, " ").matchAll(LINK)].map(
+        (match) => match.groups?.href ?? "",
+    );
+};
 
 const DECISION_PATH = /^docs\/decisions\/\d{4}-/;
 const AUDIT_PATH = /^docs\/audits\/\d{4}-/;
@@ -41,27 +52,25 @@ const AUDIT_PATH = /^docs\/audits\/\d{4}-/;
  * A `<placeholder>` in a template is not a link at all — `docs/reviews/TEMPLATE.md` is meant to be
  * copied, so flagging its own instructions would make the count permanently non-zero.
  */
-function isRepoRelative(href: string): boolean {
-    return !/^(?:[a-z]+:|\/\/|#)/i.test(href) && !href.includes("<");
-}
+const isRepoRelative = (href: string): boolean =>
+    !/^(?:[a-z]+:|\/\/|#)/i.test(href) && !href.includes("<");
 
-async function exists(path: string): Promise<boolean> {
+const exists = async (path: string): Promise<boolean> => {
     try {
         await access(path);
 
         return true;
-    }
-    catch {
+    } catch {
         return false;
     }
-}
+};
 
 /**
  * Resolves against the filesystem rather than against a route table, because these files are read on
  * GitHub first and in this app second: a link to `./layers` or to `./vite.config.ts` is perfectly
  * valid there, and only a missing target is a real defect.
  */
-async function checkLink(fromFile: string, href: string): Promise<DocLink | null> {
+const checkLink = async (fromFile: string, href: string): Promise<DocLink | null> => {
     // `#anchor` is one way to point inside a file; `:91-94` is the other, and the reviews cite
     // evidence that way throughout. Neither says anything about whether the file itself exists.
     const [target] = href.split("#");
@@ -77,9 +86,9 @@ async function checkLink(fromFile: string, href: string): Promise<DocLink | null
     if (await exists(`${absolute}.md`)) return null;
 
     return { href, resolved: absolute.slice(WORKSPACE_ROOT.length + 1) };
-}
+};
 
-function kindOf(path: string): DocKind {
+const kindOf = (path: string): DocKind => {
     if (/^docs\/reviews\/\d{4}-/.test(path)) return "review";
     if (DECISION_PATH.test(path)) return "decision";
     if (AUDIT_PATH.test(path)) return "audit";
@@ -89,12 +98,12 @@ function kindOf(path: string): DocKind {
     if (path.startsWith("docs/")) return "doc";
 
     return "readme";
-}
+};
 
 export interface DecisionMeta {
-    status: DecisionStatus | null
-    decision: DecisionOutcome | null
-    supersededBy: string | null
+    status: DecisionStatus | null;
+    decision: DecisionOutcome | null;
+    supersededBy: string | null;
 }
 
 const NO_DECISION_META: DecisionMeta = { status: null, decision: null, supersededBy: null };
@@ -105,24 +114,28 @@ const NO_DECISION_META: DecisionMeta = { status: null, decision: null, supersede
  * value from before this existed) also answers null instead of guessing, so a missing badge in the
  * dashboard is the visible nudge to fix the frontmatter rather than a silently wrong one.
  */
-export function decisionMetaOf(path: string, source: string): DecisionMeta {
+export const decisionMetaOf = (path: string, source: string): DecisionMeta => {
     if (!DECISION_PATH.test(path)) return NO_DECISION_META;
 
     const fields = frontmatterFields(source);
 
     if (fields === null) return NO_DECISION_META;
 
-    const status = (DECISION_STATUSES as readonly string[]).includes(fields.status ?? "") ? (fields.status as DecisionStatus) : null;
-    const decision = (DECISION_OUTCOMES as readonly string[]).includes(fields.decision ?? "") ? (fields.decision as DecisionOutcome) : null;
+    const status = (DECISION_STATUSES as readonly string[]).includes(fields.status ?? "")
+        ? (fields.status as DecisionStatus)
+        : null;
+    const decision = (DECISION_OUTCOMES as readonly string[]).includes(fields.decision ?? "")
+        ? (fields.decision as DecisionOutcome)
+        : null;
 
     return {
         status,
         decision,
-        supersededBy: decision === "superseded" ? fields.supersededBy ?? null : null,
+        supersededBy: decision === "superseded" ? (fields.supersededBy ?? null) : null,
     };
-}
+};
 
-export function auditMetaOf(path: string, source: string): AuditMeta | null {
+export const auditMetaOf = (path: string, source: string): AuditMeta | null => {
     if (!AUDIT_PATH.test(path)) return null;
 
     const fields = frontmatterFields(source) ?? {};
@@ -132,10 +145,12 @@ export function auditMetaOf(path: string, source: string): AuditMeta | null {
         commit: fields.commit ?? null,
         findings: parseFindings(source),
     };
-}
+};
 
-export async function collectDocs(generatedAt: string): Promise<DocsArtifact> {
-    const paths = (await git(["ls-files", "--cached", "--others", "--exclude-standard", "--", "*.md"]))
+export const collectDocs = async (generatedAt: string): Promise<DocsArtifact> => {
+    const paths = (
+        await git(["ls-files", "--cached", "--others", "--exclude-standard", "--", "*.md"])
+    )
         .split("\n")
         .filter(Boolean);
     const pages: DocPage[] = [];
@@ -143,7 +158,7 @@ export async function collectDocs(generatedAt: string): Promise<DocsArtifact> {
     for (const path of paths) {
         const absolute = resolve(WORKSPACE_ROOT, path);
 
-        if (!await exists(absolute)) continue;
+        if (!(await exists(absolute))) continue;
 
         const source = await readFile(absolute, "utf8");
 
@@ -182,4 +197,4 @@ export async function collectDocs(generatedAt: string): Promise<DocsArtifact> {
         pages,
         brokenLinkCount: pages.reduce((sum, page) => sum + page.brokenLinks.length, 0),
     };
-}
+};

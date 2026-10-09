@@ -6,7 +6,9 @@ const pnpm = vi.hoisted(() => ({ dev: vi.fn() }));
 const io = vi.hoisted(() => ({
     isInteractive: vi.fn(),
     out: {
-        begin: vi.fn(), end: vi.fn(), warn: vi.fn(),
+        begin: vi.fn(),
+        end: vi.fn(),
+        warn: vi.fn(),
         spinner: vi.fn(() => ({ start: vi.fn(), stop: vi.fn(), message: vi.fn() })),
     },
 }));
@@ -53,12 +55,20 @@ describe("dev main", () => {
     it("warns for an unknown name and asks interactively", async () => {
         nx.projectsWithDev.mockReturnValue([{ root: "apps", name: "@monorepo/demo" }]);
         io.isInteractive.mockReturnValue(true);
-        prompts.autocomplete.mockResolvedValue({ root: "apps", name: "@monorepo/demo", label: "Demo" });
+        prompts.autocomplete.mockResolvedValue({
+            root: "apps",
+            name: "@monorepo/demo",
+            label: "Demo",
+        });
 
         await main({ flags: new Set(), positionals: ["missing"] });
 
-        expect(io.out.warn).toHaveBeenCalledWith("No project here is called \"missing\" — search below.");
-        expect(prompts.autocomplete).toHaveBeenCalledWith(expect.objectContaining({ initialUserInput: "missing", maxItems: 12 }));
+        expect(io.out.warn).toHaveBeenCalledWith(
+            'No project here is called "missing" — search below.',
+        );
+        expect(prompts.autocomplete).toHaveBeenCalledWith(
+            expect.objectContaining({ initialUserInput: "missing", maxItems: 12 }),
+        );
         expect(pnpm.dev).toHaveBeenCalledWith("@monorepo/demo");
     });
 

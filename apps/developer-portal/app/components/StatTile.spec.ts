@@ -5,10 +5,10 @@ import StatTile from "./StatTile.vue";
 
 const IconStub = defineComponent({
     props: { name: { type: String, default: "" } },
-    template: "<i :data-icon=\"name\" />",
+    template: '<i :data-icon="name" />',
 });
 
-const NuxtLinkStub = { props: { to: String }, template: "<a :href=\"to\"><slot /></a>" };
+const NuxtLinkStub = { props: { to: String }, template: '<a :href="to"><slot /></a>' };
 
 describe("StatTile", () => {
     it("keeps a tile without a destination as a non-link container", () => {
@@ -34,7 +34,13 @@ describe("StatTile", () => {
 
     it("renders optional hint and icon and marks only non-neutral tones", () => {
         const warned = mount(StatTile, {
-            props: { label: "Coverage", value: "75%", hint: "weighted", icon: "i-lucide-shield", tone: "warn" },
+            props: {
+                label: "Coverage",
+                value: "75%",
+                hint: "weighted",
+                icon: "i-lucide-shield",
+                tone: "warn",
+            },
             global: { stubs: { UIcon: IconStub, NuxtLink: NuxtLinkStub } },
         });
         const neutral = mount(StatTile, {

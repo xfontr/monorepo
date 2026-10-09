@@ -21,14 +21,23 @@ const ARTICLES = ["1", "2"].map(article);
 
 describe("article list", () => {
     it("keeps the cards in an ordered list, since a listing's order is its sort", async () => {
-        const wrapper = await mountSuspended(SummaryList, { props: { articles: ARTICLES }, global });
+        const wrapper = await mountSuspended(SummaryList, {
+            props: { articles: ARTICLES },
+            global,
+        });
 
         expect(wrapper.element.tagName).toBe("OL");
-        expect(wrapper.findAll("li h3").map((title) => title.text())).toEqual(["Artículo 1", "Artículo 2"]);
+        expect(wrapper.findAll("li h3").map((title) => title.text())).toEqual([
+            "Artículo 1",
+            "Artículo 2",
+        ]);
     });
 
     it("passes its variant to every card, so a compact list loses the excerpts", async () => {
-        const wrapper = await mountSuspended(SummaryList, { props: { articles: ARTICLES, variant: "compact" }, global });
+        const wrapper = await mountSuspended(SummaryList, {
+            props: { articles: ARTICLES, variant: "compact" },
+            global,
+        });
 
         expect(wrapper.text()).not.toContain(ARTICLES[0]!.excerpt);
     });

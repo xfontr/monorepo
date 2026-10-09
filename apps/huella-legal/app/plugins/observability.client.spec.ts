@@ -5,7 +5,10 @@ import plugin from "./observability.client";
 const telemetry = vi.hoisted(() => ({
     faro: { api: { pushError: vi.fn() } },
     startWebTelemetry: vi.fn(),
-    config: { url: "", app: { name: "@monorepo/huella-legal", version: "1.4.0", environment: "production" } },
+    config: {
+        url: "",
+        app: { name: "@monorepo/huella-legal", version: "1.4.0", environment: "production" },
+    },
 }));
 
 vi.mock("@monorepo/observability", () => ({ startWebTelemetry: telemetry.startWebTelemetry }));
@@ -19,14 +22,14 @@ mockNuxtImport("useRuntimeConfig", (original) => () => {
 
 const COLLECTOR = "https://faro-collector.test/collect";
 
-function run() {
+const run = () => {
     const hooks = new Map<string, (error: unknown) => void>();
     const nuxtApp = { hook: (name: string, fn: (error: unknown) => void) => hooks.set(name, fn) };
 
     (plugin as unknown as (app: typeof nuxtApp) => void)(nuxtApp);
 
     return hooks;
-}
+};
 
 beforeEach(() => {
     vi.clearAllMocks();

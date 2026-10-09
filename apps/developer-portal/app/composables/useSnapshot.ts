@@ -5,6 +5,5 @@ import type { SnapshotResponse } from "../../server/api/snapshot/[artifact].get.
  * `refresh()` updates both. Nothing here writes: every source this app reads — the snapshot, the
  * markdown, GitHub — is owned somewhere else and re-read rather than mirrored.
  */
-export function useSnapshot(artifact: keyof Omit<SnapshotResponse, "manifest">) {
-    return useFetch<SnapshotResponse>(`/api/snapshot/${artifact}`, { key: `snapshot-${artifact}` });
-}
+export const useSnapshot = (artifact: keyof Omit<SnapshotResponse, "manifest">) =>
+    useFetch<SnapshotResponse>(`/api/snapshot/${artifact}`, { key: `snapshot-${artifact}` });

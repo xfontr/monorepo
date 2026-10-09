@@ -12,14 +12,20 @@ const scope = ref<string>("all");
 const search = ref("");
 const sort = ref<AuditSort>("newest");
 
-const visible = computed(() => sortAudits(
-    filterAudits(reports.value, { state: state.value, scope: scope.value, search: search.value }),
-    sort.value,
-));
+const visible = computed(() =>
+    sortAudits(
+        filterAudits(reports.value, {
+            state: state.value,
+            scope: scope.value,
+            search: search.value,
+        }),
+        sort.value,
+    ),
+);
 
 const totals = computed(() => countAll(reports.value));
 
-const findingTiles: { status: FindingStatus, hint: string }[] = [
+const findingTiles: { status: FindingStatus; hint: string }[] = [
     { status: "open", hint: "findings still owed work" },
     { status: "fixed", hint: "the fix has landed" },
     { status: "wont-fix", hint: "decided against, deliberately" },
@@ -35,7 +41,7 @@ const scopeItems = computed(() => [
     ...scopesOf(reports.value).map((value) => ({ label: value, value })),
 ]);
 
-const sortItems: { label: string, value: AuditSort }[] = [
+const sortItems: { label: string; value: AuditSort }[] = [
     { label: "Newest first", value: "newest" },
     { label: "Oldest first", value: "oldest" },
     { label: "Most open", value: "most-open" },
@@ -58,10 +64,7 @@ const sortItems: { label: string, value: AuditSort }[] = [
                         variant="ghost"
                         size="xs"
                     />
-                    <SnapshotAge
-                        :manifest="snapshot?.manifest ?? null"
-                        artifact="docs"
-                    />
+                    <SnapshotAge :manifest="snapshot?.manifest ?? null" artifact="docs" />
                 </template>
             </UDashboardNavbar>
 
@@ -104,31 +107,27 @@ const sortItems: { label: string, value: AuditSort }[] = [
         <template #body>
             <div class="flex flex-col gap-4">
                 <p class="text-sm text-muted max-w-3xl">
-                    Audits record what a static read of one project found wrong at one commit. Each finding keeps its
-                    own status, so an audit is worked down over time rather than fixed in one go.
+                    Audits record what a static read of one project found wrong at one commit. Each
+                    finding keeps its own status, so an audit is worked down over time rather than
+                    fixed in one go.
                 </p>
 
-                <div
-                    v-if="reports.length === 0"
-                    class="p-12 text-center"
-                >
-                    <UIcon
-                        name="i-lucide-scan-search"
-                        class="size-8 text-dimmed mx-auto mb-2"
-                    />
+                <div v-if="reports.length === 0" class="p-12 text-center">
+                    <UIcon name="i-lucide-scan-search" class="size-8 text-dimmed mx-auto mb-2" />
                     <p class="text-sm text-muted">
                         Nothing collected under <code class="font-mono">docs/audits/</code> yet.
                     </p>
                     <p class="text-xs text-dimmed mt-1">
-                        The <code class="font-mono">audit-report</code> skill writes them, one dated file per audit;
-                        <code class="font-mono">pnpm exec nx collect @monorepo/developer-portal</code> is what reads them in.
+                        The <code class="font-mono">audit-report</code> skill writes them, one dated
+                        file per audit;
+                        <code class="font-mono"
+                            >pnpm exec nx collect @monorepo/developer-portal</code
+                        >
+                        is what reads them in.
                     </p>
                 </div>
 
-                <div
-                    v-else
-                    class="flex flex-col gap-4"
-                >
+                <div v-else class="flex flex-col gap-4">
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         <StatTile
                             label="Audits"
@@ -154,7 +153,8 @@ const sortItems: { label: string, value: AuditSort }[] = [
                                         Every audit, and how much of it is left
                                     </h2>
                                     <p class="text-xs text-muted">
-                                        Progress counts fixed and won't-fix findings, read from each audit's own Status column.
+                                        Progress counts fixed and won't-fix findings, read from each
+                                        audit's own Status column.
                                     </p>
                                 </div>
 
@@ -171,22 +171,22 @@ const sortItems: { label: string, value: AuditSort }[] = [
                             Nothing matches that filter.
                         </div>
 
-                        <div
-                            v-else
-                            class="divide-y divide-default"
-                        >
+                        <div v-else class="divide-y divide-default">
                             <NuxtLink
                                 v-for="report in visible"
                                 :key="report.path"
                                 :to="`/audits/${report.id}`"
                                 class="flex items-center gap-3 px-4 py-2.5 hover:bg-elevated/40 transition-colors"
                             >
-                                <span class="text-xs font-mono text-dimmed shrink-0">{{ report.date }}</span>
+                                <span class="text-xs font-mono text-dimmed shrink-0">{{
+                                    report.date
+                                }}</span>
                                 <span class="text-sm truncate flex-1">{{ report.title }}</span>
                                 <code
                                     v-if="report.scope"
                                     class="text-xs text-dimmed font-mono shrink-0 hidden md:inline"
-                                >{{ report.scope }}</code>
+                                    >{{ report.scope }}</code
+                                >
 
                                 <UProgress
                                     :model-value="report.findings.length - report.counts.open"
@@ -194,8 +194,12 @@ const sortItems: { label: string, value: AuditSort }[] = [
                                     size="sm"
                                     class="w-24 shrink-0"
                                 />
-                                <span class="text-xs text-muted tabular-nums shrink-0 w-14 text-right">
-                                    {{ report.findings.length - report.counts.open }}/{{ report.findings.length }}
+                                <span
+                                    class="text-xs text-muted tabular-nums shrink-0 w-14 text-right"
+                                >
+                                    {{ report.findings.length - report.counts.open }}/{{
+                                        report.findings.length
+                                    }}
                                 </span>
 
                                 <StatusPill

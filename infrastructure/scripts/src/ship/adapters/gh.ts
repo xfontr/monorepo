@@ -6,8 +6,7 @@ import { isMissingChecksError } from "../domain/checks.ts";
 export const prUrlForBranch = (branch: string): string | undefined => {
     try {
         return gh("pr", "view", assertNotFlagLike(branch, "branch"), "--json", "url", "-q", ".url");
-    }
-    catch {
+    } catch {
         return undefined;
     }
 };
@@ -20,9 +19,9 @@ export const enableAutoMerge = (url: string, method: string): void => {
 };
 
 export interface ChecksResult {
-    passed: boolean
+    passed: boolean;
     /** `gh`'s per-check table, shown when a check fails. */
-    output: string
+    output: string;
 }
 
 // ~7 checks across 3 services, each registering on its own schedule after a push
@@ -39,16 +38,24 @@ const wait = (ms: number): void => {
 };
 
 const errorText = (error: unknown): string => {
-    const { stdout, stderr } = error as { stdout?: Buffer | string, stderr?: Buffer | string };
-    return [stdout, stderr].map((part) => part?.toString().trim() ?? "").filter(Boolean).join("\n");
+    const { stdout, stderr } = error as { stdout?: Buffer | string; stderr?: Buffer | string };
+    return [stdout, stderr]
+        .map((part) => part?.toString().trim() ?? "")
+        .filter(Boolean)
+        .join("\n");
 };
 
 /** Failed `gh` checks put their result table on the caught error's stdout. */
-export const watchChecks = (url: string, deadline = Date.now() + CHECK_REGISTRATION_BUDGET_MS): ChecksResult => {
+export const watchChecks = (
+    url: string,
+    deadline = Date.now() + CHECK_REGISTRATION_BUDGET_MS,
+): ChecksResult => {
     try {
-        return { passed: true, output: gh("pr", "checks", assertNotFlagLike(url, "PR url"), "--watch") };
-    }
-    catch (error) {
+        return {
+            passed: true,
+            output: gh("pr", "checks", assertNotFlagLike(url, "PR url"), "--watch"),
+        };
+    } catch (error) {
         const output = errorText(error);
         // "no checks reported" also means registration is pending, so retry before treating it as failure.
         if (isMissingChecksError(output) && Date.now() < deadline) {
@@ -63,7 +70,10 @@ const prState = (url: string): string =>
     gh("pr", "view", assertNotFlagLike(url, "PR url"), "--json", "state", "-q", ".state");
 
 /** Polling lets the same run return to master after the merge completes. */
-export const waitForMerge = (url: string, deadline = Date.now() + MERGE_POLL_BUDGET_MS): boolean => {
+export const waitForMerge = (
+    url: string,
+    deadline = Date.now() + MERGE_POLL_BUDGET_MS,
+): boolean => {
     if (prState(url) === "MERGED") return true;
     if (Date.now() >= deadline) return false;
     wait(MERGE_POLL_INTERVAL_MS);

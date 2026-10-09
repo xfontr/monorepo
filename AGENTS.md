@@ -18,8 +18,10 @@ so either agent can discover them from a root session.
 
 ## ✍️ Style
 
-- 4-space indent, double quotes, semicolons. `@stylistic` enforces it via `@monorepo/configs`, so
-  `pnpm exec eslint --fix` settles any argument.
+- 4-space indent, double quotes, semicolons, 100 columns. Prettier enforces it as an ESLint rule
+  through `@monorepo/configs`, so `pnpm exec eslint --fix` settles any argument. There is no
+  `.prettierrc`, so a Prettier editor extension would format with its own defaults; the workspace
+  settings turn it off and leave formatting to the ESLint extension.
 - `package.json` files are 2-space because pnpm rewrites them that way. Leave them alone.
 - **A comment carries one fact that isn't in the code, in one sentence.** See
   [💬 Comments](#-comments).

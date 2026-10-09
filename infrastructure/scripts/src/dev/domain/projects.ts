@@ -7,12 +7,12 @@ const SELF = "@monorepo/scripts";
 const ROOT_ORDER = ["apps", "infrastructure", "packages"];
 
 export interface Runnable {
-    root: string
-    name: string
+    root: string;
+    name: string;
 }
 
 export type DevProject = Runnable & {
-    label: string
+    label: string;
 };
 
 export const labelFor = (name: string): string =>
@@ -29,14 +29,20 @@ export const toProjects = (runnables: Runnable[]): DevProject[] =>
         .map((runnable) => ({ ...runnable, label: labelFor(runnable.name) }))
         .sort((a, b) => rank(a.root) - rank(b.root) || a.label.localeCompare(b.label));
 
-export const spellings = ({ name, label }: DevProject): string[] => [name, name.replace(SCOPE, ""), label];
+export const spellings = ({ name, label }: DevProject): string[] => [
+    name,
+    name.replace(SCOPE, ""),
+    label,
+];
 
 export const rowFor = (project: DevProject): string => `${project.label} · ${project.root}`;
 
 export const findProject = (projects: DevProject[], query: string): DevProject | undefined =>
     projects.find((project) =>
-        spellings(project).some((spelling) => spelling.toLowerCase() === query.toLowerCase()));
+        spellings(project).some((spelling) => spelling.toLowerCase() === query.toLowerCase()),
+    );
 
 export const matches = (project: DevProject, search: string): boolean =>
     [...spellings(project), project.root].some((spelling) =>
-        spelling.toLowerCase().includes(search.toLowerCase()));
+        spelling.toLowerCase().includes(search.toLowerCase()),
+    );

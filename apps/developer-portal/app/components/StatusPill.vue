@@ -3,10 +3,10 @@ import { NuxtLink } from "#components";
 import type { Tone } from "../utils/format.ts";
 
 interface Props {
-    label: string
-    tone?: Tone
-    to?: string
-    hint?: string
+    label: string;
+    tone?: Tone;
+    to?: string;
+    hint?: string;
 }
 
 const { label, tone = "neutral", to, hint } = defineProps<Props>();
@@ -23,6 +23,6 @@ const toneClass = computed(() => (tone === "neutral" ? "text-dimmed" : `tone-${t
         class="shrink-0 text-xs font-medium px-1.5 py-0.5 rounded-full border border-current"
         :class="toneClass"
     >
-{{ label }}
-</component>
+        {{ label }}
+    </component>
 </template>

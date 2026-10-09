@@ -19,25 +19,15 @@ useSeoMeta({
         <a
             href="#contenido"
             class="sr-only z-50 rounded-xs bg-primary font-sans text-sm font-semibold text-inverted focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:px-4 focus:py-3"
-        >{{ $t("app.skipLink") }}</a>
-
-        <ShellSiteHeader
-            :sections
-            :issn
-        />
-
-        <UMain
-            id="contenido"
-            tabindex="-1"
-            class="min-h-0 flex-1 outline-none"
+            >{{ $t("app.skipLink") }}</a
         >
+
+        <ShellSiteHeader :sections :issn />
+
+        <UMain id="contenido" tabindex="-1" class="min-h-0 flex-1 outline-none">
             <slot />
         </UMain>
 
-        <ShellSiteFooter
-            :columns
-            :social
-            :issn
-        />
+        <ShellSiteFooter :columns :social :issn />
     </div>
 </template>

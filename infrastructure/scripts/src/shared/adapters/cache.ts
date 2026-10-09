@@ -19,10 +19,12 @@ export const cached = <T>(key: string, fetch: () => T): T => {
 
     if (!refreshRequested()) {
         try {
-            const { fetchedAt, data } = JSON.parse(readFileSync(file, "utf8")) as { fetchedAt: number, data: T };
+            const { fetchedAt, data } = JSON.parse(readFileSync(file, "utf8")) as {
+                fetchedAt: number;
+                data: T;
+            };
             if (!isEmptyList(data) && Date.now() - fetchedAt < TTL_MS) return data;
-        }
-        catch {
+        } catch {
             // Cache misses and corrupt data fall through to a live fetch.
         }
     }
@@ -37,8 +39,7 @@ export const cached = <T>(key: string, fetch: () => T): T => {
 export const readCache = <T>(key: string): T | undefined => {
     try {
         return (JSON.parse(readFileSync(pathFor(key), "utf8")) as { data: T }).data;
-    }
-    catch {
+    } catch {
         // Offline cache misses return no issues.
         return undefined;
     }
@@ -49,8 +50,7 @@ export const writeCache = <T>(key: string, data: T): void => {
     try {
         mkdirSync(dirname(pathFor(key)), { recursive: true });
         writeFileSync(pathFor(key), JSON.stringify({ fetchedAt: Date.now(), data }));
-    }
-    catch {
+    } catch {
         // Cache writes fail open so a successful command is not lost to storage errors.
     }
 };

@@ -57,7 +57,9 @@ describe("newsletter form", () => {
     });
 
     it("wires the caller's error to the field, so it is read with the input", async () => {
-        const wrapper = await mountSuspended(NewsletterForm, { props: { error: "Falta el dominio" } });
+        const wrapper = await mountSuspended(NewsletterForm, {
+            props: { error: "Falta el dominio" },
+        });
 
         const input = wrapper.find("input");
         const error = wrapper.find("[data-slot=error]");
@@ -79,14 +81,19 @@ describe("newsletter form", () => {
     it.each([
         ["paper", "primary"],
         ["slate", "secondary"],
-    ] as const)("gives the %s tone a %s button, so it keeps contrast on its background", async (tone, color) => {
-        const wrapper = await mountSuspended(NewsletterForm, { props: { tone } });
+    ] as const)(
+        "gives the %s tone a %s button, so it keeps contrast on its background",
+        async (tone, color) => {
+            const wrapper = await mountSuspended(NewsletterForm, { props: { tone } });
 
-        expect(wrapper.findComponent({ name: "UButton" }).props("color")).toBe(color);
-    });
+            expect(wrapper.findComponent({ name: "UButton" }).props("color")).toBe(color);
+        },
+    );
 
     it("renders the note inside the form, so it sits with the field it explains", async () => {
-        const wrapper = await mountSuspended(NewsletterForm, { slots: { note: () => h("p", "note") } });
+        const wrapper = await mountSuspended(NewsletterForm, {
+            slots: { note: () => h("p", "note") },
+        });
 
         expect(wrapper.find("form p").text()).toBe("note");
     });

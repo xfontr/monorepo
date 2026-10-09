@@ -2,15 +2,15 @@
 import type { BreadcrumbItem } from "@nuxt/ui";
 
 interface Props {
-    article: Article
+    article: Article;
 }
 
 const props = defineProps<Props>();
 
 const FORMAT_KEYS = {
-    "articulo": "article.formats.article",
-    "comentario": "article.formats.comment",
-    "ensayo": "article.formats.essay",
+    articulo: "article.formats.article",
+    comentario: "article.formats.comment",
+    ensayo: "article.formats.essay",
     "tfg-tfm": "article.formats.thesis",
 } as const satisfies Record<ArticleSummary["format"], string>;
 
@@ -23,32 +23,36 @@ const breadcrumb = computed<BreadcrumbItem[]>(() => {
         { label: t("article.breadcrumb.publications"), to: { name: "publications" } },
     ];
 
-    return category ? [...items, { label: category.name, to: { name: "category", params: { slug: category.slug } } }] : items;
+    return category
+        ? [
+              ...items,
+              { label: category.name, to: { name: "category", params: { slug: category.slug } } },
+          ]
+        : items;
 });
 
 const formatLabel = computed<string>(() => t(FORMAT_KEYS[props.article.format]));
 
-const bylineAuthors = computed(() => props.article.authors.map((author) => ({ ...author, to: { hash: "#autor" } })));
+const bylineAuthors = computed(() =>
+    props.article.authors.map((author) => ({ ...author, to: { hash: "#autor" } })),
+);
 </script>
 
 <template>
-    <UContainer
-        as="header"
-        class="grid grid-cols-1 pt-6 md:pt-10 lg:grid-cols-12 lg:gap-x-8"
-    >
+    <UContainer as="header" class="grid grid-cols-1 pt-6 md:pt-10 lg:grid-cols-12 lg:gap-x-8">
         <div class="lg:col-span-9 lg:col-start-4">
             <UBreadcrumb
                 :items="breadcrumb"
-                :ui="{ link: 'font-sans text-meta min-h-11 inline-flex items-center', separatorIcon: 'size-4' }"
+                :ui="{
+                    link: 'font-sans text-meta min-h-11 inline-flex items-center',
+                    separatorIcon: 'size-4',
+                }"
                 class="print:hidden"
             />
             <p class="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-xs md:mt-8">
                 <BaseKicker>{{ formatLabel }}</BaseKicker>
                 <template v-if="article.category">
-                    <span
-                        class="text-dimmed"
-                        aria-hidden="true"
-                    >·</span>
+                    <span class="text-dimmed" aria-hidden="true">·</span>
                     <ULink
                         :to="{ name: 'category', params: { slug: article.category.slug } }"
                         raw
@@ -58,7 +62,9 @@ const bylineAuthors = computed(() => props.article.authors.map((author) => ({ ..
                     </ULink>
                 </template>
             </p>
-            <h1 class="mt-4 max-w-[18ch] font-serif text-display-sm text-highlighted text-balance md:text-display lg:text-display-lg">
+            <h1
+                class="mt-4 max-w-[18ch] font-serif text-display-sm text-highlighted text-balance md:text-display lg:text-display-lg"
+            >
                 {{ article.title }}
             </h1>
             <p
@@ -68,7 +74,9 @@ const bylineAuthors = computed(() => props.article.authors.map((author) => ({ ..
                 {{ article.excerpt }}
             </p>
 
-            <div class="mt-5 flex max-w-measure flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div
+                class="mt-5 flex max-w-measure flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+            >
                 <Byline
                     :authors="bylineAuthors"
                     :published-at="article.publishedAt"

@@ -11,7 +11,10 @@ const ARTICLE: Article = {
     slug: "la-culpa",
     title: "La culpa",
     authors: [fakeAuthor({ slug: "marta-gil" }), fakeAuthor({ slug: "luis-martin" })],
-    tags: [{ id: "3", slug: "dolo", name: "Dolo" }, { id: "4", slug: "imprudencia", name: "Imprudencia" }],
+    tags: [
+        { id: "3", slug: "dolo", name: "Dolo" },
+        { id: "4", slug: "imprudencia", name: "Imprudencia" },
+    ],
     format: "ensayo",
     readingMinutes: 12,
     body: { lead: "", html: "", toc: [], notes: [], bibliography: [] },
@@ -22,26 +25,43 @@ const ARTICLE: Article = {
 describe("article back matter", () => {
     // ArticleHeader's share bar and byline link to these two ids
     it("keeps the citation at #citar and the author cards at #autor", async () => {
-        const wrapper = await mountSuspended(ArticleBackMatter, { props: { article: ARTICLE }, global });
+        const wrapper = await mountSuspended(ArticleBackMatter, {
+            props: { article: ARTICLE },
+            global,
+        });
 
         expect(wrapper.find("#citar").text()).toContain(ARTICLE.citations[0]!.text);
         expect(wrapper.find("#autor").findAll("section")).toHaveLength(2);
     });
 
     it("links each author card to that author's profile", async () => {
-        const wrapper = await mountSuspended(ArticleBackMatter, { props: { article: ARTICLE }, global });
+        const wrapper = await mountSuspended(ArticleBackMatter, {
+            props: { article: ARTICLE },
+            global,
+        });
 
-        expect(wrapper.find("#autor").findAll("a").map((link) => link.attributes("href"))).toEqual(["/colaboradores/marta-gil/", "/colaboradores/luis-martin/"]);
+        expect(
+            wrapper
+                .find("#autor")
+                .findAll("a")
+                .map((link) => link.attributes("href")),
+        ).toEqual(["/colaboradores/marta-gil/", "/colaboradores/luis-martin/"]);
     });
 
     it("lists the tags in one line", async () => {
-        const wrapper = await mountSuspended(ArticleBackMatter, { props: { article: ARTICLE }, global });
+        const wrapper = await mountSuspended(ArticleBackMatter, {
+            props: { article: ARTICLE },
+            global,
+        });
 
         expect(wrapper.text()).toContain("Dolo · Imprudencia");
     });
 
     it("leaves out the tags line for an article without tags", async () => {
-        const wrapper = await mountSuspended(ArticleBackMatter, { props: { article: { ...ARTICLE, tags: [] } }, global });
+        const wrapper = await mountSuspended(ArticleBackMatter, {
+            props: { article: { ...ARTICLE, tags: [] } },
+            global,
+        });
 
         expect(wrapper.text()).not.toContain("t(article.tags)");
     });

@@ -13,7 +13,10 @@ const PAGES = [
     { path: "/docs/reviews/2026-09-05-abcb17d", title: "📊 Review — 2026-09-05" },
     { path: "/docs/decisions/readme", title: "🧭 Decisions" },
     { path: "/docs/decisions/template", title: "🧭" },
-    { path: "/docs/decisions/0001-feature-discoverability", title: "🧭 Making the repo's feature surface discoverable" },
+    {
+        path: "/docs/decisions/0001-feature-discoverability",
+        title: "🧭 Making the repo's feature surface discoverable",
+    },
     { path: "/packages/ui/readme", title: "📦 @monorepo/ui" },
     { path: "/packages/ui/agents", title: "🤖 @monorepo/ui" },
     { path: "/packages/ui/changelog", title: "CHANGELOG" },
@@ -22,13 +25,12 @@ const PAGES = [
     { path: "/.agents/skills/house-docs/skill", title: "Writing docs here" },
 ];
 
-function sectionOf(id: string) {
-    return buildWiki(PAGES).find((section) => section.id === id);
-}
+const sectionOf = (id: string) => buildWiki(PAGES).find((section) => section.id === id);
 
-function labelsIn(id: string, group: string): string[] {
-    return sectionOf(id)?.groups.find((entry) => entry.key === group)?.entries.map((entry) => entry.label) ?? [];
-}
+const labelsIn = (id: string, group: string): string[] =>
+    sectionOf(id)
+        ?.groups.find((entry) => entry.key === group)
+        ?.entries.map((entry) => entry.label) ?? [];
 
 describe("buildWiki", () => {
     it("files a project's nested README under the project, not as a project of its own", () => {
@@ -41,9 +43,12 @@ describe("buildWiki", () => {
             { path: "/infrastructure/scripts/src/drift/readme", title: "📚 drift" },
         ];
 
-        expect(buildWiki(PAGES_WITH_SCRIPT).find((section) => section.id === "infrastructure")
-            ?.groups.find((group) => group.key === "scripts")
-            ?.entries.map((entry) => entry.label)).toEqual(["drift"]);
+        expect(
+            buildWiki(PAGES_WITH_SCRIPT)
+                .find((section) => section.id === "infrastructure")
+                ?.groups.find((group) => group.key === "scripts")
+                ?.entries.map((entry) => entry.label),
+        ).toEqual(["drift"]);
     });
 
     it("labels a project's own README 'Overview', because the group already carries the package name", () => {
@@ -51,11 +56,16 @@ describe("buildWiki", () => {
     });
 
     it("keeps every root-scoped skill in the shared agent setup", () => {
-        expect(labelsIn("agents", "skills")).toEqual(["Adding a UI component", "Writing docs here"]);
+        expect(labelsIn("agents", "skills")).toEqual([
+            "Adding a UI component",
+            "Writing docs here",
+        ]);
     });
 
     it("drops the changelogs, the dated reviews and the decision reports, which have pages of their own in this app", () => {
-        const paths = buildWiki(PAGES).flatMap((section) => section.groups.flatMap((group) => group.entries.map((entry) => entry.path)));
+        const paths = buildWiki(PAGES).flatMap((section) =>
+            section.groups.flatMap((group) => group.entries.map((entry) => entry.path)),
+        );
 
         expect(paths).not.toContain("/packages/ui/changelog");
         expect(paths).not.toContain("/docs/reviews/2026-09-05-abcb17d");
@@ -63,7 +73,9 @@ describe("buildWiki", () => {
     });
 
     it("drops a TEMPLATE, whose placeholder heading survives @nuxt/content as a blank or truncated title", () => {
-        const paths = buildWiki(PAGES).flatMap((section) => section.groups.flatMap((group) => group.entries.map((entry) => entry.path)));
+        const paths = buildWiki(PAGES).flatMap((section) =>
+            section.groups.flatMap((group) => group.entries.map((entry) => entry.path)),
+        );
 
         expect(paths).not.toContain("/docs/decisions/template");
     });
@@ -73,7 +85,13 @@ describe("buildWiki", () => {
     });
 
     it("sorts the docs tree's own pages above its subdirectories, so the map comes before the territory", () => {
-        expect(sectionOf("docs")?.groups.map((group) => group.key)).toEqual(["docs", "concepts", "guides", "decisions", "reviews"]);
+        expect(sectionOf("docs")?.groups.map((group) => group.key)).toEqual([
+            "docs",
+            "concepts",
+            "guides",
+            "decisions",
+            "reviews",
+        ]);
     });
 
     it("files a package under its own 'Packages' section, not a shared 'Projects' one", () => {
@@ -81,11 +99,16 @@ describe("buildWiki", () => {
     });
 
     it("labels a project group with its title-cased name, not its raw folder path", () => {
-        expect(sectionOf("packages")?.groups.map((group) => group.label)).toEqual(["Content", "UI"]);
+        expect(sectionOf("packages")?.groups.map((group) => group.label)).toEqual([
+            "Content",
+            "UI",
+        ]);
     });
 
     it("drops a section nothing landed in instead of rendering an empty heading", () => {
-        expect(buildWiki([{ path: "/readme", title: "Monorepo" }]).map((section) => section.id)).toEqual(["workspace"]);
+        expect(
+            buildWiki([{ path: "/readme", title: "Monorepo" }]).map((section) => section.id),
+        ).toEqual(["workspace"]);
     });
 
     it("keeps the decisions rubric, which is a doc about how a report is written rather than a report", () => {
@@ -99,7 +122,9 @@ describe("stripLeadingEmoji", () => {
     });
 
     it("strips the emoji the house style opens every heading with", () => {
-        expect(stripLeadingEmoji("🧱 Why the boundary system exists")).toBe("Why the boundary system exists");
+        expect(stripLeadingEmoji("🧱 Why the boundary system exists")).toBe(
+            "Why the boundary system exists",
+        );
     });
 });
 

@@ -48,12 +48,19 @@ const facts = [
 
         <main class="flex flex-col">
             <section class="mx-auto w-full max-w-site px-4 md:px-8 lg:px-12">
-                <div class="flex flex-col gap-4 border-b border-default pt-10 pb-8 md:pt-14 lg:flex-row lg:items-end lg:justify-between lg:gap-12 lg:pb-10">
-                    <h1 class="max-w-3xl font-serif text-[2.125rem] leading-[1.08] tracking-[-0.02em] text-highlighted text-balance md:text-[3rem] lg:text-[3.5rem]">
+                <div
+                    class="flex flex-col gap-4 border-b border-default pt-10 pb-8 md:pt-14 lg:flex-row lg:items-end lg:justify-between lg:gap-12 lg:pb-10"
+                >
+                    <h1
+                        class="max-w-3xl font-serif text-[2.125rem] leading-[1.08] tracking-[-0.02em] text-highlighted text-balance md:text-[3rem] lg:text-[3.5rem]"
+                    >
                         Derecho riguroso, escrito para ser <em class="text-primary">leído</em>.
                     </h1>
-                    <p class="max-w-sm font-serif text-base leading-relaxed text-muted lg:pb-2 lg:text-right">
-                        Revista jurídica de acceso libre. Artículos revisados de profesionales, docentes y estudiantes de todo el ámbito hispanohablante.
+                    <p
+                        class="max-w-sm font-serif text-base leading-relaxed text-muted lg:pb-2 lg:text-right"
+                    >
+                        Revista jurídica de acceso libre. Artículos revisados de profesionales,
+                        docentes y estudiantes de todo el ámbito hispanohablante.
                     </p>
                 </div>
             </section>
@@ -64,22 +71,24 @@ const facts = [
             >
                 <article class="group flex flex-col gap-5 lg:col-span-8 lg:pr-12">
                     <div class="@container aspect-[16/10] overflow-hidden rounded-xs">
-                        <MediaFallback
-                            tone="slate"
-                            label="Imagen del artículo"
-                        />
+                        <MediaFallback tone="slate" label="Imagen del artículo" />
                     </div>
                     <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
                         <Kicker href="#">
                             {{ lead.category }}
                         </Kicker>
-                        <span class="font-sans text-xs tabular-nums text-dimmed">{{ lead.issue }}</span>
+                        <span class="font-sans text-xs tabular-nums text-dimmed">{{
+                            lead.issue
+                        }}</span>
                     </div>
-                    <h2 class="font-serif text-[2rem] leading-[1.12] tracking-[-0.02em] text-highlighted text-balance md:text-h1 lg:text-[2.875rem]">
+                    <h2
+                        class="font-serif text-[2rem] leading-[1.12] tracking-[-0.02em] text-highlighted text-balance md:text-h1 lg:text-[2.875rem]"
+                    >
                         <a
                             href="/lab/attempts/article-a"
                             class="decoration-huella-slate-300 decoration-2 underline-offset-[0.14em] group-hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
-                        >{{ lead.title }}</a>
+                            >{{ lead.title }}</a
+                        >
                     </h2>
                     <p class="max-w-measure font-serif text-reading text-toned">
                         {{ lead.excerpt }}
@@ -97,10 +106,7 @@ const facts = [
                     class="border-t-2 border-huella-slate-900 pt-4 lg:col-span-4 lg:border-t-0 lg:border-l lg:border-default lg:pt-0 lg:pl-10"
                 >
                     <Kicker>Serie</Kicker>
-                    <h2
-                        id="fundamentos"
-                        class="mt-1 font-serif text-h3 text-highlighted"
-                    >
+                    <h2 id="fundamentos" class="mt-1 font-serif text-h3 text-highlighted">
                         Fundamentos del Derecho penal
                     </h2>
                     <p class="mt-2 font-serif text-base leading-relaxed text-muted">
@@ -112,13 +118,20 @@ const facts = [
                             :key="item.slug"
                             class="group/item grid grid-cols-[2.25rem_1fr] py-4"
                         >
-                            <span class="font-serif text-2xl leading-none text-huella-teal-400 tabular-nums">{{ index + 1 }}</span>
+                            <span
+                                class="font-serif text-2xl leading-none text-huella-teal-400 tabular-nums"
+                                >{{ index + 1 }}</span
+                            >
                             <span>
                                 <a
                                     href="/lab/attempts/article-a"
                                     class="font-serif text-lg leading-snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                                >{{ item.title }}</a>
-                                <span class="mt-1 block font-serif text-[0.9375rem] leading-normal text-muted">{{ item.excerpt }}</span>
+                                    >{{ item.title }}</a
+                                >
+                                <span
+                                    class="mt-1 block font-serif text-[0.9375rem] leading-normal text-muted"
+                                    >{{ item.excerpt }}</span
+                                >
                             </span>
                         </li>
                     </ol>
@@ -145,11 +158,10 @@ const facts = [
                 </div>
             </section>
 
-            <section
-                aria-labelledby="materias"
-                class="border-y border-default bg-ivory-50"
-            >
-                <div class="mx-auto grid max-w-site gap-10 px-4 py-16 md:px-8 lg:grid-cols-12 lg:gap-12 lg:px-12 lg:py-20">
+            <section aria-labelledby="materias" class="border-y border-default bg-ivory-50">
+                <div
+                    class="mx-auto grid max-w-site gap-10 px-4 py-16 md:px-8 lg:grid-cols-12 lg:gap-12 lg:px-12 lg:py-20"
+                >
                     <div class="lg:col-span-4">
                         <Kicker>Índice</Kicker>
                         <h2
@@ -159,7 +171,8 @@ const facts = [
                             Materias
                         </h2>
                         <p class="mt-3 max-w-sm font-serif text-base leading-relaxed text-toned">
-                            Diez áreas del Derecho, del penal a la teoría jurídica, y un archivo de trabajos académicos publicados íntegramente.
+                            Diez áreas del Derecho, del penal a la teoría jurídica, y un archivo de
+                            trabajos académicos publicados íntegramente.
                         </p>
                         <UButton
                             variant="outline"
@@ -179,12 +192,18 @@ const facts = [
                                 href="/lab/category"
                                 class="group flex min-h-14 items-baseline gap-3 py-3 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary"
                             >
-                                <span class="font-serif text-lg text-highlighted underline-offset-[0.2em] decoration-huella-slate-300 group-hover:underline">{{ category.name }}</span>
+                                <span
+                                    class="font-serif text-lg text-highlighted underline-offset-[0.2em] decoration-huella-slate-300 group-hover:underline"
+                                    >{{ category.name }}</span
+                                >
                                 <span
                                     class="flex-1 translate-y-[-0.2em] border-b border-dotted border-ivory-400"
                                     aria-hidden="true"
                                 />
-                                <span class="font-sans text-meta tabular-nums text-muted">{{ category.count }}<span class="sr-only"> artículos</span></span>
+                                <span class="font-sans text-meta tabular-nums text-muted"
+                                    >{{ category.count
+                                    }}<span class="sr-only"> artículos</span></span
+                                >
                             </a>
                         </li>
                     </ul>
@@ -201,7 +220,8 @@ const facts = [
                         id="calidad"
                         class="mt-2 font-serif text-[2rem] leading-[1.15] tracking-[-0.015em] text-highlighted text-balance md:text-h1"
                     >
-                        Calidad frente a cantidad: centenares de horas de documentación detrás de cada entrada.
+                        Calidad frente a cantidad: centenares de horas de documentación detrás de
+                        cada entrada.
                     </h2>
                 </div>
                 <dl class="grid grid-cols-2 self-end border-t border-default lg:col-span-5">
@@ -213,7 +233,9 @@ const facts = [
                         <dt class="font-sans text-meta text-muted">
                             {{ fact.label }}
                         </dt>
-                        <dd class="font-serif text-[2rem] leading-none text-highlighted tabular-nums">
+                        <dd
+                            class="font-serif text-[2rem] leading-none text-highlighted tabular-nums"
+                        >
                             {{ fact.value }}
                         </dd>
                     </div>
@@ -229,11 +251,10 @@ const facts = [
                     :key="item.title"
                     class="flex flex-col items-start gap-4 rounded-sm border border-default bg-ivory-50 p-6 md:p-8"
                 >
-                    <span class="flex size-11 items-center justify-center rounded-full bg-huella-teal-100 text-huella-teal-700">
-                        <UIcon
-                            :name="item.icon"
-                            class="size-5"
-                        />
+                    <span
+                        class="flex size-11 items-center justify-center rounded-full bg-huella-teal-100 text-huella-teal-700"
+                    >
+                        <UIcon :name="item.icon" class="size-5" />
                     </span>
                     <h2 class="font-serif text-h3 text-highlighted">
                         {{ item.title }}

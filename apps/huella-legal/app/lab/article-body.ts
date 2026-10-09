@@ -68,9 +68,18 @@ export const body = `
 `;
 
 export const notes = [
-    { id: 1, text: "Artículo 10 de la Ley Orgánica 10/1995, de 23 de noviembre, del Código Penal." },
-    { id: 2, text: "WELZEL, H., El nuevo sistema del Derecho penal. Una introducción a la doctrina de la acción finalista, trad. J. Cerezo Mir, Ariel, Barcelona, 1964." },
-    { id: 3, text: "Véase, con carácter general, STC 76/2019, de 22 de mayo, FJ 5; DOUE L 119, de 4 de mayo de 2016, pp. 1–88." },
+    {
+        id: 1,
+        text: "Artículo 10 de la Ley Orgánica 10/1995, de 23 de noviembre, del Código Penal.",
+    },
+    {
+        id: 2,
+        text: "WELZEL, H., El nuevo sistema del Derecho penal. Una introducción a la doctrina de la acción finalista, trad. J. Cerezo Mir, Ariel, Barcelona, 1964.",
+    },
+    {
+        id: 3,
+        text: "Véase, con carácter general, STC 76/2019, de 22 de mayo, FJ 5; DOUE L 119, de 4 de mayo de 2016, pp. 1–88.",
+    },
 ];
 
 export const bibliography = [

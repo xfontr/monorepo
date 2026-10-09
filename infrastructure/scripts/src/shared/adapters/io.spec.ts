@@ -61,7 +61,14 @@ describe("non-interactive output", () => {
         out.end("end");
         out.cancelled("cancelled");
 
-        expect(stdout).toEqual(["info\n", "success\n", "Title\nbody\n", "begin\n", "end\n", "cancelled\n"]);
+        expect(stdout).toEqual([
+            "info\n",
+            "success\n",
+            "Title\nbody\n",
+            "begin\n",
+            "end\n",
+            "cancelled\n",
+        ]);
         expect(stderr).toEqual(["warn\n", "error\n"]);
     });
 

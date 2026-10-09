@@ -23,7 +23,9 @@ describe("mentions", () => {
     });
 
     it("matches a namespaced skill token when it stands alone", () => {
-        expect(mentions("| `content-new-vendor` | Adding a CMS vendor |", "content-new-vendor")).toBe(true);
+        expect(
+            mentions("| `content-new-vendor` | Adding a CMS vendor |", "content-new-vendor"),
+        ).toBe(true);
     });
 
     it("treats a token as found when it stands alone", () => {
@@ -78,7 +80,10 @@ describe("skills", () => {
             { source: ".agents/skills/i18n-new-vendor/SKILL.md", name: "i18n-new-vendor" },
         ]);
 
-        expect(rows.map((row) => row.invocation)).toEqual(["$content-new-vendor", "$i18n-new-vendor"]);
+        expect(rows.map((row) => row.invocation)).toEqual([
+            "$content-new-vendor",
+            "$i18n-new-vendor",
+        ]);
     });
 });
 
@@ -86,7 +91,9 @@ describe("documentedBy", () => {
     it("reports nothing rather than a near miss when no doc names the capability", () => {
         const docs: Doc[] = [{ path: "README.md", text: "nothing relevant" }];
 
-        expect(documentedBy(command("pnpm docs:map", "package.json", "docs:map"), docs)).toBeUndefined();
+        expect(
+            documentedBy(command("pnpm docs:map", "package.json", "docs:map"), docs),
+        ).toBeUndefined();
     });
 
     it("never lets a skill cite its own SKILL.md, which would answer every row trivially", () => {
@@ -96,19 +103,26 @@ describe("documentedBy", () => {
             { path: "AGENTS.md", text: "| `house-docs` | Writing markdown |" },
         ];
 
-        expect(documentedBy(skills([{ source: own, name: "house-docs" }])[0]!, docs)).toBe("AGENTS.md");
+        expect(documentedBy(skills([{ source: own, name: "house-docs" }])[0]!, docs)).toBe(
+            "AGENTS.md",
+        );
     });
 
     // Nearness alone sent skills to a sibling skill, and ranking alone to whichever README named them.
     it.each([
         { other: ".agents/skills/doc-drift-check/SKILL.md", text: "follow the house-docs skill" },
-        { other: "infrastructure/scripts/src/drift/README.md", text: "per the `house-docs` skill's rules" },
+        {
+            other: "infrastructure/scripts/src/drift/README.md",
+            text: "per the `house-docs` skill's rules",
+        },
     ])("sends a skill to the AGENTS.md table even when $other also names it", ({ other, text }) => {
         const docs: Doc[] = [
             { path: other, text },
             { path: "AGENTS.md", text: "| `house-docs` | Writing markdown |" },
         ];
-        const capability = skills([{ source: ".agents/skills/house-docs/SKILL.md", name: "house-docs" }])[0]!;
+        const capability = skills([
+            { source: ".agents/skills/house-docs/SKILL.md", name: "house-docs" },
+        ])[0]!;
 
         expect(documentedBy(capability, docs)).toBe("AGENTS.md");
     });
@@ -116,9 +130,16 @@ describe("documentedBy", () => {
     it("points a project's command at the README beside it, not at the root one", () => {
         const docs: Doc[] = [
             { path: "README.md", text: "`pnpm storybook` somewhere in here" },
-            { path: "packages/ui/README.md", text: "| `pnpm storybook` | Storybook on port 6006 |" },
+            {
+                path: "packages/ui/README.md",
+                text: "| `pnpm storybook` | Storybook on port 6006 |",
+            },
         ];
-        const capability = command("pnpm exec nx storybook @monorepo/ui", "packages/ui/package.json", "storybook");
+        const capability = command(
+            "pnpm exec nx storybook @monorepo/ui",
+            "packages/ui/package.json",
+            "storybook",
+        );
 
         expect(documentedBy(capability, docs)).toBe("packages/ui/README.md");
     });
@@ -129,6 +150,8 @@ describe("documentedBy", () => {
             { path: "README.md", text: "The `pre-push` hook runs lint, test and typecheck" },
         ];
 
-        expect(documentedBy(command("git push", ".husky/pre-push", "pre-push"), docs)).toBe("README.md");
+        expect(documentedBy(command("git push", ".husky/pre-push", "pre-push"), docs)).toBe(
+            "README.md",
+        );
     });
 });

@@ -11,7 +11,7 @@ mockNuxtImport("$fetch", () => fetch);
 mockNuxtImport("useAsyncData", () => asyncData.useAsyncData);
 const Harness = defineComponent({
     props: { repoUrl: { type: String, default: "" } },
-    setup(props) {
+    setup: (props) => {
         useRuntimeConfig().public.repoUrl = props.repoUrl;
         return { state: useIssues() };
     },
@@ -34,24 +34,33 @@ beforeEach(() => {
     vi.clearAllMocks();
     vi.stubGlobal("$fetch", fetch);
     useRuntimeConfig().public.repoUrl = "";
-    asyncData.useAsyncData.mockImplementation((_key: string, handler: () => Promise<IssuesRead>, options: { default: () => IssuesRead }) => ({
-        data: ref(options.default()),
-        status: ref("idle"),
-        refresh: vi.fn(),
-        handler,
-        options,
-    }));
+    asyncData.useAsyncData.mockImplementation(
+        (
+            _key: string,
+            handler: () => Promise<IssuesRead>,
+            options: { default: () => IssuesRead },
+        ) => ({
+            data: ref(options.default()),
+            status: ref("idle"),
+            refresh: vi.fn(),
+            handler,
+            options,
+        }),
+    );
 });
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("useIssues", () => {
-    async function execute(wrapper: VueWrapper<InstanceType<typeof Harness>>) {
-        const state = wrapper.vm.state as unknown as { data: { value: IssuesRead }, handler: () => Promise<IssuesRead> };
+    const execute = async (wrapper: VueWrapper<InstanceType<typeof Harness>>) => {
+        const state = wrapper.vm.state as unknown as {
+            data: { value: IssuesRead };
+            handler: () => Promise<IssuesRead>;
+        };
         state.data.value = await state.handler();
 
         return state.data.value;
-    }
+    };
 
     it("returns a displayable configuration error without making a request", async () => {
         const wrapper = mount(Harness, { props: { repoUrl: "" } });
@@ -64,10 +73,9 @@ describe("useIssues", () => {
         const wrapper = mount(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
         const result = await execute(wrapper);
 
-        expect(fetch).toHaveBeenCalledWith(
-            "https://api.github.com/repos/acme/repo/issues",
-            { query: { state: "open", per_page: 100 } },
-        );
+        expect(fetch).toHaveBeenCalledWith("https://api.github.com/repos/acme/repo/issues", {
+            query: { state: "open", per_page: 100 },
+        });
         expect(result.issues.map((issue) => issue.number)).toEqual([1]);
         expect(result.fetchedAt).not.toBe("");
     });

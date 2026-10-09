@@ -6,7 +6,7 @@ import type { ContentConfig } from "./config";
 export default defineNuxtModule<ContentConfig>({
     meta: { name: "@monorepo/content/nuxt", configKey: "content" },
 
-    setup(resolvedOptions, nuxt) {
+    setup: (resolvedOptions, nuxt) => {
         const resolver = createResolver(import.meta.url);
 
         if (!isVendorName(resolvedOptions.vendor?.name)) {
@@ -15,9 +15,11 @@ export default defineNuxtModule<ContentConfig>({
 
         nuxt.options.runtimeConfig.content = resolvedOptions;
 
-        addServerImports([{
-            name: "useContent",
-            from: resolver.resolve("./runtime/server/utils/useContent"),
-        }]);
+        addServerImports([
+            {
+                name: "useContent",
+                from: resolver.resolve("./runtime/server/utils/useContent"),
+            },
+        ]);
     },
 });

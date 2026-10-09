@@ -8,8 +8,7 @@ const isInstalled = (): boolean => {
     try {
         createRequire(import.meta.url).resolve("@clack/prompts");
         return true;
-    }
-    catch {
+    } catch {
         return false;
     }
 };
@@ -23,4 +22,5 @@ export const ensureInstalled = (): boolean => {
 };
 
 /** Nx supplies `name`, so it is not untrusted flag text. */
-export const dev = (name: string): number | null => inherit("pnpm", ["--filter", name, "run", "dev"]);
+export const dev = (name: string): number | null =>
+    inherit("pnpm", ["--filter", name, "run", "dev"]);

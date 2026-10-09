@@ -4,21 +4,21 @@ import type { RouteLocationRaw } from "vue-router";
 type Variant = "lead" | "standard" | "compact" | "media" | "row";
 
 interface Recipe {
-    gap: string
-    layout: string
-    media: "always" | "image" | false
-    frame: string
-    body: string
-    title: string
-    excerpt: string | false
-    byline: string
-    readingTime: boolean
-    eager: boolean
+    gap: string;
+    layout: string;
+    media: "always" | "image" | false;
+    frame: string;
+    body: string;
+    title: string;
+    excerpt: string | false;
+    byline: string;
+    readingTime: boolean;
+    eager: boolean;
 }
 
 interface Props {
-    article: ArticleSummary
-    variant?: Variant
+    article: ArticleSummary;
+    variant?: Variant;
 }
 
 const props = withDefaults(defineProps<Props>(), { variant: "standard" });
@@ -87,23 +87,21 @@ const VARIANTS = {
 } as const satisfies Record<Variant, Recipe>;
 
 const ui = computed<Recipe>(() => VARIANTS[props.variant]);
-const hasMedia = computed<boolean>(() => ui.value.media === "always" || (ui.value.media === "image" && !!props.article.image));
+const hasMedia = computed<boolean>(
+    () => ui.value.media === "always" || (ui.value.media === "image" && !!props.article.image),
+);
 const authors = computed(() =>
-    props.article.authors.map((author) => ({ ...author, to: { name: "author", params: { slug: author.slug } } satisfies RouteLocationRaw })),
+    props.article.authors.map((author) => ({
+        ...author,
+        to: { name: "author", params: { slug: author.slug } } satisfies RouteLocationRaw,
+    })),
 );
 </script>
 
 <template>
     <!-- The title is the only link to the article and stretches over the card, so the other links sit above it -->
-    <article
-        class="group relative flex flex-col"
-        :class="[ui.gap, hasMedia && ui.layout]"
-    >
-        <div
-            v-if="hasMedia"
-            class="@container overflow-hidden rounded-xs"
-            :class="ui.frame"
-        >
+    <article class="group relative flex flex-col" :class="[ui.gap, hasMedia && ui.layout]">
+        <div v-if="hasMedia" class="@container overflow-hidden rounded-xs" :class="ui.frame">
             <!-- Decorative: the title beside it already names the article -->
             <img
                 v-if="article.image"
@@ -113,14 +111,11 @@ const authors = computed(() =>
                 alt=""
                 :loading="ui.eager ? 'eager' : 'lazy'"
                 class="size-full object-cover"
-            >
+            />
             <MediaFallback v-else />
         </div>
 
-        <div
-            class="flex min-w-0 flex-col"
-            :class="[ui.gap, ui.body]"
-        >
+        <div class="flex min-w-0 flex-col" :class="[ui.gap, ui.body]">
             <BaseKicker
                 v-if="article.category"
                 :to="{ name: 'category', params: { slug: article.category.slug } }"
@@ -129,10 +124,7 @@ const authors = computed(() =>
                 {{ article.category.name }}
             </BaseKicker>
 
-            <h3
-                class="font-serif text-highlighted text-balance"
-                :class="ui.title"
-            >
+            <h3 class="font-serif text-highlighted text-balance" :class="ui.title">
                 <ULink
                     :to="{ name: 'article', params: { slug: article.slug } }"
                     raw

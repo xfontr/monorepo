@@ -5,7 +5,8 @@ import { at, git } from "../../shared/adapters/git.ts";
 const range = (base: string, head: string): string =>
     `${assertNotFlagLike(base, "base")}..${assertNotFlagLike(head, "head")}`;
 
-export const mergeBase = (ref: string): string => git("merge-base", "HEAD", assertNotFlagLike(ref, "ref"));
+export const mergeBase = (ref: string): string =>
+    git("merge-base", "HEAD", assertNotFlagLike(ref, "ref"));
 
 export const changedFiles = (base: string, head: string): string[] =>
     git("diff", "--name-only", range(base, head)).split("\n").filter(Boolean);

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface Props {
-    entries: string[]
+    entries: string[];
 }
 
 defineProps<Props>();
@@ -14,10 +14,7 @@ const headingId = useId();
         :aria-labelledby="headingId"
         class="border-t border-default pt-6"
     >
-        <h2
-            :id="headingId"
-            class="text-kicker"
-        >
+        <h2 :id="headingId" class="text-kicker">
             {{ $t("articleBibliography.title") }}
         </h2>
         <ul class="mt-4 flex flex-col gap-3">

@@ -4,7 +4,9 @@ import { eachElement, parseFragment, slugify, stringifyNodes, textContent } from
 describe("parseFragment", () => {
     // Parsed as a document, a pasted `<meta>` would drag a `<head>` and `<body>` in with it
     it("parses a fragment without wrapping it in a document", () => {
-        expect(stringifyNodes(parseFragment("<meta charset=\"utf-8\"><p>Texto</p>").children)).toBe("<meta charset=\"utf-8\"><p>Texto</p>");
+        expect(stringifyNodes(parseFragment('<meta charset="utf-8"><p>Texto</p>').children)).toBe(
+            '<meta charset="utf-8"><p>Texto</p>',
+        );
     });
 });
 
@@ -12,7 +14,9 @@ describe("eachElement", () => {
     it("visits every element in document order, nested ones included", () => {
         const tags: string[] = [];
 
-        eachElement(parseFragment("<p>Uno <em>dos</em></p><ul><li>tres</li></ul>"), ({ tagName }) => tags.push(tagName));
+        eachElement(parseFragment("<p>Uno <em>dos</em></p><ul><li>tres</li></ul>"), ({ tagName }) =>
+            tags.push(tagName),
+        );
 
         expect(tags).toEqual(["p", "em", "ul", "li"]);
     });
@@ -20,7 +24,9 @@ describe("eachElement", () => {
 
 describe("textContent", () => {
     it("decodes entities and collapses whitespace into display text", () => {
-        expect(textContent(parseFragment("  El&nbsp;dolo\n y <em>la culpa</em> "))).toBe("El dolo y la culpa");
+        expect(textContent(parseFragment("  El&nbsp;dolo\n y <em>la culpa</em> "))).toBe(
+            "El dolo y la culpa",
+        );
     });
 });
 

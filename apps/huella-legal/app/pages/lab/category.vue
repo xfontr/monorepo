@@ -14,7 +14,15 @@ const category = categories[0]!;
 
 useHead({ title: "Derecho penal · Laboratorio Huella Legal", htmlAttrs: { lang: "es" } });
 
-const listing = [articles[4]!, articles[6]!, articles[2]!, articles[0]!, articles[3]!, articles[1]!, articles[5]!];
+const listing = [
+    articles[4]!,
+    articles[6]!,
+    articles[2]!,
+    articles[0]!,
+    articles[3]!,
+    articles[1]!,
+    articles[5]!,
+];
 const page = ref(1);
 const pageCount = Math.ceil(48 / 7);
 const sort = ref("Más recientes");
@@ -31,21 +39,27 @@ const sort = ref("Más recientes");
                     <UBreadcrumb
                         :items="[
                             { label: 'Portada', to: '/lab/home' },
-                            isAuthor ? { label: 'Colaboradores', to: '/lab/colaboradores' } : { label: 'Publicaciones', to: '/lab/publicaciones' },
+                            isAuthor
+                                ? { label: 'Colaboradores', to: '/lab/colaboradores' }
+                                : { label: 'Publicaciones', to: '/lab/publicaciones' },
                             { label: isAuthor ? author.name : category.name },
                         ]"
-                        :ui="{ link: 'font-sans text-meta min-h-11 inline-flex items-center', separatorIcon: 'size-4' }"
+                        :ui="{
+                            link: 'font-sans text-meta min-h-11 inline-flex items-center',
+                            separatorIcon: 'size-4',
+                        }"
                     />
 
-                    <div
-                        v-if="!isAuthor"
-                        class="mt-6 md:mt-8"
-                    >
+                    <div v-if="!isAuthor" class="mt-6 md:mt-8">
                         <Kicker>Materia</Kicker>
-                        <h1 class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-highlighted md:text-[3.5rem]">
+                        <h1
+                            class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-highlighted md:text-[3.5rem]"
+                        >
                             {{ category.name }}
                         </h1>
-                        <p class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned">
+                        <p
+                            class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned"
+                        >
                             {{ category.description }}
                         </p>
                     </div>
@@ -57,16 +71,21 @@ const sort = ref("Más recientes");
                         <span
                             class="flex size-20 items-center justify-center rounded-full bg-huella-slate-100 font-sans text-lg font-semibold text-primary md:size-24 lg:size-28"
                             aria-hidden="true"
-                        >{{ author.initials }}</span>
+                            >{{ author.initials }}</span
+                        >
                         <div>
                             <Kicker>Colaboradora</Kicker>
-                            <h1 class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-highlighted text-balance md:text-[3.5rem]">
+                            <h1
+                                class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-highlighted text-balance md:text-[3.5rem]"
+                            >
                                 {{ author.name }}
                             </h1>
                             <p class="mt-1 font-sans text-meta text-muted">
                                 {{ author.role }}
                             </p>
-                            <p class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned text-pretty">
+                            <p
+                                class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned text-pretty"
+                            >
                                 {{ author.bio }}
                             </p>
                             <div class="-ml-3 mt-3 flex flex-wrap gap-1">
@@ -86,20 +105,24 @@ const sort = ref("Más recientes");
                                 />
                             </div>
                         </div>
-                        <dl class="grid grid-cols-2 self-end border-t border-default md:col-span-2 lg:col-span-1 lg:grid-cols-1">
+                        <dl
+                            class="grid grid-cols-2 self-end border-t border-default md:col-span-2 lg:col-span-1 lg:grid-cols-1"
+                        >
                             <div class="flex flex-col-reverse gap-1 border-b border-default py-4">
-                                <dt class="font-sans text-meta text-muted">
-                                    publicaciones
-                                </dt>
-                                <dd class="font-serif text-[2rem] leading-none text-highlighted tabular-nums">
+                                <dt class="font-sans text-meta text-muted">publicaciones</dt>
+                                <dd
+                                    class="font-serif text-[2rem] leading-none text-highlighted tabular-nums"
+                                >
                                     {{ author.articles }}
                                 </dd>
                             </div>
-                            <div class="flex flex-col-reverse gap-1 border-b border-default py-4 pl-5 lg:pl-0">
-                                <dt class="font-sans text-meta text-muted">
-                                    colaboradora desde
-                                </dt>
-                                <dd class="font-serif text-[2rem] leading-none text-highlighted tabular-nums">
+                            <div
+                                class="flex flex-col-reverse gap-1 border-b border-default py-4 pl-5 lg:pl-0"
+                            >
+                                <dt class="font-sans text-meta text-muted">colaboradora desde</dt>
+                                <dd
+                                    class="font-serif text-[2rem] leading-none text-highlighted tabular-nums"
+                                >
                                     2022
                                 </dd>
                             </div>
@@ -108,49 +131,60 @@ const sort = ref("Más recientes");
                 </div>
             </section>
 
-            <div class="mx-auto grid max-w-site grid-cols-1 gap-12 px-4 pt-6 pb-16 md:px-8 lg:grid-cols-12 lg:gap-x-12 lg:px-12 lg:pb-20">
-                <section
-                    aria-label="Publicaciones"
-                    class="min-w-0 lg:col-span-8"
-                >
-                    <div class="flex flex-wrap items-center justify-between gap-x-6 border-b border-default">
+            <div
+                class="mx-auto grid max-w-site grid-cols-1 gap-12 px-4 pt-6 pb-16 md:px-8 lg:grid-cols-12 lg:gap-x-12 lg:px-12 lg:pb-20"
+            >
+                <section aria-label="Publicaciones" class="min-w-0 lg:col-span-8">
+                    <div
+                        class="flex flex-wrap items-center justify-between gap-x-6 border-b border-default"
+                    >
                         <h2 class="flex min-h-12 items-center font-sans text-meta text-muted">
-                            {{ isAuthor ? `Publicaciones de ${author.name.split(" ")[0]}` : "Publicaciones" }}
+                            {{
+                                isAuthor
+                                    ? `Publicaciones de ${author.name.split(" ")[0]}`
+                                    : "Publicaciones"
+                            }}
                         </h2>
-                        <label class="-mr-2 flex shrink-0 items-center font-sans text-meta text-muted">
-                            <span
-                                aria-hidden="true"
-                                class="hidden sm:inline"
-                            >Ordenar:</span>
+                        <label
+                            class="-mr-2 flex shrink-0 items-center font-sans text-meta text-muted"
+                        >
+                            <span aria-hidden="true" class="hidden sm:inline">Ordenar:</span>
                             <USelect
                                 v-model="sort"
                                 aria-label="Ordenar publicaciones"
                                 variant="ghost"
                                 trailing-icon="i-lucide-chevron-down"
                                 :items="['Más recientes', 'Más antiguas']"
-                                :ui="{ base: 'min-h-11 bg-transparent ps-2 pe-8 font-sans text-sm font-semibold text-highlighted hover:bg-huella-slate-900/6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary', trailing: 'pe-2', trailingIcon: 'size-4 text-muted' }"
+                                :ui="{
+                                    base: 'min-h-11 bg-transparent ps-2 pe-8 font-sans text-sm font-semibold text-highlighted hover:bg-huella-slate-900/6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+                                    trailing: 'pe-2',
+                                    trailingIcon: 'size-4 text-muted',
+                                }"
                             />
                         </label>
                     </div>
 
                     <ol class="flex flex-col divide-y divide-(--ui-border-muted)">
                         <li
-                            v-for="article in (isAuthor ? listing.slice(0, 4) : listing)"
+                            v-for="article in isAuthor ? listing.slice(0, 4) : listing"
                             :key="article.slug"
                             class="py-6 md:py-8"
                         >
                             <ArticleCard
-                                :article="isAuthor ? { ...article, authors: [author], issue: undefined } : { ...article, category: category.name }"
+                                :article="
+                                    isAuthor
+                                        ? { ...article, authors: [author], issue: undefined }
+                                        : { ...article, category: category.name }
+                                "
                                 variant="row"
                             />
                         </li>
                     </ol>
 
-                    <div
-                        v-if="!isAuthor"
-                        class="relative border-t border-default"
-                    >
-                        <p class="pointer-events-none absolute inset-x-0 top-0 flex h-12 items-center justify-center font-sans text-meta text-muted tabular-nums sm:hidden">
+                    <div v-if="!isAuthor" class="relative border-t border-default">
+                        <p
+                            class="pointer-events-none absolute inset-x-0 top-0 flex h-12 items-center justify-center font-sans text-meta text-muted tabular-nums sm:hidden"
+                        >
                             Página {{ page }} de {{ pageCount }}
                         </p>
                         <UPagination
@@ -161,7 +195,13 @@ const sort = ref("Más recientes");
                             :sibling-count="1"
                             :show-controls="false"
                             show-edges
-                            :ui="{ root: 'w-full', list: 'w-full gap-0', prev: 'me-auto', next: 'ms-auto', ellipsis: 'max-sm:hidden' }"
+                            :ui="{
+                                root: 'w-full',
+                                list: 'w-full gap-0',
+                                prev: 'me-auto',
+                                next: 'ms-auto',
+                                ellipsis: 'max-sm:hidden',
+                            }"
                         >
                             <template #prev>
                                 <UButton
@@ -184,7 +224,10 @@ const sort = ref("Más recientes");
                                 </button>
                             </template>
                             <template #ellipsis>
-                                <span class="inline-flex min-h-12 min-w-8 items-center justify-center font-sans text-sm text-dimmed">…</span>
+                                <span
+                                    class="inline-flex min-h-12 min-w-8 items-center justify-center font-sans text-sm text-dimmed"
+                                    >…</span
+                                >
                             </template>
                             <template #next>
                                 <UButton
@@ -199,17 +242,18 @@ const sort = ref("Más recientes");
                     </div>
                 </section>
 
-                <aside
-                    aria-label="Explorar"
-                    class="flex flex-col gap-10 lg:col-span-4"
-                >
+                <aside aria-label="Explorar" class="flex flex-col gap-10 lg:col-span-4">
                     <div>
-                        <h2 class="flex min-h-12 items-center font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                            {{ isAuthor ? 'Escribe sobre' : 'Otras materias' }}
+                        <h2
+                            class="flex min-h-12 items-center font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                        >
+                            {{ isAuthor ? "Escribe sobre" : "Otras materias" }}
                         </h2>
                         <ul class="flex flex-col border-t border-(--ui-border-muted)">
                             <li
-                                v-for="item in (isAuthor ? [categories[0]!, categories[1]!] : categories.slice(1))"
+                                v-for="item in isAuthor
+                                    ? [categories[0]!, categories[1]!]
+                                    : categories.slice(1)"
                                 :key="item.slug"
                                 class="border-b border-(--ui-border-muted)"
                             >
@@ -217,27 +261,32 @@ const sort = ref("Más recientes");
                                     :href="`/lab/publicaciones?materia=${item.slug}`"
                                     class="group flex min-h-11 items-center justify-between gap-3 py-1 font-serif text-base text-highlighted focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary"
                                 >
-                                    <span class="decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline">{{ item.name }}</span>
-                                    <span class="font-sans text-meta tabular-nums text-muted">{{ item.count }}</span>
+                                    <span
+                                        class="decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
+                                        >{{ item.name }}</span
+                                    >
+                                    <span class="font-sans text-meta tabular-nums text-muted">{{
+                                        item.count
+                                    }}</span>
                                 </a>
                             </li>
                         </ul>
                     </div>
 
-                    <div
-                        v-if="!isAuthor"
-                        class="rounded-sm border border-default bg-ivory-50 p-5"
-                    >
-                        <p class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary">
+                    <div v-if="!isAuthor" class="rounded-sm border border-default bg-ivory-50 p-5">
+                        <p
+                            class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary"
+                        >
                             Boletín mensual
                         </p>
                         <p class="mt-2 font-serif text-lg leading-snug text-highlighted">
-                            {{ isAuthor ? `Recibe sus próximos artículos, y los del resto de colaboradores, una vez al mes.` : `Lo nuevo en ${category.name.toLowerCase()} y el resto de materias, una vez al mes.` }}
+                            {{
+                                isAuthor
+                                    ? `Recibe sus próximos artículos, y los del resto de colaboradores, una vez al mes.`
+                                    : `Lo nuevo en ${category.name.toLowerCase()} y el resto de materias, una vez al mes.`
+                            }}
                         </p>
-                        <form
-                            class="mt-4 flex flex-col gap-3"
-                            @submit.prevent
-                        >
+                        <form class="mt-4 flex flex-col gap-3" @submit.prevent>
                             <UFormField label="Correo electrónico">
                                 <UInput
                                     type="email"
@@ -245,11 +294,7 @@ const sort = ref("Más recientes");
                                     class="w-full"
                                 />
                             </UFormField>
-                            <UButton
-                                type="submit"
-                                block
-                                label="Suscribirme"
-                            />
+                            <UButton type="submit" block label="Suscribirme" />
                         </form>
                     </div>
                 </aside>

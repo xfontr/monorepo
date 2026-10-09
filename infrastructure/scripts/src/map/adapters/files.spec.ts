@@ -9,7 +9,15 @@ vi.mock("../../shared/adapters/git.ts", () => ({
     repoRoot: () => root.value,
 }));
 
-import { docs, hookNames, projectScripts, readMap, rootScripts, skillFiles, workflowFiles } from "./files.ts";
+import {
+    docs,
+    hookNames,
+    projectScripts,
+    readMap,
+    rootScripts,
+    skillFiles,
+    workflowFiles,
+} from "./files.ts";
 
 let directory: string;
 beforeEach(() => {
@@ -20,15 +28,27 @@ afterEach(() => rmSync(directory, { recursive: true, force: true }));
 
 describe("map filesystem adapter", () => {
     it("discovers root and project scripts while skipping malformed project packages", () => {
-        writeFileSync(join(directory, "package.json"), JSON.stringify({ scripts: { lint: "lint", graph: "graph" } }));
-        for (const top of ["packages", "apps", "infrastructure"]) mkdirSync(join(directory, top), { recursive: true });
+        writeFileSync(
+            join(directory, "package.json"),
+            JSON.stringify({ scripts: { lint: "lint", graph: "graph" } }),
+        );
+        for (const top of ["packages", "apps", "infrastructure"])
+            mkdirSync(join(directory, top), { recursive: true });
         mkdirSync(join(directory, "packages", "ui"));
-        writeFileSync(join(directory, "packages", "ui", "package.json"), JSON.stringify({ name: "@monorepo/ui", scripts: { test: "test", storybook: "storybook" } }));
+        writeFileSync(
+            join(directory, "packages", "ui", "package.json"),
+            JSON.stringify({
+                name: "@monorepo/ui",
+                scripts: { test: "test", storybook: "storybook" },
+            }),
+        );
         mkdirSync(join(directory, "apps", "broken"));
         writeFileSync(join(directory, "apps", "broken", "package.json"), "not json");
 
         expect(rootScripts()).toEqual(["lint", "graph"]);
-        expect(projectScripts()).toEqual([{ root: "packages/ui", name: "@monorepo/ui", scripts: ["test", "storybook"] }]);
+        expect(projectScripts()).toEqual([
+            { root: "packages/ui", name: "@monorepo/ui", scripts: ["test", "storybook"] },
+        ]);
     });
 
     it("extracts hook and displayed workflow names and ignores non-workflows", () => {
@@ -62,7 +82,11 @@ describe("map filesystem adapter", () => {
         writeFileSync(join(directory, "worktrees", "old", "README.md"), "old");
 
         expect(skillFiles()).toEqual([{ source: ".agents/skills/demo/SKILL.md", name: "Demo" }]);
-        expect(docs().map(({ path }) => path).sort()).toEqual([".agents/skills/demo/SKILL.md", "README.md", "docs/guide.md"]);
+        expect(
+            docs()
+                .map(({ path }) => path)
+                .sort(),
+        ).toEqual([".agents/skills/demo/SKILL.md", "README.md", "docs/guide.md"]);
     });
 
     it("returns an empty map when the generated file does not exist", () => {

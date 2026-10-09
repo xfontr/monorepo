@@ -2,25 +2,26 @@
 import type { RouteLocationRaw } from "vue-router";
 
 interface Props {
-    page: number
-    total: number
-    perPage: number
-    to: (page: number) => RouteLocationRaw
+    page: number;
+    total: number;
+    perPage: number;
+    to: (page: number) => RouteLocationRaw;
 }
 
 const props = defineProps<Props>();
 
 const pageCount = computed<number>(() => Math.max(1, Math.ceil(props.total / props.perPage)));
 const previousLink = computed(() => (props.page > 1 ? props.to(props.page - 1) : undefined));
-const nextLink = computed(() => (props.page < pageCount.value ? props.to(props.page + 1) : undefined));
+const nextLink = computed(() =>
+    props.page < pageCount.value ? props.to(props.page + 1) : undefined,
+);
 </script>
 
 <template>
-    <div
-        v-if="pageCount > 1"
-        class="relative border-t border-default"
-    >
-        <p class="pointer-events-none absolute inset-x-0 top-0 flex h-12 items-center justify-center font-sans text-meta text-muted tabular-nums sm:hidden">
+    <div v-if="pageCount > 1" class="relative border-t border-default">
+        <p
+            class="pointer-events-none absolute inset-x-0 top-0 flex h-12 items-center justify-center font-sans text-meta text-muted tabular-nums sm:hidden"
+        >
             {{ $t("pagination.position", { page, total: pageCount }) }}
         </p>
         <UPagination
@@ -56,7 +57,10 @@ const nextLink = computed(() => (props.page < pageCount.value ? props.to(props.p
                 </ULink>
             </template>
             <template #ellipsis>
-                <span class="inline-flex min-h-12 min-w-8 items-center justify-center font-sans text-sm text-dimmed">…</span>
+                <span
+                    class="inline-flex min-h-12 min-w-8 items-center justify-center font-sans text-sm text-dimmed"
+                    >…</span
+                >
             </template>
             <template #next>
                 <UButton

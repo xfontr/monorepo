@@ -4,12 +4,14 @@ import libCoverage from "istanbul-lib-coverage";
 import { ExpectedError } from "../../shared/errors.ts";
 
 export interface LoadedReport {
-    name: string
-    data: CoverageMapData | undefined // undefined when coverage-final.json wasn't found on disk
+    name: string;
+    data: CoverageMapData | undefined; // undefined when coverage-final.json wasn't found on disk
 }
 
 export const assertComplete = (reports: LoadedReport[]): void => {
-    const missing = reports.filter((report) => report.data === undefined).map((report) => report.name);
+    const missing = reports
+        .filter((report) => report.data === undefined)
+        .map((report) => report.name);
     if (missing.length > 0) {
         throw new ExpectedError(
             `No coverage-final.json for: ${missing.join(", ")}. Run \`nx run-many -t test:coverage\` first, not \`affected\`.`,

@@ -15,11 +15,16 @@ class FakeObserver {
     }
 }
 
-function show(...ids: string[]): void {
-    const entries = ids.map((id) => ({ target: document.getElementById(id), isIntersecting: true }));
+const show = (...ids: string[]): void => {
+    const entries = ids.map((id) => ({
+        target: document.getElementById(id),
+        isIntersecting: true,
+    }));
 
-    observers.at(-1)!.callback(entries as unknown as IntersectionObserverEntry[], {} as IntersectionObserver);
-}
+    observers
+        .at(-1)!
+        .callback(entries as unknown as IntersectionObserverEntry[], {} as IntersectionObserver);
+};
 
 const global = { mocks: { $t: (key: string) => `t(${key})` } };
 
@@ -32,9 +37,7 @@ const TOC = [
 
 const items = [...TOC];
 
-function rail(wrapper: VueWrapper) {
-    return wrapper.findAll(".lg\\:block a");
-}
+const rail = (wrapper: VueWrapper) => wrapper.findAll(".lg\\:block a");
 
 beforeEach(() => {
     observers.length = 0;
@@ -70,7 +73,11 @@ describe("article TOC", () => {
         show("accion", "tipicidad");
         await nextTick();
 
-        expect(rail(wrapper).map((link) => link.attributes("data-lit"))).toEqual([undefined, "true", "true"]);
+        expect(rail(wrapper).map((link) => link.attributes("data-lit"))).toEqual([
+            undefined,
+            "true",
+            "true",
+        ]);
         expect(wrapper.find("[aria-current=location]").text()).toBe("La acción");
     });
 
@@ -81,7 +88,11 @@ describe("article TOC", () => {
     });
 
     it("opens the small-screen accordion onto the same sections", async () => {
-        const wrapper = await mountSuspended(ArticleToc, { props: { items }, global, attachTo: document.body });
+        const wrapper = await mountSuspended(ArticleToc, {
+            props: { items },
+            global,
+            attachTo: document.body,
+        });
 
         const trigger = wrapper.find("button[aria-expanded]");
 
@@ -91,13 +102,20 @@ describe("article TOC", () => {
         await trigger.trigger("click");
 
         expect(trigger.attributes("aria-expanded")).toBe("true");
-        expect(wrapper.findAll("[role=region] a").map((link) => link.attributes("href"))).toEqual(["#introduccion", "#accion", "#tipicidad"]);
+        expect(wrapper.findAll("[role=region] a").map((link) => link.attributes("href"))).toEqual([
+            "#introduccion",
+            "#accion",
+            "#tipicidad",
+        ]);
 
         wrapper.unmount();
     });
 
     it("renders nothing for a body with no sections, rather than an empty box", async () => {
-        const wrapper = await mountSuspended(ArticleToc, { props: { items: [{ id: "suelto", label: "Suelto", level: 3 }] }, global });
+        const wrapper = await mountSuspended(ArticleToc, {
+            props: { items: [{ id: "suelto", label: "Suelto", level: 3 }] },
+            global,
+        });
 
         expect(wrapper.find("nav").exists()).toBe(false);
     });

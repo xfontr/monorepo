@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import { fakeAsset, fakeAuthor, fakeEntry, fakeTerm } from "./factories";
 
-async function freshFactories() {
+const freshFactories = async () => {
     vi.resetModules();
 
     return import("./factories");
-}
+};
 
 describe("the domain factories", () => {
     // A screenshot baseline is only as stable as the data behind it
@@ -19,7 +19,11 @@ describe("the domain factories", () => {
     it("let every override win over what they generate", () => {
         const term = fakeTerm({ resource: "tags", slug: "dogmatica" });
 
-        expect(fakeEntry({ title: "Fijado", terms: [term], authors: [] })).toMatchObject({ title: "Fijado", terms: [term], authors: [] });
+        expect(fakeEntry({ title: "Fijado", terms: [term], authors: [] })).toMatchObject({
+            title: "Fijado",
+            terms: [term],
+            authors: [],
+        });
     });
 
     it("slug invented Spanish names the way WordPress would, with no accents or spaces", () => {

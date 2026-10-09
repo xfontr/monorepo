@@ -6,7 +6,14 @@ import type { Args } from "../shared/cli.ts";
 import { ExpectedError } from "../shared/errors.ts";
 import { projectsWithDev } from "./adapters/nx.ts";
 import { dev } from "./adapters/pnpm.ts";
-import { findProject, matches, rowFor, SCOPE, toProjects, type DevProject } from "./domain/projects.ts";
+import {
+    findProject,
+    matches,
+    rowFor,
+    SCOPE,
+    toProjects,
+    type DevProject,
+} from "./domain/projects.ts";
 
 const CANCELLED = "Cancelled — nothing started.";
 
@@ -28,7 +35,9 @@ const shortNames = (projects: DevProject[]): string =>
 
 const choose = async (projects: DevProject[], search: string): Promise<DevProject> => {
     if (!isInteractive()) {
-        throw new ExpectedError(`No terminal to pick with — name a project: pnpm dev <${shortNames(projects)}>`);
+        throw new ExpectedError(
+            `No terminal to pick with — name a project: pnpm dev <${shortNames(projects)}>`,
+        );
     }
 
     return orExit(
@@ -37,7 +46,11 @@ const choose = async (projects: DevProject[], search: string): Promise<DevProjec
             placeholder: "Type to search, ↑↓ to browse",
             initialUserInput: search,
             maxItems: VISIBLE_ROWS,
-            options: projects.map((project) => ({ value: project, label: rowFor(project), hint: project.name })),
+            options: projects.map((project) => ({
+                value: project,
+                label: rowFor(project),
+                hint: project.name,
+            })),
             filter: (input, { value }) => matches(value, input),
         }),
         CANCELLED,
@@ -48,14 +61,15 @@ export const main = async ({ positionals }: Args): Promise<void> => {
     out.begin("🚀 pnpm dev");
 
     const projects = list();
-    if (projects.length === 0) throw new ExpectedError("Nothing in this workspace declares a `dev` script.");
+    if (projects.length === 0)
+        throw new ExpectedError("Nothing in this workspace declares a `dev` script.");
 
     const requested = positionals.join(" ");
     const named = requested ? findProject(projects, requested) : undefined;
 
     if (requested && !named) out.warn(`No project here is called "${requested}" — search below.`);
 
-    const project = named ?? await choose(projects, requested);
+    const project = named ?? (await choose(projects, requested));
 
     out.end(`pnpm --filter ${project.name} run dev`);
 

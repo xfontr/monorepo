@@ -26,12 +26,13 @@ export const renderManifest = (files: string[]): string =>
 
 export const isManagedTarget = (path: string): boolean => {
     if (
-        path.includes("\\")
-        || path === ".."
-        || path.startsWith("../")
-        || posix.isAbsolute(path)
-        || posix.normalize(path) !== path
-    ) return false;
+        path.includes("\\") ||
+        path === ".." ||
+        path.startsWith("../") ||
+        posix.isAbsolute(path) ||
+        posix.normalize(path) !== path
+    )
+        return false;
 
     if (path.startsWith(".claude/skills/")) return true;
     return !path.startsWith(".claude/") && (path === "CLAUDE.md" || path.endsWith("/CLAUDE.md"));

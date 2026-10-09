@@ -82,8 +82,7 @@ export const readManifest = (): string[] => {
         return Array.isArray(parsed.files) && parsed.files.every((path) => typeof path === "string")
             ? parsed.files
             : [];
-    }
-    catch {
+    } catch {
         return [];
     }
 };

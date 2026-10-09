@@ -1,5 +1,12 @@
 import { startNodeTelemetry } from "@monorepo/observability/node";
-import { context, propagation, SpanKind, SpanStatusCode, trace, type Span } from "@opentelemetry/api";
+import {
+    context,
+    propagation,
+    SpanKind,
+    SpanStatusCode,
+    trace,
+    type Span,
+} from "@opentelemetry/api";
 import {
     ATTR_CLIENT_ADDRESS,
     ATTR_HTTP_REQUEST_METHOD,
@@ -17,7 +24,12 @@ const UNTRACED = ["/_nuxt", "/_fonts", "/__nuxt", "/favicon.ico"];
 const isUntraced = (url: string) => UNTRACED.some((path) => url.startsWith(path));
 
 export default defineNitroPlugin((nitroApp) => {
-    const { observability, public: { observability: { app } } } = useRuntimeConfig();
+    const {
+        observability,
+        public: {
+            observability: { app },
+        },
+    } = useRuntimeConfig();
 
     if (!observability.url) return;
 
@@ -31,20 +43,24 @@ export default defineNitroPlugin((nitroApp) => {
         const parent = propagation.extract(context.active(), getRequestHeaders(event));
         const options = { kind: SpanKind.SERVER, attributes: requestAttributes(event) };
 
-        return tracer.startActiveSpan(`${event.method} ${event.path}`, options, parent, async (span) => {
-            try {
-                const body = await handle(event);
-                end(span, event, getResponseStatus(event));
+        return tracer.startActiveSpan(
+            `${event.method} ${event.path}`,
+            options,
+            parent,
+            async (span) => {
+                try {
+                    const body = await handle(event);
+                    end(span, event, getResponseStatus(event));
 
-                return body;
-            }
-            catch (error) {
-                span.recordException(error as Error);
-                end(span, event, createError(error as Error).statusCode);
+                    return body;
+                } catch (error) {
+                    span.recordException(error as Error);
+                    end(span, event, createError(error as Error).statusCode);
 
-                throw error;
-            }
-        });
+                    throw error;
+                }
+            },
+        );
     });
 
     nitroApp.hooks.hook("error", (error) => {
@@ -55,7 +71,7 @@ export default defineNitroPlugin((nitroApp) => {
 });
 
 // #region utils
-function requestAttributes(event: H3Event) {
+const requestAttributes = (event: H3Event) => {
     const [path, query] = event.path.split("?");
 
     return {
@@ -66,9 +82,9 @@ function requestAttributes(event: H3Event) {
         [ATTR_USER_AGENT_ORIGINAL]: getRequestHeader(event, "user-agent"),
         [ATTR_CLIENT_ADDRESS]: getRequestIP(event, { xForwardedFor: true }),
     };
-}
+};
 
-function end(span: Span, event: H3Event, status: number) {
+const end = (span: Span, event: H3Event, status: number) => {
     const [path] = event.path.split("?");
     const route = event.context.matchedRoute?.path ?? path;
 
@@ -78,5 +94,5 @@ function end(span: Span, event: H3Event, status: number) {
     if (status >= 500) span.setStatus({ code: SpanStatusCode.ERROR });
 
     span.end();
-}
+};
 // #endregion

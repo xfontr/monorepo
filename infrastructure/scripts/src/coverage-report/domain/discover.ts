@@ -2,20 +2,22 @@ import { join } from "node:path";
 import { ExpectedError } from "../../shared/errors.ts";
 
 export interface ProjectTarget {
-    name: string
-    root: string
-    outputs: string[]
+    name: string;
+    root: string;
+    outputs: string[];
 }
 
 export interface ProjectReport {
-    name: string
-    coverageFinal: string
+    name: string;
+    coverageFinal: string;
 }
 
 const resolveOutput = (name: string, root: string, outputs: string[]): string => {
     const [output] = outputs;
     if (!output) {
-        throw new ExpectedError(`${name}'s test:coverage declares no output in nx.json — nothing to merge.`);
+        throw new ExpectedError(
+            `${name}'s test:coverage declares no output in nx.json — nothing to merge.`,
+        );
     }
     return output.replace("{projectRoot}", root);
 };

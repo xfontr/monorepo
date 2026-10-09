@@ -1,14 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CancelledError } from "../shared/errors.ts";
 
-const prompts = vi.hoisted(() => ({ autocomplete: vi.fn(), confirm: vi.fn(), select: vi.fn(), text: vi.fn() }));
+const prompts = vi.hoisted(() => ({
+    autocomplete: vi.fn(),
+    confirm: vi.fn(),
+    select: vi.fn(),
+    text: vi.fn(),
+}));
 const gh = vi.hoisted(() => ({ listLabels: vi.fn(), listProjects: vi.fn() }));
 const sharedGh = vi.hoisted(() => ({ createIssue: vi.fn() }));
 const git = vi.hoisted(() => ({ currentBranch: vi.fn() }));
 const pickCommand = vi.hoisted(() => ({ pick: vi.fn() }));
 const io = vi.hoisted(() => ({
     out: {
-        begin: vi.fn(), end: vi.fn(), note: vi.fn(), cancelled: vi.fn(), warn: vi.fn(),
+        begin: vi.fn(),
+        end: vi.fn(),
+        note: vi.fn(),
+        cancelled: vi.fn(),
+        warn: vi.fn(),
         spinner: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
     },
 }));
@@ -19,10 +28,12 @@ vi.mock("../shared/adapters/gh.ts", () => sharedGh);
 vi.mock("./adapters/git.ts", () => git);
 vi.mock("./pick.ts", () => pickCommand);
 vi.mock("../shared/adapters/io.ts", () => io);
-vi.mock("../shared/adapters/prompts.ts", () => ({ orExit: (value: unknown, message: string) => {
-    if (typeof value === "symbol") throw new CancelledError(message);
-    return value;
-} }));
+vi.mock("../shared/adapters/prompts.ts", () => ({
+    orExit: (value: unknown, message: string) => {
+        if (typeof value === "symbol") throw new CancelledError(message);
+        return value;
+    },
+}));
 
 import { add } from "./add.ts";
 
@@ -48,24 +59,41 @@ describe("issue add", () => {
         await add();
 
         expect(io.out.warn).toHaveBeenCalledWith(expect.stringContaining("No open projects"));
-        expect(sharedGh.createIssue).toHaveBeenCalledWith({ title: "Title", body: "Body", label: undefined, project: undefined });
+        expect(sharedGh.createIssue).toHaveBeenCalledWith({
+            title: "Title",
+            body: "Body",
+            label: undefined,
+            project: undefined,
+        });
     });
 
     it("passes selected project and label and exposes the label search filter", async () => {
         await add();
 
-        const options = prompts.autocomplete.mock.calls[0]?.[0] as { options: { value: string, hint?: string }[], filter: (search: string, option: { value: string, hint?: string }) => boolean };
+        const options = prompts.autocomplete.mock.calls[0]?.[0] as {
+            options: { value: string; hint?: string }[];
+            filter: (search: string, option: { value: string; hint?: string }) => boolean;
+        };
         expect(options.options).toEqual([
             { value: "bug", label: "bug", hint: "Broken" },
             { value: "", label: "— none —" },
         ]);
         expect(options.filter("broken", { value: "bug", hint: "Broken" })).toBe(true);
         expect(options.filter("bug", { value: "", hint: undefined })).toBe(false);
-        const titlePrompt = prompts.text.mock.calls[0]?.[0] as { validate: (value: string) => string | undefined };
-        const bodyPrompt = prompts.text.mock.calls[1]?.[0] as { validate: (value: string) => string | undefined };
+        const titlePrompt = prompts.text.mock.calls[0]?.[0] as {
+            validate: (value: string) => string | undefined;
+        };
+        const bodyPrompt = prompts.text.mock.calls[1]?.[0] as {
+            validate: (value: string) => string | undefined;
+        };
         expect(titlePrompt.validate(" ")).toBe("A title is required.");
         expect(bodyPrompt.validate(" ")).toBe("A description is required.");
-        expect(sharedGh.createIssue).toHaveBeenCalledWith({ title: "Fix title", body: "Fix body", label: "bug", project: "Roadmap" });
+        expect(sharedGh.createIssue).toHaveBeenCalledWith({
+            title: "Fix title",
+            body: "Fix body",
+            label: "bug",
+            project: "Roadmap",
+        });
     });
 
     it("does not create an issue after confirmation is rejected", async () => {
@@ -115,12 +143,17 @@ describe("issue add", () => {
         ["project", () => prompts.select.mockResolvedValueOnce(Symbol("cancel")), false],
         ["label", () => prompts.autocomplete.mockResolvedValueOnce(Symbol("cancel")), false],
         ["title", () => prompts.text.mockReset(), true],
-    ])("turns cancellation at the %s prompt into a cancellation error", async (_where, setup, title) => {
-        setup();
-        if (title) prompts.text.mockResolvedValueOnce(Symbol("cancel"));
+    ])(
+        "turns cancellation at the %s prompt into a cancellation error",
+        async (_where, setup, title) => {
+            setup();
+            if (title) prompts.text.mockResolvedValueOnce(Symbol("cancel"));
 
-        await expect(add()).rejects.toThrow(new CancelledError("Cancelled — no issue created."));
-    });
+            await expect(add()).rejects.toThrow(
+                new CancelledError("Cancelled — no issue created."),
+            );
+        },
+    );
 
     it("turns description cancellation into the same clean cancellation", async () => {
         prompts.text.mockReset();

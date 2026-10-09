@@ -3,9 +3,9 @@ import { useClipboard, useShare } from "@vueuse/core";
 import type { RouteLocationRaw } from "vue-router";
 
 interface Props {
-    title: string
-    url: string
-    citeTo?: RouteLocationRaw
+    title: string;
+    url: string;
+    citeTo?: RouteLocationRaw;
 }
 
 const props = defineProps<Props>();
@@ -15,13 +15,12 @@ const toast = useToast();
 const { share: nativeShare, isSupported: canNativeShare } = useShare();
 const { copy, isSupported: canCopy } = useClipboard();
 
-async function share(): Promise<void> {
+const share = async (): Promise<void> => {
     if (canNativeShare.value) {
         try {
             await nativeShare({ title: props.title, url: props.url });
             return;
-        }
-        catch (error) {
+        } catch (error) {
             // Dismissing the sheet is the reader's choice
             if (error instanceof DOMException && error.name === "AbortError") return;
         }
@@ -31,11 +30,11 @@ async function share(): Promise<void> {
 
     await copy(props.url);
     toast.add({ title: t("shareBar.linkCopied"), icon: "i-lucide-check" });
-}
+};
 
-function print(): void {
+const print = (): void => {
     window.print();
-}
+};
 </script>
 
 <template>

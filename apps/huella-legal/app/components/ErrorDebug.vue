@@ -2,7 +2,7 @@
 import type { NuxtError } from "#app";
 
 interface Props {
-    error: NuxtError<{ message?: string }>
+    error: NuxtError<{ message?: string }>;
 }
 
 const { error } = defineProps<Props>();
@@ -10,10 +10,7 @@ const { error } = defineProps<Props>();
 
 <template>
     <section class="error__debug">
-        <details
-            v-if="error.data?.message"
-            open
-        >
+        <details v-if="error.data?.message" open>
             <summary>Message</summary>
             <p>{{ error.data.message }}</p>
         </details>

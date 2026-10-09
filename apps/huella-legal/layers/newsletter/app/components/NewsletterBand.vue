@@ -4,16 +4,16 @@ import type { Tone } from "~/types/Tone";
 import NewsletterForm from "./NewsletterForm.vue";
 
 interface Recipe {
-    root: string
-    title: string
-    note: string
+    root: string;
+    title: string;
+    note: string;
 }
 
 interface Props {
-    privacyTo: RouteLocationRaw
-    tone?: Tone
-    pending?: boolean
-    error?: string
+    privacyTo: RouteLocationRaw;
+    tone?: Tone;
+    pending?: boolean;
+    error?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -25,7 +25,11 @@ const emit = defineEmits<{ submit: [email: string] }>();
 
 const TONES = {
     paper: { root: "bg-ivory-200", title: "text-highlighted", note: "text-muted" },
-    slate: { root: "bg-huella-slate-800 text-huella-slate-200", title: "text-ivory-50", note: "text-huella-slate-300" },
+    slate: {
+        root: "bg-huella-slate-800 text-huella-slate-200",
+        title: "text-ivory-50",
+        note: "text-huella-slate-300",
+    },
 } as const satisfies Record<Tone, Recipe>;
 
 const ui = computed<Recipe>(() => TONES[props.tone]);
@@ -33,10 +37,7 @@ const titleId = useId();
 </script>
 
 <template>
-    <section
-        :aria-labelledby="titleId"
-        :class="ui.root"
-    >
+    <section :aria-labelledby="titleId" :class="ui.root">
         <UContainer class="grid gap-12 py-16 lg:grid-cols-12 lg:items-center lg:gap-12 lg:py-20">
             <div class="lg:col-span-6">
                 <BaseKicker :tone>

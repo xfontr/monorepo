@@ -2,19 +2,18 @@ import { getWebInstrumentations, initializeFaro, type Faro } from "@grafana/faro
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 
 export interface WebTelemetryConfig {
-    url: string
+    url: string;
 
     app: {
-        name: string
-        version: string
-        environment: string
-    }
+        name: string;
+        version: string;
+        environment: string;
+    };
 }
 
-export function startWebTelemetry({ url, app }: WebTelemetryConfig): Faro {
-    return initializeFaro({
+export const startWebTelemetry = ({ url, app }: WebTelemetryConfig): Faro =>
+    initializeFaro({
         url,
         app,
         instrumentations: [...getWebInstrumentations(), new TracingInstrumentation()],
     });
-}

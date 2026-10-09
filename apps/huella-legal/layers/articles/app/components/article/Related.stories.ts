@@ -8,7 +8,8 @@ const article = (id: string, title: string): ArticleSummary => ({
     id,
     slug: `articulo-${id}`,
     title,
-    excerpt: "Una lectura de la jurisprudencia reciente y de lo que cambia para quien estudia la materia por primera vez.",
+    excerpt:
+        "Una lectura de la jurisprudencia reciente y de lo que cambia para quien estudia la materia por primera vez.",
     publishedAt: "2024-03-12T09:00:00Z",
     authors: [{ id, slug: `autor-${id}`, name: "Luis Martín Ortega" }],
     category: CATEGORY,
@@ -35,4 +36,6 @@ type Story = StoryObj<typeof ArticleRelated>;
 
 export const ThreeArticles: Story = {};
 
-export const OneArticle: Story = { args: { articles: [article("1", "La teoría jurídica del delito")] } };
+export const OneArticle: Story = {
+    args: { articles: [article("1", "La teoría jurídica del delito")] },
+};

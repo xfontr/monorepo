@@ -1,7 +1,13 @@
 import process from "node:process";
 import { out } from "../shared/adapters/io.ts";
 import { ExpectedError } from "../shared/errors.ts";
-import { createPr, enableAutoMerge, prUrlForBranch, waitForMerge, watchChecks } from "./adapters/gh.ts";
+import {
+    createPr,
+    enableAutoMerge,
+    prUrlForBranch,
+    waitForMerge,
+    watchChecks,
+} from "./adapters/gh.ts";
 import { checkoutMaster, currentBranch, pullMaster, push } from "./adapters/git.ts";
 import { shipReport } from "./domain/report.ts";
 

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { digestOf, METHOD_ARTIFACTS, parseManifest, staleArtifacts, updateManifest } from "./manifest.ts";
+import {
+    digestOf,
+    METHOD_ARTIFACTS,
+    parseManifest,
+    staleArtifacts,
+    updateManifest,
+} from "./manifest.ts";
 
 const MANIFEST = `# 🔒 Method version
 
@@ -27,7 +33,9 @@ describe("parseManifest", () => {
         const parsed = parseManifest(MANIFEST);
 
         expect(parsed?.version).toBe(2);
-        expect(Object.keys(parsed?.digests ?? {}).sort()).toStrictEqual([...METHOD_ARTIFACTS].sort());
+        expect(Object.keys(parsed?.digests ?? {}).sort()).toStrictEqual(
+            [...METHOD_ARTIFACTS].sort(),
+        );
     });
 
     it("reports a manifest with no version line as unreadable rather than as version zero", () => {
@@ -58,7 +66,10 @@ describe("staleArtifacts", () => {
 
 describe("updateManifest", () => {
     it("bumps the version off the digest change, so the bump can't be the step someone forgets", () => {
-        const next = updateManifest(MANIFEST, { ...RECORDED, "docs/reviews/SCORECARDS.md": "111111111111" });
+        const next = updateManifest(MANIFEST, {
+            ...RECORDED,
+            "docs/reviews/SCORECARDS.md": "111111111111",
+        });
 
         expect(parseManifest(next)?.version).toBe(3);
         expect(parseManifest(next)?.digests["docs/reviews/SCORECARDS.md"]).toBe("111111111111");
@@ -69,16 +80,22 @@ describe("updateManifest", () => {
     });
 
     it("leaves a manifest with no digest table alone rather than bumping into a file that can't record it", () => {
-        const malformed = "# 🔒 Method version\n\nMethod **version 2**.\n\nSomeone deleted the table.\n";
+        const malformed =
+            "# 🔒 Method version\n\nMethod **version 2**.\n\nSomeone deleted the table.\n";
 
         expect(updateManifest(malformed, RECORDED)).toBe(malformed);
     });
 
     it("keeps the prose around the table, which is the half a person edits", () => {
-        const next = updateManifest(MANIFEST, { ...RECORDED, ".claude/agents/repo-review-card.md": "222222222222" });
+        const next = updateManifest(MANIFEST, {
+            ...RECORDED,
+            ".claude/agents/repo-review-card.md": "222222222222",
+        });
 
         expect(next).toContain("Prose below the table.");
-        expect(next.split("\n").filter((line) => line.startsWith("| `"))).toHaveLength(METHOD_ARTIFACTS.length);
+        expect(next.split("\n").filter((line) => line.startsWith("| `"))).toHaveLength(
+            METHOD_ARTIFACTS.length,
+        );
     });
 });
 

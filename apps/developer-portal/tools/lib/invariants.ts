@@ -20,27 +20,25 @@ const DECISIONS_DIR = "docs/decisions";
  */
 
 /** Every `sourceTag:` in the enforced copy of the tag table. */
-export function tagsInBoundaries(source: string): string[] {
-    return [...source.matchAll(/sourceTag:\s*"([^"]+)"/g)].map((match) => match[1] ?? "");
-}
+export const tagsInBoundaries = (source: string): string[] =>
+    [...source.matchAll(/sourceTag:\s*"([^"]+)"/g)].map((match) => match[1] ?? "");
 
 /** Every tag named in the leftmost column of the README's tag table. */
-export function tagsInReadmeTable(readme: string): string[] {
-    return readme
+export const tagsInReadmeTable = (readme: string): string[] =>
+    readme
         .split("\n")
         .filter((line) => line.startsWith("| `type:"))
         .map((line) => /`(type:[^`]+)`/.exec(line)?.[1] ?? "")
         .filter(Boolean);
-}
 
 /** Project directories listed in the README's workspace-layout code block. */
-export function projectsInLayoutBlock(readme: string): string[] {
+export const projectsInLayoutBlock = (readme: string): string[] => {
     const block = /## 🗂 Workspace layout\s*```([\s\S]*?)```/.exec(readme)?.[1] ?? "";
 
     return [...block.matchAll(/^\s{4}([\w-]+)\//gm)].map((match) => match[1] ?? "");
-}
+};
 
-export function compareTagTables(boundaries: string, readme: string): InvariantFinding[] {
+export const compareTagTables = (boundaries: string, readme: string): InvariantFinding[] => {
     const enforced = tagsInBoundaries(boundaries);
     const documented = tagsInReadmeTable(readme);
 
@@ -68,9 +66,9 @@ export function compareTagTables(boundaries: string, readme: string): InvariantF
     }
 
     return findings;
-}
+};
 
-export function compareLayoutBlock(readme: string, projectRoots: string[]): InvariantFinding[] {
+export const compareLayoutBlock = (readme: string, projectRoots: string[]): InvariantFinding[] => {
     const listed = projectsInLayoutBlock(readme);
     const missing = projectRoots
         .map((root) => root.split("/").at(-1) ?? "")
@@ -78,37 +76,44 @@ export function compareLayoutBlock(readme: string, projectRoots: string[]): Inva
 
     if (missing.length === 0) return [];
 
-    return [{
-        id: "layout-block-incomplete",
-        title: "A project is missing from the workspace layout",
-        detail: `${missing.join(", ")} exists in the workspace but is not in the README layout block.`,
-        evidence: [README_PATH],
-    }];
-}
+    return [
+        {
+            id: "layout-block-incomplete",
+            title: "A project is missing from the workspace layout",
+            detail: `${missing.join(", ")} exists in the workspace but is not in the README layout block.`,
+            evidence: [README_PATH],
+        },
+    ];
+};
 
 /**
  * A review whose row never lands in the history table is a review nobody will ever compare against,
  * which is the one thing `docs/reviews/README.md` exists to make possible.
  */
-export function compareReviewHistory(historyReadme: string, reviewFiles: string[]): InvariantFinding[] {
+export const compareReviewHistory = (
+    historyReadme: string,
+    reviewFiles: string[],
+): InvariantFinding[] => {
     const missing = reviewFiles.filter((file) => !historyReadme.includes(file));
 
     if (missing.length === 0) return [];
 
-    return [{
-        id: "review-history-incomplete",
-        title: "A review is missing from the history table",
-        detail: `${missing.join(", ")} exists under ${REVIEWS_DIR}/ with no row in the history table, so its scores compare against nothing.`,
-        evidence: [REVIEWS_README_PATH],
-    }];
-}
+    return [
+        {
+            id: "review-history-incomplete",
+            title: "A review is missing from the history table",
+            detail: `${missing.join(", ")} exists under ${REVIEWS_DIR}/ with no row in the history table, so its scores compare against nothing.`,
+            evidence: [REVIEWS_README_PATH],
+        },
+    ];
+};
 
 /** Dated reviews only — `README.md`, `TEMPLATE.md` and `SCORECARDS.md` are the furniture around them. */
-export async function listReviewFiles(): Promise<string[]> {
+export const listReviewFiles = async (): Promise<string[]> => {
     const entries = await readdir(resolve(WORKSPACE_ROOT, REVIEWS_DIR)).catch(() => [] as string[]);
 
     return entries.filter((entry) => /^\d{4}-\d{2}-\d{2}-.+\.md$/.test(entry)).sort();
-}
+};
 
 /**
  * The dashboard's scorecards page parses this same table (`tools/lib/scorecards.ts`) to show the
@@ -116,78 +121,96 @@ export async function listReviewFiles(): Promise<string[]> {
  * `TEMPLATE.md` defines. `repo-review`'s own instructions ask for this; this is what notices when a
  * review didn't follow them.
  */
-export function compareScorecardShape(file: string, markdown: string): InvariantFinding[] {
+export const compareScorecardShape = (file: string, markdown: string): InvariantFinding[] => {
     const problems = scorecardShapeProblems(parseScoresTable(markdown));
 
     if (problems.length === 0) return [];
 
-    return [{
-        id: "scorecard-shape-mismatch",
-        title: "A review's Scores table doesn't match the template",
-        detail: `${file}: ${problems.join("; ")}.`,
-        evidence: [`${REVIEWS_DIR}/${file}`, `${REVIEWS_DIR}/TEMPLATE.md`],
-    }];
-}
+    return [
+        {
+            id: "scorecard-shape-mismatch",
+            title: "A review's Scores table doesn't match the template",
+            detail: `${file}: ${problems.join("; ")}.`,
+            evidence: [`${REVIEWS_DIR}/${file}`, `${REVIEWS_DIR}/TEMPLATE.md`],
+        },
+    ];
+};
 
 /** Dated audits only — `README.md` and `TEMPLATE.md` are the furniture around them. */
-export async function listAuditFiles(): Promise<string[]> {
+export const listAuditFiles = async (): Promise<string[]> => {
     const entries = await readdir(resolve(WORKSPACE_ROOT, AUDITS_DIR)).catch(() => [] as string[]);
 
     return entries.filter((entry) => /^\d{4}-.+\.md$/.test(entry)).sort();
-}
+};
 
 /** A finding whose status doesn't parse still counts as open on the audits page, so this is what says why. */
-export function compareAuditShape(audits: { file: string, source: string }[]): InvariantFinding[] {
-    return auditProblems(audits).map(({ file, message }) => ({
+export const compareAuditShape = (audits: { file: string; source: string }[]): InvariantFinding[] =>
+    auditProblems(audits).map(({ file, message }) => ({
         id: "audit-shape-mismatch",
         title: "An audit doesn't match the template",
         detail: `${file}: ${message}.`,
         evidence: [`${AUDITS_DIR}/${file}`, `${AUDITS_DIR}/TEMPLATE.md`],
     }));
-}
 
 /** Dated decisions only — `README.md` and `TEMPLATE.md` are the furniture around them. */
-export async function listDecisionFiles(): Promise<string[]> {
-    const entries = await readdir(resolve(WORKSPACE_ROOT, DECISIONS_DIR)).catch(() => [] as string[]);
+export const listDecisionFiles = async (): Promise<string[]> => {
+    const entries = await readdir(resolve(WORKSPACE_ROOT, DECISIONS_DIR)).catch(
+        () => [] as string[],
+    );
 
     return entries.filter((entry) => /^\d{4}-.+\.md$/.test(entry)).sort();
-}
+};
 
-export function compareDecisionShape(decisions: { file: string, source: string }[]): InvariantFinding[] {
-    return decisionProblems(decisions).map(({ file, message }) => ({
+export const compareDecisionShape = (
+    decisions: { file: string; source: string }[],
+): InvariantFinding[] =>
+    decisionProblems(decisions).map(({ file, message }) => ({
         id: "decision-shape-mismatch",
         title: "A decision report doesn't match the template",
         detail: `${file}: ${message}.`,
         evidence: [`${DECISIONS_DIR}/${file}`, `${DECISIONS_DIR}/README.md`],
     }));
-}
 
-export async function collectInvariants(projectRoots: string[] = []): Promise<InvariantFinding[]> {
-    const [boundaries, readme, history, reviewFiles, auditFiles, decisionFiles] = await Promise.all([
-        readFile(resolve(WORKSPACE_ROOT, BOUNDARIES_PATH), "utf8"),
-        readFile(resolve(WORKSPACE_ROOT, README_PATH), "utf8"),
-        readFile(resolve(WORKSPACE_ROOT, REVIEWS_README_PATH), "utf8").catch(() => ""),
-        listReviewFiles(),
-        listAuditFiles(),
-        listDecisionFiles(),
-    ]);
+export const collectInvariants = async (
+    projectRoots: string[] = [],
+): Promise<InvariantFinding[]> => {
+    const [boundaries, readme, history, reviewFiles, auditFiles, decisionFiles] = await Promise.all(
+        [
+            readFile(resolve(WORKSPACE_ROOT, BOUNDARIES_PATH), "utf8"),
+            readFile(resolve(WORKSPACE_ROOT, README_PATH), "utf8"),
+            readFile(resolve(WORKSPACE_ROOT, REVIEWS_README_PATH), "utf8").catch(() => ""),
+            listReviewFiles(),
+            listAuditFiles(),
+            listDecisionFiles(),
+        ],
+    );
 
     const reviewBodies = await Promise.all(
-        reviewFiles.map((file) => readFile(resolve(WORKSPACE_ROOT, REVIEWS_DIR, file), "utf8").catch(() => "")),
+        reviewFiles.map((file) =>
+            readFile(resolve(WORKSPACE_ROOT, REVIEWS_DIR, file), "utf8").catch(() => ""),
+        ),
     );
     const audits = await Promise.all(
-        auditFiles.map(async (file) => ({ file, source: await readFile(resolve(WORKSPACE_ROOT, AUDITS_DIR, file), "utf8") })),
+        auditFiles.map(async (file) => ({
+            file,
+            source: await readFile(resolve(WORKSPACE_ROOT, AUDITS_DIR, file), "utf8"),
+        })),
     );
     const decisions = await Promise.all(
-        decisionFiles.map(async (file) => ({ file, source: await readFile(resolve(WORKSPACE_ROOT, DECISIONS_DIR, file), "utf8") })),
+        decisionFiles.map(async (file) => ({
+            file,
+            source: await readFile(resolve(WORKSPACE_ROOT, DECISIONS_DIR, file), "utf8"),
+        })),
     );
 
     return [
         ...compareTagTables(boundaries, readme),
         ...compareLayoutBlock(readme, projectRoots),
         ...compareReviewHistory(history, reviewFiles),
-        ...reviewFiles.flatMap((file, index) => compareScorecardShape(file, reviewBodies[index] ?? "")),
+        ...reviewFiles.flatMap((file, index) =>
+            compareScorecardShape(file, reviewBodies[index] ?? ""),
+        ),
         ...compareAuditShape(audits),
         ...compareDecisionShape(decisions),
     ];
-}
+};

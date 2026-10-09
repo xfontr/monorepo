@@ -1,10 +1,10 @@
 <script setup lang="ts">
 interface Props {
-    title: string
-    kicker?: string
-    link?: string
-    linkTo?: string
-    id?: string
+    title: string;
+    kicker?: string;
+    link?: string;
+    linkTo?: string;
+    id?: string;
 }
 
 withDefaults(defineProps<Props>(), {
@@ -13,7 +13,9 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-    <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-t-2 border-huella-slate-900 pt-4">
+    <div
+        class="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-t-2 border-huella-slate-900 pt-4"
+    >
         <div>
             <p
                 v-if="kicker"

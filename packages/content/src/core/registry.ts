@@ -10,19 +10,20 @@ export type VendorName = keyof typeof providers;
 
 export const VENDOR_NAMES = Object.keys(providers) as VendorName[];
 
-type ProviderOf<N extends VendorName> = InstanceType<Awaited<ReturnType<(typeof providers)[N]>>["default"]>;
+type ProviderOf<N extends VendorName> = InstanceType<
+    Awaited<ReturnType<(typeof providers)[N]>>["default"]
+>;
 
 export type VendorConfig = {
-    [N in VendorName]: { name: N } & ProviderOf<N>["config"]
+    [N in VendorName]: { name: N } & ProviderOf<N>["config"];
 }[VendorName];
 
 type ProviderConstructor = new (config: VendorConfig, http: HttpClient) => ContentProvider;
 
-export function isVendorName(name: string | undefined): name is VendorName {
-    return VENDOR_NAMES.includes(name as VendorName);
-}
+export const isVendorName = (name: string | undefined): name is VendorName =>
+    VENDOR_NAMES.includes(name as VendorName);
 
-async function createProvider(vendor: VendorConfig, http: HttpClient): Promise<ContentProvider> {
+const createProvider = async (vendor: VendorConfig, http: HttpClient): Promise<ContentProvider> => {
     const name = vendor?.name;
 
     if (!isVendorName(name)) throw new UndefinedVendorError(name, VENDOR_NAMES);
@@ -32,6 +33,6 @@ async function createProvider(vendor: VendorConfig, http: HttpClient): Promise<C
     const Provider = module.default as ProviderConstructor;
 
     return new Provider(vendor, http);
-}
+};
 
 export default createProvider;

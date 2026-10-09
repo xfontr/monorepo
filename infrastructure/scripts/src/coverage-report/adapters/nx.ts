@@ -10,8 +10,8 @@ const TARGET = "test:coverage";
 const PATH = "/usr/bin:/bin";
 
 interface NxProject {
-    root: string
-    targets: Record<string, { outputs?: string[] }>
+    root: string;
+    targets: Record<string, { outputs?: string[] }>;
 }
 
 const nx = (args: string[]): Promise<string> =>
@@ -46,10 +46,14 @@ const nx = (args: string[]): Promise<string> =>
     });
 
 export const projectsWithCoverage = async (): Promise<ProjectTarget[]> => {
-    const names = JSON.parse(await nx(["show", "projects", "--with-target", TARGET, "--json"])) as string[];
+    const names = JSON.parse(
+        await nx(["show", "projects", "--with-target", TARGET, "--json"]),
+    ) as string[];
 
-    return Promise.all(names.map(async (name) => {
-        const project = JSON.parse(await nx(["show", "project", name, "--json"])) as NxProject;
-        return { name, root: project.root, outputs: project.targets[TARGET]?.outputs ?? [] };
-    }));
+    return Promise.all(
+        names.map(async (name) => {
+            const project = JSON.parse(await nx(["show", "project", name, "--json"])) as NxProject;
+            return { name, root: project.root, outputs: project.targets[TARGET]?.outputs ?? [] };
+        }),
+    );
 };

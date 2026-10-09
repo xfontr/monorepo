@@ -20,7 +20,9 @@ const { data: issues } = await useIssues();
 const { data: reviews } = await useReviewPages();
 
 const open = computed(() => issues.value.issues.length);
-const issuesRead = computed(() => issues.value.fetchedAt ? `read ${relativeTime(issues.value.fetchedAt)}` : "reading…");
+const issuesRead = computed(() =>
+    issues.value.fetchedAt ? `read ${relativeTime(issues.value.fetchedAt)}` : "reading…",
+);
 const recentReviews = computed(() => reviews.value.slice(0, 5));
 
 const coverage = computed(() => coverageSnapshot.value?.coverage?.totals?.lines ?? null);
@@ -30,15 +32,19 @@ const projects = computed(() => projectNodes.value.length);
 const docs = computed(() => docsSnapshot.value?.docs ?? null);
 
 const { data: readmes } = await useAsyncData("overview-readmes", () =>
-    queryCollection("docs").select("path", "title", "description").all());
+    queryCollection("docs").select("path", "title", "description").all(),
+);
 
-const readmeByPath = computed(() => new Map((readmes.value ?? []).map((page) => [page.path, page])));
+const readmeByPath = computed(
+    () => new Map((readmes.value ?? []).map((page) => [page.path, page])),
+);
 const repositoryReadme = computed(() => readmeByPath.value.get("/readme"));
-const featuredProjects = computed(() => projectNodes.value.filter((project) => project.root.startsWith("apps/")));
+const featuredProjects = computed(() =>
+    projectNodes.value.filter((project) => project.root.startsWith("apps/")),
+);
 
-function readmeFor(project: ProjectNode) {
-    return readmeByPath.value.get(`/${project.root.toLowerCase()}/readme`);
-}
+const readmeFor = (project: ProjectNode) =>
+    readmeByPath.value.get(`/${project.root.toLowerCase()}/readme`);
 
 const deps = computed(() => depsSnapshot.value?.deps ?? null);
 const advisories = computed(() => deps.value?.advisories.length ?? 0);
@@ -49,15 +55,23 @@ const worstSeverity = computed(() => {
 
     if (!counts) return null;
 
-    return (["critical", "high", "moderate", "low", "info"] as const).find((severity) => counts[severity] > 0) ?? null;
+    return (
+        (["critical", "high", "moderate", "low", "info"] as const).find(
+            (severity) => counts[severity] > 0,
+        ) ?? null
+    );
 });
 
-const vulnerabilityTone = computed(() => (worstSeverity.value ? severityTone(worstSeverity.value) : "neutral"));
+const vulnerabilityTone = computed(() =>
+    worstSeverity.value ? severityTone(worstSeverity.value) : "neutral",
+);
 
 const findings = computed(() => metricsSnapshot.value?.metrics?.invariantFindings ?? []);
 
 /** Only the pages that actually have one — a list of every doc with zero broken links is a wall. */
-const broken = computed(() => docs.value?.pages.filter((page) => page.brokenLinks.length > 0) ?? []);
+const broken = computed(
+    () => docs.value?.pages.filter((page) => page.brokenLinks.length > 0) ?? [],
+);
 
 const next = computed(() => sortIssues(issues.value.issues).slice(0, 6));
 </script>
@@ -83,7 +97,10 @@ const next = computed(() => sortIssues(issues.value.issues).slice(0, 6));
                             {{ repositoryReadme?.title ?? "Monorepo" }}
                         </h1>
                         <p class="text-sm text-muted mt-1">
-                            {{ repositoryReadme?.description ?? "The repository summary is not available yet." }}
+                            {{
+                                repositoryReadme?.description ??
+                                "The repository summary is not available yet."
+                            }}
                         </p>
                     </div>
 
@@ -92,46 +109,31 @@ const next = computed(() => sortIssues(issues.value.issues).slice(0, 6));
                             to="/projects"
                             class="rounded-lg border border-default bg-default p-4 hover:bg-elevated/50 transition-colors"
                         >
-                            <UIcon
-name="i-lucide-boxes"
-class="size-5 text-primary"
-/>
-                            <h2 class="mt-3 font-semibold">
-Explore what exists
-</h2>
+                            <UIcon name="i-lucide-boxes" class="size-5 text-primary" />
+                            <h2 class="mt-3 font-semibold">Explore what exists</h2>
                             <p class="text-sm text-muted mt-1">
-Browse the applications, building blocks, and tooling.
-</p>
+                                Browse the applications, building blocks, and tooling.
+                            </p>
                         </NuxtLink>
                         <NuxtLink
                             to="/graph"
                             class="rounded-lg border border-default bg-default p-4 hover:bg-elevated/50 transition-colors"
                         >
-                            <UIcon
-name="i-lucide-git-fork"
-class="size-5 text-primary"
-/>
-                            <h2 class="mt-3 font-semibold">
-Understand how it works
-</h2>
+                            <UIcon name="i-lucide-git-fork" class="size-5 text-primary" />
+                            <h2 class="mt-3 font-semibold">Understand how it works</h2>
                             <p class="text-sm text-muted mt-1">
-See how projects fit together and share responsibilities.
-</p>
+                                See how projects fit together and share responsibilities.
+                            </p>
                         </NuxtLink>
                         <NuxtLink
                             to="/docs/docs/guides/first-hour"
                             class="rounded-lg border border-default bg-default p-4 hover:bg-elevated/50 transition-colors"
                         >
-                            <UIcon
-name="i-lucide-play"
-class="size-5 text-primary"
-/>
-                            <h2 class="mt-3 font-semibold">
-Run or contribute
-</h2>
+                            <UIcon name="i-lucide-play" class="size-5 text-primary" />
+                            <h2 class="mt-3 font-semibold">Run or contribute</h2>
                             <p class="text-sm text-muted mt-1">
-Get a working checkout and find your first useful step.
-</p>
+                                Get a working checkout and find your first useful step.
+                            </p>
                         </NuxtLink>
                     </div>
                 </section>
@@ -139,12 +141,10 @@ Get a working checkout and find your first useful step.
                 <section class="flex flex-col gap-3">
                     <div class="flex items-center justify-between gap-3">
                         <div>
-                            <h2 class="text-xl font-semibold">
-Featured projects
-</h2>
+                            <h2 class="text-xl font-semibold">Featured projects</h2>
                             <p class="text-sm text-muted mt-1">
-Applications that show what this repository produces.
-</p>
+                                Applications that show what this repository produces.
+                            </p>
                         </div>
                         <UButton
                             to="/projects"
@@ -160,7 +160,11 @@ Applications that show what this repository produces.
                         <UCard
                             v-for="project in featuredProjects"
                             :key="project.name"
-                            :ui="{ root: 'h-full flex flex-col', header: 'flex-1', body: 'mt-auto' }"
+                            :ui="{
+                                root: 'h-full flex flex-col',
+                                header: 'flex-1',
+                                body: 'mt-auto',
+                            }"
                         >
                             <template #header>
                                 <div class="flex items-start justify-between gap-3">
@@ -169,18 +173,19 @@ Applications that show what this repository produces.
                                             {{ readmeFor(project)?.title ?? project.name }}
                                         </h3>
                                         <p class="line-clamp-3 text-sm text-muted mt-1">
-                                            {{ readmeFor(project)?.description ?? "No project description is available yet." }}
+                                            {{
+                                                readmeFor(project)?.description ??
+                                                "No project description is available yet."
+                                            }}
                                         </p>
                                     </div>
-                                    <UBadge
-label="Application"
-color="primary"
-variant="subtle"
-/>
+                                    <UBadge label="Application" color="primary" variant="subtle" />
                                 </div>
                             </template>
                             <div class="flex items-center justify-between gap-3">
-                                <span class="font-mono text-xs text-dimmed truncate">{{ project.root }}</span>
+                                <span class="font-mono text-xs text-dimmed truncate">{{
+                                    project.root
+                                }}</span>
                                 <UButton
                                     :to="`/docs/${project.root}/readme`"
                                     label="Read more"
@@ -195,23 +200,23 @@ variant="subtle"
 
                 <section class="flex flex-col gap-4">
                     <div>
-                        <h2 class="text-xl font-semibold">
-Engineering health
-</h2>
+                        <h2 class="text-xl font-semibold">Engineering health</h2>
                         <p class="text-sm text-muted mt-1">
-Collected repository signals and live work in progress.
-</p>
+                            Collected repository signals and live work in progress.
+                        </p>
                     </div>
 
                     <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
                         <StatTile
                             label="Docs"
                             :value="docs?.pages.length ?? '—'"
-                            :hint="docs
-                                ? docs.brokenLinkCount === 0
-                                    ? 'no broken links'
-                                    : `${docs.brokenLinkCount} broken link${docs.brokenLinkCount === 1 ? '' : 's'}`
-                                : 'not collected'"
+                            :hint="
+                                docs
+                                    ? docs.brokenLinkCount === 0
+                                        ? 'no broken links'
+                                        : `${docs.brokenLinkCount} broken link${docs.brokenLinkCount === 1 ? '' : 's'}`
+                                    : 'not collected'
+                            "
                             :tone="(docs?.brokenLinkCount ?? 0) > 0 ? 'warn' : 'neutral'"
                             icon="i-lucide-book-open"
                             to="/docs"
@@ -243,11 +248,13 @@ Collected repository signals and live work in progress.
                         <StatTile
                             label="Vulnerabilities"
                             :value="deps?.vulnerabilities ? advisories : '—'"
-                            :hint="deps?.vulnerabilities
-                                ? advisories === 0
-                                    ? 'none known'
-                                    : `worst: ${worstSeverity}`
-                                : 'not collected'"
+                            :hint="
+                                deps?.vulnerabilities
+                                    ? advisories === 0
+                                        ? 'none known'
+                                        : `worst: ${worstSeverity}`
+                                    : 'not collected'
+                            "
                             :tone="vulnerabilityTone"
                             icon="i-lucide-shield-alert"
                             to="/deps"
@@ -260,15 +267,14 @@ Collected repository signals and live work in progress.
                     >
                         <template #header>
                             <div>
-                                <h3 class="font-semibold">
-Needs attention
-</h3>
+                                <h3 class="font-semibold">Needs attention</h3>
                                 <p class="text-xs text-muted">
-                                    Two files that have to agree and no longer do, or a link that resolves to nothing.
-                                    Both are checked on every collect rather than only while an agent is editing.
+                                    Two files that have to agree and no longer do, or a link that
+                                    resolves to nothing. Both are checked on every collect rather
+                                    than only while an agent is editing.
                                 </p>
-                                </div>
-                            </template>
+                            </div>
+                        </template>
 
                         <UAlert
                             v-for="finding in findings"
@@ -286,10 +292,7 @@ Needs attention
                             :to="`/docs${toCollectionPath(page.path)}`"
                             class="flex items-center gap-3 text-sm hover:bg-elevated/40 rounded-md px-2 py-1.5 transition-colors"
                         >
-                            <UIcon
-name="i-lucide-link-2-off"
-class="size-4 text-dimmed shrink-0"
-/>
+                            <UIcon name="i-lucide-link-2-off" class="size-4 text-dimmed shrink-0" />
                             <span class="font-mono text-xs truncate">{{ page.path }}</span>
                             <span class="text-xs text-muted truncate">
                                 {{ page.brokenLinks.map((link) => link.href).join(", ") }}
@@ -298,15 +301,10 @@ class="size-4 text-dimmed shrink-0"
                     </UCard>
 
                     <div class="grid lg:grid-cols-3 gap-4">
-                        <UCard
-class="lg:col-span-2"
-:ui="{ body: 'p-0 sm:p-0' }"
->
+                        <UCard class="lg:col-span-2" :ui="{ body: 'p-0 sm:p-0' }">
                             <template #header>
                                 <div class="flex items-center justify-between">
-                                    <h3 class="font-semibold">
-Work in progress
-</h3>
+                                    <h3 class="font-semibold">Work in progress</h3>
                                     <UButton
                                         to="/issues"
                                         label="All issues"
@@ -319,34 +317,30 @@ Work in progress
                             </template>
 
                             <div
-v-if="next.length === 0"
-class="p-8 text-center text-sm text-muted"
->
-                                {{ issues.error ? "GitHub could not be read from this browser." : "No open issues." }}
+                                v-if="next.length === 0"
+                                class="p-8 text-center text-sm text-muted"
+                            >
+                                {{
+                                    issues.error
+                                        ? "GitHub could not be read from this browser."
+                                        : "No open issues."
+                                }}
                             </div>
 
-                            <div
-v-else
-class="divide-y divide-default"
->
+                            <div v-else class="divide-y divide-default">
                                 <IssueRow
-v-for="issue in next"
-:key="issue.number"
-:issue
-compact
-/>
+                                    v-for="issue in next"
+                                    :key="issue.number"
+                                    :issue
+                                    compact
+                                />
                             </div>
                         </UCard>
 
-                        <UCard
-class="self-start"
-:ui="{ body: 'p-0 sm:p-0' }"
->
+                        <UCard class="self-start" :ui="{ body: 'p-0 sm:p-0' }">
                             <template #header>
                                 <div class="flex items-center justify-between">
-                                    <h3 class="font-semibold">
-Reviews
-</h3>
+                                    <h3 class="font-semibold">Reviews</h3>
                                     <UButton
                                         to="/reviews"
                                         label="All"
@@ -355,20 +349,17 @@ Reviews
                                         color="neutral"
                                         trailing-icon="i-lucide-arrow-right"
                                     />
-                            </div>
-                        </template>
+                                </div>
+                            </template>
 
                             <div
-v-if="reviews.length === 0"
-class="p-8 text-center text-sm text-muted"
->
+                                v-if="reviews.length === 0"
+                                class="p-8 text-center text-sm text-muted"
+                            >
                                 No review written yet.
                             </div>
 
-                            <div
-v-else
-class="divide-y divide-default"
->
+                            <div v-else class="divide-y divide-default">
                                 <NuxtLink
                                     v-for="review in recentReviews"
                                     :key="review.path"
@@ -376,10 +367,12 @@ class="divide-y divide-default"
                                     class="flex items-center gap-3 px-4 py-2.5 hover:bg-elevated/40 transition-colors"
                                 >
                                     <UIcon
-name="i-lucide-clipboard-check"
-class="size-4 text-dimmed shrink-0"
-/>
-                                    <span class="text-sm font-mono truncate">{{ review.path.split("/").at(-1) }}</span>
+                                        name="i-lucide-clipboard-check"
+                                        class="size-4 text-dimmed shrink-0"
+                                    />
+                                    <span class="text-sm font-mono truncate">{{
+                                        review.path.split("/").at(-1)
+                                    }}</span>
                                 </NuxtLink>
                             </div>
                         </UCard>

@@ -5,7 +5,8 @@ import ErrorPage from "./error.vue";
 
 const head = vi.hoisted(() => ({ useHead: vi.fn(), reloadNuxtApp: vi.fn() }));
 
-const translate = (key: string, params?: Record<string, unknown>) => params ? `t(${key}, ${JSON.stringify(params)})` : `t(${key})`;
+const translate = (key: string, params?: Record<string, unknown>) =>
+    params ? `t(${key}, ${JSON.stringify(params)})` : `t(${key})`;
 
 mockNuxtImport("useHead", () => head.useHead);
 mockNuxtImport("useI18n", () => () => ({ t: translate }));
@@ -16,12 +17,19 @@ const global = {
     stubs: { NuxtLayout: { template: "<div data-shell='layout'><slot /></div>" } },
 };
 
-const NOT_FOUND = { status: 404, message: "Page not found", stack: "Error: Page not found\n    at render" };
-const SERVER = { status: 503, message: "Upstream unavailable", stack: "Error: Upstream unavailable\n    at fetch" };
+const NOT_FOUND = {
+    status: 404,
+    message: "Page not found",
+    stack: "Error: Page not found\n    at render",
+};
+const SERVER = {
+    status: 503,
+    message: "Upstream unavailable",
+    stack: "Error: Upstream unavailable\n    at fetch",
+};
 
-function mountError(error: Record<string, unknown>) {
-    return mount(ErrorPage, { props: { error: error as never }, global });
-}
+const mountError = (error: Record<string, unknown>) =>
+    mount(ErrorPage, { props: { error: error as never }, global });
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -41,15 +49,22 @@ describe("error page", () => {
 
         expect(wrapper.find("[data-error='not-found']").exists()).toBe(true);
         expect(wrapper.find("h1").text()).toBe("t(error.notFound.title)");
-        expect([form.attributes("action"), form.attributes("method"), form.find("input").attributes("name")]).toEqual(["/buscar/", "get", "q"]);
+        expect([
+            form.attributes("action"),
+            form.attributes("method"),
+            form.find("input").attributes("name"),
+        ]).toEqual(["/buscar/", "get", "q"]);
     });
 
-    it.each([500, 502, 503])("shows the server design for a %i, keeping the real status in the kicker", (status) => {
-        const wrapper = mountError({ ...SERVER, status });
+    it.each([500, 502, 503])(
+        "shows the server design for a %i, keeping the real status in the kicker",
+        (status) => {
+            const wrapper = mountError({ ...SERVER, status });
 
-        expect(wrapper.find("[data-error='server']").exists()).toBe(true);
-        expect(wrapper.text()).toContain(`t(error.kicker, {"status":${status}})`);
-    });
+            expect(wrapper.find("[data-error='server']").exists()).toBe(true);
+            expect(wrapper.text()).toContain(`t(error.kicker, {"status":${status}})`);
+        },
+    );
 
     it("retries every time it is clicked, not once per ten seconds as a bare reloadNuxtApp would", async () => {
         const wrapper = mountError(SERVER);
@@ -62,9 +77,9 @@ describe("error page", () => {
     it("keeps error pages out of search results", () => {
         mountError(NOT_FOUND);
 
-        const [{ title, meta }] = head.useHead.mock.calls[0] as [{ title: string, meta: object[] }];
+        const [{ title, meta }] = head.useHead.mock.calls[0] as [{ title: string; meta: object[] }];
 
-        expect(title).toBe("t(error.head, {\"status\":404})");
+        expect(title).toBe('t(error.head, {"status":404})');
         expect(meta).toContainEqual({ name: "robots", content: "noindex" });
     });
 
@@ -74,12 +89,15 @@ describe("error page", () => {
         expect(head.useHead.mock.calls[0]?.[1]).toEqual({ tagPriority: "high" });
     });
 
-    it.each([NOT_FOUND, SERVER])("never shows a reader the upstream message or the stack ($status)", (error) => {
-        const wrapper = mountError({ ...error, data: { message: "WordPress answered 404" } });
+    it.each([NOT_FOUND, SERVER])(
+        "never shows a reader the upstream message or the stack ($status)",
+        (error) => {
+            const wrapper = mountError({ ...error, data: { message: "WordPress answered 404" } });
 
-        expect(wrapper.find(".error__debug").exists()).toBe(false);
-        expect(wrapper.text()).not.toContain("WordPress answered 404");
-        expect(wrapper.text()).not.toContain(error.message);
-        expect(wrapper.text()).not.toContain("at ");
-    });
+            expect(wrapper.find(".error__debug").exists()).toBe(false);
+            expect(wrapper.text()).not.toContain("WordPress answered 404");
+            expect(wrapper.text()).not.toContain(error.message);
+            expect(wrapper.text()).not.toContain("at ");
+        },
+    );
 });

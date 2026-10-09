@@ -31,7 +31,9 @@ export const main = ({ flags }: Args): void => {
 
     if (flags.has("check")) {
         if (readMap() !== rendered) {
-            throw new ExpectedError(`${MAP_PATH} is out of date. Run \`pnpm docs:map\` and commit the result.`);
+            throw new ExpectedError(
+                `${MAP_PATH} is out of date. Run \`pnpm docs:map\` and commit the result.`,
+            );
         }
 
         out.success(`${MAP_PATH} is up to date.`);

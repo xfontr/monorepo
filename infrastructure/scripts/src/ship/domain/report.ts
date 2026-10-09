@@ -1,12 +1,12 @@
 export interface ShipOutcome {
-    checksPassed: boolean
-    merged: boolean
+    checksPassed: boolean;
+    merged: boolean;
 }
 
 export interface ShipReport {
-    message: string
-    exitCode: number | undefined
-    syncMaster: boolean
+    message: string;
+    exitCode: number | undefined;
+    syncMaster: boolean;
 }
 
 /** A passed check can still be unmerged because auto-merge only queues the merge. */

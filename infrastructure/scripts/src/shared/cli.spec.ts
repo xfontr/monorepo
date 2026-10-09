@@ -45,7 +45,10 @@ describe("run", () => {
 
         await run(command);
 
-        expect(command).toHaveBeenCalledWith({ flags: new Set(["check"]), positionals: ["issue-42"] });
+        expect(command).toHaveBeenCalledWith({
+            flags: new Set(["check"]),
+            positionals: ["issue-42"],
+        });
         expect(process.exitCode).toBeUndefined();
     });
 
@@ -55,7 +58,10 @@ describe("run", () => {
 
         await run({ add: command });
 
-        expect(command).toHaveBeenCalledWith({ flags: new Set(["check"]), positionals: ["issue-42"] });
+        expect(command).toHaveBeenCalledWith({
+            flags: new Set(["check"]),
+            positionals: ["issue-42"],
+        });
         expect(process.exitCode).toBeUndefined();
     });
 
@@ -101,11 +107,14 @@ describe("run", () => {
     });
 
     it("reports a non-Error throw as a user-visible failure", async () => {
-        await run(() => new Promise((_, reject) => {
-            // This deliberately exercises the CLI's non-Error rejection path.
-            // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
-            reject("bad value");
-        }));
+        await run(
+            () =>
+                new Promise((_, reject) => {
+                    // This deliberately exercises the CLI's non-Error rejection path.
+                    // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+                    reject("bad value");
+                }),
+        );
 
         expect(stderr.join("")).toBe("bad value\n");
         expect(process.exitCode).toBe(1);

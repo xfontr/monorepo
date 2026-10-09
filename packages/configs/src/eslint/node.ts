@@ -1,7 +1,17 @@
 import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
-import { jsonc, stylistic, boundaries, vitestConfig, baseIgnores, coreIsolation, restrictedSyntax, regexp } from "./lib/index.ts";
+import {
+    jsonc,
+    format,
+    arrowFunctions,
+    boundaries,
+    vitestConfig,
+    baseIgnores,
+    coreIsolation,
+    restrictedSyntax,
+    regexp,
+} from "./lib/index.ts";
 
 const ignores = {
     ignores: baseIgnores,
@@ -14,7 +24,7 @@ const typescript = tseslint.configs.recommendedTypeChecked.map((config) => ({
     files: ["**/*.ts", "*.ts"],
 }));
 
-function createNodeConfig(): object[] {
+const createNodeConfig = (): object[] => {
     const nodeTs = {
         files: ["**/*.ts", "*.ts"],
         languageOptions: {
@@ -39,13 +49,14 @@ function createNodeConfig(): object[] {
         ...typescript,
         nodeTs,
         vitestConfig,
-        stylistic,
+        format,
+        arrowFunctions,
         jsonc,
         boundaries,
         coreIsolation,
         restrictedSyntax,
         regexp,
     ];
-}
+};
 
 export default createNodeConfig;

@@ -1,7 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 import ContentProvider from "./ContentProvider";
 import type { HttpClient } from "./HttpClient";
-import type { Entry, EntryQuery, EntryResource, Page, Query, Term, TermResource } from "#core/domain/content";
+import type {
+    Entry,
+    EntryQuery,
+    EntryResource,
+    Page,
+    Query,
+    Term,
+    TermResource,
+} from "#core/domain/content";
 import { MisconfiguredVendorError, NotFoundError } from "#core/domain/errors";
 
 const get = vi.fn();
@@ -28,15 +36,24 @@ class StubProvider extends ContentProvider<{ problems: string[] }> {
     }
 }
 
-function page<T>(...items: T[]): Page<T> {
-    return { items, page: 1, perPage: 1, total: items.length, totalPages: 1 };
-}
+const page = <T>(...items: T[]): Page<T> => ({
+    items,
+    page: 1,
+    perPage: 1,
+    total: items.length,
+    totalPages: 1,
+});
 
-function build(problems: string[] = []) {
-    return new StubProvider({ problems }, http);
-}
+const build = (problems: string[] = []) => new StubProvider({ problems }, http);
 
-const entry = { id: "1", slug: "hello", title: "Hello", body: { format: "html", value: "" }, terms: [], authors: [] } as Entry;
+const entry = {
+    id: "1",
+    slug: "hello",
+    title: "Hello",
+    body: { format: "html", value: "" },
+    terms: [],
+    authors: [],
+} as Entry;
 const term = { id: "1", resource: "categories", slug: "news", name: "News" } as Term;
 
 describe("ContentProvider", () => {
@@ -53,19 +70,25 @@ describe("ContentProvider", () => {
 
     describe("when the vendor config cannot work", () => {
         it("refuses to exist, naming the provider that cannot be built", () => {
-            expect(() => build(["baseURL is not an absolute URL"])).toThrow(MisconfiguredVendorError);
-            expect(() => build(["baseURL is not an absolute URL"])).toThrow(/StubProvider is misconfigured/);
+            expect(() => build(["baseURL is not an absolute URL"])).toThrow(
+                MisconfiguredVendorError,
+            );
+            expect(() => build(["baseURL is not an absolute URL"])).toThrow(
+                /StubProvider is misconfigured/,
+            );
         });
 
         // One restart per missing variable is the thing worth avoiding
         it("reports every problem at once", () => {
-            expect(() => build(["baseURL is not an absolute URL", "token is empty"]))
-                .toThrow(/baseURL is not an absolute URL, token is empty/);
+            expect(() => build(["baseURL is not an absolute URL", "token is empty"])).toThrow(
+                /baseURL is not an absolute URL, token is empty/,
+            );
         });
 
         it("reports as an internal error, since the deployment is at fault rather than the vendor", () => {
-            expect(() => build(["baseURL is not an absolute URL"]))
-                .toThrow(expect.objectContaining({ statusCode: 500 }) as Error);
+            expect(() => build(["baseURL is not an absolute URL"])).toThrow(
+                expect.objectContaining({ statusCode: 500 }) as Error,
+            );
         });
 
         // The base constructor runs the check, so an override may only read `config` — pinned here
@@ -97,7 +120,9 @@ describe("ContentProvider", () => {
             listEntries.mockResolvedValue(page<Entry>());
 
             await expect(build().getEntry("posts", "nope")).rejects.toThrow(NotFoundError);
-            await expect(build().getEntry("posts", "nope")).rejects.toMatchObject({ statusCode: 404 });
+            await expect(build().getEntry("posts", "nope")).rejects.toMatchObject({
+                statusCode: 404,
+            });
             await expect(build().getEntry("posts", "nope")).rejects.toThrow(/"posts".*"nope"/);
         });
 

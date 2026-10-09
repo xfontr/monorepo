@@ -8,19 +8,22 @@ const getTranslations: Handler = async ({ req, json }) => {
     const project = req.param("project");
     const locale = req.param("locale");
 
-    if (!assertSegment(project) || !assertSegment(locale)) return json({ error: "Invalid params" }, HTTP_BAD_REQUEST);
+    if (!assertSegment(project) || !assertSegment(locale))
+        return json({ error: "Invalid params" }, HTTP_BAD_REQUEST);
 
     try {
         return json(await readLocale(project, locale));
-    }
-    catch (cause) {
-        if (isMissingFile(cause)) return json({ error: `Locale "${locale}" not found in "${project}"` }, HTTP_NOT_FOUND);
-        return json({ error: `Locale "${locale}" in "${project}" could not be read` }, HTTP_SERVER_ERROR);
+    } catch (cause) {
+        if (isMissingFile(cause))
+            return json({ error: `Locale "${locale}" not found in "${project}"` }, HTTP_NOT_FOUND);
+        return json(
+            { error: `Locale "${locale}" in "${project}" could not be read` },
+            HTTP_SERVER_ERROR,
+        );
     }
 };
 
-function isMissingFile(cause: unknown): boolean {
-    return cause instanceof Error && "code" in cause && cause.code === "ENOENT";
-}
+const isMissingFile = (cause: unknown): boolean =>
+    cause instanceof Error && "code" in cause && cause.code === "ENOENT";
 
 export default getTranslations;

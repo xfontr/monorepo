@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface Props {
-    notes: Note[]
+    notes: Note[];
 }
 
 defineProps<Props>();
@@ -9,15 +9,8 @@ const headingId = useId();
 </script>
 
 <template>
-    <section
-        v-if="notes.length"
-        :aria-labelledby="headingId"
-        class="border-t border-default pt-6"
-    >
-        <h2
-            :id="headingId"
-            class="text-kicker"
-        >
+    <section v-if="notes.length" :aria-labelledby="headingId" class="border-t border-default pt-6">
+        <h2 :id="headingId" class="text-kicker">
             {{ $t("articleNotes.title") }}
         </h2>
         <ol class="mt-4 flex flex-col gap-3">
@@ -36,10 +29,7 @@ const headingId = useId();
                     {{ note.id }}
                 </ULink>
                 <!-- eslint-disable vue/no-v-html -- only ever fed from the articles layer's sanitising body mapper -->
-                <span
-                    class="break-words hl-links"
-                    v-html="note.html"
-                />
+                <span class="break-words hl-links" v-html="note.html" />
                 <!-- eslint-enable vue/no-v-html -->
             </li>
         </ol>

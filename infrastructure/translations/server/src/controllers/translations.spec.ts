@@ -9,9 +9,7 @@ const { app } = await import("../app.ts");
 
 const get = (path: string) => app.request(path);
 
-function fsError(code: string) {
-    return Object.assign(new Error(code), { code });
-}
+const fsError = (code: string) => Object.assign(new Error(code), { code });
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -30,7 +28,9 @@ describe("GET /:locale/:project failures", () => {
         const res = await get("/en-GB/external");
 
         expect(res.status).toBe(500);
-        await expect(res.json()).resolves.toEqual({ error: "Locale \"en-GB\" in \"external\" could not be read" });
+        await expect(res.json()).resolves.toEqual({
+            error: 'Locale "en-GB" in "external" could not be read',
+        });
     });
 
     it("500s a locale file it cannot read, so a permissions fault is not mistaken for a typo", async () => {

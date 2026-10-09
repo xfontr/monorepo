@@ -2,7 +2,12 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { describe, expect, it } from "vitest";
 import EmptyState from "./EmptyState.vue";
 
-const global = { mocks: { $t: (key: string, params?: Record<string, unknown>) => `t(${key}${params ? `, ${JSON.stringify(params)}` : ""})` } };
+const global = {
+    mocks: {
+        $t: (key: string, params?: Record<string, unknown>) =>
+            `t(${key}${params ? `, ${JSON.stringify(params)}` : ""})`,
+    },
+};
 
 const PROPS = { subject: "Derecho administrativo", publishTo: "/publicar", browseTo: "/materias" };
 
@@ -10,7 +15,7 @@ describe("empty state", () => {
     it("names the subject in the heading and the landmark", async () => {
         const wrapper = await mountSuspended(EmptyState, { props: PROPS, global });
 
-        const title = "t(emptyState.title, {\"subject\":\"Derecho administrativo\"})";
+        const title = 't(emptyState.title, {"subject":"Derecho administrativo"})';
 
         const labelledBy = wrapper.find("section").attributes("aria-labelledby");
 
@@ -23,6 +28,9 @@ describe("empty state", () => {
 
         const links = wrapper.findAll("a").map((link) => [link.text(), link.attributes("href")]);
 
-        expect(links).toEqual([["t(emptyState.publish)", "/publicar"], ["t(emptyState.browse)", "/materias"]]);
+        expect(links).toEqual([
+            ["t(emptyState.publish)", "/publicar"],
+            ["t(emptyState.browse)", "/materias"],
+        ]);
     });
 });

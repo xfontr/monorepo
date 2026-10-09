@@ -17,8 +17,12 @@ import { main } from "./main.ts";
 
 beforeEach(() => {
     vi.clearAllMocks();
-    projects.projectsWithCoverage.mockResolvedValue([{ name: "ui", root: "packages/ui", outputs: ["coverage"] }]);
-    domain.toReports.mockReturnValue([{ name: "ui", coverageFinal: "packages/ui/coverage/coverage-final.json" }]);
+    projects.projectsWithCoverage.mockResolvedValue([
+        { name: "ui", root: "packages/ui", outputs: ["coverage"] },
+    ]);
+    domain.toReports.mockReturnValue([
+        { name: "ui", coverageFinal: "packages/ui/coverage/coverage-final.json" },
+    ]);
     files.loadReport.mockReturnValue({ files: {} });
     domain.mergeReports.mockReturnValue("coverage-map");
 });
@@ -29,7 +33,9 @@ describe("coverage report main", () => {
 
         expect(domain.mergeReports).toHaveBeenCalledWith([{ name: "ui", data: { files: {} } }]);
         expect(files.writeHtmlReport).toHaveBeenCalledWith("/repo/coverage", "coverage-map");
-        expect(io.out.success).toHaveBeenCalledWith("Wrote /repo/coverage/index.html, merged from 1 projects.");
+        expect(io.out.success).toHaveBeenCalledWith(
+            "Wrote /repo/coverage/index.html, merged from 1 projects.",
+        );
     });
 
     it("handles a workspace with no eligible coverage projects", async () => {
@@ -39,7 +45,9 @@ describe("coverage report main", () => {
         await main();
 
         expect(domain.mergeReports).toHaveBeenCalledWith([]);
-        expect(io.out.success).toHaveBeenCalledWith("Wrote /repo/coverage/index.html, merged from 0 projects.");
+        expect(io.out.success).toHaveBeenCalledWith(
+            "Wrote /repo/coverage/index.html, merged from 0 projects.",
+        );
     });
 
     it("passes missing reports through to the merge layer instead of hiding them", async () => {

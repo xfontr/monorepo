@@ -25,9 +25,9 @@ import {
 } from "./domain/generate.ts";
 
 interface Output {
-    target: string
-    contents: string | Buffer
-    mode: number
+    target: string;
+    contents: string | Buffer;
+    mode: number;
 }
 
 const outputs = (): Output[] => [
@@ -38,9 +38,10 @@ const outputs = (): Output[] => [
     })),
     ...skillFiles().map((source) => ({
         target: claudeSkillPath(source),
-        contents: basename(source) === "SKILL.md"
-            ? renderGeneratedMarkdown(readText(source), source)
-            : readBytes(source),
+        contents:
+            basename(source) === "SKILL.md"
+                ? renderGeneratedMarkdown(readText(source), source)
+                : readBytes(source),
         mode: modeOf(source),
     })),
 ];

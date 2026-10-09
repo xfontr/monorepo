@@ -16,12 +16,16 @@ vi.stubGlobal("defineEventHandler", (handler: unknown) => handler);
 vi.stubGlobal("getRouterParam", () => "la-culpa");
 vi.stubGlobal("useContent", () => ({ getEntry: nitro.getEntry, listEntries: nitro.listEntries }));
 
-const handler = (await import("./related.get")).default as unknown as (event: unknown) => Promise<ArticleSummary[]>;
+const handler = (await import("./related.get")).default as unknown as (
+    event: unknown,
+) => Promise<ArticleSummary[]>;
 
 beforeEach(() => {
     vi.clearAllMocks();
     nitro.getEntry.mockResolvedValue(ENTRY);
-    nitro.listEntries.mockResolvedValue({ items: [...SIBLINGS.slice(0, 1), ENTRY, ...SIBLINGS.slice(1)] satisfies Entry[] });
+    nitro.listEntries.mockResolvedValue({
+        items: [...SIBLINGS.slice(0, 1), ENTRY, ...SIBLINGS.slice(1)] satisfies Entry[],
+    });
 });
 
 describe("GET /api/articles/:slug/related", () => {
@@ -29,7 +33,10 @@ describe("GET /api/articles/:slug/related", () => {
         const related = await handler({});
 
         expect(nitro.getEntry).toHaveBeenCalledWith("posts", "la-culpa");
-        expect(nitro.listEntries).toHaveBeenCalledWith("posts", { term: { resource: "categories", id: CATEGORY.id }, perPage: 4 });
+        expect(nitro.listEntries).toHaveBeenCalledWith("posts", {
+            term: { resource: "categories", id: CATEGORY.id },
+            perPage: 4,
+        });
         expect(related.map(({ id }) => id)).toEqual(SIBLINGS.slice(0, 3).map(({ id }) => id));
     });
 

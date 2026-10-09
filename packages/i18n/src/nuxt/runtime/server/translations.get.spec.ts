@@ -18,7 +18,10 @@ const ofetch = vi.hoisted(() => ({
 }));
 
 vi.mock("nitropack/runtime", () => ({
-    defineCachedEventHandler: (handler: unknown, options: CachedEventHandlerOptions<TranslationMap>) => {
+    defineCachedEventHandler: (
+        handler: unknown,
+        options: CachedEventHandlerOptions<TranslationMap>,
+    ) => {
         nitro.cache = options;
         return handler;
     },
@@ -27,17 +30,20 @@ vi.mock("nitropack/runtime", () => ({
 
 // Only the instance is replaced: FetchError stays real, since that is what the client maps a status off
 vi.mock("ofetch", async (importOriginal) => ({
-    ...await importOriginal<typeof import("ofetch")>(),
+    ...(await importOriginal<typeof import("ofetch")>()),
     ofetch: { create: ofetch.create },
 }));
 
-const handler = (await import("./translations.get")).default as unknown as (event: H3Event<EventHandlerRequest>) => Promise<TranslationMap>;
+const handler = (await import("./translations.get")).default as unknown as (
+    event: H3Event<EventHandlerRequest>,
+) => Promise<TranslationMap>;
 
 const messages = { shared: { health: "Health" } };
 
-function createEvent(locale?: string) {
-    return { context: { params: locale === undefined ? {} : { locale } } } as unknown as H3Event<EventHandlerRequest>;
-}
+const createEvent = (locale?: string) =>
+    ({
+        context: { params: locale === undefined ? {} : { locale } },
+    }) as unknown as H3Event<EventHandlerRequest>;
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -72,7 +78,11 @@ describe("GET /api/translations/:locale", () => {
     });
 
     it("500s when the configured vendor does not exist", async () => {
-        nitro.vendor = { name: "nope", baseURL: "https://translations.test/", project: "external" } as unknown as VendorConfig;
+        nitro.vendor = {
+            name: "nope",
+            baseURL: "https://translations.test/",
+            project: "external",
+        } as unknown as VendorConfig;
 
         await expect(handler(createEvent("en-GB"))).rejects.toMatchObject({ statusCode: 500 });
     });
@@ -92,12 +102,19 @@ describe("GET /api/translations/:locale", () => {
     // The vendor answered, so it did not fail — flattening this into a 502 used to blame it for a
     // locale our own config claimed
     it("keeps the status of a failure it diagnosed, rather than reporting it as a vendor failure", async () => {
-        nitro.vendor = { name: "tolgee", baseURL: "https://app.tolgee.io/", project: "1", options: { token: "abc" } };
+        nitro.vendor = {
+            name: "tolgee",
+            baseURL: "https://app.tolgee.io/",
+            project: "1",
+            options: { token: "abc" },
+        };
         ofetch.request.mockResolvedValue({ "es-ES": messages });
 
         await expect(handler(createEvent("en-GB"))).rejects.toMatchObject({
             statusCode: 500,
-            statusMessage: expect.stringContaining("does not exist for Tolgee") as unknown as string,
+            statusMessage: expect.stringContaining(
+                "does not exist for Tolgee",
+            ) as unknown as string,
         });
     });
 
@@ -105,7 +122,10 @@ describe("GET /api/translations/:locale", () => {
         const cause = new Error("upstream down");
         ofetch.request.mockRejectedValue(cause);
 
-        await expect(handler(createEvent("en-GB"))).rejects.toMatchObject({ statusCode: 502, cause });
+        await expect(handler(createEvent("en-GB"))).rejects.toMatchObject({
+            statusCode: 502,
+            cause,
+        });
     });
 
     // Last: it resets the module registry, so the providers a later test loads lazily would no longer
@@ -115,7 +135,9 @@ describe("GET /api/translations/:locale", () => {
         vi.doMock("#core/registry", () => ({ default: () => Promise.reject(cause) }));
         vi.resetModules();
 
-        const broken = (await import("./translations.get")).default as unknown as (event: H3Event<EventHandlerRequest>) => Promise<TranslationMap>;
+        const broken = (await import("./translations.get")).default as unknown as (
+            event: H3Event<EventHandlerRequest>,
+        ) => Promise<TranslationMap>;
 
         await expect(broken(createEvent("en-GB"))).rejects.toBe(cause);
 
@@ -127,16 +149,22 @@ describe("GET /api/translations/:locale", () => {
 // Key derivation itself lives in core and is covered by core/translationsKey.spec.ts
 describe("translations cache", () => {
     it("keys entries off the configured vendor and the requested locale", () => {
-        expect(nitro.cache?.getKey?.(createEvent("en-GB"))).toBe(translationsKey(nitro.vendor!, "en-GB"));
+        expect(nitro.cache?.getKey?.(createEvent("en-GB"))).toBe(
+            translationsKey(nitro.vendor!, "en-GB"),
+        );
     });
 
     it("404s a key lookup without a locale, so a bad request cannot poison an entry", () => {
-        expect(() => nitro.cache?.getKey?.(createEvent())).toThrow(expect.objectContaining({ statusCode: 404 }) as Error);
+        expect(() => nitro.cache?.getKey?.(createEvent())).toThrow(
+            expect.objectContaining({ statusCode: 404 }) as Error,
+        );
     });
 
     // The key is derived before the handler runs, so this is what bounds the keyspace to the declared locales
     it("404s a key lookup for an undeclared locale, so it cannot mint an entry of its own", () => {
-        expect(() => nitro.cache?.getKey?.(createEvent("fr-FR"))).toThrow(expect.objectContaining({ statusCode: 404 }) as Error);
+        expect(() => nitro.cache?.getKey?.(createEvent("fr-FR"))).toThrow(
+            expect.objectContaining({ statusCode: 404 }) as Error,
+        );
     });
 
     it("caches outside of dev", () => {

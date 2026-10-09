@@ -10,9 +10,11 @@ const route = useRoute();
 // Deliberately unvalidated — the content module already bounds `page` (README.md § Content)
 const page = computed(() => route.query.page);
 
-const { data, error, status } = await useFetch<Page<ArticleSummary>>("/api/articles", { query: { page } });
+const { data, error, status } = await useFetch<Page<ArticleSummary>>("/api/articles", {
+    query: { page },
+});
 
-function raiseIfMissing(): void {
+const raiseIfMissing = (): void => {
     if (!error.value) return;
 
     // A 400 here means "bad or past-the-end page", mapped to 404 (README.md § Content)
@@ -23,7 +25,7 @@ function raiseIfMissing(): void {
     }
 
     showError(createPageError(error.value));
-}
+};
 
 raiseIfMissing();
 
@@ -34,34 +36,26 @@ watch(error, raiseIfMissing);
 watch(page, () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
 // Page one keeps the bare URL, so the list has a single canonical address
-function pageLink(target: number): RouteLocationRaw {
-    return { query: target > 1 ? { page: target } : {} };
-}
+const pageLink = (target: number): RouteLocationRaw => ({
+    query: target > 1 ? { page: target } : {},
+});
 
 const previousLink = computed(() => pageLink((data.value?.page ?? 1) - 1));
 const nextLink = computed(() => pageLink((data.value?.page ?? 1) + 1));
 
-function termsOf({ category, tags }: ArticleSummary): Category[] {
-    return category ? [category, ...tags] : tags;
-}
+const termsOf = ({ category, tags }: ArticleSummary): Category[] =>
+    category ? [category, ...tags] : tags;
 
-function formatDate(date: string): string {
-    return new Date(date).toLocaleDateString(locale.value, { dateStyle: "long" });
-}
+const formatDate = (date: string): string =>
+    new Date(date).toLocaleDateString(locale.value, { dateStyle: "long" });
 </script>
 
 <template>
-    <div
-        class="articles"
-        :aria-busy="status === 'pending'"
-    >
+    <div class="articles" :aria-busy="status === 'pending'">
         <h1>{{ $t("articles.title") }}</h1>
 
         <!-- Only while there is nothing to show: past the first page the previous one stays up, dimmed -->
-        <p
-            v-if="status === 'pending' && !data"
-            class="notice"
-        >
+        <p v-if="status === 'pending' && !data" class="notice">
             {{ $t("common.loading") }}
         </p>
 
@@ -70,11 +64,7 @@ function formatDate(date: string): string {
                 {{ $t("articles.count", { shown: data.items.length, total: data.total }) }}
             </p>
 
-            <article
-                v-for="summary in data.items"
-                :key="summary.id"
-                class="entry"
-            >
+            <article v-for="summary in data.items" :key="summary.id" class="entry">
                 <NuxtLink
                     class="entry__link"
                     :to="{ name: 'article', params: { slug: summary.slug } }"
@@ -84,7 +74,7 @@ function formatDate(date: string): string {
                         class="entry__image"
                         :src="summary.image.url"
                         :alt="summary.image.alt"
-                    >
+                    />
 
                     <time
                         v-if="summary.publishedAt"
@@ -99,21 +89,12 @@ function formatDate(date: string): string {
                     </h2>
                 </NuxtLink>
 
-                <p
-                    v-if="summary.excerpt"
-                    class="entry__excerpt"
-                >
+                <p v-if="summary.excerpt" class="entry__excerpt">
                     {{ summary.excerpt }}
                 </p>
 
-                <ul
-                    v-if="termsOf(summary).length"
-                    class="entry__terms"
-                >
-                    <li
-                        v-for="term in termsOf(summary)"
-                        :key="term.id"
-                    >
+                <ul v-if="termsOf(summary).length" class="entry__terms">
+                    <li v-for="term in termsOf(summary)" :key="term.id">
                         {{ term.name }}
                     </li>
                 </ul>
@@ -139,15 +120,17 @@ function formatDate(date: string): string {
 
                 <!-- A span, not a disabled link: there is no previous page to point at, and an
                      anchor without a destination is still announced and focused as a control -->
-                <span
-                    v-else
-                    class="pagination__link pagination__link--spent"
-                >
+                <span v-else class="pagination__link pagination__link--spent">
                     {{ $t("articles.pagination.previous") }}
                 </span>
 
                 <p class="pagination__position">
-                    {{ $t("articles.pagination.position", { page: data.page, total: data.totalPages }) }}
+                    {{
+                        $t("articles.pagination.position", {
+                            page: data.page,
+                            total: data.totalPages,
+                        })
+                    }}
                 </p>
 
                 <NuxtLink
@@ -160,10 +143,7 @@ function formatDate(date: string): string {
                     {{ $t("articles.pagination.next") }}
                 </NuxtLink>
 
-                <span
-                    v-else
-                    class="pagination__link pagination__link--spent"
-                >
+                <span v-else class="pagination__link pagination__link--spent">
                     {{ $t("articles.pagination.next") }}
                 </span>
             </nav>

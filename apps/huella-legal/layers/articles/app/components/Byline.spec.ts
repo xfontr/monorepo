@@ -3,15 +3,23 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { describe, expect, it } from "vitest";
 import Byline from "./Byline.vue";
 
-const global = { mocks: { $t: (key: string, params: Record<string, unknown>) => `t(${key}, ${JSON.stringify(params)})` } };
+const global = {
+    mocks: {
+        $t: (key: string, params: Record<string, unknown>) =>
+            `t(${key}, ${JSON.stringify(params)})`,
+    },
+};
 
 const ANA = { ...fakeAuthor({ name: "Ana de la Torre" }), to: "/autores/ana" };
 const LUIS = { ...fakeAuthor({ name: "Luis Martín" }), to: "/autores/luis" };
 const MARTA = { ...fakeAuthor({ name: "Marta Gil" }), to: "/autores/marta" };
 
 describe("byline", () => {
-    it("joins names the Spanish way, with commas and a final \"y\"", async () => {
-        const wrapper = await mountSuspended(Byline, { props: { authors: [ANA, LUIS, MARTA] }, global });
+    it('joins names the Spanish way, with commas and a final "y"', async () => {
+        const wrapper = await mountSuspended(Byline, {
+            props: { authors: [ANA, LUIS, MARTA] },
+            global,
+        });
 
         expect(wrapper.find("li").text()).toBe("Ana de la Torre, Luis Martín y Marta Gil");
     });
@@ -21,11 +29,17 @@ describe("byline", () => {
 
         const links = wrapper.findAll("a").map((link) => [link.text(), link.attributes("href")]);
 
-        expect(links).toEqual([["Ana de la Torre", "/autores/ana"], ["Luis Martín", "/autores/luis"]]);
+        expect(links).toEqual([
+            ["Ana de la Torre", "/autores/ana"],
+            ["Luis Martín", "/autores/luis"],
+        ]);
     });
 
     it("prints the date in Madrid, so a late-night post never shows the day before", async () => {
-        const wrapper = await mountSuspended(Byline, { props: { authors: [LUIS], publishedAt: "2024-03-11T23:30:00Z" }, global });
+        const wrapper = await mountSuspended(Byline, {
+            props: { authors: [LUIS], publishedAt: "2024-03-11T23:30:00Z" },
+            global,
+        });
 
         const time = wrapper.find("time");
 
@@ -34,13 +48,19 @@ describe("byline", () => {
     });
 
     it("takes the reading time from translations, with the minutes as the plural count", async () => {
-        const wrapper = await mountSuspended(Byline, { props: { authors: [LUIS], readingMinutes: 7 }, global });
+        const wrapper = await mountSuspended(Byline, {
+            props: { authors: [LUIS], readingMinutes: 7 },
+            global,
+        });
 
-        expect(wrapper.text()).toContain("t(byline.readingTime, {\"minutes\":7})");
+        expect(wrapper.text()).toContain('t(byline.readingTime, {"minutes":7})');
     });
 
     it("hides the avatar stack from assistive tech, since the names follow it", async () => {
-        const wrapper = await mountSuspended(Byline, { props: { authors: [ANA, LUIS], avatars: true }, global });
+        const wrapper = await mountSuspended(Byline, {
+            props: { authors: [ANA, LUIS], avatars: true },
+            global,
+        });
 
         const stack = wrapper.find("[aria-hidden=true]");
 

@@ -17,4 +17,6 @@ export const Slate: Story = { args: { tone: "slate" } };
 
 export const Pending: Story = { args: { pending: true } };
 
-export const SlateInvalid: Story = { args: { tone: "slate", error: "Falta el dominio: por ejemplo, lucia.martin@ejemplo.es" } };
+export const SlateInvalid: Story = {
+    args: { tone: "slate", error: "Falta el dominio: por ejemplo, lucia.martin@ejemplo.es" },
+};

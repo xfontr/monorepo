@@ -1,22 +1,27 @@
 import { access, cp, mkdir, readFile, rm } from "node:fs/promises";
 import { resolve } from "node:path";
-import type { CoverageArtifact, CoverageMetric, ProjectCoverage, ProjectNode } from "../../shared/types.ts";
+import type {
+    CoverageArtifact,
+    CoverageMetric,
+    ProjectCoverage,
+    ProjectNode,
+} from "../../shared/types.ts";
 import { COVERAGE_DIR, MERGED_COVERAGE_DIR, WORKSPACE_ROOT } from "../lib/paths.ts";
 
 interface RawSummary {
-    total: Record<string, CoverageMetric>
-    [file: string]: unknown
+    total: Record<string, CoverageMetric>;
+    [file: string]: unknown;
 }
 
 interface CoverageLocation {
-    start: { line: number }
+    start: { line: number };
 }
 
 interface CoverageFile {
-    statementMap: Record<string, CoverageLocation>
-    s: Record<string, number>
-    f: Record<string, number>
-    b: Record<string, number[]>
+    statementMap: Record<string, CoverageLocation>;
+    s: Record<string, number>;
+    f: Record<string, number>;
+    b: Record<string, number[]>;
 }
 
 type RawCoverage = Record<string, CoverageFile>;
@@ -25,15 +30,13 @@ type SummaryReader = (root: string) => Promise<RawSummary | null>;
 
 type Metric = "lines" | "statements" | "functions" | "branches";
 
-function metric(total: number, covered: number): CoverageMetric {
-    return {
-        total,
-        covered,
-        pct: total === 0 ? 100 : Math.round((covered / total) * 10_000) / 100,
-    };
-}
+const metric = (total: number, covered: number): CoverageMetric => ({
+    total,
+    covered,
+    pct: total === 0 ? 100 : Math.round((covered / total) * 10_000) / 100,
+});
 
-function summaryFromCoverage(raw: RawCoverage): RawSummary | null {
+const summaryFromCoverage = (raw: RawCoverage): RawSummary | null => {
     if (Object.keys(raw).length === 0) return null;
 
     const files: Record<string, unknown> = {};
@@ -79,7 +82,7 @@ function summaryFromCoverage(raw: RawCoverage): RawSummary | null {
         },
         ...files,
     };
-}
+};
 
 /** Reads one project's summary, or derives one from its final coverage map. */
 export const readSummary: SummaryReader = async (root) => {
@@ -87,14 +90,12 @@ export const readSummary: SummaryReader = async (root) => {
         const path = resolve(WORKSPACE_ROOT, root, "coverage/coverage-summary.json");
 
         return JSON.parse(await readFile(path, "utf8")) as RawSummary;
-    }
-    catch {
+    } catch {
         try {
             const path = resolve(WORKSPACE_ROOT, root, "coverage/coverage-final.json");
 
             return summaryFromCoverage(JSON.parse(await readFile(path, "utf8")) as RawCoverage);
-        }
-        catch {
+        } catch {
             return null;
         }
     }
@@ -106,11 +107,10 @@ export const readSummary: SummaryReader = async (root) => {
  * and a table of percentages cannot tell you *which* branch went uncovered — so the app embeds the
  * real thing and only summarises on top of it.
  */
-async function copyMergedReport(): Promise<boolean> {
+const copyMergedReport = async (): Promise<boolean> => {
     try {
         await access(resolve(MERGED_COVERAGE_DIR, "index.html"));
-    }
-    catch {
+    } catch {
         return false;
     }
 
@@ -121,22 +121,22 @@ async function copyMergedReport(): Promise<boolean> {
     await cp(MERGED_COVERAGE_DIR, COVERAGE_DIR, { recursive: true });
 
     return true;
-}
+};
 
-function weighted(projects: ProjectCoverage[], metric: Metric): number {
+const weighted = (projects: ProjectCoverage[], metric: Metric): number => {
     const collected = projects.filter((project) => project[metric]);
 
     const total = collected.reduce((sum, project) => sum + (project[metric]?.total ?? 0), 0);
     const covered = collected.reduce((sum, project) => sum + (project[metric]?.covered ?? 0), 0);
 
     return total === 0 ? 0 : Math.round((covered / total) * 10_000) / 100;
-}
+};
 
-export async function collectCoverage(
+export const collectCoverage = async (
     projects: ProjectNode[],
     generatedAt: string,
     read: SummaryReader = readSummary,
-): Promise<CoverageArtifact> {
+): Promise<CoverageArtifact> => {
     const measured: ProjectCoverage[] = [];
 
     for (const project of projects) {
@@ -168,12 +168,12 @@ export async function collectCoverage(
         report: await copyMergedReport(),
         totals: anyCollected
             ? {
-                lines: weighted(measured, "lines"),
-                statements: weighted(measured, "statements"),
-                functions: weighted(measured, "functions"),
-                branches: weighted(measured, "branches"),
-            }
+                  lines: weighted(measured, "lines"),
+                  statements: weighted(measured, "statements"),
+                  functions: weighted(measured, "functions"),
+                  branches: weighted(measured, "branches"),
+              }
             : null,
         projects: measured,
     };
-}
+};

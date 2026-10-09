@@ -12,23 +12,25 @@ export const SCORE_CARDS = [
 ] as const;
 
 export interface ParsedScores {
-    cards: ScoreRow[]
-    total: number
-    totalDelta: string
+    cards: ScoreRow[];
+    total: number;
+    totalDelta: string;
 }
 
 const SCORES_SECTION = /## 🧮 Scores\n([\s\S]*?)(?:\n## |$)/;
 
-function cellsOf(row: string): string[] {
-    return row.split("|").slice(1, -1).map((cell) => cell.trim());
-}
+const cellsOf = (row: string): string[] =>
+    row
+        .split("|")
+        .slice(1, -1)
+        .map((cell) => cell.trim());
 
 /**
  * Best-effort on purpose: a row that doesn't match `n/5` is skipped rather than thrown on, because a
  * page showing six cards out of seven beats a page showing none. `scorecardShapeProblems` is what
  * turns a skipped or reordered row into something a person sees, instead of a silent gap.
  */
-export function parseScoresTable(markdown: string): ParsedScores | null {
+export const parseScoresTable = (markdown: string): ParsedScores | null => {
     const section = SCORES_SECTION.exec(markdown)?.[1] ?? "";
 
     // The separator row (`| --- | --- | --- | --- |`) is filtered out the same way the header row
@@ -57,17 +59,18 @@ export function parseScoresTable(markdown: string): ParsedScores | null {
 
         const match = /^(\d)\/5$/.exec(scoreCell ?? "");
 
-        if (card && match) cards.push({ card, score: Number.parseInt(match[1] ?? "", 10), delta, verdict });
+        if (card && match)
+            cards.push({ card, score: Number.parseInt(match[1] ?? "", 10), delta, verdict });
     }
 
     return total === null ? null : { cards, total, totalDelta };
-}
+};
 
 /**
  * Names what's wrong rather than just a boolean, because the finding this feeds
  * (`compareScorecardShape`) has to tell someone which card to fix.
  */
-export function scorecardShapeProblems(parsed: ParsedScores | null): string[] {
+export const scorecardShapeProblems = (parsed: ParsedScores | null): string[] => {
     if (!parsed) return ["no parseable '## 🧮 Scores' table with a Total row"];
 
     const names = parsed.cards.map((row) => row.card);
@@ -78,9 +81,13 @@ export function scorecardShapeProblems(parsed: ParsedScores | null): string[] {
     if (missing.length > 0) problems.push(`missing card row(s): ${missing.join(", ")}`);
     if (extra.length > 0) problems.push(`unrecognised card row(s): ${extra.join(", ")}`);
 
-    if (missing.length === 0 && extra.length === 0 && !SCORE_CARDS.every((name, index) => names[index] === name)) {
+    if (
+        missing.length === 0 &&
+        extra.length === 0 &&
+        !SCORE_CARDS.every((name, index) => names[index] === name)
+    ) {
         problems.push("card rows are out of SCORECARDS.md's order");
     }
 
     return problems;
-}
+};

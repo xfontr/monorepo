@@ -2,27 +2,27 @@ import { relative } from "node:path";
 import { CancelledError, ExpectedError } from "../errors.ts";
 
 export interface Args {
-    flags: ReadonlySet<string>
-    positionals: string[]
+    flags: ReadonlySet<string>;
+    positionals: string[];
 }
 
 export interface ErrorReport {
-    cancelled: boolean
-    message: string
+    cancelled: boolean;
+    message: string;
 }
 
 interface MatchedDispatch<T> {
-    matched: true
-    command: T
+    matched: true;
+    command: T;
     args: {
-        flags: ReadonlySet<string>
-        positionalsWithoutCommandName: string[]
-    }
+        flags: ReadonlySet<string>;
+        positionalsWithoutCommandName: string[];
+    };
 }
 
 interface UnmatchedDispatch {
-    matched: false
-    usage: string
+    matched: false;
+    usage: string;
 }
 
 export type Dispatch<T> = MatchedDispatch<T> | UnmatchedDispatch;
@@ -32,14 +32,19 @@ export const parse = (argv: string[]): Args => ({
     positionals: argv.filter((arg) => !arg.startsWith("--")),
 });
 
-export const dispatch = <T>(commands: Record<string, T>, args: Args, commandInvocation: string): Dispatch<T> => {
+export const dispatch = <T>(
+    commands: Record<string, T>,
+    args: Args,
+    commandInvocation: string,
+): Dispatch<T> => {
     const [name, ...positionalsWithoutCommandName] = args.positionals;
     const command = name === undefined ? undefined : commands[name];
 
-    if (!command) return {
-        matched: false,
-        usage: `Usage: ${commandInvocation} <${Object.keys(commands).join("|")}>`,
-    };
+    if (!command)
+        return {
+            matched: false,
+            usage: `Usage: ${commandInvocation} <${Object.keys(commands).join("|")}>`,
+        };
 
     return {
         matched: true,
@@ -60,8 +65,11 @@ export const report = (error: unknown): ErrorReport => {
     if (error instanceof CancelledError) return { cancelled: true, message: error.message };
     if (error instanceof ExpectedError) return { cancelled: false, message: error.message };
 
-    const stack = error instanceof Error ? error.stack ?? error.message : String(error);
+    const stack = error instanceof Error ? (error.stack ?? error.message) : String(error);
     const detail = detailOf(error);
     // Node already appends stderr to an execFileSync error's message, and so to its stack.
-    return { cancelled: false, message: detail && !stack.includes(detail) ? `${stack}\n${detail}` : stack };
+    return {
+        cancelled: false,
+        message: detail && !stack.includes(detail) ? `${stack}\n${detail}` : stack,
+    };
 };

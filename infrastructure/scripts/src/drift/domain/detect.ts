@@ -7,8 +7,9 @@ export const projectRootFor = (file: string): string | undefined => {
     return top && name && PROJECT_ROOTS.includes(top) ? `${top}/${name}` : undefined;
 };
 
-export const projectRootsFor = (files: string[]): string[] =>
-    [...new Set(files.map(projectRootFor).filter((root): root is string => root !== undefined))];
+export const projectRootsFor = (files: string[]): string[] => [
+    ...new Set(files.map(projectRootFor).filter((root): root is string => root !== undefined)),
+];
 
 export const parseLinesChanged = (numstat: string[]): number =>
     numstat.reduce((sum, line) => {
@@ -20,11 +21,12 @@ export const hasRename = (nameStatus: string[]): boolean =>
     nameStatus.some((line) => line.startsWith("R"));
 
 // Stable SHA-256 fingerprints suppress repeated warnings without treating this as security.
-export const fingerprint = (diff: string): string => createHash("sha256").update(diff).digest("hex");
+export const fingerprint = (diff: string): string =>
+    createHash("sha256").update(diff).digest("hex");
 
 export interface FingerprintTransition {
-    seen: Record<string, string>
-    isNew: boolean
+    seen: Record<string, string>;
+    isNew: boolean;
 }
 
 export const recordFingerprint = (
@@ -45,9 +47,9 @@ export const BIG_CHANGE_LINES = 200;
 export const BIG_CHANGE_FILES = 8;
 
 export interface ChangeSize {
-    linesChanged: number
-    filesChanged: number
-    renamed: boolean
+    linesChanged: number;
+    filesChanged: number;
+    renamed: boolean;
 }
 
 /** `undefined` means no markdown file under the project has ever been committed — treated as stale. */
@@ -57,11 +59,11 @@ export const isStale = (lastMdCommitMs: number | undefined, now: number): boolea
 export const isBigChange = ({ linesChanged, filesChanged, renamed }: ChangeSize): boolean =>
     renamed || linesChanged >= BIG_CHANGE_LINES || filesChanged >= BIG_CHANGE_FILES;
 
-export const shouldWarn = (size: ChangeSize, lastMdCommitMs: number | undefined, now = Date.now()): boolean =>
-    isStale(lastMdCommitMs, now) || isBigChange(size);
+export const shouldWarn = (
+    size: ChangeSize,
+    lastMdCommitMs: number | undefined,
+    now = Date.now(),
+): boolean => isStale(lastMdCommitMs, now) || isBigChange(size);
 
 export const displayName = (root: string): string =>
-    (root.split("/").pop() ?? root)
-        .split("-")
-        .map(titleCase)
-        .join(" ");
+    (root.split("/").pop() ?? root).split("-").map(titleCase).join(" ");

@@ -23,7 +23,10 @@ afterEach(() => rmSync(directory, { recursive: true, force: true }));
 describe("package manifest filesystem adapter", () => {
     it("discovers direct package directories, parses manifests and lists nested files", () => {
         mkdirSync(join(directory, "packages", "demo", "src"), { recursive: true });
-        writeFileSync(join(directory, "packages", "demo", "package.json"), "{\"name\":\"@monorepo/demo\"}");
+        writeFileSync(
+            join(directory, "packages", "demo", "package.json"),
+            '{"name":"@monorepo/demo"}',
+        );
         writeFileSync(join(directory, "packages", "demo", "src", "index.ts"), "export {};");
 
         const [pkg] = readPackages();

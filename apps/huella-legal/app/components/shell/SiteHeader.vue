@@ -3,8 +3,8 @@ import type { NavigationMenuItem } from "@nuxt/ui";
 import { DESTINATIONS } from "~/composables/useSiteNav";
 
 interface Props {
-    sections: NavigationMenuItem[]
-    issn: string
+    sections: NavigationMenuItem[];
+    issn: string;
 }
 
 defineProps<Props>();
@@ -18,21 +18,23 @@ const homePath = computed(() => router.resolve({ name: "index" }).path);
         :to="homePath"
         mode="slideover"
         :title="$t('app.header.home')"
-        :menu="{ title: $t('app.header.menu.title'), description: $t('app.header.menu.description') }"
+        :menu="{
+            title: $t('app.header.menu.title'),
+            description: $t('app.header.menu.description'),
+        }"
     >
         <template #top>
             <div class="hidden border-b border-(--ui-border-muted) md:block">
-                <UContainer class="flex h-9 items-center justify-between font-sans text-xs text-muted">
+                <UContainer
+                    class="flex h-9 items-center justify-between font-sans text-xs text-muted"
+                >
                     <span>{{ $t("app.header.strip", { issn }) }}</span>
                     <ULink
                         :to="DESTINATIONS.newsletter"
                         raw
                         class="relative inline-flex h-9 items-center gap-1.5 font-semibold text-primary after:absolute after:inset-x-0 after:top-0 after:-bottom-2 hover:underline focus-visible:rounded-xs"
                     >
-                        <UIcon
-                            name="i-lucide-mail"
-                            class="size-3.5"
-                        />
+                        <UIcon name="i-lucide-mail" class="size-3.5" />
                         {{ $t("app.header.newsletter") }}
                     </ULink>
                 </UContainer>
@@ -91,10 +93,7 @@ const homePath = computed(() => router.resolve({ name: "index" }).path);
                     :aria-label="$t('app.header.nav.label')"
                 >
                     <template #item-trailing>
-                        <UIcon
-                            name="i-lucide-chevron-right"
-                            class="size-5 text-dimmed"
-                        />
+                        <UIcon name="i-lucide-chevron-right" class="size-5 text-dimmed" />
                     </template>
                 </UNavigationMenu>
 

@@ -1,8 +1,8 @@
 import { mergeConfig } from "vitest/config";
 import createNodeVitestConfig from "./node.ts";
 
-function createVueConfig(viteConfig: object) {
-    return mergeConfig(
+const createVueConfig = (viteConfig: object) =>
+    mergeConfig(
         viteConfig,
         mergeConfig(createNodeVitestConfig(), {
             test: {
@@ -13,6 +13,5 @@ function createVueConfig(viteConfig: object) {
             },
         }),
     );
-}
 
 export default createVueConfig;

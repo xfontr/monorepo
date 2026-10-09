@@ -1,12 +1,12 @@
 <script setup lang="ts">
 interface FieldError {
-    id: string
-    label: string
-    message: string
+    id: string;
+    label: string;
+    message: string;
 }
 
 interface Props {
-    errors: FieldError[]
+    errors: FieldError[];
 }
 
 defineProps<Props>();
@@ -23,19 +23,10 @@ defineProps<Props>();
     >
         <template #description>
             <ul class="list-disc pl-5">
-                <li
-                    v-for="{ id, label, message } in errors"
-                    :key="id"
-                >
-                    <i18nT
-                        keypath="formErrorSummary.item"
-                        scope="global"
-                    >
+                <li v-for="{ id, label, message } in errors" :key="id">
+                    <i18nT keypath="formErrorSummary.item" scope="global">
                         <template #field>
-                            <a
-                                :href="`#${id}`"
-                                class="underline"
-                            >{{ label }}</a>
+                            <a :href="`#${id}`" class="underline">{{ label }}</a>
                         </template>
                         <template #message>
                             {{ message }}

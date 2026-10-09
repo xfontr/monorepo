@@ -16,20 +16,18 @@ vi.mock("@nuxt/kit", () => ({
 }));
 
 const { setup } = (await import("./module")).default as unknown as {
-    setup: (options: ContentConfig, nuxt: Nuxt) => void
+    setup: (options: ContentConfig, nuxt: Nuxt) => void;
 };
 
 const vendor: VendorConfig = { name: "wordpress", baseURL: "https://wp.test/" };
 
-function createNuxt() {
-    return { options: { runtimeConfig: {} as Record<string, unknown> } };
-}
+const createNuxt = () => ({ options: { runtimeConfig: {} as Record<string, unknown> } });
 
-function install(options: ContentConfig, nuxt = createNuxt()) {
+const install = (options: ContentConfig, nuxt = createNuxt()) => {
     setup(options, nuxt as unknown as Nuxt);
 
     return nuxt;
-}
+};
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -43,10 +41,12 @@ describe("content nuxt module", () => {
     it("auto-imports useContent into server code, and mounts no route", () => {
         install({ vendor });
 
-        expect(kit.addServerImports).toHaveBeenCalledWith([{
-            name: "useContent",
-            from: "resolved(./runtime/server/utils/useContent)",
-        }]);
+        expect(kit.addServerImports).toHaveBeenCalledWith([
+            {
+                name: "useContent",
+                from: "resolved(./runtime/server/utils/useContent)",
+            },
+        ]);
     });
 
     // Failing the build beats throwing on the first request, which is a page nobody is watching

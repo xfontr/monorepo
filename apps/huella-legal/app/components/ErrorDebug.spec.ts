@@ -2,11 +2,14 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import ErrorDebug from "./ErrorDebug.vue";
 
-const NOT_FOUND = { status: 404, message: "Page not found", stack: "Error: Page not found\n    at render" };
+const NOT_FOUND = {
+    status: 404,
+    message: "Page not found",
+    stack: "Error: Page not found\n    at render",
+};
 
-function mountDebug(error: Record<string, unknown>) {
-    return mount(ErrorDebug, { props: { error: error as never } });
-}
+const mountDebug = (error: Record<string, unknown>) =>
+    mount(ErrorDebug, { props: { error: error as never } });
 
 describe("error debug panel", () => {
     it("opens the upstream message first when the error carries one", () => {

@@ -4,11 +4,15 @@ import SuccessPanel from "./SuccessPanel.vue";
 
 const meta: Meta<typeof SuccessPanel> = {
     component: SuccessPanel,
-    args: { title: "Recibido. Gracias, María-José.", action: { label: "Enviar otra propuesta", to: "#" } },
+    args: {
+        title: "Recibido. Gracias, María-José.",
+        action: { label: "Enviar otra propuesta", to: "#" },
+    },
     render: (args) => ({
         components: { SuccessPanel },
         setup: () => ({ args }),
-        template: "<SuccessPanel v-bind=\"args\">Te confirmaremos la recepción en 24–72 horas, y tendrás una decisión razonada en cinco días como máximo.</SuccessPanel>",
+        template:
+            '<SuccessPanel v-bind="args">Te confirmaremos la recepción en 24–72 horas, y tendrás una decisión razonada en cinco días como máximo.</SuccessPanel>',
     }),
 };
 

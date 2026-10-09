@@ -22,12 +22,18 @@ beforeEach(() => {
 describe("package-contracts main", () => {
     it("reports every valid package and explicit peer metadata skips", () => {
         validator.validatePackage
-            .mockReturnValueOnce({ packageName: "@monorepo/demo", errors: [], skipped: ["peer metadata (not present)"] })
+            .mockReturnValueOnce({
+                packageName: "@monorepo/demo",
+                errors: [],
+                skipped: ["peer metadata (not present)"],
+            })
             .mockReturnValueOnce({ packageName: "@monorepo/other", errors: [], skipped: [] });
 
         expect(() => main()).not.toThrow();
         expect(io.out.success).toHaveBeenCalledTimes(2);
-        expect(io.out.info).toHaveBeenCalledWith("⏭ Skipped @monorepo/demo: peer metadata (not present).");
+        expect(io.out.info).toHaveBeenCalledWith(
+            "⏭ Skipped @monorepo/demo: peer metadata (not present).",
+        );
         expect(validator.validatePackage).toHaveBeenCalledTimes(2);
     });
 
@@ -46,8 +52,12 @@ describe("package-contracts main", () => {
 
         expect(() => main()).toThrow("package:check found 2 contract error(s).");
         expect(io.out.error).toHaveBeenCalledWith("  @monorepo/demo: name received wrong");
-        expect(io.out.error).toHaveBeenCalledWith("  @monorepo/other: exports target file is missing: ./missing.ts");
-        expect(io.out.info).toHaveBeenCalledWith("⏭ Skipped @monorepo/other: peer metadata (not present).");
+        expect(io.out.error).toHaveBeenCalledWith(
+            "  @monorepo/other: exports target file is missing: ./missing.ts",
+        );
+        expect(io.out.info).toHaveBeenCalledWith(
+            "⏭ Skipped @monorepo/other: peer metadata (not present).",
+        );
         expect(validator.validatePackage).toHaveBeenCalledTimes(2);
     });
 });

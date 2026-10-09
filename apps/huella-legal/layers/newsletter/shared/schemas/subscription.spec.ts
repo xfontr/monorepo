@@ -6,7 +6,9 @@ const schema = subscriptionSchema((issue) => issue);
 
 describe("subscription schema", () => {
     it("trims the address before checking it, so a pasted space never fails or reaches the provider", () => {
-        expect(v.parse(schema, { email: " lucia@ejemplo.es " })).toEqual({ email: "lucia@ejemplo.es" });
+        expect(v.parse(schema, { email: " lucia@ejemplo.es " })).toEqual({
+            email: "lucia@ejemplo.es",
+        });
     });
 
     it.each([

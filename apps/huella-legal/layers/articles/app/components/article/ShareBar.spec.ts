@@ -18,27 +18,29 @@ class ClipboardItem {
 }
 
 // happy-dom defines clipboard on Navigator.prototype, and useClipboard checks `"clipboard" in navigator`.
-function withoutClipboard(): void {
+const withoutClipboard = (): void => {
     const prototype = Object.getPrototypeOf(navigator);
     const descriptor = Object.getOwnPropertyDescriptor(prototype, "clipboard")!;
 
     Reflect.deleteProperty(navigator, "clipboard");
     Reflect.deleteProperty(prototype, "clipboard");
     onTestFinished(() => Object.defineProperty(prototype, "clipboard", descriptor));
-}
+};
 
-function withShareSheet(share: typeof browser.share): void {
+const withShareSheet = (share: typeof browser.share): void => {
     Object.defineProperty(navigator, "share", { value: share, configurable: true });
     Object.defineProperty(navigator, "canShare", { value: () => true, configurable: true });
-}
+};
 
-function button(wrapper: VueWrapper, key: string) {
-    return wrapper.find(`button[aria-label="t(shareBar.${key})"]`);
-}
+const button = (wrapper: VueWrapper, key: string) =>
+    wrapper.find(`button[aria-label="t(shareBar.${key})"]`);
 
 beforeEach(() => {
     vi.clearAllMocks();
-    Object.defineProperty(navigator, "clipboard", { value: { write: browser.write }, configurable: true });
+    Object.defineProperty(navigator, "clipboard", {
+        value: { write: browser.write },
+        configurable: true,
+    });
     vi.stubGlobal("ClipboardItem", ClipboardItem);
     vi.stubGlobal("print", browser.print);
 });
@@ -80,7 +82,9 @@ describe("share bar", () => {
         await flushPromises();
 
         expect(browser.write).toHaveBeenCalled();
-        expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({ title: "shareBar.linkCopied" }));
+        expect(toast.add).toHaveBeenCalledWith(
+            expect.objectContaining({ title: "shareBar.linkCopied" }),
+        );
     });
 
     it("claims no copy when the share sheet fails and there is no clipboard to fall back on", async () => {
@@ -100,8 +104,12 @@ describe("share bar", () => {
         await button(wrapper, "share").trigger("click");
         await flushPromises();
 
-        expect(browser.write).toHaveBeenCalledWith([new ClipboardItem({ "text/plain": PROPS.url })]);
-        expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({ title: "shareBar.linkCopied" }));
+        expect(browser.write).toHaveBeenCalledWith([
+            new ClipboardItem({ "text/plain": PROPS.url }),
+        ]);
+        expect(toast.add).toHaveBeenCalledWith(
+            expect.objectContaining({ title: "shareBar.linkCopied" }),
+        );
     });
 
     it("hides the share button where the browser can neither share nor copy", async () => {
@@ -121,7 +129,10 @@ describe("share bar", () => {
 
     it("links to the citation only when the page has one", async () => {
         const without = await mountSuspended(ArticleShareBar, { props: PROPS, global });
-        const withCite = await mountSuspended(ArticleShareBar, { props: { ...PROPS, citeTo: "#citar" }, global });
+        const withCite = await mountSuspended(ArticleShareBar, {
+            props: { ...PROPS, citeTo: "#citar" },
+            global,
+        });
 
         expect(without.find("a").exists()).toBe(false);
         expect(withCite.find("a").attributes("href")).toBe("#citar");

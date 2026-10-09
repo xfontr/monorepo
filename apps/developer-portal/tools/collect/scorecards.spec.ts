@@ -34,17 +34,43 @@ beforeEach(() => {
 
 describe("collectScorecards", () => {
     it("skips furniture files while preserving dates, commits, cards and totals newest first", async () => {
-        state.files = ["README.md", "TEMPLATE.md", "SCORECARDS.md", "2026-09-18-aaa111.md", "2026-09-20-bbb222.md"];
-        state.sources.set(resolve(WORKSPACE_ROOT, "docs/reviews/2026-09-18-aaa111.md"), valid("3.8"));
-        state.sources.set(resolve(WORKSPACE_ROOT, "docs/reviews/2026-09-20-bbb222.md"), valid("4.2"));
+        state.files = [
+            "README.md",
+            "TEMPLATE.md",
+            "SCORECARDS.md",
+            "2026-09-18-aaa111.md",
+            "2026-09-20-bbb222.md",
+        ];
+        state.sources.set(
+            resolve(WORKSPACE_ROOT, "docs/reviews/2026-09-18-aaa111.md"),
+            valid("3.8"),
+        );
+        state.sources.set(
+            resolve(WORKSPACE_ROOT, "docs/reviews/2026-09-20-bbb222.md"),
+            valid("4.2"),
+        );
 
         const result = await collectScorecards("now");
 
         expect(result).toEqual({
             generatedAt: "now",
             reviews: [
-                expect.objectContaining({ path: "docs/reviews/2026-09-20-bbb222.md", date: "2026-09-20", commit: "bbb222", total: 4.2, totalDelta: "+0.5", parseError: null }),
-                expect.objectContaining({ path: "docs/reviews/2026-09-18-aaa111.md", date: "2026-09-18", commit: "aaa111", total: 3.8, cards: expect.any(Array), parseError: null }),
+                expect.objectContaining({
+                    path: "docs/reviews/2026-09-20-bbb222.md",
+                    date: "2026-09-20",
+                    commit: "bbb222",
+                    total: 4.2,
+                    totalDelta: "+0.5",
+                    parseError: null,
+                }),
+                expect.objectContaining({
+                    path: "docs/reviews/2026-09-18-aaa111.md",
+                    date: "2026-09-18",
+                    commit: "aaa111",
+                    total: 3.8,
+                    cards: expect.any(Array),
+                    parseError: null,
+                }),
             ],
         });
         expect(result.reviews[0]?.cards).toHaveLength(7);
@@ -53,12 +79,15 @@ describe("collectScorecards", () => {
 
     it("keeps readable score rows while turning a malformed table shape into parseError", async () => {
         state.files = ["2026-09-20-bad123.md"];
-        state.sources.set(resolve(WORKSPACE_ROOT, "docs/reviews/2026-09-20-bad123.md"), `## 🧮 Scores
+        state.sources.set(
+            resolve(WORKSPACE_ROOT, "docs/reviews/2026-09-20-bad123.md"),
+            `## 🧮 Scores
 | Card | Score |
 | --- | --- |
 | 🧱 Architecture | 4/5 |
 | **Total** | **4/5** |
-`);
+`,
+        );
 
         const result = await collectScorecards("now");
 
@@ -70,7 +99,10 @@ describe("collectScorecards", () => {
     });
 
     it("returns an empty artifact when no review files exist", async () => {
-        await expect(collectScorecards("now")).resolves.toEqual({ generatedAt: "now", reviews: [] });
+        await expect(collectScorecards("now")).resolves.toEqual({
+            generatedAt: "now",
+            reviews: [],
+        });
         expect(fs.readFile).not.toHaveBeenCalled();
     });
 });

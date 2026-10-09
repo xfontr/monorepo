@@ -14,12 +14,20 @@ vi.stubGlobal("defineEventHandler", (handler: unknown) => handler);
 vi.stubGlobal("getQuery", () => nitro.query);
 vi.stubGlobal("useContent", () => ({ listEntries: nitro.listEntries }));
 
-const handler = (await import("./index.get")).default as unknown as (event: unknown) => Promise<Page<ArticleSummary>>;
+const handler = (await import("./index.get")).default as unknown as (
+    event: unknown,
+) => Promise<Page<ArticleSummary>>;
 
 beforeEach(() => {
     vi.clearAllMocks();
     nitro.query = {};
-    nitro.listEntries.mockResolvedValue({ items: [ENTRY], page: 2, perPage: 6, total: 7, totalPages: 2 });
+    nitro.listEntries.mockResolvedValue({
+        items: [ENTRY],
+        page: 2,
+        perPage: 6,
+        total: 7,
+        totalPages: 2,
+    });
 });
 
 describe("GET /api/articles", () => {

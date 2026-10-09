@@ -1,27 +1,24 @@
 import { matchesIssue, matchesLabel, type SearchableIssue } from "./search.ts";
 
 export interface ProjectSummary {
-    title: string
-    number: number
-    url: string
+    title: string;
+    number: number;
+    url: string;
 }
 
 export type ProjectSource = "live" | "cache" | "empty";
 
 export type PickIssue = SearchableIssue & {
-    url: string
+    url: string;
 };
 
 export interface IssueOption<T> {
-    value: T | PickIssue
-    label: string
-    hint?: string
+    value: T | PickIssue;
+    label: string;
+    hint?: string;
 }
 
-export const projectLoad = (
-    live: ProjectSummary[],
-    online: boolean,
-): ProjectSource => {
+export const projectLoad = (live: ProjectSummary[], online: boolean): ProjectSource => {
     if (live.length > 0) return "live";
     return online ? "empty" : "cache";
 };
@@ -42,32 +39,34 @@ export const optionalSelection = (value: string): string | undefined => value ||
 
 export const labelOptionMatches = (
     noneValue: string,
-    option: { value: string, hint?: string },
+    option: { value: string; hint?: string },
     search: string,
-): boolean => option.value === noneValue
-    ? !search.trim()
-    : matchesLabel({ name: option.value, description: option.hint ?? "" }, search);
+): boolean =>
+    option.value === noneValue
+        ? !search.trim()
+        : matchesLabel({ name: option.value, description: option.hint ?? "" }, search);
 
 export const issueCountMessage = (count: number): string =>
     `${count} open issue${count === 1 ? "" : "s"}.`;
 
 export interface IssuePromptText {
-    message: string
-    placeholder: string | undefined
-    emptyWarning: string | undefined
+    message: string;
+    placeholder: string | undefined;
+    emptyWarning: string | undefined;
 }
 
-export const issuePromptText = (count: number): IssuePromptText => count === 0
-    ? {
-        message: "No open issues",
-        placeholder: undefined,
-        emptyWarning: "Nothing open on that project. `pnpm issue:add` fixes that.",
-    }
-    : {
-        message: "Issue",
-        placeholder: "Type a number, a word from the title, or a label",
-        emptyWarning: undefined,
-    };
+export const issuePromptText = (count: number): IssuePromptText =>
+    count === 0
+        ? {
+              message: "No open issues",
+              placeholder: undefined,
+              emptyWarning: "Nothing open on that project. `pnpm issue:add` fixes that.",
+          }
+        : {
+              message: "Issue",
+              placeholder: "Type a number, a word from the title, or a label",
+              emptyWarning: undefined,
+          };
 
 export const selectedProject = (
     projects: ProjectSummary[],

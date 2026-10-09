@@ -17,6 +17,9 @@ export class OfetchHttpClient implements HttpClient {
     }
 }
 
-function rethrowAsUpstreamError(cause: unknown): never {
-    throw new UpstreamError(cause instanceof FetchError ? cause.response?.status : undefined, cause);
-}
+const rethrowAsUpstreamError = (cause: unknown): never => {
+    throw new UpstreamError(
+        cause instanceof FetchError ? cause.response?.status : undefined,
+        cause,
+    );
+};

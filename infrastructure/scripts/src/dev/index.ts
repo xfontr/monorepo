@@ -8,7 +8,6 @@ if (ensureInstalled()) {
     const { main } = await import("./main.ts");
 
     await run(main);
-}
-else {
+} else {
     process.exitCode = 1;
 }

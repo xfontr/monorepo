@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface Props {
-    tone?: "paper" | "slate"
+    tone?: "paper" | "slate";
 }
 
 withDefaults(defineProps<Props>(), { tone: "paper" });
@@ -12,7 +12,9 @@ withDefaults(defineProps<Props>(), { tone: "paper" });
         aria-labelledby="newsletter-title"
         :class="tone === 'slate' ? 'bg-huella-slate-800 text-huella-slate-200' : 'bg-ivory-200'"
     >
-        <div class="mx-auto grid max-w-site gap-12 px-4 py-16 md:px-8 lg:grid-cols-12 lg:items-center lg:gap-12 lg:px-12 lg:py-20">
+        <div
+            class="mx-auto grid max-w-site gap-12 px-4 py-16 md:px-8 lg:grid-cols-12 lg:items-center lg:gap-12 lg:px-12 lg:py-20"
+        >
             <div class="lg:col-span-6">
                 <p
                     class="font-sans text-xs font-semibold uppercase tracking-[0.12em]"
@@ -29,10 +31,7 @@ withDefaults(defineProps<Props>(), { tone: "paper" });
                 </h2>
             </div>
 
-            <form
-                class="flex flex-col gap-3 lg:col-span-6"
-                @submit.prevent
-            >
+            <form class="flex flex-col gap-3 lg:col-span-6" @submit.prevent>
                 <div class="flex flex-col gap-3 sm:flex-row">
                     <UFormField
                         label="Correo electrónico"
@@ -58,11 +57,9 @@ withDefaults(defineProps<Props>(), { tone: "paper" });
                     :class="tone === 'slate' ? 'text-huella-slate-300' : 'text-muted'"
                 >
                     Puedes darte de baja desde cualquier correo. Tratamos tu dirección según la
-                    <a
-                        href="#"
-                        data-inline
-                        class="underline underline-offset-2"
-                    >política de privacidad</a>.
+                    <a href="#" data-inline class="underline underline-offset-2"
+                        >política de privacidad</a
+                    >.
                 </p>
             </form>
         </div>

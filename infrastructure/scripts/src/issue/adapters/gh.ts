@@ -3,21 +3,21 @@ import { gh } from "../../shared/adapters/gh.ts";
 import { slugify } from "../domain/branch.ts";
 
 export interface Project {
-    title: string
-    number: number
-    url: string
+    title: string;
+    number: number;
+    url: string;
 }
 
 export interface Label {
-    name: string
-    description: string
+    name: string;
+    description: string;
 }
 
 export interface Issue {
-    number: number
-    title: string
-    url: string
-    labels: string[]
+    number: number;
+    title: string;
+    url: string;
+    labels: string[];
 }
 
 // `gh project list` demands an owner, and the owner of the repo you're standing in is the only
@@ -29,8 +29,7 @@ export const isOnline = (): boolean => {
     try {
         gh("api", "rate_limit");
         return true;
-    }
-    catch {
+    } catch {
         return false;
     }
 };
@@ -41,20 +40,24 @@ export const listProjects = (offline = false): Project[] => {
 
     return cached("projects", () => {
         try {
-            const { projects } = JSON.parse(gh("project", "list", "--owner", repoOwner(), "--format", "json")) as {
-                projects: (Project & { closed: boolean })[]
+            const { projects } = JSON.parse(
+                gh("project", "list", "--owner", repoOwner(), "--format", "json"),
+            ) as {
+                projects: (Project & { closed: boolean })[];
             };
 
             return projects.filter(({ closed }) => !closed);
-        }
-        catch {
+        } catch {
             return [];
         }
     });
 };
 
-export const listLabels = (): Label[] => cached("labels", () =>
-    JSON.parse(gh("label", "list", "--json", "name,description")) as Label[]);
+export const listLabels = (): Label[] =>
+    cached(
+        "labels",
+        () => JSON.parse(gh("label", "list", "--json", "name,description")) as Label[],
+    );
 
 /** The repo's open issues on the given project; uncached online, the file cache when offline. */
 export const listIssues = (project: string, offline = false): Issue[] => {
@@ -62,17 +65,33 @@ export const listIssues = (project: string, offline = false): Issue[] => {
 
     if (offline) return readCache<Issue[]>(key) ?? [];
 
-    const issues = JSON.parse(gh("issue", "list", "--state", "open", "--limit", "100", "--json", "number,title,url,labels,projectItems")) as {
-        number: number
-        title: string
-        url: string
-        labels: { name: string }[]
-        projectItems: { title: string }[]
+    const issues = JSON.parse(
+        gh(
+            "issue",
+            "list",
+            "--state",
+            "open",
+            "--limit",
+            "100",
+            "--json",
+            "number,title,url,labels,projectItems",
+        ),
+    ) as {
+        number: number;
+        title: string;
+        url: string;
+        labels: { name: string }[];
+        projectItems: { title: string }[];
     }[];
 
     const forProject = issues
         .filter(({ projectItems }) => projectItems.some(({ title }) => title === project))
-        .map(({ number, title, url, labels }) => ({ number, title, url, labels: labels.map(({ name }) => name) }));
+        .map(({ number, title, url, labels }) => ({
+            number,
+            title,
+            url,
+            labels: labels.map(({ name }) => name),
+        }));
 
     writeCache(key, forProject);
 
@@ -91,5 +110,17 @@ export const developBranch = (issue: number, branch: string): void => {
 
 /** Addressed by name rather than node ID — `item-edit` resolves the field and option server-side instead of a separate `field-list` lookup. */
 export const moveToInProgress = (project: Project, issue: Issue): void => {
-    gh("project", "item-edit", String(project.number), "--owner", repoOwner(), "--url", issue.url, "--field", "Status", "--value", "In Progress");
+    gh(
+        "project",
+        "item-edit",
+        String(project.number),
+        "--owner",
+        repoOwner(),
+        "--url",
+        issue.url,
+        "--field",
+        "Status",
+        "--value",
+        "In Progress",
+    );
 };

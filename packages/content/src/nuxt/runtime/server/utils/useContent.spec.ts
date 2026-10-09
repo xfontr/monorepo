@@ -9,7 +9,7 @@ import { ITEM_MAX_AGE, ITEM_STALE_MAX_AGE, LIST_MAX_AGE, LIST_STALE_MAX_AGE } fr
 const nitro = vi.hoisted(() => ({
     vendor: undefined as VendorConfig | undefined,
     caches: {} as Record<string, CacheOptions>,
-    calls: [] as { name: string, key: string, event: unknown }[],
+    calls: [] as { name: string; key: string; event: unknown }[],
 }));
 
 const transport = vi.hoisted(() => ({ raw: vi.fn() }));
@@ -20,7 +20,11 @@ vi.mock("nitropack/runtime", () => ({
         nitro.caches[options.name!] = options;
 
         return async (...args: unknown[]) => {
-            nitro.calls.push({ name: options.name!, key: await options.getKey!(...args), event: args[0] });
+            nitro.calls.push({
+                name: options.name!,
+                key: await options.getKey!(...args),
+                event: args[0],
+            });
 
             return fn(...args);
         };
@@ -30,7 +34,7 @@ vi.mock("nitropack/runtime", () => ({
 
 // Only the instance is replaced: FetchError stays real, since that is what the client maps a status off
 vi.mock("ofetch", async (importOriginal) => ({
-    ...await importOriginal<typeof import("ofetch")>(),
+    ...(await importOriginal<typeof import("ofetch")>()),
     ofetch: { raw: transport.raw },
 }));
 
@@ -45,19 +49,20 @@ const ENTRY = {
     content: { rendered: "<p>Body</p>" },
 };
 
-function respond(data: unknown, headers: Record<string, string> = {}) {
+const respond = (data: unknown, headers: Record<string, string> = {}) => {
     transport.raw.mockResolvedValue({ _data: data, headers: new Headers(headers) });
-}
+};
 
-function upstreamStatus(status: number) {
-    transport.raw.mockRejectedValue(Object.assign(new FetchError("upstream said no"), {
-        response: { status } as unknown as FetchError["response"],
-    }));
-}
+const upstreamStatus = (status: number) => {
+    transport.raw.mockRejectedValue(
+        Object.assign(new FetchError("upstream said no"), {
+            response: { status } as unknown as FetchError["response"],
+        }),
+    );
+};
 
-function keyOf(name: string): string | undefined {
-    return nitro.calls.filter((call) => call.name === name).at(-1)?.key;
-}
+const keyOf = (name: string): string | undefined =>
+    nitro.calls.filter((call) => call.name === name).at(-1)?.key;
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -68,7 +73,11 @@ beforeEach(() => {
 
 describe("useContent", () => {
     it("lists entries from the configured vendor", async () => {
-        const page = await useContent(EVENT).listEntries("posts", { page: 2, perPage: 6, term: { resource: "categories", id: "12" } });
+        const page = await useContent(EVENT).listEntries("posts", {
+            page: 2,
+            perPage: 6,
+            term: { resource: "categories", id: "12" },
+        });
 
         expect(page).toMatchObject({ page: 2, perPage: 6, total: 12, totalPages: 2 });
         expect(page.items[0]).toMatchObject({ id: "7", slug: "hello-world" });
@@ -92,7 +101,10 @@ describe("useContent", () => {
 
     // WordPress has no single-document endpoint, so the inherited one-item list is what serves this
     it("gets the one entry a slug names", async () => {
-        await expect(useContent(EVENT).getEntry("posts", "hello-world")).resolves.toMatchObject({ id: "7", slug: "hello-world" });
+        await expect(useContent(EVENT).getEntry("posts", "hello-world")).resolves.toMatchObject({
+            id: "7",
+            slug: "hello-world",
+        });
 
         expect(transport.raw).toHaveBeenCalledWith("https://wp.test/wp-json/wp/v2/posts", {
             headers: undefined,
@@ -103,23 +115,39 @@ describe("useContent", () => {
     it("gets a term by slug", async () => {
         respond([{ id: 3, name: "News", slug: "news", taxonomy: "category" }]);
 
-        await expect(useContent(EVENT).getTerm("categories", "news")).resolves.toMatchObject({ id: "3", resource: "categories" });
+        await expect(useContent(EVENT).getTerm("categories", "news")).resolves.toMatchObject({
+            id: "3",
+            resource: "categories",
+        });
     });
 
     it("404s a slug that matches nothing", async () => {
         respond([]);
 
-        await expect(useContent(EVENT).getEntry("posts", "nope")).rejects.toMatchObject({ statusCode: 404 });
+        await expect(useContent(EVENT).getEntry("posts", "nope")).rejects.toMatchObject({
+            statusCode: 404,
+        });
     });
 
     it.each([
         ["page 0", () => useContent(EVENT).listEntries("posts", { page: 0 })],
-        ["a page that is not a number", () => useContent(EVENT).listEntries("posts", { page: Number.NaN })],
+        [
+            "a page that is not a number",
+            () => useContent(EVENT).listEntries("posts", { page: Number.NaN }),
+        ],
         ["perPage 999", () => useContent(EVENT).listTerms("tags", { perPage: 999 })],
-        ["an unknown taxonomy", () => useContent(EVENT).listEntries("posts", { term: { resource: "authors", id: "1" } } as never)],
+        [
+            "an unknown taxonomy",
+            () =>
+                useContent(EVENT).listEntries("posts", {
+                    term: { resource: "authors", id: "1" },
+                } as never),
+        ],
         ["an empty slug", () => useContent(EVENT).getEntry("posts", " ")],
     ])("refuses %s without keying it or asking the vendor", async (_, read) => {
-        await expect(read()).rejects.toMatchObject({ statusCode: expect.any(Number) as unknown as number });
+        await expect(read()).rejects.toMatchObject({
+            statusCode: expect.any(Number) as unknown as number,
+        });
         expect(nitro.calls).toEqual([]);
         expect(transport.raw).not.toHaveBeenCalled();
     });
@@ -127,7 +155,9 @@ describe("useContent", () => {
     it("500s an unregistered vendor, naming the ones that exist", async () => {
         nitro.vendor = { name: "contentful" } as unknown as VendorConfig;
 
-        await expect(useContent(EVENT).listEntries("posts")).rejects.toMatchObject({ statusCode: 500 });
+        await expect(useContent(EVENT).listEntries("posts")).rejects.toMatchObject({
+            statusCode: 500,
+        });
         await expect(useContent(EVENT).listEntries("posts")).rejects.toThrow(/wordpress/);
         expect(transport.raw).not.toHaveBeenCalled();
     });
@@ -138,7 +168,9 @@ describe("useContent", () => {
 
         await expect(useContent(EVENT).getEntry("posts", "hello-world")).rejects.toMatchObject({
             statusCode: 500,
-            statusMessage: expect.stringContaining("baseURL is not an absolute URL") as unknown as string,
+            statusMessage: expect.stringContaining(
+                "baseURL is not an absolute URL",
+            ) as unknown as string,
         });
         expect(transport.raw).not.toHaveBeenCalled();
     });
@@ -147,24 +179,36 @@ describe("useContent", () => {
         const cause = new Error("connect ECONNREFUSED");
         transport.raw.mockRejectedValue(cause);
 
-        await expect(useContent(EVENT).listEntries("posts")).rejects.toMatchObject({ statusCode: 502, cause });
+        await expect(useContent(EVENT).listEntries("posts")).rejects.toMatchObject({
+            statusCode: 502,
+            cause,
+        });
     });
 
     it("relays an upstream 404, which answers the request that was actually made", async () => {
         upstreamStatus(404);
 
-        await expect(useContent(EVENT).listEntries("posts")).rejects.toMatchObject({ statusCode: 404 });
+        await expect(useContent(EVENT).listEntries("posts")).rejects.toMatchObject({
+            statusCode: 404,
+        });
     });
 
     // Our own credentials are what an upstream 401 rejects, so it must never invite a retry with others
-    it.each([401, 403, 500])("reports an upstream %i as a gateway failure of ours", async (status) => {
-        upstreamStatus(status);
+    it.each([401, 403, 500])(
+        "reports an upstream %i as a gateway failure of ours",
+        async (status) => {
+            upstreamStatus(status);
 
-        await expect(useContent(EVENT).getEntry("posts", "hello-world")).rejects.toMatchObject({ statusCode: 502 });
-    });
+            await expect(useContent(EVENT).getEntry("posts", "hello-world")).rejects.toMatchObject({
+                statusCode: 502,
+            });
+        },
+    );
 
     it("never names the vendor endpoint in the status it settles on", async () => {
-        transport.raw.mockRejectedValue(new Error("connect ECONNREFUSED https://wp.test/wp-json/wp/v2/posts"));
+        transport.raw.mockRejectedValue(
+            new Error("connect ECONNREFUSED https://wp.test/wp-json/wp/v2/posts"),
+        );
 
         await expect(useContent(EVENT).listEntries("posts")).rejects.toMatchObject({
             statusMessage: expect.not.stringContaining("wp.test") as unknown as string,
@@ -190,17 +234,22 @@ describe("the list cache", () => {
     it("keys off the vendor, the resource and the normalised query", async () => {
         await useContent(EVENT).listEntries("posts", { page: 2, perPage: 6 });
 
-        expect(keyOf("content-list")).toBe(contentKey(nitro.vendor!, "posts", { page: 2, perPage: 6 }));
+        expect(keyOf("content-list")).toBe(
+            contentKey(nitro.vendor!, "posts", { page: 2, perPage: 6 }),
+        );
     });
 
-    it.each([{}, { page: 1 }, { page: 1, perPage: 10 }, { search: "  " }])("gives %o the same entry as the first page", async (query) => {
-        await useContent(EVENT).listEntries("posts");
-        const firstPage = keyOf("content-list");
+    it.each([{}, { page: 1 }, { page: 1, perPage: 10 }, { search: "  " }])(
+        "gives %o the same entry as the first page",
+        async (query) => {
+            await useContent(EVENT).listEntries("posts");
+            const firstPage = keyOf("content-list");
 
-        await useContent(EVENT).listEntries("posts", query);
+            await useContent(EVENT).listEntries("posts", query);
 
-        expect(keyOf("content-list")).toBe(firstPage);
-    });
+            expect(keyOf("content-list")).toBe(firstPage);
+        },
+    );
 
     it("separates the resources of one vendor, and one filter from another", async () => {
         await useContent(EVENT).listEntries("posts");
@@ -209,7 +258,9 @@ describe("the list cache", () => {
         await useContent(EVENT).listEntries("pages");
         expect(keyOf("content-list")).not.toBe(posts);
 
-        await useContent(EVENT).listEntries("posts", { term: { resource: "categories", id: "12" } });
+        await useContent(EVENT).listEntries("posts", {
+            term: { resource: "categories", id: "12" },
+        });
         expect(keyOf("content-list")).not.toBe(posts);
     });
 
@@ -235,7 +286,9 @@ describe("the item cache", () => {
     it("keys off the vendor, the resource and the trimmed slug", async () => {
         await useContent(EVENT).getEntry("posts", " hello-world ");
 
-        expect(keyOf("content-item")).toBe(contentKey(nitro.vendor!, "posts", { slug: "hello-world" }));
+        expect(keyOf("content-item")).toBe(
+            contentKey(nitro.vendor!, "posts", { slug: "hello-world" }),
+        );
     });
 
     it("separates the same slug under two resources", async () => {

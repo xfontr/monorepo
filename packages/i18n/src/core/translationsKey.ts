@@ -2,10 +2,7 @@ import { hash } from "ohash";
 import type { Locale } from "./domain/translations";
 import type { VendorConfig } from "./registry";
 
-export function translationsKey(vendor: VendorConfig, locale: Locale): string {
-    return [vendor.name, locale, hash({ ...vendor, options: undefined })].map(toWordChars).join("_");
-}
+export const translationsKey = (vendor: VendorConfig, locale: Locale): string =>
+    [vendor.name, locale, hash({ ...vendor, options: undefined })].map(toWordChars).join("_");
 
-function toWordChars(part: string): string {
-    return part.replaceAll("_", "_u").replaceAll("-", "_d");
-}
+const toWordChars = (part: string): string => part.replaceAll("_", "_u").replaceAll("-", "_d");

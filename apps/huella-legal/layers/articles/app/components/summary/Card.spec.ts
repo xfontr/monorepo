@@ -21,13 +21,16 @@ const ARTICLE: ArticleSummary = {
 
 const WITH_IMAGE: ArticleSummary = { ...ARTICLE, image: fakeAsset() };
 
-const mount = (props: InstanceType<typeof SummaryCard>["$props"]) => mountSuspended(SummaryCard, { props, global });
+const mount = (props: InstanceType<typeof SummaryCard>["$props"]) =>
+    mountSuspended(SummaryCard, { props, global });
 
 describe("article card", () => {
     it("links the title, and only the title, to the article's root permalink", async () => {
         const wrapper = await mount({ article: ARTICLE });
 
-        const links = wrapper.findAll("a").filter((link) => link.attributes("href") === "/la-teoria-juridica-del-delito/");
+        const links = wrapper
+            .findAll("a")
+            .filter((link) => link.attributes("href") === "/la-teoria-juridica-del-delito/");
 
         expect(links.map((link) => link.text())).toEqual(["La teoría jurídica del delito"]);
         expect(links[0]!.element.closest("h3")).not.toBeNull();
@@ -38,7 +41,11 @@ describe("article card", () => {
 
         const hrefs = wrapper.findAll("a").map((link) => link.attributes("href"));
 
-        expect(hrefs).toEqual(["/materias/derecho-penal/", "/la-teoria-juridica-del-delito/", "/colaboradores/ana-gil/"]);
+        expect(hrefs).toEqual([
+            "/materias/derecho-penal/",
+            "/la-teoria-juridica-del-delito/",
+            "/colaboradores/ana-gil/",
+        ]);
         expect(wrapper.find("a a").exists()).toBe(false);
     });
 
@@ -55,12 +62,15 @@ describe("article card", () => {
         expect(wrapper.text()).not.toContain("byline.readingTime");
     });
 
-    it.each(["standard", "lead", "row"] as const)("shows the excerpt and reading time on the %s card", async (variant) => {
-        const wrapper = await mount({ article: ARTICLE, variant });
+    it.each(["standard", "lead", "row"] as const)(
+        "shows the excerpt and reading time on the %s card",
+        async (variant) => {
+            const wrapper = await mount({ article: ARTICLE, variant });
 
-        expect(wrapper.text()).toContain(ARTICLE.excerpt);
-        expect(wrapper.text()).toContain("byline.readingTime");
-    });
+            expect(wrapper.text()).toContain(ARTICLE.excerpt);
+            expect(wrapper.text()).toContain("byline.readingTime");
+        },
+    );
 
     it("hides the image from assistive tech, since the title beside it already names the article", async () => {
         const wrapper = await mount({ article: WITH_IMAGE, variant: "media" });

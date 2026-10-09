@@ -28,18 +28,21 @@ describe("resolveDocLink", () => {
     });
 
     it("resolves a markdown link against the linking file's directory rather than the route", () => {
-        expect(resolveDocLink("./0011-docs-system-enforcement.md", DECISION, isPage))
-            .toBe("/docs/docs/decisions/0011-docs-system-enforcement");
+        expect(resolveDocLink("./0011-docs-system-enforcement.md", DECISION, isPage)).toBe(
+            "/docs/docs/decisions/0011-docs-system-enforcement",
+        );
     });
 
     it("walks out of the directory on `..` so a cross-tree link lands in the right place", () => {
-        expect(resolveDocLink("../../apps/developer-portal/README.md", DECISION, isPage))
-            .toBe("/docs/apps/developer-portal/readme");
+        expect(resolveDocLink("../../apps/developer-portal/README.md", DECISION, isPage)).toBe(
+            "/docs/apps/developer-portal/readme",
+        );
     });
 
     it("keeps an anchor, which names a heading on the page it just resolved", () => {
-        expect(resolveDocLink("./README.md#-numbering", DECISION, isPage))
-            .toBe("/docs/docs/decisions/readme#-numbering");
+        expect(resolveDocLink("./README.md#-numbering", DECISION, isPage)).toBe(
+            "/docs/docs/decisions/readme#-numbering",
+        );
     });
 
     it("sends a file the collection never renders to the repo instead of a route", () => {
@@ -48,13 +51,15 @@ describe("resolveDocLink", () => {
     });
 
     it("keeps a file's real casing, because only the markdown half is lower-cased", () => {
-        expect(resolveDocLink("./packages/configs/src/tsconfig/base.json", ROOT, isPage))
-            .toBe("repo:packages/configs/src/tsconfig/base.json");
+        expect(resolveDocLink("./packages/configs/src/tsconfig/base.json", ROOT, isPage)).toBe(
+            "repo:packages/configs/src/tsconfig/base.json",
+        );
     });
 
     it("drops a line range, which narrows a file rather than naming another one", () => {
-        expect(resolveDocLink("./.agents/skills/writing-tests/SKILL.md:91-94", ROOT, isPage))
-            .toBe("/docs/.agents/skills/writing-tests/skill");
+        expect(resolveDocLink("./.agents/skills/writing-tests/SKILL.md:91-94", ROOT, isPage)).toBe(
+            "/docs/.agents/skills/writing-tests/skill",
+        );
     });
 
     it("treats a leading slash as repo-root-relative, not directory-relative", () => {
@@ -73,8 +78,9 @@ describe("resolveDocLink", () => {
     });
 
     it("routes an extension-less target the collection knows, since these docs may omit `.md`", () => {
-        expect(resolveDocLink("./.agents/skills/house-docs/SKILL", ROOT, isPage))
-            .toBe("/docs/.agents/skills/house-docs/skill");
+        expect(resolveDocLink("./.agents/skills/house-docs/SKILL", ROOT, isPage)).toBe(
+            "/docs/.agents/skills/house-docs/skill",
+        );
     });
 
     it("sends an extension-less target the collection does not know to the repo, not a dead route", () => {

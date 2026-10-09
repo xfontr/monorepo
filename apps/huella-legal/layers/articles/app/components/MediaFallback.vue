@@ -2,13 +2,13 @@
 import type { Tone } from "~/types/Tone";
 
 interface Recipe {
-    root: string
-    label: string
+    root: string;
+    label: string;
 }
 
 interface Props {
-    label?: string
-    tone?: Tone
+    label?: string;
+    tone?: Tone;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -34,6 +34,7 @@ const ui = computed<Recipe>(() => TONES[props.tone]);
             v-if="label"
             class="absolute bottom-3 left-4 font-sans text-[0.6875rem] font-semibold uppercase tracking-[0.14em]"
             :class="ui.label"
-        >{{ label }}</span>
+            >{{ label }}</span
+        >
     </div>
 </template>

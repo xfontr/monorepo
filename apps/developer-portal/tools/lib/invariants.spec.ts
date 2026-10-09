@@ -67,7 +67,10 @@ describe("compareTagTables", () => {
     });
 
     it("reports a tag that is enforced but undocumented — the drift this repo actually had", () => {
-        const extra = BOUNDARIES.replace("{ sourceTag: \"type:app\"", "{ sourceTag: \"type:domain\", onlyDependOnLibsWithTags: [] },\n            { sourceTag: \"type:app\"");
+        const extra = BOUNDARIES.replace(
+            '{ sourceTag: "type:app"',
+            '{ sourceTag: "type:domain", onlyDependOnLibsWithTags: [] },\n            { sourceTag: "type:app"',
+        );
         const [finding] = compareTagTables(extra, README);
 
         expect(finding?.id).toBe("tag-table-undocumented");
@@ -88,7 +91,11 @@ describe("compareLayoutBlock", () => {
     });
 
     it("names the project missing from the layout block rather than just saying they differ", () => {
-        const [finding] = compareLayoutBlock(README, ["apps/huella-legal", "packages/ui", "apps/developer-portal"]);
+        const [finding] = compareLayoutBlock(README, [
+            "apps/huella-legal",
+            "packages/ui",
+            "apps/developer-portal",
+        ]);
 
         expect(finding?.detail).toContain("developer-portal");
     });
@@ -106,7 +113,10 @@ describe("compareReviewHistory", () => {
     });
 
     it("names the review with no row, which is a review that compares against nothing", () => {
-        const [finding] = compareReviewHistory(HISTORY, ["2026-09-04-c1025f3.md", "2026-09-05-abcb17d.md"]);
+        const [finding] = compareReviewHistory(HISTORY, [
+            "2026-09-04-c1025f3.md",
+            "2026-09-05-abcb17d.md",
+        ]);
 
         expect(finding?.id).toBe("review-history-incomplete");
         expect(finding?.detail).toContain("2026-09-05-abcb17d.md");
@@ -136,7 +146,10 @@ describe("compareScorecardShape", () => {
     });
 
     it("names the file and the problem when a review's table doesn't parse", () => {
-        const [finding] = compareScorecardShape("2026-09-06-badbeef.md", "## 🧮 Scores\n\nnot a table\n");
+        const [finding] = compareScorecardShape(
+            "2026-09-06-badbeef.md",
+            "## 🧮 Scores\n\nnot a table\n",
+        );
 
         expect(finding?.id).toBe("scorecard-shape-mismatch");
         expect(finding?.detail).toContain("2026-09-06-badbeef.md");
@@ -145,7 +158,8 @@ describe("compareScorecardShape", () => {
 });
 
 describe("compareDecisionShape", () => {
-    const report = (issue: string) => `---\nissue: ${issue}\nstatus: implemented\ndecision: accepted\n---\n\n# 🧭 A decision\n`;
+    const report = (issue: string) =>
+        `---\nissue: ${issue}\nstatus: implemented\ndecision: accepted\n---\n\n# 🧭 A decision\n`;
 
     it("flags two reports sharing a number, the collision consecutive numbering exists to prevent", () => {
         const findings = compareDecisionShape([

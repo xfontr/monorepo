@@ -4,18 +4,31 @@ import { deploymentUrlFor, deploymentsApiUrl, latestDeployments } from "./deploy
 describe("deploymentUrlFor", () => {
     it("keeps a project link on its environment instead of another project's deployment", () => {
         const deployments = [
-            { environment: "developer-portal", state: "success" as const, url: "https://xfontr.github.io/monorepo/", updatedAt: "2026-09-19T12:00:00Z" },
-            { environment: "huella-legal", state: "success" as const, url: "https://huella-legal.netlify.app/", updatedAt: "2026-09-19T13:00:00Z" },
+            {
+                environment: "developer-portal",
+                state: "success" as const,
+                url: "https://xfontr.github.io/monorepo/",
+                updatedAt: "2026-09-19T12:00:00Z",
+            },
+            {
+                environment: "huella-legal",
+                state: "success" as const,
+                url: "https://huella-legal.netlify.app/",
+                updatedAt: "2026-09-19T13:00:00Z",
+            },
         ];
 
-        expect(deploymentUrlFor(deployments, "huella-legal")).toBe("https://huella-legal.netlify.app/");
+        expect(deploymentUrlFor(deployments, "huella-legal")).toBe(
+            "https://huella-legal.netlify.app/",
+        );
     });
 });
 
 describe("deploymentsApiUrl", () => {
     it("derives the REST deployments endpoint without keeping a vendor URL in config", () => {
-        expect(deploymentsApiUrl("https://github.com/xfontr/monorepo"))
-            .toBe("https://api.github.com/repos/xfontr/monorepo/deployments");
+        expect(deploymentsApiUrl("https://github.com/xfontr/monorepo")).toBe(
+            "https://api.github.com/repos/xfontr/monorepo/deployments",
+        );
     });
 
     it("does not create an endpoint from an unset or malformed repository URL", () => {
@@ -31,14 +44,51 @@ describe("latestDeployments", () => {
             { id: 3, environment: "preview" },
         ];
         const statuses = new Map([
-            [2, [{ state: "success" as const, environment_url: "https://prod.example", created_at: "2026-09-19T12:00:00Z" }]],
-            [1, [{ state: "failure" as const, environment_url: null, created_at: "2026-09-18T12:00:00Z" }]],
-            [3, [{ state: "in_progress" as const, environment_url: null, created_at: "2026-09-19T13:00:00Z" }]],
+            [
+                2,
+                [
+                    {
+                        state: "success" as const,
+                        environment_url: "https://prod.example",
+                        created_at: "2026-09-19T12:00:00Z",
+                    },
+                ],
+            ],
+            [
+                1,
+                [
+                    {
+                        state: "failure" as const,
+                        environment_url: null,
+                        created_at: "2026-09-18T12:00:00Z",
+                    },
+                ],
+            ],
+            [
+                3,
+                [
+                    {
+                        state: "in_progress" as const,
+                        environment_url: null,
+                        created_at: "2026-09-19T13:00:00Z",
+                    },
+                ],
+            ],
         ]);
 
         expect(latestDeployments(deployments, statuses)).toEqual([
-            { environment: "preview", state: "in_progress", url: null, updatedAt: "2026-09-19T13:00:00Z" },
-            { environment: "production", state: "success", url: "https://prod.example", updatedAt: "2026-09-19T12:00:00Z" },
+            {
+                environment: "preview",
+                state: "in_progress",
+                url: null,
+                updatedAt: "2026-09-19T13:00:00Z",
+            },
+            {
+                environment: "production",
+                state: "success",
+                url: "https://prod.example",
+                updatedAt: "2026-09-19T12:00:00Z",
+            },
         ]);
     });
 });

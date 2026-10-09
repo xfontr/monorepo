@@ -18,8 +18,8 @@ const projects: ProjectNode[] = [
     { name: "beta", root: "packages/beta", tags: [], dependsOn: [], dependedOnBy: [] },
 ];
 
-const summary = (lines: { total: number, covered: number, pct: number }) => ({
-    "total": {
+const summary = (lines: { total: number; covered: number; pct: number }) => ({
+    total: {
         lines,
         statements: lines,
         functions: lines,
@@ -36,9 +36,9 @@ beforeEach(() => {
 
 describe("collectCoverage", () => {
     it("marks a missing project uncollected without inventing metrics", async () => {
-        const result = await collectCoverage(projects, "now", async (root) => root === projects[0]?.root
-            ? summary({ total: 4, covered: 2, pct: 50 })
-            : null);
+        const result = await collectCoverage(projects, "now", async (root) =>
+            root === projects[0]?.root ? summary({ total: 4, covered: 2, pct: 50 }) : null,
+        );
 
         expect(result.projects[1]).toEqual({
             name: "beta",
@@ -86,15 +86,19 @@ describe("collectCoverage", () => {
     });
 
     it("counts source entries without counting the total entry", async () => {
-        const result = await collectCoverage([projects[0]!], "now", async () => summary({ total: 4, covered: 2, pct: 50 }));
+        const result = await collectCoverage([projects[0]!], "now", async () =>
+            summary({ total: 4, covered: 2, pct: 50 }),
+        );
 
         expect(result.projects[0]?.files).toBe(2);
     });
 
     it("weights workspace percentages by covered and total counts", async () => {
-        const result = await collectCoverage(projects, "now", async (root) => root === projects[0]?.root
-            ? summary({ total: 10, covered: 9, pct: 90 })
-            : summary({ total: 90, covered: 45, pct: 50 }));
+        const result = await collectCoverage(projects, "now", async (root) =>
+            root === projects[0]?.root
+                ? summary({ total: 10, covered: 9, pct: 90 })
+                : summary({ total: 90, covered: 45, pct: 50 }),
+        );
 
         expect(result.totals).toEqual({ lines: 54, statements: 54, functions: 54, branches: 54 });
     });
@@ -120,6 +124,8 @@ describe("collectCoverage", () => {
         expect(result.report).toBe(true);
         expect(fs.rm).toHaveBeenCalledWith(expect.any(String), { recursive: true, force: true });
         expect(fs.mkdir).toHaveBeenCalledWith(expect.any(String), { recursive: true });
-        expect(fs.cp).toHaveBeenCalledWith(expect.any(String), expect.any(String), { recursive: true });
+        expect(fs.cp).toHaveBeenCalledWith(expect.any(String), expect.any(String), {
+            recursive: true,
+        });
     });
 });

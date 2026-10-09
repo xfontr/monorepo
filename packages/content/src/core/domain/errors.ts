@@ -1,5 +1,9 @@
 export class ContentError extends Error {
-    constructor(public readonly statusCode: number, public readonly statusMessage: string, options?: ErrorOptions) {
+    constructor(
+        public readonly statusCode: number,
+        public readonly statusMessage: string,
+        options?: ErrorOptions,
+    ) {
         super(statusMessage, options);
         this.name = new.target.name;
     }
@@ -10,7 +14,10 @@ export class ContentError extends Error {
 const PASSTHROUGH_STATUSES = new Set([400, 404]);
 
 export class UpstreamError extends ContentError {
-    constructor(public readonly upstreamStatus: number | undefined, cause?: unknown) {
+    constructor(
+        public readonly upstreamStatus: number | undefined,
+        cause?: unknown,
+    ) {
         super(
             upstreamStatus && PASSTHROUGH_STATUSES.has(upstreamStatus) ? upstreamStatus : 502,
             "Upstream request failed",
@@ -27,19 +34,28 @@ export class ContentUnavailableError extends ContentError {
 
 export class UndefinedVendorError extends ContentError {
     constructor(name: string | undefined, available: readonly string[]) {
-        super(500, `Requested vendor "${name ?? null}" does not exist. Available: ${available.join(", ")}`);
+        super(
+            500,
+            `Requested vendor "${name ?? null}" does not exist. Available: ${available.join(", ")}`,
+        );
     }
 }
 
 export class MisconfiguredVendorError extends ContentError {
-    constructor(vendor: string, public readonly problems: string[]) {
+    constructor(
+        vendor: string,
+        public readonly problems: string[],
+    ) {
         super(500, `${vendor} is misconfigured: ${problems.join(", ")}`);
     }
 }
 
 export class UndefinedResourceError extends ContentError {
     constructor(resource: string | undefined, available: readonly string[]) {
-        super(404, `Requested resource "${resource ?? null}" does not exist. Available: ${available.join(", ")}`);
+        super(
+            404,
+            `Requested resource "${resource ?? null}" does not exist. Available: ${available.join(", ")}`,
+        );
     }
 }
 

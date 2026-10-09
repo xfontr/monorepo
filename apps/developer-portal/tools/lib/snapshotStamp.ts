@@ -10,8 +10,7 @@ import { SNAPSHOT_DIR } from "./paths.ts";
 try {
     // `generatedAt` is stamped once per `collect`, so this one file clocks `public/embed/` too.
     process.stdout.write(readFileSync(resolve(SNAPSHOT_DIR, "manifest.json"), "utf8"));
-}
-catch {
+} catch {
     // A project that has never collected still has to hash to something stable.
     process.stdout.write("no-snapshot");
 }

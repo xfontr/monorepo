@@ -7,11 +7,11 @@ export const ITEM_MAX_AGE = 60 * 60 * 6;
 export const ITEM_STALE_MAX_AGE = 60 * 60 * 24 * 7;
 
 export interface ContentConfig {
-    vendor: VendorConfig
+    vendor: VendorConfig;
 }
 
 declare module "@nuxt/schema" {
     interface RuntimeConfig {
-        content: ContentConfig
+        content: ContentConfig;
     }
 }

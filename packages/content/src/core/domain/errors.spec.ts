@@ -12,18 +12,24 @@ import {
 
 describe("UpstreamError", () => {
     // The caller's request is what these two diagnose, so relaying them says something true
-    it.each([400, 404])("passes a %i through as the answer to the request that caused it", (status) => {
-        const error = new UpstreamError(status);
+    it.each([400, 404])(
+        "passes a %i through as the answer to the request that caused it",
+        (status) => {
+            const error = new UpstreamError(status);
 
-        expect(error.statusCode).toBe(status);
-        expect(error.upstreamStatus).toBe(status);
-    });
+            expect(error.statusCode).toBe(status);
+            expect(error.upstreamStatus).toBe(status);
+        },
+    );
 
     // Our own credentials are what an upstream 401 rejects — inviting the client to retry with different
     // ones would be a lie, and a 429 aimed at our IP is not the client's quota either
-    it.each([401, 403, 429, 500, 502, 503])("reports a %i as a gateway failure of ours", (status) => {
-        expect(new UpstreamError(status).statusCode).toBe(502);
-    });
+    it.each([401, 403, 429, 500, 502, 503])(
+        "reports a %i as a gateway failure of ours",
+        (status) => {
+            expect(new UpstreamError(status).statusCode).toBe(502);
+        },
+    );
 
     it("reports a request that never got a status as a gateway failure", () => {
         const error = new UpstreamError(undefined);
@@ -75,10 +81,15 @@ describe("content errors", () => {
 
     // One restart per missing variable is the thing worth avoiding
     it("reports unusable vendor config as an internal error, listing every problem at once", () => {
-        const error = new MisconfiguredVendorError("WordpressProvider", ["baseURL is not an absolute URL", "token is empty"]);
+        const error = new MisconfiguredVendorError("WordpressProvider", [
+            "baseURL is not an absolute URL",
+            "token is empty",
+        ]);
 
         expect(error.statusCode).toBe(500);
-        expect(error.statusMessage).toBe("WordpressProvider is misconfigured: baseURL is not an absolute URL, token is empty");
+        expect(error.statusMessage).toBe(
+            "WordpressProvider is misconfigured: baseURL is not an absolute URL, token is empty",
+        );
         expect(error.problems).toHaveLength(2);
     });
 

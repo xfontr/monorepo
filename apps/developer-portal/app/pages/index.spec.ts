@@ -19,30 +19,60 @@ mockNuxtImport("queryCollection", () => state.query);
 
 const Panel = { template: "<section><slot name='header' /><slot name='body' /></section>" };
 const Card = { template: "<article><slot name='header' /><slot /></article>" };
-const Alert = { props: { title: String, description: String }, template: "<div class='alert'>{{ title }} {{ description }}<slot /></div>" };
-const Tile = { props: { label: String, value: [String, Number], hint: String }, template: "<div class='tile'>{{ label }} {{ value }} {{ hint }}</div>" };
+const Alert = {
+    props: { title: String, description: String },
+    template: "<div class='alert'>{{ title }} {{ description }}<slot /></div>",
+};
+const Tile = {
+    props: { label: String, value: [String, Number], hint: String },
+    template: "<div class='tile'>{{ label }} {{ value }} {{ hint }}</div>",
+};
 const Button = { props: { to: String, label: String }, template: "<a :href='to'>{{ label }}</a>" };
 const Issue = { props: { issue: Object }, template: "<div class='issue'>{{ issue.title }}</div>" };
-const Snapshot = { props: { manifest: Object }, template: "<div class='age'>{{ manifest?.commit }}</div>" };
+const Snapshot = {
+    props: { manifest: Object },
+    template: "<div class='age'>{{ manifest?.commit }}</div>",
+};
 
-const global = { stubs: {
-    UDashboardPanel: Panel, UDashboardNavbar: { props: { title: String }, template: "<header>{{ title }}<slot name='right' /></header>" },
-    UDashboardSidebarCollapse: true, UCard: Card, UAlert: Alert, StatTile: Tile, UButton: Button,
-    IssueRow: Issue, SnapshotAge: Snapshot, UIcon: true, UBadge: { props: { label: String }, template: "<span>{{ label }}</span>" }, NuxtLink: Button,
-} };
+const global = {
+    stubs: {
+        UDashboardPanel: Panel,
+        UDashboardNavbar: {
+            props: { title: String },
+            template: "<header>{{ title }}<slot name='right' /></header>",
+        },
+        UDashboardSidebarCollapse: true,
+        UCard: Card,
+        UAlert: Alert,
+        StatTile: Tile,
+        UButton: Button,
+        IssueRow: Issue,
+        SnapshotAge: Snapshot,
+        UIcon: true,
+        UBadge: { props: { label: String }, template: "<span>{{ label }}</span>" },
+        NuxtLink: Button,
+    },
+};
 
 beforeEach(() => {
     vi.clearAllMocks();
     const query = { select: vi.fn(), all: vi.fn().mockImplementation(() => state.readmes) };
     query.select.mockReturnValue(query);
     state.query.mockReturnValue(query);
-    state.asyncData.mockImplementation((_key: string, handler: () => unknown) => ({ data: ref(handler()) }));
+    state.asyncData.mockImplementation((_key: string, handler: () => unknown) => ({
+        data: ref(handler()),
+    }));
     state.readmes = [];
     state.snapshots = {
         projects: ref({ projects: { projects: [] } }),
         coverage: ref({ coverage: { totals: { lines: 82 } } }),
         docs: ref({ docs: { pages: [], brokenLinkCount: 0 } }),
-        deps: ref({ deps: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 0 }, advisories: [] } }),
+        deps: ref({
+            deps: {
+                vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 0 },
+                advisories: [],
+            },
+        }),
         metrics: ref({ metrics: { invariantFindings: [] } }),
     };
     state.issues = ref({ issues: [], error: null, fetchedAt: "" });
@@ -52,13 +82,37 @@ beforeEach(() => {
 describe("overview page", () => {
     it("loads repository metadata, features applications, and links newcomer routes", async () => {
         state.readmes = [
-            { path: "/readme", title: "Repository overview", description: "What this repository contains." },
-            { path: "/apps/huella-legal/readme", title: "Huella Legal", description: "The legal app." },
+            {
+                path: "/readme",
+                title: "Repository overview",
+                description: "What this repository contains.",
+            },
+            {
+                path: "/apps/huella-legal/readme",
+                title: "Huella Legal",
+                description: "The legal app.",
+            },
         ];
-        state.snapshots.projects!.value = { projects: { projects: [
-            { name: "@monorepo/huella-legal", root: "apps/huella-legal", tags: [], dependsOn: [], dependedOnBy: [] },
-            { name: "@monorepo/ui", root: "packages/ui", tags: [], dependsOn: [], dependedOnBy: [] },
-        ] } };
+        state.snapshots.projects!.value = {
+            projects: {
+                projects: [
+                    {
+                        name: "@monorepo/huella-legal",
+                        root: "apps/huella-legal",
+                        tags: [],
+                        dependsOn: [],
+                        dependedOnBy: [],
+                    },
+                    {
+                        name: "@monorepo/ui",
+                        root: "packages/ui",
+                        tags: [],
+                        dependsOn: [],
+                        dependedOnBy: [],
+                    },
+                ],
+            },
+        };
         const wrapper = await mountSuspended(Page, { global });
 
         expect(state.query).toHaveBeenCalledWith("docs");
@@ -73,9 +127,19 @@ describe("overview page", () => {
     });
 
     it("uses honest repository and project fallbacks when README metadata is absent", async () => {
-        state.snapshots.projects!.value = { projects: { projects: [
-            { name: "@monorepo/huella-legal", root: "apps/huella-legal", tags: [], dependsOn: [], dependedOnBy: [] },
-        ] } };
+        state.snapshots.projects!.value = {
+            projects: {
+                projects: [
+                    {
+                        name: "@monorepo/huella-legal",
+                        root: "apps/huella-legal",
+                        tags: [],
+                        dependsOn: [],
+                        dependedOnBy: [],
+                    },
+                ],
+            },
+        };
         const wrapper = await mountSuspended(Page, { global });
 
         expect(wrapper.text()).toContain("Monorepo");
@@ -94,9 +158,20 @@ describe("overview page", () => {
     });
 
     it("feeds collected artifacts into overview tiles and surfaces findings and live issue failures", async () => {
-        state.snapshots.docs!.value = { docs: { pages: [{ path: "docs/a.md", brokenLinks: [{ href: "./missing" }] }], brokenLinkCount: 1 } };
-        state.snapshots.metrics!.value = { metrics: { invariantFindings: [{ id: "drift", title: "Drift", detail: "Fix it" }] } };
-        state.issues!.value = { issues: [{ number: 4, title: "Open issue" }], error: "GitHub offline", fetchedAt: "" };
+        state.snapshots.docs!.value = {
+            docs: {
+                pages: [{ path: "docs/a.md", brokenLinks: [{ href: "./missing" }] }],
+                brokenLinkCount: 1,
+            },
+        };
+        state.snapshots.metrics!.value = {
+            metrics: { invariantFindings: [{ id: "drift", title: "Drift", detail: "Fix it" }] },
+        };
+        state.issues!.value = {
+            issues: [{ number: 4, title: "Open issue" }],
+            error: "GitHub offline",
+            fetchedAt: "",
+        };
         state.reviews = ref([{ path: "/docs/reviews/2026.md" }]);
         const wrapper = await mountSuspended(Page, { global });
 

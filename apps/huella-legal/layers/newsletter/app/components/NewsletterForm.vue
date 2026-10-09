@@ -6,23 +6,23 @@ import { type Subscription, subscriptionSchema } from "../../shared/schemas/subs
 type Layout = "stacked" | "inline";
 
 interface LayoutRecipe {
-    row: string
-    field: string | undefined
-    button: string | undefined
-    block: boolean
+    row: string;
+    field: string | undefined;
+    button: string | undefined;
+    block: boolean;
 }
 
 interface ToneRecipe {
-    label: string | undefined
-    error: string | undefined
-    button: "primary" | "secondary"
+    label: string | undefined;
+    error: string | undefined;
+    button: "primary" | "secondary";
 }
 
 interface Props {
-    layout?: Layout
-    tone?: Tone
-    pending?: boolean
-    error?: string
+    layout?: Layout;
+    tone?: Tone;
+    pending?: boolean;
+    error?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -35,7 +35,12 @@ const emit = defineEmits<{ submit: [email: string] }>();
 
 const LAYOUTS = {
     stacked: { row: "flex flex-col gap-3", field: undefined, button: undefined, block: true },
-    inline: { row: "flex flex-col gap-3 sm:flex-row", field: "flex-1", button: "justify-center sm:self-end", block: false },
+    inline: {
+        row: "flex flex-col gap-3 sm:flex-row",
+        field: "flex-1",
+        button: "justify-center sm:self-end",
+        block: false,
+    },
 } as const satisfies Record<Layout, LayoutRecipe>;
 
 const TONES = {
@@ -49,9 +54,9 @@ const schema = subscriptionSchema((issue) => t(`newsletterForm.email.errors.${is
 
 const state = reactive({ email: "" });
 
-function onSubmit({ data }: FormSubmitEvent<Subscription>) {
+const onSubmit = ({ data }: FormSubmitEvent<Subscription>) => {
     emit("submit", data.email);
-}
+};
 
 const arrangement = computed<LayoutRecipe>(() => LAYOUTS[props.layout]);
 const colors = computed<ToneRecipe>(() => TONES[props.tone]);

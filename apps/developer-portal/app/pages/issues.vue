@@ -9,12 +9,18 @@ const label = ref<string>("all");
 const search = ref("");
 
 const all = computed(() => issues.value.issues);
-const read = computed(() => (issues.value.fetchedAt ? `read ${relativeTime(issues.value.fetchedAt)}` : "not read yet"));
+const read = computed(() =>
+    issues.value.fetchedAt ? `read ${relativeTime(issues.value.fetchedAt)}` : "not read yet",
+);
 
-const visible = computed(() => sortIssues(filterIssues(all.value, {
-    label: label.value,
-    search: search.value,
-})));
+const visible = computed(() =>
+    sortIssues(
+        filterIssues(all.value, {
+            label: label.value,
+            search: search.value,
+        }),
+    ),
+);
 
 const labelItems = computed(() => [
     { label: "Every label", value: "all" },
@@ -23,11 +29,11 @@ const labelItems = computed(() => [
 
 const reloading = ref(false);
 
-async function refresh(): Promise<void> {
+const refresh = async (): Promise<void> => {
     reloading.value = true;
     await reload();
     reloading.value = false;
-}
+};
 </script>
 
 <template>
@@ -78,8 +84,9 @@ async function refresh(): Promise<void> {
         <template #body>
             <div class="flex flex-col gap-4">
                 <p class="text-sm text-muted max-w-3xl">
-                    Planned and active repository work appears here as issues from GitHub. The issue read is live in
-                    your browser; the rest of this portal remains a collected snapshot.
+                    Planned and active repository work appears here as issues from GitHub. The issue
+                    read is live in your browser; the rest of this portal remains a collected
+                    snapshot.
                 </p>
 
                 <UAlert
@@ -95,12 +102,10 @@ async function refresh(): Promise<void> {
                     <template #header>
                         <div class="flex items-center justify-between gap-4">
                             <div>
-                                <h2 class="font-semibold">
-                                    Open issues
-                                </h2>
+                                <h2 class="font-semibold">Open issues</h2>
                                 <p class="text-xs text-muted">
-                                    Read live from GitHub by your own browser. Nothing is stored here — the issue is
-                                    the record, and this is a window onto it.
+                                    Read live from GitHub by your own browser. Nothing is stored
+                                    here — the issue is the record, and this is a window onto it.
                                 </p>
                             </div>
 
@@ -110,16 +115,14 @@ async function refresh(): Promise<void> {
                         </div>
                     </template>
 
-                    <div
-                        v-if="visible.length === 0"
-                        class="p-12 text-center"
-                    >
-                        <UIcon
-                            name="i-lucide-circle-dot"
-                            class="size-8 text-dimmed mx-auto mb-2"
-                        />
+                    <div v-if="visible.length === 0" class="p-12 text-center">
+                        <UIcon name="i-lucide-circle-dot" class="size-8 text-dimmed mx-auto mb-2" />
                         <p class="text-sm text-muted">
-                            {{ all.length === 0 ? "No open issues." : "Nothing matches that filter." }}
+                            {{
+                                all.length === 0
+                                    ? "No open issues."
+                                    : "Nothing matches that filter."
+                            }}
                         </p>
                         <p
                             v-if="all.length === 0 && !issues.error"
@@ -129,15 +132,8 @@ async function refresh(): Promise<void> {
                         </p>
                     </div>
 
-                    <div
-                        v-else
-                        class="divide-y divide-default"
-                    >
-                        <IssueRow
-                            v-for="issue in visible"
-                            :key="issue.number"
-                            :issue
-                        />
+                    <div v-else class="divide-y divide-default">
+                        <IssueRow v-for="issue in visible" :key="issue.number" :issue />
                     </div>
                 </UCard>
             </div>

@@ -1,4 +1,12 @@
-import type { Entry, EntryQuery, EntryResource, Page, Query, Term, TermResource } from "#core/domain/content";
+import type {
+    Entry,
+    EntryQuery,
+    EntryResource,
+    Page,
+    Query,
+    Term,
+    TermResource,
+} from "#core/domain/content";
 import ContentProvider from "#core/ports/ContentProvider";
 import { API_PATH } from "./WordpressConfigs";
 import { toEntry, toPage, toTerm, toWordpressQuery } from "./WordpressHelpers";
@@ -10,14 +18,17 @@ class WordpressProvider extends ContentProvider<WordpressProviderConfig> {
     }
 
     override async listEntries(resource: EntryResource, query?: EntryQuery): Promise<Page<Entry>> {
-        const response = await this.http.get<WordpressEntry[]>(this.url(`${API_PATH}/${resource}`), {
-            query: {
-                ...toWordpressQuery(query),
-                ...(query?.term ? { [query.term.resource]: query.term.id } : {}),
-                author: query?.author,
-                _embed: "wp:featuredmedia,wp:term,author",
+        const response = await this.http.get<WordpressEntry[]>(
+            this.url(`${API_PATH}/${resource}`),
+            {
+                query: {
+                    ...toWordpressQuery(query),
+                    ...(query?.term ? { [query.term.resource]: query.term.id } : {}),
+                    author: query?.author,
+                    _embed: "wp:featuredmedia,wp:term,author",
+                },
             },
-        });
+        );
 
         return toPage(response, query, toEntry);
     }

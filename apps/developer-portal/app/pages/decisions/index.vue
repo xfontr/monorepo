@@ -12,14 +12,20 @@ const decision = ref<DecisionOutcome | "all">("all");
 const search = ref("");
 const sort = ref<DecisionSort>("newest");
 
-const visible = computed(() => sortDecisions(
-    filterDecisions(reports.value, { status: status.value, decision: decision.value, search: search.value }),
-    sort.value,
-));
+const visible = computed(() =>
+    sortDecisions(
+        filterDecisions(reports.value, {
+            status: status.value,
+            decision: decision.value,
+            search: search.value,
+        }),
+        sort.value,
+    ),
+);
 
 const counts = computed(() => countByStatus(reports.value));
 
-const statusTiles: { status: DecisionStatus, hint: string }[] = [
+const statusTiles: { status: DecisionStatus; hint: string }[] = [
     { status: "to-implement", hint: "decided, not in the repo yet" },
     { status: "implemented", hint: "the work has landed" },
     { status: "wont-implement", hint: "decided against, deliberately" },
@@ -35,7 +41,7 @@ const decisionItems = [
     ...DECISION_OUTCOMES.map((value) => ({ label: decisionOutcomeLabel(value), value })),
 ];
 
-const sortItems: { label: string, value: DecisionSort }[] = [
+const sortItems: { label: string; value: DecisionSort }[] = [
     { label: "Newest first", value: "newest" },
     { label: "Oldest first", value: "oldest" },
     { label: "Recently updated", value: "updated" },
@@ -59,10 +65,7 @@ const sortItems: { label: string, value: DecisionSort }[] = [
                         variant="ghost"
                         size="xs"
                     />
-                    <SnapshotAge
-                        :manifest="snapshot?.manifest ?? null"
-                        artifact="docs"
-                    />
+                    <SnapshotAge :manifest="snapshot?.manifest ?? null" artifact="docs" />
                 </template>
             </UDashboardNavbar>
 
@@ -105,104 +108,101 @@ const sortItems: { label: string, value: DecisionSort }[] = [
         <template #body>
             <div class="flex flex-col gap-4">
                 <p class="text-sm text-muted max-w-3xl">
-                    Decisions record why the repository works the way it does. Each report preserves an architectural
-                    or product choice after its originating issue is finished, and its status shows whether an accepted
-                    result has been implemented.
+                    Decisions record why the repository works the way it does. Each report preserves
+                    an architectural or product choice after its originating issue is finished, and
+                    its status shows whether an accepted result has been implemented.
                 </p>
 
-                <div
-                    v-if="reports.length === 0"
-                    class="p-12 text-center"
-                >
-                    <UIcon
-                        name="i-lucide-compass"
-                        class="size-8 text-dimmed mx-auto mb-2"
-                    />
+                <div v-if="reports.length === 0" class="p-12 text-center">
+                    <UIcon name="i-lucide-compass" class="size-8 text-dimmed mx-auto mb-2" />
                     <p class="text-sm text-muted">
                         Nothing collected under <code class="font-mono">docs/decisions/</code> yet.
                     </p>
                     <p class="text-xs text-dimmed mt-1">
-                        The <code class="font-mono">decision-report</code> skill writes them, one numbered file per decision;
-                        <code class="font-mono">pnpm exec nx collect @monorepo/developer-portal</code> is what reads them in.
+                        The <code class="font-mono">decision-report</code> skill writes them, one
+                        numbered file per decision;
+                        <code class="font-mono"
+                            >pnpm exec nx collect @monorepo/developer-portal</code
+                        >
+                        is what reads them in.
                     </p>
                 </div>
 
-                <div
-                    v-else
-                    class="flex flex-col gap-4"
-                >
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                    <StatTile
-                        label="Reports"
-                        :value="reports.length"
-                        hint="one file per decision"
-                        icon="i-lucide-compass"
-                    />
-                    <StatTile
-                        v-for="tile in statusTiles"
-                        :key="tile.status"
-                        :label="decisionStatusLabel(tile.status)"
-                        :value="counts[tile.status]"
-                        :hint="tile.hint"
-                        :tone="decisionStatusTone(tile.status)"
-                    />
-                </div>
+                <div v-else class="flex flex-col gap-4">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <StatTile
+                            label="Reports"
+                            :value="reports.length"
+                            hint="one file per decision"
+                            icon="i-lucide-compass"
+                        />
+                        <StatTile
+                            v-for="tile in statusTiles"
+                            :key="tile.status"
+                            :label="decisionStatusLabel(tile.status)"
+                            :value="counts[tile.status]"
+                            :hint="tile.hint"
+                            :tone="decisionStatusTone(tile.status)"
+                        />
+                    </div>
 
-                <UCard :ui="{ body: 'p-0 sm:p-0' }">
-                    <template #header>
-                        <div class="flex items-center justify-between gap-4">
-                            <div>
-                                <h2 class="font-semibold">
-                                    Every decision, as it was recorded
-                                </h2>
-                                <p class="text-xs text-muted">
-                                    The number is consecutive, not the issue's — a listing reads in the order the
-                                    decisions were made. Status and decision come from each report's own frontmatter.
-                                </p>
+                    <UCard :ui="{ body: 'p-0 sm:p-0' }">
+                        <template #header>
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <h2 class="font-semibold">
+                                        Every decision, as it was recorded
+                                    </h2>
+                                    <p class="text-xs text-muted">
+                                        The number is consecutive, not the issue's — a listing reads
+                                        in the order the decisions were made. Status and decision
+                                        come from each report's own frontmatter.
+                                    </p>
+                                </div>
+
+                                <span class="text-xs text-dimmed shrink-0 tabular-nums">
+                                    {{ visible.length }} of {{ reports.length }}
+                                </span>
                             </div>
+                        </template>
 
-                            <span class="text-xs text-dimmed shrink-0 tabular-nums">
-                                {{ visible.length }} of {{ reports.length }}
-                            </span>
-                        </div>
-                    </template>
-
-                    <div
-                        v-if="visible.length === 0"
-                        class="p-12 text-center text-sm text-muted"
-                    >
-                        Nothing matches that filter.
-                    </div>
-
-                    <div
-                        v-else
-                        class="divide-y divide-default"
-                    >
-                        <NuxtLink
-                            v-for="report in visible"
-                            :key="report.path"
-                            :to="`/decisions/${report.id}`"
-                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-elevated/40 transition-colors"
+                        <div
+                            v-if="visible.length === 0"
+                            class="p-12 text-center text-sm text-muted"
                         >
-                            <span class="text-xs font-mono text-dimmed shrink-0">{{ report.number }}</span>
-                            <span class="text-sm truncate flex-1">{{ report.title }}</span>
+                            Nothing matches that filter.
+                        </div>
 
-                            <StatusPill
-                                v-if="report.decision === 'superseded'"
-                                :label="decisionOutcomeLabel(report.decision)"
-                                tone="bad"
-                                :hint="`Superseded by ${report.supersededBy}`"
-                            />
-                            <StatusPill
-                                v-if="report.status"
-                                :label="decisionStatusLabel(report.status)"
-                                :tone="decisionStatusTone(report.status)"
-                            />
+                        <div v-else class="divide-y divide-default">
+                            <NuxtLink
+                                v-for="report in visible"
+                                :key="report.path"
+                                :to="`/decisions/${report.id}`"
+                                class="flex items-center gap-3 px-4 py-2.5 hover:bg-elevated/40 transition-colors"
+                            >
+                                <span class="text-xs font-mono text-dimmed shrink-0">{{
+                                    report.number
+                                }}</span>
+                                <span class="text-sm truncate flex-1">{{ report.title }}</span>
 
-                            <span class="text-[11px] text-dimmed shrink-0 w-24 text-right">{{ relativeTime(report.updatedAt) }}</span>
-                        </NuxtLink>
-                    </div>
-                </UCard>
+                                <StatusPill
+                                    v-if="report.decision === 'superseded'"
+                                    :label="decisionOutcomeLabel(report.decision)"
+                                    tone="bad"
+                                    :hint="`Superseded by ${report.supersededBy}`"
+                                />
+                                <StatusPill
+                                    v-if="report.status"
+                                    :label="decisionStatusLabel(report.status)"
+                                    :tone="decisionStatusTone(report.status)"
+                                />
+
+                                <span class="text-[11px] text-dimmed shrink-0 w-24 text-right">{{
+                                    relativeTime(report.updatedAt)
+                                }}</span>
+                            </NuxtLink>
+                        </div>
+                    </UCard>
                 </div>
             </div>
         </template>

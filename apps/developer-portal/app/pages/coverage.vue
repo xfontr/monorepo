@@ -17,20 +17,14 @@ const coverageEmbed = embedUrl("/embed/coverage/index.html");
                     <UDashboardSidebarCollapse />
                 </template>
                 <template #right>
-                    <SnapshotAge
-                        :manifest="snapshot?.manifest ?? null"
-                        artifact="coverage"
-                    />
+                    <SnapshotAge :manifest="snapshot?.manifest ?? null" artifact="coverage" />
                 </template>
             </UDashboardNavbar>
         </template>
 
         <template #body>
             <div class="flex flex-col gap-4">
-                <div
-                    v-if="coverage?.totals"
-                    class="grid grid-cols-2 lg:grid-cols-4 gap-3"
-                >
+                <div v-if="coverage?.totals" class="grid grid-cols-2 lg:grid-cols-4 gap-3">
                     <StatTile
                         v-for="metric in metrics"
                         :key="metric"
@@ -44,12 +38,11 @@ const coverageEmbed = embedUrl("/embed/coverage/index.html");
                 <UCard :ui="{ body: 'p-0 sm:p-0' }">
                     <template #header>
                         <div>
-                            <h2 class="font-semibold">
-                                By project
-                            </h2>
+                            <h2 class="font-semibold">By project</h2>
                             <p class="text-xs text-muted">
-                                The workspace figure is weighted by size, not averaged across projects — an average
-                                lets one large well-tested package hide a small untested one.
+                                The workspace figure is weighted by size, not averaged across
+                                projects — an average lets one large well-tested package hide a
+                                small untested one.
                             </p>
                         </div>
                     </template>
@@ -58,9 +51,7 @@ const coverageEmbed = embedUrl("/embed/coverage/index.html");
                         <table class="w-full text-sm">
                             <thead class="text-xs text-muted border-b border-default">
                                 <tr>
-                                    <th class="text-left font-medium px-4 py-2">
-                                        Project
-                                    </th>
+                                    <th class="text-left font-medium px-4 py-2">Project</th>
                                     <th
                                         v-for="metric in metrics"
                                         :key="metric"
@@ -68,9 +59,7 @@ const coverageEmbed = embedUrl("/embed/coverage/index.html");
                                     >
                                         {{ metric }}
                                     </th>
-                                    <th class="text-right font-medium px-4 py-2">
-                                        Files
-                                    </th>
+                                    <th class="text-right font-medium px-4 py-2">Files</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-default">
@@ -112,18 +101,14 @@ const coverageEmbed = embedUrl("/embed/coverage/index.html");
                     </div>
                 </UCard>
 
-                <UCard
-                    v-if="coverage?.report"
-                    :ui="{ body: 'p-0 sm:p-0' }"
-                >
+                <UCard v-if="coverage?.report" :ui="{ body: 'p-0 sm:p-0' }">
                     <template #header>
                         <div class="flex items-center justify-between gap-4">
                             <div>
-                                <h2 class="font-semibold">
-                                    Line-by-line report
-                                </h2>
+                                <h2 class="font-semibold">Line-by-line report</h2>
                                 <p class="text-xs text-muted">
-                                    The merged report <code class="font-mono">pnpm test:coverage</code> already
+                                    The merged report
+                                    <code class="font-mono">pnpm test:coverage</code> already
                                     renders, copied in by the collector — not redrawn.
                                 </p>
                             </div>

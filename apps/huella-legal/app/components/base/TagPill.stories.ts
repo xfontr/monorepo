@@ -17,4 +17,6 @@ export const WithCount: Story = { args: { count: 24 } };
 
 export const Active: Story = { args: { count: 24, active: true } };
 
-export const LongLabel: Story = { args: { label: "Derecho internacional público y relaciones internacionales" } };
+export const LongLabel: Story = {
+    args: { label: "Derecho internacional público y relaciones internacionales" },
+};

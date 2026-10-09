@@ -3,10 +3,10 @@ import { assertNotFlagLike, run } from "./exec.ts";
 export const gh = (...args: string[]): string => run("gh", args);
 
 export interface NewIssue {
-    title: string
-    body: string
-    label?: string
-    project?: string
+    title: string;
+    body: string;
+    label?: string;
+    project?: string;
 }
 
 /** Use the locally authenticated `gh`; issue creation returns its URL. */

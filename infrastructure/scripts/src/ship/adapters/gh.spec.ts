@@ -16,7 +16,16 @@ describe("PR adapter", () => {
 
         expect(prUrlForBranch("feature/demo")).toBe("https://example.test/pr/1");
         expect(prUrlForBranch("feature/new")).toBeUndefined();
-        expect(ghApi.gh).toHaveBeenNthCalledWith(1, "pr", "view", "feature/demo", "--json", "url", "-q", ".url");
+        expect(ghApi.gh).toHaveBeenNthCalledWith(
+            1,
+            "pr",
+            "view",
+            "feature/demo",
+            "--json",
+            "url",
+            "-q",
+            ".url",
+        );
     });
 
     it("creates and enables auto-merge with validated arguments", () => {
@@ -26,19 +35,33 @@ describe("PR adapter", () => {
         enableAutoMerge("https://example.test/pr/2", "merge");
 
         expect(ghApi.gh).toHaveBeenNthCalledWith(1, "pr", "create", "--fill");
-        expect(ghApi.gh).toHaveBeenNthCalledWith(2, "pr", "merge", "--auto", "--merge", "https://example.test/pr/2");
+        expect(ghApi.gh).toHaveBeenNthCalledWith(
+            2,
+            "pr",
+            "merge",
+            "--auto",
+            "--merge",
+            "https://example.test/pr/2",
+        );
         expect(() => enableAutoMerge("--url", "merge")).toThrow(/PR url/);
     });
 });
 
 describe("watchChecks", () => {
     it("retries a not-yet-registered check and returns the successful output", () => {
-        ghApi.gh.mockImplementationOnce(() => {
-            throw Object.assign(new Error("pending"), { stdout: Buffer.from("no checks reported") });
-        }).mockReturnValueOnce("all green");
+        ghApi.gh
+            .mockImplementationOnce(() => {
+                throw Object.assign(new Error("pending"), {
+                    stdout: Buffer.from("no checks reported"),
+                });
+            })
+            .mockReturnValueOnce("all green");
         vi.spyOn(Atomics, "wait").mockImplementation(() => "ok");
 
-        expect(watchChecks("https://example.test/pr/1", Date.now() + 100)).toEqual({ passed: true, output: "all green" });
+        expect(watchChecks("https://example.test/pr/1", Date.now() + 100)).toEqual({
+            passed: true,
+            output: "all green",
+        });
         expect(Atomics.wait).toHaveBeenCalledWith(expect.any(Int32Array), 0, 5000);
     });
 
@@ -47,7 +70,10 @@ describe("watchChecks", () => {
             throw Object.assign(new Error("failed"), { stdout: "table", stderr: "details" });
         });
 
-        expect(watchChecks("https://example.test/pr/1", Date.now() - 1)).toEqual({ passed: false, output: "table\ndetails" });
+        expect(watchChecks("https://example.test/pr/1", Date.now() - 1)).toEqual({
+            passed: false,
+            output: "table\ndetails",
+        });
     });
 });
 

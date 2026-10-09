@@ -1,37 +1,39 @@
 import { repoApiUrl } from "./github.ts";
 
 export interface Deployment {
-    id: number
-    environment: string
+    id: number;
+    environment: string;
 }
 
 export interface DeploymentStatus {
-    state: "error" | "failure" | "inactive" | "in_progress" | "pending" | "queued" | "success"
-    environment_url: string | null
-    created_at: string
+    state: "error" | "failure" | "inactive" | "in_progress" | "pending" | "queued" | "success";
+    environment_url: string | null;
+    created_at: string;
 }
 
 export interface EnvironmentDeployment {
-    environment: string
-    state: DeploymentStatus["state"]
-    url: string | null
-    updatedAt: string
+    environment: string;
+    state: DeploymentStatus["state"];
+    url: string | null;
+    updatedAt: string;
 }
 
-export function deploymentUrlFor(deployments: EnvironmentDeployment[], environment: string): string | undefined {
-    return deployments.find((deployment) => deployment.environment === environment && deployment.url)?.url ?? undefined;
-}
+export const deploymentUrlFor = (
+    deployments: EnvironmentDeployment[],
+    environment: string,
+): string | undefined =>
+    deployments.find((deployment) => deployment.environment === environment && deployment.url)
+        ?.url ?? undefined;
 
 /** The deployments endpoint shares the issues page's unauthenticated, browser-side GitHub read. */
-export function deploymentsApiUrl(repoUrl: string): string | null {
-    return repoApiUrl(repoUrl, "deployments");
-}
+export const deploymentsApiUrl = (repoUrl: string): string | null =>
+    repoApiUrl(repoUrl, "deployments");
 
 /** GitHub returns newest first; one current status per environment prevents stale deploys winning. */
-export function latestDeployments(
+export const latestDeployments = (
     deployments: Deployment[],
     statuses: Map<number, DeploymentStatus[]>,
-): EnvironmentDeployment[] {
+): EnvironmentDeployment[] => {
     const environments = new Map<string, EnvironmentDeployment>();
 
     for (const deployment of deployments) {
@@ -50,4 +52,4 @@ export function latestDeployments(
     }
 
     return [...environments.values()].sort((a, b) => a.environment.localeCompare(b.environment));
-}
+};

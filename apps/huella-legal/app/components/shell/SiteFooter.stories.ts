@@ -24,7 +24,12 @@ const meta: Meta<typeof SiteFooter> = {
             },
             {
                 label: "Legal",
-                children: [{ label: "Aviso legal", to: { name: "article", params: { slug: "aviso-legal" } } }],
+                children: [
+                    {
+                        label: "Aviso legal",
+                        to: { name: "article", params: { slug: "aviso-legal" } },
+                    },
+                ],
             },
         ],
         social: [],
@@ -40,8 +45,18 @@ export const Default: Story = {};
 export const WithSocial: Story = {
     args: {
         social: [
-            { key: "instagram", icon: "i-lucide-instagram", to: "https://instagram.test/huella", label: "Instagram (se abre en una pestaña nueva)" },
-            { key: "x", icon: "i-lucide-twitter", to: "https://x.test/huella", label: "X (se abre en una pestaña nueva)" },
+            {
+                key: "instagram",
+                icon: "i-lucide-instagram",
+                to: "https://instagram.test/huella",
+                label: "Instagram (se abre en una pestaña nueva)",
+            },
+            {
+                key: "x",
+                icon: "i-lucide-twitter",
+                to: "https://x.test/huella",
+                label: "X (se abre en una pestaña nueva)",
+            },
         ],
     },
 };

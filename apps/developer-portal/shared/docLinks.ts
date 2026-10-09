@@ -11,11 +11,10 @@ const ABSOLUTE = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 /** The reviews cite evidence as `file.ts:91-94`; it narrows a file, it does not name a different one. */
 const LINE_RANGE = /:\d+(?:-\d+)?$/;
 
-function segmentsOf(path: string): string[] {
-    return path.split("/").filter((segment) => segment !== "" && segment !== ".");
-}
+const segmentsOf = (path: string): string[] =>
+    path.split("/").filter((segment) => segment !== "" && segment !== ".");
 
-function resolveAgainst(base: string[], path: string): string {
+const resolveAgainst = (base: string[], path: string): string => {
     const out = [...base];
 
     for (const segment of segmentsOf(path)) {
@@ -24,12 +23,10 @@ function resolveAgainst(base: string[], path: string): string {
     }
 
     return out.join("/");
-}
+};
 
 /** `docs/reviews/TEMPLATE.md` is meant to be copied, so its `<file>` is an instruction, not a target. */
-export function isPlaceholder(href: string): boolean {
-    return href.includes("<");
-}
+export const isPlaceholder = (href: string): boolean => href.includes("<");
 
 /**
  * The route for a link, `repo:`-prefixed when its target has no page here, or null for one that is
@@ -38,12 +35,13 @@ export function isPlaceholder(href: string): boolean {
  * `isPage` is asked about every target, not only an extension-less one — a `.md` link may name a
  * file the collection does not have, and routing it anyway is what renders a 200 saying "No such page".
  */
-export function resolveDocLink(
+export const resolveDocLink = (
     href: string,
     fromPath: string,
     isPage: (repoPath: string) => boolean,
-): string | null {
-    if (href === "" || ABSOLUTE.test(href) || href.startsWith("#") || isPlaceholder(href)) return null;
+): string | null => {
+    if (href === "" || ABSOLUTE.test(href) || href.startsWith("#") || isPlaceholder(href))
+        return null;
 
     const [target = "", ...fragment] = href.split("#");
     const anchor = fragment.length > 0 ? `#${fragment.join("#")}` : "";
@@ -59,4 +57,4 @@ export function resolveDocLink(
     if (isPage(resolved)) return `/docs${toCollectionPath(resolved)}${anchor}`;
 
     return `${REPO_SCHEME}${resolved}`;
-}
+};

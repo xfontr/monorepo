@@ -11,7 +11,9 @@ vi.mock("../../utils/store.ts", () => store);
 
 import type { SnapshotResponse } from "./[artifact].get.ts";
 
-const route = (await import("./[artifact].get.ts")).default as (event: unknown) => Promise<SnapshotResponse>;
+const route = (await import("./[artifact].get.ts")).default as (
+    event: unknown,
+) => Promise<SnapshotResponse>;
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -25,7 +27,10 @@ describe("snapshot artifact route", () => {
         async (artifact) => {
             h3.getRouterParam.mockReturnValue(artifact);
 
-            await expect(route({})).resolves.toEqual({ manifest: { name: "manifest" }, [artifact]: { name: artifact } });
+            await expect(route({})).resolves.toEqual({
+                manifest: { name: "manifest" },
+                [artifact]: { name: artifact },
+            });
             expect(store.readArtifact).toHaveBeenNthCalledWith(1, "manifest");
             expect(store.readArtifact).toHaveBeenNthCalledWith(2, artifact);
             expect(store.readArtifact).toHaveBeenCalledTimes(2);
@@ -45,7 +50,9 @@ describe("snapshot artifact route", () => {
     });
 
     it("keeps a null artifact value under its requested key instead of dropping the response field", async () => {
-        store.readArtifact.mockImplementation(async (name: string) => name === "manifest" ? { name } : null);
+        store.readArtifact.mockImplementation(async (name: string) =>
+            name === "manifest" ? { name } : null,
+        );
 
         await expect(route({})).resolves.toEqual({ manifest: { name: "manifest" }, docs: null });
     });

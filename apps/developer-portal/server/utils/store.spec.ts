@@ -9,15 +9,17 @@ const directories: string[] = [];
 afterEach(async () => {
     vi.unstubAllGlobals();
 
-    await Promise.all(directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
+    await Promise.all(
+        directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })),
+    );
 });
 
-async function snapshotDir(): Promise<string> {
+const snapshotDir = async (): Promise<string> => {
     const directory = await mkdtemp(join(tmpdir(), "developer-portal-store-"));
     directories.push(directory);
 
     return directory;
-}
+};
 
 describe("readArtifact", () => {
     it("reads valid JSON from the configured snapshot directory", async () => {
@@ -37,7 +39,7 @@ describe("readArtifact", () => {
 
     it("returns null for malformed or half-written JSON", async () => {
         const directory = await snapshotDir();
-        await writeFile(join(directory, "docs.json"), "{\"pages\":");
+        await writeFile(join(directory, "docs.json"), '{"pages":');
         vi.stubGlobal("useRuntimeConfig", () => ({ snapshotDir: directory }));
 
         await expect(readArtifact("docs")).resolves.toBeNull();

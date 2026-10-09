@@ -25,7 +25,7 @@ export const SectionCurrent: Story = {
     args: {
         sections: [
             { label: "Publicaciones", to: { name: "publications" } },
-            { "label": "Materias", "to": { name: "categories" }, "active": true, "aria-current": "page" },
+            { label: "Materias", to: { name: "categories" }, active: true, "aria-current": "page" },
             { label: "Colaboradores", to: { name: "authors" } },
             { label: "Publicar", to: { name: "publish" } },
         ],

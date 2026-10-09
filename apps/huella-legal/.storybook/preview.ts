@@ -22,7 +22,14 @@ const routes = [
 setup((app) => {
     app.use(ui);
     app.use(createRouter({ history: createMemoryHistory(), routes }));
-    app.use(createI18n({ legacy: false, locale: "es-ES", messages: { "es-ES": __MESSAGES__ }, datetimeFormats: __DATETIME_FORMATS__ }));
+    app.use(
+        createI18n({
+            legacy: false,
+            locale: "es-ES",
+            messages: { "es-ES": __MESSAGES__ },
+            datetimeFormats: __DATETIME_FORMATS__,
+        }),
+    );
 });
 
 const preview: Preview = {

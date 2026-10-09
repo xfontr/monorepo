@@ -15,7 +15,10 @@ describe("issue git adapter", () => {
     });
 
     it("returns no branch for unrelated refs and forwards checkout/current-branch calls", () => {
-        gitApi.git.mockReturnValueOnce("main\nfeature/roadmap/41-fix\n").mockReturnValueOnce(undefined).mockReturnValueOnce("master");
+        gitApi.git
+            .mockReturnValueOnce("main\nfeature/roadmap/41-fix\n")
+            .mockReturnValueOnce(undefined)
+            .mockReturnValueOnce("master");
 
         expect(branchForIssue(42)).toBeUndefined();
         checkout("feature/roadmap/42-fix");

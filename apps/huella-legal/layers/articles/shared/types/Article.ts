@@ -4,8 +4,8 @@ import type { ArticleSummary } from "./ArticleSummary";
 import type { Citation } from "./Citation";
 
 export type Article = ArticleSummary & {
-    body: ArticleBody
-    seo?: SEO
-    permalink: string
-    citations: Citation[]
+    body: ArticleBody;
+    seo?: SEO;
+    permalink: string;
+    citations: Citation[];
 };

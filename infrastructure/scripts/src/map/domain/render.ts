@@ -2,7 +2,7 @@ import type { Capability, Doc, Kind } from "./capabilities.ts";
 import { documentedBy } from "./capabilities.ts";
 
 /** Leads are hard-wrapped here, not joined from a sentence: the output has to obey `house-docs`. */
-const SECTIONS: { kind: Kind, heading: string, lead: string[] }[] = [
+const SECTIONS: { kind: Kind; heading: string; lead: string[] }[] = [
     {
         kind: "command",
         heading: "⌨️ Commands",
@@ -44,7 +44,7 @@ const row = (capability: Capability, docs: Doc[]): string => {
 };
 
 const section = (
-    { kind, heading, lead }: { kind: Kind, heading: string, lead: string[] },
+    { kind, heading, lead }: { kind: Kind; heading: string; lead: string[] },
     capabilities: Capability[],
     docs: Doc[],
 ): string[] => {

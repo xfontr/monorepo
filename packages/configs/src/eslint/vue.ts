@@ -3,13 +3,28 @@ import tseslint from "typescript-eslint";
 import vue from "eslint-plugin-vue";
 import vueParser from "vue-eslint-parser";
 
-import { stylistic, jsonc, boundaries, vitestConfig, baseIgnores, coreIsolation, layerIsolation, restrictedSyntax, restrictedSyntaxVue, templateI18n, templateCalls, regexp } from "./lib/index.ts";
+import {
+    format,
+    arrowFunctions,
+    formatVue,
+    jsonc,
+    boundaries,
+    vitestConfig,
+    baseIgnores,
+    coreIsolation,
+    layerIsolation,
+    restrictedSyntax,
+    restrictedSyntaxVue,
+    templateI18n,
+    templateCalls,
+    regexp,
+} from "./lib/index.ts";
 
 const ignores = {
     ignores: [...baseIgnores, ".nuxt/**", ".output/**"],
 };
 
-function createBaseVueConfig(typeChecked?: boolean): object[] {
+const createBaseVueConfig = (typeChecked?: boolean): object[] => {
     const vueBaseRaw = vue.configs["flat/strongly-recommended"];
 
     const vueBase = Array.isArray(vueBaseRaw) ? vueBaseRaw : [vueBaseRaw];
@@ -62,16 +77,22 @@ function createBaseVueConfig(typeChecked?: boolean): object[] {
             rules: {
                 "vue/multi-word-component-names": "off",
                 "vue/require-default-prop": "off",
-                "vue/html-indent": "off",
                 "vue/v-bind-style": ["error", "shorthand", { sameNameShorthand: "always" }],
                 "vue/prefer-separate-static-class": "error",
-                "vue/define-macros-order": ["error", { order: ["defineProps", "defineEmits", "defineModel", "defineSlots"] }],
+                "vue/define-macros-order": [
+                    "error",
+                    { order: ["defineProps", "defineEmits", "defineModel", "defineSlots"] },
+                ],
                 "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
             },
         },
 
-        typeChecked ? vitestConfig : { ...vitestConfig, settings: { vitest: { typecheck: false } } },
-        stylistic,
+        typeChecked
+            ? vitestConfig
+            : { ...vitestConfig, settings: { vitest: { typecheck: false } } },
+        format,
+        arrowFunctions,
+        formatVue,
         jsonc,
         boundaries,
         coreIsolation,
@@ -82,12 +103,8 @@ function createBaseVueConfig(typeChecked?: boolean): object[] {
         templateCalls,
         regexp,
     ];
-}
+};
 
-export function createVueConfig(): object[] {
-    return createBaseVueConfig(true);
-}
+export const createVueConfig = (): object[] => createBaseVueConfig(true);
 
-export function createNuxtConfig(): object[] {
-    return createBaseVueConfig(false);
-}
+export const createNuxtConfig = (): object[] => createBaseVueConfig(false);

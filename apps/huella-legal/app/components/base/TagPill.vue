@@ -2,10 +2,10 @@
 import type { RouteLocationRaw } from "vue-router";
 
 interface Props {
-    label: string
-    to: RouteLocationRaw
-    count?: number
-    active?: boolean
+    label: string;
+    to: RouteLocationRaw;
+    count?: number;
+    active?: boolean;
 }
 
 withDefaults(defineProps<Props>(), {
@@ -25,9 +25,11 @@ withDefaults(defineProps<Props>(), {
         active-color="primary"
         active-variant="solid"
         class="gap-1.5 rounded-full px-4 text-sm font-medium tracking-normal"
-        :class="active
-            ? 'text-ivory-50'
-            : 'bg-transparent text-toned ring-default hover:bg-ivory-50 hover:text-toned hover:ring-(--ui-border-accented) active:bg-ivory-50'"
+        :class="
+            active
+                ? 'text-ivory-50'
+                : 'bg-transparent text-toned ring-default hover:bg-ivory-50 hover:text-toned hover:ring-(--ui-border-accented) active:bg-ivory-50'
+        "
     >
         {{ label }}
         <template v-if="count !== undefined">
@@ -35,7 +37,8 @@ withDefaults(defineProps<Props>(), {
                 class="tabular-nums"
                 :class="active ? 'text-huella-slate-100' : 'text-muted'"
                 aria-hidden="true"
-            >{{ count }}</span>
+                >{{ count }}</span
+            >
             <span class="sr-only">{{ $t("tagPill.count", { count }, count) }}</span>
         </template>
     </UButton>

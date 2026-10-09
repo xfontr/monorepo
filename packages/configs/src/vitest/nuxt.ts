@@ -7,14 +7,14 @@ import createNodeConfig from "./node.ts";
 
 export interface NuxtConfigOptions {
     /** The app root, usually `import.meta.dirname`. */
-    root: string
+    root: string;
     /** Specs under `app/` that need no Nuxt runtime, moved to the node project. */
-    nodeSpecs?: string[]
+    nodeSpecs?: string[];
     /** Setup files for the `nuxt` project, run after the Nuxt entry registers its boot but before it runs. */
-    setupFiles?: string[]
+    setupFiles?: string[];
     /** Extra paths kept out of the coverage denominator. */
-    coverageExclude?: string[]
-    thresholds?: CoverageOptions["thresholds"]
+    coverageExclude?: string[];
+    thresholds?: CoverageOptions["thresholds"];
 }
 
 const NODE_DIRS = ["shared", "server", "tools"];
@@ -23,7 +23,13 @@ const NODE_DIRS = ["shared", "server", "tools"];
 const LAYER_SOURCES = ["layers/*/{app,server,shared}/**/*.ts", "layers/*/app/**/*.vue"];
 
 /** A `node` project for `server/`, `shared/` and `tools/`, and a `nuxt` project for `app/`, in the root and every layer. */
-async function createNuxtConfig({ root, nodeSpecs = [], setupFiles = [], coverageExclude = [], thresholds }: NuxtConfigOptions) {
+const createNuxtConfig = async ({
+    root,
+    nodeSpecs = [],
+    setupFiles = [],
+    coverageExclude = [],
+    thresholds,
+}: NuxtConfigOptions) => {
     const nodeConfig = createNodeConfig();
     const { globalSetup, coverage, ...nodeTest } = nodeConfig.test ?? {};
 
@@ -60,19 +66,24 @@ async function createNuxtConfig({ root, nodeSpecs = [], setupFiles = [], coverag
                     test: {
                         ...nodeTest,
                         name: "node",
-                        include: NODE_DIRS.flatMap((dir) => [`${dir}/**/*.spec.ts`, `layers/*/${dir}/**/*.spec.ts`]).concat(nodeSpecs),
+                        include: NODE_DIRS.flatMap((dir) => [
+                            `${dir}/**/*.spec.ts`,
+                            `layers/*/${dir}/**/*.spec.ts`,
+                        ]).concat(nodeSpecs),
                     },
                 },
                 nuxtProject,
             ],
         },
     });
-}
+};
 
 // Resolved from the app, so this runs the same copy its specs import `@nuxt/test-utils/runtime` from
-async function defineNuxtProject(root: string, test: object) {
+const defineNuxtProject = async (root: string, test: object) => {
     const entry = createRequire(join(root, "package.json")).resolve("@nuxt/test-utils/config");
-    const { defineVitestProject } = await import(pathToFileURL(entry).href) as typeof import("@nuxt/test-utils/config");
+    const { defineVitestProject } = (await import(
+        pathToFileURL(entry).href
+    )) as typeof import("@nuxt/test-utils/config");
 
     // With jiti's module cache on, a TypeScript Nuxt module that installs @nuxtjs/i18n throws Node's
     // ERR_INTERNAL_ASSERTION as an unhandled rejection, which kills Vitest and Nx's plugin worker
@@ -81,11 +92,10 @@ async function defineNuxtProject(root: string, test: object) {
 
     try {
         return await defineVitestProject({ root, test });
-    }
-    finally {
+    } finally {
         if (jitiModuleCache === undefined) delete process.env.JITI_MODULE_CACHE;
         else process.env.JITI_MODULE_CACHE = jitiModuleCache;
     }
-}
+};
 
 export default createNuxtConfig;

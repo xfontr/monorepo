@@ -23,7 +23,14 @@ const otel = vi.hoisted(() => {
 
     const tracer = { startActiveSpan: vi.fn() };
 
-    return { span, tracer, getTracer: vi.fn(), getActiveSpan: vi.fn(), extract: vi.fn(), active: vi.fn() };
+    return {
+        span,
+        tracer,
+        getTracer: vi.fn(),
+        getActiveSpan: vi.fn(),
+        extract: vi.fn(),
+        active: vi.fn(),
+    };
 });
 
 const telemetry = vi.hoisted(() => ({
@@ -40,7 +47,9 @@ vi.mock("@opentelemetry/api", async (importOriginal) => ({
     propagation: { extract: otel.extract },
 }));
 
-vi.mock("@monorepo/observability/node", () => ({ startNodeTelemetry: telemetry.startNodeTelemetry }));
+vi.mock("@monorepo/observability/node", () => ({
+    startNodeTelemetry: telemetry.startNodeTelemetry,
+}));
 
 const APP = { name: "@monorepo/huella-legal", version: "1.4.0", environment: "production" };
 
@@ -64,10 +73,14 @@ vi.stubGlobal("defineEventHandler", (handler: unknown) => handler);
 vi.stubGlobal("useRuntimeConfig", () => runtimeConfig);
 vi.stubGlobal("getRequestHeaders", () => ({ traceparent: TRACEPARENT }));
 vi.stubGlobal("getRequestHost", () => "huella-legal.test");
-vi.stubGlobal("getRequestHeader", (_event: unknown, name: string) => (name === "user-agent" ? USER_AGENT : undefined));
+vi.stubGlobal("getRequestHeader", (_event: unknown, name: string) =>
+    name === "user-agent" ? USER_AGENT : undefined,
+);
 vi.stubGlobal("getRequestIP", () => CLIENT_IP);
 vi.stubGlobal("getResponseStatus", () => responseStatus);
-vi.stubGlobal("createError", (error: { statusCode?: number }) => ({ statusCode: error.statusCode ?? 500 }));
+vi.stubGlobal("createError", (error: { statusCode?: number }) => ({
+    statusCode: error.statusCode ?? 500,
+}));
 
 const plugin = (await import("./observability")).default as unknown as (nitroApp: NitroApp) => void;
 
@@ -96,45 +109,42 @@ function createNitroApp(handle: Handler) {
     };
 }
 
-function createEvent(path: string, matchedRoute?: string): H3Event {
-    return {
+const createEvent = (path: string, matchedRoute?: string): H3Event =>
+    ({
         path,
         method: "GET",
         context: matchedRoute === undefined ? {} : { matchedRoute: { path: matchedRoute } },
-    } as unknown as H3Event;
-}
+    }) as unknown as H3Event;
 
 // The plugin replaces `h3App.handler` in place, so what it installed is what a request goes through
-function start(handle: Handler = () => BODY) {
+const start = (handle: Handler = () => BODY) => {
     const nitroApp = createNitroApp(handle);
 
     plugin(nitroApp);
 
     return { nitroApp, handler: nitroApp.h3App.handler };
-}
+};
 
 // Always a promise: the span callback is async, so a traced request is awaited whatever the inner
 // handler returned
-function traced(path: string, matchedRoute?: string, handler: Handler = () => BODY): Promise<unknown> {
-    return start(handler).handler(createEvent(path, matchedRoute)) as Promise<unknown>;
-}
+const traced = (
+    path: string,
+    matchedRoute?: string,
+    handler: Handler = () => BODY,
+): Promise<unknown> => start(handler).handler(createEvent(path, matchedRoute)) as Promise<unknown>;
 
 // Never a promise of its own: the untraced path hands the inner handler's value straight back
-function untraced(path: string): unknown {
-    return start().handler(createEvent(path));
-}
+const untraced = (path: string): unknown => start().handler(createEvent(path));
 
-function spanCall() {
-    return otel.tracer.startActiveSpan.mock.calls[0] as unknown as [
+const spanCall = () =>
+    otel.tracer.startActiveSpan.mock.calls[0] as unknown as [
         string,
-        { kind: SpanKind, attributes: Record<string, string | undefined> },
+        { kind: SpanKind; attributes: Record<string, string | undefined> },
         string,
     ];
-}
 
-function attributes() {
-    return otel.span.setAttributes.mock.calls[0]?.[0] as Record<string, string | number>;
-}
+const attributes = () =>
+    otel.span.setAttributes.mock.calls[0]?.[0] as Record<string, string | number>;
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -148,7 +158,12 @@ beforeEach(() => {
     otel.extract.mockReturnValue(PARENT);
     otel.active.mockReturnValue(ACTIVE);
     otel.tracer.startActiveSpan.mockImplementation(
-        (_name: string, _options: object, _parent: string, run: (span: typeof otel.span) => unknown) => run(otel.span),
+        (
+            _name: string,
+            _options: object,
+            _parent: string,
+            run: (span: typeof otel.span) => unknown,
+        ) => run(otel.span),
     );
 });
 
@@ -250,14 +265,17 @@ describe("the nitro observability plugin", () => {
 
     describe("when the response is a failure", () => {
         // A 4xx is the caller's fault. Marking it ERROR makes an error rate that no deploy can fix.
-        it.each([400, 404, 499])("leaves %i unmarked, since the client is what went wrong", async (status) => {
-            responseStatus = status;
+        it.each([400, 404, 499])(
+            "leaves %i unmarked, since the client is what went wrong",
+            async (status) => {
+                responseStatus = status;
 
-            await traced("/nope", "/nope");
+                await traced("/nope", "/nope");
 
-            expect(otel.span.setStatus).not.toHaveBeenCalled();
-            expect(otel.span.end).toHaveBeenCalledOnce();
-        });
+                expect(otel.span.setStatus).not.toHaveBeenCalled();
+                expect(otel.span.end).toHaveBeenCalledOnce();
+            },
+        );
 
         it.each([500, 502, 503])("marks %i as a failed span", async (status) => {
             responseStatus = status;
@@ -272,11 +290,15 @@ describe("the nitro observability plugin", () => {
         const cause = Object.assign(new Error("upstream down"), { statusCode: 502 });
 
         it("rethrows, so a traced request is still a handled one", async () => {
-            await expect(traced("/articles", "/articles", () => Promise.reject(cause))).rejects.toBe(cause);
+            await expect(
+                traced("/articles", "/articles", () => Promise.reject(cause)),
+            ).rejects.toBe(cause);
         });
 
         it("records the exception and closes the span with the status the error carries", async () => {
-            await expect(traced("/articles", "/articles", () => Promise.reject(cause))).rejects.toBe(cause);
+            await expect(
+                traced("/articles", "/articles", () => Promise.reject(cause)),
+            ).rejects.toBe(cause);
 
             expect(otel.span.recordException).toHaveBeenCalledWith(cause);
             expect(attributes()[ATTR_HTTP_RESPONSE_STATUS_CODE]).toBe(502);
@@ -288,7 +310,9 @@ describe("the nitro observability plugin", () => {
         it("closes the span as a 500 when the error carries no status", async () => {
             const boom = new Error("boom");
 
-            await expect(traced("/articles", "/articles", () => Promise.reject(boom))).rejects.toBe(boom);
+            await expect(traced("/articles", "/articles", () => Promise.reject(boom))).rejects.toBe(
+                boom,
+            );
 
             expect(attributes()[ATTR_HTTP_RESPONSE_STATUS_CODE]).toBe(500);
         });
@@ -296,17 +320,15 @@ describe("the nitro observability plugin", () => {
 
     // Left untraced on purpose: an asset request per page view would outnumber the requests worth
     // looking at, and every one of them would carry a hashed filename of its own
-    it.each([
-        "/_nuxt/entry.abc123.js",
-        "/_fonts/inter.woff2",
-        "/__nuxt/island",
-        "/favicon.ico",
-    ])("does not trace %s", (path) => {
-        // Handed straight back, not awaited: the untraced path adds no promise to an asset request
-        expect(untraced(path)).toBe(BODY);
+    it.each(["/_nuxt/entry.abc123.js", "/_fonts/inter.woff2", "/__nuxt/island", "/favicon.ico"])(
+        "does not trace %s",
+        (path) => {
+            // Handed straight back, not awaited: the untraced path adds no promise to an asset request
+            expect(untraced(path)).toBe(BODY);
 
-        expect(otel.tracer.startActiveSpan).not.toHaveBeenCalled();
-    });
+            expect(otel.tracer.startActiveSpan).not.toHaveBeenCalled();
+        },
+    );
 
     // Nitro reports errors it handled itself through this hook, which never reaches the try/catch above
     it("records an error reported through Nitro's hook on the span that is open", () => {

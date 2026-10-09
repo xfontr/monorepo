@@ -4,7 +4,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const root = vi.hoisted(() => ({ value: "" }));
-vi.mock("../../shared/adapters/git.ts", () => ({ at: (...parts: string[]) => join(root.value, ...parts) }));
+vi.mock("../../shared/adapters/git.ts", () => ({
+    at: (...parts: string[]) => join(root.value, ...parts),
+}));
 
 import { digestArtifacts, readManifest, writeManifest } from "./files.ts";
 import { METHOD_ARTIFACTS } from "../domain/manifest.ts";
@@ -29,7 +31,9 @@ describe("review-version filesystem adapter", () => {
     it("digests every method artifact and marks missing artifacts empty", () => {
         writeFileSync(join(directory, "docs/reviews/SCORECARDS.md"), "scorecards");
         mkdirSync(join(directory, ".agents/skills/repo-review"), { recursive: true });
-        writeFileSync(join(directory, ".agents/skills/repo-review/SKILL.md"), "skill", { flag: "w" });
+        writeFileSync(join(directory, ".agents/skills/repo-review/SKILL.md"), "skill", {
+            flag: "w",
+        });
 
         const digests = digestArtifacts();
 

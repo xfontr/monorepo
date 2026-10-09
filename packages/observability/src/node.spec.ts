@@ -6,6 +6,8 @@ const provider = vi.hoisted(() => {
 
     return {
         instance,
+        // The code under test calls this with `new`, which an arrow cannot be.
+        // eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions, prefer-arrow-callback
         NodeTracerProvider: vi.fn<(config: object) => typeof instance>(function () {
             return instance;
         }),
@@ -17,28 +19,40 @@ const processor = vi.hoisted(() => ({ BatchSpanProcessor: vi.fn() }));
 const undici = vi.hoisted(() => ({ UndiciInstrumentation: vi.fn() }));
 const autoLoader = vi.hoisted(() => ({ registerInstrumentations: vi.fn() }));
 
-vi.mock("@opentelemetry/sdk-trace-node", () => ({ NodeTracerProvider: provider.NodeTracerProvider }));
-vi.mock("@opentelemetry/sdk-trace-base", () => ({ BatchSpanProcessor: processor.BatchSpanProcessor }));
-vi.mock("@opentelemetry/exporter-trace-otlp-proto", () => ({ OTLPTraceExporter: exporter.OTLPTraceExporter }));
-vi.mock("@opentelemetry/instrumentation-undici", () => ({ UndiciInstrumentation: undici.UndiciInstrumentation }));
-vi.mock("@opentelemetry/instrumentation", () => ({ registerInstrumentations: autoLoader.registerInstrumentations }));
+vi.mock("@opentelemetry/sdk-trace-node", () => ({
+    NodeTracerProvider: provider.NodeTracerProvider,
+}));
+vi.mock("@opentelemetry/sdk-trace-base", () => ({
+    BatchSpanProcessor: processor.BatchSpanProcessor,
+}));
+vi.mock("@opentelemetry/exporter-trace-otlp-proto", () => ({
+    OTLPTraceExporter: exporter.OTLPTraceExporter,
+}));
+vi.mock("@opentelemetry/instrumentation-undici", () => ({
+    UndiciInstrumentation: undici.UndiciInstrumentation,
+}));
+vi.mock("@opentelemetry/instrumentation", () => ({
+    registerInstrumentations: autoLoader.registerInstrumentations,
+}));
 
 const url = "https://otlp-gateway-prod-eu-west-0.grafana.net/otlp";
 const app = { name: "@monorepo/external", version: "1.0.0", environment: "production" };
 
 type Config = Parameters<typeof startNodeTelemetry>[0];
 
-function start(config: Partial<Config> = {}) {
-    return startNodeTelemetry({ url, instanceId: "123456", token: "glc_token", app, ...config });
-}
+const start = (config: Partial<Config> = {}) =>
+    startNodeTelemetry({ url, instanceId: "123456", token: "glc_token", app, ...config });
 
-function exporterOptions() {
-    return exporter.OTLPTraceExporter.mock.calls[0]?.[0] as { url: string, headers: Record<string, string> };
-}
+const exporterOptions = () =>
+    exporter.OTLPTraceExporter.mock.calls[0]?.[0] as {
+        url: string;
+        headers: Record<string, string>;
+    };
 
-function providerOptions() {
-    return provider.NodeTracerProvider.mock.calls[0]?.[0] as { resource: { attributes: Record<string, string> } };
-}
+const providerOptions = () =>
+    provider.NodeTracerProvider.mock.calls[0]?.[0] as {
+        resource: { attributes: Record<string, string> };
+    };
 
 beforeEach(() => {
     vi.clearAllMocks();

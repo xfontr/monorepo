@@ -30,8 +30,9 @@ describe("projectRootFor", () => {
 
 describe("projectRootsFor", () => {
     it("de-duplicates multiple changed files under the same project into one root", () => {
-        expect(projectRootsFor(["packages/ui/a.ts", "packages/ui/b.ts", "apps/huella-legal/c.ts"]))
-            .toEqual(["packages/ui", "apps/huella-legal"]);
+        expect(
+            projectRootsFor(["packages/ui/a.ts", "packages/ui/b.ts", "apps/huella-legal/c.ts"]),
+        ).toEqual(["packages/ui", "apps/huella-legal"]);
     });
 });
 
@@ -70,7 +71,10 @@ describe("recordFingerprint", () => {
     it("skips an unchanged fingerprint without changing the seen state", () => {
         const seen = { "packages/ui": fingerprint("diff content") };
 
-        expect(recordFingerprint(seen, "packages/ui", "diff content")).toEqual({ seen, isNew: false });
+        expect(recordFingerprint(seen, "packages/ui", "diff content")).toEqual({
+            seen,
+            isNew: false,
+        });
     });
 
     it("records a new fingerprint before the caller decides whether to warn", () => {
