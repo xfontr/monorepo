@@ -1,7 +1,16 @@
 import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
-import { jsonc, stylistic, boundaries, vitestConfig, baseIgnores, coreIsolation, restrictedSyntax, regexp } from "./lib/index.ts";
+import {
+    jsonc,
+    format,
+    boundaries,
+    vitestConfig,
+    baseIgnores,
+    coreIsolation,
+    restrictedSyntax,
+    regexp,
+} from "./lib/index.ts";
 
 const ignores = {
     ignores: baseIgnores,
@@ -39,7 +48,7 @@ function createNodeConfig(): object[] {
         ...typescript,
         nodeTs,
         vitestConfig,
-        stylistic,
+        format,
         jsonc,
         boundaries,
         coreIsolation,

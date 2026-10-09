@@ -121,8 +121,12 @@ Node types even in a package that otherwise doesn't.
 - `@eslint/js` + `typescript-eslint` — type-checked for node and vue, non-type-checked for nuxt
   (Nuxt's generated files make a type-aware pass more trouble than it's worth)
 - `eslint-plugin-vue` (strongly-recommended) for the Vue configs
-- `@stylistic` formatting: 4-space indent, semicolons, double quotes, always-parenthesised arrow
-  params
+- Prettier as the `format/prettier` rule from `eslint-plugin-format`, at 100 columns, 4-space
+  indent, semicolons, double quotes, trailing commas and parenthesised arrow params. An object,
+  array, call or expression that Prettier would wrap fails lint until `--fix` wraps it; a line it
+  cannot break — a long string, comment, identifier or template literal — still passes. Prettier
+  also owns `.vue` templates, so every `vue/*` layout rule is off rather than fighting it into a
+  `--fix` loop. `*.config.ts` files sit in `baseIgnores`, so they are never formatted
 - `eslint-plugin-jsonc` key sorting for `**/projects/*/*.json`, so the TMS locale files in
   [`infrastructure/translations`](../../infrastructure/translations) stay diffable. The glob matches
   that layout — `projects/<project>/<locale>.json` — not a `locales/` directory
