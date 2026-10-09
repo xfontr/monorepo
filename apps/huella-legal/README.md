@@ -144,7 +144,7 @@ The vendor is `wordpress`, pointed at an external WordPress install — the CMS 
 | Page | Reads | Notes |
 | --- | --- | --- |
 | [`layers/articles/app/pages/articles/index.vue`](./layers/articles/app/pages/articles/index.vue) | `listEntries("posts")` | Paginated by `?page`. It does **not** re-validate the page number — the BFF already bounds it and a second copy of those bounds is a second place for them to drift. A `400` from the BFF is turned into a `404`, because a query-parameter complaint is not something a reader should see |
-| [`layers/articles/app/pages/articles/[slug].vue`](./layers/articles/app/pages/articles/%5Bslug%5D.vue) | `GET /api/articles/:slug`, through `useArticle` | Served at `/:slug/`, the root permalink WordPress had, so indexed URLs still resolve. The route returns the sanitised `Article` view model with its citations, cached per slug. `GET /api/articles/:slug/related` serves up to three posts from its first category, cached separately and fetched client-side after hydration; when it fails, that band is hidden and the article is unaffected. No `locale` is passed: the content locale is the vendor's axis and WordPress refuses one outright |
+| [`layers/articles/app/pages/articles/[slug].vue`](./layers/articles/app/pages/articles/%5Bslug%5D.vue) | `GET /api/articles/:slug`, through `useArticle` | Served at `/:slug/`, the root permalink WordPress had, so indexed URLs still resolve. The route returns the sanitised `Article` view model with its citations, cached per slug. `GET /api/articles/:slug/related` serves up to three posts from its first category, cached separately and server-rendered without blocking client navigation; when it fails, that band is hidden and the article is unaffected. No `locale` is passed: the content locale is the vendor's axis and WordPress refuses one outright |
 
 The listing still `v-html`s the entry's `title` and `excerpt`, because WordPress renders every text
 field to HTML, entities and all, and nothing on that path sanitises it. That is fine only while the
@@ -180,7 +180,7 @@ adding one is the mistake.
 
 | Layer | `shared/` | `app/components/` | `server/` |
 | --- | --- | --- | --- |
-| [`articles`](./layers/articles) | The view models the server returns: `Article`, `ArticleBody`, `ArticleSummary`, `Author`, `Category`, `Citation`, `Note`, `TocItem`. `Article` carries its absolute `permalink` and `citations` | `Byline`: authors, date and reading time. `ArticleCard` in five variants (lead, optionally split, standard, compact, media, row), and `ArticleGrid` and `ArticleList` to lay them out. The reading kit: `ArticleToc` (rail and accordion, lit by Nuxt UI's `useScrollspy`), `ArticleNotes`, `ArticleBibliography`, `CiteBox`, `ShareBar` and `AuthorCard`. `useArticle` in `app/composables/` is the article page's controller. `.hl-prose` in [`app/assets/prose.css`](./layers/articles/app/assets/prose.css) styles the sanitised body | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time parse with the same rehype stack and `hast-util-to-text`, and stay server-side. `toArticleBody` is the WP HTML pipeline, `toCitations` writes APA 7 and the journal's own style, `GET /api/articles/:slug` serves the `Article`, and `GET /api/articles/:slug/related` its related `ArticleSummary` list |
+| [`articles`](./layers/articles) | The view models the server returns: `Article`, `ArticleBody`, `ArticleSummary`, `Author`, `Category`, `Citation`, `Note`, `TocItem`. `Article` carries its absolute `permalink` and `citations` | `Byline`: authors, date and reading time. `ArticleCard` in five variants (lead, optionally split, standard, compact, media, row), and `ArticleGrid` and `ArticleList` to lay them out. The reading kit: `ArticleToc` (rail and accordion, lit by Nuxt UI's `useScrollspy`), `ArticleNotes`, `ArticleBibliography`, `CiteBox`, `ShareBar` and `AuthorCard`. `useArticle` in `app/composables/` is the article page's controller: the fetches, the error, the breadcrumb and the SEO meta. `noteAnchor`/`noteReferenceAnchor` in `shared/utils/` are the note ids the body mapper and `ArticleNotes` share. `.hl-prose` in [`app/assets/prose.css`](./layers/articles/app/assets/prose.css) styles the sanitised body | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time parse with the domain-free helpers in `server/utils/hast.ts`, and stay server-side. `toArticleBody` is the WP HTML pipeline, with `extractNotes` and `annotateHeadings` beside the view models they produce, `toCitations` writes APA 7 and the journal's own style, `GET /api/articles/:slug` serves the `Article`, and `GET /api/articles/:slug/related` its related `ArticleSummary` list |
 | [`newsletter`](./layers/newsletter) | `subscriptionSchema`, the Valibot rules a subscription must pass, worded by the caller so the server can reuse them | `NewsletterForm`, the field and button, stacked or inline, in a paper or slate tone. It emits `submit` only once the schema passes, and takes `pending` and a server `error`. It is private to the layer: the layer's `nuxt.config.ts` keeps it out of auto-registration, so only `NewsletterBand` and `NewsletterCard` import it. `NewsletterBand` (a landmark with the privacy note; the home page gives it `id="newsletter"`, which the header's newsletter links target) and `NewsletterCard` (the sidebar, naming an optional `subject`) wrap it and pass `pending`, `error` and `submit` through. The field keeps its own value, so a caller that needs it empty again remounts the form with a new `key` | — until E1 adds the subscribe route |
 
 ### 🔗 Links
@@ -215,17 +215,18 @@ counts behind each rule.
 | Sanitise | `rehype-sanitize` on GitHub's schema, with ids left unprefixed (the TOC links to them), `figure`, `figcaption` and `cite` allowed, and `srcset` and `sizes` kept. `script` and `style` go with their text |
 | Notes | One shape only: the text links to `#_ftnN`, and each note is a top-level paragraph opening with a link to `#_ftnrefN`. Those paragraphs become `ArticleBody.notes`, and each reference becomes `<sup><a href="#nota-N" id="ref-N">`, the ids `ArticleNotes` links back to. Any other shape, bare `<sup>` numbers included, renders as written. Runs before the bibliography split, since the notes close the post, after it |
 | Bibliography | Split from the last top-level *Bibliografía*, *Fuentes* or *Referencias (bibliográficas)* heading, one fragment per paragraph or list item, because the design sets it apart below the body |
-| TOC | Every `h2` and `h3` gets an ASCII id unless it has one, never repeated. Images get `loading="lazy"` |
+| TOC | Every `h2` and `h3` gets an ASCII id unless it has one, never repeated |
+| Images | Every one gets `loading="lazy"` and `decoding="async"` |
 | Lead | Everything up to and including the first top-level paragraph goes in `lead`, and the page sets the featured image after it, as the lab design does |
 
-`GET /api/articles/:slug` reads the entry through the content module's own route, in-process, so
-the provider, its errors and its cache stay the module's.
+Both article routes read the content module's own routes in-process through `fetchContent`, so the
+provider, its cache and its error statuses stay the module's: a failed read reaches the page with
+the status the content route answered, or `502` when it never answered.
 
-Errors follow the content module's shape. Every one the layer raises is an `ArticlesError` in
-[`server/errors.ts`](./layers/articles/server/errors.ts), carrying its own status, and
-`rethrowAsHttpError` hands only those to h3, so anything else still reports as unhandled.
-`fetchContent` turns a failed read into a `ContentRouteError`: the route's status passes through,
-since the module already settled it, and no response at all is a `502`.
+Citations are worded in the style they follow (*s. f.*, *Disponible en*), in the journal's language,
+so that wording lives in `toCitations` rather than in the copy keys. The date shares
+[`i18n/dateFormats.ts`](./i18n/dateFormats.ts) with `i18n.config.ts`, so a citation
+and the page print the same day.
 
 ## 📚 Storybook
 
