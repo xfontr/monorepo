@@ -13,8 +13,6 @@ import createProvider from "#core/registry";
 import { type ContentConfig, ITEM_MAX_AGE, ITEM_STALE_MAX_AGE, LIST_MAX_AGE, LIST_STALE_MAX_AGE } from "#nuxt/config";
 import { toEntryQuery, toQuery, toSlug } from "./query";
 
-// The event goes first because Nitro's cache only hands a background refresh to `waitUntil` when
-// the first argument is one
 const readList = defineCachedFunction(async (event: H3Event, resource: Resource, query: EntryQuery): Promise<Page<Entry> | Page<Term>> => {
     const provider = await resolveProvider(readVendor(event));
 
@@ -81,15 +79,12 @@ async function resolveProvider(vendor: VendorConfig): Promise<ContentProvider> {
     }
 }
 
-// Only our own diagnoses become an HTTP status; anything else keeps its stack and reports as unhandled
 function rethrowAsHttpError(cause: unknown): never {
     if (cause instanceof ContentError) throw createError(cause);
 
     throw cause;
 }
 
-// An UpstreamError already carries the status the domain settled on, so it passes through untouched
-// instead of being flattened into a 502
 function throwUnavailableError(cause: unknown, resource: string): never {
     if (cause instanceof ContentError) throw createError(cause);
 

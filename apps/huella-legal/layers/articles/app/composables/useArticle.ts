@@ -48,7 +48,6 @@ export async function useArticle() {
         robots: () => article.value?.seo?.noindex ? "noindex" : undefined,
     });
 
-    // Every composable above runs before this await, which a custom composable's context doesn't survive
     const { error } = await request;
 
     if (error.value) throw createPageError(error.value);
