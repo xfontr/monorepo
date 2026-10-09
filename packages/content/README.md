@@ -247,12 +247,12 @@ setupServer(...wordpressHandlers(baseURL, { posts: entries, categories: terms })
 
 | Export | Serves | Contract it keeps |
 | --- | --- | --- |
-| `wordpressHandlers(baseURL, content)` | `GET <baseURL>/wp-json/wp/v2/:resource` for each resource given | `?slug=`, `page` and `per_page`, `x-wp-total`/`x-wp-totalpages`, a `400` for a page past the end, a `404` for a resource with no content |
+| `wordpressHandlers(baseURL, content)` | `GET <baseURL>/wp-json/wp/v2/:resource` for each resource given | `?slug=`, `?categories=` and `?tags=` by term id, `page` and `per_page`, `x-wp-total`/`x-wp-totalpages`, a `400` for a page past the end, a `404` for a resource with no content |
 
 [`wordpress.spec.ts`](./src/testing/wordpress.spec.ts) runs the real `WordpressProvider` on the
 real client against the handlers, and asserts every `Entry` field comes back unchanged, so a fake
-that drifts from the provider fails here rather than in someone's e2e. Search and term filters
-aren't faked: nothing consumes them yet.
+that drifts from the provider fails here rather than in someone's e2e. Search and the author
+filter aren't faked: nothing consumes them yet.
 
 The same entry exports seeded `@faker-js/faker` factories for the domain types, so a spec
 states only the fields it asserts on and the rest is filled in:

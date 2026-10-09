@@ -18,7 +18,7 @@ export function wordpressHandlers(baseURL: string, content: WordpressContent): H
             const page = Number(query.get("page") ?? 1);
             const perPage = Number(query.get("per_page") ?? 10);
 
-            const matches = slug ? items.filter((item) => item.slug === slug) : items;
+            const matches = items.filter((item) => (!slug || item.slug === slug) && inTerms(item, query));
             const totalPages = Math.max(1, Math.ceil(matches.length / perPage));
 
             // WordPress refuses a page past the end rather than answering an empty one
@@ -31,6 +31,14 @@ export function wordpressHandlers(baseURL: string, content: WordpressContent): H
             });
         }),
     ];
+}
+
+function inTerms(item: WordpressEntry | WordpressTerm, query: URLSearchParams): boolean {
+    if (!("_embedded" in item)) return true;
+
+    const termIds = new Set(item._embedded?.["wp:term"]?.flat().map(({ id }) => String(id)));
+
+    return Object.values(TAXONOMIES).every((resource) => !resource || !query.has(resource) || termIds.has(query.get(resource) ?? ""));
 }
 
 function toWordpress(resource: keyof WordpressContent, content: WordpressContent): (WordpressEntry | WordpressTerm)[] | undefined {
