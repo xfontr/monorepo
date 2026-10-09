@@ -4,6 +4,7 @@ import tseslint from "typescript-eslint";
 import {
     jsonc,
     format,
+    arrowFunctions,
     boundaries,
     vitestConfig,
     baseIgnores,
@@ -49,6 +50,7 @@ function createNodeConfig(): object[] {
         nodeTs,
         vitestConfig,
         format,
+        arrowFunctions,
         jsonc,
         boundaries,
         coreIsolation,

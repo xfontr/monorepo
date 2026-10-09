@@ -1,5 +1,6 @@
 import regexpPlugin from "eslint-plugin-regexp";
 import { format, formatVue } from "./format.ts";
+import arrowFunctions from "./arrowFunctions.ts";
 import jsonc from "./jsonc.ts";
 import boundaries from "./boundaries.ts";
 import vitestConfig from "./vitest.ts";
@@ -15,6 +16,7 @@ const regexp: object = regexpPlugin.configs["flat/recommended"];
 export {
     format,
     formatVue,
+    arrowFunctions,
     jsonc,
     boundaries,
     vitestConfig,

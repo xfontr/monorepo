@@ -5,6 +5,7 @@ import vueParser from "vue-eslint-parser";
 
 import {
     format,
+    arrowFunctions,
     formatVue,
     jsonc,
     boundaries,
@@ -90,6 +91,7 @@ function createBaseVueConfig(typeChecked?: boolean): object[] {
             ? vitestConfig
             : { ...vitestConfig, settings: { vitest: { typecheck: false } } },
         format,
+        arrowFunctions,
         formatVue,
         jsonc,
         boundaries,

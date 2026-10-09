@@ -127,6 +127,11 @@ Node types even in a package that otherwise doesn't.
   cannot break — a long string, comment, identifier or template literal — still passes. Prettier
   also owns `.vue` templates, so every `vue/*` layout rule is off rather than fighting it into a
   `--fix` loop. `*.config.ts` files sit in `baseIgnores`, so they are never formatted
+- `eslint-plugin-prefer-arrow-functions` plus core `prefer-arrow-callback`, from
+  [`lib/arrowFunctions.ts`](./src/eslint/lib/arrowFunctions.ts) — every `function` declaration,
+  expression and object method becomes an arrow under `--fix`. The rule leaves a function alone
+  when converting it would change behaviour: one that reads `this`, `arguments` or `new.target`, a
+  generator, or a TypeScript overload
 - `eslint-plugin-jsonc` key sorting for `**/projects/*/*.json`, so the TMS locale files in
   [`infrastructure/translations`](../../infrastructure/translations) stay diffable. The glob matches
   that layout — `projects/<project>/<locale>.json` — not a `locales/` directory
