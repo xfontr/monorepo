@@ -18,17 +18,13 @@ function raiseIfMissing(): void {
     if (!error.value) return;
 
     // A 400 here means "bad or past-the-end page", mapped to 404 (README.md § Content)
-    if (error.value.statusCode === 400) {
-        showError({ statusCode: 404, statusMessage: "Page not found", fatal: true });
+    if (error.value.status === 400) {
+        showError({ status: 404, statusText: "Page not found", fatal: true });
 
         return;
     }
 
-    showError({
-        statusCode: error.value.statusCode ?? 502,
-        statusMessage: error.value.statusMessage ?? error.value.message,
-        fatal: true,
-    });
+    showError(createPageError(error.value));
 }
 
 raiseIfMissing();
