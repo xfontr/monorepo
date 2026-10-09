@@ -23,7 +23,7 @@ that files or merges an item.
 | Fact | Consequence |
 | --- | --- |
 | WordPress is read-only to us: no new plugins, ACF fields, REST fields or webhooks. Installed ones, Yoast among them, are exposed | Whatever WP doesn't return is derived from post HTML or terms, or dropped |
-| [`useContent()`](../../packages/content/src/nuxt/runtime/composables/useContent.ts) only calls the Nitro routes `/api/content/*`, and its vendor config is private | "No BFF" means rewriting the data layer to call WP from the browser, or a full static generate with no server for forms and search |
+| [`useContent()`](../../packages/content/src/nuxt/runtime/server/utils/useContent.ts) is server-only and its vendor config is private, so every read goes through a layer's Nitro route ([0031](../decisions/0031-content-server-accessor.md)) | "No BFF" means rewriting the data layer to call WP from the browser, or a full static generate with no server for forms and search |
 | `Entry` has no authors, and nothing for issue, series, reading time, TOC, footnotes, bibliography or views | The content model has to be decided before cards, articles or listings (S1) |
 | The app runs SSR on Netlify's git integration with no preset, no `routeRules` and no Nitro storage | `defineCachedEventHandler` caches live in memory per function instance, so the content TTLs barely hold (S2) |
 | i18n is `defaultLocale: en-GB` with the default `prefix_except_default` strategy | Spanish pages would sit under `/es-ES/`. The site launches Spanish-only (A2) |
@@ -42,9 +42,9 @@ under `layers/`, as `layers/articles` does.
 | Primitives | `app/components/base/` | Wordmark, Kicker, TagPill… Plain props only. Nuxt UI is used directly; `UButton` gets no wrapper | Fetch, know about WP, take a view model | `mount` |
 | Kits | `layers/<domain>/app/components/` when typed against that domain's view models or owned by one feature, else `app/components/{listing,form,shell}/` | Props in, events out | Fetch, read the route | `mount` |
 | View models | `shared/` or `app/utils/`, pure TS | `Entry` → `ArticleSummary`, `Article`, `Author`, `Category`: reading time, TOC, footnotes, citation | Touch Vue or Nuxt | Vitest node, the heaviest suite |
-| Controllers | `app/composables/use*.ts` | Wrap `useContent()`, own query↔URL state, run form state machines | Render | Nuxt Vitest project + `mockNuxtImport` |
+| Controllers | `app/composables/use*.ts` | `useFetch` their layer's routes, own query↔URL state, run form state machines | Render | Nuxt Vitest project + `mockNuxtImport` |
 | Pages | `app/pages/` | Call one controller, compose kits, set SEO meta | Hold logic | Playwright + axe + screenshots |
-| Server | `server/api/`, `server/utils/` | Newsletter and submission endpoints, the WP HTML pipeline if it runs server-side | Render | Vitest node, like [`content.get.spec.ts`](../../packages/content/src/nuxt/runtime/server/content.get.spec.ts) |
+| Server | `server/api/`, `server/utils/` | Newsletter and submission endpoints, the WP HTML pipeline if it runs server-side | Render | Vitest node, like [`[slug].get.spec.ts`](../../apps/huella-legal/layers/articles/server/api/articles/%5Bslug%5D.get.spec.ts) |
 
 Components are promoted from `app/lab/` rather than rebuilt. A kit ticket covers a lot of
 components, but each one is cheap because the lab version already exists.
@@ -230,14 +230,15 @@ Promoted from `app/lab/`. B1, B3 and B4 don't depend on any spike.
 
 Each page ticket delivers a controller, the page, and its e2e spec with axe and screenshots.
 
-- **C1 Article page** (needs A3, A4, B2, B6): `useArticle`, related posts, series navigation, SEO
+- **C1 🎫 #240 Article page** (needs A3, A4, B2, B6): `useArticle`, related posts, series navigation, SEO
   meta.
   - `useArticle` reads `GET /api/articles/:slug`, which already serves the sanitised, cached
     `Article`; the page in `layers/articles` is a scaffold to replace.
-  - The server builds `Citation[]`, and the pipeline parses `_ftn` anchors and bare `<sup>` numbers
-    into `ArticleBody.notes`.
+  - The server builds `Citation[]`, and the pipeline parses `_ftn` anchors into
+    `ArticleBody.notes`. That is the one supported note shape: 0027's bare `<sup>` posts turned out
+    to hold ordinals and a stray number, not notes.
   - Dates go through i18n `d(…, "long")`, which carries the `Europe/Madrid` time zone.
-- **C2 Listing template:**
+- **C2 🎫 #241 Listing template:**
   - One controller, `useArticleListing`, owns page, sort and tag filter in the URL, and maps a 400
     to a 404.
   - Four instances: all publications, category, tag, and author profile. The author profile gets
@@ -250,17 +251,17 @@ Each page ticket delivers a controller, the page, and its e2e spec with axe and 
     belongs in `app/router.options.ts`, not a `watch`.
   - The fetch-error to `createError` mapping, written today in both article pages and the article
     route, becomes one helper shared with C1.
-- **C3 Home:**
+- **C3 🎫 #246 Home:**
   - Hero statement, and the featured article with the Fundamentos aside.
   - Recent posts, the Materias band, editorial stats.
   - Participa cards, NewsletterBand.
-- **C4 Materias index and Colaboradores:**
+- **C4 🎫 #247 Materias index and Colaboradores:**
   - Area grid, TFG/TFM band, tag cloud.
   - About, principles, and the directory with filter, no-match state and load-more. How much of
     the directory is possible depends on S1.
-- **C5 Search and utility states:** `/buscar` on `useContent`'s `search`, with results, no results,
+- **C5 🎫 #248 Search and utility states:** `/buscar` on a route over `useContent`'s `search`, with results, no results,
   empty subject and loading.
-- **C6 Standard page template:**
+- **C6 🎫 #249 Standard page template:**
   - Legal pages (aviso legal, privacidad, cookies), and Contacto per S3, from WP `pages`, using the
     prose styles.
   - There is no lab design for this page, so it's checked for parity against the article prose.
@@ -269,29 +270,29 @@ Each page ticket delivers a controller, the page, and its e2e spec with axe and 
 
 These come after S2 and S3.
 
-- **E1 Newsletter:**
+- **E1 🎫 #242 Newsletter:**
   - A server route with a provider adapter.
   - A `useNewsletter` state machine behind every NewsletterForm, so NewsletterBand and
     NewsletterCard stop forwarding `pending`, `error` and `submit`.
   - Spam protection, and specs against a mocked provider.
-- **E2 Publish submission:**
+- **E2 🎫 #243 Publish submission:**
   - A server route: multipart, with file type and size checks, sending to S3's destination.
   - `UForm` validation, and the lab's four states wired live.
   - E2E for the invalid, success and server-error paths.
-- **E3 SEO and metadata:** per-page `useSeoMeta`, canonical tags, sitemap and robots (a module for
+- **E3 🎫 #250 SEO and metadata:** per-page `useSeoMeta`, canonical tags, sitemap and robots (a module for
   these is a dependency check-in), JSON-LD, RSS.
 
 ### F: Launch
 
-- **F1 Deploy configuration** (after S2):
+- **F1 🎫 #244 Deploy configuration** (after S2):
   - Nitro preset, `routeRules` with per-route TTLs, cache storage.
   - Env var names in `.env.example`, preview deploys.
   - Update the app README's Deployment section.
-- **F2 Cutover** (after S4 and F1):
+- **F2 🎫 #251 Cutover** (after S4 and F1):
   - The redirect map as `routeRules` redirects, with a test that walks every old permalink.
   - The WP hostname move and DNS.
   - Post-launch smoke checks, through the existing observability.
-- **F3 Remove the scaffolding:**
+- **F3 🎫 #252 Remove the scaffolding:**
   - Delete `app/lab/`, `app/pages/lab/`, the `$production` `pages:extend` hook, and the provisional
     `pages/articles/*` with their scoped CSS.
   - Rewrite DESIGN.md's deferred section.
@@ -324,7 +325,7 @@ work.
 | Later need | What changes |
 | --- | --- |
 | Deleting `packages/ui` | Tracked under ADR 0023 (#26), not here |
-| Interest calculator | An app page at `/calculo-intereses/` ([0028](../decisions/0028-huella-legal-urls-and-cutover.md)). Building it is a later ticket, but it has to land before F2 |
+| Interest calculator | An app page at `/calculo-intereses/` ([0028](../decisions/0028-huella-legal-urls-and-cutover.md)). 🎫 #245 builds it, and it has to land before F2 |
 | Comments | Need a moderation decision first |
 | Search overlay | Has no design; the header search button goes to `/buscar` |
 | Dark theme | `colorMode` stays off; the tokens would need a second `:root` set |

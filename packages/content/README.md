@@ -1,7 +1,7 @@
 # 📦 @monorepo/content
 
 A vendor-neutral content client for entries and taxonomies, with a framework-agnostic core and an
-optional Nuxt module that exposes a cached BFF.
+optional Nuxt module that gives server code a cached reader.
 
 Three entry points, kept apart by the `exports` map:
 
@@ -124,7 +124,7 @@ Adding a vendor:
 3. Add one line to `providers`.
 4. Override `getEntry` / `getTerm` **only** if the vendor has a native single-document
    endpoint. Otherwise the inherited one-item list already serves them.
-5. Nothing else. Config typing, lazy loading and the Nuxt routes follow automatically.
+5. Nothing else. Config typing, lazy loading and the Nuxt reader follow automatically.
 
 The import is lazy, so a deployment ships only the vendor it configured.
 
@@ -206,7 +206,7 @@ built with **no** `baseURL`: providers compose absolute URLs, so a client config
 vendor's host could not serve another. On a transport that is not ofetch, write the ten-line
 `HttpClient` for it in your own app — that interface is the only thing the core needs.
 
-Caching itself is **not** in the core — the Nuxt integration caches at its BFF route, and any
+Caching itself is **not** in the core — the Nuxt integration caches inside `useContent`, and any
 other consumer supplies its own. What *is* in the core is `contentKey(vendor, resource, query)`:
 the identity of the upstream document, covering every input that picks it.
 
@@ -223,14 +223,14 @@ Four decisions in there:
   readily as credentials — a Contentful environment and a Sanity dataset both live there.
 - **The query axes are sorted and encoded before being hashed**, so two callers spelling one query
   differently share an entry, and a crafted value cannot forge an axis it did not ask for.
-- **The key is word characters only**, because Nitro strips everything else before storing it —
-  [the Nuxt module](./src/nuxt/README.md) has the collision that prevents. Hashing the query half
+- **The key is word characters only**, because Nitro's storage layer cuts a key at `?` and splits it
+  at `/`, `\` and `:` — [the Nuxt module](./src/nuxt/README.md#-caching) has the detail. Hashing the query half
   also bounds the length, which a driver turning it into a filename cares about. The cost is that
   the query half is no longer readable in a cache listing; the vendor and the resource still are.
 
 The ceilings in the domain — `MAX_PAGE`, `MAX_PER_PAGE`, `MAX_SEARCH_LENGTH` — are contract
-limits, distinct from any vendor's own. They exist so a public route's key space is finite and a
-crafted query cannot mint an unbounded number of cache entries. Apply them before you build a
+limits, distinct from any vendor's own. They exist so the key space of a query forwarded from a
+request is finite and a crafted one cannot mint an unbounded number of cache entries. Apply them before you build a
 key, not after.
 
 ## 🧪 Fake vendors
@@ -247,12 +247,12 @@ setupServer(...wordpressHandlers(baseURL, { posts: entries, categories: terms })
 
 | Export | Serves | Contract it keeps |
 | --- | --- | --- |
-| `wordpressHandlers(baseURL, content)` | `GET <baseURL>/wp-json/wp/v2/:resource` for each resource given | `?slug=`, `page` and `per_page`, `x-wp-total`/`x-wp-totalpages`, a `400` for a page past the end, a `404` for a resource with no content |
+| `wordpressHandlers(baseURL, content)` | `GET <baseURL>/wp-json/wp/v2/:resource` for each resource given | `?slug=`, `?categories=` and `?tags=` by term id, `page` and `per_page`, `x-wp-total`/`x-wp-totalpages`, a `400` for a page past the end, a `404` for a resource with no content |
 
 [`wordpress.spec.ts`](./src/testing/wordpress.spec.ts) runs the real `WordpressProvider` on the
 real client against the handlers, and asserts every `Entry` field comes back unchanged, so a fake
-that drifts from the provider fails here rather than in someone's e2e. Search and term filters
-aren't faked: nothing consumes them yet.
+that drifts from the provider fails here rather than in someone's e2e. Search and the author
+filter aren't faked: nothing consumes them yet.
 
 The same entry exports seeded `@faker-js/faker` factories for the domain types, so a spec
 states only the fields it asserts on and the rest is filled in:
@@ -290,12 +290,12 @@ All of them extend `ContentError`, so one `instanceof` catches anything the pack
 | `MisconfiguredVendorError` | 500 | the vendor exists but its config cannot work — `problems` lists every reason |
 
 Each error carries its own `statusCode` / `statusMessage`, so adding one never means editing a
-mapping somewhere else — the route just hands it to `createError`. A non-HTTP consumer ignores
+mapping somewhere else — the Nuxt reader just hands it to `createError`. A non-HTTP consumer ignores
 both and reads `message`.
 
 `statusMessage` reaches the client, so none of these repeat the vendor's URL or the transport's
 message. Nothing else is dressed up as one of these either: a failure the package can't
-diagnose — a broken adapter, say — propagates as itself, so the route reports it as an
+diagnose — a broken adapter, say — propagates as itself, so the app reports it as an
 unhandled 500 with its own stack rather than blaming the vendor.
 
 ## 🧭 Deliberately deferred
@@ -308,7 +308,7 @@ Sized for a small monorepo. When it grows:
 | A `title` that is not HTML | `Entry.title` is a bare `string` holding whatever the vendor rendered, so a consumer has to know to `v-html` it while `body` and `excerpt` say so in their own type. Decode entities in the mapper (making it genuinely plain text) or type it `RichText` — the inconsistency is the bug, not the choice |
 | Untrusted authors in the CMS | nothing sanitises the HTML in `body`. That is fine while the CMS is first-party, and a documented assumption rather than an oversight — a vendor whose authors are not trusted needs sanitising where it is rendered |
 | A vendor with more than one document family | `Resource` is two closed unions. A vendor with custom post types needs them opened up, and `TAXONOMIES` in the WordPress adapter is where the mapping between its names and ours already lives |
-| A vendor that actually serves locales | Nothing here has a locale axis — not `Query`, not the cache key, not the routes. Adding one is a single change across all three, and it has to be: a key that gains an axis *after* entries exist serves the wrong language until every one of them expires. A Polylang- or WPML-aware provider maps it to that plugin's `lang` parameter, and the route validating a tag should bound it — a BCP-47 pattern allows arbitrarily long subtag chains |
+| A vendor that actually serves locales | Nothing here has a locale axis — not `Query`, not the cache key, not the Nuxt reader. Adding one is a single change across all three, and it has to be: a key that gains an axis *after* entries exist serves the wrong language until every one of them expires. A Polylang- or WPML-aware provider maps it to that plugin's `lang` parameter, and the Nuxt reader's `query.ts` should bound the tag — a BCP-47 pattern allows arbitrarily long subtag chains |
 | A query axis one vendor serves and another can't | There is no error for it, because there is no such axis today. Add one — a 400 naming the vendor and the parameter — rather than letting a provider drop the axis: a dropped one is cached under the value that was asked for, which is worse than refusing |
 | Structured content | `RichText` already carries a `blocks` format, so a Contentful or Sanity provider is not a breaking change for consumers |
-| Tracing the upstream call | nothing here emits a span, and it cannot: the boundary rules let `type:content` depend on `type:config` only, and the Nuxt route builds its own transport. Instrument at the Nitro level from the consuming app, or make the client injectable — but only when there is something to swap |
+| Tracing the upstream call | nothing here emits a span, and it cannot: the boundary rules let `type:content` depend on `type:config` only, and the Nuxt reader builds its own transport. Instrument at the Nitro level from the consuming app, or make the client injectable — but only when there is something to swap |

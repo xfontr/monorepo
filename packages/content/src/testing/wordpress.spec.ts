@@ -69,6 +69,12 @@ describe("the fake WordPress", () => {
         await expect(wordpress.getEntry("posts", "missing")).rejects.toBeInstanceOf(NotFoundError);
     });
 
+    it("filters entries by term, so a category listing doesn't serve every post", async () => {
+        const { items } = await (await provider()).listEntries("posts", { term: { resource: "categories", id: CIVIL.id } });
+
+        expect(items).toEqual(POSTS);
+    });
+
     it("refuses a page past the end with a 400, as WordPress does", async () => {
         const failure = (await provider()).listEntries("posts", { page: 9 });
 

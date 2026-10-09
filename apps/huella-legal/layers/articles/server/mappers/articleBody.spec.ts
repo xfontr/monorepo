@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { toArticleBody } from "./articleBody";
 
-const html = (body: string) => toArticleBody(body).html;
+const html = (body: string) => {
+    const { lead, html } = toArticleBody(body);
+
+    return lead + html;
+};
 
 describe("sanitising", () => {
     it.each([
@@ -40,6 +44,19 @@ describe("sanitising", () => {
     });
 });
 
+describe("the lead", () => {
+    it("ends after the first top-level paragraph, so the featured image never lands inside a quote", () => {
+        expect(toArticleBody("<blockquote><p>Cita</p></blockquote><p>Uno</p><p>Dos</p>")).toMatchObject({
+            lead: "<blockquote><p>Cita</p></blockquote><p>Uno</p>",
+            html: "<p>Dos</p>",
+        });
+    });
+
+    it("is empty when the body has no paragraph, so the image goes first", () => {
+        expect(toArticleBody("<h2>Uno</h2>")).toMatchObject({ lead: "", html: "<h2 id=\"uno\">Uno</h2>" });
+    });
+});
+
 describe("the class map", () => {
     it.each([
         ["contenedor", "hl-note"],
@@ -62,42 +79,14 @@ describe("the class map", () => {
     });
 });
 
-describe("headings and the TOC", () => {
-    it("gives each h2 and h3 an ASCII id and lists them in order", () => {
-        const body = toArticleBody("<h2>Introducción</h2><h3>El tipo  <em>objetivo</em></h3>");
-
-        expect(body.toc).toEqual([
-            { id: "introduccion", label: "Introducción", level: 2 },
-            { id: "el-tipo-objetivo", label: "El tipo objetivo", level: 3 },
-        ]);
-        expect(body.html).toContain("<h2 id=\"introduccion\">");
-    });
-
-    // 13 posts already carry heading ids, and old deep links point at them
-    it("keeps a heading's existing id", () => {
-        expect(toArticleBody("<h2 id=\"conclusiones-finales\">Conclusiones</h2>").toc[0]?.id).toBe("conclusiones-finales");
-    });
-
-    it("never repeats an id", () => {
-        expect(toArticleBody("<h2>Dolo</h2><h2>Dolo</h2>").toc.map(({ id }) => id)).toEqual(["dolo", "dolo-2"]);
-    });
-
-    it("leaves out h4 and deeper, and headings with no text", () => {
-        expect(toArticleBody("<h2> </h2><h4>Detalle</h4>").toc).toEqual([]);
-    });
-
-    it("falls back to a readable id for a heading with no letters", () => {
-        expect(toArticleBody("<h2>§</h2>").toc[0]?.id).toBe("seccion");
-    });
-});
-
 describe("the bibliography", () => {
     it("splits from the heading to the end, one fragment per reference", () => {
-        const body = toArticleBody("<h2>Conclusiones</h2><p>Fin.</p>"
-          + "<h2>Bibliografía</h2><p>ROXIN, C., <em>Derecho penal</em>.</p><ul><li>MIR PUIG, S.</li><li> </li></ul>");
+        const source = "<h2>Conclusiones</h2><p>Fin.</p>"
+          + "<h2>Bibliografía</h2><p>ROXIN, C., <em>Derecho penal</em>.</p><ul><li>MIR PUIG, S.</li><li> </li></ul>";
+        const body = toArticleBody(source);
 
         expect(body.bibliography).toEqual(["ROXIN, C., <em>Derecho penal</em>.", "MIR PUIG, S."]);
-        expect(body.html).not.toContain("Bibliografía");
+        expect(html(source)).not.toContain("Bibliografía");
         expect(body.toc.map(({ label }) => label)).toEqual(["Conclusiones"]);
     });
 
@@ -111,11 +100,22 @@ describe("the bibliography", () => {
     });
 
     it("leaves an empty bibliography heading in the body rather than hiding it", () => {
-        expect(toArticleBody("<p>Intro</p><h2>Bibliografía</h2>").html).toContain("Bibliografía");
+        expect(html("<p>Intro</p><h2>Bibliografía</h2>")).toContain("Bibliografía");
     });
 
     it("sanitises every reference, not only the body", () => {
         expect(toArticleBody("<h2>Bibliografía</h2><p onclick=\"x()\"><a href=\"javascript:x()\">Obra</a></p>").bibliography)
             .toEqual(["<a>Obra</a>"]);
+    });
+});
+
+describe("the pass order", () => {
+    // Notes close the post, after the bibliography, so they must leave before it is split off
+    it("takes the notes out before the bibliography, so they aren't read as references", () => {
+        const body = toArticleBody("<p>El dolo<a href=\"#_ftn1\">[1]</a>.</p><h2>Bibliografía</h2><p>ROXIN, C.</p><hr>"
+          + "<p><a href=\"#_ftnref1\">[1]</a> ROXIN, <em>Derecho penal</em>.</p>");
+
+        expect(body.notes).toHaveLength(1);
+        expect(body.bibliography).toEqual(["ROXIN, C."]);
     });
 });

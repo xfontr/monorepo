@@ -1,27 +1,12 @@
-import type { Entry } from "@monorepo/content";
 import type { Article } from "../../../shared/types/Article";
 import { toArticle } from "../../mappers/article";
 
-interface Cause {
-    statusCode?: number
-    statusMessage?: string
-}
+export default defineEventHandler(async (event): Promise<Article> => {
+    const { public: { site } } = useRuntimeConfig(event);
 
-const MAX_AGE = 60 * 60 * 6;
-const STALE_MAX_AGE = 60 * 60 * 24 * 7;
+    if (!site.url) throw createError({ statusCode: 500, statusMessage: "Site is misconfigured: NUXT_PUBLIC_SITE_URL is not set" });
 
-export default defineCachedEventHandler(async (event): Promise<Article> => {
-    const entry = await $fetch<Entry>(`/api/content/posts/${getRouterParam(event, "slug")}`)
-        .catch(({ statusCode, statusMessage }: Cause) => {
-            throw createError({ statusCode, statusMessage });
-        });
+    const entry = await useContent(event).getEntry("posts", getRouterParam(event, "slug", { decode: true }) ?? "");
 
-    return toArticle(entry);
-}, {
-    name: "article",
-    group: "articles",
-    maxAge: MAX_AGE,
-    staleMaxAge: STALE_MAX_AGE,
-    getKey: (event) => getRouterParam(event, "slug") ?? "",
-    shouldBypassCache: () => import.meta.dev === true,
+    return toArticle(entry, { siteUrl: site.url, journal: useAppConfig().journal });
 });

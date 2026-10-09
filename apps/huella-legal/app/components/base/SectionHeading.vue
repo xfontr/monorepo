@@ -15,7 +15,7 @@ const headingId = computed<string>(() => props.id ?? fallbackId);
 </script>
 
 <template>
-    <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-t-2 border-huella-slate-900 pt-4">
+    <div class="flex flex-col gap-2 border-t-2 border-huella-slate-900 pt-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <p
                 v-if="kicker"
@@ -38,7 +38,7 @@ const headingId = computed<string>(() => props.id ?? fallbackId);
             :to="action.to"
             :aria-describedby="headingId"
             trailing-icon="i-lucide-arrow-right"
-            class="-mr-3"
+            class="-ml-3 self-start sm:-mr-3 sm:ml-0 sm:self-auto"
         />
     </div>
 </template>

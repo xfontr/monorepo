@@ -2,7 +2,20 @@ export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
 
     // Loaded first because `typedPages` importing it while `@nuxtjs/i18n` loads trips a Node ESM-loader assert
-    modules: [async () => { await import("vue-router/unplugin"); }, "@monorepo/i18n/nuxt", "@monorepo/content/nuxt", "@nuxt/ui", "@nuxt/fonts"],
+    modules: [
+        async () => { await import("vue-router/unplugin"); },
+        // Vue counts an onServerPrefetch hook (every Nuxt Icon has one) as a useId boundary, so a client
+        // build that strips it hydrates Reka's aria-controls with ids the server never rendered
+        (_, nuxt) => {
+            const shaken = nuxt.options.optimization.treeShake.composables.client;
+
+            if (shaken.vue) shaken.vue = shaken.vue.filter((name) => name !== "onServerPrefetch");
+        },
+        "@monorepo/i18n/nuxt",
+        "@monorepo/content/nuxt",
+        "@nuxt/ui",
+        "@nuxt/fonts",
+    ],
 
     devtools: false,
 
@@ -81,6 +94,10 @@ export default defineNuxtConfig({
         },
 
         public: {
+            site: {
+                url: "",
+            },
+
             observability: {
                 url: "",
                 app: {
