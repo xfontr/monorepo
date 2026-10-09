@@ -75,6 +75,8 @@ jobs:
               if: failure()
               with:
                   name: playwright
+                  # Off by default, and it would drop .playwright/ with the -actual.png files
+                  include-hidden-files: true
                   path: |
                       apps/huella-legal/.playwright
                       apps/huella-legal/e2e/__screenshots__
