@@ -14,4 +14,5 @@ export const archiveD: ArchiveEntry[] = archive.map((entry) => ({
     media: withoutImage.has(entry.slug) ? "none" : "image",
 }));
 
-export const countIn = (subject: string) => archiveD.filter((entry) => entry.subject === subject).length;
+export const countIn = (subject: string) =>
+    archiveD.filter((entry) => entry.subject === subject).length;

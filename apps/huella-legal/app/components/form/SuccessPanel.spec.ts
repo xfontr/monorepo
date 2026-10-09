@@ -4,7 +4,10 @@ import SuccessPanel from "./SuccessPanel.vue";
 
 describe("success panel", () => {
     it("takes focus to its heading on mount, since it replaces the form and the submit button that held focus", async () => {
-        const wrapper = await mountSuspended(SuccessPanel, { props: { title: "Recibido." }, attachTo: document.body });
+        const wrapper = await mountSuspended(SuccessPanel, {
+            props: { title: "Recibido." },
+            attachTo: document.body,
+        });
 
         expect(document.activeElement?.tagName).toBe("H3");
         expect(document.activeElement?.textContent?.trim()).toBe("Recibido.");
@@ -24,13 +27,19 @@ describe("success panel", () => {
 
     it("links the follow-up action only when one is given", async () => {
         const withAction = await mountSuspended(SuccessPanel, {
-            props: { title: "Recibido.", action: { label: "Enviar otra propuesta", to: "/publicar#formulario" } },
+            props: {
+                title: "Recibido.",
+                action: { label: "Enviar otra propuesta", to: "/publicar#formulario" },
+            },
         });
         const without = await mountSuspended(SuccessPanel, { props: { title: "Recibido." } });
 
         const link = withAction.find("a");
 
-        expect([link.text(), link.attributes("href")]).toEqual(["Enviar otra propuesta", "/publicar#formulario"]);
+        expect([link.text(), link.attributes("href")]).toEqual([
+            "Enviar otra propuesta",
+            "/publicar#formulario",
+        ]);
         expect(without.find("a").exists()).toBe(false);
     });
 });

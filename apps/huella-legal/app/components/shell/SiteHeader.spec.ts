@@ -8,11 +8,15 @@ const translate = (key: string) => `t(${key})`;
 
 const SECTIONS: NavigationMenuItem[] = [
     { label: "Publicaciones", to: { name: "publications" } },
-    { "label": "Materias", "to": { name: "categories" }, "active": true, "aria-current": "page" },
+    { label: "Materias", to: { name: "categories" }, active: true, "aria-current": "page" },
 ];
 
 function mountHeader() {
-    return mountSuspended(SiteHeader, { route: "/", props: { sections: SECTIONS, issn: "0000-0000" }, global: { mocks: { $t: translate } } });
+    return mountSuspended(SiteHeader, {
+        route: "/",
+        props: { sections: SECTIONS, issn: "0000-0000" },
+        global: { mocks: { $t: translate } },
+    });
 }
 
 afterEach(() => {
@@ -23,7 +27,11 @@ describe("site header", () => {
     it("passes each section's current state through to its link", async () => {
         const wrapper = await mountHeader();
 
-        expect(wrapper.findAll("nav a").map((link) => [link.attributes("href"), link.attributes("aria-current")])).toEqual([
+        expect(
+            wrapper
+                .findAll("nav a")
+                .map((link) => [link.attributes("href"), link.attributes("aria-current")]),
+        ).toEqual([
             ["/publicaciones/", undefined],
             ["/materias/", "page"],
         ]);
@@ -43,9 +51,13 @@ describe("site header", () => {
         const dialog = document.body.querySelector("[role='dialog']");
 
         expect(dialog?.textContent).toContain("t(app.header.menu.title)");
-        expect(document.getElementById(dialog!.getAttribute("aria-labelledby")!)?.textContent).toBe("t(app.header.menu.title)");
+        expect(document.getElementById(dialog!.getAttribute("aria-labelledby")!)?.textContent).toBe(
+            "t(app.header.menu.title)",
+        );
 
-        (dialog!.querySelector("[aria-label='t(app.header.menu.close)']") as HTMLButtonElement).click();
+        (
+            dialog!.querySelector("[aria-label='t(app.header.menu.close)']") as HTMLButtonElement
+        ).click();
         await flushPromises();
 
         expect(wrapper.find("[data-slot='toggle']").attributes("aria-expanded")).not.toBe("true");

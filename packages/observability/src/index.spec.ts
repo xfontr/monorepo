@@ -13,7 +13,9 @@ vi.mock("@grafana/faro-web-sdk", () => ({
     getWebInstrumentations: faro.getWebInstrumentations,
 }));
 
-vi.mock("@grafana/faro-web-tracing", () => ({ TracingInstrumentation: tracing.TracingInstrumentation }));
+vi.mock("@grafana/faro-web-tracing", () => ({
+    TracingInstrumentation: tracing.TracingInstrumentation,
+}));
 
 const url = "https://faro-collector.grafana.net/collect/abc123";
 const app = { name: "@monorepo/external", version: "1.0.0", environment: "production" };
@@ -23,7 +25,8 @@ function start() {
 }
 
 function instrumentations() {
-    return (faro.initializeFaro.mock.calls[0]?.[0] as { instrumentations: unknown[] }).instrumentations;
+    return (faro.initializeFaro.mock.calls[0]?.[0] as { instrumentations: unknown[] })
+        .instrumentations;
 }
 
 beforeEach(() => {
@@ -34,7 +37,9 @@ describe("startWebTelemetry", () => {
     it("initializes Faro against the collector, identifying the app that is reporting", () => {
         start();
 
-        expect(faro.initializeFaro).toHaveBeenCalledWith(expect.objectContaining({ url, app }) as object);
+        expect(faro.initializeFaro).toHaveBeenCalledWith(
+            expect.objectContaining({ url, app }) as object,
+        );
     });
 
     it("keeps the default web instrumentations, so errors and web vitals arrive without extra wiring", () => {

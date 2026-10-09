@@ -29,10 +29,13 @@ describe("resource guards", () => {
     });
 
     // A resource reaches these straight from the URL, so anything not in the list has to fall through
-    it.each([undefined, "", "  ", "POSTS", "post", "media", "../posts", "posts/1"])("rejects %o", (resource) => {
-        expect(isEntryResource(resource)).toBe(false);
-        expect(isTermResource(resource)).toBe(false);
-    });
+    it.each([undefined, "", "  ", "POSTS", "post", "media", "../posts", "posts/1"])(
+        "rejects %o",
+        (resource) => {
+            expect(isEntryResource(resource)).toBe(false);
+            expect(isTermResource(resource)).toBe(false);
+        },
+    );
 });
 
 describe("query ceilings", () => {

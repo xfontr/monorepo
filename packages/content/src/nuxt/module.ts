@@ -15,9 +15,11 @@ export default defineNuxtModule<ContentConfig>({
 
         nuxt.options.runtimeConfig.content = resolvedOptions;
 
-        addServerImports([{
-            name: "useContent",
-            from: resolver.resolve("./runtime/server/utils/useContent"),
-        }]);
+        addServerImports([
+            {
+                name: "useContent",
+                from: resolver.resolve("./runtime/server/utils/useContent"),
+            },
+        ]);
     },
 });

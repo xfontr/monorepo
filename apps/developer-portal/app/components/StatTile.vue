@@ -3,12 +3,12 @@ import { NuxtLink } from "#components";
 import type { Tone } from "../utils/format.ts";
 
 interface Props {
-    label: string
-    value: string | number
-    hint?: string
-    icon?: string
-    tone?: Tone
-    to?: string
+    label: string;
+    value: string | number;
+    hint?: string;
+    icon?: string;
+    tone?: Tone;
+    to?: string;
 }
 
 const { label, value, hint, icon, tone = "neutral", to } = defineProps<Props>();
@@ -24,25 +24,15 @@ const toneClass = computed(() => (tone === "neutral" ? "" : `tone-${tone}`));
         :class="to && 'hover:bg-elevated/50 transition-colors'"
     >
         <div class="flex items-center gap-1.5 text-xs text-muted">
-            <UIcon
-                v-if="icon"
-                :name="icon"
-                class="size-3.5"
-            />
+            <UIcon v-if="icon" :name="icon" class="size-3.5" />
             {{ label }}
         </div>
 
-        <div
-            class="text-2xl font-semibold tabular-nums"
-            :class="toneClass"
-        >
+        <div class="text-2xl font-semibold tabular-nums" :class="toneClass">
             {{ value }}
         </div>
 
-        <div
-            v-if="hint"
-            class="text-xs text-dimmed truncate"
-        >
+        <div v-if="hint" class="text-xs text-dimmed truncate">
             {{ hint }}
         </div>
     </component>

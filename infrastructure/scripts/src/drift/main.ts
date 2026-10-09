@@ -4,13 +4,15 @@ import { readCache, writeCache } from "../shared/adapters/cache.ts";
 import { createIssue } from "../shared/adapters/gh.ts";
 import { isInteractive, out } from "../shared/adapters/io.ts";
 import { orExit } from "../shared/adapters/prompts.ts";
-import { changedFiles, diffNameStatus, diffNumstat, diffText, lastMdCommitEpochSeconds, mergeBase } from "./adapters/git.ts";
 import {
-    displayName,
-    projectRootsFor,
-    recordFingerprint,
-    shouldWarn,
-} from "./domain/detect.ts";
+    changedFiles,
+    diffNameStatus,
+    diffNumstat,
+    diffText,
+    lastMdCommitEpochSeconds,
+    mergeBase,
+} from "./adapters/git.ts";
+import { displayName, projectRootsFor, recordFingerprint, shouldWarn } from "./domain/detect.ts";
 import { changeSize, lastMdCommitMs } from "./domain/size.ts";
 
 const PROJECT = "Monorepo";
@@ -30,14 +32,21 @@ const warnFor = async (root: string): Promise<boolean> => {
 
     out.begin(`📚 Possible docs drift — ${name}`);
 
-    const wantsIssue = orExit(await confirm({ message: "File a GitHub issue for it?" }), "Skipped.");
+    const wantsIssue = orExit(
+        await confirm({ message: "File a GitHub issue for it?" }),
+        "Skipped.",
+    );
 
     if (!wantsIssue) {
         out.end("Skipped — won't ask again until this project changes further.");
         return true;
     }
 
-    const url = createIssue({ title: `Address documentation drift for ${name}`, body: "", project: PROJECT });
+    const url = createIssue({
+        title: `Address documentation drift for ${name}`,
+        body: "",
+        project: PROJECT,
+    });
     out.end(url);
     return true;
 };
@@ -60,7 +69,7 @@ export const main = async (): Promise<void> => {
         const warn = shouldWarn(size, lastMdCommitMs(lastMdCommitEpochSeconds(root)));
 
         // Recording only after an answer means Ctrl+C or a non-interactive run asks again next time.
-        if (warn && !await warnFor(root)) continue;
+        if (warn && !(await warnFor(root))) continue;
 
         seen = transition.seen;
         writeCache(CACHE_KEY, seen);

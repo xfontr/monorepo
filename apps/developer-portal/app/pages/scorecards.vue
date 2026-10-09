@@ -17,7 +17,9 @@ function idOf(path: string): string {
 }
 
 const totalTone = computed(() => scoreTone(latest.value?.total));
-const latestLink = computed(() => (latest.value ? `/reviews/${idOf(latest.value.path)}` : "/reviews"));
+const latestLink = computed(() =>
+    latest.value ? `/reviews/${idOf(latest.value.path)}` : "/reviews",
+);
 const weakestTone = computed(() => (weakest.value ? scoreTone(weakest.value.score) : "neutral"));
 </script>
 
@@ -37,45 +39,39 @@ const weakestTone = computed(() => (weakest.value ? scoreTone(weakest.value.scor
                         variant="ghost"
                         size="xs"
                     />
-                    <SnapshotAge
-                        :manifest="snapshot?.manifest ?? null"
-                        artifact="scorecards"
-                    />
+                    <SnapshotAge :manifest="snapshot?.manifest ?? null" artifact="scorecards" />
                 </template>
             </UDashboardNavbar>
         </template>
 
         <template #body>
-            <div
-                v-if="!latest"
-                class="p-12 text-center"
-            >
-                <UIcon
-                    name="i-lucide-target"
-                    class="size-8 text-dimmed mx-auto mb-2"
-                />
+            <div v-if="!latest" class="p-12 text-center">
+                <UIcon name="i-lucide-target" class="size-8 text-dimmed mx-auto mb-2" />
                 <p class="text-sm text-muted">
                     No review under <code class="font-mono">docs/reviews/</code> yet.
                 </p>
                 <p class="text-xs text-dimmed mt-1">
-                    The <code class="font-mono">repo-review</code> skill writes them, one dated file per review.
+                    The <code class="font-mono">repo-review</code> skill writes them, one dated file
+                    per review.
                 </p>
             </div>
 
-            <div
-                v-else
-                class="flex flex-col gap-4"
-            >
+            <div v-else class="flex flex-col gap-4">
                 <p class="text-sm text-muted max-w-3xl">
-                    Scorecards summarize dated repository reviews as transparent engineering assessments, not live
-                    product ratings. Their values come from the review files and are not recomputed in the browser.
+                    Scorecards summarize dated repository reviews as transparent engineering
+                    assessments, not live product ratings. Their values come from the review files
+                    and are not recomputed in the browser.
                 </p>
 
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
                     <StatTile
                         label="Total"
                         :value="`${latest.total}/5`"
-                        :hint="latest.totalDelta === '—' || latest.totalDelta === '' ? 'first review' : `${latest.totalDelta} since the previous one`"
+                        :hint="
+                            latest.totalDelta === '—' || latest.totalDelta === ''
+                                ? 'first review'
+                                : `${latest.totalDelta} since the previous one`
+                        "
                         :tone="totalTone"
                     />
                     <StatTile
@@ -112,12 +108,11 @@ const weakestTone = computed(() => (weakest.value ? scoreTone(weakest.value.scor
                 <UCard :ui="{ body: 'p-0 sm:p-0' }">
                     <template #header>
                         <div>
-                            <h2 class="font-semibold">
-                                By card — {{ latest.date }}
-                            </h2>
+                            <h2 class="font-semibold">By card — {{ latest.date }}</h2>
                             <p class="text-xs text-muted">
-                                Copied from the review's own <code class="font-mono">## 🧮 Scores</code> table,
-                                not recomputed — the total and the verdicts are exactly what
+                                Copied from the review's own
+                                <code class="font-mono">## 🧮 Scores</code> table, not recomputed —
+                                the total and the verdicts are exactly what
                                 <code class="font-mono">repo-review</code> wrote.
                             </p>
                         </div>
@@ -127,18 +122,10 @@ const weakestTone = computed(() => (weakest.value ? scoreTone(weakest.value.scor
                         <table class="w-full text-sm">
                             <thead class="text-xs text-muted border-b border-default">
                                 <tr>
-                                    <th class="text-left font-medium px-4 py-2">
-                                        Card
-                                    </th>
-                                    <th class="text-right font-medium px-3 py-2">
-                                        Score
-                                    </th>
-                                    <th class="text-right font-medium px-3 py-2">
-                                        Δ
-                                    </th>
-                                    <th class="text-left font-medium px-4 py-2">
-                                        Verdict
-                                    </th>
+                                    <th class="text-left font-medium px-4 py-2">Card</th>
+                                    <th class="text-right font-medium px-3 py-2">Score</th>
+                                    <th class="text-right font-medium px-3 py-2">Δ</th>
+                                    <th class="text-left font-medium px-4 py-2">Verdict</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-default">
@@ -168,16 +155,11 @@ const weakestTone = computed(() => (weakest.value ? scoreTone(weakest.value.scor
                     </div>
                 </UCard>
 
-                <UCard
-                    v-if="reviews.length > 1"
-                    :ui="{ body: 'p-0 sm:p-0' }"
-                >
+                <UCard v-if="reviews.length > 1" :ui="{ body: 'p-0 sm:p-0' }">
                     <template #header>
                         <div class="flex items-center justify-between gap-4">
                             <div>
-                                <h2 class="font-semibold">
-                                    History
-                                </h2>
+                                <h2 class="font-semibold">History</h2>
                                 <p class="text-xs text-muted">
                                     Every review the collector could read, newest first.
                                 </p>
@@ -206,15 +188,15 @@ const weakestTone = computed(() => (weakest.value ? scoreTone(weakest.value.scor
 
                             <span class="flex-1" />
 
-                            <span
-                                v-if="review.parseError"
-                                class="text-xs text-dimmed italic"
-                            >couldn't parse</span>
+                            <span v-if="review.parseError" class="text-xs text-dimmed italic"
+                                >couldn't parse</span
+                            >
                             <span
                                 v-else
                                 class="text-sm font-semibold tabular-nums"
                                 :class="`tone-${scoreTone(review.total)}`"
-                            >{{ review.total }}/5</span>
+                                >{{ review.total }}/5</span
+                            >
                         </NuxtLink>
                     </div>
                 </UCard>

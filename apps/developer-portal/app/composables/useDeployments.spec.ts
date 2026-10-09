@@ -21,19 +21,24 @@ beforeEach(() => {
     vi.clearAllMocks();
     vi.stubGlobal("$fetch", fetch);
     useRuntimeConfig().public.repoUrl = "";
-    asyncData.useAsyncData.mockImplementation((_key: string, handler: () => Promise<unknown>, options: { default: () => unknown }) => ({
-        data: ref(options.default()),
-        handler,
-        refresh: vi.fn(),
-    }));
+    asyncData.useAsyncData.mockImplementation(
+        (_key: string, handler: () => Promise<unknown>, options: { default: () => unknown }) => ({
+            data: ref(options.default()),
+            handler,
+            refresh: vi.fn(),
+        }),
+    );
 });
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("useDeployments", () => {
     async function execute(wrapper: VueWrapper<InstanceType<typeof Harness>>) {
-        const state = wrapper.vm as unknown as { data: { value: { deployments: unknown[], error: string | null } }, handler: () => Promise<unknown> };
-        state.data.value = await state.handler() as typeof state.data.value;
+        const state = wrapper.vm as unknown as {
+            data: { value: { deployments: unknown[]; error: string | null } };
+            handler: () => Promise<unknown>;
+        };
+        state.data.value = (await state.handler()) as typeof state.data.value;
 
         return state.data.value;
     }
@@ -52,8 +57,16 @@ describe("useDeployments", () => {
                 { id: 2, environment: "production" },
                 { id: 4, environment: "preview" },
             ])
-            .mockResolvedValueOnce([{ state: "success", environment_url: "https://prod.example", created_at: "2026-09-20" }])
-            .mockResolvedValueOnce([{ state: "failure", environment_url: null, created_at: "2026-09-19" }]);
+            .mockResolvedValueOnce([
+                {
+                    state: "success",
+                    environment_url: "https://prod.example",
+                    created_at: "2026-09-20",
+                },
+            ])
+            .mockResolvedValueOnce([
+                { state: "failure", environment_url: null, created_at: "2026-09-19" },
+            ]);
         const wrapper = mount(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
         const result = await execute(wrapper);
 
@@ -65,7 +78,12 @@ describe("useDeployments", () => {
         ]);
         expect(result.deployments).toEqual([
             { environment: "preview", state: "failure", url: null, updatedAt: "2026-09-19" },
-            { environment: "production", state: "success", url: "https://prod.example", updatedAt: "2026-09-20" },
+            {
+                environment: "production",
+                state: "success",
+                url: "https://prod.example",
+                updatedAt: "2026-09-20",
+            },
         ]);
     });
 
@@ -82,9 +100,16 @@ describe("useDeployments", () => {
     });
 
     it("shows GitHub's rate-limit message rather than the fetch client's 403 status line", async () => {
-        fetch.mockRejectedValue(Object.assign(new Error("[GET] \"https://api.github.com/repos/acme/repo/deployments\": 403 Forbidden"), {
-            data: { message: "API rate limit exceeded for 203.0.113.7." },
-        }));
+        fetch.mockRejectedValue(
+            Object.assign(
+                new Error(
+                    '[GET] "https://api.github.com/repos/acme/repo/deployments": 403 Forbidden',
+                ),
+                {
+                    data: { message: "API rate limit exceeded for 203.0.113.7." },
+                },
+            ),
+        );
         const wrapper = mount(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
 
         expect((await execute(wrapper)).error).toBe("API rate limit exceeded for 203.0.113.7.");

@@ -13,4 +13,6 @@ type Story = StoryObj<typeof EmptyState>;
 
 export const Default: Story = {};
 
-export const LongSubject: Story = { args: { subject: "Derecho internacional público y relaciones internacionales" } };
+export const LongSubject: Story = {
+    args: { subject: "Derecho internacional público y relaciones internacionales" },
+};

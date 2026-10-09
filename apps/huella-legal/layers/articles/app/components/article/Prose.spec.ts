@@ -5,7 +5,7 @@ import ArticleProse from "./Prose.vue";
 
 const PROPS = {
     lead: "<p>El deber de <em>cuidado</em>.</p>",
-    html: "<h2 id=\"la-culpa\">La culpa</h2><p>Sigue el cuerpo.</p>",
+    html: '<h2 id="la-culpa">La culpa</h2><p>Sigue el cuerpo.</p>',
 };
 
 describe("article prose", () => {

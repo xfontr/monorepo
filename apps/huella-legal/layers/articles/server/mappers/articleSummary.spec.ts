@@ -51,14 +51,18 @@ describe("toArticleSummary", () => {
     });
 
     it("leaves an unset avatar unset, so UAvatar falls back to initials", () => {
-        expect(summarise({ authors: [fakeAuthor({ avatar: undefined })] }).authors[0]?.avatar).toBeUndefined();
+        expect(
+            summarise({ authors: [fakeAuthor({ avatar: undefined })] }).authors[0]?.avatar,
+        ).toBeUndefined();
     });
 });
 
 describe("the primary category", () => {
     // 103 of 105 posts have exactly one category; the rest are read by their first
     it("is the first category", () => {
-        expect(summarise({ terms: [category("civil"), category("penal")] }).category?.slug).toBe("civil");
+        expect(summarise({ terms: [category("civil"), category("penal")] }).category?.slug).toBe(
+            "civil",
+        );
     });
 
     it("is unset on a post that has none, rather than borrowed from a tag", () => {
@@ -68,27 +72,42 @@ describe("the primary category", () => {
 
 describe("the excerpt", () => {
     it("keeps a hand-written excerpt whole", () => {
-        expect(summarise({ excerpt: { format: "html", value: "<p>Escrito a mano.</p>" } }).excerpt).toBe("Escrito a mano.");
+        expect(
+            summarise({ excerpt: { format: "html", value: "<p>Escrito a mano.</p>" } }).excerpt,
+        ).toBe("Escrito a mano.");
     });
 
     it("keeps words apart across paragraphs", () => {
-        expect(summarise({ excerpt: { format: "html", value: "<p>Uno</p><p>dos</p>" } }).excerpt).toBe("Uno dos");
+        expect(
+            summarise({ excerpt: { format: "html", value: "<p>Uno</p><p>dos</p>" } }).excerpt,
+        ).toBe("Uno dos");
     });
 
-    it.each([undefined, { format: "html" as const, value: "<p></p>" }])("is unset when WordPress rendered %o", (excerpt) => {
-        expect(summarise({ excerpt }).excerpt).toBeUndefined();
-    });
+    it.each([undefined, { format: "html" as const, value: "<p></p>" }])(
+        "is unset when WordPress rendered %o",
+        (excerpt) => {
+            expect(summarise({ excerpt }).excerpt).toBeUndefined();
+        },
+    );
 });
 
 describe("the reading time", () => {
-    it.each([[0, 1], [230, 1], [231, 2], [2300, 10]])("reads %i words in %i minutes", (count, minutes) => {
-        expect(summarise({ body: { format: "html", value: words(count) } }).readingMinutes).toBe(minutes);
+    it.each([
+        [0, 1],
+        [230, 1],
+        [231, 2],
+        [2300, 10],
+    ])("reads %i words in %i minutes", (count, minutes) => {
+        expect(summarise({ body: { format: "html", value: words(count) } }).readingMinutes).toBe(
+            minutes,
+        );
     });
 
     // Bodies carry `<meta charset>` (50 posts) and empty icon spans (23 uses); neither is reading
     it("does not count markup as reading", () => {
-        const html = "<meta charset=\"utf-8\"><span class=\"superfontello3-quote\"></span>"
-          + `<img src="https://wp.test/uploads/a.jpg" alt="una foto larga">${words(230)}`;
+        const html =
+            '<meta charset="utf-8"><span class="superfontello3-quote"></span>' +
+            `<img src="https://wp.test/uploads/a.jpg" alt="una foto larga">${words(230)}`;
 
         expect(summarise({ body: { format: "html", value: html } }).readingMinutes).toBe(1);
     });
@@ -102,7 +121,9 @@ describe("the format", () => {
     });
 
     it("reads a TFG or TFM from its tag", () => {
-        expect(formatOf(category("derecho-civil"), tag("trabajos-de-fin-de-grado"))).toBe("tfg-tfm");
+        expect(formatOf(category("derecho-civil"), tag("trabajos-de-fin-de-grado"))).toBe(
+            "tfg-tfm",
+        );
     });
 
     it("reads a case comment from any jurisprudencia- tag", () => {
@@ -118,7 +139,13 @@ describe("the format", () => {
     });
 
     it("ranks a TFG above an essay, and an essay above a case comment", () => {
-        expect(formatOf(category("ensayos"), tag("trabajos-de-fin-de-grado"), tag("jurisprudencia-tc"))).toBe("tfg-tfm");
+        expect(
+            formatOf(
+                category("ensayos"),
+                tag("trabajos-de-fin-de-grado"),
+                tag("jurisprudencia-tc"),
+            ),
+        ).toBe("tfg-tfm");
         expect(formatOf(category("ensayos"), tag("jurisprudencia-tc"))).toBe("ensayo");
     });
 });

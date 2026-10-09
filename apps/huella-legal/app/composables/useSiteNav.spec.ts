@@ -4,7 +4,8 @@ import { defineComponent } from "vue";
 import { useRouter, type RouteLocationRaw } from "vue-router";
 import { useSiteNav } from "./useSiteNav";
 
-const translate = (key: string, params?: Record<string, unknown>) => params ? `t(${key}, ${JSON.stringify(params)})` : `t(${key})`;
+const translate = (key: string, params?: Record<string, unknown>) =>
+    params ? `t(${key}, ${JSON.stringify(params)})` : `t(${key})`;
 
 const social = vi.hoisted(() => ({ profiles: {} as Record<string, string> }));
 
@@ -19,14 +20,17 @@ async function navAt(route: string) {
     let nav!: ReturnType<typeof useSiteNav>;
     let href!: (to: RouteLocationRaw) => string;
 
-    await mountSuspended(defineComponent({
-        setup() {
-            nav = useSiteNav();
-            const router = useRouter();
-            href = (to) => router.resolve(to).href;
-            return () => null;
-        },
-    }), { route });
+    await mountSuspended(
+        defineComponent({
+            setup() {
+                nav = useSiteNav();
+                const router = useRouter();
+                href = (to) => router.resolve(to).href;
+                return () => null;
+            },
+        }),
+        { route },
+    );
 
     return Object.assign(nav, { href });
 }
@@ -67,10 +71,20 @@ describe("useSiteNav", () => {
     it("sends every footer link to a route the URL decision settled, never to a placeholder", async () => {
         const nav = await navAt("/");
 
-        expect(nav.columns.value.flatMap(({ children }) => children?.map(({ to }) => nav.href(to!)))).toEqual([
-            "/publicaciones/", "/materias/", "/colaboradores/", "/sobre/",
-            "/publicar/", "/publicar/#tesis", "/#newsletter", "/contacto/",
-            "/aviso-legal/", "/aviso-legal/#privacidad", "/aviso-legal/#cookies",
+        expect(
+            nav.columns.value.flatMap(({ children }) => children?.map(({ to }) => nav.href(to!))),
+        ).toEqual([
+            "/publicaciones/",
+            "/materias/",
+            "/colaboradores/",
+            "/sobre/",
+            "/publicar/",
+            "/publicar/#tesis",
+            "/#newsletter",
+            "/contacto/",
+            "/aviso-legal/",
+            "/aviso-legal/#privacidad",
+            "/aviso-legal/#cookies",
         ]);
     });
 
@@ -87,13 +101,23 @@ describe("useSiteNav", () => {
     });
 
     it("links only the profiles that are set, each warning that it opens a new tab", async () => {
-        social.profiles = { instagram: "https://instagram.test/huella", linkedin: "", x: "https://x.test/huella" };
+        social.profiles = {
+            instagram: "https://instagram.test/huella",
+            linkedin: "",
+            x: "https://x.test/huella",
+        };
 
         const nav = await navAt("/");
 
         expect(nav.social.value.map(({ to, label }) => [to, label])).toEqual([
-            ["https://instagram.test/huella", "t(app.footer.social.external, {\"network\":\"t(app.footer.social.instagram)\"})"],
-            ["https://x.test/huella", "t(app.footer.social.external, {\"network\":\"t(app.footer.social.x)\"})"],
+            [
+                "https://instagram.test/huella",
+                't(app.footer.social.external, {"network":"t(app.footer.social.instagram)"})',
+            ],
+            [
+                "https://x.test/huella",
+                't(app.footer.social.external, {"network":"t(app.footer.social.x)"})',
+            ],
         ]);
     });
 });

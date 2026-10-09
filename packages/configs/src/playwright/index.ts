@@ -1,18 +1,23 @@
 import type { PlaywrightTestConfig } from "@playwright/test";
 
 export interface PlaywrightOptions {
-    port: number
+    port: number;
     /** Starts the built app; it reads `PORT` and gets `env` on top of the runner's own. */
-    command: string
-    env?: Record<string, string>
-    widths?: number[]
+    command: string;
+    env?: Record<string, string>;
+    widths?: number[];
 }
 
 /**
  * Chromium at each width, specs in `e2e/`, and screenshot baselines that only CI writes.
  * Returns a plain object, so the runner's own copy of `@playwright/test` is the only one loaded.
  */
-export function createConfig({ port, command, env = {}, widths = [390, 768, 1280] }: PlaywrightOptions): PlaywrightTestConfig {
+export function createConfig({
+    port,
+    command,
+    env = {},
+    widths = [390, 768, 1280],
+}: PlaywrightOptions): PlaywrightTestConfig {
     const baseURL = `http://localhost:${port}`;
 
     return {

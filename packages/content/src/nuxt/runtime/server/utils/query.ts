@@ -37,7 +37,11 @@ export function toSlug(slug: string): string {
 }
 
 // Out of range is rejected, not clamped
-function toBoundedInteger(value: number | undefined, param: string, max: number): number | undefined {
+function toBoundedInteger(
+    value: number | undefined,
+    param: string,
+    max: number,
+): number | undefined {
     if (value === undefined) return undefined;
 
     if (!Number.isInteger(value) || value < 1 || value > max) {
@@ -53,7 +57,9 @@ function toSearch(value: string | undefined): string | undefined {
     const search = toText(value);
 
     if (search !== undefined && search.length > MAX_SEARCH_LENGTH) {
-        throw createError(new MalformedQueryError("search", `at most ${MAX_SEARCH_LENGTH} characters`));
+        throw createError(
+            new MalformedQueryError("search", `at most ${MAX_SEARCH_LENGTH} characters`),
+        );
     }
 
     return search;

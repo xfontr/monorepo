@@ -3,22 +3,26 @@ import type { ArticleSummary } from "../../shared/types/ArticleSummary";
 import type { Citation } from "../../shared/types/Citation";
 
 export interface Journal {
-    name: string
-    issn: string
+    name: string;
+    issn: string;
 }
 
 interface Source {
-    authors: string[]
-    title: string
-    date?: Date
-    journal: Journal
-    permalink: string
+    authors: string[];
+    title: string;
+    date?: Date;
+    journal: Journal;
+    permalink: string;
 }
 
 const DATE = new Intl.DateTimeFormat(JOURNAL_LOCALE, LONG_DATE);
 const LIST = new Intl.ListFormat(JOURNAL_LOCALE, { type: "conjunction" });
 
-export function toCitations({ authors, title, publishedAt }: ArticleSummary, journal: Journal, permalink: string): Citation[] {
+export function toCitations(
+    { authors, title, publishedAt }: ArticleSummary,
+    journal: Journal,
+    permalink: string,
+): Citation[] {
     const source: Source = {
         authors: authors.map(({ name }) => invertName(name)),
         title,
@@ -44,7 +48,9 @@ function journalStyle({ authors, title, date, journal, permalink }: Source): str
 }
 
 function apaDate(date: Date): string {
-    const { year, day, month } = Object.fromEntries(DATE.formatToParts(date).map(({ type, value }) => [type, value]));
+    const { year, day, month } = Object.fromEntries(
+        DATE.formatToParts(date).map(({ type, value }) => [type, value]),
+    );
 
     return `${year}, ${day} de ${month}`;
 }

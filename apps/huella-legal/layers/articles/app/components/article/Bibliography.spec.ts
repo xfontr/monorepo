@@ -11,7 +11,10 @@ const ENTRIES = [
 
 describe("article bibliography", () => {
     it("renders each reference's HTML in order, keeping its italics", async () => {
-        const wrapper = await mountSuspended(ArticleBibliography, { props: { entries: ENTRIES }, global });
+        const wrapper = await mountSuspended(ArticleBibliography, {
+            props: { entries: ENTRIES },
+            global,
+        });
 
         const items = wrapper.findAll("li");
 
@@ -21,22 +24,33 @@ describe("article bibliography", () => {
     });
 
     it("keeps two identical references, since a text can repeat one", async () => {
-        const wrapper = await mountSuspended(ArticleBibliography, { props: { entries: [ENTRIES[0]!, ENTRIES[0]!] }, global });
+        const wrapper = await mountSuspended(ArticleBibliography, {
+            props: { entries: [ENTRIES[0]!, ENTRIES[0]!] },
+            global,
+        });
 
         expect(wrapper.findAll("li")).toHaveLength(2);
     });
 
     it("labels the section with its own heading", async () => {
-        const wrapper = await mountSuspended(ArticleBibliography, { props: { entries: ENTRIES }, global });
+        const wrapper = await mountSuspended(ArticleBibliography, {
+            props: { entries: ENTRIES },
+            global,
+        });
 
         const heading = wrapper.find("h2");
 
         expect(heading.text()).toBe("t(articleBibliography.title)");
-        expect(wrapper.find("section").attributes("aria-labelledby")).toBe(heading.attributes("id"));
+        expect(wrapper.find("section").attributes("aria-labelledby")).toBe(
+            heading.attributes("id"),
+        );
     });
 
     it("renders nothing for a text with no bibliography", async () => {
-        const wrapper = await mountSuspended(ArticleBibliography, { props: { entries: [] }, global });
+        const wrapper = await mountSuspended(ArticleBibliography, {
+            props: { entries: [] },
+            global,
+        });
 
         expect(wrapper.find("section").exists()).toBe(false);
     });

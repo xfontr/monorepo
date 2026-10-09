@@ -2,9 +2,9 @@
 import type { RouteLocationRaw } from "vue-router";
 
 interface Props {
-    author: Author
-    to: RouteLocationRaw
-    count?: number
+    author: Author;
+    to: RouteLocationRaw;
+    count?: number;
 }
 
 const props = defineProps<Props>();
@@ -29,23 +29,21 @@ const authorInitials = computed<string>(() => initials(props.author.name));
             <p class="text-kicker">
                 {{ $t("authorCard.kicker") }}
             </p>
-            <h2
-                :id
-                class="mt-1 font-serif text-h3 text-highlighted"
-            >
+            <h2 :id class="mt-1 font-serif text-h3 text-highlighted">
                 {{ author.name }}
             </h2>
         </div>
         <div class="col-span-2 md:col-span-1 md:col-start-2">
-            <p
-                v-if="author.bio"
-                class="font-serif text-base leading-relaxed text-toned"
-            >
+            <p v-if="author.bio" class="font-serif text-base leading-relaxed text-toned">
                 {{ author.bio }}
             </p>
             <UButton
                 variant="link"
-                :label="count === undefined ? $t('authorCard.profile') : $t('authorCard.profileCount', { count }, count)"
+                :label="
+                    count === undefined
+                        ? $t('authorCard.profile')
+                        : $t('authorCard.profileCount', { count }, count)
+                "
                 trailing-icon="i-lucide-arrow-right"
                 :to
                 class="mt-2 -ml-3 print:hidden"

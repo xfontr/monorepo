@@ -9,8 +9,7 @@ const filesUnder = (directory: string, root: string, found: string[] = []): stri
 
         if (entry.isDirectory()) {
             filesUnder(path, root, found);
-        }
-        else if (entry.isFile()) {
+        } else if (entry.isFile()) {
             found.push(relative(root, path).replaceAll("\\", "/"));
         }
     }
@@ -33,8 +32,7 @@ export const readPackages = (): PackageSource[] =>
 
         try {
             manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as unknown;
-        }
-        catch (error) {
+        } catch (error) {
             readError = error instanceof Error ? error.message : String(error);
         }
 

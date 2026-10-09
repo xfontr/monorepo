@@ -5,13 +5,37 @@ import Page from "./scorecards.vue";
 const state = vi.hoisted(() => ({ snapshot: { value: null as unknown } }));
 mockNuxtImport("useSnapshot", () => () => ({ data: state.snapshot }));
 
-const global = { stubs: {
-    UDashboardPanel: { template: "<section><slot name='header' /><slot name='body' /></section>" }, UDashboardNavbar: { template: "<header><slot name='right' /></header>" }, UDashboardSidebarCollapse: true, SnapshotAge: true,
-    StatTile: { props: { label: String, value: [String, Number], hint: String }, template: "<div class='tile'>{{ label }} {{ value }} {{ hint }}</div>" }, UCard: { template: "<article><slot name='header' /><slot /></article>" },
-    UAlert: { props: { title: String, description: String }, template: "<div>{{ title }} {{ description }}</div>" }, UButton: { props: { to: String }, template: "<a :href='to'>rubric</a>" }, NuxtLink: { props: { to: String }, template: "<a :href='to'><slot /></a>" },
-} };
+const global = {
+    stubs: {
+        UDashboardPanel: {
+            template: "<section><slot name='header' /><slot name='body' /></section>",
+        },
+        UDashboardNavbar: { template: "<header><slot name='right' /></header>" },
+        UDashboardSidebarCollapse: true,
+        SnapshotAge: true,
+        StatTile: {
+            props: { label: String, value: [String, Number], hint: String },
+            template: "<div class='tile'>{{ label }} {{ value }} {{ hint }}</div>",
+        },
+        UCard: { template: "<article><slot name='header' /><slot /></article>" },
+        UAlert: {
+            props: { title: String, description: String },
+            template: "<div>{{ title }} {{ description }}</div>",
+        },
+        UButton: { props: { to: String }, template: "<a :href='to'>rubric</a>" },
+        NuxtLink: { props: { to: String }, template: "<a :href='to'><slot /></a>" },
+    },
+};
 
-const review = (date: string, total: number, parseError: string | null = null) => ({ path: `docs/reviews/${date}-abc.md`, date, commit: "abc", total, totalDelta: "—", parseError, cards: [{ card: "Architecture", score: 2, delta: "", verdict: "weak" }] });
+const review = (date: string, total: number, parseError: string | null = null) => ({
+    path: `docs/reviews/${date}-abc.md`,
+    date,
+    commit: "abc",
+    total,
+    totalDelta: "—",
+    parseError,
+    cards: [{ card: "Architecture", score: 2, delta: "", verdict: "weak" }],
+});
 beforeEach(() => {
     state.snapshot.value = null;
 });
@@ -24,7 +48,10 @@ describe("scorecards page", () => {
     });
 
     it("uses the latest review for totals, weakest card and review metadata", async () => {
-        state.snapshot.value = { scorecards: { reviews: [review("2026-09-20", 3), review("2026-09-19", 4)] }, manifest: {} };
+        state.snapshot.value = {
+            scorecards: { reviews: [review("2026-09-20", 3), review("2026-09-19", 4)] },
+            manifest: {},
+        };
         const wrapper = await mountSuspended(Page, { global });
         expect(wrapper.text()).toContain("3/5");
         expect(wrapper.text()).toContain("2026-09-20");
@@ -35,9 +62,15 @@ describe("scorecards page", () => {
 
     // The collector keys a review by its repo path, so a link built from it verbatim ends in `.md` and opens "No such review".
     it("links each review to its route rather than to its markdown filename", async () => {
-        state.snapshot.value = { scorecards: { reviews: [review("2026-09-20", 3), review("2026-09-19", 4)] }, manifest: {} };
+        state.snapshot.value = {
+            scorecards: { reviews: [review("2026-09-20", 3), review("2026-09-19", 4)] },
+            manifest: {},
+        };
         const wrapper = await mountSuspended(Page, { global });
-        const reviewLinks = wrapper.findAll("a").map((link) => link.attributes("href")).filter((href) => href?.startsWith("/reviews/"));
+        const reviewLinks = wrapper
+            .findAll("a")
+            .map((link) => link.attributes("href"))
+            .filter((href) => href?.startsWith("/reviews/"));
 
         expect(reviewLinks).toContain("/reviews/2026-09-20-abc");
         expect(reviewLinks).toContain("/reviews/2026-09-19-abc");
@@ -45,10 +78,15 @@ describe("scorecards page", () => {
     });
 
     it("shows parse errors, preserves newest-first history, and leaves weakest absent for empty cards", async () => {
-        state.snapshot.value = { scorecards: { reviews: [
-            { ...review("2026-09-20", 0, "bad table"), cards: [] },
-            review("2026-09-19", 4),
-        ] }, manifest: {} };
+        state.snapshot.value = {
+            scorecards: {
+                reviews: [
+                    { ...review("2026-09-20", 0, "bad table"), cards: [] },
+                    review("2026-09-19", 4),
+                ],
+            },
+            manifest: {},
+        };
         const wrapper = await mountSuspended(Page, { global });
         expect(wrapper.text()).toContain("bad table");
         expect(wrapper.text()).toContain("Weakest card —");

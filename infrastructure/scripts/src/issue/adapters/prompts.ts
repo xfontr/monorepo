@@ -6,15 +6,19 @@ const NONE = "";
 export const NONE_OPTION = { value: NONE, label: "— none —" };
 
 /** An empty project list often means the GitHub token lacks the `project` scope. */
-export const PROJECT_SCOPE_HINT
-    = "No open projects. If you expected some, the `project` scope is missing: gh auth refresh -s project";
+export const PROJECT_SCOPE_HINT =
+    "No open projects. If you expected some, the `project` scope is missing: gh auth refresh -s project";
 
 /** `listIssues` reads `projectItems`, which needs the same scope as the project list itself. */
-export const ISSUE_SCOPE_HINT
-    = "Couldn't read issues — the `project` scope is likely missing: gh auth refresh -s project";
+export const ISSUE_SCOPE_HINT =
+    "Couldn't read issues — the `project` scope is likely missing: gh auth refresh -s project";
 
-export const projectOptions = (projects: Project[]): { value: string, label: string }[] =>
+export const projectOptions = (projects: Project[]): { value: string; label: string }[] =>
     projects.map(({ title }) => ({ value: title, label: title }));
 
-export const labelOptions = (labels: Label[]): { value: string, label: string, hint?: string }[] =>
-    labels.map(({ name, description }) => ({ value: name, label: name, hint: description || undefined }));
+export const labelOptions = (labels: Label[]): { value: string; label: string; hint?: string }[] =>
+    labels.map(({ name, description }) => ({
+        value: name,
+        label: name,
+        hint: description || undefined,
+    }));

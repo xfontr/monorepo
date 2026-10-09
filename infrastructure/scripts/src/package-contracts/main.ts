@@ -10,13 +10,13 @@ export const main = (): void => {
     for (const report of reports) {
         if (report.errors.length === 0) {
             out.success(`Checked ${report.packageName} — package metadata and exports are valid.`);
-        }
-        else {
+        } else {
             out.error(`Checked ${report.packageName} — ${report.errors.length} contract error(s).`);
             for (const error of report.errors) out.error(`  ${error}`);
         }
 
-        for (const skipped of report.skipped) out.info(`⏭ Skipped ${report.packageName}: ${skipped}.`);
+        for (const skipped of report.skipped)
+            out.info(`⏭ Skipped ${report.packageName}: ${skipped}.`);
     }
 
     if (errors.length > 0) {

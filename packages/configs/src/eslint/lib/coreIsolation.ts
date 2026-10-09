@@ -11,14 +11,18 @@ const RESTRICTED_IN_CORE = [
 const coreIsolation: object = {
     files: ["**/src/core/**/*.ts"],
     rules: {
-        "no-restricted-imports": ["error", {
-            patterns: [
-                {
-                    group: RESTRICTED_IN_CORE,
-                    message: "src/core/ must not import the Nuxt or Nitro runtime — it is the half a non-Nuxt consumer imports. Put the transport-aware code in src/nuxt/ and hand core what it needs through a port.",
-                },
-            ],
-        }],
+        "no-restricted-imports": [
+            "error",
+            {
+                patterns: [
+                    {
+                        group: RESTRICTED_IN_CORE,
+                        message:
+                            "src/core/ must not import the Nuxt or Nitro runtime — it is the half a non-Nuxt consumer imports. Put the transport-aware code in src/nuxt/ and hand core what it needs through a port.",
+                    },
+                ],
+            },
+        ],
     },
 };
 

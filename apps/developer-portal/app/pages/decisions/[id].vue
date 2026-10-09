@@ -20,13 +20,22 @@ const report = computed(() => reports.value.find((candidate) => candidate.id ===
 const supersession = computed(() => {
     const by = report.value?.decision === "superseded" ? report.value.supersededBy : null;
 
-    return by ? { label: decisionOutcomeLabel("superseded"), to: `/decisions/${by.replace(/\.md$/, "")}`, hint: `Superseded by ${by}` } : null;
+    return by
+        ? {
+              label: decisionOutcomeLabel("superseded"),
+              to: `/decisions/${by.replace(/\.md$/, "")}`,
+              hint: `Superseded by ${by}`,
+          }
+        : null;
 });
 
-const statusPill = computed(() => report.value?.status && {
-    label: decisionStatusLabel(report.value.status),
-    tone: decisionStatusTone(report.value.status),
-});
+const statusPill = computed(
+    () =>
+        report.value?.status && {
+            label: decisionStatusLabel(report.value.status),
+            tone: decisionStatusTone(report.value.status),
+        },
+);
 
 const updated = computed(() => relativeTime(report.value?.updatedAt));
 const source = computed(() => report.value?.path ?? `${path.value.slice(1)}.md`);
@@ -41,7 +50,10 @@ const around = computed(() => {
     const ordered = sortDecisions(reports.value, "oldest");
     const index = ordered.findIndex((candidate) => candidate.id === id.value);
 
-    return { previous: index > 0 ? ordered[index - 1] : null, next: index === -1 ? null : ordered[index + 1] ?? null };
+    return {
+        previous: index > 0 ? ordered[index - 1] : null,
+        next: index === -1 ? null : (ordered[index + 1] ?? null),
+    };
 });
 </script>
 
@@ -65,10 +77,9 @@ const around = computed(() => {
                         :label="statusPill.label"
                         :tone="statusPill.tone"
                     />
-                    <span
-                        v-if="report"
-                        class="text-xs text-muted"
-                    >{{ report.words }} words · updated {{ updated }}</span>
+                    <span v-if="report" class="text-xs text-muted"
+                        >{{ report.words }} words · updated {{ updated }}</span
+                    >
                     <code class="text-xs text-dimmed font-mono">{{ source }}</code>
                 </template>
             </UDashboardNavbar>
@@ -101,14 +112,9 @@ const around = computed(() => {
                                 :to="`/decisions/${around.previous.id}`"
                                 class="flex items-center gap-2 rounded-lg border border-default p-3 hover:bg-elevated/40 transition-colors"
                             >
-                                <UIcon
-                                    name="i-lucide-arrow-left"
-                                    class="size-4 text-dimmed"
-                                />
+                                <UIcon name="i-lucide-arrow-left" class="size-4 text-dimmed" />
                                 <div class="min-w-0">
-                                    <div class="text-[11px] text-dimmed">
-                                        Decided before
-                                    </div>
+                                    <div class="text-[11px] text-dimmed">Decided before</div>
                                     <div class="text-sm truncate">
                                         {{ around.previous.title }}
                                     </div>
@@ -121,17 +127,12 @@ const around = computed(() => {
                                 class="flex items-center justify-end gap-2 rounded-lg border border-default p-3 hover:bg-elevated/40 transition-colors sm:col-start-2"
                             >
                                 <div class="min-w-0 text-right">
-                                    <div class="text-[11px] text-dimmed">
-                                        Decided after
-                                    </div>
+                                    <div class="text-[11px] text-dimmed">Decided after</div>
                                     <div class="text-sm truncate">
                                         {{ around.next.title }}
                                     </div>
                                 </div>
-                                <UIcon
-                                    name="i-lucide-arrow-right"
-                                    class="size-4 text-dimmed"
-                                />
+                                <UIcon name="i-lucide-arrow-right" class="size-4 text-dimmed" />
                             </NuxtLink>
                         </div>
                     </template>
@@ -141,11 +142,7 @@ const around = computed(() => {
                     v-if="page?.body?.toc?.links?.length"
                     class="hidden xl:block w-56 shrink-0 sticky top-0"
                 >
-                    <UContentToc
-                        :links="page.body.toc.links"
-                        highlight
-                        class="bg-transparent"
-                    />
+                    <UContentToc :links="page.body.toc.links" highlight class="bg-transparent" />
                 </aside>
             </div>
         </template>

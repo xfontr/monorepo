@@ -17,10 +17,13 @@ const { data: page } = await useAsyncData(
 
 const report = computed(() => reports.value.find((candidate) => candidate.id === id.value) ?? null);
 
-const state = computed(() => report.value && {
-    label: auditStateLabel(report.value.state),
-    tone: auditStateTone(report.value.state),
-});
+const state = computed(
+    () =>
+        report.value && {
+            label: auditStateLabel(report.value.state),
+            tone: auditStateTone(report.value.state),
+        },
+);
 
 const source = computed(() => report.value?.path ?? `${path.value.slice(1)}.md`);
 
@@ -38,15 +41,10 @@ const crumbs = computed<BreadcrumbItem[]>(() => [
                     <UDashboardSidebarCollapse />
                 </template>
                 <template #right>
-                    <StatusPill
-                        v-if="state"
-                        :label="state.label"
-                        :tone="state.tone"
-                    />
-                    <span
-                        v-if="report?.commit"
-                        class="text-xs text-muted"
-                    >read at <code class="font-mono">{{ report.commit }}</code></span>
+                    <StatusPill v-if="state" :label="state.label" :tone="state.tone" />
+                    <span v-if="report?.commit" class="text-xs text-muted"
+                        >read at <code class="font-mono">{{ report.commit }}</code></span
+                    >
                     <code class="text-xs text-dimmed font-mono">{{ source }}</code>
                 </template>
             </UDashboardNavbar>
@@ -67,10 +65,7 @@ const crumbs = computed<BreadcrumbItem[]>(() => [
                     />
 
                     <template v-else>
-                        <div
-                            v-if="report"
-                            class="grid grid-cols-3 gap-3"
-                        >
+                        <div v-if="report" class="grid grid-cols-3 gap-3">
                             <StatTile
                                 v-for="status in FINDING_STATUSES"
                                 :key="status"
@@ -90,11 +85,7 @@ const crumbs = computed<BreadcrumbItem[]>(() => [
                     v-if="page?.body?.toc?.links?.length"
                     class="hidden xl:block w-56 shrink-0 sticky top-0"
                 >
-                    <UContentToc
-                        :links="page.body.toc.links"
-                        highlight
-                        class="bg-transparent"
-                    />
+                    <UContentToc :links="page.body.toc.links" highlight class="bg-transparent" />
                 </aside>
             </div>
         </template>

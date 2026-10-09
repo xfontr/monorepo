@@ -19,7 +19,11 @@ describe("the domain factories", () => {
     it("let every override win over what they generate", () => {
         const term = fakeTerm({ resource: "tags", slug: "dogmatica" });
 
-        expect(fakeEntry({ title: "Fijado", terms: [term], authors: [] })).toMatchObject({ title: "Fijado", terms: [term], authors: [] });
+        expect(fakeEntry({ title: "Fijado", terms: [term], authors: [] })).toMatchObject({
+            title: "Fijado",
+            terms: [term],
+            authors: [],
+        });
     });
 
     it("slug invented Spanish names the way WordPress would, with no accents or spaces", () => {

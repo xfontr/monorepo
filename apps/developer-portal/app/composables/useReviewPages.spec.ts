@@ -5,7 +5,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useReviewPages } from "./useReviewPages.ts";
 
 const query = vi.hoisted(() => vi.fn());
-const queryChain = vi.hoisted(() => ({ where: vi.fn(), select: vi.fn(), order: vi.fn(), all: vi.fn() }));
+const queryChain = vi.hoisted(() => ({
+    where: vi.fn(),
+    select: vi.fn(),
+    order: vi.fn(),
+    all: vi.fn(),
+}));
 mockNuxtImport("queryCollection", () => query);
 const Harness = defineComponent({
     setup: () => {

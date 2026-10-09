@@ -2,8 +2,8 @@
 type Variant = "standard" | "compact" | "row";
 
 interface Props {
-    articles: ArticleSummary[]
-    variant?: Variant
+    articles: ArticleSummary[];
+    variant?: Variant;
 }
 
 withDefaults(defineProps<Props>(), { variant: "row" });
@@ -17,15 +17,8 @@ const SPACING = {
 
 <template>
     <ol class="flex flex-col divide-y divide-(--ui-border-muted)">
-        <li
-            v-for="article in articles"
-            :key="article.id"
-            :class="SPACING[variant]"
-        >
-            <SummaryCard
-                :article
-                :variant
-            />
+        <li v-for="article in articles" :key="article.id" :class="SPACING[variant]">
+            <SummaryCard :article :variant />
         </li>
     </ol>
 </template>

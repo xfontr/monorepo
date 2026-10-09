@@ -50,7 +50,9 @@ describe("contentKey", () => {
         });
 
         it("ignores an axis nobody asked for, so an explicit undefined cannot split the cache", () => {
-            expect(contentKey(vendor, "posts", { page: 2, search: undefined })).toBe(contentKey(vendor, "posts", { page: 2 }));
+            expect(contentKey(vendor, "posts", { page: 2, search: undefined })).toBe(
+                contentKey(vendor, "posts", { page: 2 }),
+            );
         });
 
         it.each([
@@ -58,26 +60,40 @@ describe("contentKey", () => {
             ["perPage", { perPage: 10 }, { perPage: 20 }],
             ["slug", { slug: "a" }, { slug: "b" }],
             ["search", { search: "a" }, { search: "b" }],
-        ])("separates entries by %s, so changing it cannot serve the previous one's page", (_, left, right) => {
-            expect(contentKey(vendor, "posts", left)).not.toBe(contentKey(vendor, "posts", right));
-        });
+        ])(
+            "separates entries by %s, so changing it cannot serve the previous one's page",
+            (_, left, right) => {
+                expect(contentKey(vendor, "posts", left)).not.toBe(
+                    contentKey(vendor, "posts", right),
+                );
+            },
+        );
 
         it("flattens a term filter into one axis", () => {
             const key = contentKey(vendor, "posts", { term: { resource: "categories", id: "12" } });
 
-            expect(key).not.toBe(contentKey(vendor, "posts", { term: { resource: "tags", id: "12" } }));
-            expect(key).not.toBe(contentKey(vendor, "posts", { term: { resource: "categories", id: "13" } }));
+            expect(key).not.toBe(
+                contentKey(vendor, "posts", { term: { resource: "tags", id: "12" } }),
+            );
+            expect(key).not.toBe(
+                contentKey(vendor, "posts", { term: { resource: "categories", id: "13" } }),
+            );
         });
 
         // Compared after Nitro's strip, not before: a key that only separates its axes with
         // characters the strip deletes reads as canonical here and collides in storage
         it.each([
-            ["one axis spelled into another axis's value", { search: "b", slug: "a" }, { search: "bsluga" }],
+            [
+                "one axis spelled into another axis's value",
+                { search: "b", slug: "a" },
+                { search: "bsluga" },
+            ],
             ["a percent escape", { search: "100% of it" }, { search: "1002520of20it" }],
             ["a separator", { slug: "a", search: "b" }, { slug: "a,search=b" }],
         ])("cannot be made to collide with a different query by %s", (_, honest, crafted) => {
-            expect(escapeKey(contentKey(vendor, "posts", crafted)))
-                .not.toBe(escapeKey(contentKey(vendor, "posts", honest)));
+            expect(escapeKey(contentKey(vendor, "posts", crafted))).not.toBe(
+                escapeKey(contentKey(vendor, "posts", honest)),
+            );
         });
 
         it("keys an unqueried resource, so a list with no query still gets one entry of its own", () => {

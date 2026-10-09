@@ -6,9 +6,15 @@ import { run } from "../lib/run.ts";
 
 interface RawGraph {
     graph: {
-        nodes: Record<string, { name: string, data: { root: string, tags?: string[], targets?: Record<string, unknown> } }>
-        dependencies: Record<string, { source: string, target: string, type: string }[]>
-    }
+        nodes: Record<
+            string,
+            {
+                name: string;
+                data: { root: string; tags?: string[]; targets?: Record<string, unknown> };
+            }
+        >;
+        dependencies: Record<string, { source: string; target: string; type: string }[]>;
+    };
 }
 
 /** Nx auto-adds `npm:private`; the tag table only ever talks about `type:` and `scope:`. */
@@ -28,8 +34,14 @@ export function normalizeGraph(raw: RawGraph, generatedAt: string): ProjectsArti
             tags: (node.data.tags ?? []).filter(isDeclaredTag),
             // Derived from the forward edges rather than read from a second field, so a project
             // with no dependencies still appears with two empty lists instead of being dropped.
-            dependsOn: edges.filter((edge) => edge.source === node.name).map((edge) => edge.target).sort(),
-            dependedOnBy: edges.filter((edge) => edge.target === node.name).map((edge) => edge.source).sort(),
+            dependsOn: edges
+                .filter((edge) => edge.source === node.name)
+                .map((edge) => edge.target)
+                .sort(),
+            dependedOnBy: edges
+                .filter((edge) => edge.target === node.name)
+                .map((edge) => edge.source)
+                .sort(),
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
 

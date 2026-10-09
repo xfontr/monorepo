@@ -4,7 +4,7 @@ import ProseA from "./ProseA.vue";
 
 const NuxtLinkStub = {
     props: { to: String, target: String },
-    template: "<a :href=\"to\" :target=\"target\"><slot /></a>",
+    template: '<a :href="to" :target="target"><slot /></a>',
 };
 
 describe("ProseA", () => {
@@ -42,6 +42,9 @@ describe("ProseA", () => {
             global: { stubs: { NuxtLink: NuxtLinkStub } },
         });
 
-        expect(wrapper.find("a").attributes()).toMatchObject({ href: "/docs/readme", target: "_blank" });
+        expect(wrapper.find("a").attributes()).toMatchObject({
+            href: "/docs/readme",
+            target: "_blank",
+        });
     });
 });

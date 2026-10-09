@@ -43,7 +43,8 @@ export function resolveDocLink(
     fromPath: string,
     isPage: (repoPath: string) => boolean,
 ): string | null {
-    if (href === "" || ABSOLUTE.test(href) || href.startsWith("#") || isPlaceholder(href)) return null;
+    if (href === "" || ABSOLUTE.test(href) || href.startsWith("#") || isPlaceholder(href))
+        return null;
 
     const [target = "", ...fragment] = href.split("#");
     const anchor = fragment.length > 0 ? `#${fragment.join("#")}` : "";

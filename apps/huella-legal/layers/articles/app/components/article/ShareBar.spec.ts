@@ -38,7 +38,10 @@ function button(wrapper: VueWrapper, key: string) {
 
 beforeEach(() => {
     vi.clearAllMocks();
-    Object.defineProperty(navigator, "clipboard", { value: { write: browser.write }, configurable: true });
+    Object.defineProperty(navigator, "clipboard", {
+        value: { write: browser.write },
+        configurable: true,
+    });
     vi.stubGlobal("ClipboardItem", ClipboardItem);
     vi.stubGlobal("print", browser.print);
 });
@@ -80,7 +83,9 @@ describe("share bar", () => {
         await flushPromises();
 
         expect(browser.write).toHaveBeenCalled();
-        expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({ title: "shareBar.linkCopied" }));
+        expect(toast.add).toHaveBeenCalledWith(
+            expect.objectContaining({ title: "shareBar.linkCopied" }),
+        );
     });
 
     it("claims no copy when the share sheet fails and there is no clipboard to fall back on", async () => {
@@ -100,8 +105,12 @@ describe("share bar", () => {
         await button(wrapper, "share").trigger("click");
         await flushPromises();
 
-        expect(browser.write).toHaveBeenCalledWith([new ClipboardItem({ "text/plain": PROPS.url })]);
-        expect(toast.add).toHaveBeenCalledWith(expect.objectContaining({ title: "shareBar.linkCopied" }));
+        expect(browser.write).toHaveBeenCalledWith([
+            new ClipboardItem({ "text/plain": PROPS.url }),
+        ]);
+        expect(toast.add).toHaveBeenCalledWith(
+            expect.objectContaining({ title: "shareBar.linkCopied" }),
+        );
     });
 
     it("hides the share button where the browser can neither share nor copy", async () => {
@@ -121,7 +130,10 @@ describe("share bar", () => {
 
     it("links to the citation only when the page has one", async () => {
         const without = await mountSuspended(ArticleShareBar, { props: PROPS, global });
-        const withCite = await mountSuspended(ArticleShareBar, { props: { ...PROPS, citeTo: "#citar" }, global });
+        const withCite = await mountSuspended(ArticleShareBar, {
+            props: { ...PROPS, citeTo: "#citar" },
+            global,
+        });
 
         expect(without.find("a").exists()).toBe(false);
         expect(withCite.find("a").attributes("href")).toBe("#citar");

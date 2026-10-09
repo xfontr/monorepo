@@ -13,7 +13,10 @@ export function extractNotes(tree: Root): Note[] {
         if (node.type !== "element" || node.tagName !== "p") return true;
 
         const [marker] = node.children;
-        const id = marker?.type === "element" && marker.tagName === "a" && NOTE_BACKLINK.exec(String(marker.properties.href))?.[1];
+        const id =
+            marker?.type === "element" &&
+            marker.tagName === "a" &&
+            NOTE_BACKLINK.exec(String(marker.properties.href))?.[1];
 
         if (id) notes.push({ id, html: stringifyNodes(node.children.slice(1)) });
 

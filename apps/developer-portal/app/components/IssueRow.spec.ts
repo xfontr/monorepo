@@ -13,11 +13,16 @@ const NuxtStub = defineComponent({
     setup(props, { slots }) {
         const tag = props.to ? "a" : props.label ? "span" : "button";
 
-        return () => h(tag, {
-            "href": props.to,
-            "target": props.to ? "_blank" : undefined,
-            "aria-label": props.ariaLabel,
-        }, props.label ?? slots.default?.());
+        return () =>
+            h(
+                tag,
+                {
+                    href: props.to,
+                    target: props.to ? "_blank" : undefined,
+                    "aria-label": props.ariaLabel,
+                },
+                props.label ?? slots.default?.(),
+            );
     },
 });
 
@@ -32,10 +37,11 @@ const issue: Issue = {
     updatedAt: "2026-09-20T11:00:00.000Z",
 };
 
-const mount = (props: { issue: Issue, compact?: boolean }) => mountSuspended(IssueRow, {
-    props,
-    global: { stubs: { UIcon: true, UBadge: NuxtStub, UButton: NuxtStub } },
-});
+const mount = (props: { issue: Issue; compact?: boolean }) =>
+    mountSuspended(IssueRow, {
+        props,
+        global: { stubs: { UIcon: true, UBadge: NuxtStub, UButton: NuxtStub } },
+    });
 
 describe("IssueRow", () => {
     it("keeps the collapsed row short while retaining the issue identity and labels", async () => {
@@ -55,7 +61,10 @@ describe("IssueRow", () => {
 
         expect(wrapper.text()).toContain(issue.body);
         expect(wrapper.text()).toContain("ada");
-        expect(wrapper.findAll("a").map((link) => link.attributes("href"))).toEqual([issue.url, issue.url]);
+        expect(wrapper.findAll("a").map((link) => link.attributes("href"))).toEqual([
+            issue.url,
+            issue.url,
+        ]);
 
         await wrapper.get("button").trigger("click");
         expect(wrapper.text()).not.toContain("ada");

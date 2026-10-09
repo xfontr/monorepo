@@ -1,10 +1,24 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const gh = vi.hoisted(() => ({ createPr: vi.fn(), enableAutoMerge: vi.fn(), prUrlForBranch: vi.fn(), waitForMerge: vi.fn(), watchChecks: vi.fn() }));
-const git = vi.hoisted(() => ({ checkoutMaster: vi.fn(), currentBranch: vi.fn(), pullMaster: vi.fn(), push: vi.fn() }));
+const gh = vi.hoisted(() => ({
+    createPr: vi.fn(),
+    enableAutoMerge: vi.fn(),
+    prUrlForBranch: vi.fn(),
+    waitForMerge: vi.fn(),
+    watchChecks: vi.fn(),
+}));
+const git = vi.hoisted(() => ({
+    checkoutMaster: vi.fn(),
+    currentBranch: vi.fn(),
+    pullMaster: vi.fn(),
+    push: vi.fn(),
+}));
 const io = vi.hoisted(() => ({
     out: {
-        begin: vi.fn(), end: vi.fn(), info: vi.fn(), note: vi.fn(),
+        begin: vi.fn(),
+        end: vi.fn(),
+        info: vi.fn(),
+        note: vi.fn(),
         spinner: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
     },
 }));
@@ -57,7 +71,9 @@ describe("ship main", () => {
 
         expect(gh.createPr).toHaveBeenCalledOnce();
         expect(git.checkoutMaster).not.toHaveBeenCalled();
-        expect(io.out.end).toHaveBeenCalledWith("✅ pipelines green, merge queued — should land shortly.");
+        expect(io.out.end).toHaveBeenCalledWith(
+            "✅ pipelines green, merge queued — should land shortly.",
+        );
     });
 
     it("reports failed checks and sets exit code without synchronizing master", () => {

@@ -9,20 +9,28 @@ async function read(repoUrl: string): Promise<IssuesRead> {
     const fetchedAt = new Date().toISOString();
     const url = issuesApiUrl(repoUrl);
 
-    if (url === null) return { fetchedAt, error: "NUXT_PUBLIC_REPO_URL is unset, so there is no repo to read.", issues: [] };
+    if (url === null)
+        return {
+            fetchedAt,
+            error: "NUXT_PUBLIC_REPO_URL is unset, so there is no repo to read.",
+            issues: [],
+        };
 
     try {
-        const payload = await $fetch<GithubIssue[]>(url, { query: { state: "open", per_page: PER_PAGE } });
+        const payload = await $fetch<GithubIssue[]>(url, {
+            query: { state: "open", per_page: PER_PAGE },
+        });
 
         return { fetchedAt, error: null, issues: toIssues(payload) };
-    }
-    catch (cause) {
+    } catch (cause) {
         return { fetchedAt, error: messageOf(cause, "GitHub could not be read"), issues: [] };
     }
 }
 
 export function useIssues() {
-    const { public: { repoUrl } } = useRuntimeConfig();
+    const {
+        public: { repoUrl },
+    } = useRuntimeConfig();
 
     const state = useAsyncData<IssuesRead>("issues", () => read(repoUrl), {
         default: () => NO_ISSUES,

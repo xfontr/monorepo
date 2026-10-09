@@ -1,6 +1,14 @@
 import { access, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import type { AuditMeta, DecisionOutcome, DecisionStatus, DocKind, DocLink, DocPage, DocsArtifact } from "../../shared/types.ts";
+import type {
+    AuditMeta,
+    DecisionOutcome,
+    DecisionStatus,
+    DocKind,
+    DocLink,
+    DocPage,
+    DocsArtifact,
+} from "../../shared/types.ts";
 import { parseFindings } from "../../shared/audits.ts";
 import { DECISION_OUTCOMES, DECISION_STATUSES } from "../../shared/decisions.ts";
 import { frontmatterFields } from "../lib/decisions.ts";
@@ -26,11 +34,14 @@ export function hrefsIn(source: string): string[] {
         const marker = FENCE.exec(line)?.[1];
 
         if (fence === null && marker) fence = marker;
-        else if (fence !== null && marker?.startsWith(fence) && line.trim() === marker) fence = null;
+        else if (fence !== null && marker?.startsWith(fence) && line.trim() === marker)
+            fence = null;
         else if (fence === null) prose.push(line);
     }
 
-    return [...prose.join("\n").replace(CODE_SPAN, " ").matchAll(LINK)].map((match) => match.groups?.href ?? "");
+    return [...prose.join("\n").replace(CODE_SPAN, " ").matchAll(LINK)].map(
+        (match) => match.groups?.href ?? "",
+    );
 }
 
 const DECISION_PATH = /^docs\/decisions\/\d{4}-/;
@@ -50,8 +61,7 @@ async function exists(path: string): Promise<boolean> {
         await access(path);
 
         return true;
-    }
-    catch {
+    } catch {
         return false;
     }
 }
@@ -92,9 +102,9 @@ function kindOf(path: string): DocKind {
 }
 
 export interface DecisionMeta {
-    status: DecisionStatus | null
-    decision: DecisionOutcome | null
-    supersededBy: string | null
+    status: DecisionStatus | null;
+    decision: DecisionOutcome | null;
+    supersededBy: string | null;
 }
 
 const NO_DECISION_META: DecisionMeta = { status: null, decision: null, supersededBy: null };
@@ -112,13 +122,17 @@ export function decisionMetaOf(path: string, source: string): DecisionMeta {
 
     if (fields === null) return NO_DECISION_META;
 
-    const status = (DECISION_STATUSES as readonly string[]).includes(fields.status ?? "") ? (fields.status as DecisionStatus) : null;
-    const decision = (DECISION_OUTCOMES as readonly string[]).includes(fields.decision ?? "") ? (fields.decision as DecisionOutcome) : null;
+    const status = (DECISION_STATUSES as readonly string[]).includes(fields.status ?? "")
+        ? (fields.status as DecisionStatus)
+        : null;
+    const decision = (DECISION_OUTCOMES as readonly string[]).includes(fields.decision ?? "")
+        ? (fields.decision as DecisionOutcome)
+        : null;
 
     return {
         status,
         decision,
-        supersededBy: decision === "superseded" ? fields.supersededBy ?? null : null,
+        supersededBy: decision === "superseded" ? (fields.supersededBy ?? null) : null,
     };
 }
 
@@ -135,7 +149,9 @@ export function auditMetaOf(path: string, source: string): AuditMeta | null {
 }
 
 export async function collectDocs(generatedAt: string): Promise<DocsArtifact> {
-    const paths = (await git(["ls-files", "--cached", "--others", "--exclude-standard", "--", "*.md"]))
+    const paths = (
+        await git(["ls-files", "--cached", "--others", "--exclude-standard", "--", "*.md"])
+    )
         .split("\n")
         .filter(Boolean);
     const pages: DocPage[] = [];
@@ -143,7 +159,7 @@ export async function collectDocs(generatedAt: string): Promise<DocsArtifact> {
     for (const path of paths) {
         const absolute = resolve(WORKSPACE_ROOT, path);
 
-        if (!await exists(absolute)) continue;
+        if (!(await exists(absolute))) continue;
 
         const source = await readFile(absolute, "utf8");
 

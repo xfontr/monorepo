@@ -4,7 +4,7 @@ import { es } from "@nuxt/ui/locale";
 import { DESTINATIONS } from "~/composables/useSiteNav";
 
 interface Props {
-    error: NuxtError<{ message?: string }>
+    error: NuxtError<{ message?: string }>;
 }
 
 const { error } = defineProps<Props>();
@@ -14,25 +14,24 @@ const searchAction = useRouter().resolve({ name: "search" }).href;
 
 const isDev = import.meta.dev;
 
-useHead({
-    title: t("error.head", { status: error.status }),
-    meta: [
-        { name: "robots", content: "noindex" },
-    ],
-}, { tagPriority: "high" });
+useHead(
+    {
+        title: t("error.head", { status: error.status }),
+        meta: [{ name: "robots", content: "noindex" }],
+    },
+    { tagPriority: "high" },
+);
 </script>
 
 <template>
     <UApp :locale="es">
         <NuxtLayout>
             <UContainer class="py-12 md:py-20">
-                <section
-                    v-if="error.status === 404"
-                    data-error="not-found"
-                    class="lg:w-7/12"
-                >
+                <section v-if="error.status === 404" data-error="not-found" class="lg:w-7/12">
                     <BaseKicker>{{ $t("error.kicker", { status: error.status }) }}</BaseKicker>
-                    <h1 class="mt-2 font-serif text-h1 text-balance text-highlighted md:text-display">
+                    <h1
+                        class="mt-2 font-serif text-h1 text-balance text-highlighted md:text-display"
+                    >
                         {{ $t("error.notFound.title") }}
                     </h1>
                     <p class="mt-4 max-w-measure font-serif text-reading text-toned">
@@ -44,11 +43,7 @@ useHead({
                         role="search"
                         class="mt-8 flex max-w-lg flex-col gap-3 sm:flex-row sm:items-end"
                     >
-                        <UFormField
-                            :label="$t('error.search.label')"
-                            name="q"
-                            class="flex-1"
-                        >
+                        <UFormField :label="$t('error.search.label')" name="q" class="flex-1">
                             <UInput
                                 name="q"
                                 icon="i-lucide-search"
@@ -71,11 +66,7 @@ useHead({
                     />
                 </section>
 
-                <section
-                    v-else
-                    data-error="server"
-                    class="flex flex-col items-start gap-4"
-                >
+                <section v-else data-error="server" class="flex flex-col items-start gap-4">
                     <BaseKicker muted>
                         {{ $t("error.kicker", { status: error.status }) }}
                     </BaseKicker>
@@ -102,10 +93,7 @@ useHead({
                     </div>
                 </section>
 
-                <ErrorDebug
-                    v-if="isDev"
-                    :error
-                />
+                <ErrorDebug v-if="isDev" :error />
             </UContainer>
         </NuxtLayout>
     </UApp>

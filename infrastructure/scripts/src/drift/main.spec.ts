@@ -9,19 +9,31 @@ const io = vi.hoisted(() => ({
     out: { warn: vi.fn(), info: vi.fn(), begin: vi.fn(), end: vi.fn() },
 }));
 const git = vi.hoisted(() => ({
-    changedFiles: vi.fn(), diffNameStatus: vi.fn(), diffNumstat: vi.fn(), diffText: vi.fn(), lastMdCommitEpochSeconds: vi.fn(), mergeBase: vi.fn(),
+    changedFiles: vi.fn(),
+    diffNameStatus: vi.fn(),
+    diffNumstat: vi.fn(),
+    diffText: vi.fn(),
+    lastMdCommitEpochSeconds: vi.fn(),
+    mergeBase: vi.fn(),
 }));
-const detect = vi.hoisted(() => ({ displayName: vi.fn(), projectRootsFor: vi.fn(), recordFingerprint: vi.fn(), shouldWarn: vi.fn() }));
+const detect = vi.hoisted(() => ({
+    displayName: vi.fn(),
+    projectRootsFor: vi.fn(),
+    recordFingerprint: vi.fn(),
+    shouldWarn: vi.fn(),
+}));
 const size = vi.hoisted(() => ({ changeSize: vi.fn(), lastMdCommitMs: vi.fn() }));
 
 vi.mock("@clack/prompts", () => prompts);
 vi.mock("../shared/adapters/cache.ts", () => cache);
 vi.mock("../shared/adapters/gh.ts", () => gh);
 vi.mock("../shared/adapters/io.ts", () => io);
-vi.mock("../shared/adapters/prompts.ts", () => ({ orExit: (value: unknown, message: string) => {
-    if (typeof value === "symbol") throw new CancelledError(message);
-    return value;
-} }));
+vi.mock("../shared/adapters/prompts.ts", () => ({
+    orExit: (value: unknown, message: string) => {
+        if (typeof value === "symbol") throw new CancelledError(message);
+        return value;
+    },
+}));
 vi.mock("./adapters/git.ts", () => git);
 vi.mock("./domain/detect.ts", () => detect);
 vi.mock("./domain/size.ts", () => size);
@@ -40,7 +52,10 @@ beforeEach(() => {
     git.changedFiles.mockReturnValue(["packages/demo/src/index.ts"]);
     detect.projectRootsFor.mockReturnValue(["packages/demo"]);
     detect.displayName.mockReturnValue("Demo");
-    detect.recordFingerprint.mockImplementation((seen: Record<string, string>) => ({ seen: { ...seen, "packages/demo": "fingerprint" }, isNew: true }));
+    detect.recordFingerprint.mockImplementation((seen: Record<string, string>) => ({
+        seen: { ...seen, "packages/demo": "fingerprint" },
+        isNew: true,
+    }));
     git.diffText.mockReturnValue("diff");
     git.diffNumstat.mockReturnValue(["1\t1\tfile"]);
     git.diffNameStatus.mockReturnValue(["M\tfile"]);
@@ -72,7 +87,9 @@ describe("drift main", () => {
     it("records a new fingerprint when the change needs no warning", async () => {
         await main();
 
-        expect(cache.writeCache).toHaveBeenCalledWith("drift-fingerprints", { "packages/demo": "fingerprint" });
+        expect(cache.writeCache).toHaveBeenCalledWith("drift-fingerprints", {
+            "packages/demo": "fingerprint",
+        });
     });
 
     // Recording before the prompt made a cancelled or unattended warning permanent.
@@ -90,15 +107,23 @@ describe("drift main", () => {
     it("warns non-interactively without prompting and files an issue interactively when accepted", async () => {
         detect.shouldWarn.mockReturnValue(true);
         await main();
-        expect(io.out.warn).toHaveBeenCalledWith("packages/demo changed a lot and its docs might be stale.");
-        expect(io.out.info).toHaveBeenCalledWith("Run `pnpm docs:drift` to review and file an issue.");
+        expect(io.out.warn).toHaveBeenCalledWith(
+            "packages/demo changed a lot and its docs might be stale.",
+        );
+        expect(io.out.info).toHaveBeenCalledWith(
+            "Run `pnpm docs:drift` to review and file an issue.",
+        );
         expect(prompts.confirm).not.toHaveBeenCalled();
 
         io.isInteractive.mockReturnValue(true);
         prompts.confirm.mockResolvedValue(true);
         gh.createIssue.mockReturnValue("https://example.test/issues/1");
         await main();
-        expect(gh.createIssue).toHaveBeenCalledWith({ title: "Address documentation drift for Demo", body: "", project: "Monorepo" });
+        expect(gh.createIssue).toHaveBeenCalledWith({
+            title: "Address documentation drift for Demo",
+            body: "",
+            project: "Monorepo",
+        });
     });
 
     it("skips a rejected prompt and turns cancellation into the shared cancellation error", async () => {

@@ -22,5 +22,7 @@ export const WithTagline: Story = { args: { tagline: true } };
 
 export const Slate: Story = {
     args: { tone: "slate", tagline: true },
-    decorators: [() => ({ template: "<div class=\"inline-block bg-huella-slate-900 p-4\"><story /></div>" })],
+    decorators: [
+        () => ({ template: '<div class="inline-block bg-huella-slate-900 p-4"><story /></div>' }),
+    ],
 };

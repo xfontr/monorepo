@@ -1,12 +1,19 @@
 export class TranslationsError extends Error {
-    constructor(public readonly statusCode: number, public readonly statusMessage: string, options?: ErrorOptions) {
+    constructor(
+        public readonly statusCode: number,
+        public readonly statusMessage: string,
+        options?: ErrorOptions,
+    ) {
         super(statusMessage, options);
         this.name = new.target.name;
     }
 }
 
 export class UpstreamError extends TranslationsError {
-    constructor(public readonly upstreamStatus: number | undefined, cause?: unknown) {
+    constructor(
+        public readonly upstreamStatus: number | undefined,
+        cause?: unknown,
+    ) {
         super(502, "Upstream request failed", { cause });
     }
 }
@@ -19,12 +26,18 @@ export class TranslationsUnavailableError extends TranslationsError {
 
 export class UndefinedVendorError extends TranslationsError {
     constructor(name: string | undefined, available: readonly string[]) {
-        super(500, `Requested vendor "${name ?? null}" does not exist. Available: ${available.join(", ")}`);
+        super(
+            500,
+            `Requested vendor "${name ?? null}" does not exist. Available: ${available.join(", ")}`,
+        );
     }
 }
 
 export class MisconfiguredVendorError extends TranslationsError {
-    constructor(vendor: string, public readonly problems: string[]) {
+    constructor(
+        vendor: string,
+        public readonly problems: string[],
+    ) {
         super(500, `${vendor} is misconfigured: ${problems.join(", ")}`);
     }
 }

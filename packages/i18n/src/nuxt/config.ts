@@ -7,12 +7,12 @@ export const TRANSLATIONS_MAX_AGE = 60 * 60;
 export const TRANSLATIONS_STALE_MAX_AGE = 60 * 60 * 24;
 
 export interface TranslationsConfig {
-    vendor: VendorConfig
-    locales: Locale[]
+    vendor: VendorConfig;
+    locales: Locale[];
 }
 
 declare module "@nuxt/schema" {
     interface RuntimeConfig {
-        translations: TranslationsConfig
+        translations: TranslationsConfig;
     }
 }

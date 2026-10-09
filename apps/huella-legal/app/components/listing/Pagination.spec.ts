@@ -2,7 +2,12 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { describe, expect, it } from "vitest";
 import Pagination from "./Pagination.vue";
 
-const global = { mocks: { $t: (key: string, params?: Record<string, unknown>) => `t(${key}${params ? `, ${JSON.stringify(params)}` : ""})` } };
+const global = {
+    mocks: {
+        $t: (key: string, params?: Record<string, unknown>) =>
+            `t(${key}${params ? `, ${JSON.stringify(params)}` : ""})`,
+    },
+};
 
 const to = (page: number) => `/listado/${page}`;
 
@@ -20,9 +25,17 @@ describe("pagination", () => {
     it("takes every page's address from `to`, so the listing's controller alone owns the URL", async () => {
         const wrapper = await mountAt(10, 140);
 
-        const pages = wrapper.findAll("a[aria-label^='t(pagination.page']").map((link) => [link.text(), link.attributes("href")]);
+        const pages = wrapper
+            .findAll("a[aria-label^='t(pagination.page']")
+            .map((link) => [link.text(), link.attributes("href")]);
 
-        expect(pages).toEqual([["1", "/listado/1"], ["9", "/listado/9"], ["10", "/listado/10"], ["11", "/listado/11"], ["20", "/listado/20"]]);
+        expect(pages).toEqual([
+            ["1", "/listado/1"],
+            ["9", "/listado/9"],
+            ["10", "/listado/10"],
+            ["11", "/listado/11"],
+            ["20", "/listado/20"],
+        ]);
     });
 
     it("marks only the current page with aria-current", async () => {
@@ -42,7 +55,9 @@ describe("pagination", () => {
 
         expect(previous.element.tagName).toBe("BUTTON");
         expect(previous.attributes("disabled")).toBeDefined();
-        expect(wrapper.find("[aria-label='t(pagination.next.label)']").attributes("href")).toBe("/listado/2");
+        expect(wrapper.find("[aria-label='t(pagination.next.label)']").attributes("href")).toBe(
+            "/listado/2",
+        );
     });
 
     it("has no live next link on the last page", async () => {
@@ -52,13 +67,15 @@ describe("pagination", () => {
 
         expect(next.element.tagName).toBe("BUTTON");
         expect(next.attributes("disabled")).toBeDefined();
-        expect(wrapper.find("[aria-label='t(pagination.previous.label)']").attributes("href")).toBe("/listado/6");
+        expect(wrapper.find("[aria-label='t(pagination.previous.label)']").attributes("href")).toBe(
+            "/listado/6",
+        );
     });
 
     it("counts pages from the total, rounding a partial last page up", async () => {
         const wrapper = await mountAt(2, 15);
 
-        expect(wrapper.find("p").text()).toBe("t(pagination.position, {\"page\":2,\"total\":3})");
+        expect(wrapper.find("p").text()).toBe('t(pagination.position, {"page":2,"total":3})');
     });
 
     it("names the landmark, since a listing page has more than one nav", async () => {

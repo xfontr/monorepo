@@ -16,4 +16,6 @@ export const Inline: Story = { args: { layout: "inline" } };
 
 export const Pending: Story = { args: { pending: true } };
 
-export const Invalid: Story = { args: { error: "Falta el dominio: por ejemplo, lucia.martin@ejemplo.es" } };
+export const Invalid: Story = {
+    args: { error: "Falta el dominio: por ejemplo, lucia.martin@ejemplo.es" },
+};

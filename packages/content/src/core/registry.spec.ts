@@ -26,20 +26,29 @@ describe("createProvider", () => {
     });
 
     it("rejects an unregistered vendor name instead of returning a broken provider", async () => {
-        const vendor = { name: "contentful", baseURL: "https://wp.test/" } as unknown as VendorConfig;
+        const vendor = {
+            name: "contentful",
+            baseURL: "https://wp.test/",
+        } as unknown as VendorConfig;
 
         await expect(createProvider(vendor, http)).rejects.toThrow(UndefinedVendorError);
         await expect(createProvider(vendor, http)).rejects.toThrow(/"contentful".*wordpress/);
     });
 
     it.each<unknown>([undefined, null, {}])("rejects %o as config the same way", async (vendor) => {
-        await expect(createProvider(vendor as VendorConfig, http)).rejects.toThrow(UndefinedVendorError);
+        await expect(createProvider(vendor as VendorConfig, http)).rejects.toThrow(
+            UndefinedVendorError,
+        );
     });
 
     // Unset env vars used to reach the vendor as an empty base URL and come back as a 502
     it("rejects a registered vendor whose config cannot work, rather than returning it", async () => {
-        await expect(createProvider({ name: "wordpress", baseURL: "" }, http)).rejects.toThrow(MisconfiguredVendorError);
-        await expect(createProvider({ name: "wordpress", baseURL: "" }, http)).rejects.toThrow(/baseURL is not an absolute URL/);
+        await expect(createProvider({ name: "wordpress", baseURL: "" }, http)).rejects.toThrow(
+            MisconfiguredVendorError,
+        );
+        await expect(createProvider({ name: "wordpress", baseURL: "" }, http)).rejects.toThrow(
+            /baseURL is not an absolute URL/,
+        );
     });
 });
 
@@ -53,7 +62,10 @@ describe("the registered vendors", () => {
         expect(isVendorName(name)).toBe(true);
     });
 
-    it.each([undefined, "", "  ", "WORDPRESS", "wordpres", "contentful"])("do not recognise %o", (name) => {
-        expect(isVendorName(name)).toBe(false);
-    });
+    it.each([undefined, "", "  ", "WORDPRESS", "wordpres", "contentful"])(
+        "do not recognise %o",
+        (name) => {
+            expect(isVendorName(name)).toBe(false);
+        },
+    );
 });

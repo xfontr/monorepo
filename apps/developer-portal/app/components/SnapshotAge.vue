@@ -2,8 +2,8 @@
 import type { Manifest } from "#shared/types.ts";
 
 interface Props {
-    manifest: Manifest | null
-    artifact?: string
+    manifest: Manifest | null;
+    artifact?: string;
 }
 
 const { manifest, artifact } = defineProps<Props>();
@@ -22,13 +22,22 @@ const collected = computed(() => relativeTime(status.value?.generatedAt ?? manif
 <template>
     <div class="flex items-center gap-2 text-xs text-muted">
         <UIcon
-            :name="manifest ? failed ? 'i-lucide-triangle-alert' : 'i-lucide-clock' : 'i-lucide-circle-slash'"
+            :name="
+                manifest
+                    ? failed
+                        ? 'i-lucide-triangle-alert'
+                        : 'i-lucide-clock'
+                    : 'i-lucide-circle-slash'
+            "
             class="size-3.5"
             :class="failed ? 'tone-bad' : ''"
         />
 
         <template v-if="!manifest">
-            Never collected — run <code class="font-mono text-default">pnpm exec nx collect @monorepo/developer-portal</code>
+            Never collected — run
+            <code class="font-mono text-default"
+                >pnpm exec nx collect @monorepo/developer-portal</code
+            >
         </template>
 
         <template v-else-if="failed">
@@ -36,9 +45,9 @@ const collected = computed(() => relativeTime(status.value?.generatedAt ?? manif
         </template>
 
         <template v-else>
-            Collected {{ collected }}
-            at <code class="font-mono text-default">{{ manifest.commit }}</code>
-            on {{ manifest.branch }}
+            Collected {{ collected }} at
+            <code class="font-mono text-default">{{ manifest.commit }}</code> on
+            {{ manifest.branch }}
         </template>
     </div>
 </template>

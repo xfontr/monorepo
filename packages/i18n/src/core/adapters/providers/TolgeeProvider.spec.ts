@@ -15,7 +15,9 @@ describe("TolgeeProvider", () => {
         );
 
         await expect(provider.getTranslations("en-GB")).resolves.toBe(messages);
-        expect(get).toHaveBeenCalledWith("/v2/projects/1/translations/en-GB", { headers: { "X-API-Key": "abc" } });
+        expect(get).toHaveBeenCalledWith("/v2/projects/1/translations/en-GB", {
+            headers: { "X-API-Key": "abc" },
+        });
     });
 
     // The config claims a locale the project does not hold — a mismatch on our side, not a vendor failure
@@ -26,18 +28,28 @@ describe("TolgeeProvider", () => {
             { get },
         );
 
-        await expect(provider.getTranslations("en-GB")).rejects.toThrow(UndefinedLocaleProviderError);
+        await expect(provider.getTranslations("en-GB")).rejects.toThrow(
+            UndefinedLocaleProviderError,
+        );
         await expect(provider.getTranslations("en-GB")).rejects.toThrow(/"en-GB".*Tolgee/);
     });
 
     // An unset TRANSLATIONS_VENDOR_OPTIONS_TOKEN would otherwise reach Tolgee and come back as a 502
-    it.each([{ token: "" }, { token: "  " }, undefined])("refuses to exist without a token (%o)", (options) => {
-        const build = () => new TolgeeProvider(
-            { baseURL: "https://app.tolgee.io/", project: "1", options: options as TolgeeProviderOptions },
-            { get: vi.fn() },
-        );
+    it.each([{ token: "" }, { token: "  " }, undefined])(
+        "refuses to exist without a token (%o)",
+        (options) => {
+            const build = () =>
+                new TolgeeProvider(
+                    {
+                        baseURL: "https://app.tolgee.io/",
+                        project: "1",
+                        options: options as TolgeeProviderOptions,
+                    },
+                    { get: vi.fn() },
+                );
 
-        expect(build).toThrow(MisconfiguredVendorError);
-        expect(build).toThrow(/options\.token is empty/);
-    });
+            expect(build).toThrow(MisconfiguredVendorError);
+            expect(build).toThrow(/options\.token is empty/);
+        },
+    );
 });

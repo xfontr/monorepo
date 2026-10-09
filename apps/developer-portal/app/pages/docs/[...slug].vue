@@ -7,7 +7,9 @@ const route = useRoute();
 const { data: snapshot } = await useSnapshot("docs");
 const { data: sections } = await useWiki();
 
-const path = computed(() => `/${(route.params.slug as string[] | undefined ?? []).join("/")}`.toLowerCase());
+const path = computed(() =>
+    `/${((route.params.slug as string[] | undefined) ?? []).join("/")}`.toLowerCase(),
+);
 
 const { data: page } = await useAsyncData(
     () => `doc-${path.value}`,
@@ -21,10 +23,10 @@ const crumbs = computed<BreadcrumbItem[]>(() => [
     { label: "Wiki", to: "/docs", icon: "i-lucide-library" },
     ...(here.value
         ? [
-            { label: here.value.section.label, icon: here.value.section.icon },
-            { label: here.value.group.label, class: "font-mono" },
-            { label: here.value.entry.label },
-        ]
+              { label: here.value.section.label, icon: here.value.section.icon },
+              { label: here.value.group.label, class: "font-mono" },
+              { label: here.value.entry.label },
+          ]
         : []),
 ]);
 
@@ -36,13 +38,22 @@ const around = computed(() => {
     const entries = here.value?.group.entries ?? [];
     const index = entries.findIndex((entry) => entry.path === path.value);
 
-    return { previous: index > 0 ? entries[index - 1] : null, next: index === -1 ? null : entries[index + 1] ?? null };
+    return {
+        previous: index > 0 ? entries[index - 1] : null,
+        next: index === -1 ? null : (entries[index + 1] ?? null),
+    };
 });
 
-const meta = computed(() => snapshot.value?.docs?.pages.find((doc) => toCollectionPath(doc.path) === path.value) ?? null);
+const meta = computed(
+    () =>
+        snapshot.value?.docs?.pages.find((doc) => toCollectionPath(doc.path) === path.value) ??
+        null,
+);
 const updated = computed(() => relativeTime(meta.value?.updatedAt));
 const source = computed(() => meta.value?.path ?? `${path.value.slice(1)}.md`);
-const brokenLinks = computed(() => meta.value?.brokenLinks.map((link) => link.href).join(", ") ?? "");
+const brokenLinks = computed(
+    () => meta.value?.brokenLinks.map((link) => link.href).join(", ") ?? "",
+);
 </script>
 
 <template>
@@ -53,10 +64,9 @@ const brokenLinks = computed(() => meta.value?.brokenLinks.map((link) => link.hr
                     <UDashboardSidebarCollapse />
                 </template>
                 <template #right>
-                    <span
-                        v-if="meta"
-                        class="text-xs text-muted"
-                    >{{ meta.words }} words · updated {{ updated }}</span>
+                    <span v-if="meta" class="text-xs text-muted"
+                        >{{ meta.words }} words · updated {{ updated }}</span
+                    >
                     <code class="text-xs text-dimmed font-mono">{{ source }}</code>
                 </template>
             </UDashboardNavbar>
@@ -65,10 +75,7 @@ const brokenLinks = computed(() => meta.value?.brokenLinks.map((link) => link.hr
         <template #body>
             <div class="flex gap-6 items-start">
                 <aside class="hidden lg:block w-60 shrink-0 sticky top-0">
-                    <WikiNav
-                        :sections
-                        :current="path"
-                    />
+                    <WikiNav :sections :current="path" />
                 </aside>
 
                 <div class="flex-1 min-w-0 flex flex-col gap-4">
@@ -106,10 +113,7 @@ const brokenLinks = computed(() => meta.value?.brokenLinks.map((link) => link.hr
                                 :to="`/docs${around.previous.path}`"
                                 class="flex items-center gap-2 rounded-lg border border-default p-3 hover:bg-elevated/40 transition-colors"
                             >
-                                <UIcon
-                                    name="i-lucide-arrow-left"
-                                    class="size-4 text-dimmed"
-                                />
+                                <UIcon name="i-lucide-arrow-left" class="size-4 text-dimmed" />
                                 <div class="min-w-0">
                                     <div class="text-[11px] text-dimmed">
                                         Previous in {{ here?.group.label }}
@@ -133,10 +137,7 @@ const brokenLinks = computed(() => meta.value?.brokenLinks.map((link) => link.hr
                                         {{ around.next.label }}
                                     </div>
                                 </div>
-                                <UIcon
-                                    name="i-lucide-arrow-right"
-                                    class="size-4 text-dimmed"
-                                />
+                                <UIcon name="i-lucide-arrow-right" class="size-4 text-dimmed" />
                             </NuxtLink>
                         </div>
                     </template>
@@ -146,11 +147,7 @@ const brokenLinks = computed(() => meta.value?.brokenLinks.map((link) => link.hr
                     v-if="page?.body?.toc?.links?.length"
                     class="hidden xl:block w-56 shrink-0 sticky top-0"
                 >
-                    <UContentToc
-                        :links="page.body.toc.links"
-                        highlight
-                        class="bg-transparent"
-                    />
+                    <UContentToc :links="page.body.toc.links" highlight class="bg-transparent" />
                 </aside>
             </div>
         </template>

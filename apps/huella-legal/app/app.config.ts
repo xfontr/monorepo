@@ -9,7 +9,27 @@ export default defineAppConfig({
         // colour class was silently dropped from every Nuxt UI `class` and `:ui` override
         tv: {
             twMergeConfig: {
-                extend: { theme: { text: ["display-sm", "display", "display-lg", "h1", "h2", "h3", "section", "card", "reading", "standfirst", "standfirst-lg", "quote", "citation", "meta", "kicker"] } },
+                extend: {
+                    theme: {
+                        text: [
+                            "display-sm",
+                            "display",
+                            "display-lg",
+                            "h1",
+                            "h2",
+                            "h3",
+                            "section",
+                            "card",
+                            "reading",
+                            "standfirst",
+                            "standfirst-lg",
+                            "quote",
+                            "citation",
+                            "meta",
+                            "kicker",
+                        ],
+                    },
+                },
             },
         },
 
@@ -24,23 +44,40 @@ export default defineAppConfig({
         button: {
             slots: {
                 base: "group/btn min-h-11 font-sans font-semibold tracking-[0.01em] disabled:opacity-40 aria-disabled:opacity-40",
-                trailingIcon: "transition-transform group-hover/btn:translate-x-0.5 group-disabled/btn:translate-x-0",
+                trailingIcon:
+                    "transition-transform group-hover/btn:translate-x-0.5 group-disabled/btn:translate-x-0",
             },
             variants: {
                 size: {
-                    xl: { base: "px-5 py-2.5 text-sm gap-2", leadingIcon: "size-4.5", trailingIcon: "size-4.5" },
+                    xl: {
+                        base: "px-5 py-2.5 text-sm gap-2",
+                        leadingIcon: "size-4.5",
+                        trailingIcon: "size-4.5",
+                    },
                 },
             },
             compoundVariants: [
                 // Nuxt UI hovers by fading to 75 %, which washes slate out towards the paper
-                { color: "primary", variant: "solid", class: "hover:bg-huella-slate-700 active:bg-huella-slate-800" },
-                { color: "secondary", variant: "solid", class: "hover:bg-huella-teal-700 active:bg-huella-teal-800" },
+                {
+                    color: "primary",
+                    variant: "solid",
+                    class: "hover:bg-huella-slate-700 active:bg-huella-slate-800",
+                },
+                {
+                    color: "secondary",
+                    variant: "solid",
+                    class: "hover:bg-huella-teal-700 active:bg-huella-teal-800",
+                },
                 {
                     color: "neutral",
                     variant: "outline",
                     class: "bg-transparent text-highlighted ring-huella-slate-900 hover:bg-huella-slate-900 hover:text-ivory-50 active:bg-huella-slate-800 disabled:bg-transparent disabled:text-highlighted",
                 },
-                { color: "neutral", variant: "ghost", class: "text-toned hover:bg-huella-slate-900/6 hover:text-highlighted" },
+                {
+                    color: "neutral",
+                    variant: "ghost",
+                    class: "text-toned hover:bg-huella-slate-900/6 hover:text-highlighted",
+                },
                 {
                     variant: "link",
                     class: "decoration-1 underline-offset-4 hover:underline hover:text-huella-slate-700 active:text-huella-slate-800 disabled:no-underline",
@@ -95,7 +132,8 @@ export default defineAppConfig({
             slots: {
                 root: "bg-huella-slate-900 text-huella-slate-200",
                 top: "border-b border-huella-slate-700 py-16 lg:py-20",
-                container: "flex flex-col gap-4 py-6 font-sans text-xs text-huella-slate-300 md:flex-row md:items-center md:justify-between lg:py-6",
+                container:
+                    "flex flex-col gap-4 py-6 font-sans text-xs text-huella-slate-300 md:flex-row md:items-center md:justify-between lg:py-6",
                 left: "mt-0 justify-start md:order-1",
                 center: "hidden",
                 right: "justify-start md:order-3 lg:flex-none",
@@ -126,7 +164,7 @@ export default defineAppConfig({
                 color: { primary: { root: "bg-huella-slate-100", fallback: "text-primary" } },
                 // Initials are two capitals, so they sit well below Nuxt UI's text size for each step
                 size: {
-                    "lg": { root: "text-[0.6875rem]" },
+                    lg: { root: "text-[0.6875rem]" },
                     "2xl": { root: "text-xs" },
                     "3xl": { root: "text-sm" },
                 },
@@ -145,7 +183,13 @@ export default defineAppConfig({
         },
         // Previous and next sit at the ends of the row, and the ellipses go on phones with the numbers
         pagination: {
-            slots: { root: "w-full", list: "w-full gap-0", prev: "me-auto", next: "ms-auto", ellipsis: "max-sm:hidden" },
+            slots: {
+                root: "w-full",
+                list: "w-full gap-0",
+                prev: "me-auto",
+                next: "ms-auto",
+                ellipsis: "max-sm:hidden",
+            },
         },
         // Empty states are left-aligned panels in the reading column, not centred app placeholders
         empty: {

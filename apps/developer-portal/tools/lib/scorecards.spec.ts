@@ -44,7 +44,11 @@ describe("parseScoresTable", () => {
     });
 
     it("returns null for a file with no Total row, rather than a half-filled result", () => {
-        expect(parseScoresTable("## 🧮 Scores\n\n| Card | Score | Δ | Verdict |\n| --- | --- | --- | --- |\n")).toBeNull();
+        expect(
+            parseScoresTable(
+                "## 🧮 Scores\n\n| Card | Score | Δ | Verdict |\n| --- | --- | --- | --- |\n",
+            ),
+        ).toBeNull();
     });
 
     it("skips a row whose score isn't the n/5 shape instead of throwing", () => {
@@ -56,7 +60,10 @@ describe("parseScoresTable", () => {
     });
 
     it("keeps the first parseable Total row when a review accidentally repeats it", () => {
-        const repeated = SCORES.replace("| **Total** | **4.1/5** | ↑0.5 | |", "| **Total** | invalid | = | |\n| **Total** | **4.1/5** | ↑0.5 | |\n| **Total** | **3.0/5** | ↓1 | |");
+        const repeated = SCORES.replace(
+            "| **Total** | **4.1/5** | ↑0.5 | |",
+            "| **Total** | invalid | = | |\n| **Total** | **4.1/5** | ↑0.5 | |\n| **Total** | **3.0/5** | ↓1 | |",
+        );
 
         expect(parseScoresTable(repeated)).toMatchObject({ total: 4.1, totalDelta: "↑0.5" });
     });
@@ -68,7 +75,10 @@ describe("scorecardShapeProblems", () => {
     });
 
     it("names the missing card rather than just saying the table looks wrong", () => {
-        const missingCard = SCORES.replace("| 🤖 Agent setup | 3/5 | = | Hooks are well scoped |\n", "");
+        const missingCard = SCORES.replace(
+            "| 🤖 Agent setup | 3/5 | = | Hooks are well scoped |\n",
+            "",
+        );
         const problems = scorecardShapeProblems(parseScoresTable(missingCard));
 
         expect(problems.some((problem) => problem.includes("🤖 Agent setup"))).toBe(true);
@@ -78,22 +88,36 @@ describe("scorecardShapeProblems", () => {
         const renamed = SCORES.replace("🤖 Agent setup", "🤖 Agent config");
         const problems = scorecardShapeProblems(parseScoresTable(renamed));
 
-        expect(problems.some((problem) => problem.includes("unrecognised") && problem.includes("🤖 Agent config"))).toBe(true);
-        expect(problems.some((problem) => problem.includes("missing") && problem.includes("🤖 Agent setup"))).toBe(true);
+        expect(
+            problems.some(
+                (problem) =>
+                    problem.includes("unrecognised") && problem.includes("🤖 Agent config"),
+            ),
+        ).toBe(true);
+        expect(
+            problems.some(
+                (problem) => problem.includes("missing") && problem.includes("🤖 Agent setup"),
+            ),
+        ).toBe(true);
     });
 
     it("flags two cards swapped as out of order, not as missing or unrecognised", () => {
-        const swapped = SCORES
-            .replace("| 🧱 Architecture | 5/5 | ↑1 | The core isolation invariant is now enforced by lint |\n", "")
-            .replace(
-                "| 🧩 Implementation | 4/5 | = | Honest error paths, no type escapes |",
-                "| 🧩 Implementation | 4/5 | = | Honest error paths, no type escapes |\n| 🧱 Architecture | 5/5 | ↑1 | The core isolation invariant is now enforced by lint |",
-            );
+        const swapped = SCORES.replace(
+            "| 🧱 Architecture | 5/5 | ↑1 | The core isolation invariant is now enforced by lint |\n",
+            "",
+        ).replace(
+            "| 🧩 Implementation | 4/5 | = | Honest error paths, no type escapes |",
+            "| 🧩 Implementation | 4/5 | = | Honest error paths, no type escapes |\n| 🧱 Architecture | 5/5 | ↑1 | The core isolation invariant is now enforced by lint |",
+        );
 
-        expect(scorecardShapeProblems(parseScoresTable(swapped))).toEqual(["card rows are out of SCORECARDS.md's order"]);
+        expect(scorecardShapeProblems(parseScoresTable(swapped))).toEqual([
+            "card rows are out of SCORECARDS.md's order",
+        ]);
     });
 
     it("reports the missing-table case from a null parse, not a thrown error", () => {
-        expect(scorecardShapeProblems(null)).toEqual(["no parseable '## 🧮 Scores' table with a Total row"]);
+        expect(scorecardShapeProblems(null)).toEqual([
+            "no parseable '## 🧮 Scores' table with a Total row",
+        ]);
     });
 });

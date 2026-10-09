@@ -12,5 +12,8 @@ export default function prepareNuxt(project) {
     if (!existsSync(resolve(root, "nuxt.config.ts"))) return;
     if (existsSync(resolve(root, ".nuxt/tsconfig.app.json"))) return;
 
-    execFileSync(resolve(root, "node_modules/.bin/nuxi"), ["prepare"], { cwd: root, stdio: "inherit" });
+    execFileSync(resolve(root, "node_modules/.bin/nuxi"), ["prepare"], {
+        cwd: root,
+        stdio: "inherit",
+    });
 }

@@ -44,7 +44,10 @@ describe("agents-sync filesystem adapter", () => {
         writeFileSync(join(directory, "node_modules", "ignored", "AGENTS.md"), "ignored");
 
         expect(instructionFiles()).toEqual(["AGENTS.md", "packages/demo/AGENTS.md"]);
-        expect(skillFiles()).toEqual([".agents/skills/demo/reference.md", ".agents/skills/demo/SKILL.md"]);
+        expect(skillFiles()).toEqual([
+            ".agents/skills/demo/reference.md",
+            ".agents/skills/demo/SKILL.md",
+        ]);
     });
 
     it("writes nested text and bytes with modes and removes only existing files", () => {
@@ -67,9 +70,15 @@ describe("agents-sync filesystem adapter", () => {
     it("reads valid manifest files and treats missing, malformed and invalid shapes as empty", () => {
         expect(readManifest()).toEqual([]);
         mkdirSync(join(directory, ".claude"), { recursive: true });
-        writeFileSync(join(directory, ".claude", "generated.json"), JSON.stringify({ files: ["CLAUDE.md"] }));
+        writeFileSync(
+            join(directory, ".claude", "generated.json"),
+            JSON.stringify({ files: ["CLAUDE.md"] }),
+        );
         expect(readManifest()).toEqual(["CLAUDE.md"]);
-        writeFileSync(join(directory, ".claude", "generated.json"), JSON.stringify({ files: ["CLAUDE.md", 1] }));
+        writeFileSync(
+            join(directory, ".claude", "generated.json"),
+            JSON.stringify({ files: ["CLAUDE.md", 1] }),
+        );
         expect(readManifest()).toEqual([]);
         writeFileSync(join(directory, ".claude", "generated.json"), "not json");
         expect(readManifest()).toEqual([]);

@@ -15,7 +15,9 @@ const projectGroups = computed(() => [
     },
     {
         label: "Repository tooling",
-        projects: projects.value.filter((project) => !project.root.startsWith("apps/") && !project.root.startsWith("packages/")),
+        projects: projects.value.filter(
+            (project) => !project.root.startsWith("apps/") && !project.root.startsWith("packages/"),
+        ),
     },
 ]);
 
@@ -30,10 +32,7 @@ const graphEmbed = embedUrl("/embed/graph/index.html");
                     <UDashboardSidebarCollapse />
                 </template>
                 <template #right>
-                    <SnapshotAge
-                        :manifest="snapshot?.manifest ?? null"
-                        artifact="projects"
-                    />
+                    <SnapshotAge :manifest="snapshot?.manifest ?? null" artifact="projects" />
                 </template>
             </UDashboardNavbar>
         </template>
@@ -52,36 +51,26 @@ const graphEmbed = embedUrl("/embed/graph/index.html");
 
                 <section class="flex flex-col gap-3">
                     <div>
-                        <h2 class="text-xl font-semibold">
-How the pieces fit
-</h2>
+                        <h2 class="text-xl font-semibold">How the pieces fit</h2>
                         <p class="text-sm text-muted mt-1">
-                            The repository groups applications, shared building blocks, and the tooling that supports them.
+                            The repository groups applications, shared building blocks, and the
+                            tooling that supports them.
                         </p>
                     </div>
 
                     <div class="grid gap-4 xl:grid-cols-3">
-                        <UCard
-                            v-for="group in projectGroups"
-                            :key="group.label"
-                        >
+                        <UCard v-for="group in projectGroups" :key="group.label">
                             <template #header>
                                 <h3 class="font-semibold">
-{{ group.label }}
-</h3>
+                                    {{ group.label }}
+                                </h3>
                             </template>
 
-                            <div
-                                v-if="group.projects.length === 0"
-                                class="text-sm text-muted"
-                            >
+                            <div v-if="group.projects.length === 0" class="text-sm text-muted">
                                 No projects in this group.
                             </div>
 
-                            <div
-                                v-else
-                                class="flex flex-col gap-4"
-                            >
+                            <div v-else class="flex flex-col gap-4">
                                 <div
                                     v-for="project in group.projects"
                                     :key="project.name"
@@ -89,11 +78,11 @@ How the pieces fit
                                 >
                                     <div>
                                         <p class="text-sm font-medium">
-{{ project.name }}
-</p>
+                                            {{ project.name }}
+                                        </p>
                                         <p class="text-xs text-dimmed font-mono">
-{{ project.root }}
-</p>
+                                            {{ project.root }}
+                                        </p>
                                     </div>
 
                                     <div
@@ -113,13 +102,18 @@ How the pieces fit
 
                                     <div class="flex flex-col gap-0.5 text-xs text-muted">
                                         <div v-if="project.dependsOn.length > 0">
-                                            <span class="text-dimmed">Uses:</span> {{ project.dependsOn.join(", ") }}
+                                            <span class="text-dimmed">Uses:</span>
+                                            {{ project.dependsOn.join(", ") }}
                                         </div>
                                         <div v-if="project.dependedOnBy.length > 0">
-                                            <span class="text-dimmed">Used by:</span> {{ project.dependedOnBy.join(", ") }}
+                                            <span class="text-dimmed">Used by:</span>
+                                            {{ project.dependedOnBy.join(", ") }}
                                         </div>
                                         <p
-                                            v-if="project.dependsOn.length === 0 && project.dependedOnBy.length === 0"
+                                            v-if="
+                                                project.dependsOn.length === 0 &&
+                                                project.dependedOnBy.length === 0
+                                            "
                                             class="text-dimmed"
                                         >
                                             No project relationships recorded.
@@ -134,11 +128,10 @@ How the pieces fit
                 <UCard :ui="{ body: 'p-0 sm:p-0' }">
                     <template #header>
                         <div>
-                            <h2 class="font-semibold">
-Detailed Nx graph
-</h2>
+                            <h2 class="font-semibold">Detailed Nx graph</h2>
                             <p class="text-xs text-muted">
-                                Nx's own graph client, vendored in by the collector rather than redrawn.
+                                Nx's own graph client, vendored in by the collector rather than
+                                redrawn.
                             </p>
                         </div>
                     </template>
@@ -154,11 +147,10 @@ Detailed Nx graph
                 <UCard :ui="{ body: 'p-0 sm:p-0' }">
                     <template #header>
                         <div>
-                            <h2 class="font-semibold">
-                                Tags and edges
-                            </h2>
+                            <h2 class="font-semibold">Tags and edges</h2>
                             <p class="text-xs text-muted">
-                                What the picture does not answer: which tags a project carries, and what breaks if it changes.
+                                What the picture does not answer: which tags a project carries, and
+                                what breaks if it changes.
                             </p>
                         </div>
                     </template>
@@ -191,20 +183,19 @@ Detailed Nx graph
                             </div>
 
                             <div class="flex-1 min-w-0 text-xs text-muted flex flex-col gap-0.5">
-                                <div
-                                    v-if="project.dependsOn.length > 0"
-                                    class="truncate"
-                                >
-                                    <span class="text-dimmed">uses </span>{{ project.dependsOn.join(", ") }}
+                                <div v-if="project.dependsOn.length > 0" class="truncate">
+                                    <span class="text-dimmed">uses </span
+                                    >{{ project.dependsOn.join(", ") }}
+                                </div>
+                                <div v-if="project.dependedOnBy.length > 0" class="truncate">
+                                    <span class="text-dimmed">used by </span
+                                    >{{ project.dependedOnBy.join(", ") }}
                                 </div>
                                 <div
-                                    v-if="project.dependedOnBy.length > 0"
-                                    class="truncate"
-                                >
-                                    <span class="text-dimmed">used by </span>{{ project.dependedOnBy.join(", ") }}
-                                </div>
-                                <div
-                                    v-if="project.dependsOn.length === 0 && project.dependedOnBy.length === 0"
+                                    v-if="
+                                        project.dependsOn.length === 0 &&
+                                        project.dependedOnBy.length === 0
+                                    "
                                     class="text-dimmed"
                                 >
                                     leaf

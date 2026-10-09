@@ -9,8 +9,12 @@ const TARGET = "dev";
 const nx = (): string => at("node_modules", ".bin", "nx");
 
 const show = (...args: string[]): string[] =>
-    JSON.parse(run(nx(), ["show", "projects", "--with-target", TARGET, "--json", ...args])) as string[];
+    JSON.parse(
+        run(nx(), ["show", "projects", "--with-target", TARGET, "--json", ...args]),
+    ) as string[];
 
 /** Query Nx by project root so project names need not match directory names. */
 export const projectsWithDev = (): Runnable[] =>
-    PROJECT_ROOTS.flatMap((root) => show("--projects", `${root}/*`).map((name) => ({ root, name })));
+    PROJECT_ROOTS.flatMap((root) =>
+        show("--projects", `${root}/*`).map((name) => ({ root, name })),
+    );

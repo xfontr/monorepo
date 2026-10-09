@@ -4,31 +4,30 @@ import type { RouteLocationRaw } from "vue-router";
 type BylineAuthor = Pick<Author, "id" | "name" | "avatar"> & { to: RouteLocationRaw };
 
 interface Props {
-    authors: BylineAuthor[]
-    publishedAt?: string
-    readingMinutes?: number
-    avatars?: boolean
+    authors: BylineAuthor[];
+    publishedAt?: string;
+    readingMinutes?: number;
+    avatars?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), { avatars: false });
 
 const { locale, d } = useI18n();
 
-const names = computed(() => new Intl.ListFormat(locale.value, { type: "conjunction" })
-    .formatToParts(props.authors.map((_, index) => String(index)))
-    .map(({ type, value }) => type === "element" ? { author: props.authors[+value] } : { literal: value }));
+const names = computed(() =>
+    new Intl.ListFormat(locale.value, { type: "conjunction" })
+        .formatToParts(props.authors.map((_, index) => String(index)))
+        .map(({ type, value }) =>
+            type === "element" ? { author: props.authors[+value] } : { literal: value },
+        ),
+);
 
 const date = computed<string | undefined>(() => props.publishedAt && d(props.publishedAt, "long"));
 </script>
 
 <template>
     <div class="flex items-center gap-3 font-sans text-meta text-muted">
-        <UAvatarGroup
-            v-if="avatars"
-            size="lg"
-            aria-hidden="true"
-            :ui="{ base: '-me-2' }"
-        >
+        <UAvatarGroup v-if="avatars" size="lg" aria-hidden="true" :ui="{ base: '-me-2' }">
             <UAvatar
                 v-for="author in authors"
                 :key="author.id"
@@ -38,21 +37,21 @@ const date = computed<string | undefined>(() => props.publishedAt && d(props.pub
             />
         </UAvatarGroup>
         <div class="overflow-hidden">
-            <ul class="-ml-5 flex flex-wrap gap-y-1 [&>li]:flex [&>li]:before:shrink-0 [&>li]:before:w-5 [&>li]:before:text-center [&>li]:before:text-dimmed [&>li]:before:content-['·'_/_'']">
+            <ul
+                class="-ml-5 flex flex-wrap gap-y-1 [&>li]:flex [&>li]:before:shrink-0 [&>li]:before:w-5 [&>li]:before:text-center [&>li]:before:text-dimmed [&>li]:before:content-['·'_/_'']"
+            >
                 <li class="text-toned">
                     <!-- One inline box: as flex items, the separators would lose the spaces around "y" -->
                     <span>
-                        <span
-                            v-for="({ literal, author }, key) in names"
-                            :key
-                        >
+                        <span v-for="({ literal, author }, key) in names" :key>
                             <template v-if="literal">{{ literal }}</template>
                             <ULink
                                 v-else-if="author"
                                 :to="author.to"
                                 raw
                                 class="font-semibold text-highlighted underline-offset-3 hover:underline focus-visible:rounded-xs"
-                            >{{ author.name }}</ULink>
+                                >{{ author.name }}</ULink
+                            >
                         </span>
                     </span>
                 </li>

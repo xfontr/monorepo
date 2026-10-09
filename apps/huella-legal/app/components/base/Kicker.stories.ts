@@ -7,7 +7,7 @@ const meta: Meta<typeof Kicker> = {
     render: (args) => ({
         components: { Kicker },
         setup: () => ({ args }),
-        template: "<Kicker v-bind=\"args\">Derecho penal</Kicker>",
+        template: '<Kicker v-bind="args">Derecho penal</Kicker>',
     }),
 };
 
@@ -21,7 +21,7 @@ export const Muted: Story = { args: { muted: true } };
 
 export const Slate: Story = {
     args: { tone: "slate" },
-    decorators: [() => ({ template: "<div class=\"bg-huella-slate-900 p-4\"><story /></div>" })],
+    decorators: [() => ({ template: '<div class="bg-huella-slate-900 p-4"><story /></div>' })],
 };
 
 export const Link: Story = { args: { to: "#" } };

@@ -30,7 +30,9 @@ describe("cached", () => {
     });
 
     it("re-fetches and overwrites the file once the entry is older than 24h", () => {
-        fs.readFileSync.mockReturnValue(JSON.stringify({ fetchedAt: Date.now() - DAY_MS - 1, data: "stale" }));
+        fs.readFileSync.mockReturnValue(
+            JSON.stringify({ fetchedAt: Date.now() - DAY_MS - 1, data: "stale" }),
+        );
         const fetch = vi.fn(() => "fresh");
 
         expect(cached("projects", fetch)).toBe("fresh");
@@ -67,7 +69,9 @@ describe("cached", () => {
     // Offline with a stale cache, a swallowed gh failure returns [] — writing it would leave
     // `readCache` nothing to fall back to.
     it("keeps the stale entry instead of overwriting it with an empty fetch", () => {
-        fs.readFileSync.mockReturnValue(JSON.stringify({ fetchedAt: Date.now() - DAY_MS - 1, data: ["stale"] }));
+        fs.readFileSync.mockReturnValue(
+            JSON.stringify({ fetchedAt: Date.now() - DAY_MS - 1, data: ["stale"] }),
+        );
 
         expect(cached("projects", () => [])).toEqual([]);
         expect(fs.writeFileSync).not.toHaveBeenCalled();
@@ -87,7 +91,9 @@ describe("cached", () => {
 
 describe("readCache", () => {
     it("returns the stored data regardless of how old the entry is", () => {
-        fs.readFileSync.mockReturnValue(JSON.stringify({ fetchedAt: Date.now() - DAY_MS * 30, data: "stale" }));
+        fs.readFileSync.mockReturnValue(
+            JSON.stringify({ fetchedAt: Date.now() - DAY_MS * 30, data: "stale" }),
+        );
 
         expect(readCache("issues-foo")).toBe("stale");
     });

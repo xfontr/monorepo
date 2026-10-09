@@ -47,7 +47,7 @@ export function kindIcon(kind: string): string {
 
 const DECISION_STATUS_LABELS = {
     "to-implement": "To implement",
-    "implemented": "Implemented",
+    implemented: "Implemented",
     "wont-implement": "Won't implement",
 } as const satisfies Record<DecisionStatus, string>;
 
@@ -58,7 +58,7 @@ export function decisionStatusLabel(status: DecisionStatus): string {
 /** Reuses the same validated three-tone palette everything else on this page uses for a verdict. */
 const DECISION_STATUS_TONES = {
     "to-implement": "warn",
-    "implemented": "good",
+    implemented: "good",
     "wont-implement": "neutral",
 } as const satisfies Record<DecisionStatus, Tone>;
 
@@ -76,8 +76,8 @@ export function decisionOutcomeLabel(decision: DecisionOutcome): string {
 }
 
 const FINDING_STATUS_LABELS = {
-    "open": "Open",
-    "fixed": "Fixed",
+    open: "Open",
+    fixed: "Fixed",
     "wont-fix": "Won't fix",
 } as const satisfies Record<FindingStatus, string>;
 
@@ -86,8 +86,8 @@ export function findingStatusLabel(status: FindingStatus): string {
 }
 
 const FINDING_STATUS_TONES = {
-    "open": "warn",
-    "fixed": "good",
+    open: "warn",
+    fixed: "good",
     "wont-fix": "neutral",
 } as const satisfies Record<FindingStatus, Tone>;
 
@@ -96,9 +96,9 @@ export function findingStatusTone(status: FindingStatus): Tone {
 }
 
 const AUDIT_STATE_LABELS = {
-    "open": "Open",
+    open: "Open",
     "in-progress": "In progress",
-    "closed": "Closed",
+    closed: "Closed",
 } as const satisfies Record<AuditState, string>;
 
 export function auditStateLabel(state: AuditState): string {
@@ -106,9 +106,9 @@ export function auditStateLabel(state: AuditState): string {
 }
 
 const AUDIT_STATE_TONES = {
-    "open": "warn",
+    open: "warn",
     "in-progress": "warn",
-    "closed": "good",
+    closed: "good",
 } as const satisfies Record<AuditState, Tone>;
 
 export function auditStateTone(state: AuditState): Tone {
@@ -135,6 +135,8 @@ export function relativeTime(iso: string | null | undefined): string {
     // The largest unit the gap fills at least once — "3 hours ago", never "180 minutes ago".
     const step = scale.findLast((entry) => Math.abs(seconds) >= entry.size) ?? smallest;
 
-    return new Intl.RelativeTimeFormat(undefined, { numeric: "auto" })
-        .format(-Math.round(seconds / step.size), step.unit);
+    return new Intl.RelativeTimeFormat(undefined, { numeric: "auto" }).format(
+        -Math.round(seconds / step.size),
+        step.unit,
+    );
 }

@@ -1,9 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const gitApi = vi.hoisted(() => ({ at: vi.fn((...parts: string[]) => `/repo/${parts.join("/")}`), git: vi.fn() }));
+const gitApi = vi.hoisted(() => ({
+    at: vi.fn((...parts: string[]) => `/repo/${parts.join("/")}`),
+    git: vi.fn(),
+}));
 vi.mock("../../shared/adapters/git.ts", () => gitApi);
 
-import { changedFiles, diffNameStatus, diffNumstat, diffText, lastMdCommitEpochSeconds, mergeBase } from "./git.ts";
+import {
+    changedFiles,
+    diffNameStatus,
+    diffNumstat,
+    diffText,
+    lastMdCommitEpochSeconds,
+    mergeBase,
+} from "./git.ts";
 
 beforeEach(() => vi.clearAllMocks());
 
@@ -24,7 +34,14 @@ describe("drift git adapter", () => {
         expect(diffText("master", "HEAD", "packages/demo")).toBe("diff text");
         expect(lastMdCommitEpochSeconds("packages/demo")).toBe("123");
         expect(gitApi.git).toHaveBeenNthCalledWith(2, "diff", "--name-only", "master..HEAD");
-        expect(gitApi.git).toHaveBeenNthCalledWith(3, "diff", "--numstat", "master..HEAD", "--", "/repo/packages/demo");
+        expect(gitApi.git).toHaveBeenNthCalledWith(
+            3,
+            "diff",
+            "--numstat",
+            "master..HEAD",
+            "--",
+            "/repo/packages/demo",
+        );
     });
 
     it("rejects flag-like refs before constructing a range", () => {

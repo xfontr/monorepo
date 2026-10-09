@@ -19,11 +19,24 @@ function timestamp(date: Date): string {
 export function fakeTerm(overrides: Partial<Term> = {}): Term {
     const name = faker.lorem.words({ min: 1, max: 3 });
 
-    return { id: id(), resource: "categories", slug: faker.helpers.slugify(name).toLowerCase(), name, ...overrides };
+    return {
+        id: id(),
+        resource: "categories",
+        slug: faker.helpers.slugify(name).toLowerCase(),
+        name,
+        ...overrides,
+    };
 }
 
 export function fakeAsset(overrides: Partial<Asset> = {}): Asset {
-    return { id: id(), url: PIXEL, alt: faker.lorem.sentence(), width: 1200, height: 630, ...overrides };
+    return {
+        id: id(),
+        url: PIXEL,
+        alt: faker.lorem.sentence(),
+        width: 1200,
+        height: 630,
+        ...overrides,
+    };
 }
 
 export function fakeAuthor(overrides: Partial<Author> = {}): Author {
@@ -41,7 +54,10 @@ export function fakeEntry(overrides: Partial<Entry> = {}): Entry {
         slug: faker.helpers.slugify(title).toLowerCase(),
         title,
         excerpt: { format: "html", value: `<p>${faker.lorem.sentence()}</p>` },
-        body: { format: "html", value: Array.from({ length: 4 }, () => `<p>${faker.lorem.paragraph()}</p>`).join("") },
+        body: {
+            format: "html",
+            value: Array.from({ length: 4 }, () => `<p>${faker.lorem.paragraph()}</p>`).join(""),
+        },
         publishedAt: timestamp(publishedAt),
         updatedAt: timestamp(faker.date.soon({ days: 30, refDate: publishedAt })),
         terms: [fakeTerm()],

@@ -10,10 +10,12 @@ export type VendorName = keyof typeof providers;
 
 export const VENDOR_NAMES = Object.keys(providers) as VendorName[];
 
-type ProviderOf<N extends VendorName> = InstanceType<Awaited<ReturnType<(typeof providers)[N]>>["default"]>;
+type ProviderOf<N extends VendorName> = InstanceType<
+    Awaited<ReturnType<(typeof providers)[N]>>["default"]
+>;
 
 export type VendorConfig = {
-    [N in VendorName]: { name: N } & ProviderOf<N>["config"]
+    [N in VendorName]: { name: N } & ProviderOf<N>["config"];
 }[VendorName];
 
 type ProviderConstructor = new (config: VendorConfig, http: HttpClient) => ContentProvider;

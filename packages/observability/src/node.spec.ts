@@ -17,11 +17,21 @@ const processor = vi.hoisted(() => ({ BatchSpanProcessor: vi.fn() }));
 const undici = vi.hoisted(() => ({ UndiciInstrumentation: vi.fn() }));
 const autoLoader = vi.hoisted(() => ({ registerInstrumentations: vi.fn() }));
 
-vi.mock("@opentelemetry/sdk-trace-node", () => ({ NodeTracerProvider: provider.NodeTracerProvider }));
-vi.mock("@opentelemetry/sdk-trace-base", () => ({ BatchSpanProcessor: processor.BatchSpanProcessor }));
-vi.mock("@opentelemetry/exporter-trace-otlp-proto", () => ({ OTLPTraceExporter: exporter.OTLPTraceExporter }));
-vi.mock("@opentelemetry/instrumentation-undici", () => ({ UndiciInstrumentation: undici.UndiciInstrumentation }));
-vi.mock("@opentelemetry/instrumentation", () => ({ registerInstrumentations: autoLoader.registerInstrumentations }));
+vi.mock("@opentelemetry/sdk-trace-node", () => ({
+    NodeTracerProvider: provider.NodeTracerProvider,
+}));
+vi.mock("@opentelemetry/sdk-trace-base", () => ({
+    BatchSpanProcessor: processor.BatchSpanProcessor,
+}));
+vi.mock("@opentelemetry/exporter-trace-otlp-proto", () => ({
+    OTLPTraceExporter: exporter.OTLPTraceExporter,
+}));
+vi.mock("@opentelemetry/instrumentation-undici", () => ({
+    UndiciInstrumentation: undici.UndiciInstrumentation,
+}));
+vi.mock("@opentelemetry/instrumentation", () => ({
+    registerInstrumentations: autoLoader.registerInstrumentations,
+}));
 
 const url = "https://otlp-gateway-prod-eu-west-0.grafana.net/otlp";
 const app = { name: "@monorepo/external", version: "1.0.0", environment: "production" };
@@ -33,11 +43,16 @@ function start(config: Partial<Config> = {}) {
 }
 
 function exporterOptions() {
-    return exporter.OTLPTraceExporter.mock.calls[0]?.[0] as { url: string, headers: Record<string, string> };
+    return exporter.OTLPTraceExporter.mock.calls[0]?.[0] as {
+        url: string;
+        headers: Record<string, string>;
+    };
 }
 
 function providerOptions() {
-    return provider.NodeTracerProvider.mock.calls[0]?.[0] as { resource: { attributes: Record<string, string> } };
+    return provider.NodeTracerProvider.mock.calls[0]?.[0] as {
+        resource: { attributes: Record<string, string> };
+    };
 }
 
 beforeEach(() => {

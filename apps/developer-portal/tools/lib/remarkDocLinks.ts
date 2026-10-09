@@ -4,21 +4,24 @@ import { isPlaceholder, resolveDocLink } from "../../shared/docLinks.ts";
 import { WORKSPACE_ROOT } from "./paths.ts";
 
 interface MarkdownNode {
-    type: string
-    url?: string
-    children?: MarkdownNode[]
+    type: string;
+    url?: string;
+    children?: MarkdownNode[];
 }
 
 /** `@nuxtjs/mdc` hands the parser the collection's file record, whose `path` is absolute. */
 interface SourceFile {
-    path?: string
+    path?: string;
 }
 
 /**
  * Reference definitions and bare autolinks are not used anywhere in these docs, so an inline `link`
  * is every link there is. Takes the parent, because a placeholder is replaced by its own children.
  */
-function eachLink(parent: MarkdownNode, apply: (link: MarkdownNode) => MarkdownNode[] | null): void {
+function eachLink(
+    parent: MarkdownNode,
+    apply: (link: MarkdownNode) => MarkdownNode[] | null,
+): void {
     const children = parent.children ?? [];
 
     for (let index = children.length - 1; index >= 0; index -= 1) {

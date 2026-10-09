@@ -27,7 +27,10 @@ export function toArticleSummary(entry: Entry): ArticleSummary {
         authors: entry.authors.map(toAuthor),
         category: categories[0],
         tags,
-        format: toFormat(categories.map(({ slug }) => slug), tags.map(({ slug }) => slug)),
+        format: toFormat(
+            categories.map(({ slug }) => slug),
+            tags.map(({ slug }) => slug),
+        ),
         readingMinutes: toReadingMinutes(entry.body),
     };
 }
@@ -36,7 +39,8 @@ export function toArticleSummary(entry: Entry): ArticleSummary {
 function toFormat(categorySlugs: string[], tagSlugs: string[]): ArticleSummary["format"] {
     if (tagSlugs.includes(FORMAT_SLUGS.thesisTag)) return "tfg-tfm";
     if (categorySlugs.includes(FORMAT_SLUGS.essayCategory)) return "ensayo";
-    if (tagSlugs.some((slug) => slug.startsWith(FORMAT_SLUGS.caseCommentTagPrefix))) return "comentario";
+    if (tagSlugs.some((slug) => slug.startsWith(FORMAT_SLUGS.caseCommentTagPrefix)))
+        return "comentario";
 
     return "articulo";
 }

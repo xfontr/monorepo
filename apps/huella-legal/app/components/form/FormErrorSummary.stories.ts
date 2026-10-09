@@ -18,4 +18,6 @@ type Story = StoryObj<typeof FormErrorSummary>;
 
 export const TwoFields: Story = {};
 
-export const OneField: Story = { args: { errors: [{ id: "email", label: "Correo electrónico", message: "falta el dominio." }] } };
+export const OneField: Story = {
+    args: { errors: [{ id: "email", label: "Correo electrónico", message: "falta el dominio." }] },
+};

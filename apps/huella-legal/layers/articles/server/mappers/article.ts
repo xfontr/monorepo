@@ -5,13 +5,14 @@ import { toArticleSummary } from "./articleSummary";
 import { type Journal, toCitations } from "./citation";
 
 export interface Publication {
-    siteUrl: string
-    journal: Journal
+    siteUrl: string;
+    journal: Journal;
 }
 
 export function toArticle(entry: Entry, { siteUrl, journal }: Publication): Article {
     const summary = toArticleSummary(entry);
-    const permalink = new URL(`${entry.slug}/`, siteUrl.endsWith("/") ? siteUrl : `${siteUrl}/`).href;
+    const permalink = new URL(`${entry.slug}/`, siteUrl.endsWith("/") ? siteUrl : `${siteUrl}/`)
+        .href;
 
     return {
         ...summary,

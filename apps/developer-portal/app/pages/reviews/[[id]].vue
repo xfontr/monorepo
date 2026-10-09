@@ -10,12 +10,15 @@ const { data: reviews } = await useReviewPages();
 const selected = computed(() => {
     const id = (route.params.id as string | undefined) ?? "";
 
-    return id.length > 0 ? `/docs/reviews/${id}` : reviews.value[0]?.path ?? null;
+    return id.length > 0 ? `/docs/reviews/${id}` : (reviews.value[0]?.path ?? null);
 });
 
 const { data: page } = await useAsyncData(
     () => `review-${selected.value ?? "none"}`,
-    () => (selected.value === null ? Promise.resolve(null) : queryCollection("docs").path(selected.value).first()),
+    () =>
+        selected.value === null
+            ? Promise.resolve(null)
+            : queryCollection("docs").path(selected.value).first(),
     { watch: [selected] },
 );
 
@@ -45,26 +48,18 @@ function idOf(path: string): string {
         </template>
 
         <template #body>
-            <div
-                v-if="reviews.length === 0"
-                class="p-12 text-center"
-            >
-                <UIcon
-                    name="i-lucide-clipboard-check"
-                    class="size-8 text-dimmed mx-auto mb-2"
-                />
+            <div v-if="reviews.length === 0" class="p-12 text-center">
+                <UIcon name="i-lucide-clipboard-check" class="size-8 text-dimmed mx-auto mb-2" />
                 <p class="text-sm text-muted">
                     No review under <code class="font-mono">docs/reviews/</code> yet.
                 </p>
                 <p class="text-xs text-dimmed mt-1">
-                    The <code class="font-mono">repo-review</code> skill writes them, one dated file per review.
+                    The <code class="font-mono">repo-review</code> skill writes them, one dated file
+                    per review.
                 </p>
             </div>
 
-            <div
-                v-else
-                class="grid lg:grid-cols-4 gap-4"
-            >
+            <div v-else class="grid lg:grid-cols-4 gap-4">
                 <div class="flex flex-col gap-3">
                     <UCard :ui="{ body: 'p-0 sm:p-0' }">
                         <div class="divide-y divide-default">
@@ -113,10 +108,7 @@ function idOf(path: string): string {
                         :ui="{ description: 'text-xs' }"
                     />
 
-                    <ContentRenderer
-                        v-if="page"
-                        :value="page"
-                    />
+                    <ContentRenderer v-if="page" :value="page" />
 
                     <UAlert
                         v-else

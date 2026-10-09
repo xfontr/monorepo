@@ -15,7 +15,12 @@ const server = setupServer(...tolgeeHandlers(BASE_URL, { "es-ES": ES }));
 // The real provider on the real client, so the fake is held to what TolgeeProvider parses
 function provider() {
     return createProvider(
-        { name: "tolgee", baseURL: BASE_URL, project: "huella-legal", options: { token: "tgpak_test" } },
+        {
+            name: "tolgee",
+            baseURL: BASE_URL,
+            project: "huella-legal",
+            options: { token: "tgpak_test" },
+        },
         new OfetchHttpClient(ofetch.create({ baseURL: BASE_URL })),
     );
 }

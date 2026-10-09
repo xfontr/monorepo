@@ -1,7 +1,7 @@
 <script setup lang="ts">
 interface Props {
-    category: Category
-    articles: ArticleSummary[]
+    category: Category;
+    articles: ArticleSummary[];
 }
 
 defineProps<Props>();
@@ -18,12 +18,12 @@ defineProps<Props>();
                 <BaseSectionHeading
                     id="mas-materia"
                     :title="$t('article.related.title', { subject: category.name })"
-                    :action="{ label: $t('article.related.all'), to: { name: 'category', params: { slug: category.slug } } }"
+                    :action="{
+                        label: $t('article.related.all'),
+                        to: { name: 'category', params: { slug: category.slug } },
+                    }"
                 />
-                <SummaryList
-                    :articles
-                    variant="row"
-                />
+                <SummaryList :articles variant="row" />
             </div>
         </UContainer>
     </section>

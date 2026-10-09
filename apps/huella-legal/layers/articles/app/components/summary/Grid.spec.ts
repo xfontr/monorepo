@@ -33,29 +33,46 @@ describe("article grid", () => {
     });
 
     it("hides an odd last card on request while three columns drop to two, so no card sits alone on its row", async () => {
-        const wrapper = await mountSuspended(SummaryGrid, { props: { articles: THREE, hideOrphan: true }, global });
+        const wrapper = await mountSuspended(SummaryGrid, {
+            props: { articles: THREE, hideOrphan: true },
+            global,
+        });
 
-        const hidden = [...wrapper.element.children].map((item) => item.classList.contains("md:hidden"));
+        const hidden = [...wrapper.element.children].map((item) =>
+            item.classList.contains("md:hidden"),
+        );
 
         expect(hidden).toEqual([false, false, true]);
     });
 
     it("never hides a lone card, which would leave the grid empty at `md`", async () => {
-        const wrapper = await mountSuspended(SummaryGrid, { props: { articles: THREE.slice(0, 1), hideOrphan: true }, global });
+        const wrapper = await mountSuspended(SummaryGrid, {
+            props: { articles: THREE.slice(0, 1), hideOrphan: true },
+            global,
+        });
 
         expect(wrapper.find(".md\\:hidden").exists()).toBe(false);
     });
 
     it("hides nothing in a two-column grid, which never changes column count", async () => {
-        const wrapper = await mountSuspended(SummaryGrid, { props: { articles: THREE, columns: 2, hideOrphan: true }, global });
+        const wrapper = await mountSuspended(SummaryGrid, {
+            props: { articles: THREE, columns: 2, hideOrphan: true },
+            global,
+        });
 
         expect(wrapper.find(".md\\:hidden").exists()).toBe(false);
         expect(wrapper.classes()).not.toContain("lg:grid-cols-3");
     });
 
     it("draws media cards unless told otherwise, since every grid in the design leads with an image", async () => {
-        const media = await mountSuspended(SummaryGrid, { props: { articles: THREE.slice(0, 1) }, global });
-        const standard = await mountSuspended(SummaryGrid, { props: { articles: THREE.slice(0, 1), variant: "standard" }, global });
+        const media = await mountSuspended(SummaryGrid, {
+            props: { articles: THREE.slice(0, 1) },
+            global,
+        });
+        const standard = await mountSuspended(SummaryGrid, {
+            props: { articles: THREE.slice(0, 1), variant: "standard" },
+            global,
+        });
 
         expect(media.text()).toContain("§");
         expect(standard.text()).not.toContain("§");

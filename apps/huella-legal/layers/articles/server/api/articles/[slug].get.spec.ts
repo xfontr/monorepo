@@ -12,12 +12,16 @@ const nitro = vi.hoisted(() => ({
 
 vi.stubGlobal("defineEventHandler", (handler: unknown) => handler);
 vi.stubGlobal("getRouterParam", nitro.param);
-vi.stubGlobal("createError", (input: { statusCode?: number }) => Object.assign(new Error("http"), input));
+vi.stubGlobal("createError", (input: { statusCode?: number }) =>
+    Object.assign(new Error("http"), input),
+);
 vi.stubGlobal("useRuntimeConfig", () => ({ public: { site: { url: nitro.siteUrl } } }));
 vi.stubGlobal("useAppConfig", () => ({ journal: { name: "Huella Legal", issn: "0000-0000" } }));
 vi.stubGlobal("useContent", () => ({ getEntry: nitro.getEntry }));
 
-const handler = (await import("./[slug].get")).default as unknown as (event: unknown) => Promise<Article>;
+const handler = (await import("./[slug].get")).default as unknown as (
+    event: unknown,
+) => Promise<Article>;
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -52,7 +56,10 @@ describe("GET /api/articles/:slug", () => {
     it("fails naming the missing site URL instead of citing a relative address", async () => {
         nitro.siteUrl = "";
 
-        await expect(handler({})).rejects.toMatchObject({ statusCode: 500, statusMessage: "Site is misconfigured: NUXT_PUBLIC_SITE_URL is not set" });
+        await expect(handler({})).rejects.toMatchObject({
+            statusCode: 500,
+            statusMessage: "Site is misconfigured: NUXT_PUBLIC_SITE_URL is not set",
+        });
         expect(nitro.getEntry).not.toHaveBeenCalled();
     });
 });

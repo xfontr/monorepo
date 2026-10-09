@@ -10,7 +10,12 @@ import {
     selectedProject,
 } from "./pick.ts";
 
-const ISSUE = { number: 42, title: "Fix the picker", url: "https://example.test/42", labels: ["bug"] };
+const ISSUE = {
+    number: 42,
+    title: "Fix the picker",
+    url: "https://example.test/42",
+    labels: ["bug"],
+};
 
 describe("projectLoad", () => {
     it.each([
@@ -48,8 +53,12 @@ describe("issue selection", () => {
     });
 
     it("matches labels by name or description", () => {
-        expect(labelOptionMatches("", { value: "bug", hint: "Something broken" }, "broken")).toBe(true);
-        expect(labelOptionMatches("", { value: "bug", hint: "Something broken" }, "feature")).toBe(false);
+        expect(labelOptionMatches("", { value: "bug", hint: "Something broken" }, "broken")).toBe(
+            true,
+        );
+        expect(labelOptionMatches("", { value: "bug", hint: "Something broken" }, "feature")).toBe(
+            false,
+        );
     });
 });
 

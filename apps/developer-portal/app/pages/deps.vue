@@ -16,10 +16,7 @@ const severities = ["critical", "high", "moderate", "low"] as const;
                     <UDashboardSidebarCollapse />
                 </template>
                 <template #right>
-                    <SnapshotAge
-                        :manifest="snapshot?.manifest ?? null"
-                        artifact="deps"
-                    />
+                    <SnapshotAge :manifest="snapshot?.manifest ?? null" artifact="deps" />
                 </template>
             </UDashboardNavbar>
         </template>
@@ -36,7 +33,11 @@ const severities = ["critical", "high", "moderate", "low"] as const;
                         :label="severity"
                         :value="deps?.vulnerabilities ? deps.vulnerabilities[severity] : '—'"
                         hint="pnpm audit"
-                        :tone="deps?.vulnerabilities && deps.vulnerabilities[severity] > 0 ? severityTone(severity) : 'neutral'"
+                        :tone="
+                            deps?.vulnerabilities && deps.vulnerabilities[severity] > 0
+                                ? severityTone(severity)
+                                : 'neutral'
+                        "
                     />
                     <StatTile
                         label="outdated"
@@ -50,51 +51,33 @@ const severities = ["critical", "high", "moderate", "low"] as const;
                     <template #header>
                         <div class="flex items-center justify-between gap-4">
                             <div>
-                                <h2 class="font-semibold">
-                                    Advisories
-                                </h2>
+                                <h2 class="font-semibold">Advisories</h2>
                                 <p class="text-xs text-muted">
-                                    Every finding <code class="font-mono">pnpm audit --json</code> reports, over the
-                                    whole workspace lockfile.
+                                    Every finding
+                                    <code class="font-mono">pnpm audit --json</code> reports, over
+                                    the whole workspace lockfile.
                                 </p>
                             </div>
 
-                            <span
-                                v-if="deps?.totalDependencies"
-                                class="text-xs text-muted shrink-0"
-                            >{{ deps.totalDependencies }} dependencies audited</span>
+                            <span v-if="deps?.totalDependencies" class="text-xs text-muted shrink-0"
+                                >{{ deps.totalDependencies }} dependencies audited</span
+                            >
                         </div>
                     </template>
 
-                    <div
-                        v-if="advisories.length === 0"
-                        class="p-8 text-center text-sm text-muted"
-                    >
+                    <div v-if="advisories.length === 0" class="p-8 text-center text-sm text-muted">
                         {{ deps?.vulnerabilities ? "No known vulnerabilities." : "Not collected." }}
                     </div>
 
-                    <div
-                        v-else
-                        class="overflow-x-auto"
-                    >
+                    <div v-else class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead class="text-xs text-muted border-b border-default">
                                 <tr>
-                                    <th class="text-left font-medium px-4 py-2">
-                                        Module
-                                    </th>
-                                    <th class="text-left font-medium px-3 py-2">
-                                        Severity
-                                    </th>
-                                    <th class="text-left font-medium px-3 py-2">
-                                        Title
-                                    </th>
-                                    <th class="text-left font-medium px-3 py-2">
-                                        Patched
-                                    </th>
-                                    <th class="text-left font-medium px-4 py-2">
-                                        Pulled in via
-                                    </th>
+                                    <th class="text-left font-medium px-4 py-2">Module</th>
+                                    <th class="text-left font-medium px-3 py-2">Severity</th>
+                                    <th class="text-left font-medium px-3 py-2">Title</th>
+                                    <th class="text-left font-medium px-3 py-2">Patched</th>
+                                    <th class="text-left font-medium px-4 py-2">Pulled in via</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-default">
@@ -118,12 +101,15 @@ const severities = ["critical", "high", "moderate", "low"] as const;
                                             target="_blank"
                                             rel="noopener"
                                             class="hover:underline"
-                                        >{{ advisory.title }}</a>
+                                            >{{ advisory.title }}</a
+                                        >
                                     </td>
                                     <td class="px-3 py-2 font-mono text-xs text-muted">
                                         {{ advisory.patchedVersions }}
                                     </td>
-                                    <td class="px-4 py-2 font-mono text-xs text-muted truncate max-w-64">
+                                    <td
+                                        class="px-4 py-2 font-mono text-xs text-muted truncate max-w-64"
+                                    >
                                         {{ advisory.paths.join(", ") }}
                                     </td>
                                 </tr>
@@ -135,45 +121,31 @@ const severities = ["critical", "high", "moderate", "low"] as const;
                 <UCard :ui="{ body: 'p-0 sm:p-0' }">
                     <template #header>
                         <div>
-                            <h2 class="font-semibold">
-                                Outdated
-                            </h2>
+                            <h2 class="font-semibold">Outdated</h2>
                             <p class="text-xs text-muted">
-                                <code class="font-mono">pnpm outdated -r</code> across every project — wanted is
-                                what the current range in package.json already allows.
+                                <code class="font-mono">pnpm outdated -r</code> across every project
+                                — wanted is what the current range in package.json already allows.
                             </p>
                         </div>
                     </template>
 
-                    <div
-                        v-if="outdated.length === 0"
-                        class="p-8 text-center text-sm text-muted"
-                    >
-                        {{ deps?.outdated ? "Everything is on its wanted version." : "Not collected." }}
+                    <div v-if="outdated.length === 0" class="p-8 text-center text-sm text-muted">
+                        {{
+                            deps?.outdated
+                                ? "Everything is on its wanted version."
+                                : "Not collected."
+                        }}
                     </div>
 
-                    <div
-                        v-else
-                        class="overflow-x-auto"
-                    >
+                    <div v-else class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead class="text-xs text-muted border-b border-default">
                                 <tr>
-                                    <th class="text-left font-medium px-4 py-2">
-                                        Package
-                                    </th>
-                                    <th class="text-right font-medium px-3 py-2">
-                                        Current
-                                    </th>
-                                    <th class="text-right font-medium px-3 py-2">
-                                        Wanted
-                                    </th>
-                                    <th class="text-right font-medium px-3 py-2">
-                                        Latest
-                                    </th>
-                                    <th class="text-left font-medium px-4 py-2">
-                                        Used by
-                                    </th>
+                                    <th class="text-left font-medium px-4 py-2">Package</th>
+                                    <th class="text-right font-medium px-3 py-2">Current</th>
+                                    <th class="text-right font-medium px-3 py-2">Wanted</th>
+                                    <th class="text-right font-medium px-3 py-2">Latest</th>
+                                    <th class="text-left font-medium px-4 py-2">Used by</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-default">
@@ -184,10 +156,9 @@ const severities = ["critical", "high", "moderate", "low"] as const;
                                 >
                                     <td class="px-4 py-2 font-mono text-xs">
                                         {{ pkg.name }}
-                                        <span
-                                            v-if="pkg.isDeprecated"
-                                            class="tone-bad"
-                                        >· deprecated</span>
+                                        <span v-if="pkg.isDeprecated" class="tone-bad"
+                                            >· deprecated</span
+                                        >
                                     </td>
                                     <td class="px-3 py-2 text-right tabular-nums text-muted">
                                         {{ pkg.current }}
@@ -198,7 +169,9 @@ const severities = ["critical", "high", "moderate", "low"] as const;
                                     <td class="px-3 py-2 text-right tabular-nums">
                                         {{ pkg.latest }}
                                     </td>
-                                    <td class="px-4 py-2 font-mono text-xs text-muted truncate max-w-64">
+                                    <td
+                                        class="px-4 py-2 font-mono text-xs text-muted truncate max-w-64"
+                                    >
                                         {{ pkg.dependents.join(", ") }}
                                     </td>
                                 </tr>

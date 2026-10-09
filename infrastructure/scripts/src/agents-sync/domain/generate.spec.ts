@@ -18,15 +18,17 @@ describe("Claude adapter paths", () => {
     });
 
     it("keeps a skill at the same depth so its relative links still resolve", () => {
-        expect(claudeSkillPath(".agents/skills/house-docs/SKILL.md"))
-            .toBe(".claude/skills/house-docs/SKILL.md");
+        expect(claudeSkillPath(".agents/skills/house-docs/SKILL.md")).toBe(
+            ".claude/skills/house-docs/SKILL.md",
+        );
     });
 });
 
 describe("renderGeneratedMarkdown", () => {
     it("puts the source warning ahead of an instruction document", () => {
-        expect(renderGeneratedMarkdown("# Rules\n", "AGENTS.md"))
-            .toBe("<!-- Generated from `AGENTS.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->\n\n# Rules\n");
+        expect(renderGeneratedMarkdown("# Rules\n", "AGENTS.md")).toBe(
+            "<!-- Generated from `AGENTS.md` by `pnpm agents:sync`. Edit the source, then rerun the command. -->\n\n# Rules\n",
+        );
     });
 
     it("keeps skill frontmatter first so Claude still discovers its metadata", () => {
@@ -40,17 +42,25 @@ describe("renderGeneratedMarkdown", () => {
 
 describe("renderManifest", () => {
     it("keeps the generated set explicit so stale adapters can be removed safely", () => {
-        expect(renderManifest(["CLAUDE.md", ".claude/skills/demo/SKILL.md"]))
-            .toBe("{\n  \"files\": [\n    \"CLAUDE.md\",\n    \".claude/skills/demo/SKILL.md\"\n  ]\n}\n");
+        expect(renderManifest(["CLAUDE.md", ".claude/skills/demo/SKILL.md"])).toBe(
+            '{\n  "files": [\n    "CLAUDE.md",\n    ".claude/skills/demo/SKILL.md"\n  ]\n}\n',
+        );
     });
 });
 
 describe("staleTargets", () => {
     it("removes only previously recorded Claude adapters that no longer have a source", () => {
-        expect(staleTargets(
-            ["CLAUDE.md", "packages/old/CLAUDE.md", ".claude/skills/old/SKILL.md", ".claude/settings.json"],
-            ["CLAUDE.md"],
-        )).toEqual(["packages/old/CLAUDE.md", ".claude/skills/old/SKILL.md"]);
+        expect(
+            staleTargets(
+                [
+                    "CLAUDE.md",
+                    "packages/old/CLAUDE.md",
+                    ".claude/skills/old/SKILL.md",
+                    ".claude/settings.json",
+                ],
+                ["CLAUDE.md"],
+            ),
+        ).toEqual(["packages/old/CLAUDE.md", ".claude/skills/old/SKILL.md"]);
     });
 
     it("never treats native Claude configuration as generated output", () => {

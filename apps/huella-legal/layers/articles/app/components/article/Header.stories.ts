@@ -9,7 +9,8 @@ const ARTICLE: Article = {
     id: "1",
     slug: "el-tribunal-del-jurado",
     title: "El tribunal del jurado en España",
-    excerpt: "Una lectura de la jurisprudencia reciente y de lo que cambia para quien estudia la materia por primera vez.",
+    excerpt:
+        "Una lectura de la jurisprudencia reciente y de lo que cambia para quien estudia la materia por primera vez.",
     publishedAt: "2024-03-12T09:00:00Z",
     authors: [MARIA],
     category: { id: "1", slug: "derecho-penal", name: "Derecho penal" },
@@ -32,8 +33,14 @@ type Story = StoryObj<typeof ArticleHeader>;
 
 export const Article: Story = {};
 
-export const SeveralAuthors: Story = { args: { article: { ...ARTICLE, authors: [MARIA, LUIS], format: "tfg-tfm" } } };
+export const SeveralAuthors: Story = {
+    args: { article: { ...ARTICLE, authors: [MARIA, LUIS], format: "tfg-tfm" } },
+};
 
-export const NoCategory: Story = { args: { article: { ...ARTICLE, category: undefined, format: "ensayo" } } };
+export const NoCategory: Story = {
+    args: { article: { ...ARTICLE, category: undefined, format: "ensayo" } },
+};
 
-export const NoExcerpt: Story = { args: { article: { ...ARTICLE, excerpt: undefined, format: "comentario" } } };
+export const NoExcerpt: Story = {
+    args: { article: { ...ARTICLE, excerpt: undefined, format: "comentario" } },
+};

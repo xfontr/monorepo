@@ -31,10 +31,12 @@ describe("useWiki", () => {
 
         expect(query).toHaveBeenCalledWith("docs");
         expect(chain.select).toHaveBeenCalledWith("path", "title");
-        expect(wrapper.vm.data).toEqual(expect.arrayContaining([
-            expect.objectContaining({ id: "workspace" }),
-            expect.objectContaining({ id: "docs" }),
-        ]));
+        expect(wrapper.vm.data).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ id: "workspace" }),
+                expect.objectContaining({ id: "docs" }),
+            ]),
+        );
     });
 
     it("starts with an empty navigation array and the shared wiki key", async () => {

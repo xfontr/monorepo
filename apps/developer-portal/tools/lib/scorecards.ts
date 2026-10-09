@@ -12,15 +12,18 @@ export const SCORE_CARDS = [
 ] as const;
 
 export interface ParsedScores {
-    cards: ScoreRow[]
-    total: number
-    totalDelta: string
+    cards: ScoreRow[];
+    total: number;
+    totalDelta: string;
 }
 
 const SCORES_SECTION = /## 🧮 Scores\n([\s\S]*?)(?:\n## |$)/;
 
 function cellsOf(row: string): string[] {
-    return row.split("|").slice(1, -1).map((cell) => cell.trim());
+    return row
+        .split("|")
+        .slice(1, -1)
+        .map((cell) => cell.trim());
 }
 
 /**
@@ -57,7 +60,8 @@ export function parseScoresTable(markdown: string): ParsedScores | null {
 
         const match = /^(\d)\/5$/.exec(scoreCell ?? "");
 
-        if (card && match) cards.push({ card, score: Number.parseInt(match[1] ?? "", 10), delta, verdict });
+        if (card && match)
+            cards.push({ card, score: Number.parseInt(match[1] ?? "", 10), delta, verdict });
     }
 
     return total === null ? null : { cards, total, totalDelta };
@@ -78,7 +82,11 @@ export function scorecardShapeProblems(parsed: ParsedScores | null): string[] {
     if (missing.length > 0) problems.push(`missing card row(s): ${missing.join(", ")}`);
     if (extra.length > 0) problems.push(`unrecognised card row(s): ${extra.join(", ")}`);
 
-    if (missing.length === 0 && extra.length === 0 && !SCORE_CARDS.every((name, index) => names[index] === name)) {
+    if (
+        missing.length === 0 &&
+        extra.length === 0 &&
+        !SCORE_CARDS.every((name, index) => names[index] === name)
+    ) {
         problems.push("card rows are out of SCORECARDS.md's order");
     }
 

@@ -23,4 +23,6 @@ export const WithAvatars: Story = { args: { authors: [MARIA, LUIS, MARTA], avata
 
 export const OneMinuteRead: Story = { args: { readingMinutes: 1 } };
 
-export const NamesOnly: Story = { args: { authors: [MARIA, LUIS], publishedAt: undefined, readingMinutes: undefined } };
+export const NamesOnly: Story = {
+    args: { authors: [MARIA, LUIS], publishedAt: undefined, readingMinutes: undefined },
+};

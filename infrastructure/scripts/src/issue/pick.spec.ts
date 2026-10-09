@@ -1,13 +1,30 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CancelledError } from "../shared/errors.ts";
 
-const prompts = vi.hoisted(() => ({ autocomplete: vi.fn(), confirm: vi.fn(), select: vi.fn(), text: vi.fn() }));
+const prompts = vi.hoisted(() => ({
+    autocomplete: vi.fn(),
+    confirm: vi.fn(),
+    select: vi.fn(),
+    text: vi.fn(),
+}));
 const state = vi.hoisted(() => ({ cancel: Symbol("cancel") }));
-const gh = vi.hoisted(() => ({ assignToMe: vi.fn(), developBranch: vi.fn(), isOnline: vi.fn(), listIssues: vi.fn(), listProjects: vi.fn(), moveToInProgress: vi.fn() }));
+const gh = vi.hoisted(() => ({
+    assignToMe: vi.fn(),
+    developBranch: vi.fn(),
+    isOnline: vi.fn(),
+    listIssues: vi.fn(),
+    listProjects: vi.fn(),
+    moveToInProgress: vi.fn(),
+}));
 const git = vi.hoisted(() => ({ branchForIssue: vi.fn(), checkout: vi.fn() }));
 const io = vi.hoisted(() => ({
     out: {
-        begin: vi.fn(), end: vi.fn(), note: vi.fn(), warn: vi.fn(), success: vi.fn(), error: vi.fn(),
+        begin: vi.fn(),
+        end: vi.fn(),
+        note: vi.fn(),
+        warn: vi.fn(),
+        success: vi.fn(),
+        error: vi.fn(),
         spinner: vi.fn(() => ({ start: vi.fn(), stop: vi.fn(), message: vi.fn() })),
     },
 }));
@@ -15,10 +32,12 @@ vi.mock("@clack/prompts", () => prompts);
 vi.mock("./adapters/gh.ts", () => gh);
 vi.mock("./adapters/git.ts", () => git);
 vi.mock("../shared/adapters/io.ts", () => io);
-vi.mock("../shared/adapters/prompts.ts", () => ({ orExit: (value: unknown, message: string) => {
-    if (value === state.cancel) throw new CancelledError(message);
-    return value;
-} }));
+vi.mock("../shared/adapters/prompts.ts", () => ({
+    orExit: (value: unknown, message: string) => {
+        if (value === state.cancel) throw new CancelledError(message);
+        return value;
+    },
+}));
 
 import { pick } from "./pick.ts";
 
@@ -66,16 +85,20 @@ describe("issue pick", () => {
     });
 
     it("falls back to cached issues after an offline live issue request fails", async () => {
-        gh.listIssues.mockImplementationOnce(() => {
-            throw new Error("offline");
-        }).mockReturnValueOnce([ISSUE]);
+        gh.listIssues
+            .mockImplementationOnce(() => {
+                throw new Error("offline");
+            })
+            .mockReturnValueOnce([ISSUE]);
         gh.isOnline.mockReturnValue(false);
 
         await pick();
 
         expect(gh.listIssues).toHaveBeenNthCalledWith(1, "Roadmap", false);
         expect(gh.listIssues).toHaveBeenNthCalledWith(2, "Roadmap", true);
-        const issuePrompt = prompts.autocomplete.mock.calls[0]?.[0] as { filter: (search: string, option: { value: unknown }) => boolean };
+        const issuePrompt = prompts.autocomplete.mock.calls[0]?.[0] as {
+            filter: (search: string, option: { value: unknown }) => boolean;
+        };
         expect(issuePrompt.filter("42", { value: ISSUE })).toBe(true);
     });
 
@@ -154,19 +177,25 @@ describe("issue pick", () => {
     it("validates branch titles before asking gh to create the branch", async () => {
         await pick();
 
-        const branchPrompt = prompts.text.mock.calls[0]?.[0] as { validate: (value: string) => string | undefined };
+        const branchPrompt = prompts.text.mock.calls[0]?.[0] as {
+            validate: (value: string) => string | undefined;
+        };
         expect(branchPrompt.validate("!!!")).toBe("Needs at least one letter or digit.");
     });
 
     it("turns cancellation at each prompt boundary into a clean cancellation", async () => {
         prompts.select.mockReset();
         prompts.select.mockResolvedValue(state.cancel);
-        await expect(pick()).rejects.toThrow(new CancelledError("Cancelled — still on the same branch."));
+        await expect(pick()).rejects.toThrow(
+            new CancelledError("Cancelled — still on the same branch."),
+        );
 
         vi.clearAllMocks();
         gh.listProjects.mockReturnValue([PROJECT]);
         prompts.select.mockResolvedValue("Roadmap");
         prompts.autocomplete.mockResolvedValue(state.cancel);
-        await expect(pick()).rejects.toThrow(new CancelledError("Cancelled — still on the same branch."));
+        await expect(pick()).rejects.toThrow(
+            new CancelledError("Cancelled — still on the same branch."),
+        );
     });
 });

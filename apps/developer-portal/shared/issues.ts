@@ -9,14 +9,14 @@ const EMPHASIS = /[*_`~]+/g;
 
 /** One open issue normalized from the browser-side GitHub read. */
 export interface Issue {
-    number: number
-    title: string
-    body: string
-    url: string
-    labels: string[]
-    assignees: string[]
-    createdAt: string
-    updatedAt: string
+    number: number;
+    title: string;
+    body: string;
+    url: string;
+    labels: string[];
+    assignees: string[];
+    createdAt: string;
+    updatedAt: string;
 }
 
 /**
@@ -50,15 +50,16 @@ export function labelsOf(issues: Issue[]): string[] {
 }
 
 export interface IssueFilter {
-    label?: string
-    search?: string
+    label?: string;
+    search?: string;
 }
 
 export function filterIssues(issues: Issue[], filter: IssueFilter): Issue[] {
     const needle = filter.search?.trim().toLowerCase() ?? "";
 
     return issues.filter((issue) => {
-        if (filter.label && filter.label !== "all" && !issue.labels.includes(filter.label)) return false;
+        if (filter.label && filter.label !== "all" && !issue.labels.includes(filter.label))
+            return false;
         if (needle.length === 0) return true;
 
         return `#${issue.number} ${issue.title} ${issue.body}`.toLowerCase().includes(needle);
@@ -67,16 +68,16 @@ export function filterIssues(issues: Issue[], filter: IssueFilter): Issue[] {
 
 /** The half of GitHub's REST issue payload this app reads; everything else is dropped. */
 export interface GithubIssue {
-    number: number
-    title: string
-    body: string | null
-    html_url: string
-    labels: { name: string }[]
-    assignees: { login: string }[]
-    created_at: string
-    updated_at: string
+    number: number;
+    title: string;
+    body: string | null;
+    html_url: string;
+    labels: { name: string }[];
+    assignees: { login: string }[];
+    created_at: string;
+    updated_at: string;
     /** Set only on a pull request, which the issues endpoint returns alongside the issues. */
-    pull_request?: unknown
+    pull_request?: unknown;
 }
 
 /** `html_url`, not `url` — the latter is the API's own address for the issue and renders as JSON. */
@@ -104,11 +105,13 @@ export function issuesApiUrl(repoUrl: string): string | null {
 
 /** The browser-side GitHub read, including a displayable error when it could not complete. */
 export interface IssuesRead {
-    fetchedAt: string
-    error: string | null
-    issues: Issue[]
+    fetchedAt: string;
+    error: string | null;
+    issues: Issue[];
 }
 
 export function sortIssues(issues: Issue[]): Issue[] {
-    return issues.slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || b.number - a.number);
+    return issues
+        .slice()
+        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || b.number - a.number);
 }

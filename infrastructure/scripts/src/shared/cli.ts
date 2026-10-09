@@ -40,9 +40,11 @@ export const run = async (commands: Command | Record<string, Command>): Promise<
             return;
         }
 
-        await result.command({ flags: result.args.flags, positionals: result.args.positionalsWithoutCommandName });
-    }
-    catch (error) {
+        await result.command({
+            flags: result.args.flags,
+            positionals: result.args.positionalsWithoutCommandName,
+        });
+    } catch (error) {
         report(error);
     }
 };

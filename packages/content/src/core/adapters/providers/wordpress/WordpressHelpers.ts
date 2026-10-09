@@ -1,8 +1,23 @@
-import type { Asset, Author, Entry, Page, Query, SEO, Term, TermResource } from "#core/domain/content";
+import type {
+    Asset,
+    Author,
+    Entry,
+    Page,
+    Query,
+    SEO,
+    Term,
+    TermResource,
+} from "#core/domain/content";
 import { DEFAULT_PER_PAGE } from "#core/domain/content";
 import type { HttpResponse, RequestOptions } from "#core/ports/HttpClient";
 import { TAXONOMIES, WP_MAX_PER_PAGE } from "./WordpressConfigs";
-import type { WordpressEntry, WordpressMedia, WordpressTerm, WordpressUser, WordpressYoast } from "./WordpressTypes";
+import type {
+    WordpressEntry,
+    WordpressMedia,
+    WordpressTerm,
+    WordpressUser,
+    WordpressYoast,
+} from "./WordpressTypes";
 
 function toPerPage(perPage?: number): number {
     return Math.min(perPage ?? DEFAULT_PER_PAGE, WP_MAX_PER_PAGE);
@@ -19,7 +34,11 @@ export function toWordpressQuery(query?: Query): RequestOptions["query"] {
     };
 }
 
-export function toPage<S, T>({ data, headers }: HttpResponse<S[]>, query: Query | undefined, map: (source: S) => T): Page<T> {
+export function toPage<S, T>(
+    { data, headers }: HttpResponse<S[]>,
+    query: Query | undefined,
+    map: (source: S) => T,
+): Page<T> {
     const items = (data ?? []).map(map);
 
     return {
@@ -81,13 +100,15 @@ export function toTerm(term: WordpressTerm, resource: TermResource): Term {
 function toAuthor(user: WordpressUser): Author[] {
     if (user.id === undefined || !user.name) return [];
 
-    return [{
-        id: String(user.id),
-        slug: user.slug,
-        name: user.name,
-        bio: user.description || undefined,
-        avatar: toAvatar(user),
-    }];
+    return [
+        {
+            id: String(user.id),
+            slug: user.slug,
+            name: user.name,
+            bio: user.description || undefined,
+            avatar: toAvatar(user),
+        },
+    ];
 }
 
 function toAvatar(user: WordpressUser): Asset | undefined {

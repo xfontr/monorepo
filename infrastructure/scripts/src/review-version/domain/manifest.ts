@@ -11,8 +11,8 @@ export const METHOD_ARTIFACTS = [
 export type Digests = Record<string, string>;
 
 export interface Manifest {
-    version: number
-    digests: Digests
+    version: number;
+    digests: Digests;
 }
 
 const VERSION_LINE = /(Method \*\*version )(\d+)(\*\*)/;
@@ -39,7 +39,9 @@ export const parseManifest = (markdown: string): Manifest | null => {
 };
 
 export const staleArtifacts = (manifest: Manifest | null, digests: Digests): string[] =>
-    manifest === null ? [...METHOD_ARTIFACTS] : METHOD_ARTIFACTS.filter((path) => manifest.digests[path] !== digests[path]);
+    manifest === null
+        ? [...METHOD_ARTIFACTS]
+        : METHOD_ARTIFACTS.filter((path) => manifest.digests[path] !== digests[path]);
 
 /** Rewrites the version line and the rows in place, never the file, so the prose around them stays hand-written. */
 export const updateManifest = (markdown: string, digests: Digests): string => {
@@ -61,8 +63,11 @@ export const updateManifest = (markdown: string, digests: Digests): string => {
     if (!seen) return markdown;
     if (!changed) return lines.join("\n");
 
-    return lines.join("\n").replace(
-        VERSION_LINE,
-        (_, before: string, version: string, after: string) => `${before}${Number.parseInt(version, 10) + 1}${after}`,
-    );
+    return lines
+        .join("\n")
+        .replace(
+            VERSION_LINE,
+            (_, before: string, version: string, after: string) =>
+                `${before}${Number.parseInt(version, 10) + 1}${after}`,
+        );
 };

@@ -17,16 +17,21 @@ describe("annotateHeadings", () => {
             { id: "introduccion", label: "Introducción", level: 2 },
             { id: "el-tipo-objetivo", label: "El tipo objetivo", level: 3 },
         ]);
-        expect(html).toContain("<h2 id=\"introduccion\">");
+        expect(html).toContain('<h2 id="introduccion">');
     });
 
     // 13 posts already carry heading ids, and old deep links point at them
     it("keeps a heading's existing id", () => {
-        expect(annotate("<h2 id=\"conclusiones-finales\">Conclusiones</h2>").toc[0]?.id).toBe("conclusiones-finales");
+        expect(annotate('<h2 id="conclusiones-finales">Conclusiones</h2>').toc[0]?.id).toBe(
+            "conclusiones-finales",
+        );
     });
 
     it("never repeats an id", () => {
-        expect(annotate("<h2>Dolo</h2><h2>Dolo</h2>").toc.map(({ id }) => id)).toEqual(["dolo", "dolo-2"]);
+        expect(annotate("<h2>Dolo</h2><h2>Dolo</h2>").toc.map(({ id }) => id)).toEqual([
+            "dolo",
+            "dolo-2",
+        ]);
     });
 
     it("leaves out h4 and deeper, and headings with no text", () => {

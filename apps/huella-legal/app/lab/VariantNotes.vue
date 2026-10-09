@@ -1,9 +1,9 @@
 <script setup lang="ts">
 interface Props {
-    label: string
-    compare?: string
-    changes: string[]
-    sources: { element: string, source: string, risk?: boolean }[]
+    label: string;
+    compare?: string;
+    changes: string[];
+    sources: { element: string; source: string; risk?: boolean }[];
 }
 
 // Review aid, not design: a collapsed badge so screenshots of the page itself stay clean
@@ -29,19 +29,14 @@ const open = ref(route.query.notas === "1");
                 v-if="compare"
                 :href="compare"
                 class="mt-1 inline-flex min-h-11 items-center gap-1.5 font-semibold text-ivory-50 underline underline-offset-4"
-            >Comparar con la versión aprobada <UIcon
-                name="i-lucide-arrow-right"
-                class="size-4"
+                >Comparar con la versión aprobada <UIcon name="i-lucide-arrow-right" class="size-4"
             /></a>
 
             <p class="mt-4 text-xs font-semibold uppercase tracking-[0.12em] text-huella-slate-300">
                 Qué cambia
             </p>
             <ul class="mt-2 flex list-disc flex-col gap-1.5 pl-4 marker:text-huella-teal-400">
-                <li
-                    v-for="item in changes"
-                    :key="item"
-                >
+                <li v-for="item in changes" :key="item">
                     {{ item }}
                 </li>
             </ul>
@@ -50,17 +45,14 @@ const open = ref(route.query.notas === "1");
                 De dónde salen los datos
             </p>
             <dl class="mt-2 flex flex-col divide-y divide-huella-slate-700">
-                <div
-                    v-for="item in sources"
-                    :key="item.element"
-                    class="py-2"
-                >
+                <div v-for="item in sources" :key="item.element" class="py-2">
                     <dt class="font-semibold text-ivory-50">
                         {{ item.element }}
                         <span
                             v-if="item.risk"
                             class="ml-1 rounded-xs bg-huella-danger-600 px-1.5 py-0.5 text-[0.6875rem] font-semibold text-ivory-50"
-                        >no está en WP</span>
+                            >no está en WP</span
+                        >
                     </dt>
                     <dd class="mt-0.5 text-huella-slate-300">
                         {{ item.source }}
@@ -75,10 +67,7 @@ const open = ref(route.query.notas === "1");
             class="inline-flex min-h-11 items-center gap-2 rounded-full bg-huella-slate-900 px-4 text-sm font-semibold text-ivory-50 shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             @click="open = !open"
         >
-            <UIcon
-                :name="open ? 'i-lucide-x' : 'i-lucide-flask-conical'"
-                class="size-4"
-            />
+            <UIcon :name="open ? 'i-lucide-x' : 'i-lucide-flask-conical'" class="size-4" />
             {{ open ? "Cerrar notas" : label }}
         </button>
     </aside>

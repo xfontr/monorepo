@@ -16,7 +16,10 @@ const found = [articles[0]!, articles[4]!];
 
         <main class="mx-auto flex max-w-site flex-col gap-6 px-4 py-10 md:px-8 lg:px-12">
             <p class="font-sans text-sm text-muted">
-                <span class="rounded-full bg-huella-ink-900 px-2 py-0.5 text-xs font-semibold text-white">Laboratorio</span>
+                <span
+                    class="rounded-full bg-huella-ink-900 px-2 py-0.5 text-xs font-semibold text-white"
+                    >Laboratorio</span
+                >
                 Cada bloque es el contenido principal de una página; cabecera y pie no cambian.
             </p>
 
@@ -28,32 +31,30 @@ const found = [articles[0]!, articles[4]!];
                 <div class="grid gap-10 lg:grid-cols-12 lg:gap-12">
                     <div class="lg:col-span-7">
                         <Kicker>Error 404</Kicker>
-                        <h1 class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-highlighted text-balance md:text-[3.5rem]">
+                        <h1
+                            class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-highlighted text-balance md:text-[3.5rem]"
+                        >
                             Esta página no existe o ha cambiado de dirección.
                         </h1>
-                        <p class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned">
-                            Puede que el artículo se haya movido al reorganizar las materias. Búscalo por su título o empieza por la portada.
+                        <p
+                            class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned"
+                        >
+                            Puede que el artículo se haya movido al reorganizar las materias.
+                            Búscalo por su título o empieza por la portada.
                         </p>
                         <form
                             class="mt-8 flex max-w-lg flex-col gap-3 sm:flex-row sm:items-end"
                             role="search"
                             @submit.prevent
                         >
-                            <UFormField
-                                label="Buscar en Huella Legal"
-                                class="flex-1"
-                            >
+                            <UFormField label="Buscar en Huella Legal" class="flex-1">
                                 <UInput
                                     icon="i-lucide-search"
                                     placeholder="Título, autor o materia"
                                     class="w-full"
                                 />
                             </UFormField>
-                            <UButton
-                                type="submit"
-                                label="Buscar"
-                                class="justify-center"
-                            />
+                            <UButton type="submit" label="Buscar" class="justify-center" />
                         </form>
                         <UButton
                             variant="link"
@@ -64,7 +65,9 @@ const found = [articles[0]!, articles[4]!];
                         />
                     </div>
                     <div class="lg:col-span-5">
-                        <p class="border-t-2 border-huella-slate-900 pt-4 font-serif text-xl text-highlighted">
+                        <p
+                            class="border-t-2 border-huella-slate-900 pt-4 font-serif text-xl text-highlighted"
+                        >
                             Lo más leído
                         </p>
                         <ul class="mt-2 flex flex-col divide-y divide-(--ui-border-muted)">
@@ -73,10 +76,7 @@ const found = [articles[0]!, articles[4]!];
                                 :key="article.slug"
                                 class="py-4"
                             >
-                                <ArticleCard
-                                    :article
-                                    variant="compact"
-                                />
+                                <ArticleCard :article variant="compact" />
                             </li>
                         </ul>
                     </div>
@@ -93,34 +93,20 @@ const found = [articles[0]!, articles[4]!];
                     role="search"
                     @submit.prevent
                 >
-                    <UFormField
-                        label="Buscar"
-                        class="flex-1"
-                    >
-                        <UInput
-                            icon="i-lucide-search"
-                            model-value="culpabilidad"
-                            class="w-full"
-                        />
+                    <UFormField label="Buscar" class="flex-1">
+                        <UInput icon="i-lucide-search" model-value="culpabilidad" class="w-full" />
                     </UFormField>
-                    <UButton
-                        type="submit"
-                        label="Buscar"
-                        class="justify-center"
-                    />
+                    <UButton type="submit" label="Buscar" class="justify-center" />
                 </form>
                 <p
                     role="status"
                     class="mt-6 max-w-3xl border-b-2 border-huella-slate-900 pb-3 font-sans text-sm text-muted"
                 >
-                    <span class="font-semibold text-highlighted">12 resultados</span> para «culpabilidad»
+                    <span class="font-semibold text-highlighted">12 resultados</span> para
+                    «culpabilidad»
                 </p>
                 <ol class="flex max-w-3xl flex-col divide-y divide-(--ui-border-muted)">
-                    <li
-                        v-for="article in found"
-                        :key="article.slug"
-                        class="py-7 last:pb-0"
-                    >
+                    <li v-for="article in found" :key="article.slug" class="py-7 last:pb-0">
                         <ArticleCard :article />
                     </li>
                 </ol>
@@ -132,35 +118,34 @@ const found = [articles[0]!, articles[4]!];
                     aria-label="Búsqueda sin resultados"
                     class="flex flex-col items-start gap-4 rounded-sm border border-default px-5 py-10 md:px-12"
                 >
-                    <UIcon
-                        name="i-lucide-search-x"
-                        class="size-7 text-dimmed"
-                    />
+                    <UIcon name="i-lucide-search-x" class="size-7 text-dimmed" />
                     <h2 class="font-serif text-h3 text-highlighted text-balance">
                         Ningún resultado para «kardashov»
                     </h2>
-                    <ul class="list-disc pl-5 font-serif text-base leading-relaxed text-toned marker:text-huella-teal-500">
+                    <ul
+                        class="list-disc pl-5 font-serif text-base leading-relaxed text-toned marker:text-huella-teal-500"
+                    >
                         <li>
-Revisa la ortografía: ¿quizá <a
-                            href="#"
-                            data-inline
-                            class="text-primary underline underline-offset-2"
-                        >«Kardashev»</a>?
-</li>
+                            Revisa la ortografía: ¿quizá
+                            <a
+                                href="#"
+                                data-inline
+                                class="text-primary underline underline-offset-2"
+                                >«Kardashev»</a
+                            >?
+                        </li>
                         <li>Prueba con una palabra más general o con el apellido del autor.</li>
                     </ul>
                     <p class="mt-2 font-sans text-meta font-semibold text-highlighted">
                         O explora por materia
                     </p>
                     <ul class="flex flex-wrap gap-2">
-                        <li
-                            v-for="item in categories.slice(0, 4)"
-                            :key="item.slug"
-                        >
+                        <li v-for="item in categories.slice(0, 4)" :key="item.slug">
                             <a
                                 href="/lab/publicaciones"
                                 class="inline-flex min-h-11 items-center rounded-full border border-default px-4 font-sans text-sm font-medium text-toned hover:bg-ivory-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                            >{{ item.name }}</a>
+                                >{{ item.name }}</a
+                            >
                         </li>
                     </ul>
                 </section>
@@ -170,15 +155,13 @@ Revisa la ortografía: ¿quizá <a
                     aria-label="Materia sin publicaciones"
                     class="flex flex-col items-start gap-4 rounded-sm border border-dashed border-(--ui-border-accented) bg-ivory-50 px-5 py-10 md:px-12"
                 >
-                    <UIcon
-                        name="i-lucide-feather"
-                        class="size-7 text-huella-teal-500"
-                    />
+                    <UIcon name="i-lucide-feather" class="size-7 text-huella-teal-500" />
                     <h2 class="font-serif text-h3 text-highlighted text-balance">
                         Todavía no hay publicaciones en Derecho administrativo
                     </h2>
                     <p class="max-w-md font-serif text-base leading-relaxed text-toned">
-                        Es una materia nueva en la revista. Si trabajas en ella, tu artículo puede ser el primero.
+                        Es una materia nueva en la revista. Si trabajas en ella, tu artículo puede
+                        ser el primero.
                     </p>
                     <div class="flex flex-col gap-3 self-stretch sm:flex-row sm:self-start">
                         <UButton
@@ -201,14 +184,13 @@ Revisa la ortografía: ¿quizá <a
                     aria-label="Error del servidor"
                     class="flex flex-col items-start gap-4 rounded-sm border border-default px-5 py-10 md:px-12"
                 >
-                    <Kicker tone="muted">
-                        Error 500
-                    </Kicker>
+                    <Kicker tone="muted"> Error 500 </Kicker>
                     <h2 class="font-serif text-h3 text-highlighted text-balance">
                         No hemos podido cargar esta página
                     </h2>
                     <p class="max-w-md font-serif text-base leading-relaxed text-toned">
-                        El fallo es nuestro y ya está registrado. Vuelve a intentarlo en unos minutos; si continúa, escríbenos.
+                        El fallo es nuestro y ya está registrado. Vuelve a intentarlo en unos
+                        minutos; si continúa, escríbenos.
                     </p>
                     <div class="flex flex-col gap-3 self-stretch sm:flex-row sm:self-start">
                         <UButton
@@ -231,15 +213,9 @@ Revisa la ortografía: ¿quizá <a
                     aria-busy="true"
                     class="rounded-sm border border-default px-5 py-10 md:px-12"
                 >
-                    <p class="sr-only">
-                        Cargando publicaciones…
-                    </p>
+                    <p class="sr-only">Cargando publicaciones…</p>
                     <ul class="flex flex-col divide-y divide-(--ui-border-muted)">
-                        <li
-                            v-for="n in 3"
-                            :key="n"
-                            class="flex gap-6 py-5 first:pt-0"
-                        >
+                        <li v-for="n in 3" :key="n" class="flex gap-6 py-5 first:pt-0">
                             <div class="flex flex-1 flex-col gap-3">
                                 <USkeleton class="h-3 w-28 bg-ivory-200" />
                                 <USkeleton class="h-6 w-11/12 bg-ivory-200" />

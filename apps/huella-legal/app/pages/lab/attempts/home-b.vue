@@ -23,13 +23,21 @@ const formatName = (slug: string) => formats.find((item) => item.slug === slug)!
 
 const shelves = ["derecho-penal", "derechos-fundamentales", "derecho-tecnologico"].map((slug) => {
     const subject = subjects.find((item) => item.slug === slug)!;
-    const items = archive.filter((item) => item.subject === slug && item !== lead && !latest.includes(item));
+    const items = archive.filter(
+        (item) => item.subject === slug && item !== lead && !latest.includes(item),
+    );
 
-    return { subject, items: items.slice(0, 3), total: archive.filter((item) => item.subject === slug).length };
+    return {
+        subject,
+        items: items.slice(0, 3),
+        total: archive.filter((item) => item.subject === slug).length,
+    };
 });
 
 const academic = archive.filter((item) => item.format === "tfg-tfm").slice(0, 3);
-const fromArchive = ["tedh-jueces", "prueba-ilicita", "positivismo-incluyente"].map((slug) => archive.find((item) => item.slug === slug)!);
+const fromArchive = ["tedh-jueces", "prueba-ilicita", "positivismo-incluyente"].map((slug) =>
+    archive.find((item) => item.slug === slug)!,
+);
 
 const notes = {
     changes: [
@@ -43,8 +51,15 @@ const notes = {
     ],
     sources: [
         { element: "Destacado", source: "Entrada fijada (sticky) en WP. Core." },
-        { element: "Lo último y bloques por materia", source: "wp/v2/posts ordenado por fecha, filtrado por categoría. Core." },
-        { element: "Del archivo", source: "Una etiqueta editorial, p. ej. «vigente», puesta a mano. Core, pero es trabajo de redacción.", risk: false },
+        {
+            element: "Lo último y bloques por materia",
+            source: "wp/v2/posts ordenado por fecha, filtrado por categoría. Core.",
+        },
+        {
+            element: "Del archivo",
+            source: "Una etiqueta editorial, p. ej. «vigente», puesta a mano. Core, pero es trabajo de redacción.",
+            risk: false,
+        },
         { element: "Formato en los antetítulos", source: "Convención de S1.", risk: true },
     ],
 };
@@ -52,10 +67,7 @@ const notes = {
 
 <template>
     <div>
-        <SiteHeader
-            :menu-open
-            :nav="navB"
-        />
+        <SiteHeader :menu-open :nav="navB" />
 
         <main class="flex flex-col">
             <section
@@ -64,29 +76,31 @@ const notes = {
             >
                 <article class="group flex flex-col lg:col-span-8 lg:pr-12">
                     <p class="flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-xs">
-                        <span class="font-semibold uppercase tracking-[0.12em] text-secondary">Destacado</span>
-                        <span
-                            class="text-dimmed"
-                            aria-hidden="true"
-                        >·</span>
+                        <span class="font-semibold uppercase tracking-[0.12em] text-secondary"
+                            >Destacado</span
+                        >
+                        <span class="text-dimmed" aria-hidden="true">·</span>
                         <a
                             :href="`/lab/attempts/category-b?materia=${lead.subject}`"
                             data-inline
                             class="font-medium text-muted underline-offset-4 hover:underline"
-                        >{{ lead.category }}</a>
-                        <span
-                            class="text-dimmed"
-                            aria-hidden="true"
-                        >·</span>
+                            >{{ lead.category }}</a
+                        >
+                        <span class="text-dimmed" aria-hidden="true">·</span>
                         <span class="text-dimmed tabular-nums">{{ lead.issue }}</span>
                     </p>
-                    <h1 class="mt-4 max-w-[16ch] font-serif text-[2.625rem] leading-[1.04] tracking-[-0.025em] text-highlighted text-balance md:text-[4rem] lg:text-[4.5rem]">
+                    <h1
+                        class="mt-4 max-w-[16ch] font-serif text-[2.625rem] leading-[1.04] tracking-[-0.025em] text-highlighted text-balance md:text-[4rem] lg:text-[4.5rem]"
+                    >
                         <a
                             href="/lab/attempts/article-b"
                             class="decoration-huella-slate-300 decoration-2 underline-offset-[0.12em] group-hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
-                        >{{ lead.title }}</a>
+                            >{{ lead.title }}</a
+                        >
                     </h1>
-                    <p class="mt-6 max-w-measure border-y border-default py-5 font-serif text-[1.1875rem] leading-relaxed text-toned italic md:text-[1.3125rem]">
+                    <p
+                        class="mt-6 max-w-measure border-y border-default py-5 font-serif text-[1.1875rem] leading-relaxed text-toned italic md:text-[1.3125rem]"
+                    >
                         {{ lead.excerpt }}
                     </p>
                     <Byline
@@ -114,14 +128,23 @@ const notes = {
                             :key="item.slug"
                             class="grid grid-cols-[2rem_1fr] py-4"
                         >
-                            <span class="font-serif text-xl leading-snug text-huella-teal-600 tabular-nums">{{ index + 1 }}</span>
+                            <span
+                                class="font-serif text-xl leading-snug text-huella-teal-600 tabular-nums"
+                                >{{ index + 1 }}</span
+                            >
                             <span class="flex flex-col gap-1">
-                                <span class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary">{{ formatName(item.format) }}</span>
+                                <span
+                                    class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary"
+                                    >{{ formatName(item.format) }}</span
+                                >
                                 <a
                                     href="/lab/attempts/article-b"
                                     class="font-serif text-lg leading-snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                                >{{ item.title }}</a>
-                                <span class="font-sans text-meta text-muted">{{ item.authors.map((person) => person.name).join(", ") }}</span>
+                                    >{{ item.title }}</a
+                                >
+                                <span class="font-sans text-meta text-muted">{{
+                                    item.authors.map((person) => person.name).join(", ")
+                                }}</span>
                             </span>
                         </li>
                     </ol>
@@ -135,21 +158,18 @@ const notes = {
                 </aside>
             </section>
 
-            <section
-                aria-labelledby="serie"
-                class="border-y border-default bg-ivory-50"
-            >
-                <div class="mx-auto grid max-w-site gap-8 px-4 py-12 md:px-8 lg:grid-cols-12 lg:gap-x-12 lg:px-12 lg:py-16">
+            <section aria-labelledby="serie" class="border-y border-default bg-ivory-50">
+                <div
+                    class="mx-auto grid max-w-site gap-8 px-4 py-12 md:px-8 lg:grid-cols-12 lg:gap-x-12 lg:px-12 lg:py-16"
+                >
                     <div class="lg:col-span-3">
                         <Kicker>Serie · {{ fundamentos.length }} lecturas</Kicker>
-                        <h2
-                            id="serie"
-                            class="mt-1 font-serif text-h3 text-highlighted"
-                        >
+                        <h2 id="serie" class="mt-1 font-serif text-h3 text-highlighted">
                             <a
                                 href="/lab/attempts/serie-b"
                                 class="decoration-huella-slate-300 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                            >{{ series[0]!.name }}</a>
+                                >{{ series[0]!.name }}</a
+                            >
                         </h2>
                         <p class="mt-2 font-serif text-base leading-relaxed text-muted">
                             Para leer en orden. Empieza por la primera aunque sepas Derecho.
@@ -165,9 +185,17 @@ const notes = {
                                 href="/lab/attempts/article-b"
                                 class="group grid h-full grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-2 py-3 focus-visible:rounded-xs sm:flex sm:flex-col sm:gap-2 sm:pb-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                             >
-                                <span class="font-serif text-2xl leading-none text-huella-teal-600 tabular-nums sm:text-[2rem]">{{ item.series!.position }}</span>
-                                <span class="font-serif text-lg leading-snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline">{{ item.title }}</span>
-                                <span class="font-sans text-meta tabular-nums text-muted sm:mt-auto">{{ item.readingMinutes }} min</span>
+                                <span
+                                    class="font-serif text-2xl leading-none text-huella-teal-600 tabular-nums sm:text-[2rem]"
+                                    >{{ item.series!.position }}</span
+                                >
+                                <span
+                                    class="font-serif text-lg leading-snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
+                                    >{{ item.title }}</span
+                                >
+                                <span class="font-sans text-meta tabular-nums text-muted sm:mt-auto"
+                                    >{{ item.readingMinutes }} min</span
+                                >
                             </a>
                         </li>
                     </ol>
@@ -207,8 +235,11 @@ const notes = {
                             <a
                                 :href="`/lab/attempts/category-b?materia=${shelf.subject.slug}`"
                                 class="inline-flex min-h-11 items-center font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary underline-offset-4 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary"
-                            >{{ shelf.subject.name }}</a>
-                            <span class="font-sans text-meta tabular-nums text-muted">{{ shelf.total }}</span>
+                                >{{ shelf.subject.name }}</a
+                            >
+                            <span class="font-sans text-meta tabular-nums text-muted">{{
+                                shelf.total
+                            }}</span>
                         </h3>
                         <ol class="flex flex-col divide-y divide-(--ui-border-muted)">
                             <li
@@ -216,25 +247,19 @@ const notes = {
                                 :key="item.slug"
                                 class="py-4 first:pt-2"
                             >
-                                <ArchiveRow
-                                    :entry="item"
-                                    density="compact"
-                                />
+                                <ArchiveRow :entry="item" density="compact" />
                             </li>
                         </ol>
                     </section>
                 </div>
             </section>
 
-            <section
-                aria-labelledby="academicos"
-                class="bg-huella-slate-900 text-huella-slate-200"
-            >
-                <div class="mx-auto grid max-w-site gap-10 px-4 py-14 md:px-8 lg:grid-cols-12 lg:gap-12 lg:px-12 lg:py-16">
+            <section aria-labelledby="academicos" class="bg-huella-slate-900 text-huella-slate-200">
+                <div
+                    class="mx-auto grid max-w-site gap-10 px-4 py-14 md:px-8 lg:grid-cols-12 lg:gap-12 lg:px-12 lg:py-16"
+                >
                     <div class="lg:col-span-4">
-                        <Kicker tone="paper">
-                            Archivo académico
-                        </Kicker>
+                        <Kicker tone="paper"> Archivo académico </Kicker>
                         <h2
                             id="academicos"
                             class="mt-2 font-serif text-[1.75rem] leading-tight text-ivory-50 md:text-h2"
@@ -242,7 +267,8 @@ const notes = {
                             Trabajos de fin de grado y de máster
                         </h2>
                         <p class="mt-3 font-serif text-base leading-relaxed">
-                            Publicados íntegramente y enlazados desde su materia, para que un buen trabajo no acabe en un cajón.
+                            Publicados íntegramente y enlazados desde su materia, para que un buen
+                            trabajo no acabe en un cajón.
                         </p>
                         <div class="-ml-3 mt-4 flex flex-wrap gap-1">
                             <UButton
@@ -266,13 +292,16 @@ const notes = {
                             :key="item.slug"
                             class="border-t border-huella-slate-700 py-5"
                         >
-                            <p class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-huella-teal-300">
+                            <p
+                                class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-huella-teal-300"
+                            >
                                 {{ item.category }}
                             </p>
                             <a
                                 href="/lab/attempts/article-b"
                                 class="mt-2 block font-serif text-lg leading-snug text-ivory-50 decoration-huella-slate-500 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ivory-50"
-                            >{{ item.title }}</a>
+                                >{{ item.title }}</a
+                            >
                             <p class="mt-2 font-sans text-meta text-huella-slate-300">
                                 {{ item.authors[0]!.name }} · {{ item.readingMinutes }} min
                             </p>
@@ -295,18 +324,19 @@ const notes = {
                             Escritos hace años, vigentes hoy
                         </h2>
                     </div>
-                    <ol class="flex flex-col divide-y divide-(--ui-border-muted) border-y border-default lg:col-span-8">
+                    <ol
+                        class="flex flex-col divide-y divide-(--ui-border-muted) border-y border-default lg:col-span-8"
+                    >
                         <li
                             v-for="item in fromArchive"
                             :key="item.slug"
                             class="grid gap-x-6 py-5 sm:grid-cols-[4.5rem_1fr]"
                         >
-                            <span class="font-serif text-2xl leading-tight text-huella-teal-600 tabular-nums">{{ item.year }}</span>
-                            <ArchiveRow
-                                :entry="item"
-                                show-subject
-                                density="compact"
-                            />
+                            <span
+                                class="font-serif text-2xl leading-tight text-huella-teal-600 tabular-nums"
+                                >{{ item.year }}</span
+                            >
+                            <ArchiveRow :entry="item" show-subject density="compact" />
                         </li>
                     </ol>
                 </div>
@@ -316,9 +346,14 @@ const notes = {
                 aria-label="Publicar en Huella Legal"
                 class="mx-auto w-full max-w-site px-4 pb-16 md:px-8 lg:px-12 lg:pb-20"
             >
-                <div class="flex flex-col gap-4 border-t-2 border-huella-slate-900 pt-5 md:flex-row md:items-center md:justify-between md:gap-10">
-                    <p class="max-w-3xl font-serif text-xl leading-snug text-highlighted md:text-h3">
-                        ¿Escribes sobre Derecho? Publicamos artículos, comentarios, ensayos y trabajos académicos, con revisión editorial y respuesta en cinco días.
+                <div
+                    class="flex flex-col gap-4 border-t-2 border-huella-slate-900 pt-5 md:flex-row md:items-center md:justify-between md:gap-10"
+                >
+                    <p
+                        class="max-w-3xl font-serif text-xl leading-snug text-highlighted md:text-h3"
+                    >
+                        ¿Escribes sobre Derecho? Publicamos artículos, comentarios, ensayos y
+                        trabajos académicos, con revisión editorial y respuesta en cinco días.
                     </p>
                     <UButton
                         variant="outline"
@@ -336,10 +371,6 @@ const notes = {
 
         <SiteFooter />
 
-        <VariantNotes
-            label="Portada · variante B"
-            compare="/lab/home"
-            v-bind="notes"
-        />
+        <VariantNotes label="Portada · variante B" compare="/lab/home" v-bind="notes" />
     </div>
 </template>

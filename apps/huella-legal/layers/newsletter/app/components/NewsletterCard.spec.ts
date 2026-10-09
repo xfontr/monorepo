@@ -10,7 +10,11 @@ const MESSAGES = {
         subjectLead: "lead: {subject}",
     },
     newsletterForm: {
-        email: { errors: { invalid: "invalid", required: "required" }, label: "email", placeholder: "placeholder" },
+        email: {
+            errors: { invalid: "invalid", required: "required" },
+            label: "email",
+            placeholder: "placeholder",
+        },
         submit: "submit",
     },
 };
@@ -28,13 +32,17 @@ describe("newsletter card", () => {
     });
 
     it("names the subject in its lead when it sits on a subject page", async () => {
-        const wrapper = await mountSuspended(NewsletterCard, { props: { subject: "derecho penal" } });
+        const wrapper = await mountSuspended(NewsletterCard, {
+            props: { subject: "derecho penal" },
+        });
 
         expect(wrapper.find("p").text()).toBe("lead: derecho penal");
     });
 
     it("hands its state to a stacked form", async () => {
-        const wrapper = await mountSuspended(NewsletterCard, { props: { pending: true, error: "Ya estás suscrita" } });
+        const wrapper = await mountSuspended(NewsletterCard, {
+            props: { pending: true, error: "Ya estás suscrita" },
+        });
 
         expect(wrapper.findComponent({ name: "NewsletterForm" }).props()).toMatchObject({
             layout: "stacked",

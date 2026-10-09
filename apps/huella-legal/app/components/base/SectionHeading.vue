@@ -2,10 +2,10 @@
 import type { LinkAction } from "~/types/LinkAction";
 
 interface Props {
-    title: string
-    kicker?: string
-    action?: LinkAction
-    id?: string
+    title: string;
+    kicker?: string;
+    action?: LinkAction;
+    id?: string;
 }
 
 const props = defineProps<Props>();
@@ -15,12 +15,11 @@ const headingId = computed<string>(() => props.id ?? fallbackId);
 </script>
 
 <template>
-    <div class="flex flex-col gap-2 border-t-2 border-huella-slate-900 pt-4 sm:flex-row sm:items-end sm:justify-between">
+    <div
+        class="flex flex-col gap-2 border-t-2 border-huella-slate-900 pt-4 sm:flex-row sm:items-end sm:justify-between"
+    >
         <div>
-            <p
-                v-if="kicker"
-                class="flex"
-            >
+            <p v-if="kicker" class="flex">
                 <BaseKicker>{{ kicker }}</BaseKicker>
             </p>
             <h2

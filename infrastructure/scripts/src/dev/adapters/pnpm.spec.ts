@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const state = vi.hoisted(() => ({ resolve: vi.fn(), inherit: vi.fn(), repoRoot: vi.fn(() => "/repo") }));
+const state = vi.hoisted(() => ({
+    resolve: vi.fn(),
+    inherit: vi.fn(),
+    repoRoot: vi.fn(() => "/repo"),
+}));
 vi.mock("node:module", () => ({ createRequire: () => ({ resolve: state.resolve }) }));
 vi.mock("../../shared/adapters/exec.ts", () => ({ inherit: state.inherit }));
 vi.mock("../../shared/adapters/git.ts", () => ({ repoRoot: state.repoRoot }));
@@ -41,6 +45,11 @@ describe("dev", () => {
         state.inherit.mockReturnValue(7);
 
         expect(dev("@monorepo/demo")).toBe(7);
-        expect(state.inherit).toHaveBeenCalledWith("pnpm", ["--filter", "@monorepo/demo", "run", "dev"]);
+        expect(state.inherit).toHaveBeenCalledWith("pnpm", [
+            "--filter",
+            "@monorepo/demo",
+            "run",
+            "dev",
+        ]);
     });
 });

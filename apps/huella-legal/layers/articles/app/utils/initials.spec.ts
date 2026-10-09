@@ -7,7 +7,7 @@ describe("initials", () => {
         ["Ana de la Torre", "AT"],
         ["Álvaro Núñez", "ÁN"],
         ["Luis", "L"],
-    ])("skips lower-case particles in %s, so a surname is never a \"d\"", (name, expected) => {
+    ])('skips lower-case particles in %s, so a surname is never a "d"', (name, expected) => {
         expect(initials(name)).toBe(expected);
     });
 

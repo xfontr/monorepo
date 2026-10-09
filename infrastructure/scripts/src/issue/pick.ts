@@ -2,7 +2,16 @@ import { autocomplete, confirm, select, text } from "@clack/prompts";
 import { out } from "../shared/adapters/io.ts";
 import { orExit, type Cancellable } from "../shared/adapters/prompts.ts";
 import { ExpectedError } from "../shared/errors.ts";
-import { assignToMe, developBranch, isOnline, listIssues, listProjects, moveToInProgress, type Issue, type Project } from "./adapters/gh.ts";
+import {
+    assignToMe,
+    developBranch,
+    isOnline,
+    listIssues,
+    listProjects,
+    moveToInProgress,
+    type Issue,
+    type Project,
+} from "./adapters/gh.ts";
 import { branchForIssue, checkout } from "./adapters/git.ts";
 import { ISSUE_SCOPE_HINT, projectOptions, PROJECT_SCOPE_HINT } from "./adapters/prompts.ts";
 import { branchName, BRANCH_TYPES, slugify } from "./domain/branch.ts";
@@ -23,8 +32,8 @@ const or = <T>(value: Cancellable<T>): T => orExit(value, CANCELLED);
 const BACK = Symbol("back to project list");
 
 interface Picked<T> {
-    value: T | undefined
-    offline: boolean
+    value: T | undefined;
+    offline: boolean;
 }
 
 const pickProject = async (): Promise<Picked<Project>> => {
@@ -41,12 +50,15 @@ const pickProject = async (): Promise<Picked<Project>> => {
     }
 
     loading.stop("Ready.");
-    if (offline) out.warn("gh is unreachable — showing cached projects and issues, which may be outdated.");
+    if (offline)
+        out.warn("gh is unreachable — showing cached projects and issues, which may be outdated.");
 
     if (projects.length === 0) {
-        out.warn(offline
-            ? "No cached projects to fall back to — run pick again once you're back online."
-            : PROJECT_SCOPE_HINT);
+        out.warn(
+            offline
+                ? "No cached projects to fall back to — run pick again once you're back online."
+                : PROJECT_SCOPE_HINT,
+        );
         return { value: undefined, offline };
     }
 
@@ -62,14 +74,21 @@ const pickProject = async (): Promise<Picked<Project>> => {
 
 const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue | typeof BACK> => {
     const loading = out.spinner();
-    loading.start(knownOffline ? `Reading cached issues for ${project.title}...` : `Reading ${project.title}...`);
+    loading.start(
+        knownOffline
+            ? `Reading cached issues for ${project.title}...`
+            : `Reading ${project.title}...`,
+    );
 
     let issues: Issue[];
     try {
         issues = listIssues(project.title, knownOffline);
-    }
-    catch {
-        const failure = issueSource({ knownOffline, requestFailed: true, online: !knownOffline && isOnline() });
+    } catch {
+        const failure = issueSource({
+            knownOffline,
+            requestFailed: true,
+            online: !knownOffline && isOnline(),
+        });
 
         if (failure === "auth-error") {
             loading.stop("Couldn't read issues.");
@@ -102,8 +121,7 @@ const assign = (issue: number): void => {
     try {
         assignToMe(issue);
         out.success(`#${issue} assigned to you.`);
-    }
-    catch {
+    } catch {
         out.warn(`Couldn't assign #${issue} to you — the branch is still yours.`);
     }
 };
@@ -112,8 +130,7 @@ const moveToBoard = (project: Project, issue: Issue): void => {
     try {
         moveToInProgress(project, issue);
         out.success(`#${issue.number} moved to In Progress.`);
-    }
-    catch {
+    } catch {
         out.warn(`Couldn't move #${issue.number} to In Progress — the branch is still yours.`);
     }
 };
@@ -122,7 +139,8 @@ const resumeBranch = async (project: Project, issue: Issue): Promise<boolean> =>
     const existing = branchForIssue(issue.number);
     if (!existing) return false;
 
-    if (!or(await confirm({ message: `Branch ${existing} already exists — check it out?` }))) return false;
+    if (!or(await confirm({ message: `Branch ${existing} already exists — check it out?` })))
+        return false;
 
     checkout(existing);
     assign(issue.number);
@@ -144,7 +162,8 @@ const promptBranch = async (project: Project, issue: Issue): Promise<string> => 
         await text({
             message: "Branch title",
             initialValue: issue.title,
-            validate: (value) => (slugify(value ?? "") ? undefined : "Needs at least one letter or digit."),
+            validate: (value) =>
+                slugify(value ?? "") ? undefined : "Needs at least one letter or digit.",
         }),
     );
 
@@ -172,8 +191,7 @@ export const pick = async (): Promise<void> => {
             assign(issue.number);
             moveToBoard(project, issue);
             out.end(branch);
-        }
-        catch (error) {
+        } catch (error) {
             out.error("gh issue develop failed.");
             throw error;
         }

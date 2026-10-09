@@ -17,9 +17,11 @@ vi.mock("../lib/run.ts", () => ({
     tryRun: async <T>(task: () => Promise<T>) => {
         try {
             return { ok: true as const, value: await task() };
-        }
-        catch (cause) {
-            return { ok: false as const, error: cause instanceof Error ? cause.message : String(cause) };
+        } catch (cause) {
+            return {
+                ok: false as const,
+                error: cause instanceof Error ? cause.message : String(cause),
+            };
         }
     },
 }));
@@ -35,7 +37,13 @@ const coverage: CoverageArtifact = {
     totals: null,
     report: false,
     projects: [
-        { name: "@monorepo/ui", root: "packages/ui", collected: true, files: 2, lines: { total: 8, covered: 7, pct: 87.5 } },
+        {
+            name: "@monorepo/ui",
+            root: "packages/ui",
+            collected: true,
+            files: 2,
+            lines: { total: 8, covered: 7, pct: 87.5 },
+        },
         { name: "@monorepo/i18n", root: "packages/i18n", collected: false, files: 0 },
     ],
 };
@@ -44,14 +52,20 @@ beforeEach(() => {
     vi.clearAllMocks();
     state.failHistoryFor = null;
     state.emptySubjects = false;
-    invariants.collectInvariants.mockResolvedValue([{ id: "tags", title: "Tags", detail: "drift", evidence: ["README"] }]);
-    fs.readFile.mockImplementation(async (path: string) => path.endsWith("packages/ui/package.json")
-        ? JSON.stringify({ version: "3.2.1" })
-        : "{}\n");
+    invariants.collectInvariants.mockResolvedValue([
+        { id: "tags", title: "Tags", detail: "drift", evidence: ["README"] },
+    ]);
+    fs.readFile.mockImplementation(async (path: string) =>
+        path.endsWith("packages/ui/package.json") ? JSON.stringify({ version: "3.2.1" }) : "{}\n",
+    );
     run.git.mockImplementation(async (args: string[]) => {
         const root = args.at(-1) ?? "";
 
-        if (state.failHistoryFor === root && (args[0] === "rev-list" || args[0] === "log") && args.includes("--")) {
+        if (
+            state.failHistoryFor === root &&
+            (args[0] === "rev-list" || args[0] === "log") &&
+            args.includes("--")
+        ) {
             throw new Error(`history failed for ${root}`);
         }
 
@@ -64,10 +78,21 @@ beforeEach(() => {
         if (args[0] === "rev-list" && args[1] === "--count" && args[2] === "HEAD") return "10\n";
         if (args[0] === "log" && args[1] === "--since=2 weeks ago") return "one\ntwo\n";
         if (args[0] === "tag") return args[2] === "@monorepo/ui@*" ? "@monorepo/ui@3.0.0\n" : "";
-        if (args[0] === "rev-list" && typeof args[2] === "string" && args[2].includes("@monorepo/ui@")) return "3\n";
-        if (args[0] === "log" && args.includes("--no-merges")) return state.emptySubjects ? "" : `${state.subjects.join("\n")}\n`;
+        if (
+            args[0] === "rev-list" &&
+            typeof args[2] === "string" &&
+            args[2].includes("@monorepo/ui@")
+        )
+            return "3\n";
+        if (args[0] === "log" && args.includes("--no-merges"))
+            return state.emptySubjects ? "" : `${state.subjects.join("\n")}\n`;
         if (args[0] === "log" && args.includes("--grep=^chore(release)")) return "release-sha\n";
-        if (args[0] === "rev-list" && typeof args[2] === "string" && args[2].startsWith("release-sha")) return "4\n";
+        if (
+            args[0] === "rev-list" &&
+            typeof args[2] === "string" &&
+            args[2].startsWith("release-sha")
+        )
+            return "4\n";
         if (args[0] === "rev-parse" && args[1] === "--short") return "abc123\n";
         if (args[0] === "rev-parse" && args[1] === "--abbrev-ref") return "feature/metrics\n";
 
@@ -92,9 +117,23 @@ describe("collectMetrics", () => {
             currentVersion: "3.2.1",
             hasChangelog: true,
         });
-        expect(i18n).toMatchObject({ specs: 1, coverageLinesPct: null, currentVersion: null, hasChangelog: false, unreleasedCommits: null });
-        expect(result).toMatchObject({ generatedAt: "now", commit: "abc123", branch: "feature/metrics", commitsSinceLastRelease: 4, conventionalCommitRate: 50 });
-        expect(result.invariantFindings).toEqual([{ id: "tags", title: "Tags", detail: "drift", evidence: ["README"] }]);
+        expect(i18n).toMatchObject({
+            specs: 1,
+            coverageLinesPct: null,
+            currentVersion: null,
+            hasChangelog: false,
+            unreleasedCommits: null,
+        });
+        expect(result).toMatchObject({
+            generatedAt: "now",
+            commit: "abc123",
+            branch: "feature/metrics",
+            commitsSinceLastRelease: 4,
+            conventionalCommitRate: 50,
+        });
+        expect(result.invariantFindings).toEqual([
+            { id: "tags", title: "Tags", detail: "drift", evidence: ["README"] },
+        ]);
     });
 
     it("keeps a project when its history commands fail, with only history-derived fields null", async () => {
@@ -117,23 +156,38 @@ describe("collectMetrics", () => {
 
     // A package waiting on its first release has no tag, which is exactly the case the "Never released" alert is for.
     it("counts an untagged release project's whole history as unreleased, but never an app nx release skips", async () => {
-        const withApp = [...projects, { name: "@monorepo/portal", root: "apps/portal", tags: [], dependsOn: [], dependedOnBy: [] }];
-        fs.readFile.mockImplementation(async (path: string) => path.endsWith("nx.json")
-            ? JSON.stringify({ release: { projects: ["packages/*"] } })
-            : "{}\n");
+        const withApp = [
+            ...projects,
+            {
+                name: "@monorepo/portal",
+                root: "apps/portal",
+                tags: [],
+                dependsOn: [],
+                dependedOnBy: [],
+            },
+        ];
+        fs.readFile.mockImplementation(async (path: string) =>
+            path.endsWith("nx.json")
+                ? JSON.stringify({ release: { projects: ["packages/*"] } })
+                : "{}\n",
+        );
 
         const result = await collectMetrics(withApp, coverage, "now");
 
-        expect(result.projects.map((project) => [project.root, project.unreleasedCommits])).toEqual([
-            ["packages/ui", 3],
-            ["packages/i18n", 10],
-            ["apps/portal", null],
-        ]);
+        expect(result.projects.map((project) => [project.root, project.unreleasedCommits])).toEqual(
+            [
+                ["packages/ui", 3],
+                ["packages/i18n", 10],
+                ["apps/portal", null],
+            ],
+        );
     });
 
     it("returns null for the conventional rate when the commit history is empty", async () => {
         state.emptySubjects = true;
 
-        await expect(collectMetrics(projects, coverage, "now")).resolves.toMatchObject({ conventionalCommitRate: null });
+        await expect(collectMetrics(projects, coverage, "now")).resolves.toMatchObject({
+            conventionalCommitRate: null,
+        });
     });
 });

@@ -1,22 +1,27 @@
 import { access, cp, mkdir, readFile, rm } from "node:fs/promises";
 import { resolve } from "node:path";
-import type { CoverageArtifact, CoverageMetric, ProjectCoverage, ProjectNode } from "../../shared/types.ts";
+import type {
+    CoverageArtifact,
+    CoverageMetric,
+    ProjectCoverage,
+    ProjectNode,
+} from "../../shared/types.ts";
 import { COVERAGE_DIR, MERGED_COVERAGE_DIR, WORKSPACE_ROOT } from "../lib/paths.ts";
 
 interface RawSummary {
-    total: Record<string, CoverageMetric>
-    [file: string]: unknown
+    total: Record<string, CoverageMetric>;
+    [file: string]: unknown;
 }
 
 interface CoverageLocation {
-    start: { line: number }
+    start: { line: number };
 }
 
 interface CoverageFile {
-    statementMap: Record<string, CoverageLocation>
-    s: Record<string, number>
-    f: Record<string, number>
-    b: Record<string, number[]>
+    statementMap: Record<string, CoverageLocation>;
+    s: Record<string, number>;
+    f: Record<string, number>;
+    b: Record<string, number[]>;
 }
 
 type RawCoverage = Record<string, CoverageFile>;
@@ -87,14 +92,12 @@ export const readSummary: SummaryReader = async (root) => {
         const path = resolve(WORKSPACE_ROOT, root, "coverage/coverage-summary.json");
 
         return JSON.parse(await readFile(path, "utf8")) as RawSummary;
-    }
-    catch {
+    } catch {
         try {
             const path = resolve(WORKSPACE_ROOT, root, "coverage/coverage-final.json");
 
             return summaryFromCoverage(JSON.parse(await readFile(path, "utf8")) as RawCoverage);
-        }
-        catch {
+        } catch {
             return null;
         }
     }
@@ -109,8 +112,7 @@ export const readSummary: SummaryReader = async (root) => {
 async function copyMergedReport(): Promise<boolean> {
     try {
         await access(resolve(MERGED_COVERAGE_DIR, "index.html"));
-    }
-    catch {
+    } catch {
         return false;
     }
 
@@ -168,11 +170,11 @@ export async function collectCoverage(
         report: await copyMergedReport(),
         totals: anyCollected
             ? {
-                lines: weighted(measured, "lines"),
-                statements: weighted(measured, "statements"),
-                functions: weighted(measured, "functions"),
-                branches: weighted(measured, "branches"),
-            }
+                  lines: weighted(measured, "lines"),
+                  statements: weighted(measured, "statements"),
+                  functions: weighted(measured, "functions"),
+                  branches: weighted(measured, "branches"),
+              }
             : null,
         projects: measured,
     };

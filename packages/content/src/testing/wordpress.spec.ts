@@ -10,7 +10,14 @@ import { wordpressHandlers } from "./wordpress";
 
 const BASE_URL = "https://cms.test/blog";
 
-const CIVIL: Term = { id: "9", resource: "categories", slug: "civil", name: "Civil", description: "Contracts and family", seo: { title: "Civil", noindex: true } };
+const CIVIL: Term = {
+    id: "9",
+    resource: "categories",
+    slug: "civil",
+    name: "Civil",
+    description: "Contracts and family",
+    seo: { title: "Civil", noindex: true },
+};
 const PRECEDENT: Term = { id: "12", resource: "tags", slug: "precedent", name: "Precedent" };
 
 const POSTS: Entry[] = ["1", "2", "3"].map((id) => ({
@@ -23,19 +30,43 @@ const POSTS: Entry[] = ["1", "2", "3"].map((id) => ({
     updatedAt: "2026-02-02T09:00:00Z",
     image: { id: "40", url: "https://cms.test/cover.jpg", alt: "Cover", width: 1200, height: 630 },
     terms: [CIVIL, PRECEDENT],
-    authors: [{ id: "5", slug: "irene", name: "Irene Valdés", bio: "Civil lawyer", avatar: { id: "41", url: "https://cms.test/irene.jpg", alt: "Irene Valdés" } }],
+    authors: [
+        {
+            id: "5",
+            slug: "irene",
+            name: "Irene Valdés",
+            bio: "Civil lawyer",
+            avatar: { id: "41", url: "https://cms.test/irene.jpg", alt: "Irene Valdés" },
+        },
+    ],
     seo: { title: `Post ${id} | Blog`, description: `About post ${id}`, noindex: false },
 }));
 
-const BARE_PAGE: Entry = { id: "7", slug: "about", title: "About", body: { format: "html", value: "<p>About us</p>" }, terms: [], authors: [] };
+const BARE_PAGE: Entry = {
+    id: "7",
+    slug: "about",
+    title: "About",
+    body: { format: "html", value: "<p>About us</p>" },
+    terms: [],
+    authors: [],
+};
 
 const GENERATED = fakeEntry({ slug: "generated" });
 
-const server = setupServer(...wordpressHandlers(BASE_URL, { posts: [...POSTS, GENERATED], pages: [BARE_PAGE], categories: [CIVIL] }));
+const server = setupServer(
+    ...wordpressHandlers(BASE_URL, {
+        posts: [...POSTS, GENERATED],
+        pages: [BARE_PAGE],
+        categories: [CIVIL],
+    }),
+);
 
 // The real provider on the real client, so the fake is held to what WordpressProvider parses
 function provider() {
-    return createProvider({ name: "wordpress", baseURL: BASE_URL }, new OfetchHttpClient(ofetch.create({})));
+    return createProvider(
+        { name: "wordpress", baseURL: BASE_URL },
+        new OfetchHttpClient(ofetch.create({})),
+    );
 }
 
 beforeAll(() => server.listen({ onUnhandledFrame: "error" }));
@@ -45,7 +76,13 @@ describe("the fake WordPress", () => {
     it("round-trips every entry field through the provider unchanged", async () => {
         const page = await (await provider()).listEntries("posts", { page: 2, perPage: 2 });
 
-        expect(page).toEqual({ items: [POSTS[2], GENERATED], page: 2, perPage: 2, total: 4, totalPages: 2 });
+        expect(page).toEqual({
+            items: [POSTS[2], GENERATED],
+            page: 2,
+            perPage: 2,
+            total: 4,
+            totalPages: 2,
+        });
     });
 
     it("round-trips what the factories build, so an app's e2e data is always servable", async () => {
@@ -70,7 +107,9 @@ describe("the fake WordPress", () => {
     });
 
     it("filters entries by term, so a category listing doesn't serve every post", async () => {
-        const { items } = await (await provider()).listEntries("posts", { term: { resource: "categories", id: CIVIL.id } });
+        const { items } = await (
+            await provider()
+        ).listEntries("posts", { term: { resource: "categories", id: CIVIL.id } });
 
         expect(items).toEqual(POSTS);
     });
@@ -83,6 +122,8 @@ describe("the fake WordPress", () => {
     });
 
     it("answers a resource it was given no content for with a 404", async () => {
-        await expect((await provider()).listTerms("tags")).rejects.toMatchObject({ upstreamStatus: 404 });
+        await expect((await provider()).listTerms("tags")).rejects.toMatchObject({
+            upstreamStatus: 404,
+        });
     });
 });

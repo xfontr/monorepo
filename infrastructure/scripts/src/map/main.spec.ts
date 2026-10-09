@@ -1,9 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const files = vi.hoisted(() => ({
-    rootScripts: vi.fn(), projectScripts: vi.fn(), hookNames: vi.fn(), workflowFiles: vi.fn(), skillFiles: vi.fn(), docs: vi.fn(), readMap: vi.fn(), writeMap: vi.fn(),
+    rootScripts: vi.fn(),
+    projectScripts: vi.fn(),
+    hookNames: vi.fn(),
+    workflowFiles: vi.fn(),
+    skillFiles: vi.fn(),
+    docs: vi.fn(),
+    readMap: vi.fn(),
+    writeMap: vi.fn(),
 }));
-const domain = vi.hoisted(() => ({ rootCommands: vi.fn(), projectCommands: vi.fn(), hooks: vi.fn(), workflows: vi.fn(), skills: vi.fn(), render: vi.fn() }));
+const domain = vi.hoisted(() => ({
+    rootCommands: vi.fn(),
+    projectCommands: vi.fn(),
+    hooks: vi.fn(),
+    workflows: vi.fn(),
+    skills: vi.fn(),
+    render: vi.fn(),
+}));
 const io = vi.hoisted(() => ({ out: { success: vi.fn() } }));
 vi.mock("./adapters/files.ts", () => ({ ...files, MAP_PATH: "docs/FEATURES.md" }));
 vi.mock("./domain/capabilities.ts", () => domain);
@@ -47,7 +61,9 @@ describe("map main", () => {
     it("rejects stale generated output under check", () => {
         files.readMap.mockReturnValue("stale");
 
-        expect(() => main({ flags: new Set(["check"]), positionals: [] })).toThrow("docs/FEATURES.md is out of date");
+        expect(() => main({ flags: new Set(["check"]), positionals: [] })).toThrow(
+            "docs/FEATURES.md is out of date",
+        );
     });
 
     it("does not hide a filesystem failure while writing the generated map", () => {

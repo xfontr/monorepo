@@ -8,7 +8,10 @@ import { mergeReports } from "./domain/merge.ts";
 
 export const main = async (): Promise<void> => {
     const projects = toReports(await projectsWithCoverage());
-    const loaded = projects.map(({ name, coverageFinal }) => ({ name, data: loadReport(coverageFinal) }));
+    const loaded = projects.map(({ name, coverageFinal }) => ({
+        name,
+        data: loadReport(coverageFinal),
+    }));
 
     const coverageMap = mergeReports(loaded);
     const outputDir = at("coverage");

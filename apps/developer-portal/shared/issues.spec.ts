@@ -18,26 +18,38 @@ function issueOf(overrides: Partial<Issue>): Issue {
 
 describe("summarize", () => {
     it("strips the markdown instead of clamping it, so a row never ends mid-syntax", () => {
-        expect(summarize("**Decision needed.** See [the decision](./docs/decisions/0040.md) first."))
-            .toBe("Decision needed. See the decision first.");
+        expect(
+            summarize("**Decision needed.** See [the decision](./docs/decisions/0040.md) first."),
+        ).toBe("Decision needed. See the decision first.");
     });
 
     it("drops a fenced repro block, which is the longest thing in a bug body and says least in a row", () => {
-        expect(summarize("Fails on boot.\n\n```sh\npnpm dashboard\n```\n\nEvery time.")).toBe("Fails on boot. Every time.");
+        expect(summarize("Fails on boot.\n\n```sh\npnpm dashboard\n```\n\nEvery time.")).toBe(
+            "Fails on boot. Every time.",
+        );
     });
 
     it("drops the task list markers a template body opens with rather than showing empty boxes", () => {
-        expect(summarize("Acceptance criteria:\n- [ ] one\n- [x] two")).toBe("Acceptance criteria: one two");
+        expect(summarize("Acceptance criteria:\n- [ ] one\n- [x] two")).toBe(
+            "Acceptance criteria: one two",
+        );
     });
 
     it("keeps link text after malformed brackets and handles empty link targets", () => {
-        expect(summarize(`${"[broken] ".repeat(20_000)}\n[decision](./decision.md) [empty]()`, 250_000))
-            .toContain("decision empty");
+        expect(
+            summarize(
+                `${"[broken] ".repeat(20_000)}\n[decision](./decision.md) [empty]()`,
+                250_000,
+            ),
+        ).toContain("decision empty");
     });
 
     it("removes indented uppercase checkboxes and long bullet prefixes in one pass", () => {
-        expect(summarize(`${" ".repeat(20_000)}- [X] done\n${" \n".repeat(20_000)}${" ".repeat(20_000)}### Heading`))
-            .toBe("done Heading");
+        expect(
+            summarize(
+                `${" ".repeat(20_000)}- [X] done\n${" \n".repeat(20_000)}${" ".repeat(20_000)}### Heading`,
+            ),
+        ).toBe("done Heading");
     });
 
     it("cuts on a word boundary, so the ellipsis never lands inside a word", () => {
@@ -55,10 +67,7 @@ describe("summarize", () => {
 
 describe("labelsOf", () => {
     it("collects labels across issues, so filtering offers one that only one issue carries", () => {
-        const issues = [
-            issueOf({ labels: ["spike"] }),
-            issueOf({ labels: ["bug", "spike"] }),
-        ];
+        const issues = [issueOf({ labels: ["spike"] }), issueOf({ labels: ["bug", "spike"] })];
 
         expect(labelsOf(issues)).toEqual(["bug", "spike"]);
     });
@@ -75,7 +84,9 @@ describe("filterIssues", () => {
     });
 
     it("searches the body, so an issue whose title says nothing is still findable", () => {
-        expect(filterIssues(issues, { search: "iframe" }).map((issue) => issue.number)).toEqual([2]);
+        expect(filterIssues(issues, { search: "iframe" }).map((issue) => issue.number)).toEqual([
+            2,
+        ]);
     });
 
     it("keeps everything under the 'all' sentinel, which is what an untouched filter sends", () => {
@@ -115,13 +126,15 @@ describe("toIssues", () => {
 
 describe("issuesApiUrl", () => {
     it("derives the endpoint from the repo URL, so no vendor host is written into this repo", () => {
-        expect(issuesApiUrl("https://github.invalid/xfontr/monorepo"))
-            .toBe("https://api.github.invalid/repos/xfontr/monorepo/issues");
+        expect(issuesApiUrl("https://github.invalid/xfontr/monorepo")).toBe(
+            "https://api.github.invalid/repos/xfontr/monorepo/issues",
+        );
     });
 
     it("drops a `.git` suffix, which a clone URL carries and the API rejects", () => {
-        expect(issuesApiUrl("https://github.invalid/xfontr/monorepo.git"))
-            .toBe("https://api.github.invalid/repos/xfontr/monorepo/issues");
+        expect(issuesApiUrl("https://github.invalid/xfontr/monorepo.git")).toBe(
+            "https://api.github.invalid/repos/xfontr/monorepo/issues",
+        );
     });
 
     it("answers null for anything that does not name a repo, which the page renders as a failure", () => {

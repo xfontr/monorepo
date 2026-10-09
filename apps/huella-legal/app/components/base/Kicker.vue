@@ -3,9 +3,9 @@ import type { RouteLocationRaw } from "vue-router";
 import type { Tone } from "~/types/Tone";
 
 interface Props {
-    to?: RouteLocationRaw
-    tone?: Tone
-    muted?: boolean
+    to?: RouteLocationRaw;
+    tone?: Tone;
+    muted?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -31,9 +31,5 @@ const toneClass = computed<string>(() => (props.muted ? "text-muted" : TONES[pro
     >
         <slot />
     </ULink>
-    <span
-        v-else
-        class="inline-block text-kicker"
-        :class="toneClass"
-    ><slot /></span>
+    <span v-else class="inline-block text-kicker" :class="toneClass"><slot /></span>
 </template>

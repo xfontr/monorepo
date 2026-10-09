@@ -3,7 +3,9 @@ import type { Locale } from "./domain/translations";
 import type { VendorConfig } from "./registry";
 
 export function translationsKey(vendor: VendorConfig, locale: Locale): string {
-    return [vendor.name, locale, hash({ ...vendor, options: undefined })].map(toWordChars).join("_");
+    return [vendor.name, locale, hash({ ...vendor, options: undefined })]
+        .map(toWordChars)
+        .join("_");
 }
 
 function toWordChars(part: string): string {

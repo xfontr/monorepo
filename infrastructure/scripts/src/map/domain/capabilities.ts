@@ -1,19 +1,19 @@
 export type Kind = "command" | "hook" | "workflow" | "skill";
 
 export interface Capability {
-    kind: Kind
-    invocation: string
-    source: string
-    token: string
+    kind: Kind;
+    invocation: string;
+    source: string;
+    token: string;
 }
 
 /** Omit commands already exposed by the root so the map stays focused on project-specific capabilities. */
 export const STANDARD_TARGETS = ["lint", "typecheck", "test", "test:dev", "test:coverage", "build"];
 
 export interface ProjectScripts {
-    root: string
-    name: string
-    scripts: string[]
+    root: string;
+    name: string;
+    scripts: string[];
 }
 
 export const rootCommands = (scripts: string[]): Capability[] =>
@@ -44,7 +44,7 @@ export const hooks = (names: string[]): Capability[] =>
         token: name,
     }));
 
-export const workflows = (files: { file: string, name: string }[]): Capability[] =>
+export const workflows = (files: { file: string; name: string }[]): Capability[] =>
     files.map(({ file, name }) => ({
         kind: "workflow" as const,
         invocation: name,
@@ -52,7 +52,7 @@ export const workflows = (files: { file: string, name: string }[]): Capability[]
         token: file,
     }));
 
-export const skills = (found: { source: string, name: string }[]): Capability[] =>
+export const skills = (found: { source: string; name: string }[]): Capability[] =>
     found.map(({ source, name }) => ({
         kind: "skill" as const,
         invocation: `$${name}`,
@@ -70,7 +70,8 @@ const sharedPrefix = (a: string, b: string): number => {
     const left = a.split("/");
     const right = b.split("/");
     let shared = 0;
-    while (shared < left.length && shared < right.length && left[shared] === right[shared]) shared++;
+    while (shared < left.length && shared < right.length && left[shared] === right[shared])
+        shared++;
     return shared;
 };
 
@@ -83,26 +84,37 @@ const audience = (path: string): number => {
     return 1;
 };
 
-export interface Doc { path: string, text: string }
+export interface Doc {
+    path: string;
+    text: string;
+}
 
 const SKILL_INDEX = "AGENTS.md";
 
 /** Skills cite the AGENTS.md table; everything else ranks by audience, then nearness. */
-export const documentedBy = ({ kind, source, token }: Capability, docs: Doc[]): string | undefined => {
+export const documentedBy = (
+    { kind, source, token }: Capability,
+    docs: Doc[],
+): string | undefined => {
     // Ranking alone sent skills to whichever doc happened to name them, even a dated audit.
-    if (kind === "skill" && docs.some((doc) => doc.path === SKILL_INDEX && mentions(doc.text, token))) {
+    if (
+        kind === "skill" &&
+        docs.some((doc) => doc.path === SKILL_INDEX && mentions(doc.text, token))
+    ) {
         return SKILL_INDEX;
     }
 
-    return docs
-        // Exclude a skill's own SKILL.md or every skill would cite itself.
-        .filter((doc) => doc.path !== source && mentions(doc.text, token))
-        .sort(
-            (a, b) =>
-                audience(a.path) - audience(b.path)
-                || sharedPrefix(b.path, source) - sharedPrefix(a.path, source)
-                || a.path.split("/").length - b.path.split("/").length
-                || a.path.localeCompare(b.path),
-        )
-        .at(0)?.path;
+    return (
+        docs
+            // Exclude a skill's own SKILL.md or every skill would cite itself.
+            .filter((doc) => doc.path !== source && mentions(doc.text, token))
+            .sort(
+                (a, b) =>
+                    audience(a.path) - audience(b.path) ||
+                    sharedPrefix(b.path, source) - sharedPrefix(a.path, source) ||
+                    a.path.split("/").length - b.path.split("/").length ||
+                    a.path.localeCompare(b.path),
+            )
+            .at(0)?.path
+    );
 };

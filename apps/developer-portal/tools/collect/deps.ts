@@ -7,32 +7,41 @@ import { runAllowFailure, tryRun } from "../lib/run.ts";
 // offline or rate-limited is a real, separate failure mode from everything else here.
 
 interface RawAdvisory {
-    id: number
-    title: string
-    module_name: string
-    severity: VulnerabilityAdvisory["severity"]
-    patched_versions: string
-    url: string
-    findings: { paths: string[] }[]
+    id: number;
+    title: string;
+    module_name: string;
+    severity: VulnerabilityAdvisory["severity"];
+    patched_versions: string;
+    url: string;
+    findings: { paths: string[] }[];
 }
 
 interface RawAuditReport {
-    advisories: Record<string, RawAdvisory>
+    advisories: Record<string, RawAdvisory>;
     metadata: {
-        vulnerabilities: { info: number, low: number, moderate: number, high: number, critical: number }
-        totalDependencies: number
-    }
+        vulnerabilities: {
+            info: number;
+            low: number;
+            moderate: number;
+            high: number;
+            critical: number;
+        };
+        totalDependencies: number;
+    };
 }
 
 interface RawOutdatedEntry {
-    current: string
-    wanted: string
-    latest: string
-    isDeprecated: boolean
-    dependentPackages: { name: string, location: string }[]
+    current: string;
+    wanted: string;
+    latest: string;
+    isDeprecated: boolean;
+    dependentPackages: { name: string; location: string }[];
 }
 
-async function collectAudit(): Promise<Pick<DepsArtifact, "vulnerabilities" | "totalDependencies" | "advisories"> | null> {
+async function collectAudit(): Promise<Pick<
+    DepsArtifact,
+    "vulnerabilities" | "totalDependencies" | "advisories"
+> | null> {
     const result = await tryRun(async () => {
         const stdout = await runAllowFailure("pnpm", ["audit", "--json"], WORKSPACE_ROOT);
 
@@ -60,7 +69,11 @@ async function collectAudit(): Promise<Pick<DepsArtifact, "vulnerabilities" | "t
 
 async function collectOutdated(): Promise<OutdatedPackage[] | null> {
     const result = await tryRun(async () => {
-        const stdout = await runAllowFailure("pnpm", ["outdated", "-r", "--format", "json"], WORKSPACE_ROOT);
+        const stdout = await runAllowFailure(
+            "pnpm",
+            ["outdated", "-r", "--format", "json"],
+            WORKSPACE_ROOT,
+        );
 
         return JSON.parse(stdout) as Record<string, RawOutdatedEntry>;
     });

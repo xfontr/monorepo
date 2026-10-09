@@ -7,7 +7,7 @@ const meta: Meta<typeof Kicker> = {
     render: (args) => ({
         components: { Kicker },
         setup: () => ({ args }),
-        template: "<Kicker v-bind=\"args\">Derecho penal</Kicker>",
+        template: '<Kicker v-bind="args">Derecho penal</Kicker>',
     }),
 };
 

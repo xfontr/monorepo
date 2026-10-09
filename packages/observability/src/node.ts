@@ -11,29 +11,40 @@ import {
 } from "@opentelemetry/semantic-conventions";
 
 export interface NodeTelemetryConfig {
-    url: string
-    instanceId: string
-    token: string
+    url: string;
+    instanceId: string;
+    token: string;
 
     app: {
-        name: string
-        version: string
-        environment: string
-    }
+        name: string;
+        version: string;
+        environment: string;
+    };
 }
 
-export function startNodeTelemetry({ url, instanceId, token, app }: NodeTelemetryConfig): NodeTracerProvider {
+export function startNodeTelemetry({
+    url,
+    instanceId,
+    token,
+    app,
+}: NodeTelemetryConfig): NodeTracerProvider {
     const credentials = Buffer.from(`${instanceId}:${token}`).toString("base64");
     const provider = new NodeTracerProvider({
-        resource: defaultResource().merge(resourceFromAttributes({
-            [ATTR_SERVICE_NAME]: app.name,
-            [ATTR_SERVICE_VERSION]: app.version,
-            [ATTR_DEPLOYMENT_ENVIRONMENT_NAME]: app.environment,
-        })),
-        spanProcessors: [new BatchSpanProcessor(new OTLPTraceExporter({
-            url: `${url.replace(/\/$/, "")}/v1/traces`,
-            headers: { Authorization: `Basic ${credentials}` },
-        }))],
+        resource: defaultResource().merge(
+            resourceFromAttributes({
+                [ATTR_SERVICE_NAME]: app.name,
+                [ATTR_SERVICE_VERSION]: app.version,
+                [ATTR_DEPLOYMENT_ENVIRONMENT_NAME]: app.environment,
+            }),
+        ),
+        spanProcessors: [
+            new BatchSpanProcessor(
+                new OTLPTraceExporter({
+                    url: `${url.replace(/\/$/, "")}/v1/traces`,
+                    headers: { Authorization: `Basic ${credentials}` },
+                }),
+            ),
+        ],
     });
 
     provider.register();

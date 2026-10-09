@@ -4,7 +4,11 @@ import ArticleShareBar from "./ShareBar.vue";
 
 const meta: Meta<typeof ArticleShareBar> = {
     component: ArticleShareBar,
-    args: { title: "La teoría jurídica del delito", url: "https://huellalegal.test/la-teoria-juridica-del-delito", citeTo: "#citar" },
+    args: {
+        title: "La teoría jurídica del delito",
+        url: "https://huellalegal.test/la-teoria-juridica-del-delito",
+        citeTo: "#citar",
+    },
 };
 
 export default meta;

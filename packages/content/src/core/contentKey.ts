@@ -18,7 +18,5 @@ function queryKey(query?: EntryQuery): string {
 
     entries.sort(([a], [b]) => a.localeCompare(b));
 
-    return entries
-        .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
-        .join(",");
+    return entries.map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`).join(",");
 }

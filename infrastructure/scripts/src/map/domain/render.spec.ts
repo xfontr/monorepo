@@ -35,19 +35,28 @@ describe("render", () => {
 
         const markdown = render([capability], docs);
 
-        expect(markdown).toContain("| `pnpm docs:map` | [`package.json`](../package.json) | [`README.md`](../README.md) |");
+        expect(markdown).toContain(
+            "| `pnpm docs:map` | [`package.json`](../package.json) | [`README.md`](../README.md) |",
+        );
     });
 
     // Sections are ordered by SECTIONS, not by input order — a reader always finds commands
     // before hooks before workflows before skills, regardless of how the capabilities were found.
     it("keeps sections in a fixed order regardless of the order capabilities were passed in", () => {
         const capabilities: Capability[] = [
-            { kind: "skill", invocation: "$new-package", source: ".agents/skills/new-package/SKILL.md", token: "new-package" },
+            {
+                kind: "skill",
+                invocation: "$new-package",
+                source: ".agents/skills/new-package/SKILL.md",
+                token: "new-package",
+            },
             command("pnpm lint", "package.json", "lint"),
         ];
 
         const markdown = render(capabilities, []);
 
-        expect(markdown.indexOf("## ⌨️ Commands")).toBeLessThan(markdown.indexOf("## 🛠 Agent skills"));
+        expect(markdown.indexOf("## ⌨️ Commands")).toBeLessThan(
+            markdown.indexOf("## 🛠 Agent skills"),
+        );
     });
 });

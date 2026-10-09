@@ -8,12 +8,11 @@ export const currentBranch = (): string => git("rev-parse", "--abbrev-ref", "HEA
 export const push = (branch: string): void => {
     try {
         git("push", "-u", "origin", assertNotFlagLike(branch, "branch"));
-    }
-    catch (error) {
+    } catch (error) {
         const stderr = (error as { stderr?: Buffer | string }).stderr?.toString().trim();
         throw new ExpectedError(
-            "Push rejected — ensure the code passes the push requirements (branch name, lint, test, typecheck) before shipping."
-            + (stderr ? `\n${stderr}` : ""),
+            "Push rejected — ensure the code passes the push requirements (branch name, lint, test, typecheck) before shipping." +
+                (stderr ? `\n${stderr}` : ""),
         );
     }
 };

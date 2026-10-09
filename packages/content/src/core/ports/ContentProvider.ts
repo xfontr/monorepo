@@ -1,9 +1,20 @@
-import type { Entry, EntryQuery, EntryResource, Page, Query, Term, TermResource } from "#core/domain/content";
+import type {
+    Entry,
+    EntryQuery,
+    EntryResource,
+    Page,
+    Query,
+    Term,
+    TermResource,
+} from "#core/domain/content";
 import { MisconfiguredVendorError, NotFoundError } from "#core/domain/errors";
 import type { HttpClient } from "./HttpClient";
 
 abstract class ContentProvider<T extends object = object> {
-    constructor(public readonly config: T, protected readonly http: HttpClient) {
+    constructor(
+        public readonly config: T,
+        protected readonly http: HttpClient,
+    ) {
         this.assertConfigured();
     }
 

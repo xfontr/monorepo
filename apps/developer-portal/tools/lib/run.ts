@@ -9,13 +9,7 @@ const DEFAULT_TIMEOUT_MS = 120_000;
 // A clone's `origin` can carry a credential in its URL, and `git config` prints it. Reading repo
 // state never needs either subcommand, so they are refused rather than trusted to be unused — the
 // collector's output is meant to be shareable.
-const ALLOWED_GIT_SUBCOMMANDS = new Set([
-    "log",
-    "ls-files",
-    "rev-list",
-    "rev-parse",
-    "tag",
-]);
+const ALLOWED_GIT_SUBCOMMANDS = new Set(["log", "ls-files", "rev-list", "rev-parse", "tag"]);
 
 export class DisallowedGitSubcommandError extends Error {
     constructor(subcommand: string) {
@@ -25,7 +19,11 @@ export class DisallowedGitSubcommandError extends Error {
 }
 
 /** Runs a command from the workspace root and returns stdout. Never invoked from a server route. */
-export async function run(command: string, args: string[], timeout = DEFAULT_TIMEOUT_MS): Promise<string> {
+export async function run(
+    command: string,
+    args: string[],
+    timeout = DEFAULT_TIMEOUT_MS,
+): Promise<string> {
     const { stdout } = await execFileAsync(command, args, {
         cwd: WORKSPACE_ROOT,
         timeout,
@@ -70,7 +68,11 @@ export function runAllowFailure(
                 return;
             }
 
-            reject(new Error(`${command} exited with ${code ?? "no code"}: ${stderr.trim().slice(0, 500)}`));
+            reject(
+                new Error(
+                    `${command} exited with ${code ?? "no code"}: ${stderr.trim().slice(0, 500)}`,
+                ),
+            );
         });
     });
 }
@@ -78,17 +80,19 @@ export function runAllowFailure(
 export async function git(args: string[], timeout?: number): Promise<string> {
     const subcommand = args[0] ?? "";
 
-    if (!ALLOWED_GIT_SUBCOMMANDS.has(subcommand)) throw new DisallowedGitSubcommandError(subcommand);
+    if (!ALLOWED_GIT_SUBCOMMANDS.has(subcommand))
+        throw new DisallowedGitSubcommandError(subcommand);
 
     return run("git", args, timeout);
 }
 
 /** Resolves to an error instead of throwing, so one broken collector cannot empty the whole snapshot. */
-export async function tryRun<T>(task: () => Promise<T>): Promise<{ ok: true, value: T } | { ok: false, error: string }> {
+export async function tryRun<T>(
+    task: () => Promise<T>,
+): Promise<{ ok: true; value: T } | { ok: false; error: string }> {
     try {
         return { ok: true, value: await task() };
-    }
-    catch (cause) {
+    } catch (cause) {
         return { ok: false, error: cause instanceof Error ? cause.message : String(cause) };
     }
 }

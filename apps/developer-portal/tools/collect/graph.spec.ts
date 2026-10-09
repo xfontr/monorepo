@@ -3,15 +3,24 @@ import { normalizeGraph } from "./graph.ts";
 
 describe("normalizeGraph", () => {
     it("sorts projects by name and keeps only declared tags", () => {
-        const result = normalizeGraph({
-            graph: {
-                nodes: {
-                    z: { name: "zeta", data: { root: "z", tags: ["scope:internal", "npm:private", "other"] } },
-                    a: { name: "alpha", data: { root: "a", tags: ["type:lib", "npm:private"] } },
+        const result = normalizeGraph(
+            {
+                graph: {
+                    nodes: {
+                        z: {
+                            name: "zeta",
+                            data: { root: "z", tags: ["scope:internal", "npm:private", "other"] },
+                        },
+                        a: {
+                            name: "alpha",
+                            data: { root: "a", tags: ["type:lib", "npm:private"] },
+                        },
+                    },
+                    dependencies: {},
                 },
-                dependencies: {},
             },
-        }, "now");
+            "now",
+        );
 
         expect(result.projects.map((project) => project.name)).toEqual(["alpha", "zeta"]);
         expect(result.projects[0]?.tags).toEqual(["type:lib"]);
@@ -19,23 +28,26 @@ describe("normalizeGraph", () => {
     });
 
     it("sorts forward and reverse dependency edges while dropping missing targets", () => {
-        const result = normalizeGraph({
-            graph: {
-                nodes: {
-                    app: { name: "app", data: { root: "apps/app" } },
-                    docs: { name: "docs", data: { root: "apps/docs" } },
-                    ui: { name: "ui", data: { root: "packages/ui" } },
-                },
-                dependencies: {
-                    app: [
-                        { source: "app", target: "ui", type: "static" },
-                        { source: "app", target: "docs", type: "static" },
-                        { source: "app", target: "missing", type: "static" },
-                    ],
-                    ui: [{ source: "ui", target: "app", type: "static" }],
+        const result = normalizeGraph(
+            {
+                graph: {
+                    nodes: {
+                        app: { name: "app", data: { root: "apps/app" } },
+                        docs: { name: "docs", data: { root: "apps/docs" } },
+                        ui: { name: "ui", data: { root: "packages/ui" } },
+                    },
+                    dependencies: {
+                        app: [
+                            { source: "app", target: "ui", type: "static" },
+                            { source: "app", target: "docs", type: "static" },
+                            { source: "app", target: "missing", type: "static" },
+                        ],
+                        ui: [{ source: "ui", target: "app", type: "static" }],
+                    },
                 },
             },
-        }, "now");
+            "now",
+        );
 
         expect(result.projects).toEqual([
             {

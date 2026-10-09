@@ -14,26 +14,43 @@ describe("tryRun", () => {
     });
 
     it("turns Error and non-Error rejections into failure results", async () => {
-        await expect(tryRun(async () => Promise.reject(new Error("broken")))).resolves.toEqual({ ok: false, error: "broken" });
-        await expect(tryRun(async () => Promise.reject("broken differently"))).resolves.toEqual({ ok: false, error: "broken differently" });
+        await expect(tryRun(async () => Promise.reject(new Error("broken")))).resolves.toEqual({
+            ok: false,
+            error: "broken",
+        });
+        await expect(tryRun(async () => Promise.reject("broken differently"))).resolves.toEqual({
+            ok: false,
+            error: "broken differently",
+        });
     });
 });
 
 describe("runAllowFailure", () => {
     it("returns findings from stdout when the process exits non-zero", async () => {
-        await expect(runAllowFailure(process.execPath, ["-e", "console.log('finding'); process.exitCode = 1"], WORKSPACE_ROOT))
-            .resolves.toContain("finding");
+        await expect(
+            runAllowFailure(
+                process.execPath,
+                ["-e", "console.log('finding'); process.exitCode = 1"],
+                WORKSPACE_ROOT,
+            ),
+        ).resolves.toContain("finding");
     });
 
     it("rejects a silent non-zero process with its stderr message", async () => {
-        await expect(runAllowFailure(process.execPath, ["-e", "console.error('useful failure'); process.exitCode = 1"], WORKSPACE_ROOT))
-            .rejects.toThrow("useful failure");
+        await expect(
+            runAllowFailure(
+                process.execPath,
+                ["-e", "console.error('useful failure'); process.exitCode = 1"],
+                WORKSPACE_ROOT,
+            ),
+        ).rejects.toThrow("useful failure");
     });
 });
 
 describe("run", () => {
     it("executes from the workspace root", async () => {
-        await expect(run(process.execPath, ["-e", "process.stdout.write(process.cwd())"]))
-            .resolves.toBe(WORKSPACE_ROOT);
+        await expect(
+            run(process.execPath, ["-e", "process.stdout.write(process.cwd())"]),
+        ).resolves.toBe(WORKSPACE_ROOT);
     });
 });

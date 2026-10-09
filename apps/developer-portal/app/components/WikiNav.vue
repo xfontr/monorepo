@@ -2,8 +2,8 @@
 import type { WikiGroup, WikiSection } from "#shared/wiki.ts";
 
 interface Props {
-    sections: WikiSection[]
-    current?: string
+    sections: WikiSection[];
+    current?: string;
 }
 
 const { sections, current = "" } = defineProps<Props>();
@@ -51,32 +51,29 @@ function toggle(section: WikiSection, group: WikiGroup): void {
 
 <template>
     <nav class="flex flex-col gap-5 text-sm">
-        <div
-            v-for="section in sections"
-            :key="section.id"
-            class="flex flex-col gap-1"
-        >
-            <div class="flex items-center gap-1.5 px-2 text-[11px] font-medium uppercase tracking-wide text-dimmed">
-                <UIcon
-                    :name="section.icon"
-                    class="size-3.5"
-                />
+        <div v-for="section in sections" :key="section.id" class="flex flex-col gap-1">
+            <div
+                class="flex items-center gap-1.5 px-2 text-[11px] font-medium uppercase tracking-wide text-dimmed"
+            >
+                <UIcon :name="section.icon" class="size-3.5" />
                 {{ section.label }}
             </div>
 
-            <div
-                v-for="group in section.groups"
-                :key="group.key"
-                class="flex flex-col"
-            >
-                <div class="flex items-center gap-1 px-2 py-1 rounded-md text-xs text-muted hover:bg-elevated/50 transition-colors">
+            <div v-for="group in section.groups" :key="group.key" class="flex flex-col">
+                <div
+                    class="flex items-center gap-1 px-2 py-1 rounded-md text-xs text-muted hover:bg-elevated/50 transition-colors"
+                >
                     <button
                         type="button"
                         class="shrink-0 flex items-center"
                         @click="toggle(section, group)"
                     >
                         <UIcon
-                            :name="isOpen(section, group) ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'"
+                            :name="
+                                isOpen(section, group)
+                                    ? 'i-lucide-chevron-down'
+                                    : 'i-lucide-chevron-right'
+                            "
                             class="size-3 text-dimmed"
                         />
                     </button>
@@ -103,12 +100,13 @@ function toggle(section: WikiSection, group: WikiGroup): void {
                     :key="entry.path"
                     :to="`/docs${entry.path}`"
                     class="flex items-center gap-2 pl-6 pr-2 py-1 rounded-md hover:bg-elevated/50 transition-colors"
-                    :class="entry.path === current ? 'bg-elevated/70 text-primary font-medium' : 'text-default'"
+                    :class="
+                        entry.path === current
+                            ? 'bg-elevated/70 text-primary font-medium'
+                            : 'text-default'
+                    "
                 >
-                    <UIcon
-                        :name="kindIcon(entry.kind)"
-                        class="size-3.5 shrink-0 text-dimmed"
-                    />
+                    <UIcon :name="kindIcon(entry.kind)" class="size-3.5 shrink-0 text-dimmed" />
                     <span class="truncate flex-1">{{ entry.label }}</span>
                 </NuxtLink>
             </div>

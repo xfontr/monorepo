@@ -15,7 +15,10 @@ const ARTICLE: Article = {
     image: fakeAsset(),
     authors: [fakeAuthor()],
     category: { id: "2", slug: "derecho-penal", name: "Derecho penal" },
-    tags: [{ id: "3", slug: "dolo", name: "Dolo" }, { id: "4", slug: "imprudencia", name: "Imprudencia" }],
+    tags: [
+        { id: "3", slug: "dolo", name: "Dolo" },
+        { id: "4", slug: "imprudencia", name: "Imprudencia" },
+    ],
     format: "ensayo",
     readingMinutes: 12,
     body: { lead: "", html: "", toc: [], notes: [], bibliography: [] },
@@ -48,18 +51,20 @@ async function setUp(route = "/la-culpa/") {
     let controller: Awaited<ReturnType<typeof useArticle>> | undefined;
     let failure: unknown;
 
-    await mountSuspended(defineComponent({
-        async setup() {
-            try {
-                controller = await useArticle();
-            }
-            catch (error) {
-                failure = error;
-            }
+    await mountSuspended(
+        defineComponent({
+            async setup() {
+                try {
+                    controller = await useArticle();
+                } catch (error) {
+                    failure = error;
+                }
 
-            return () => null;
-        },
-    }), { route });
+                return () => null;
+            },
+        }),
+        { route },
+    );
 
     return { controller, failure };
 }
@@ -77,7 +82,10 @@ describe("useArticle", () => {
     it("reads the article named by the route, and its related posts", async () => {
         await setUp("/la-culpa/");
 
-        expect([...nuxt.fetches.keys()].sort()).toEqual(["/api/articles/la-culpa", "/api/articles/la-culpa/related"]);
+        expect([...nuxt.fetches.keys()].sort()).toEqual([
+            "/api/articles/la-culpa",
+            "/api/articles/la-culpa/related",
+        ]);
     });
 
     // Rendered on the server, so crawlers follow the links and the band never shifts the page in
@@ -94,24 +102,42 @@ describe("useArticle", () => {
 
     // Thrown during setup, so server rendering answers with the route's own status
     it("throws a fatal 404 when the post doesn't exist", async () => {
-        nuxt.error.value = createError(Object.assign(new Error("Not found"), { statusCode: 404, statusMessage: "Not found", response: { status: 404 } }));
+        nuxt.error.value = createError(
+            Object.assign(new Error("Not found"), {
+                statusCode: 404,
+                statusMessage: "Not found",
+                response: { status: 404 },
+            }),
+        );
 
         expect((await setUp()).failure).toMatchObject({ status: 404, fatal: true });
     });
 
     describe("SEO", () => {
         it("prefers the CMS's SEO title and description over the article's own", async () => {
-            nuxt.article.value = { ...ARTICLE, seo: { title: "La culpa | Huella", description: "Resumen SEO" } };
+            nuxt.article.value = {
+                ...ARTICLE,
+                seo: { title: "La culpa | Huella", description: "Resumen SEO" },
+            };
 
             await setUp();
 
-            expect([seo("title"), seo("ogTitle"), seo("description"), seo("ogDescription")]).toEqual(["La culpa | Huella", "La culpa | Huella", "Resumen SEO", "Resumen SEO"]);
+            expect([
+                seo("title"),
+                seo("ogTitle"),
+                seo("description"),
+                seo("ogDescription"),
+            ]).toEqual(["La culpa | Huella", "La culpa | Huella", "Resumen SEO", "Resumen SEO"]);
         });
 
         it("falls back to the title and excerpt, and points og:url at the permalink", async () => {
             await setUp();
 
-            expect([seo("title"), seo("description"), seo("ogUrl")]).toEqual(["La culpa", "El deber de cuidado.", "https://revista.test/la-culpa/"]);
+            expect([seo("title"), seo("description"), seo("ogUrl")]).toEqual([
+                "La culpa",
+                "El deber de cuidado.",
+                "https://revista.test/la-culpa/",
+            ]);
             expect(seo("robots")).toBeUndefined();
         });
 

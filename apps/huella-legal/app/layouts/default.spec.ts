@@ -6,10 +6,18 @@ import Layout from "./default.vue";
 
 const head = vi.hoisted(() => ({ useHead: vi.fn(), useSeoMeta: vi.fn() }));
 
-mockNuxtImport("useI18n", () => () => ({ t: (key: string) => `t(${key})`, localeProperties: ref({ language: "es" }) }));
+mockNuxtImport("useI18n", () => () => ({
+    t: (key: string) => `t(${key})`,
+    localeProperties: ref({ language: "es" }),
+}));
 mockNuxtImport("useHead", () => head.useHead);
 mockNuxtImport("useSeoMeta", () => head.useSeoMeta);
-mockNuxtImport("useSiteNav", () => () => ({ sections: ref([]), columns: ref([]), social: ref([]), issn: "2696-7618" }));
+mockNuxtImport("useSiteNav", () => () => ({
+    sections: ref([]),
+    columns: ref([]),
+    social: ref([]),
+    issn: "2696-7618",
+}));
 
 const global = {
     mocks: { $t: (key: string) => `t(${key})` },
@@ -31,7 +39,9 @@ describe("default layout", () => {
     it("puts the page inside the one main landmark, between the header and the footer", () => {
         const wrapper = mountLayout();
 
-        const order = wrapper.findAll("[data-shell], main").map((node) => node.attributes("data-shell") ?? "main");
+        const order = wrapper
+            .findAll("[data-shell], main")
+            .map((node) => node.attributes("data-shell") ?? "main");
 
         expect(order).toEqual(["header", "main", "footer"]);
         expect(wrapper.findAll("main")).toHaveLength(1);
@@ -56,7 +66,9 @@ describe("default layout", () => {
     it("tags the document with the active locale, so screen readers pick the right voice", () => {
         mountLayout();
 
-        const [{ htmlAttrs }] = head.useHead.mock.calls[0] as [{ htmlAttrs: { lang: () => string } }];
+        const [{ htmlAttrs }] = head.useHead.mock.calls[0] as [
+            { htmlAttrs: { lang: () => string } },
+        ];
 
         expect(htmlAttrs.lang()).toBe("es");
     });

@@ -4,12 +4,14 @@ import type { NavigationMenuItem } from "@nuxt/ui";
 const { data: issues } = useIssues();
 const { data: reviews } = await useReviewPages();
 const { data: badges } = await useFetch<{ advisories: number }>("/api/badges", { key: "badges" });
-const { public: { repoUrl } } = useRuntimeConfig();
+const {
+    public: { repoUrl },
+} = useRuntimeConfig();
 
 const open = computed(() => issues.value.issues.length);
 const advisories = computed(() => badges.value?.advisories ?? 0);
 
-const navGroups = computed<{ label: string, items: NavigationMenuItem[] }[]>(() => [
+const navGroups = computed<{ label: string; items: NavigationMenuItem[] }[]>(() => [
     {
         label: "Explore",
         items: [
@@ -57,23 +59,32 @@ const navGroups = computed<{ label: string, items: NavigationMenuItem[] }[]>(() 
 const searchOpen = ref(false);
 
 // Deferred to the first open; built here it rides in every prerendered payload (../../README.md).
-const { data: sections, status, execute } = useAsyncData("search-sections", () =>
-    queryCollectionSearchSections("docs"), { default: () => [], immediate: false, server: false });
+const {
+    data: sections,
+    status,
+    execute,
+} = useAsyncData("search-sections", () => queryCollectionSearchSections("docs"), {
+    default: () => [],
+    immediate: false,
+    server: false,
+});
 
 watch(searchOpen, () => {
     if (searchOpen.value && status.value === "idle") execute();
 });
 
-const searchGroups = computed(() => [{
-    id: "docs",
-    label: "Wiki",
-    items: sections.value.map((section) => ({
-        label: section.title,
-        suffix: section.content,
-        to: `/docs${section.id}`,
-        icon: "i-lucide-file-text",
-    })),
-}]);
+const searchGroups = computed(() => [
+    {
+        id: "docs",
+        label: "Wiki",
+        items: sections.value.map((section) => ({
+            label: section.title,
+            suffix: section.content,
+            to: `/docs${section.id}`,
+            icon: "i-lucide-file-text",
+        })),
+    },
+]);
 </script>
 
 <template>
@@ -87,43 +98,20 @@ const searchGroups = computed(() => [{
             :max-size="22"
         >
             <template #header="{ collapsed }">
-                <NuxtLink
-                    to="/"
-                    class="flex items-center gap-2 min-w-0"
-                >
-                    <UIcon
-                        name="i-lucide-activity"
-                        class="size-5 shrink-0 text-primary"
-                    />
-                    <span
-                        v-if="!collapsed"
-                        class="font-semibold truncate"
-                    >Monorepo</span>
+                <NuxtLink to="/" class="flex items-center gap-2 min-w-0">
+                    <UIcon name="i-lucide-activity" class="size-5 shrink-0 text-primary" />
+                    <span v-if="!collapsed" class="font-semibold truncate">Monorepo</span>
                 </NuxtLink>
             </template>
 
             <template #default="{ collapsed }">
-                <UDashboardSearchButton
-                    :collapsed
-                    class="bg-transparent ring-default"
-                />
+                <UDashboardSearchButton :collapsed class="bg-transparent ring-default" />
 
-                <div
-                    v-for="group in navGroups"
-                    :key="group.label"
-                    class="flex flex-col gap-1"
-                >
-                    <p
-                        v-if="!collapsed"
-                        class="px-2 pt-3 text-xs font-semibold text-dimmed"
-                    >
+                <div v-for="group in navGroups" :key="group.label" class="flex flex-col gap-1">
+                    <p v-if="!collapsed" class="px-2 pt-3 text-xs font-semibold text-dimmed">
                         {{ group.label }}
                     </p>
-                    <UNavigationMenu
-                        :items="group.items"
-                        :collapsed
-                        orientation="vertical"
-                    />
+                    <UNavigationMenu :items="group.items" :collapsed orientation="vertical" />
                 </div>
             </template>
 

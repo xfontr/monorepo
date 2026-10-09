@@ -10,7 +10,9 @@ const route = useRoute();
 // Deliberately unvalidated — the content module already bounds `page` (README.md § Content)
 const page = computed(() => route.query.page);
 
-const { data, error, status } = await useFetch<Page<ArticleSummary>>("/api/articles", { query: { page } });
+const { data, error, status } = await useFetch<Page<ArticleSummary>>("/api/articles", {
+    query: { page },
+});
 
 function raiseIfMissing(): void {
     if (!error.value) return;
@@ -51,17 +53,11 @@ function formatDate(date: string): string {
 </script>
 
 <template>
-    <div
-        class="articles"
-        :aria-busy="status === 'pending'"
-    >
+    <div class="articles" :aria-busy="status === 'pending'">
         <h1>{{ $t("articles.title") }}</h1>
 
         <!-- Only while there is nothing to show: past the first page the previous one stays up, dimmed -->
-        <p
-            v-if="status === 'pending' && !data"
-            class="notice"
-        >
+        <p v-if="status === 'pending' && !data" class="notice">
             {{ $t("common.loading") }}
         </p>
 
@@ -70,11 +66,7 @@ function formatDate(date: string): string {
                 {{ $t("articles.count", { shown: data.items.length, total: data.total }) }}
             </p>
 
-            <article
-                v-for="summary in data.items"
-                :key="summary.id"
-                class="entry"
-            >
+            <article v-for="summary in data.items" :key="summary.id" class="entry">
                 <NuxtLink
                     class="entry__link"
                     :to="{ name: 'article', params: { slug: summary.slug } }"
@@ -84,7 +76,7 @@ function formatDate(date: string): string {
                         class="entry__image"
                         :src="summary.image.url"
                         :alt="summary.image.alt"
-                    >
+                    />
 
                     <time
                         v-if="summary.publishedAt"
@@ -99,21 +91,12 @@ function formatDate(date: string): string {
                     </h2>
                 </NuxtLink>
 
-                <p
-                    v-if="summary.excerpt"
-                    class="entry__excerpt"
-                >
+                <p v-if="summary.excerpt" class="entry__excerpt">
                     {{ summary.excerpt }}
                 </p>
 
-                <ul
-                    v-if="termsOf(summary).length"
-                    class="entry__terms"
-                >
-                    <li
-                        v-for="term in termsOf(summary)"
-                        :key="term.id"
-                    >
+                <ul v-if="termsOf(summary).length" class="entry__terms">
+                    <li v-for="term in termsOf(summary)" :key="term.id">
                         {{ term.name }}
                     </li>
                 </ul>
@@ -139,15 +122,17 @@ function formatDate(date: string): string {
 
                 <!-- A span, not a disabled link: there is no previous page to point at, and an
                      anchor without a destination is still announced and focused as a control -->
-                <span
-                    v-else
-                    class="pagination__link pagination__link--spent"
-                >
+                <span v-else class="pagination__link pagination__link--spent">
                     {{ $t("articles.pagination.previous") }}
                 </span>
 
                 <p class="pagination__position">
-                    {{ $t("articles.pagination.position", { page: data.page, total: data.totalPages }) }}
+                    {{
+                        $t("articles.pagination.position", {
+                            page: data.page,
+                            total: data.totalPages,
+                        })
+                    }}
                 </p>
 
                 <NuxtLink
@@ -160,10 +145,7 @@ function formatDate(date: string): string {
                     {{ $t("articles.pagination.next") }}
                 </NuxtLink>
 
-                <span
-                    v-else
-                    class="pagination__link pagination__link--spent"
-                >
+                <span v-else class="pagination__link pagination__link--spent">
                     {{ $t("articles.pagination.next") }}
                 </span>
             </nav>

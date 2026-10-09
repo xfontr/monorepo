@@ -3,7 +3,7 @@ import { useScrollspy } from "@nuxt/ui/composables/useScrollspy";
 import { useResizeObserver } from "@vueuse/core";
 
 interface Props {
-    items: TocItem[]
+    items: TocItem[];
 }
 
 const props = defineProps<Props>();
@@ -12,24 +12,33 @@ const sections = computed(() => props.items.filter(({ level }) => level === 2));
 const { activeHeadings, updateHeadings } = useScrollspy();
 
 const lit = computed(() => {
-    const visible = sections.value.filter(({ id }) => activeHeadings.value.includes(id)).map(({ id }) => id);
+    const visible = sections.value
+        .filter(({ id }) => activeHeadings.value.includes(id))
+        .map(({ id }) => id);
 
     return visible.length ? visible : sections.value.slice(0, 1).map(({ id }) => id);
 });
 
 const rail = useTemplateRef("rail");
-const indicator = shallowRef<{ top: number, height: number }>();
+const indicator = shallowRef<{ top: number; height: number }>();
 
 function observeHeadings(): void {
-    updateHeadings(sections.value.map(({ id }) => document.getElementById(id)).filter((heading) => heading !== null));
+    updateHeadings(
+        sections.value
+            .map(({ id }) => document.getElementById(id))
+            .filter((heading) => heading !== null),
+    );
 }
 
 function measure(): void {
-    const links = [...rail.value?.querySelectorAll<HTMLElement>("[data-lit]") ?? []];
+    const links = [...(rail.value?.querySelectorAll<HTMLElement>("[data-lit]") ?? [])];
     const first = links.at(0);
     const last = links.at(-1);
 
-    indicator.value = first && last ? { top: first.offsetTop, height: last.offsetTop + last.offsetHeight - first.offsetTop } : undefined;
+    indicator.value =
+        first && last
+            ? { top: first.offsetTop, height: last.offsetTop + last.offsetHeight - first.offsetTop }
+            : undefined;
 }
 
 onMounted(() => {
@@ -44,22 +53,18 @@ useResizeObserver(rail, measure);
 </script>
 
 <template>
-    <nav
-        v-if="sections.length"
-        :aria-label="$t('articleToc.title')"
-        class="print:hidden"
-    >
+    <nav v-if="sections.length" :aria-label="$t('articleToc.title')" class="print:hidden">
         <UAccordion
             :items="[{ label: $t('articleToc.title'), slot: 'toc' as const }]"
-            :ui="{ trigger: 'min-h-12 font-sans text-sm font-semibold text-highlighted', body: 'pb-4' }"
+            :ui="{
+                trigger: 'min-h-12 font-sans text-sm font-semibold text-highlighted',
+                body: 'pb-4',
+            }"
             class="max-w-measure rounded-xs border border-default bg-ivory-50 px-4 lg:hidden"
         >
             <template #toc-body>
                 <ol class="flex flex-col border-l border-default">
-                    <li
-                        v-for="item in sections"
-                        :key="item.id"
-                    >
+                    <li v-for="item in sections" :key="item.id">
                         <ULink
                             :to="`#${item.id}`"
                             raw
@@ -76,10 +81,7 @@ useResizeObserver(rail, measure);
             <p class="text-kicker">
                 {{ $t("articleToc.title") }}
             </p>
-            <div
-                ref="rail"
-                class="relative mt-3"
-            >
+            <div ref="rail" class="relative mt-3">
                 <span
                     v-if="indicator"
                     aria-hidden="true"
@@ -87,10 +89,7 @@ useResizeObserver(rail, measure);
                     :style="{ height: `${indicator.height}px`, translate: `0 ${indicator.top}px` }"
                 />
                 <ol class="flex flex-col border-l border-default">
-                    <li
-                        v-for="item in sections"
-                        :key="item.id"
-                    >
+                    <li v-for="item in sections" :key="item.id">
                         <ULink
                             :to="`#${item.id}`"
                             raw

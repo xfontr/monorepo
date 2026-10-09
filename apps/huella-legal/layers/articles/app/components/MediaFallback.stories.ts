@@ -7,7 +7,7 @@ const meta: Meta<typeof MediaFallback> = {
     argTypes: {
         tone: { control: "inline-radio", options: ["paper", "slate"] },
     },
-    decorators: [() => ({ template: "<div class=\"@container aspect-[3/2] w-80\"><story /></div>" })],
+    decorators: [() => ({ template: '<div class="@container aspect-[3/2] w-80"><story /></div>' })],
 };
 
 export default meta;

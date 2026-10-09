@@ -35,7 +35,12 @@ describe("toProjects", () => {
     });
 
     it("puts apps first and the component library last, so the list opens on what a newcomer wants", () => {
-        expect(PROJECTS.map(({ label }) => label)).toEqual(["Developer Portal", "Huella Legal", "Translations", "UI"]);
+        expect(PROJECTS.map(({ label }) => label)).toEqual([
+            "Developer Portal",
+            "Huella Legal",
+            "Translations",
+            "UI",
+        ]);
     });
 
     it("orders alphabetically inside a layer, so a graph change can't move rows under someone's fingers", () => {
@@ -61,14 +66,12 @@ describe("toProjects", () => {
 });
 
 describe("findProject", () => {
-    it.each([
-        ["@monorepo/huella-legal"],
-        ["huella-legal"],
-        ["Huella Legal"],
-        ["huella legal"],
-    ])("matches %j, so the scoped name isn't the only spelling that works", (query) => {
-        expect(findProject(PROJECTS, query)?.name).toBe("@monorepo/huella-legal");
-    });
+    it.each([["@monorepo/huella-legal"], ["huella-legal"], ["Huella Legal"], ["huella legal"]])(
+        "matches %j, so the scoped name isn't the only spelling that works",
+        (query) => {
+            expect(findProject(PROJECTS, query)?.name).toBe("@monorepo/huella-legal");
+        },
+    );
 
     // A half-typed name goes to the picker prefilled with it, which narrows the list without this
     // having to decide which project the person meant.
@@ -81,17 +84,21 @@ describe("rowFor", () => {
     // clack renders a hint only for the active row, so a layer left in the hint is invisible on
     // every row someone hasn't arrowed to yet — which is every row that matters while browsing.
     it("carries the layer in the row itself, so the grouping is visible without arrowing to it", () => {
-        expect(rowFor({ root: "apps", name: "@monorepo/huella-legal", label: "Huella Legal" }))
-            .toBe("Huella Legal · apps");
+        expect(
+            rowFor({ root: "apps", name: "@monorepo/huella-legal", label: "Huella Legal" }),
+        ).toBe("Huella Legal · apps");
     });
 });
 
 describe("matches", () => {
     const UI = { root: "packages", name: "@monorepo/ui", label: "UI" };
 
-    it.each([["ui"], ["UI"], ["@monorepo/u"]])("narrows the list on %j, the way a partial name is typed", (search) => {
-        expect(matches(UI, search)).toBe(true);
-    });
+    it.each([["ui"], ["UI"], ["@monorepo/u"]])(
+        "narrows the list on %j, the way a partial name is typed",
+        (search) => {
+            expect(matches(UI, search)).toBe(true);
+        },
+    );
 
     // The other question a long list gets asked: not "which project" but "which of the apps".
     it("narrows on a layer, so typing `packages` lists what lives there", () => {

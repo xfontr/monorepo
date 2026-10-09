@@ -56,11 +56,14 @@ describe("WordpressProvider", () => {
             expect(requestedUrl()).toBe("https://wp.test/blog/wp-json/wp/v2/posts");
         });
 
-        it.each(["https://wp.test/", "https://wp.test///"])("joins the API path onto %s exactly once", async (baseURL) => {
-            await build(baseURL).listEntries("posts");
+        it.each(["https://wp.test/", "https://wp.test///"])(
+            "joins the API path onto %s exactly once",
+            async (baseURL) => {
+                await build(baseURL).listEntries("posts");
 
-            expect(requestedUrl()).toBe(POSTS_URL);
-        });
+                expect(requestedUrl()).toBe(POSTS_URL);
+            },
+        );
 
         it("trims a long slash suffix while keeping a subdirectory install", async () => {
             await build(`https://wp.test/blog/${"/".repeat(10_000)}`).listEntries("posts");
@@ -109,10 +112,13 @@ describe("WordpressProvider", () => {
     });
 
     // An unset NUXT_CONTENT_VENDOR_BASE_URL would otherwise become a relative fetch and come back as a 502
-    it.each(["", "   ", "wp.test", "/blog"])("refuses to exist with %o as its base URL", (baseURL) => {
-        expect(() => build(baseURL)).toThrow(MisconfiguredVendorError);
-        expect(() => build(baseURL)).toThrow(/baseURL is not an absolute URL/);
-    });
+    it.each(["", "   ", "wp.test", "/blog"])(
+        "refuses to exist with %o as its base URL",
+        (baseURL) => {
+            expect(() => build(baseURL)).toThrow(MisconfiguredVendorError);
+            expect(() => build(baseURL)).toThrow(/baseURL is not an absolute URL/);
+        },
+    );
 
     // A thin smoke test that the query and the response are actually wired through WordpressHelpers —
     // the mapping and pagination edge cases themselves are pinned in WordpressHelpers.spec.ts

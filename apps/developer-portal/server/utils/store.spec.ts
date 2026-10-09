@@ -9,7 +9,9 @@ const directories: string[] = [];
 afterEach(async () => {
     vi.unstubAllGlobals();
 
-    await Promise.all(directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
+    await Promise.all(
+        directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })),
+    );
 });
 
 async function snapshotDir(): Promise<string> {
@@ -37,7 +39,7 @@ describe("readArtifact", () => {
 
     it("returns null for malformed or half-written JSON", async () => {
         const directory = await snapshotDir();
-        await writeFile(join(directory, "docs.json"), "{\"pages\":");
+        await writeFile(join(directory, "docs.json"), '{"pages":');
         vi.stubGlobal("useRuntimeConfig", () => ({ snapshotDir: directory }));
 
         await expect(readArtifact("docs")).resolves.toBeNull();

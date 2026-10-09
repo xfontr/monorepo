@@ -3,8 +3,7 @@ export function repoApiUrl(repoUrl: string, resource: string): string | null {
 
     try {
         url = new URL(repoUrl);
-    }
-    catch {
+    } catch {
         return null;
     }
 

@@ -16,9 +16,7 @@ describe("GET /:locale/:project", () => {
         const res = await get("/es-ES/huella-legal");
         expect(res.status).toBe(200);
         const body = (await res.json()) as Record<string, unknown>;
-        expect(Object.keys(body)).toEqual(
-            expect.arrayContaining(["app", "common"]),
-        );
+        expect(Object.keys(body)).toEqual(expect.arrayContaining(["app", "common"]));
     });
 
     it("404s an unknown locale", async () => {

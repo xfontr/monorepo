@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface Props {
-    article: Article
+    article: Article;
 }
 
 const props = defineProps<Props>();
@@ -17,18 +17,12 @@ const tagNames = computed<string>(() => props.article.tags.map(({ name }) => nam
             <ArticleCiteBox :citations="article.citations" />
         </div>
 
-        <p
-            v-if="article.tags.length"
-            class="font-sans text-sm text-muted print:hidden"
-        >
+        <p v-if="article.tags.length" class="font-sans text-sm text-muted print:hidden">
             <span class="mr-1 font-semibold text-highlighted">{{ $t("article.tags") }}</span>
             {{ tagNames }}
         </p>
 
-        <div
-            id="autor"
-            class="flex flex-col gap-12"
-        >
+        <div id="autor" class="flex flex-col gap-12">
             <ArticleAuthorCard
                 v-for="author in article.authors"
                 :key="author.id"

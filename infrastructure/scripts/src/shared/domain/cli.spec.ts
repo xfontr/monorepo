@@ -70,7 +70,9 @@ describe("report", () => {
     });
 
     it("prints stderr once when Node already put it in the message", () => {
-        const error = Object.assign(new Error("Command failed: git rev-parse\nfatal: bad ref"), { stderr: "fatal: bad ref\n" });
+        const error = Object.assign(new Error("Command failed: git rev-parse\nfatal: bad ref"), {
+            stderr: "fatal: bad ref\n",
+        });
 
         expect(report(error).message.split("fatal: bad ref")).toHaveLength(2);
     });

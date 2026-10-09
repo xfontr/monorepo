@@ -3,8 +3,8 @@ import { summarize } from "#shared/issues.ts";
 import type { Issue } from "#shared/issues.ts";
 
 interface Props {
-    issue: Issue
-    compact?: boolean
+    issue: Issue;
+    compact?: boolean;
 }
 
 const { issue, compact = false } = defineProps<Props>();
@@ -24,7 +24,9 @@ const assignees = computed(() => issue.assignees.join(", "));
 <template>
     <div class="px-4 py-3 hover:bg-elevated/40 transition-colors">
         <div class="flex items-start gap-3">
-            <span class="text-xs font-mono text-dimmed tabular-nums mt-0.5 shrink-0">#{{ issue.number }}</span>
+            <span class="text-xs font-mono text-dimmed tabular-nums mt-0.5 shrink-0"
+                >#{{ issue.number }}</span
+            >
 
             <div class="flex-1 min-w-0">
                 <button
@@ -35,10 +37,7 @@ const assignees = computed(() => issue.assignees.join(", "));
                     {{ issue.title }}
                 </button>
 
-                <p
-                    v-if="summary && !expanded"
-                    class="text-xs text-muted truncate mt-0.5"
-                >
+                <p v-if="summary && !expanded" class="text-xs text-muted truncate mt-0.5">
                     {{ summary }}
                 </p>
 
@@ -52,29 +51,17 @@ const assignees = computed(() => issue.assignees.join(", "));
                         :label
                     />
 
-                    <span
-                        v-if="!compact"
-                        class="text-[11px] text-dimmed"
-                    >updated {{ updated }}</span>
+                    <span v-if="!compact" class="text-[11px] text-dimmed"
+                        >updated {{ updated }}</span
+                    >
                 </div>
 
-                <div
-                    v-if="expanded"
-                    class="mt-3 flex flex-col gap-3"
-                >
-                    <p
-                        v-if="issue.body"
-                        class="text-sm text-muted whitespace-pre-line"
-                    >
+                <div v-if="expanded" class="mt-3 flex flex-col gap-3">
+                    <p v-if="issue.body" class="text-sm text-muted whitespace-pre-line">
                         {{ issue.body }}
                     </p>
 
-                    <p
-                        v-else
-                        class="text-sm text-dimmed italic"
-                    >
-                        No description.
-                    </p>
+                    <p v-else class="text-sm text-dimmed italic">No description.</p>
 
                     <div class="flex items-center gap-3">
                         <UButton
@@ -88,10 +75,9 @@ const assignees = computed(() => issue.assignees.join(", "));
                             size="xs"
                         />
 
-                        <span
-                            v-if="issue.assignees.length > 0"
-                            class="text-xs text-dimmed"
-                        >{{ assignees }}</span>
+                        <span v-if="issue.assignees.length > 0" class="text-xs text-dimmed">{{
+                            assignees
+                        }}</span>
                     </div>
                 </div>
             </div>

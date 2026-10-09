@@ -32,7 +32,9 @@ describe("assertComplete", () => {
 describe("assertAbsolutePaths", () => {
     it("does not throw when every key is an absolute path", () => {
         expect(() =>
-            assertAbsolutePaths("@monorepo/ui", { "/repo/packages/ui/lib/index.ts": fileCoverage("/repo/packages/ui/lib/index.ts") }),
+            assertAbsolutePaths("@monorepo/ui", {
+                "/repo/packages/ui/lib/index.ts": fileCoverage("/repo/packages/ui/lib/index.ts"),
+            }),
         ).not.toThrow();
     });
 
@@ -47,13 +49,29 @@ describe("assertAbsolutePaths", () => {
 
 describe("mergeReports", () => {
     it("throws instead of merging when any project's report is missing", () => {
-        expect(() => mergeReports([{ name: "@monorepo/ui", data: undefined }])).toThrow(/@monorepo\/ui/);
+        expect(() => mergeReports([{ name: "@monorepo/ui", data: undefined }])).toThrow(
+            /@monorepo\/ui/,
+        );
     });
 
     it("combines file coverage from every project into one map", () => {
         const map = mergeReports([
-            { name: "@monorepo/ui", data: { "/repo/packages/ui/lib/index.ts": fileCoverage("/repo/packages/ui/lib/index.ts") } },
-            { name: "@monorepo/content", data: { "/repo/packages/content/lib/index.ts": fileCoverage("/repo/packages/content/lib/index.ts") } },
+            {
+                name: "@monorepo/ui",
+                data: {
+                    "/repo/packages/ui/lib/index.ts": fileCoverage(
+                        "/repo/packages/ui/lib/index.ts",
+                    ),
+                },
+            },
+            {
+                name: "@monorepo/content",
+                data: {
+                    "/repo/packages/content/lib/index.ts": fileCoverage(
+                        "/repo/packages/content/lib/index.ts",
+                    ),
+                },
+            },
         ]);
 
         expect(map.files()).toEqual([

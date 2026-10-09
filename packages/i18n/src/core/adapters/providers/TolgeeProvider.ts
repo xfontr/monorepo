@@ -3,11 +3,11 @@ import type { Locale, TranslationMap } from "#core/domain/translations";
 import TranslationProvider from "#core/ports/TranslationProvider";
 
 export interface TolgeeProviderOptions {
-    token: string
+    token: string;
 }
 
 interface TolgeeTranslations {
-    [locale: Locale]: TranslationMap
+    [locale: Locale]: TranslationMap;
 }
 
 class TolgeeProvider extends TranslationProvider<TolgeeProviderOptions> {

@@ -1,6 +1,11 @@
 import { readFile } from "node:fs/promises";
 import { matchesGlob, resolve } from "node:path";
-import type { CoverageArtifact, MetricsArtifact, ProjectMetrics, ProjectNode } from "../../shared/types.ts";
+import type {
+    CoverageArtifact,
+    MetricsArtifact,
+    ProjectMetrics,
+    ProjectNode,
+} from "../../shared/types.ts";
 import { collectInvariants } from "../lib/invariants.ts";
 import { WORKSPACE_ROOT } from "../lib/paths.ts";
 import { git, tryRun } from "../lib/run.ts";
@@ -9,7 +14,8 @@ const SPEC_SUFFIX = ".spec.ts";
 
 // The `commit-msg` hook rewrites a conforming subject to carry the branch's issue number — `feat:
 // [50] add thing` — so the optional group here keeps a numberless-branch commit from counting as a miss.
-const CONVENTIONAL = /^(?:build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(?:\([^)]+\))?!?: (?:\[\d+\] )?[a-z0-9]/;
+const CONVENTIONAL =
+    /^(?:build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(?:\([^)]+\))?!?: (?:\[\d+\] )?[a-z0-9]/;
 
 async function filesIn(root: string): Promise<string[]> {
     const stdout = await git(["ls-files", "--", root]);
@@ -29,16 +35,21 @@ async function latestTag(name: string): Promise<string | null> {
 async function releaseProjects(): Promise<string[]> {
     try {
         const raw = await readFile(resolve(WORKSPACE_ROOT, "nx.json"), "utf8");
-        const projects = (JSON.parse(raw) as { release?: { projects?: string | string[] } }).release?.projects ?? [];
+        const projects =
+            (JSON.parse(raw) as { release?: { projects?: string | string[] } }).release?.projects ??
+            [];
 
         return typeof projects === "string" ? [projects] : projects;
-    }
-    catch {
+    } catch {
         return [];
     }
 }
 
-async function unreleasedCommits(name: string, root: string, released: boolean): Promise<number | null> {
+async function unreleasedCommits(
+    name: string,
+    root: string,
+    released: boolean,
+): Promise<number | null> {
     const tag = await latestTag(name);
 
     if (!tag && !released) return null;
@@ -48,7 +59,9 @@ async function unreleasedCommits(name: string, root: string, released: boolean):
     return Number.parseInt(stdout.trim(), 10);
 }
 
-async function commitStats(root: string): Promise<{ commits: number, commitsLastTwoWeeks: number }> {
+async function commitStats(
+    root: string,
+): Promise<{ commits: number; commitsLastTwoWeeks: number }> {
     const [counted, recent] = await Promise.all([
         git(["rev-list", "--count", "HEAD", "--", root]),
         git(["log", "--since=2 weeks ago", "--format=%H", "--", root]),
@@ -65,13 +78,16 @@ async function versionOf(root: string): Promise<string | null> {
         const raw = await readFile(resolve(WORKSPACE_ROOT, root, "package.json"), "utf8");
 
         return (JSON.parse(raw) as { version?: string }).version ?? null;
-    }
-    catch {
+    } catch {
         return null;
     }
 }
 
-async function unreleasedFor(name: string, root: string, released: boolean): Promise<number | null> {
+async function unreleasedFor(
+    name: string,
+    root: string,
+    released: boolean,
+): Promise<number | null> {
     const result = await tryRun(() => unreleasedCommits(name, root, released));
 
     return result.ok ? result.value : null;
@@ -112,18 +128,24 @@ export async function collectMetrics(
             specs: specs.length,
             commits: history.ok ? history.value.commits : null,
             commitsLastTwoWeeks: history.ok ? history.value.commitsLastTwoWeeks : null,
-            coverageLinesPct: projectCoverage?.collected ? (projectCoverage.lines?.pct ?? null) : null,
+            coverageLinesPct: projectCoverage?.collected
+                ? (projectCoverage.lines?.pct ?? null)
+                : null,
             unreleasedCommits: await unreleasedFor(
                 project.name,
                 project.root,
-                releasePatterns.some((pattern) => pattern === project.name || matchesGlob(project.root, pattern)),
+                releasePatterns.some(
+                    (pattern) => pattern === project.name || matchesGlob(project.root, pattern),
+                ),
             ),
             currentVersion: await versionOf(project.root),
             hasChangelog: files.some((file) => file.endsWith("CHANGELOG.md")),
         });
     }
 
-    const subjects = (await git(["log", "--no-merges", "--format=%s", "-100"])).split("\n").filter(Boolean);
+    const subjects = (await git(["log", "--no-merges", "--format=%s", "-100"]))
+        .split("\n")
+        .filter(Boolean);
     const conforming = subjects.filter((subject) => CONVENTIONAL.test(subject));
 
     const release = await tryRun(commitsSinceRelease);
@@ -138,9 +160,8 @@ export async function collectMetrics(
         branch,
         projects: measured,
         invariantFindings: await collectInvariants(projects.map((project) => project.root)),
-        conventionalCommitRate: subjects.length === 0
-            ? null
-            : Math.round((conforming.length / subjects.length) * 100),
+        conventionalCommitRate:
+            subjects.length === 0 ? null : Math.round((conforming.length / subjects.length) * 100),
         commitsSinceLastRelease: release.ok ? release.value : null,
     };
 }

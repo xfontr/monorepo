@@ -2,8 +2,8 @@ import { parse } from "yaml";
 import { DECISION_OUTCOMES, DECISION_STATUSES } from "../../shared/decisions.ts";
 
 export interface DecisionProblem {
-    file: string
-    message: string
+    file: string;
+    message: string;
 }
 
 const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
@@ -30,8 +30,7 @@ export function frontmatterFields(source: string): Record<string, string> | null
                 .filter(([, value]) => value !== null && typeof value !== "object")
                 .map(([key, value]) => [key, String(value)]),
         );
-    }
-    catch {
+    } catch {
         return null;
     }
 }
@@ -52,22 +51,26 @@ function reportProblems(file: string, source: string, filed: ReadonlySet<string>
     }
 
     if (!(DECISION_STATUSES as readonly string[]).includes(fields.status ?? "")) {
-        problems.push(`\`status: ${fields.status ?? "(missing)"}\` isn't one of ${DECISION_STATUSES.join(", ")}`);
+        problems.push(
+            `\`status: ${fields.status ?? "(missing)"}\` isn't one of ${DECISION_STATUSES.join(", ")}`,
+        );
     }
 
     if (!(DECISION_OUTCOMES as readonly string[]).includes(fields.decision ?? "")) {
-        problems.push(`\`decision: ${fields.decision ?? "(missing)"}\` isn't one of ${DECISION_OUTCOMES.join(", ")}`);
+        problems.push(
+            `\`decision: ${fields.decision ?? "(missing)"}\` isn't one of ${DECISION_OUTCOMES.join(", ")}`,
+        );
     }
 
     if (fields.decision === "superseded") {
         if (!fields.supersededBy) {
             problems.push("`decision: superseded` needs a `supersededBy:` file");
+        } else if (!filed.has(fields.supersededBy)) {
+            problems.push(
+                `\`supersededBy: ${fields.supersededBy}\` names a file that isn't a filed decision`,
+            );
         }
-        else if (!filed.has(fields.supersededBy)) {
-            problems.push(`\`supersededBy: ${fields.supersededBy}\` names a file that isn't a filed decision`);
-        }
-    }
-    else if (fields.supersededBy) {
+    } else if (fields.supersededBy) {
         problems.push("`supersededBy:` is set but `decision` isn't `superseded`");
     }
 
@@ -79,7 +82,7 @@ function reportProblems(file: string, source: string, filed: ReadonlySet<string>
  * number is a problem here where a reused `issue:` is not: two questions off one issue is normal,
  * two reports answering to the same `NNNN` is the collision consecutive numbering exists to prevent.
  */
-export function decisionProblems(reports: { file: string, source: string }[]): DecisionProblem[] {
+export function decisionProblems(reports: { file: string; source: string }[]): DecisionProblem[] {
     const filed = new Set(reports.map((report) => report.file));
     const seen = new Map<string, string>();
     const problems: DecisionProblem[] = [];

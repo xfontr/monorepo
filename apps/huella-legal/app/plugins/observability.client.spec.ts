@@ -5,7 +5,10 @@ import plugin from "./observability.client";
 const telemetry = vi.hoisted(() => ({
     faro: { api: { pushError: vi.fn() } },
     startWebTelemetry: vi.fn(),
-    config: { url: "", app: { name: "@monorepo/huella-legal", version: "1.4.0", environment: "production" } },
+    config: {
+        url: "",
+        app: { name: "@monorepo/huella-legal", version: "1.4.0", environment: "production" },
+    },
 }));
 
 vi.mock("@monorepo/observability", () => ({ startWebTelemetry: telemetry.startWebTelemetry }));

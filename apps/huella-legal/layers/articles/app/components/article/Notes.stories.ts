@@ -8,7 +8,10 @@ const meta: Meta<typeof ArticleNotes> = {
         notes: [
             { id: "1", html: "Art. 10 del Código Penal." },
             { id: "2", html: "Welzel, H., <em>Das neue Bild des Strafrechtssystems</em>, 1961." },
-            { id: "12", html: "Una nota de dos dígitos, para comprobar que el número no empuja el texto." },
+            {
+                id: "12",
+                html: "Una nota de dos dígitos, para comprobar que el número no empuja el texto.",
+            },
         ],
     },
 };

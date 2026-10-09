@@ -4,7 +4,12 @@ import { out } from "../shared/adapters/io.ts";
 import { orExit, type Cancellable } from "../shared/adapters/prompts.ts";
 import { listLabels, listProjects, type Label, type Project } from "./adapters/gh.ts";
 import { currentBranch } from "./adapters/git.ts";
-import { labelOptions, NONE_OPTION, PROJECT_SCOPE_HINT, projectOptions } from "./adapters/prompts.ts";
+import {
+    labelOptions,
+    NONE_OPTION,
+    PROJECT_SCOPE_HINT,
+    projectOptions,
+} from "./adapters/prompts.ts";
 import { labelOptionMatches, optionalSelection } from "./domain/pick.ts";
 import { pick } from "./pick.ts";
 
@@ -83,8 +88,7 @@ export const add = async (): Promise<void> => {
         const url = createIssue({ title: title.trim(), body: body.trim(), label, project });
         creating.stop("Created.");
         out.end(url);
-    }
-    catch (error) {
+    } catch (error) {
         creating.stop("gh issue create failed.");
         throw error;
     }

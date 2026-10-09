@@ -16,7 +16,7 @@ vi.mock("@nuxt/kit", () => ({
 }));
 
 const { setup } = (await import("./module")).default as unknown as {
-    setup: (options: ContentConfig, nuxt: Nuxt) => void
+    setup: (options: ContentConfig, nuxt: Nuxt) => void;
 };
 
 const vendor: VendorConfig = { name: "wordpress", baseURL: "https://wp.test/" };
@@ -43,10 +43,12 @@ describe("content nuxt module", () => {
     it("auto-imports useContent into server code, and mounts no route", () => {
         install({ vendor });
 
-        expect(kit.addServerImports).toHaveBeenCalledWith([{
-            name: "useContent",
-            from: "resolved(./runtime/server/utils/useContent)",
-        }]);
+        expect(kit.addServerImports).toHaveBeenCalledWith([
+            {
+                name: "useContent",
+                from: "resolved(./runtime/server/utils/useContent)",
+            },
+        ]);
     });
 
     // Failing the build beats throwing on the first request, which is a page nobody is watching

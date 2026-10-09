@@ -3,9 +3,9 @@ import { useClipboard, useShare } from "@vueuse/core";
 import type { RouteLocationRaw } from "vue-router";
 
 interface Props {
-    title: string
-    url: string
-    citeTo?: RouteLocationRaw
+    title: string;
+    url: string;
+    citeTo?: RouteLocationRaw;
 }
 
 const props = defineProps<Props>();
@@ -20,8 +20,7 @@ async function share(): Promise<void> {
         try {
             await nativeShare({ title: props.title, url: props.url });
             return;
-        }
-        catch (error) {
+        } catch (error) {
             // Dismissing the sheet is the reader's choice
             if (error instanceof DOMException && error.name === "AbortError") return;
         }

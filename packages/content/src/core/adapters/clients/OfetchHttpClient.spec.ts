@@ -27,7 +27,9 @@ describe("OfetchHttpClient", () => {
         const headers = new Headers({ "x-wp-total": "12" });
         const { $fetch } = createFetch({ _data: [{ id: 1 }], headers });
 
-        await expect(new OfetchHttpClient($fetch).get("https://wp.test/wp-json/wp/v2/posts")).resolves.toEqual({
+        await expect(
+            new OfetchHttpClient($fetch).get("https://wp.test/wp-json/wp/v2/posts"),
+        ).resolves.toEqual({
             data: [{ id: 1 }],
             headers,
         });
@@ -64,14 +66,20 @@ describe("OfetchHttpClient", () => {
         it("never surfaces a transport-specific error", async () => {
             const { $fetch } = createFailingFetch(fetchError(404));
 
-            await expect(new OfetchHttpClient($fetch).get("https://wp.test/wp-json")).rejects.not.toBeInstanceOf(FetchError);
-            await expect(new OfetchHttpClient($fetch).get("https://wp.test/wp-json")).rejects.toBeInstanceOf(UpstreamError);
+            await expect(
+                new OfetchHttpClient($fetch).get("https://wp.test/wp-json"),
+            ).rejects.not.toBeInstanceOf(FetchError);
+            await expect(
+                new OfetchHttpClient($fetch).get("https://wp.test/wp-json"),
+            ).rejects.toBeInstanceOf(UpstreamError);
         });
 
         it("hands the upstream status to the domain, which is the only part it can act on", async () => {
             const { $fetch } = createFailingFetch(fetchError(404));
 
-            await expect(new OfetchHttpClient($fetch).get("https://wp.test/wp-json")).rejects.toMatchObject({
+            await expect(
+                new OfetchHttpClient($fetch).get("https://wp.test/wp-json"),
+            ).rejects.toMatchObject({
                 upstreamStatus: 404,
                 statusCode: 404,
             });
@@ -83,7 +91,9 @@ describe("OfetchHttpClient", () => {
             const cause = new Error("connect ECONNREFUSED");
             const { $fetch } = createFailingFetch(cause);
 
-            await expect(new OfetchHttpClient($fetch).get("https://wp.test/wp-json")).rejects.toMatchObject({
+            await expect(
+                new OfetchHttpClient($fetch).get("https://wp.test/wp-json"),
+            ).rejects.toMatchObject({
                 upstreamStatus: undefined,
                 statusCode: 502,
                 cause,

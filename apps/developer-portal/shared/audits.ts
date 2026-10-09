@@ -2,31 +2,39 @@
 export const FINDING_STATUSES = ["open", "fixed", "wont-fix"] as const;
 export const AUDIT_STATES = ["open", "in-progress", "closed"] as const;
 
-export type FindingStatus = typeof FINDING_STATUSES[number];
-export type AuditState = typeof AUDIT_STATES[number];
+export type FindingStatus = (typeof FINDING_STATUSES)[number];
+export type AuditState = (typeof AUDIT_STATES)[number];
 
 export interface AuditFinding {
-    id: string
+    id: string;
     /** The `##` heading the finding's table sits under, emoji stripped — `Bugs`, `Duplication`. */
-    category: string
+    category: string;
     /** Null when the cell's first word isn't in the vocabulary, which `auditProblems` reports. */
-    status: FindingStatus | null
+    status: FindingStatus | null;
     /** Whatever follows the status word — `fixed #152` carries `#152`. */
-    ref: string | null
+    ref: string | null;
 }
 
 const FENCE = /^(?:```|~~~)/;
 const HEADING = /^##[^\S\n]+(\S.*)$/;
 
 function cellsOf(line: string): string[] {
-    return line.trim().replace(/^\|/, "").replace(/\|$/, "").split(/(?<!\\)\|/).map((cell) => cell.trim());
+    return line
+        .trim()
+        .replace(/^\|/, "")
+        .replace(/\|$/, "")
+        .split(/(?<!\\)\|/)
+        .map((cell) => cell.trim());
 }
 
 function isSeparator(line: string): boolean {
     return /^\|?\s*:?-{3,}/.test(line.trim());
 }
 
-interface FindingColumns { id: number, status: number }
+interface FindingColumns {
+    id: number;
+    status: number;
+}
 
 function findingColumns(cells: string[]): FindingColumns {
     const header = cells.map((cell) => cell.toLowerCase());
@@ -34,7 +42,11 @@ function findingColumns(cells: string[]): FindingColumns {
     return { id: header.indexOf("id"), status: header.indexOf("status") };
 }
 
-function findingOf(cells: string[], columns: FindingColumns, category: string): AuditFinding | null {
+function findingOf(
+    cells: string[],
+    columns: FindingColumns,
+    category: string,
+): AuditFinding | null {
     if (columns.id === -1 || columns.status === -1) return null;
 
     const id = (cells[columns.id] ?? "").replace(/[*`]/g, "").trim();
@@ -43,7 +55,12 @@ function findingOf(cells: string[], columns: FindingColumns, category: string): 
     const [word = "", ...rest] = (cells[columns.status] ?? "").split(/\s+/);
     const status = word.toLowerCase();
 
-    return { id, category, status: isFindingStatus(status) ? status : null, ref: rest.join(" ") || null };
+    return {
+        id,
+        category,
+        status: isFindingStatus(status) ? status : null,
+        ref: rest.join(" ") || null,
+    };
 }
 
 export function isFindingStatus(value: string): value is FindingStatus {
@@ -96,7 +113,9 @@ export function parseFindings(markdown: string): AuditFinding[] {
 
 /** An unparsed status counts as open, so a typo keeps an audit on the list instead of quietly closing it. */
 export function auditStateOf(findings: AuditFinding[]): AuditState {
-    const open = findings.filter((finding) => finding.status === "open" || finding.status === null).length;
+    const open = findings.filter(
+        (finding) => finding.status === "open" || finding.status === null,
+    ).length;
 
     if (open === 0) return "closed";
     if (open === findings.length) return "open";

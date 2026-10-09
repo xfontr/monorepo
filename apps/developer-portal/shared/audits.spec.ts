@@ -52,7 +52,12 @@ describe("parseFindings", () => {
     });
 
     it("takes the category from the heading above the table, without its emoji", () => {
-        expect(findings.map((row) => row.category)).toEqual(["Bugs", "Bugs", "Duplication", "Duplication"]);
+        expect(findings.map((row) => row.category)).toEqual([
+            "Bugs",
+            "Bugs",
+            "Duplication",
+            "Duplication",
+        ]);
     });
 
     it("keeps the reference after the status word and reads the word case-insensitively", () => {
@@ -69,9 +74,12 @@ describe("parseFindings", () => {
     });
 
     it("ignores malformed rows and prose tables without hiding a later findings table", () => {
-        const source = "## 🧹 Quality\n| Read | How |\n| --- | --- |\n| x | y |\n\n| ID | Status |\n| --- | --- |\n| | open |\n| Q1 | fixed #183 |\n";
+        const source =
+            "## 🧹 Quality\n| Read | How |\n| --- | --- |\n| x | y |\n\n| ID | Status |\n| --- | --- |\n| | open |\n| Q1 | fixed #183 |\n";
 
-        expect(parseFindings(source)).toEqual([{ id: "Q1", category: "Quality", status: "fixed", ref: "#183" }]);
+        expect(parseFindings(source)).toEqual([
+            { id: "Q1", category: "Quality", status: "fixed", ref: "#183" },
+        ]);
     });
 });
 
@@ -83,7 +91,10 @@ describe("auditStateOf", () => {
         [[finding("wont-fix")], "closed"],
         [[finding(null), finding("fixed")], "in-progress"],
         [[], "closed"],
-    ] as const)("derives the audit's state from its findings, a typo counting as open (%#)", (findings, state) => {
-        expect(auditStateOf([...findings])).toBe(state);
-    });
+    ] as const)(
+        "derives the audit's state from its findings, a typo counting as open (%#)",
+        (findings, state) => {
+            expect(auditStateOf([...findings])).toBe(state);
+        },
+    );
 });
