@@ -4,7 +4,8 @@ import { describe, expect, it } from "vitest";
 import { toArticleSummary } from "./articleSummary";
 import { toCitations } from "./citation";
 
-const JOURNAL = { name: "Huella Legal", issn: "0000-0000", permalink: "https://revista.test/la-culpa/" };
+const JOURNAL = { name: "Huella Legal", issn: "0000-0000" };
+const PERMALINK = "https://revista.test/la-culpa/";
 
 const article = (overrides: Partial<Entry>) => toArticleSummary(fakeEntry({
     title: "La culpa",
@@ -13,7 +14,7 @@ const article = (overrides: Partial<Entry>) => toArticleSummary(fakeEntry({
     ...overrides,
 }));
 
-const cite = (overrides: Partial<Entry> = {}) => Object.fromEntries(toCitations(article(overrides), JOURNAL).map(({ style, text }) => [style, text]));
+const cite = (overrides: Partial<Entry> = {}) => Object.fromEntries(toCitations(article(overrides), JOURNAL, PERMALINK).map(({ style, text }) => [style, text]));
 
 describe("toCitations", () => {
     it("cites in APA 7 and in the journal's own style", () => {

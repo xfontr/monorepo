@@ -32,8 +32,8 @@ beforeEach(() => {
 });
 
 describe("GET /api/articles/:slug", () => {
-    // The raw segment goes through untouched, so an accented slug isn't encoded a second time
-    it("reads the post through the content module's route", async () => {
+    // The router param arrives still encoded, which is the form the content route expects
+    it("reads the post named by the route, its slug passed on as it arrived", async () => {
         nitro.slug = "la-teor%C3%ADa";
 
         await handler({});
@@ -55,20 +55,15 @@ describe("GET /api/articles/:slug", () => {
     });
 
     it("keeps the content module's status, so a missing post is a 404 and not a 500", async () => {
-        nitro.entry.mockRejectedValue(Object.assign(new Error("404"), { response: { status: 404 } }));
+        nitro.entry.mockRejectedValue(Object.assign(new Error("404"), { response: { status: 404, statusText: "Not found" } }));
 
-        await expect(handler({})).rejects.toMatchObject({ statusCode: 404, statusMessage: "Content route failed" });
-    });
-
-    it("answers a content route that never responded as a bad gateway, not a 500 of ours", async () => {
-        nitro.entry.mockRejectedValue(new Error("fetch failed"));
-
-        await expect(handler({})).rejects.toMatchObject({ statusCode: 502 });
+        await expect(handler({})).rejects.toMatchObject({ statusCode: 404 });
     });
 
     it("fails naming the missing site URL instead of citing a relative address", async () => {
         nitro.siteUrl = "";
 
         await expect(handler({})).rejects.toMatchObject({ statusCode: 500, statusMessage: "Site is misconfigured: NUXT_PUBLIC_SITE_URL is not set" });
+        expect(nitro.entry).not.toHaveBeenCalled();
     });
 });

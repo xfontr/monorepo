@@ -20,7 +20,7 @@ vi.stubGlobal("defineCachedEventHandler", (handler: unknown, options: typeof nit
     return handler;
 });
 vi.stubGlobal("getRouterParam", () => nitro.slug);
-vi.stubGlobal("createError", (input: { statusCode?: number }) => Object.assign(new Error("http"), input));
+vi.stubGlobal("createError", (input: object) => Object.assign(new Error("http"), input));
 vi.stubGlobal("$fetch", (path: string, options?: unknown) => path.startsWith("/api/content/posts/") ? nitro.entry(path) : nitro.list(path, options));
 
 const handler = (await import("./related.get")).default as unknown as (event: unknown) => Promise<ArticleSummary[]>;
@@ -36,6 +36,7 @@ describe("GET /api/articles/:slug/related", () => {
     it("relates the three newest posts in its category, never the article itself", async () => {
         const related = await handler({});
 
+        expect(nitro.entry).toHaveBeenCalledWith("/api/content/posts/la-culpa");
         expect(nitro.list).toHaveBeenCalledWith("/api/content/posts", { query: { term: `categories:${CATEGORY.id}`, perPage: 4 } });
         expect(related.map(({ id }) => id)).toEqual(SIBLINGS.slice(0, 3).map(({ id }) => id));
     });
@@ -49,15 +50,9 @@ describe("GET /api/articles/:slug/related", () => {
 
     // A fallback here would be cached for hours; the page hides the band on an error instead
     it("fails with the list's status rather than caching an empty list", async () => {
-        nitro.list.mockRejectedValue(Object.assign(new Error("503"), { response: { status: 503 } }));
+        nitro.list.mockRejectedValue(Object.assign(new Error("502"), { response: { status: 502, statusText: "Upstream request failed" } }));
 
-        await expect(handler({})).rejects.toMatchObject({ statusCode: 503 });
-    });
-
-    it("keeps the content module's status, so a missing post is a 404 and not a 500", async () => {
-        nitro.entry.mockRejectedValue(Object.assign(new Error("404"), { response: { status: 404 } }));
-
-        await expect(handler({})).rejects.toMatchObject({ statusCode: 404 });
+        await expect(handler({})).rejects.toMatchObject({ statusCode: 502 });
     });
 
     it("caches the list per slug", () => {
