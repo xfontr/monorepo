@@ -79,35 +79,6 @@ describe("the class map", () => {
     });
 });
 
-describe("headings and the TOC", () => {
-    it("gives each h2 and h3 an ASCII id and lists them in order", () => {
-        const body = toArticleBody("<h2>Introducción</h2><h3>El tipo  <em>objetivo</em></h3>");
-
-        expect(body.toc).toEqual([
-            { id: "introduccion", label: "Introducción", level: 2 },
-            { id: "el-tipo-objetivo", label: "El tipo objetivo", level: 3 },
-        ]);
-        expect(html("<h2>Introducción</h2>")).toContain("<h2 id=\"introduccion\">");
-    });
-
-    // 13 posts already carry heading ids, and old deep links point at them
-    it("keeps a heading's existing id", () => {
-        expect(toArticleBody("<h2 id=\"conclusiones-finales\">Conclusiones</h2>").toc[0]?.id).toBe("conclusiones-finales");
-    });
-
-    it("never repeats an id", () => {
-        expect(toArticleBody("<h2>Dolo</h2><h2>Dolo</h2>").toc.map(({ id }) => id)).toEqual(["dolo", "dolo-2"]);
-    });
-
-    it("leaves out h4 and deeper, and headings with no text", () => {
-        expect(toArticleBody("<h2> </h2><h4>Detalle</h4>").toc).toEqual([]);
-    });
-
-    it("falls back to a readable id for a heading with no letters", () => {
-        expect(toArticleBody("<h2>§</h2>").toc[0]?.id).toBe("seccion");
-    });
-});
-
 describe("the bibliography", () => {
     it("splits from the heading to the end, one fragment per reference", () => {
         const source = "<h2>Conclusiones</h2><p>Fin.</p>"
@@ -138,30 +109,13 @@ describe("the bibliography", () => {
     });
 });
 
-describe("footnotes", () => {
-    const TEXT = "<p>El dolo<a href=\"#_ftn1\" id=\"_ftnref1\"><u>[1]</u></a> y la culpa<a id=\"_ftnref2\" href=\"#_ftn2\">[2]</a>.</p>";
-    const NOTES = "<p><a href=\"#_ftnref1\" id=\"_ftn1\">[1]</a> ROXIN, <em>Derecho penal</em>.</p><p><a href=\"#_ftnref2\" id=\"_ftn2\">[2]</a>&nbsp;MIR PUIG.</p>";
-
-    it("turns `_ftn` references into the links the notes list answers", () => {
-        expect(html(TEXT + NOTES)).toBe("<p>El dolo<sup><a href=\"#nota-1\" id=\"ref-1\">1</a></sup> y la culpa<sup><a href=\"#nota-2\" id=\"ref-2\">2</a></sup>.</p>");
-    });
-
-    it("keeps each note's text without its marker", () => {
-        expect(toArticleBody(TEXT + NOTES).notes).toEqual([{ id: "1", html: "ROXIN, <em>Derecho penal</em>." }, { id: "2", html: "MIR PUIG." }]);
-    });
-
+describe("the pass order", () => {
+    // Notes close the post, after the bibliography, so they must leave before it is split off
     it("takes the notes out before the bibliography, so they aren't read as references", () => {
-        const body = toArticleBody(`${TEXT}<h2>Bibliografía</h2><p>ROXIN, C.</p><hr>${NOTES}`);
+        const body = toArticleBody("<p>El dolo<a href=\"#_ftn1\">[1]</a>.</p><h2>Bibliografía</h2><p>ROXIN, C.</p><hr>"
+          + "<p><a href=\"#_ftnref1\">[1]</a> ROXIN, <em>Derecho penal</em>.</p>");
 
-        expect(body.notes).toHaveLength(2);
+        expect(body.notes).toHaveLength(1);
         expect(body.bibliography).toEqual(["ROXIN, C."]);
-    });
-
-    // Ordinals such as 30.<sup>a</sup> and stray reference numbers are the only <sup>s in the corpus
-    it("leaves every other shape as written", () => {
-        const source = "<p>El dolo<sup>1</sup>, en la 30.<sup>a</sup> edición.</p><p><sup>1</sup> ROXIN.</p>";
-
-        expect(html(source)).toBe(source);
-        expect(toArticleBody(source).notes).toEqual([]);
     });
 });

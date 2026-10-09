@@ -9,7 +9,6 @@ const headingId = useId();
 </script>
 
 <template>
-    <!-- Each note answers the body's `<sup><a href="#nota-N" id="ref-N">`, so both ids are a contract -->
     <section
         v-if="notes.length"
         :aria-labelledby="headingId"
@@ -24,12 +23,12 @@ const headingId = useId();
         <ol class="mt-4 flex flex-col gap-3">
             <li
                 v-for="note in notes"
-                :id="`nota-${note.id}`"
+                :id="noteAnchor(note.id)"
                 :key="note.id"
                 class="grid grid-cols-[1.75rem_1fr] font-serif text-citation text-toned"
             >
                 <ULink
-                    :to="`#ref-${note.id}`"
+                    :to="`#${noteReferenceAnchor(note.id)}`"
                     raw
                     :aria-label="$t('articleNotes.back', { number: note.id })"
                     class="-my-2.5 flex min-h-11 items-start pt-2.5 font-sans text-xs font-semibold leading-5 text-secondary hover:underline focus-visible:rounded-xs focus-visible:outline-offset-0"
