@@ -1,187 +1,187 @@
 <script setup lang="ts">
+import type { BreadcrumbItem } from "@nuxt/ui";
+
 definePageMeta({ name: "article", path: "/:slug/" });
 
-const { locale } = useI18n();
-const route = useRoute();
+const FORMAT_KEYS = {
+    "articulo": "article.formats.article",
+    "comentario": "article.formats.comment",
+    "ensayo": "article.formats.essay",
+    "tfg-tfm": "article.formats.thesis",
+} as const satisfies Record<ArticleSummary["format"], string>;
 
-const slug = computed(() => String(route.params.slug));
+const { t } = useI18n();
+const { article, related } = await useArticle();
 
-const { data: article, error, status } = await useFetch<Article>(() => `/api/articles/${slug.value}`);
+const breadcrumb = computed<BreadcrumbItem[]>(() => {
+    const category = article.value?.category;
+    const items: BreadcrumbItem[] = [
+        { label: t("article.breadcrumb.home"), to: { name: "index" } },
+        { label: t("article.breadcrumb.publications"), to: { name: "publications" } },
+    ];
 
-// The route answers a miss with a real 404, so hand it to error.vue instead of printing it inline
-if (error.value) {
-    throw createError({
-        statusCode: error.value.statusCode ?? 502,
-        statusMessage: error.value.statusMessage ?? error.value.message,
-        fatal: true,
-    });
-}
+    return category ? [...items, { label: category.name, to: { name: "category", params: { slug: category.slug } } }] : items;
+});
 
-const terms = computed(() => [article.value?.category, ...article.value?.tags ?? []].filter((term) => term !== undefined));
+const tagNames = computed(() => article.value?.tags.map(({ name }) => name).join(" · "));
 
-const publishedOn = computed(() => {
-    const date = article.value?.publishedAt;
+const bylineAuthors = computed(() => article.value?.authors.map((author) => ({ ...author, to: { hash: "#autor" } })) ?? []);
 
-    return date ? new Date(date).toLocaleDateString(locale.value, { dateStyle: "long" }) : "";
+useSeoMeta({
+    title: () => article.value?.seo?.title ?? article.value?.title,
+    description: () => article.value?.seo?.description ?? article.value?.excerpt,
+    ogTitle: () => article.value?.seo?.title ?? article.value?.title,
+    ogDescription: () => article.value?.seo?.description ?? article.value?.excerpt,
+    ogType: "article",
+    ogImage: () => article.value?.image?.url,
+    ogImageAlt: () => article.value?.image?.alt,
+    articlePublishedTime: () => article.value?.publishedAt,
+    articleModifiedTime: () => article.value?.updatedAt,
+    robots: () => article.value?.seo?.noindex ? "noindex" : undefined,
 });
 </script>
 
 <template>
-    <article class="article">
-        <NuxtLink
-            class="back"
-            :to="{ name: 'publications' }"
-        >
-            {{ $t("article.back") }}
-        </NuxtLink>
-
-        <p
-            v-if="status === 'pending'"
-            class="notice"
-        >
-            {{ $t("common.loading") }}
-        </p>
-
-        <template v-else-if="article">
-            <time
-                v-if="article.publishedAt"
-                class="date"
-                :datetime="article.publishedAt"
-            >
-                {{ publishedOn }}
-            </time>
-
-            <h1 class="title">
-                {{ article.title }}
-            </h1>
-
-            <ul
-                v-if="terms.length"
-                class="terms"
-            >
-                <li
-                    v-for="term in terms"
-                    :key="term.id"
+    <article v-if="article">
+        <header class="mx-auto grid max-w-site grid-cols-1 px-4 pt-6 md:px-8 md:pt-10 lg:grid-cols-12 lg:gap-x-8 lg:px-12">
+            <div class="lg:col-span-9 lg:col-start-4">
+                <UBreadcrumb
+                    :items="breadcrumb"
+                    :ui="{ link: 'font-sans text-meta min-h-11 inline-flex items-center', separatorIcon: 'size-4' }"
+                    class="print:hidden"
+                />
+                <p class="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-xs md:mt-8">
+                    <span class="font-semibold uppercase tracking-[0.12em] text-secondary">{{ $t(FORMAT_KEYS[article.format]) }}</span>
+                    <template v-if="article.category">
+                        <span
+                            class="text-dimmed"
+                            aria-hidden="true"
+                        >·</span>
+                        <ULink
+                            :to="{ name: 'category', params: { slug: article.category.slug } }"
+                            raw
+                            class="font-medium text-muted underline-offset-4 hover:underline"
+                        >
+                            {{ article.category.name }}
+                        </ULink>
+                    </template>
+                </p>
+                <h1 class="mt-4 max-w-[18ch] font-serif text-[2.375rem] leading-[1.08] tracking-[-0.02em] text-highlighted text-balance md:text-[3.25rem] lg:text-[3.75rem]">
+                    {{ article.title }}
+                </h1>
+                <p
+                    v-if="article.excerpt"
+                    class="mt-6 max-w-measure border-y border-default py-5 font-serif text-[1.1875rem] leading-relaxed text-toned italic md:text-[1.3125rem]"
                 >
-                    {{ term.name }}
-                </li>
-            </ul>
+                    {{ article.excerpt }}
+                </p>
 
-            <img
-                v-if="article.image"
-                class="image"
-                :src="article.image.url"
-                :alt="article.image.alt"
-            >
+                <div class="mt-5 flex max-w-measure flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <Byline
+                        :authors="bylineAuthors"
+                        :published-at="article.publishedAt"
+                        :reading-minutes="article.readingMinutes"
+                        avatars
+                    />
+                    <ShareBar
+                        :title="article.title"
+                        :url="article.permalink"
+                        :cite-to="{ hash: '#citar' }"
+                        class="-ml-3 sm:-mr-3 sm:ml-0"
+                    />
+                </div>
+            </div>
+        </header>
 
-            <!-- eslint-disable-next-line vue/no-v-html -- sanitised by the articles layer's body mapper -->
-            <div
-                class="body"
-                v-html="article.body.html"
+        <div class="mx-auto grid max-w-site grid-cols-1 px-4 pt-10 pb-16 md:px-8 md:pt-12 lg:grid-cols-12 lg:gap-x-8 lg:px-12 lg:pb-20">
+            <ArticleToc
+                :items="article.body.toc"
+                class="mb-10 lg:col-span-3 lg:mb-0"
             />
-        </template>
+
+            <div class="min-w-0 lg:col-span-9">
+                <!-- eslint-disable vue/no-v-html -- sanitised by the articles layer's body mapper -->
+                <div
+                    class="hl-prose max-w-measure"
+                    v-html="article.body.lead"
+                />
+                <figure
+                    v-if="article.image"
+                    class="my-10 max-w-measure md:my-11"
+                >
+                    <img
+                        :src="article.image.url"
+                        :alt="article.image.alt"
+                        :width="article.image.width"
+                        :height="article.image.height"
+                        class="aspect-video w-full rounded-xs object-cover"
+                    >
+                </figure>
+                <div
+                    class="hl-prose mt-[1.25em] max-w-measure"
+                    v-html="article.body.html"
+                />
+                <!-- eslint-enable vue/no-v-html -->
+
+                <div class="mt-12 flex max-w-measure flex-col gap-12 lg:mt-16">
+                    <ArticleNotes :notes="article.body.notes" />
+                    <ArticleBibliography :entries="article.body.bibliography" />
+
+                    <div id="citar">
+                        <CiteBox :citations="article.citations" />
+                    </div>
+
+                    <p
+                        v-if="article.tags.length"
+                        class="font-sans text-sm text-muted print:hidden"
+                    >
+                        <span class="mr-1 font-semibold text-highlighted">{{ $t("article.tags") }}</span>
+                        {{ tagNames }}
+                    </p>
+
+                    <div
+                        id="autor"
+                        class="flex flex-col gap-12"
+                    >
+                        <AuthorCard
+                            v-for="author in article.authors"
+                            :key="author.id"
+                            :author
+                            :to="{ name: 'author', params: { slug: author.slug } }"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section
+            v-if="article.category && related.length"
+            aria-labelledby="mas-materia"
+            class="border-t border-default bg-ivory-50 print:hidden"
+        >
+            <div class="mx-auto grid max-w-site grid-cols-1 px-4 py-16 md:px-8 lg:grid-cols-12 lg:gap-x-8 lg:px-12 lg:py-20">
+                <div class="lg:col-span-9 lg:col-start-4">
+                    <div class="flex flex-col gap-2 border-t-2 border-huella-slate-900 pt-4 sm:flex-row sm:items-end sm:justify-between">
+                        <h2
+                            id="mas-materia"
+                            class="font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
+                        >
+                            {{ $t("article.related.title", { subject: article.category.name }) }}
+                        </h2>
+                        <UButton
+                            variant="link"
+                            :label="$t('article.related.all')"
+                            trailing-icon="i-lucide-arrow-right"
+                            :to="{ name: 'category', params: { slug: article.category.slug } }"
+                            class="-ml-3 self-start sm:-mr-3 sm:ml-0 sm:self-auto"
+                        />
+                    </div>
+                    <ArticleList
+                        :articles="related"
+                        variant="row"
+                    />
+                </div>
+            </div>
+        </section>
     </article>
 </template>
-
-<style scoped>
-.article {
-    max-width: 42rem;
-    margin: 0 auto;
-    padding: 2rem 1rem 4rem;
-    font-family: system-ui, sans-serif;
-    line-height: 1.7;
-    color: #1c1917;
-}
-
-.back {
-    display: inline-block;
-    margin-bottom: 2rem;
-    font-size: 0.875rem;
-    color: #78716c;
-    text-decoration: none;
-}
-
-.back:hover {
-    text-decoration: underline;
-}
-
-.notice {
-    color: #78716c;
-    font-size: 0.875rem;
-}
-
-.date {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #a8a29e;
-}
-
-.title {
-    font-size: 2rem;
-    font-weight: 900;
-    line-height: 1.2;
-    margin: 0.5rem 0 1rem;
-}
-
-.terms {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    list-style: none;
-    padding: 0;
-    margin: 0 0 2rem;
-}
-
-.terms li {
-    font-size: 0.75rem;
-    padding: 0.125rem 0.625rem;
-    border-radius: 999px;
-    background: #f5f5f4;
-    color: #57534e;
-}
-
-.image {
-    width: 100%;
-    border-radius: 0.5rem;
-    margin-bottom: 2rem;
-}
-
-/* :deep, because everything below is WordPress's own markup, not ours */
-.body :deep(p) {
-    margin: 0 0 1.25rem;
-}
-
-.body :deep(h2),
-.body :deep(h3) {
-    font-weight: 600;
-    line-height: 1.3;
-    margin: 2rem 0 0.75rem;
-}
-
-.body :deep(a) {
-    color: #1d4ed8;
-}
-
-.body :deep(img) {
-    max-width: 100%;
-    height: auto;
-    border-radius: 0.5rem;
-}
-
-.body :deep(blockquote) {
-    margin: 1.5rem 0;
-    padding-left: 1rem;
-    border-left: 3px solid #e7e5e4;
-    color: #57534e;
-}
-
-.body :deep(figure) {
-    margin: 1.5rem 0;
-}
-
-.body :deep(ol),
-.body :deep(ul) {
-    padding-left: 1.25rem;
-}
-</style>

@@ -84,6 +84,12 @@ describe("cite box", () => {
         wrapper.unmount();
     });
 
+    it("keeps the tab's aria-controls a single id when a style name has a space", async () => {
+        const wrapper = await mountSuspended(CiteBox, { props: { citations: CITATIONS }, global });
+
+        expect(wrapper.find("[role=tab][aria-selected=true]").attributes("aria-controls")).not.toMatch(/\s/);
+    });
+
     it("hides the copy button where the browser has no clipboard, rather than offering a dead one", async () => {
         withoutClipboard();
         const wrapper = await mountSuspended(CiteBox, { props: { citations: CITATIONS }, global });

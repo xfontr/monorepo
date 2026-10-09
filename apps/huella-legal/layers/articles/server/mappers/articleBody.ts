@@ -4,6 +4,7 @@ import rehypeSanitize, { defaultSchema, type Options as Schema } from "rehype-sa
 import rehypeStringify from "rehype-stringify";
 import { unified } from "unified";
 import type { ArticleBody } from "../../shared/types/ArticleBody";
+import type { Note } from "../../shared/types/Note";
 import type { TocItem } from "../../shared/types/TocItem";
 
 const CLASS_MAP: Record<string, string> = {
@@ -16,6 +17,9 @@ const CLASS_MAP: Record<string, string> = {
 };
 
 const BIBLIOGRAPHY_HEADING = /^(?:bibliografia|fuentes|referencias)(?:-bibliograficas)?$/;
+
+const NOTE_REFERENCE = /^#_ftn(\d+)$/;
+const NOTE_BACKLINK = /^#_ftnref(\d+)$/;
 
 const SCHEMA: Schema = {
     ...defaultSchema,
@@ -43,10 +47,14 @@ export function toArticleBody(html: string): ArticleBody {
     });
 
     const clean = sanitizer.runSync(tree) as Root;
+    // Notes close the post, after the bibliography, so they must leave before it is split off
+    const notes = extractNotes(clean);
     const bibliography = splitBibliography(clean);
     const toc = annotate(clean);
 
-    return { html: stringify(clean.children), toc, bibliography };
+    const split = clean.children.findIndex((node) => node.type === "element" && node.tagName === "p") + 1;
+
+    return { lead: stringify(clean.children.slice(0, split)), html: stringify(clean.children.slice(split)), toc, notes, bibliography };
 }
 
 function splitBibliography(tree: Root): string[] {
@@ -64,6 +72,35 @@ function splitBibliography(tree: Root): string[] {
     if (references.length) tree.children = tree.children.slice(0, start);
 
     return references;
+}
+
+function extractNotes(tree: Root): Note[] {
+    const notes: Note[] = [];
+
+    tree.children = tree.children.filter((node) => {
+        if (node.type !== "element" || node.tagName !== "p") return true;
+
+        const [marker] = node.children;
+        const id = marker?.type === "element" && marker.tagName === "a" && NOTE_BACKLINK.exec(String(marker.properties.href))?.[1];
+
+        if (id) notes.push({ id, html: stringify(node.children.slice(1)) });
+
+        return !id;
+    });
+
+    if (!notes.length) return notes;
+
+    eachElement(tree, (element) => {
+        const id = element.tagName === "a" && NOTE_REFERENCE.exec(String(element.properties.href))?.[1];
+
+        if (!id) return;
+
+        const link: Element = { type: "element", tagName: "a", properties: { href: `#nota-${id}`, id: `ref-${id}` }, children: [{ type: "text", value: id }] };
+
+        Object.assign(element, { tagName: "sup", properties: {}, children: [link] });
+    });
+
+    return notes;
 }
 
 function annotate(tree: Root): TocItem[] {

@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { toArticleBody } from "./articleBody";
 
-const html = (body: string) => toArticleBody(body).html;
+const html = (body: string) => {
+    const { lead, html } = toArticleBody(body);
+
+    return lead + html;
+};
 
 describe("sanitising", () => {
     it.each([
@@ -40,6 +44,19 @@ describe("sanitising", () => {
     });
 });
 
+describe("the lead", () => {
+    it("ends after the first top-level paragraph, so the featured image never lands inside a quote", () => {
+        expect(toArticleBody("<blockquote><p>Cita</p></blockquote><p>Uno</p><p>Dos</p>")).toMatchObject({
+            lead: "<blockquote><p>Cita</p></blockquote><p>Uno</p>",
+            html: "<p>Dos</p>",
+        });
+    });
+
+    it("is empty when the body has no paragraph, so the image goes first", () => {
+        expect(toArticleBody("<h2>Uno</h2>")).toMatchObject({ lead: "", html: "<h2 id=\"uno\">Uno</h2>" });
+    });
+});
+
 describe("the class map", () => {
     it.each([
         ["contenedor", "hl-note"],
@@ -70,7 +87,7 @@ describe("headings and the TOC", () => {
             { id: "introduccion", label: "Introducción", level: 2 },
             { id: "el-tipo-objetivo", label: "El tipo objetivo", level: 3 },
         ]);
-        expect(body.html).toContain("<h2 id=\"introduccion\">");
+        expect(html("<h2>Introducción</h2>")).toContain("<h2 id=\"introduccion\">");
     });
 
     // 13 posts already carry heading ids, and old deep links point at them
@@ -93,11 +110,12 @@ describe("headings and the TOC", () => {
 
 describe("the bibliography", () => {
     it("splits from the heading to the end, one fragment per reference", () => {
-        const body = toArticleBody("<h2>Conclusiones</h2><p>Fin.</p>"
-          + "<h2>Bibliografía</h2><p>ROXIN, C., <em>Derecho penal</em>.</p><ul><li>MIR PUIG, S.</li><li> </li></ul>");
+        const source = "<h2>Conclusiones</h2><p>Fin.</p>"
+          + "<h2>Bibliografía</h2><p>ROXIN, C., <em>Derecho penal</em>.</p><ul><li>MIR PUIG, S.</li><li> </li></ul>";
+        const body = toArticleBody(source);
 
         expect(body.bibliography).toEqual(["ROXIN, C., <em>Derecho penal</em>.", "MIR PUIG, S."]);
-        expect(body.html).not.toContain("Bibliografía");
+        expect(html(source)).not.toContain("Bibliografía");
         expect(body.toc.map(({ label }) => label)).toEqual(["Conclusiones"]);
     });
 
@@ -111,11 +129,39 @@ describe("the bibliography", () => {
     });
 
     it("leaves an empty bibliography heading in the body rather than hiding it", () => {
-        expect(toArticleBody("<p>Intro</p><h2>Bibliografía</h2>").html).toContain("Bibliografía");
+        expect(html("<p>Intro</p><h2>Bibliografía</h2>")).toContain("Bibliografía");
     });
 
     it("sanitises every reference, not only the body", () => {
         expect(toArticleBody("<h2>Bibliografía</h2><p onclick=\"x()\"><a href=\"javascript:x()\">Obra</a></p>").bibliography)
             .toEqual(["<a>Obra</a>"]);
+    });
+});
+
+describe("footnotes", () => {
+    const TEXT = "<p>El dolo<a href=\"#_ftn1\" id=\"_ftnref1\"><u>[1]</u></a> y la culpa<a id=\"_ftnref2\" href=\"#_ftn2\">[2]</a>.</p>";
+    const NOTES = "<p><a href=\"#_ftnref1\" id=\"_ftn1\">[1]</a> ROXIN, <em>Derecho penal</em>.</p><p><a href=\"#_ftnref2\" id=\"_ftn2\">[2]</a>&nbsp;MIR PUIG.</p>";
+
+    it("turns `_ftn` references into the links the notes list answers", () => {
+        expect(html(TEXT + NOTES)).toBe("<p>El dolo<sup><a href=\"#nota-1\" id=\"ref-1\">1</a></sup> y la culpa<sup><a href=\"#nota-2\" id=\"ref-2\">2</a></sup>.</p>");
+    });
+
+    it("keeps each note's text without its marker", () => {
+        expect(toArticleBody(TEXT + NOTES).notes).toEqual([{ id: "1", html: "ROXIN, <em>Derecho penal</em>." }, { id: "2", html: "MIR PUIG." }]);
+    });
+
+    it("takes the notes out before the bibliography, so they aren't read as references", () => {
+        const body = toArticleBody(`${TEXT}<h2>Bibliografía</h2><p>ROXIN, C.</p><hr>${NOTES}`);
+
+        expect(body.notes).toHaveLength(2);
+        expect(body.bibliography).toEqual(["ROXIN, C."]);
+    });
+
+    // Ordinals such as 30.<sup>a</sup> and stray reference numbers are the only <sup>s in the corpus
+    it("leaves every other shape as written", () => {
+        const source = "<p>El dolo<sup>1</sup>, en la 30.<sup>a</sup> edición.</p><p><sup>1</sup> ROXIN.</p>";
+
+        expect(html(source)).toBe(source);
+        expect(toArticleBody(source).notes).toEqual([]);
     });
 });

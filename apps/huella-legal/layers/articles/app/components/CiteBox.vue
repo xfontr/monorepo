@@ -11,10 +11,10 @@ const { t } = useI18n();
 const toast = useToast();
 const headingId = useId();
 const { copy: copyText, isSupported: canCopy } = useClipboard();
-const tab = ref(props.citations[0]?.style);
+const tab = ref<string>("0");
 
-const tabs = computed(() => props.citations.map(({ style, text }) => ({ label: style, value: style, text })));
-const citation = computed<Citation | undefined>(() => props.citations.find(({ style }) => style === tab.value) ?? props.citations[0]);
+const tabs = computed(() => props.citations.map(({ style, text }, index) => ({ label: style, value: String(index), text })));
+const citation = computed<Citation | undefined>(() => props.citations[Number(tab.value)] ?? props.citations[0]);
 
 async function copy(text: string): Promise<void> {
     await copyText(text);

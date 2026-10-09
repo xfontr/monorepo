@@ -56,7 +56,21 @@
         "title": "Huella Legal"
     },
     "article": {
-        "back": "← Publicaciones"
+        "breadcrumb": {
+            "home": "Portada",
+            "publications": "Publicaciones"
+        },
+        "formats": {
+            "article": "Artículo",
+            "comment": "Comentario",
+            "essay": "Ensayo",
+            "thesis": "TFG o TFM"
+        },
+        "related": {
+            "all": "Toda la materia",
+            "title": "También en {subject}"
+        },
+        "tags": "Temas:"
     },
     "articleBibliography": {
         "title": "Bibliografía"

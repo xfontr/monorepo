@@ -40,17 +40,20 @@ const date = computed<string | undefined>(() => props.publishedAt && d(props.pub
         <div class="overflow-hidden">
             <ul class="-ml-5 flex flex-wrap gap-y-1 [&>li]:flex [&>li]:before:shrink-0 [&>li]:before:w-5 [&>li]:before:text-center [&>li]:before:text-dimmed [&>li]:before:content-['·'_/_'']">
                 <li class="text-toned">
-                    <span
-                        v-for="({ literal, author }, key) in names"
-                        :key
-                    >
-                        <template v-if="literal">{{ literal }}</template>
-                        <ULink
-                            v-else-if="author"
-                            :to="author.to"
-                            raw
-                            class="font-semibold text-highlighted underline-offset-3 hover:underline focus-visible:rounded-xs"
-                        >{{ author.name }}</ULink>
+                    <!-- One inline box: as flex items, the separators would lose the spaces around "y" -->
+                    <span>
+                        <span
+                            v-for="({ literal, author }, key) in names"
+                            :key
+                        >
+                            <template v-if="literal">{{ literal }}</template>
+                            <ULink
+                                v-else-if="author"
+                                :to="author.to"
+                                raw
+                                class="font-semibold text-highlighted underline-offset-3 hover:underline focus-visible:rounded-xs"
+                            >{{ author.name }}</ULink>
+                        </span>
                     </span>
                 </li>
                 <li v-if="date">
