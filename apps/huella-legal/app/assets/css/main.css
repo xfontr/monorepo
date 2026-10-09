@@ -72,9 +72,15 @@
     --font-sans: Montserrat, ui-sans-serif, system-ui, sans-serif;
 
     /* Editorial type scale; each step carries its own leading and tracking */
+    --text-display-sm: 2.375rem;
+    --text-display-sm--line-height: 1.08;
+    --text-display-sm--letter-spacing: -0.02em;
     --text-display: 3.25rem;
     --text-display--line-height: 1.08;
     --text-display--letter-spacing: -0.02em;
+    --text-display-lg: 3.75rem;
+    --text-display-lg--line-height: 1.08;
+    --text-display-lg--letter-spacing: -0.02em;
     --text-h1: 2.5rem;
     --text-h1--line-height: 1.15;
     --text-h1--letter-spacing: -0.015em;
@@ -88,6 +94,10 @@
     --text-card--line-height: 1.28;
     --text-reading: 1.125rem;
     --text-reading--line-height: 1.7;
+    --text-standfirst: 1.1875rem;
+    --text-standfirst--line-height: 1.625;
+    --text-standfirst-lg: 1.3125rem;
+    --text-standfirst-lg--line-height: 1.625;
     --text-quote: 1.5rem;
     --text-quote--line-height: 1.45;
     --text-citation: 0.9375rem;

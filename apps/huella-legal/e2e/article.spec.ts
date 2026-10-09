@@ -9,7 +9,7 @@ const DESKTOP = 1024;
 
 const PATH = `/${ARTICLE.slug}/`;
 
-test("reads the whole article: title, byline, sections, notes, bibliography and citation", async ({ page }) => {
+test("reads the whole article: title, byline, sections, notes, bibliography and citation", async ({ page, baseURL }) => {
     await page.goto(PATH);
 
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(ARTICLE.title);
@@ -19,7 +19,7 @@ test("reads the whole article: title, byline, sections, notes, bibliography and 
 
     await expect(page.getByRole("region", { name: "Notas" }).getByRole("listitem")).toHaveCount(2);
     await expect(page.getByRole("region", { name: "Bibliografía" })).toContainText(REFERENCE);
-    await expect(page.getByRole("region", { name: "Cómo citar este artículo" })).toContainText(`http://localhost:4310${PATH}`);
+    await expect(page.getByRole("region", { name: "Cómo citar este artículo" })).toContainText(new URL(PATH, baseURL).href);
 });
 
 test("moves the bibliography out of the text, so its heading isn't in the TOC", async ({ page }) => {
@@ -50,6 +50,18 @@ test("relates the other posts in its category", async ({ page }) => {
     const related = page.getByRole("region", { name: `También en ${ARTICLE.terms[0]?.name}` });
 
     await expect(related.locator("ol > li")).toHaveCount(Math.min(3, siblings.length));
+});
+
+test("opens a related post in place, with its own title", async ({ page }) => {
+    await page.goto(PATH);
+
+    const link = page.getByRole("region", { name: `También en ${ARTICLE.terms[0]?.name}` })
+        .getByRole("listitem").first().getByRole("heading").getByRole("link");
+    const title = (await link.textContent())?.trim() ?? "";
+
+    await link.click();
+
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
 });
 
 test("the article page has no WCAG AA violations", async ({ page }) => {

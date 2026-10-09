@@ -1,49 +1,17 @@
 <script setup lang="ts">
-import type { BreadcrumbItem } from "@nuxt/ui";
-
 definePageMeta({ name: "article", path: "/:slug/" });
 
-const FORMAT_KEYS = {
-    "articulo": "article.formats.article",
-    "comentario": "article.formats.comment",
-    "ensayo": "article.formats.essay",
-    "tfg-tfm": "article.formats.thesis",
-} as const satisfies Record<ArticleSummary["format"], string>;
-
-const { t } = useI18n();
-const { article, related } = await useArticle();
-
-const breadcrumb = computed<BreadcrumbItem[]>(() => {
-    const category = article.value?.category;
-    const items: BreadcrumbItem[] = [
-        { label: t("article.breadcrumb.home"), to: { name: "index" } },
-        { label: t("article.breadcrumb.publications"), to: { name: "publications" } },
-    ];
-
-    return category ? [...items, { label: category.name, to: { name: "category", params: { slug: category.slug } } }] : items;
-});
-
-const tagNames = computed(() => article.value?.tags.map(({ name }) => name).join(" · "));
+const { article, related, breadcrumb, formatLabel, tagNames } = await useArticle();
 
 const bylineAuthors = computed(() => article.value?.authors.map((author) => ({ ...author, to: { hash: "#autor" } })) ?? []);
-
-useSeoMeta({
-    title: () => article.value?.seo?.title ?? article.value?.title,
-    description: () => article.value?.seo?.description ?? article.value?.excerpt,
-    ogTitle: () => article.value?.seo?.title ?? article.value?.title,
-    ogDescription: () => article.value?.seo?.description ?? article.value?.excerpt,
-    ogType: "article",
-    ogImage: () => article.value?.image?.url,
-    ogImageAlt: () => article.value?.image?.alt,
-    articlePublishedTime: () => article.value?.publishedAt,
-    articleModifiedTime: () => article.value?.updatedAt,
-    robots: () => article.value?.seo?.noindex ? "noindex" : undefined,
-});
 </script>
 
 <template>
     <article v-if="article">
-        <header class="mx-auto grid max-w-site grid-cols-1 px-4 pt-6 md:px-8 md:pt-10 lg:grid-cols-12 lg:gap-x-8 lg:px-12">
+        <UContainer
+            as="header"
+            class="grid grid-cols-1 pt-6 md:pt-10 lg:grid-cols-12 lg:gap-x-8"
+        >
             <div class="lg:col-span-9 lg:col-start-4">
                 <UBreadcrumb
                     :items="breadcrumb"
@@ -51,7 +19,7 @@ useSeoMeta({
                     class="print:hidden"
                 />
                 <p class="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-xs md:mt-8">
-                    <span class="font-semibold uppercase tracking-[0.12em] text-secondary">{{ $t(FORMAT_KEYS[article.format]) }}</span>
+                    <BaseKicker>{{ formatLabel }}</BaseKicker>
                     <template v-if="article.category">
                         <span
                             class="text-dimmed"
@@ -66,12 +34,12 @@ useSeoMeta({
                         </ULink>
                     </template>
                 </p>
-                <h1 class="mt-4 max-w-[18ch] font-serif text-[2.375rem] leading-[1.08] tracking-[-0.02em] text-highlighted text-balance md:text-[3.25rem] lg:text-[3.75rem]">
+                <h1 class="mt-4 max-w-[18ch] font-serif text-display-sm text-highlighted text-balance md:text-display lg:text-display-lg">
                     {{ article.title }}
                 </h1>
                 <p
                     v-if="article.excerpt"
-                    class="mt-6 max-w-measure border-y border-default py-5 font-serif text-[1.1875rem] leading-relaxed text-toned italic md:text-[1.3125rem]"
+                    class="mt-6 max-w-measure border-y border-default py-5 font-serif text-standfirst text-toned italic md:text-standfirst-lg"
                 >
                     {{ article.excerpt }}
                 </p>
@@ -91,9 +59,9 @@ useSeoMeta({
                     />
                 </div>
             </div>
-        </header>
+        </UContainer>
 
-        <div class="mx-auto grid max-w-site grid-cols-1 px-4 pt-10 pb-16 md:px-8 md:pt-12 lg:grid-cols-12 lg:gap-x-8 lg:px-12 lg:pb-20">
+        <UContainer class="grid grid-cols-1 pt-10 pb-16 md:pt-12 lg:grid-cols-12 lg:gap-x-8 lg:pb-20">
             <ArticleToc
                 :items="article.body.toc"
                 class="mb-10 lg:col-span-3 lg:mb-0"
@@ -152,36 +120,26 @@ useSeoMeta({
                     </div>
                 </div>
             </div>
-        </div>
+        </UContainer>
 
         <section
             v-if="article.category && related.length"
             aria-labelledby="mas-materia"
             class="border-t border-default bg-ivory-50 print:hidden"
         >
-            <div class="mx-auto grid max-w-site grid-cols-1 px-4 py-16 md:px-8 lg:grid-cols-12 lg:gap-x-8 lg:px-12 lg:py-20">
+            <UContainer class="grid grid-cols-1 py-16 lg:grid-cols-12 lg:gap-x-8 lg:py-20">
                 <div class="lg:col-span-9 lg:col-start-4">
-                    <div class="flex flex-col gap-2 border-t-2 border-huella-slate-900 pt-4 sm:flex-row sm:items-end sm:justify-between">
-                        <h2
-                            id="mas-materia"
-                            class="font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
-                        >
-                            {{ $t("article.related.title", { subject: article.category.name }) }}
-                        </h2>
-                        <UButton
-                            variant="link"
-                            :label="$t('article.related.all')"
-                            trailing-icon="i-lucide-arrow-right"
-                            :to="{ name: 'category', params: { slug: article.category.slug } }"
-                            class="-ml-3 self-start sm:-mr-3 sm:ml-0 sm:self-auto"
-                        />
-                    </div>
+                    <BaseSectionHeading
+                        id="mas-materia"
+                        :title="$t('article.related.title', { subject: article.category.name })"
+                        :action="{ label: $t('article.related.all'), to: { name: 'category', params: { slug: article.category.slug } } }"
+                    />
                     <ArticleList
                         :articles="related"
                         variant="row"
                     />
                 </div>
-            </div>
+            </UContainer>
         </section>
     </article>
 </template>
