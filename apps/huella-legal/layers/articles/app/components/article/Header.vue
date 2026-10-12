@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from "@nuxt/ui";
+import { FORMAT_KEYS } from "#layers/articles/app/constants";
 
 interface Props {
     article: Article;
