@@ -15,8 +15,24 @@ const LOCALES = new URL(
     import.meta.url,
 );
 
-const CATEGORIES = [fakeTerm(), fakeTerm()];
+export const SUBJECT = fakeTerm({ description: faker.lorem.sentence() });
+
+// The slugs the articles layer reads formats from
+const ESSAYS = fakeTerm({ slug: "ensayos", name: "Ensayos" });
+const THESIS = fakeTerm({
+    resource: "tags",
+    slug: "trabajos-de-fin-de-grado",
+    name: "Trabajos de fin de grado",
+});
+
+export const TAG = fakeTerm({ resource: "tags" });
+
+export const SIBLING = fakeTerm();
+
+const CATEGORIES = [SUBJECT, SIBLING, ESSAYS];
 const AUTHORS = [fakeAuthor({ bio: faker.lorem.sentence() }), fakeAuthor()];
+
+export const AUTHOR = AUTHORS[0]!;
 
 export const LEAD = fakeEntry({ image: fakeAsset(), authors: AUTHORS });
 
@@ -58,10 +74,15 @@ export const POSTS: Entry[] = [
     LEAD,
     ESCAPED,
     ARTICLE,
-    ...Array.from({ length: 6 }, (_, index) =>
+    // Past one page of twenty, with every format represented
+    ...Array.from({ length: 22 }, (_, index) =>
         fakeEntry({
             image: index % 2 === 0 ? fakeAsset() : undefined,
-            terms: [CATEGORIES[index % 2] ?? fakeTerm()],
+            terms: [
+                CATEGORIES[index % 3] ?? fakeTerm(),
+                ...(index % 4 === 0 ? [TAG] : []),
+                ...(index % 7 === 0 ? [THESIS] : []),
+            ],
             authors: [AUTHORS[index % 2] ?? fakeAuthor()],
         }),
     ),
@@ -70,7 +91,11 @@ export const POSTS: Entry[] = [
 const locale = (code: string): TranslationMap =>
     JSON.parse(readFileSync(new URL(`${code}.json`, LOCALES), "utf8")) as TranslationMap;
 
-export const CONTENT: WordpressContent = { posts: POSTS, categories: CATEGORIES };
+export const CONTENT: WordpressContent = {
+    posts: POSTS,
+    categories: CATEGORIES,
+    tags: [TAG, THESIS],
+};
 
 export const TRANSLATIONS = { "es-ES": locale("es-ES") } as const satisfies Record<
     Locale,

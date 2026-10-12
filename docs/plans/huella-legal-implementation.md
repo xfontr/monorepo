@@ -55,7 +55,7 @@ components, but each one is cheap because the lab version already exists.
 | --- | --- | --- |
 | Unit | Mappers, the HTML pipeline, server routes and utils. Every WP quirk found in S1 is pinned as an inline sample beside its spec | Vitest node |
 | Component | Each kit component's variants, emits and ARIA state (`aria-current`, `aria-busy`, error wiring) | Vitest Nuxt project, `mount` |
-| Controller | URL↔state round-trips, error mapping (400 → 404), form state transitions | Vitest Nuxt project, `mockNuxtImport` |
+| Controller | URL↔state round-trips, error mapping, form state transitions | Vitest Nuxt project, `mockNuxtImport` |
 | E2E | One spec per page archetype against the built app, each with an axe scan (zero violations) and screenshots at 390, 768 and 1280 | Playwright + `@axe-core/playwright` |
 | Coverage | App threshold, number set in S5 | Vitest v8 |
 
@@ -239,8 +239,7 @@ Each page ticket delivers a controller, the page, and its e2e spec with axe and 
     to hold ordinals and a stray number, not notes.
   - Dates go through i18n `d(…, "long")`, which carries the `Europe/Madrid` time zone.
 - **C2 🎫 #241 Listing template:**
-  - One controller, `useArticleListing`, owns page, sort and tag filter in the URL, and maps a 400
-    to a 404.
+  - One controller, `useArticleListing`, owns page, sort and tag filter in the URL.
   - Four instances: all publications, category, tag, and author profile. The author profile gets
     its own route instead of the lab's `?autor`.
   - Needs a `GET /api/articles` list route returning `ArticleSummary[]`, which doesn't exist yet.
@@ -248,7 +247,7 @@ Each page ticket delivers a controller, the page, and its e2e spec with axe and 
   - The publications scaffold still `v-html`s raw WordPress titles and excerpts until it reads that
     route.
   - The controller feeds `ListingPagination`'s `to` builder. Scrolling to the top on a page change
-    belongs in `app/router.options.ts`, not a `watch`.
+    wraps Nuxt's `scrollBehavior` from a client plugin, not a `watch`.
   - The fetch-error to `createError` mapping, written today in both article pages and the article
     route, becomes one helper shared with C1.
 - **C3 🎫 #246 Home:**

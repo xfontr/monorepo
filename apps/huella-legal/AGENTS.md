@@ -20,7 +20,8 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   array. `app/` stays thin, with no domain logic of its own. A layer's view-model types go in
   `shared/types/`, one per file, and its `server/` maps vendor shapes into them, so an `Entry` never
   reaches the browser. Those mappers go in `server/mappers/`, one file per view model and named for
-  it; `server/utils/` is only for helpers that know nothing about the domain.
+  it; `server/utils/` is only for helpers that know nothing about the domain, so a cached read that
+  several routes share goes in `server/services/`.
 - Typechecking runs on build (`typescript.typeCheck: "build"`), so `pnpm build` is slow and already
   covers what `pnpm typecheck` would.
 - [`tsconfig.json`](./tsconfig.json) only references `./.nuxt/tsconfig.*.json`, which `nuxi

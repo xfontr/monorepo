@@ -120,8 +120,8 @@ UI copy is never hard-coded outside [`/lab`](./app/pages/lab). It goes in `es-ES
 
 | Rule | Example |
 | --- | --- |
-| The first segment is who owns the copy: `app` for the shell (head, layout, header, footer), a page by name, singular for a detail page, or a component in camelCase | `app.title`, `articles.title`, `article.back`, `articleCard.readingTime` |
-| Then the element, then its role, all camelCase and nested as objects, never a dotted literal key | `articles.pagination.next` |
+| The first segment is who owns the copy: `app` for the shell (head, layout, header, footer), a page by name, singular for a detail page, or a component in camelCase | `app.title`, `publications.title`, `article.back`, `articleCard.readingTime` |
+| Then the element, then its role, all camelCase and nested as objects, never a dotted literal key | `app.footer.links.publishThesis` |
 | Name the role, never the wording, so a copy edit never renames a key | `article.back`, not `article.backToArticles` |
 | Parameters are named, and plurals use vue-i18n's `\|` form with the count as the second argument | `"{page} de {total}"`, `t("articleCard.minutes", n)` |
 | `common` holds only copy whose meaning is the same wherever it appears | `common.loading` |
@@ -142,12 +142,22 @@ once, inside `useContent`; the routes map on every request, since mapping a post
 milliseconds and a second cache would add its own window of staleness.
 
 The vendor is `wordpress`, pointed at an external WordPress install — the CMS is not in this repo, so
-`infrastructure/` has nothing to do with it. Two pages consume it, both in the `articles` layer:
+`infrastructure/` has nothing to do with it. Only the `articles` layer's server routes consume it, and
+its pages read those routes:
 
 | Page | Reads | Notes |
 | --- | --- | --- |
-| [`layers/articles/app/pages/articles/index.vue`](./layers/articles/app/pages/articles/index.vue) | `GET /api/articles?page=` | Six `ArticleSummary`s per page. Only `page` is forwarded, and the page does **not** re-validate it — `useContent` already bounds it, and a second copy of those bounds is a second place for them to drift. A `400` is turned into a `404`, because a query-parameter complaint is not something a reader should see. Provisional until C2 (#241) extends the route with filters |
+| The four listings: [`publicaciones`](./layers/articles/app/pages/articles/index.vue), [`materias/:slug`](./layers/articles/app/pages/materias/%5Bslug%5D.vue), [`etiquetas/:slug`](./layers/articles/app/pages/etiquetas/%5Bslug%5D.vue) and [`colaboradores/:slug`](./layers/articles/app/pages/colaboradores/%5Bslug%5D.vue) | `GET /api/articles` through `useArticleListing` | `?page`, `?sort=oldest` and `?format=` live in the URL, each left out at its default. The pages don't re-validate them: the route answers anything a reader can type out of bounds with a `404`, and keeps `400` for a request no page builds. [`listingScroll.client.ts`](./layers/articles/app/plugins/listingScroll.client.ts) scrolls to the top when only `?page` changes, wrapping Nuxt's scroll behaviour rather than replacing it |
 | [`layers/articles/app/pages/articles/[slug].vue`](./layers/articles/app/pages/articles/%5Bslug%5D.vue) | `GET /api/articles/:slug`, through `useArticle` | Served at `/:slug/`, the root permalink WordPress had, so indexed URLs still resolve. The route returns the sanitised `Article` view model with its citations. `GET /api/articles/:slug/related` serves up to three posts from its first category, server-rendered without blocking client navigation; when it fails, that band is hidden and the article is unaffected. No `locale` is passed: the content locale is the vendor's axis and WordPress refuses one outright |
+
+`GET /api/articles` filters, sorts and pages a cached index of every post as `ArticleSummary`,
+because WordPress can filter on neither format nor author slug, and has no counts for them. One fill
+reads every page of posts through `useContent` at its ceiling of 50, about 5.7 MB upstream for the
+current archive, and is kept for an hour. That index is the one view model cached on top of
+`useContent`, since remapping every body per request would cost far more than one post's few
+milliseconds, so a new post can take up to two hours to list. A subject or tag is read whole through
+`useContent(event).getTerm`, since embedded terms carry no description. Nothing a listing renders is
+HTML: titles and excerpts are decoded to plain text on the server.
 
 See the [module README](../../packages/content/src/nuxt/README.md) for the options, the cache windows
 and the gotchas.
@@ -178,7 +188,7 @@ adding one is the mistake.
 
 | Layer | `shared/` | `app/components/` | `server/` |
 | --- | --- | --- | --- |
-| [`articles`](./layers/articles) | The view models the server returns: `Article`, `ArticleBody`, `ArticleSummary`, `Author`, `Category`, `Citation`, `Note`, `TocItem`. `Article` carries its absolute `permalink` and `citations` | Grouped by the view model they render, so a folder names its components' prefix. `summary/` is an `ArticleSummary` wherever articles are listed: `SummaryCard` in five variants (lead, optionally split, standard, compact, media, row), and `SummaryGrid` and `SummaryList` to lay them out. `article/` is the article page, one component per section (`ArticleHeader`, `ArticleToc`, `ArticleProse`, `ArticleBackMatter`, `ArticleRelated`) plus the parts only it uses: `ArticleShareBar`, `ArticleNotes`, `ArticleBibliography`, `ArticleCiteBox` and `ArticleAuthorCard`. `ArticleToc` is a rail or an accordion, lit by Nuxt UI's `useScrollspy`. `Byline` (authors, date and reading time) and `MediaFallback` stay at the root because both folders use them. A file inside a folder drops the folder's prefix (`article/Header.vue`): Nuxt collapses a repeated prefix and Storybook doesn't, so `article/ArticleHeader.vue` would register under two different names. `useArticle` in `app/composables/` is the article page's controller: the fetches, the error, the breadcrumb and the SEO meta. `noteAnchor`/`noteReferenceAnchor` in `shared/utils/` are the note ids the body mapper and `ArticleNotes` share. `.hl-prose` in [`app/assets/prose.css`](./layers/articles/app/assets/prose.css) styles the sanitised body | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time parse with the domain-free helpers in `server/utils/hast.ts`, and stay server-side. `toArticleBody` is the WP HTML pipeline, with `extractNotes` and `annotateHeadings` beside the view models they produce, `toCitations` writes APA 7 and the journal's own style, `GET /api/articles/:slug` serves the `Article`, and `GET /api/articles/:slug/related` its related `ArticleSummary` list |
+| [`articles`](./layers/articles) | The view models the server returns: `Article`, `ArticleBody`, `ArticleSummary`, `ArticleListing` (with its `Facet` counts and `ListingScope`), `Author`, `Category`, `Citation`, `Note`, `TocItem`, plus the `ListingQuery` the listing route accepts. `Article` carries its absolute `permalink` and `citations` | Grouped by the view model they render, so a folder names its components' prefix. `summary/` is an `ArticleSummary` wherever articles are listed: `SummaryCard` in five variants (lead, optionally split, standard, compact, media, row), and `SummaryGrid` and `SummaryList` to lay them out. `article/` is the article page, one component per section (`ArticleHeader`, `ArticleToc`, `ArticleProse`, `ArticleBackMatter`, `ArticleRelated`) plus the parts only it uses: `ArticleShareBar`, `ArticleNotes`, `ArticleBibliography`, `ArticleCiteBox` and `ArticleAuthorCard`. `ArticleToc` is a rail or an accordion, lit by Nuxt UI's `useScrollspy`. `archive/` is an `ArticleListing` on every listing page, one component per section: `ArchiveIntro` (the breadcrumb, from home) holding `ArchiveHeading` or, on a profile, `ArchiveAuthor`, then `ArchiveResults` and the `ArchiveSubjects` aside. `Byline` (authors, date and reading time) and `MediaFallback` stay at the root because both `summary/` and `article/` use them. A file inside a folder drops the folder's prefix (`article/Header.vue`): Nuxt collapses a repeated prefix and Storybook doesn't, so `article/ArticleHeader.vue` would register under two different names. `useArticle` in `app/composables/` is the article page's controller: the fetches, the error, the breadcrumb and the SEO meta. `useArticleListing` is every listing page's: the fetch, the query in the URL, the sort and the format pills. `noteAnchor`/`noteReferenceAnchor` in `shared/utils/` are the note ids the body mapper and `ArticleNotes` share. `.hl-prose` in [`app/assets/prose.css`](./layers/articles/app/assets/prose.css) styles the sanitised body | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time parse with the domain-free helpers in `server/utils/hast.ts`, and stay server-side. `toArticleBody` is the WP HTML pipeline, with `extractNotes` and `annotateHeadings` beside the view models they produce, `toCitations` writes APA 7 and the journal's own style, `GET /api/articles/:slug` serves the `Article`, `GET /api/articles/:slug/related` its related `ArticleSummary` list, and `getArticleIndex` in `server/services/` caches every post's summary for `toArticleListing` to slice into `GET /api/articles` |
 | [`newsletter`](./layers/newsletter) | `subscriptionSchema`, the Valibot rules a subscription must pass, worded by the caller so the server can reuse them | `NewsletterForm`, the field and button, stacked or inline, in a paper or slate tone. It emits `submit` only once the schema passes, and takes `pending` and a server `error`. It is private to the layer: the layer's `nuxt.config.ts` keeps it out of auto-registration, so only `NewsletterBand` and `NewsletterCard` import it. `NewsletterBand` (a landmark with the privacy note; the home page gives it `id="newsletter"`, which the header's newsletter links target) and `NewsletterCard` (the sidebar, naming an optional `subject`) wrap it and pass `pending`, `error` and `submit` through. The field keeps its own value, so a caller that needs it empty again remounts the form with a new `key` | — until E1 adds the subscribe route |
 
 ### 🔗 Links
@@ -196,9 +206,10 @@ from those pages, so a wrong name or a missing param fails typecheck.
 | `publish` | `/publicar/` | [`app/pages/publicar.vue`](./app/pages/publicar.vue) — a 404 until the publish page is built |
 | `search` | `/buscar/` | [`app/pages/buscar.vue`](./app/pages/buscar.vue) — a 404 until the search page is built |
 | `authors` | `/colaboradores/` | [`layers/articles/app/pages/colaboradores/index.vue`](./layers/articles/app/pages/colaboradores/index.vue) — a 404 until the authors page is built |
-| `author` | `/colaboradores/:slug/` | [`layers/articles/app/pages/colaboradores/[slug].vue`](./layers/articles/app/pages/colaboradores/%5Bslug%5D.vue) — a 404 until the author page is built |
+| `author` | `/colaboradores/:slug/` | [`layers/articles/app/pages/colaboradores/[slug].vue`](./layers/articles/app/pages/colaboradores/%5Bslug%5D.vue) |
 | `categories` | `/materias/` | [`layers/articles/app/pages/materias/index.vue`](./layers/articles/app/pages/materias/index.vue) — a 404 until the categories page is built |
-| `category` | `/materias/:slug/` | [`layers/articles/app/pages/materias/[slug].vue`](./layers/articles/app/pages/materias/%5Bslug%5D.vue) — a 404 until the category page is built |
+| `category` | `/materias/:slug/` | [`layers/articles/app/pages/materias/[slug].vue`](./layers/articles/app/pages/materias/%5Bslug%5D.vue) |
+| `tag` | `/etiquetas/:slug/` | [`layers/articles/app/pages/etiquetas/[slug].vue`](./layers/articles/app/pages/etiquetas/%5Bslug%5D.vue) |
 
 ### 🧼 The body pipeline
 
@@ -349,10 +360,10 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | Firefox or WebKit | Another project per browser in the configs preset, and every baseline tripled. Linux WebKit is not Safari, so it won't stand in for iOS readers |
 | A per-glob threshold on view models | A3 adds `shared/**` and `layers/*/app/utils/**` at 95 alongside the mappers it creates |
 | Shared client state | `@pinia/nuxt`, with `pinia.storesDirs` widened to `./layers/*/app/stores/**`: without it a layer's store isn't picked up, and the failure looks like a missing composable. Stories then need Pinia in the `setup` in `.storybook/preview.ts` |
-| Author, category, publish and search pages | Replace the 404 bodies of the six [link-holding pages](#-links); their names and paths stay |
+| Authors, categories, publish and search pages | Replace the 404 bodies of the four [link-holding pages](#-links); their names and paths stay |
 | Quote and callout styles | `hl-quote`, `hl-quote-short`, `hl-callout` and `hl-highlight` reach the page unstyled. B6 moved `.hl-prose` into the articles layer without rules for them, because no D design covers them |
-| Tag links on the article | The *Temas* line is plain text until a tag page exists (`/etiquetas/<slug>/`, C2) |
-| The newsletter band under the article | Left out until E1 gives `NewsletterBand` a submit to call; a form that drops the address is worse than none |
+| Tag links on the article | The *Temas* line is still plain text, though `/etiquetas/<slug>/` now exists to link it to |
+| The newsletter band under the article and the listings | Left out until E1 gives `NewsletterBand` a submit to call; a form that drops the address is worse than none |
 | *Publicaciones* lit in the header on an article | `useSiteNav` marks sections by route, and `/:slug/` also serves WordPress pages (C6), so it needs to know which one it rendered |
 | The `onServerPrefetch` tree-shake override in `nuxt.config.ts` | Drop it once Nuxt stops stripping that hook from client builds; the article e2e's axe scan fails on `aria-controls` if it goes too early |
 | Parity with the `/lab` pages | Still a human check: the lab is stripped from production builds, and Linux substitutes a serif for Georgia |
