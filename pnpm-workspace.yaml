@@ -3,7 +3,7 @@ packages:
   - apps/*
   - infrastructure/*
 catalog:
-  '@nuxt/fonts': 0.14.0
+  '@nuxt/fonts': 1.0.1
   '@nuxtjs/i18n': 10.6.0
   nuxt: ^4.5.1
   vue-tsc: ^3.3.0
