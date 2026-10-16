@@ -86,7 +86,6 @@ export const useContent = (event: H3Event) => ({
         (await readItem(event, resource, toSlug(slug))) as Term,
 });
 
-// #region utils
 const readVendor = (event: H3Event): VendorConfig => {
     const { vendor } = useRuntimeConfig(event).content as ContentConfig;
 
@@ -112,4 +111,3 @@ const throwUnavailableError = (cause: unknown, resource: string): never => {
 
     throw createError(new ContentUnavailableError(resource, cause));
 };
-// #endregion

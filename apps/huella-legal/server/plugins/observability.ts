@@ -72,7 +72,6 @@ export default defineNitroPlugin((nitroApp) => {
     nitroApp.hooks.hook("close", () => provider.shutdown());
 });
 
-// #region utils
 const requestAttributes = (event: H3Event) => {
     const [path, query] = event.path.split("?");
 
@@ -103,4 +102,3 @@ const end = (span: Span, event: H3Event, status: number) => {
 
     span.end();
 };
-// #endregion

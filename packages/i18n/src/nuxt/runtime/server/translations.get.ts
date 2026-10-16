@@ -44,7 +44,6 @@ export default defineCachedEventHandler<EventHandlerRequest, Promise<Translation
     cacheOptions,
 );
 
-// #region utils
 function assertLocale(locale: string | undefined, locales: string[]): asserts locale is string {
     if (locale && locales.includes(locale)) return;
 
@@ -71,4 +70,3 @@ function getKey(event: H3Event<EventHandlerRequest>) {
 
     return translationsKey(vendor, locale);
 }
-// #endregion
