@@ -1,5 +1,8 @@
 #!/bin/sh
 
+BLUE="\033[0;34m"
+NC="\033[0m"
+
 MSG_FILE="$1"
 
 # =========================
@@ -21,6 +24,7 @@ if [ -n "$NUMBER" ]; then
   if [ "$TAGGED_LINE" != "$FIRST_LINE" ]; then
     REST=$(tail -n +2 "$MSG_FILE")
     printf '%s\n%s\n' "$TAGGED_LINE" "$REST" > "$MSG_FILE"
+    printf "${BLUE}🏷️  ${NC}Tagged commit with issue #$NUMBER\n"
   fi
 fi
 

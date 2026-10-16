@@ -1,5 +1,8 @@
 #!/bin/sh
 
+YELLOW="\033[1;33m"
+NC="\033[0m"
+
 if ! git rev-parse --verify 'ORIG_HEAD^{commit}' >/dev/null 2>&1 || \
     ! git rev-parse --verify 'HEAD^{commit}' >/dev/null 2>&1; then
     exit 0
@@ -9,7 +12,7 @@ STATUS=0
 git diff --quiet ORIG_HEAD HEAD -- pnpm-lock.yaml >/dev/null 2>&1 || STATUS=$?
 
 if [ "$STATUS" -eq 1 ]; then
-    printf '%s\n' '⚠ pnpm-lock.yaml changed; run pnpm install.'
+    printf "${YELLOW}📦 ${NC}pnpm-lock.yaml changed — run pnpm install.\n"
 fi
 
 exit 0

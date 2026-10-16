@@ -1,5 +1,8 @@
 #!/bin/sh
 
+YELLOW="\033[1;33m"
+NC="\033[0m"
+
 if [ "$#" -ne 3 ] || [ "$3" != "1" ]; then
     exit 0
 fi
@@ -13,7 +16,7 @@ STATUS=0
 git diff --quiet "$1" "$2" -- pnpm-lock.yaml >/dev/null 2>&1 || STATUS=$?
 
 if [ "$STATUS" -eq 1 ]; then
-    printf '%s\n' '⚠ pnpm-lock.yaml changed; run pnpm install.'
+    printf "${YELLOW}📦 ${NC}pnpm-lock.yaml changed — run pnpm install.\n"
 fi
 
 exit 0
