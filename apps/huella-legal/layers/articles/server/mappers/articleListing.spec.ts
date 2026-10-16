@@ -41,6 +41,14 @@ describe("toArticleListing", () => {
         );
     });
 
+    it("keeps undated posts last when oldest first, rather than leading with them", () => {
+        const [dated, undated] = [index(2), index(1, { publishedAt: undefined })];
+
+        expect(
+            toArticleListing([...dated, ...undated], { ...QUERY, sort: "oldest" }).items,
+        ).toEqual([...dated.reverse(), ...undated]);
+    });
+
     it("keeps a subject's listing to posts whose primary category it is", () => {
         const civil = index(2);
         const penal = index(1, { terms: [PENAL, CIVIL] });

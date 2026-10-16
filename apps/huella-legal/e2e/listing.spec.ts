@@ -17,9 +17,13 @@ for (const { name, path, title } of LISTINGS) {
 
         expect(response?.status()).toBe(200);
         await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
-        await expect(
-            page.getByRole("main").getByRole("listitem").getByRole("heading", { level: 3 }).first(),
-        ).toBeVisible();
+        const headings = page
+            .getByRole("main")
+            .getByRole("listitem")
+            .getByRole("heading", { level: 3 });
+
+        await expect(headings.first()).toBeVisible();
+        await expect(headings.getByRole("link")).toHaveCount(await headings.count());
     });
 
     test(`the ${name} listing has no WCAG AA violations`, async ({ page }) => {

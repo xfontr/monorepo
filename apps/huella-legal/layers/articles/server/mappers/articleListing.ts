@@ -22,7 +22,7 @@ export const toArticleListing = (
 ): ArticleListing => {
     const scoped = index.filter((article) => isInScope(article, scope));
     const matches = query.format ? scoped.filter(({ format }) => format === query.format) : scoped;
-    const sorted = query.sort === "oldest" ? [...matches].reverse() : matches;
+    const sorted = query.sort === "oldest" ? oldestFirst(matches) : matches;
 
     return {
         items: sorted.slice((query.page - 1) * PER_PAGE, query.page * PER_PAGE),
@@ -38,6 +38,11 @@ export const toArticleListing = (
         subjects: toSubjects(scope?.kind === "author" ? scoped : index),
     };
 };
+
+const oldestFirst = (articles: ArticleSummary[]): ArticleSummary[] => [
+    ...articles.filter(({ publishedAt }) => publishedAt).reverse(),
+    ...articles.filter(({ publishedAt }) => !publishedAt),
+];
 
 const isInScope = (article: ArticleSummary, scope?: ListingScope): boolean => {
     switch (scope?.kind) {
