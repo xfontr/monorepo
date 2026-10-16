@@ -39,6 +39,9 @@ const findingColumns = (cells: string[]): FindingColumns => {
     return { id: header.indexOf("id"), status: header.indexOf("status") };
 };
 
+export const isFindingStatus = (value: string): value is FindingStatus =>
+    (FINDING_STATUSES as readonly string[]).includes(value);
+
 const findingOf = (
     cells: string[],
     columns: FindingColumns,
@@ -59,9 +62,6 @@ const findingOf = (
         ref: rest.join(" ") || null,
     };
 };
-
-export const isFindingStatus = (value: string): value is FindingStatus =>
-    (FINDING_STATUSES as readonly string[]).includes(value);
 
 /** Every row of every table whose header has both an `ID` and a `Status` column; any other table is prose. */
 export const parseFindings = (markdown: string): AuditFinding[] => {

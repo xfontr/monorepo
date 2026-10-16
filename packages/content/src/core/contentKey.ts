@@ -2,9 +2,6 @@ import { hash } from "ohash";
 import type { EntryQuery, Resource } from "./domain/content";
 import type { VendorConfig } from "./registry";
 
-export const contentKey = (vendor: VendorConfig, resource: Resource, query?: EntryQuery): string =>
-    [vendor.name, resource, hash(vendor), hash(queryKey(query))].map(toWordChars).join("_");
-
 const toWordChars = (part: string): string => part.replaceAll("_", "_u").replaceAll("-", "_d");
 
 const queryKey = (query?: EntryQuery): string => {
@@ -17,3 +14,6 @@ const queryKey = (query?: EntryQuery): string => {
 
     return entries.map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`).join(",");
 };
+
+export const contentKey = (vendor: VendorConfig, resource: Resource, query?: EntryQuery): string =>
+    [vendor.name, resource, hash(vendor), hash(queryKey(query))].map(toWordChars).join("_");

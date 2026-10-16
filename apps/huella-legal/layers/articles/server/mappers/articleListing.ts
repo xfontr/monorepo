@@ -15,30 +15,6 @@ export const FORMATS = [
     "tfg-tfm",
 ] as const satisfies readonly ArticleSummary["format"][];
 
-export const toArticleListing = (
-    index: ArticleSummary[],
-    query: ListingQuery,
-    scope?: ListingScope,
-): ArticleListing => {
-    const scoped = index.filter((article) => isInScope(article, scope));
-    const matches = query.format ? scoped.filter(({ format }) => format === query.format) : scoped;
-    const sorted = query.sort === "oldest" ? oldestFirst(matches) : matches;
-
-    return {
-        items: sorted.slice((query.page - 1) * PER_PAGE, query.page * PER_PAGE),
-        page: query.page,
-        perPage: PER_PAGE,
-        total: matches.length,
-        totalPages: Math.max(1, Math.ceil(matches.length / PER_PAGE)),
-        scope,
-        formats: FORMATS.map((format) => ({
-            value: format,
-            count: scoped.filter((article) => article.format === format).length,
-        })).filter(({ count }) => count > 0),
-        subjects: toSubjects(scope?.kind === "author" ? scoped : index),
-    };
-};
-
 const oldestFirst = (articles: ArticleSummary[]): ArticleSummary[] => [
     ...articles.filter(({ publishedAt }) => publishedAt).reverse(),
     ...articles.filter(({ publishedAt }) => !publishedAt),
@@ -70,4 +46,28 @@ const toSubjects = (articles: ArticleSummary[]): Facet<Category>[] => {
     return [...subjects.values()].sort((a, b) =>
         a.value.name.localeCompare(b.value.name, JOURNAL_LOCALE),
     );
+};
+
+export const toArticleListing = (
+    index: ArticleSummary[],
+    query: ListingQuery,
+    scope?: ListingScope,
+): ArticleListing => {
+    const scoped = index.filter((article) => isInScope(article, scope));
+    const matches = query.format ? scoped.filter(({ format }) => format === query.format) : scoped;
+    const sorted = query.sort === "oldest" ? oldestFirst(matches) : matches;
+
+    return {
+        items: sorted.slice((query.page - 1) * PER_PAGE, query.page * PER_PAGE),
+        page: query.page,
+        perPage: PER_PAGE,
+        total: matches.length,
+        totalPages: Math.max(1, Math.ceil(matches.length / PER_PAGE)),
+        scope,
+        formats: FORMATS.map((format) => ({
+            value: format,
+            count: scoped.filter((article) => article.format === format).length,
+        })).filter(({ count }) => count > 0),
+        subjects: toSubjects(scope?.kind === "author" ? scoped : index),
+    };
 };

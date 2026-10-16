@@ -28,6 +28,32 @@ import {
 } from "#nuxt/config";
 import { toEntryQuery, toQuery, toSlug } from "./query";
 
+const readVendor = (event: H3Event): VendorConfig => {
+    const { vendor } = useRuntimeConfig(event).content as ContentConfig;
+
+    return vendor;
+};
+
+const rethrowAsHttpError = (cause: unknown): never => {
+    if (cause instanceof ContentError) throw createError(cause);
+
+    throw cause;
+};
+
+const resolveProvider = async (vendor: VendorConfig): Promise<ContentProvider> => {
+    try {
+        return await createProvider(vendor, new OfetchHttpClient(ofetch));
+    } catch (cause) {
+        return rethrowAsHttpError(cause);
+    }
+};
+
+const throwUnavailableError = (cause: unknown, resource: string): never => {
+    if (cause instanceof ContentError) throw createError(cause);
+
+    throw createError(new ContentUnavailableError(resource, cause));
+};
+
 const readList = defineCachedFunction(
     async (
         event: H3Event,
@@ -85,29 +111,3 @@ export const useContent = (event: H3Event) => ({
     getTerm: async (resource: TermResource, slug: string) =>
         (await readItem(event, resource, toSlug(slug))) as Term,
 });
-
-const readVendor = (event: H3Event): VendorConfig => {
-    const { vendor } = useRuntimeConfig(event).content as ContentConfig;
-
-    return vendor;
-};
-
-const resolveProvider = async (vendor: VendorConfig): Promise<ContentProvider> => {
-    try {
-        return await createProvider(vendor, new OfetchHttpClient(ofetch));
-    } catch (cause) {
-        return rethrowAsHttpError(cause);
-    }
-};
-
-const rethrowAsHttpError = (cause: unknown): never => {
-    if (cause instanceof ContentError) throw createError(cause);
-
-    throw cause;
-};
-
-const throwUnavailableError = (cause: unknown, resource: string): never => {
-    if (cause instanceof ContentError) throw createError(cause);
-
-    throw createError(new ContentUnavailableError(resource, cause));
-};

@@ -6,6 +6,21 @@ import { eachElement, stringifyNodes } from "../utils/hast";
 const NOTE_REFERENCE = /^#_ftn(\d+)$/;
 const NOTE_BACKLINK = /^#_ftnref(\d+)$/;
 
+const toNoteReference = (element: Element): void => {
+    const id = element.tagName === "a" && NOTE_REFERENCE.exec(String(element.properties.href))?.[1];
+
+    if (!id) return;
+
+    const link: Element = {
+        type: "element",
+        tagName: "a",
+        properties: { href: `#${noteAnchor(id)}`, id: noteReferenceAnchor(id) },
+        children: [{ type: "text", value: id }],
+    };
+
+    Object.assign(element, { tagName: "sup", properties: {}, children: [link] });
+};
+
 export const extractNotes = (tree: Root): Note[] => {
     const notes: Note[] = [];
 
@@ -26,19 +41,4 @@ export const extractNotes = (tree: Root): Note[] => {
     if (notes.length) eachElement(tree, toNoteReference);
 
     return notes;
-};
-
-const toNoteReference = (element: Element): void => {
-    const id = element.tagName === "a" && NOTE_REFERENCE.exec(String(element.properties.href))?.[1];
-
-    if (!id) return;
-
-    const link: Element = {
-        type: "element",
-        tagName: "a",
-        properties: { href: `#${noteAnchor(id)}`, id: noteReferenceAnchor(id) },
-        children: [{ type: "text", value: id }],
-    };
-
-    Object.assign(element, { tagName: "sup", properties: {}, children: [link] });
 };

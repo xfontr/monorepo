@@ -10,28 +10,6 @@ import {
 } from "#core/domain/content";
 import { MalformedQueryError, UndefinedResourceError } from "#core/domain/errors";
 
-// Defaults are resolved rather than left undefined, so `{}` and `{ page: 1 }` key one cache entry
-export const toQuery = (query: Query = {}): Query => ({
-    page: toBoundedInteger(query.page, "page", MAX_PAGE) ?? 1,
-    perPage: toBoundedInteger(query.perPage, "perPage", MAX_PER_PAGE) ?? DEFAULT_PER_PAGE,
-    slug: toText(query.slug),
-    search: toSearch(query.search),
-});
-
-export const toEntryQuery = (query: EntryQuery = {}): EntryQuery => ({
-    ...toQuery(query),
-    term: toTerm(query.term),
-    author: toText(query.author),
-});
-
-export const toSlug = (slug: string): string => {
-    const text = toText(slug);
-
-    if (!text) throw createError(new MalformedQueryError("slug", "a non-empty string"));
-
-    return text;
-};
-
 // Out of range is rejected, not clamped
 const toBoundedInteger = (
     value: number | undefined,
@@ -47,6 +25,8 @@ const toBoundedInteger = (
     return value;
 };
 
+const toText = (value: string | undefined): string | undefined => value?.trim() || undefined;
+
 // `search` is the one query axis whose key space is not small — bounding its length is not the same
 // as bounding it, so a public deployment wants a rate limit at the edge as well.
 const toSearch = (value: string | undefined): string | undefined => {
@@ -60,6 +40,14 @@ const toSearch = (value: string | undefined): string | undefined => {
 
     return search;
 };
+
+// Defaults are resolved rather than left undefined, so `{}` and `{ page: 1 }` key one cache entry
+export const toQuery = (query: Query = {}): Query => ({
+    page: toBoundedInteger(query.page, "page", MAX_PAGE) ?? 1,
+    perPage: toBoundedInteger(query.perPage, "perPage", MAX_PER_PAGE) ?? DEFAULT_PER_PAGE,
+    slug: toText(query.slug),
+    search: toSearch(query.search),
+});
 
 // An unknown taxonomy is rejected rather than dropped, so a typo cannot silently return the
 // unfiltered list.
@@ -77,4 +65,16 @@ const toTerm = (term: EntryQuery["term"]): EntryQuery["term"] => {
     return { resource: term.resource, id };
 };
 
-const toText = (value: string | undefined): string | undefined => value?.trim() || undefined;
+export const toEntryQuery = (query: EntryQuery = {}): EntryQuery => ({
+    ...toQuery(query),
+    term: toTerm(query.term),
+    author: toText(query.author),
+});
+
+export const toSlug = (slug: string): string => {
+    const text = toText(slug);
+
+    if (!text) throw createError(new MalformedQueryError("slug", "a non-empty string"));
+
+    return text;
+};

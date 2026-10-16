@@ -44,20 +44,6 @@ const SCHEMA: Schema = {
 
 const sanitizer = unified().use(rehypeSanitize, SCHEMA);
 
-export const toArticleBody = (html: string): ArticleBody => {
-    const tree = sanitize(parseFragment(html));
-    // Notes close the post, after the bibliography, so they must leave before it is split off
-    const notes = extractNotes(tree);
-    const bibliography = splitBibliography(tree);
-    const toc = annotateHeadings(tree);
-
-    lazyLoadImages(tree);
-
-    const [lead, rest] = splitLead(tree.children);
-
-    return { lead: stringifyNodes(lead), html: stringifyNodes(rest), toc, notes, bibliography };
-};
-
 const sanitize = (tree: Root): Root => {
     eachElement(tree, (element) => {
         const { className } = element.properties;
@@ -68,6 +54,11 @@ const sanitize = (tree: Root): Root => {
 
     return sanitizer.runSync(tree) as Root;
 };
+
+const isBibliographyHeading = (node: RootContent): boolean =>
+    node.type === "element" &&
+    /^h[1-6]$/.test(node.tagName) &&
+    BIBLIOGRAPHY_HEADING.test(slugify(textContent(node)));
 
 const splitBibliography = (tree: Root): string[] => {
     const start = tree.children.findLastIndex(isBibliographyHeading);
@@ -89,11 +80,6 @@ const splitBibliography = (tree: Root): string[] => {
     return references;
 };
 
-const isBibliographyHeading = (node: RootContent): boolean =>
-    node.type === "element" &&
-    /^h[1-6]$/.test(node.tagName) &&
-    BIBLIOGRAPHY_HEADING.test(slugify(textContent(node)));
-
 const lazyLoadImages = (tree: Root): void => {
     eachElement(tree, (element) => {
         if (element.tagName !== "img") return;
@@ -107,4 +93,18 @@ const splitLead = (nodes: RootContent[]): [RootContent[], RootContent[]] => {
     const end = nodes.findIndex((node) => node.type === "element" && node.tagName === "p") + 1;
 
     return [nodes.slice(0, end), nodes.slice(end)];
+};
+
+export const toArticleBody = (html: string): ArticleBody => {
+    const tree = sanitize(parseFragment(html));
+    // Notes close the post, after the bibliography, so they must leave before it is split off
+    const notes = extractNotes(tree);
+    const bibliography = splitBibliography(tree);
+    const toc = annotateHeadings(tree);
+
+    lazyLoadImages(tree);
+
+    const [lead, rest] = splitLead(tree.children);
+
+    return { lead: stringifyNodes(lead), html: stringifyNodes(rest), toc, notes, bibliography };
 };

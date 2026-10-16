@@ -48,6 +48,15 @@ const pickLabel = async (labels: Label[]): Promise<string | undefined> => {
     return optionalSelection(picked);
 };
 
+const offerPick = async (): Promise<void> => {
+    if (currentBranch() !== "master") return;
+
+    const wantsPick = or(await confirm({ message: "You're on master — pick an issue now?" }));
+    if (!wantsPick) return;
+
+    await pick();
+};
+
 export const add = async (): Promise<void> => {
     out.begin("📝 Add an issue");
 
@@ -94,13 +103,4 @@ export const add = async (): Promise<void> => {
     }
 
     await offerPick();
-};
-
-const offerPick = async (): Promise<void> => {
-    if (currentBranch() !== "master") return;
-
-    const wantsPick = or(await confirm({ message: "You're on master — pick an issue now?" }));
-    if (!wantsPick) return;
-
-    await pick();
 };

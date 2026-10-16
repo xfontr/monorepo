@@ -31,6 +31,17 @@ export const toWordpressQuery = (query?: Query): RequestOptions["query"] => ({
     search: query?.search,
 });
 
+// A proxy or plugin can drop these headers or rewrite them into something non-numeric. The empty
+// string is checked separately because Number("") is 0, which would pass an integer guard and report
+// a populated list as having no pages.
+const toCount = (header: string | null, fallback: number): number => {
+    if (!header?.trim()) return fallback;
+
+    const count = Number(header);
+
+    return Number.isInteger(count) && count >= 0 ? count : fallback;
+};
+
 export const toPage = <S, T>(
     { data, headers }: HttpResponse<S[]>,
     query: Query | undefined,
@@ -47,36 +58,14 @@ export const toPage = <S, T>(
     };
 };
 
-// A proxy or plugin can drop these headers or rewrite them into something non-numeric. The empty
-// string is checked separately because Number("") is 0, which would pass an integer guard and report
-// a populated list as having no pages.
-const toCount = (header: string | null, fallback: number): number => {
-    if (!header?.trim()) return fallback;
+const toSEO = (yoast?: WordpressYoast): SEO | undefined => {
+    if (!yoast) return undefined;
 
-    const count = Number(header);
-
-    return Number.isInteger(count) && count >= 0 ? count : fallback;
-};
-
-export const toEntry = (entry: WordpressEntry): Entry => ({
-    id: String(entry.id),
-    slug: entry.slug,
-    title: entry.title.rendered,
-    excerpt: entry.excerpt ? { format: "html", value: entry.excerpt.rendered } : undefined,
-    body: { format: "html", value: entry.content.rendered },
-    publishedAt: toIsoDate(entry.date_gmt),
-    updatedAt: toIsoDate(entry.modified_gmt),
-    image: toAsset(entry._embedded?.["wp:featuredmedia"]?.[0]),
-    terms: (entry._embedded?.["wp:term"] ?? []).flat().flatMap(toEmbeddedTerm),
-    authors: (entry._embedded?.author ?? []).flatMap(toAuthor),
-    seo: toSEO(entry.yoast_head_json),
-});
-
-// An entry embeds every taxonomy the site defines, including custom ones the domain has no name for
-const toEmbeddedTerm = (term: WordpressTerm): Term[] => {
-    const resource = TAXONOMIES[term.taxonomy];
-
-    return resource ? [toTerm(term, resource)] : [];
+    return {
+        title: yoast.title || undefined,
+        description: yoast.description || undefined,
+        noindex: yoast.robots?.index === "noindex",
+    };
 };
 
 export const toTerm = (term: WordpressTerm, resource: TermResource): Term => ({
@@ -89,19 +78,11 @@ export const toTerm = (term: WordpressTerm, resource: TermResource): Term => ({
     seo: toSEO(term.yoast_head_json),
 });
 
-// An embed with no id or name is not a user, so it is dropped rather than rendered as a blank byline
-const toAuthor = (user: WordpressUser): Author[] => {
-    if (user.id === undefined || !user.name) return [];
+// An entry embeds every taxonomy the site defines, including custom ones the domain has no name for
+const toEmbeddedTerm = (term: WordpressTerm): Term[] => {
+    const resource = TAXONOMIES[term.taxonomy];
 
-    return [
-        {
-            id: String(user.id),
-            slug: user.slug,
-            name: user.name,
-            bio: user.description || undefined,
-            avatar: toAvatar(user),
-        },
-    ];
+    return resource ? [toTerm(term, resource)] : [];
 };
 
 const toAvatar = (user: WordpressUser): Asset | undefined => {
@@ -116,14 +97,19 @@ const toAvatar = (user: WordpressUser): Asset | undefined => {
     };
 };
 
-const toSEO = (yoast?: WordpressYoast): SEO | undefined => {
-    if (!yoast) return undefined;
+// An embed with no id or name is not a user, so it is dropped rather than rendered as a blank byline
+const toAuthor = (user: WordpressUser): Author[] => {
+    if (user.id === undefined || !user.name) return [];
 
-    return {
-        title: yoast.title || undefined,
-        description: yoast.description || undefined,
-        noindex: yoast.robots?.index === "noindex",
-    };
+    return [
+        {
+            id: String(user.id),
+            slug: user.slug,
+            name: user.name,
+            bio: user.description || undefined,
+            avatar: toAvatar(user),
+        },
+    ];
 };
 
 // An inaccessible featured image embeds as a REST error object instead of a media item
@@ -144,3 +130,17 @@ const toIsoDate = (date?: string | null): string | undefined => {
     if (!date) return undefined;
     return date.endsWith("Z") ? date : `${date}Z`;
 };
+
+export const toEntry = (entry: WordpressEntry): Entry => ({
+    id: String(entry.id),
+    slug: entry.slug,
+    title: entry.title.rendered,
+    excerpt: entry.excerpt ? { format: "html", value: entry.excerpt.rendered } : undefined,
+    body: { format: "html", value: entry.content.rendered },
+    publishedAt: toIsoDate(entry.date_gmt),
+    updatedAt: toIsoDate(entry.modified_gmt),
+    image: toAsset(entry._embedded?.["wp:featuredmedia"]?.[0]),
+    terms: (entry._embedded?.["wp:term"] ?? []).flat().flatMap(toEmbeddedTerm),
+    authors: (entry._embedded?.author ?? []).flatMap(toAuthor),
+    seo: toSEO(entry.yoast_head_json),
+});

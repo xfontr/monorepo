@@ -12,29 +12,6 @@ const FORMAT_SLUGS = {
     caseCommentTagPrefix: "jurisprudencia-",
 } as const;
 
-export const toArticleSummary = (entry: Entry): ArticleSummary => {
-    const categories = entry.terms.filter((term) => term.resource === "categories").map(toCategory);
-    const tags = entry.terms.filter((term) => term.resource === "tags").map(toCategory);
-
-    return {
-        id: entry.id,
-        slug: entry.slug,
-        title: toText(entry.title),
-        excerpt: toExcerpt(entry.excerpt),
-        publishedAt: entry.publishedAt,
-        updatedAt: entry.updatedAt,
-        image: entry.image,
-        authors: entry.authors.map(toAuthor),
-        category: categories[0],
-        tags,
-        format: toFormat(
-            categories.map(({ slug }) => slug),
-            tags.map(({ slug }) => slug),
-        ),
-        readingMinutes: toReadingMinutes(entry.body),
-    };
-};
-
 // A post carrying more than one marker takes the first rule that matches
 const toFormat = (categorySlugs: string[], tagSlugs: string[]): ArticleSummary["format"] => {
     if (tagSlugs.includes(FORMAT_SLUGS.thesisTag)) return "tfg-tfm";
@@ -44,6 +21,9 @@ const toFormat = (categorySlugs: string[], tagSlugs: string[]): ArticleSummary["
 
     return "articulo";
 };
+
+// WordPress renders titles and excerpts as entity-escaped HTML; this is display text, not sanitising
+const toText = (html: string): string => textContent(parseFragment(html));
 
 export const toCategory = (term: Term): Category => ({
     id: term.id,
@@ -67,12 +47,32 @@ const toReadingMinutes = (body: RichText): number => {
     return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
 };
 
-// WordPress renders titles and excerpts as entity-escaped HTML; this is display text, not sanitising
-const toText = (html: string): string => textContent(parseFragment(html));
-
 // WordPress closes an excerpt it generated itself with a bracketed ellipsis
 const toExcerpt = (excerpt?: RichText): string | undefined => {
     if (!excerpt || excerpt.format === "blocks") return undefined;
 
     return toText(excerpt.value).replace(/\s*\[…\]$/, "") || undefined;
+};
+
+export const toArticleSummary = (entry: Entry): ArticleSummary => {
+    const categories = entry.terms.filter((term) => term.resource === "categories").map(toCategory);
+    const tags = entry.terms.filter((term) => term.resource === "tags").map(toCategory);
+
+    return {
+        id: entry.id,
+        slug: entry.slug,
+        title: toText(entry.title),
+        excerpt: toExcerpt(entry.excerpt),
+        publishedAt: entry.publishedAt,
+        updatedAt: entry.updatedAt,
+        image: entry.image,
+        authors: entry.authors.map(toAuthor),
+        category: categories[0],
+        tags,
+        format: toFormat(
+            categories.map(({ slug }) => slug),
+            tags.map(({ slug }) => slug),
+        ),
+        readingMinutes: toReadingMinutes(entry.body),
+    };
 };
