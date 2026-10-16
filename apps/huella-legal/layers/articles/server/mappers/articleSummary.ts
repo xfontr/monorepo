@@ -45,7 +45,7 @@ const toFormat = (categorySlugs: string[], tagSlugs: string[]): ArticleSummary["
     return "articulo";
 };
 
-const toCategory = (term: Term): Category => ({
+export const toCategory = (term: Term): Category => ({
     id: term.id,
     slug: term.slug,
     name: toText(term.name),
