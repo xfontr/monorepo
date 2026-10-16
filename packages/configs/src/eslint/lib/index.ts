@@ -10,6 +10,7 @@ import layerIsolation from "./layerIsolation.ts";
 import { restrictedSyntax, restrictedSyntaxVue } from "./restrictedSyntax.ts";
 import templateI18n from "./templateI18n.ts";
 import templateCalls from "./templateCalls.ts";
+import { useBeforeDefine, useBeforeDefineVue } from "./useBeforeDefine.ts";
 
 const regexp: object = regexpPlugin.configs["flat/recommended"];
 
@@ -27,5 +28,7 @@ export {
     restrictedSyntaxVue,
     templateI18n,
     templateCalls,
+    useBeforeDefine,
+    useBeforeDefineVue,
     regexp,
 };
