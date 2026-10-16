@@ -306,6 +306,32 @@ describe("the nitro observability plugin", () => {
             expect(otel.span.end).toHaveBeenCalledOnce();
         });
 
+        // The thrown error only says "Upstream request failed"; what actually failed is its cause
+        it("records the cause as well, since the exception event drops it", async () => {
+            const upstream = new Error("connect ECONNREFUSED");
+            const wrapped = Object.assign(
+                new Error("Upstream request failed", { cause: upstream }),
+                {
+                    statusCode: 502,
+                },
+            );
+
+            await expect(
+                traced("/articles", "/articles", () => Promise.reject(wrapped)),
+            ).rejects.toBe(wrapped);
+
+            expect(otel.span.recordException).toHaveBeenNthCalledWith(1, wrapped);
+            expect(otel.span.recordException).toHaveBeenNthCalledWith(2, upstream);
+        });
+
+        it("records an error once when it has no cause", async () => {
+            await expect(
+                traced("/articles", "/articles", () => Promise.reject(cause)),
+            ).rejects.toBe(cause);
+
+            expect(otel.span.recordException).toHaveBeenCalledOnce();
+        });
+
         // An error with no status is ours, not the caller's, so it must not read as a 200
         it("closes the span as a 500 when the error carries no status", async () => {
             const boom = new Error("boom");
@@ -337,6 +363,14 @@ describe("the nitro observability plugin", () => {
         start().nitroApp.fire("error", error);
 
         expect(otel.span.recordException).toHaveBeenCalledWith(error);
+    });
+
+    it("records the cause of an error reported through Nitro's hook", () => {
+        const upstream = new Error("connect ECONNREFUSED");
+
+        start().nitroApp.fire("error", new Error("Upstream request failed", { cause: upstream }));
+
+        expect(otel.span.recordException).toHaveBeenLastCalledWith(upstream);
     });
 
     it("survives an error reported with no span open", () => {

@@ -1,18 +1,12 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from "@nuxt/ui";
+import { FORMAT_KEYS } from "#layers/articles/app/constants";
 
 interface Props {
     article: Article;
 }
 
 const props = defineProps<Props>();
-
-const FORMAT_KEYS = {
-    articulo: "article.formats.article",
-    comentario: "article.formats.comment",
-    ensayo: "article.formats.essay",
-    "tfg-tfm": "article.formats.thesis",
-} as const satisfies Record<ArticleSummary["format"], string>;
 
 const { t } = useI18n();
 
@@ -31,7 +25,9 @@ const breadcrumb = computed<BreadcrumbItem[]>(() => {
         : items;
 });
 
-const formatLabel = computed<string>(() => t(FORMAT_KEYS[props.article.format]));
+const formatLabel = computed<string>(() =>
+    t(`article.formats.${FORMAT_KEYS[props.article.format]}`),
+);
 
 const bylineAuthors = computed(() =>
     props.article.authors.map((author) => ({ ...author, to: { hash: "#autor" } })),
@@ -41,14 +37,7 @@ const bylineAuthors = computed(() =>
 <template>
     <UContainer as="header" class="grid grid-cols-1 pt-6 md:pt-10 lg:grid-cols-12 lg:gap-x-8">
         <div class="lg:col-span-9 lg:col-start-4">
-            <UBreadcrumb
-                :items="breadcrumb"
-                :ui="{
-                    link: 'font-sans text-meta min-h-11 inline-flex items-center',
-                    separatorIcon: 'size-4',
-                }"
-                class="print:hidden"
-            />
+            <UBreadcrumb :items="breadcrumb" class="print:hidden" />
             <p class="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-xs md:mt-8">
                 <BaseKicker>{{ formatLabel }}</BaseKicker>
                 <template v-if="article.category">

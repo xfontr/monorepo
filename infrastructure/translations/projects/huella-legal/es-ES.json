@@ -55,6 +55,25 @@
         "skipLink": "Saltar al contenido",
         "title": "Huella Legal"
     },
+    "archiveAuthor": {
+        "kicker": "Colaboradores",
+        "stats": {
+            "publications": "publicación | publicaciones",
+            "since": "publica desde"
+        }
+    },
+    "archiveIntro": {
+        "home": "Portada"
+    },
+    "archiveResults": {
+        "count": "{count} publicación | {count} publicaciones",
+        "formats": "Formato"
+    },
+    "archiveSubjects": {
+        "all": "Todo el archivo",
+        "count": "{count} publicación | {count} publicaciones",
+        "label": "Explorar"
+    },
     "article": {
         "breadcrumb": {
             "home": "Portada",
@@ -75,6 +94,15 @@
     "articleBibliography": {
         "title": "Bibliografía"
     },
+    "articleListing": {
+        "formats": {
+            "all": "Todo",
+            "article": "Artículos",
+            "comment": "Comentarios",
+            "essay": "Ensayos",
+            "thesis": "TFG y TFM"
+        }
+    },
     "articleNotes": {
         "back": "Nota {number}, volver al texto",
         "title": "Notas"
@@ -82,15 +110,10 @@
     "articleToc": {
         "title": "En este artículo"
     },
-    "articles": {
-        "count": "{shown} de {total}",
-        "pagination": {
-            "label": "Páginas de publicaciones",
-            "next": "Siguiente →",
-            "position": "Página {page} de {total}",
-            "previous": "← Anterior"
-        },
-        "title": "Publicaciones"
+    "author": {
+        "collaborators": "Colaboradores",
+        "heading": "Publicaciones",
+        "subjects": "Escribe sobre"
     },
     "authorCard": {
         "kicker": "Sobre el autor",
@@ -99,6 +122,10 @@
     },
     "byline": {
         "readingTime": "{minutes} min de lectura"
+    },
+    "category": {
+        "kicker": "Materia · {count} publicación | Materia · {count} publicaciones",
+        "subjects": "Otras materias"
     },
     "citeBox": {
         "copied": "Cita copiada",
@@ -155,11 +182,11 @@
     "newsletterForm": {
         "email": {
             "errors": {
-                "invalid": "Revisa la dirección: por ejemplo, nombre@ejemplo.es",
+                "invalid": "Revisa la dirección: por ejemplo, nombre{'@'}ejemplo.es",
                 "required": "Escribe tu correo electrónico"
             },
             "label": "Correo electrónico",
-            "placeholder": "nombre@ejemplo.es"
+            "placeholder": "nombre{'@'}ejemplo.es"
         },
         "submit": "Suscribirme"
     },
@@ -181,6 +208,12 @@
             "text": "Anterior"
         }
     },
+    "publications": {
+        "kicker": "Archivo · {count} publicación | Archivo · {count} publicaciones",
+        "lead": "Todo lo publicado en Huella Legal, de artículos doctrinales a trabajos de fin de grado, en {subjects} materias.",
+        "subjects": "Materias",
+        "title": "Publicaciones"
+    },
     "shareBar": {
         "cite": "Citar",
         "linkCopied": "Enlace copiado",
@@ -195,6 +228,10 @@
         "newest": "Más recientes",
         "oldest": "Más antiguas",
         "prefix": "Ordenar:"
+    },
+    "tag": {
+        "kicker": "Etiqueta · {count} publicación | Etiqueta · {count} publicaciones",
+        "subjects": "Materias"
     },
     "tagPill": {
         "count": "{count} publicación | {count} publicaciones"

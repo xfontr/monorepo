@@ -9,7 +9,7 @@ export interface PlaywrightOptions {
 }
 
 /**
- * Chromium at each width, specs in `e2e/`, and screenshot baselines that only CI writes.
+ * Chromium at each width, with specs in `e2e/`.
  * Returns a plain object, so the runner's own copy of `@playwright/test` is the only one loaded.
  */
 export const createConfig = ({
@@ -23,9 +23,6 @@ export const createConfig = ({
     return {
         testDir: "e2e",
         outputDir: ".playwright",
-        // No `{platform}`: baselines are only ever written inside CI's pinned Playwright image
-        snapshotPathTemplate: "{testDir}/__screenshots__/{testFileName}/{projectName}/{arg}{ext}",
-        ignoreSnapshots: !process.env.CI,
         forbidOnly: !!process.env.CI,
         reporter: "list",
         use: { baseURL },

@@ -73,12 +73,6 @@ test("the not-found page has no WCAG AA violations", async ({ page }) => {
     expect(violations).toEqual([]);
 });
 
-test("the not-found page matches its baseline", async ({ page }) => {
-    await page.goto("/no-existe/");
-
-    await expect(page).toHaveScreenshot("not-found.png", { fullPage: true });
-});
-
 test("the open mobile menu has no WCAG AA violations", async ({ page }) => {
     test.skip((page.viewportSize()?.width ?? 0) >= DESKTOP, "The menu only exists below lg");
 

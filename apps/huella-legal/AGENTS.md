@@ -20,7 +20,8 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   array. `app/` stays thin, with no domain logic of its own. A layer's view-model types go in
   `shared/types/`, one per file, and its `server/` maps vendor shapes into them, so an `Entry` never
   reaches the browser. Those mappers go in `server/mappers/`, one file per view model and named for
-  it; `server/utils/` is only for helpers that know nothing about the domain.
+  it; `server/utils/` is only for helpers that know nothing about the domain, so a cached read that
+  several routes share goes in `server/services/`.
 - Typechecking runs on build (`typescript.typeCheck: "build"`), so `pnpm build` is slow and already
   covers what `pnpm typecheck` would.
 - [`tsconfig.json`](./tsconfig.json) only references `./.nuxt/tsconfig.*.json`, which `nuxi
@@ -49,7 +50,8 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
 - **`vitest.config.ts` and `playwright.config.ts` are wrappers over `@monorepo/configs`.** A setting
   every Nuxt app would want goes in the preset; only this app's specifics are passed as options.
   Don't lower a threshold to get green; write the spec.
-- `e2e/` holds the Playwright specs, `server.ts` (the MSW preload) and `fakes.ts` (its data), and
-  `e2e/__screenshots__/` holds baselines that only CI writes. Both are the workspace's exceptions to
-  "beside its subject" and "no fixtures". Vendor wire formats belong in the packages' `testing`
-  entries, never here.
+- `e2e/` holds the Playwright specs, `server.ts` (the MSW preload) and `fakes.ts` (its data), the
+  workspace's exception to "beside its subject" and "no fixtures". Vendor wire formats belong in the
+  packages' `testing` entries, never here.
+- **No `toHaveScreenshot`.** Baselines failed every page PR while the design still moves; the
+  [README](./README.md#-e2e) says when they come back. Assert on roles, text and status instead.

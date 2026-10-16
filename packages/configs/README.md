@@ -92,12 +92,11 @@ import { playwright } from "@monorepo/configs";
 export default playwright.createConfig({ port: 4310, command: "node .output/server/index.mjs", env: { … } });
 ```
 
-Chromium at 390, 768 and 1280 px, one project per width. Specs live in `e2e/`, output in
-`.playwright/`, and screenshot baselines in `e2e/__screenshots__/<spec>/<width>/`. The path has no
-platform segment, because baselines are only written in CI's pinned Playwright image:
-`ignoreSnapshots` is on whenever `CI` isn't set. The factory returns a plain object and only
-imports `@playwright/test`'s types, so the runner's own copy is the only one ever loaded. The app
-installs `@playwright/test` at exactly the version in CI's image tag.
+Chromium at 390, 768 and 1280 px, one project per width. Specs live in `e2e/` and output in
+`.playwright/`. There are no screenshot baselines, for the reason
+[Huella Legal's README](../../apps/huella-legal/README.md#-e2e) gives. The factory returns a plain
+object and only imports `@playwright/test`'s types, so the runner's own copy is the only one ever
+loaded. The app installs `@playwright/test` at exactly the version in CI's image tag.
 
 **TypeScript** — `tsconfig.json`:
 

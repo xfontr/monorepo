@@ -75,11 +75,9 @@ jobs:
               if: failure()
               with:
                   name: playwright
-                  # Off by default, and it would drop .playwright/ with the -actual.png files
+                  # Off by default, and it would drop .playwright/ with each failure's error-context.md
                   include-hidden-files: true
-                  path: |
-                      apps/huella-legal/.playwright
-                      apps/huella-legal/e2e/__screenshots__
+                  path: apps/huella-legal/.playwright
 
     # Needs a base ref to diff against, so it's meaningless on a push to master.
     dependency-review:

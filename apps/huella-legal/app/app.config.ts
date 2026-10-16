@@ -181,6 +181,12 @@ export default defineAppConfig({
         fileUpload: {
             slots: { base: "min-h-32 bg-ivory-100" },
         },
+        breadcrumb: {
+            slots: {
+                link: "font-sans text-meta min-h-11 inline-flex items-center",
+                separatorIcon: "size-4",
+            },
+        },
         // Previous and next sit at the ends of the row, and the ellipses go on phones with the numbers
         pagination: {
             slots: {

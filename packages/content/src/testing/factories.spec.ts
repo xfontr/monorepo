@@ -8,7 +8,6 @@ const freshFactories = async () => {
 };
 
 describe("the domain factories", () => {
-    // A screenshot baseline is only as stable as the data behind it
     it("build the same values on every run", async () => {
         const first = (await freshFactories()).fakeEntry();
         const second = (await freshFactories()).fakeEntry();
