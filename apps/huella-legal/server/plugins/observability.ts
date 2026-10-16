@@ -54,7 +54,7 @@ export default defineNitroPlugin((nitroApp) => {
 
                     return body;
                 } catch (error) {
-                    span.recordException(error as Error);
+                    recordError(span, error as Error);
                     end(span, event, createError(error as Error).statusCode);
 
                     throw error;
@@ -64,7 +64,9 @@ export default defineNitroPlugin((nitroApp) => {
     });
 
     nitroApp.hooks.hook("error", (error) => {
-        trace.getActiveSpan()?.recordException(error);
+        const span = trace.getActiveSpan();
+
+        if (span) recordError(span, error);
     });
 
     nitroApp.hooks.hook("close", () => provider.shutdown());
@@ -82,6 +84,12 @@ const requestAttributes = (event: H3Event) => {
         [ATTR_USER_AGENT_ORIGINAL]: getRequestHeader(event, "user-agent"),
         [ATTR_CLIENT_ADDRESS]: getRequestIP(event, { xForwardedFor: true }),
     };
+};
+
+const recordError = (span: Span, error: Error) => {
+    span.recordException(error);
+
+    if (error.cause instanceof Error && error.cause !== error) span.recordException(error.cause);
 };
 
 const end = (span: Span, event: H3Event, status: number) => {

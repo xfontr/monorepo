@@ -294,9 +294,15 @@ mapping somewhere else — the Nuxt reader just hands it to `createError`. A non
 both and reads `message`.
 
 `statusMessage` reaches the client, so none of these repeat the vendor's URL or the transport's
-message. Nothing else is dressed up as one of these either: a failure the package can't
-diagnose — a broken adapter, say — propagates as itself, so the app reports it as an
-unhandled 500 with its own stack rather than blaming the vendor.
+message. The real failure stays on `cause`, and since `createError` hands h3 an error it treats as
+handled, Nitro never logs it: logging it is the app's job.
+
+The Nuxt reader treats a failure it can't diagnose in two ways. If the provider can't even be
+built — a broken registry entry, say — the error propagates as itself, so the app reports an
+unhandled 500 with its own stack. If a read fails, it becomes a `ContentUnavailableError`, even
+when the fault is the adapter's own mapping. A vendor answering in a shape the adapter doesn't
+expect looks identical from here, so the client gets a 502 either way, and the original error
+waits on `cause`.
 
 ## 🧭 Deliberately deferred
 

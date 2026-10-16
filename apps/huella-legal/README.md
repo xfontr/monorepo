@@ -297,6 +297,15 @@ rename gives every slug and every query string a span name of its own, which mak
 impossible to aggregate and the keyspace unbounded. That is the property
 [the spec](./server/plugins/observability.spec.ts) spends most of its assertions on.
 
+A 5xx raised through `createError`, which covers every error `useContent` throws, answers the
+client with a generic status message. The failure behind it rides on `cause`, and Nitro logs only
+*unhandled* errors, so two things keep that cause visible:
+
+| What | Where | Off switch |
+| --- | --- | --- |
+| A `console.error` for every handled request 5xx, cause chain included | [`server/plugins/errorLog.ts`](./server/plugins/errorLog.ts) | none: logs ship whether or not tracing does |
+| A second exception event on the span for the error's `cause` | `recordError` in [`server/plugins/observability.ts`](./server/plugins/observability.ts) | `NUXT_OBSERVABILITY_URL` |
+
 ## ✅ Testing
 
 Three layers, each proving something the others can't see.
