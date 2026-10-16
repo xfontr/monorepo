@@ -2,6 +2,13 @@ import { FetchError, type $Fetch } from "ofetch";
 import { UpstreamError } from "#core/domain/errors";
 import type { HttpClient } from "#core/ports/HttpClient";
 
+const rethrowAsUpstreamError = (cause: unknown): never => {
+    throw new UpstreamError(
+        cause instanceof FetchError ? cause.response?.status : undefined,
+        cause,
+    );
+};
+
 export class OfetchHttpClient implements HttpClient {
     constructor(private readonly $fetch: $Fetch) {}
 
@@ -11,10 +18,3 @@ export class OfetchHttpClient implements HttpClient {
         }).catch(rethrowAsUpstreamError);
     }
 }
-
-const rethrowAsUpstreamError = (cause: unknown): never => {
-    throw new UpstreamError(
-        cause instanceof FetchError ? cause.response?.status : undefined,
-        cause,
-    );
-};

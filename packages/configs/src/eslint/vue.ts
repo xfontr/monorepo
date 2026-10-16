@@ -17,6 +17,8 @@ import {
     restrictedSyntaxVue,
     templateI18n,
     templateCalls,
+    useBeforeDefine,
+    useBeforeDefineVue,
     regexp,
 } from "./lib/index.ts";
 
@@ -101,6 +103,8 @@ const createBaseVueConfig = (typeChecked?: boolean): object[] => {
         restrictedSyntaxVue,
         templateI18n,
         templateCalls,
+        useBeforeDefine,
+        useBeforeDefineVue,
         regexp,
     ];
 };

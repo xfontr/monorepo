@@ -20,6 +20,86 @@ export type WordpressContent = Partial<
     Record<EntryResource, Entry[]> & Record<TermResource, Term[]>
 >;
 
+const inTerms = (item: WordpressEntry | WordpressTerm, query: URLSearchParams): boolean => {
+    if (!("_embedded" in item)) return true;
+
+    const termIds = new Set(item._embedded?.["wp:term"]?.flat().map(({ id }) => String(id)));
+
+    return Object.values(TAXONOMIES).every(
+        (resource) => !resource || !query.has(resource) || termIds.has(query.get(resource) ?? ""),
+    );
+};
+
+const toYoast = (seo?: SEO): WordpressYoast | undefined =>
+    seo && {
+        title: seo.title,
+        description: seo.description,
+        robots: { index: seo.noindex ? "noindex" : "index" },
+    };
+
+const toWordpressTerm = (term: Term): WordpressTerm => {
+    const taxonomy =
+        Object.keys(TAXONOMIES).find((name) => TAXONOMIES[name] === term.resource) ?? term.resource;
+
+    return {
+        id: Number(term.id),
+        name: term.name,
+        slug: term.slug,
+        taxonomy,
+        description: term.description,
+        yoast_head_json: toYoast(term.seo),
+    };
+};
+
+// The provider names an avatar after its author, so an avatar's `alt` doesn't survive the trip
+const toWordpressUser = (author: Author): WordpressUser => ({
+    id: Number(author.id),
+    name: author.name,
+    slug: author.slug,
+    description: author.bio,
+    simple_local_avatar: author.avatar
+        ? { media_id: Number(author.avatar.id), full: author.avatar.url }
+        : false,
+});
+
+// WordPress only ever renders HTML, so a block document has nothing to stand in for it
+const toRendered = (text: RichText): string => (text.format === "blocks" ? "" : text.value);
+
+const toWordpressEntry = (entry: Entry): WordpressEntry => ({
+    id: Number(entry.id),
+    slug: entry.slug,
+    title: { rendered: entry.title },
+    content: { rendered: toRendered(entry.body) },
+    excerpt: entry.excerpt && { rendered: toRendered(entry.excerpt) },
+    date_gmt: entry.publishedAt?.replace(/Z$/, ""),
+    modified_gmt: entry.updatedAt?.replace(/Z$/, ""),
+    yoast_head_json: toYoast(entry.seo),
+    _embedded: {
+        "wp:featuredmedia": entry.image
+            ? [
+                  {
+                      id: Number(entry.image.id),
+                      source_url: entry.image.url,
+                      alt_text: entry.image.alt,
+                      media_details: { width: entry.image.width, height: entry.image.height },
+                  },
+              ]
+            : [],
+        "wp:term": [entry.terms.map(toWordpressTerm)],
+        author: entry.authors.map(toWordpressUser),
+    },
+});
+
+const toWordpress = (
+    resource: keyof WordpressContent,
+    content: WordpressContent,
+): (WordpressEntry | WordpressTerm)[] | undefined => {
+    if (resource === "posts" || resource === "pages")
+        return content[resource]?.map(toWordpressEntry);
+
+    return content[resource]?.map(toWordpressTerm);
+};
+
 /** MSW handlers that serve domain entries and terms the way WordPress's REST API would. */
 export const wordpressHandlers = (baseURL: string, content: WordpressContent): HttpHandler[] => [
     http.get(`${baseURL}${API_PATH}/:resource`, ({ params, request }) => {
@@ -50,83 +130,3 @@ export const wordpressHandlers = (baseURL: string, content: WordpressContent): H
         });
     }),
 ];
-
-const inTerms = (item: WordpressEntry | WordpressTerm, query: URLSearchParams): boolean => {
-    if (!("_embedded" in item)) return true;
-
-    const termIds = new Set(item._embedded?.["wp:term"]?.flat().map(({ id }) => String(id)));
-
-    return Object.values(TAXONOMIES).every(
-        (resource) => !resource || !query.has(resource) || termIds.has(query.get(resource) ?? ""),
-    );
-};
-
-const toWordpress = (
-    resource: keyof WordpressContent,
-    content: WordpressContent,
-): (WordpressEntry | WordpressTerm)[] | undefined => {
-    if (resource === "posts" || resource === "pages")
-        return content[resource]?.map(toWordpressEntry);
-
-    return content[resource]?.map(toWordpressTerm);
-};
-
-const toWordpressEntry = (entry: Entry): WordpressEntry => ({
-    id: Number(entry.id),
-    slug: entry.slug,
-    title: { rendered: entry.title },
-    content: { rendered: toRendered(entry.body) },
-    excerpt: entry.excerpt && { rendered: toRendered(entry.excerpt) },
-    date_gmt: entry.publishedAt?.replace(/Z$/, ""),
-    modified_gmt: entry.updatedAt?.replace(/Z$/, ""),
-    yoast_head_json: toYoast(entry.seo),
-    _embedded: {
-        "wp:featuredmedia": entry.image
-            ? [
-                  {
-                      id: Number(entry.image.id),
-                      source_url: entry.image.url,
-                      alt_text: entry.image.alt,
-                      media_details: { width: entry.image.width, height: entry.image.height },
-                  },
-              ]
-            : [],
-        "wp:term": [entry.terms.map(toWordpressTerm)],
-        author: entry.authors.map(toWordpressUser),
-    },
-});
-
-const toWordpressTerm = (term: Term): WordpressTerm => {
-    const taxonomy =
-        Object.keys(TAXONOMIES).find((name) => TAXONOMIES[name] === term.resource) ?? term.resource;
-
-    return {
-        id: Number(term.id),
-        name: term.name,
-        slug: term.slug,
-        taxonomy,
-        description: term.description,
-        yoast_head_json: toYoast(term.seo),
-    };
-};
-
-// The provider names an avatar after its author, so an avatar's `alt` doesn't survive the trip
-const toWordpressUser = (author: Author): WordpressUser => ({
-    id: Number(author.id),
-    name: author.name,
-    slug: author.slug,
-    description: author.bio,
-    simple_local_avatar: author.avatar
-        ? { media_id: Number(author.avatar.id), full: author.avatar.url }
-        : false,
-});
-
-const toYoast = (seo?: SEO): WordpressYoast | undefined =>
-    seo && {
-        title: seo.title,
-        description: seo.description,
-        robots: { index: seo.noindex ? "noindex" : "index" },
-    };
-
-// WordPress only ever renders HTML, so a block document has nothing to stand in for it
-const toRendered = (text: RichText): string => (text.format === "blocks" ? "" : text.value);

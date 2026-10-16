@@ -18,6 +18,30 @@ interface Source {
 const DATE = new Intl.DateTimeFormat(JOURNAL_LOCALE, LONG_DATE);
 const LIST = new Intl.ListFormat(JOURNAL_LOCALE, { type: "conjunction" });
 
+const apaDate = (date: Date): string => {
+    const { year, day, month } = Object.fromEntries(
+        DATE.formatToParts(date).map(({ type, value }) => [type, value]),
+    );
+
+    return `${year}, ${day} de ${month}`;
+};
+
+const apa7 = ({ authors, title, date, journal, permalink }: Source): string =>
+    `${LIST.format(authors)} (${date ? apaDate(date) : "s. f."}). ${title}. ${journal.name}. ${permalink}`;
+
+const journalStyle = ({ authors, title, date, journal, permalink }: Source): string => {
+    const published = date ? `, ${DATE.format(date)}` : "";
+
+    return `${authors.join("; ").toLocaleUpperCase(JOURNAL_LOCALE)}, «${title}», ${journal.name}${published}. ISSN ${journal.issn}. Disponible en: ${permalink}`;
+};
+
+// WordPress keeps one display name, so the first word is read as the given name and the rest as surnames
+const invertName = (name: string): string => {
+    const [given = "", ...surnames] = name.trim().split(/\s+/);
+
+    return `${surnames.join(" ")}, ${given.charAt(0)}.`;
+};
+
 export const toCitations = (
     { authors, title, publishedAt }: ArticleSummary,
     journal: Journal,
@@ -35,28 +59,4 @@ export const toCitations = (
         { style: "APA 7", text: apa7(source) },
         { style: journal.name, text: journalStyle(source) },
     ];
-};
-
-const apa7 = ({ authors, title, date, journal, permalink }: Source): string =>
-    `${LIST.format(authors)} (${date ? apaDate(date) : "s. f."}). ${title}. ${journal.name}. ${permalink}`;
-
-const journalStyle = ({ authors, title, date, journal, permalink }: Source): string => {
-    const published = date ? `, ${DATE.format(date)}` : "";
-
-    return `${authors.join("; ").toLocaleUpperCase(JOURNAL_LOCALE)}, «${title}», ${journal.name}${published}. ISSN ${journal.issn}. Disponible en: ${permalink}`;
-};
-
-const apaDate = (date: Date): string => {
-    const { year, day, month } = Object.fromEntries(
-        DATE.formatToParts(date).map(({ type, value }) => [type, value]),
-    );
-
-    return `${year}, ${day} de ${month}`;
-};
-
-// WordPress keeps one display name, so the first word is read as the given name and the rest as surnames
-const invertName = (name: string): string => {
-    const [given = "", ...surnames] = name.trim().split(/\s+/);
-
-    return `${surnames.join(" ")}, ${given.charAt(0)}.`;
 };

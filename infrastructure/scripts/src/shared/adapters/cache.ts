@@ -13,6 +13,16 @@ const refreshRequested = (): boolean => flag("refresh");
 
 const isEmptyList = (data: unknown): boolean => Array.isArray(data) && data.length === 0;
 
+/** Issue lists refresh the cache on every run instead of using `cached`'s TTL gate. */
+export const writeCache = <T>(key: string, data: T): void => {
+    try {
+        mkdirSync(dirname(pathFor(key)), { recursive: true });
+        writeFileSync(pathFor(key), JSON.stringify({ fetchedAt: Date.now(), data }));
+    } catch {
+        // Cache writes fail open so a successful command is not lost to storage errors.
+    }
+};
+
 /** Cache stable project and label lists for 24h; issue lists stay live because triage changes them. */
 export const cached = <T>(key: string, fetch: () => T): T => {
     const file = pathFor(key);
@@ -42,15 +52,5 @@ export const readCache = <T>(key: string): T | undefined => {
     } catch {
         // Offline cache misses return no issues.
         return undefined;
-    }
-};
-
-/** Issue lists refresh the cache on every run instead of using `cached`'s TTL gate. */
-export const writeCache = <T>(key: string, data: T): void => {
-    try {
-        mkdirSync(dirname(pathFor(key)), { recursive: true });
-        writeFileSync(pathFor(key), JSON.stringify({ fetchedAt: Date.now(), data }));
-    } catch {
-        // Cache writes fail open so a successful command is not lost to storage errors.
     }
 };

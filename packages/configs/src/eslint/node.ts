@@ -10,6 +10,7 @@ import {
     baseIgnores,
     coreIsolation,
     restrictedSyntax,
+    useBeforeDefine,
     regexp,
 } from "./lib/index.ts";
 
@@ -55,6 +56,7 @@ const createNodeConfig = (): object[] => {
         boundaries,
         coreIsolation,
         restrictedSyntax,
+        useBeforeDefine,
         regexp,
     ];
 };

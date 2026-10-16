@@ -5,6 +5,33 @@ import { UndefinedVendorError } from "#core/domain/errors";
 import { isVendorName, VENDOR_NAMES } from "#core/registry";
 import { TRANSLATIONS_API_PATH, type TranslationsConfig } from "./config";
 
+const getLocaleCodes = ({ options }: Nuxt): string[] => {
+    const locales = options._layers.flatMap<string | LocaleObject>(
+        (layer) => layer.config.i18n?.locales ?? [],
+    );
+    return [
+        ...new Set(locales.map((locale) => (typeof locale === "string" ? locale : locale.code))),
+    ];
+};
+
+const warnAboutLocales = (locales: string[], { options }: Nuxt): void => {
+    if (!locales.length) {
+        console.warn(
+            "[@monorepo/i18n] No locales declared under `i18n.locales`, so no loader was registered and nothing will translate.",
+        );
+        return;
+    }
+
+    const defaultLocale = options._layers.find((layer) => layer.config.i18n?.defaultLocale)?.config
+        .i18n?.defaultLocale;
+
+    if (defaultLocale && !locales.includes(defaultLocale)) {
+        console.warn(
+            `[@monorepo/i18n] \`i18n.defaultLocale\` is "${defaultLocale}", which is not one of the declared locales (${locales.join(", ")}).`,
+        );
+    }
+};
+
 export default defineNuxtModule<TranslationsConfig>({
     meta: { name: "@monorepo/i18n/nuxt", configKey: "translations" },
 
@@ -39,30 +66,3 @@ export default defineNuxtModule<TranslationsConfig>({
         await installModule("@nuxtjs/i18n");
     },
 });
-
-const getLocaleCodes = ({ options }: Nuxt): string[] => {
-    const locales = options._layers.flatMap<string | LocaleObject>(
-        (layer) => layer.config.i18n?.locales ?? [],
-    );
-    return [
-        ...new Set(locales.map((locale) => (typeof locale === "string" ? locale : locale.code))),
-    ];
-};
-
-const warnAboutLocales = (locales: string[], { options }: Nuxt): void => {
-    if (!locales.length) {
-        console.warn(
-            "[@monorepo/i18n] No locales declared under `i18n.locales`, so no loader was registered and nothing will translate.",
-        );
-        return;
-    }
-
-    const defaultLocale = options._layers.find((layer) => layer.config.i18n?.defaultLocale)?.config
-        .i18n?.defaultLocale;
-
-    if (defaultLocale && !locales.includes(defaultLocale)) {
-        console.warn(
-            `[@monorepo/i18n] \`i18n.defaultLocale\` is "${defaultLocale}", which is not one of the declared locales (${locales.join(", ")}).`,
-        );
-    }
-};

@@ -130,7 +130,15 @@ Node types even in a package that otherwise doesn't.
   [`lib/arrowFunctions.ts`](./src/eslint/lib/arrowFunctions.ts) — every `function` declaration,
   expression and object method becomes an arrow under `--fix`. The rule leaves a function alone
   when converting it would change behaviour: one that reads `this`, `arguments` or `new.target`, a
-  generator, or a TypeScript overload
+  generator, a TypeScript overload or assertion signature, or one the file uses at module init
+  before its declaration, where a `const` would hit the temporal dead zone
+- `@typescript-eslint/no-use-before-define` under `**/*.ts` and `**/*.vue`, from
+  [`lib/useBeforeDefine.ts`](./src/eslint/lib/useBeforeDefine.ts) — a module reads bottom-up,
+  every helper above the code that calls it. That is the one order a rule can check, and with every
+  function a `const` arrow it is also the order that can never hit the temporal dead zone at module
+  init. Types are exempt, so an `interface` may sit below its first use. The rule is scoped per
+  glob because the node factory registers `typescript-eslint` for `.ts` only, and an unscoped copy
+  crashes on JSON and `.mjs`
 - `eslint-plugin-jsonc` key sorting for `**/projects/*/*.json`, so the TMS locale files in
   [`infrastructure/translations`](../../infrastructure/translations) stay diffable. The glob matches
   that layout — `projects/<project>/<locale>.json` — not a `locales/` directory

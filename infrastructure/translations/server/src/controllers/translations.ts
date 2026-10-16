@@ -4,6 +4,9 @@ import readLocale from "../utils/readLocale.ts";
 import assertSegment from "../utils/assertSegment.ts";
 import { HTTP_BAD_REQUEST, HTTP_NOT_FOUND, HTTP_SERVER_ERROR } from "../configs/httpCodes.ts";
 
+const isMissingFile = (cause: unknown): boolean =>
+    cause instanceof Error && "code" in cause && cause.code === "ENOENT";
+
 const getTranslations: Handler = async ({ req, json }) => {
     const project = req.param("project");
     const locale = req.param("locale");
@@ -22,8 +25,5 @@ const getTranslations: Handler = async ({ req, json }) => {
         );
     }
 };
-
-const isMissingFile = (cause: unknown): boolean =>
-    cause instanceof Error && "code" in cause && cause.code === "ENOENT";
 
 export default getTranslations;

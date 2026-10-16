@@ -22,6 +22,26 @@ const NODE_DIRS = ["shared", "server", "tools"];
 // Nuxt auto-registers `<rootDir>/layers/*`, and each layer repeats the app's own directory layout
 const LAYER_SOURCES = ["layers/*/{app,server,shared}/**/*.ts", "layers/*/app/**/*.vue"];
 
+// Resolved from the app, so this runs the same copy its specs import `@nuxt/test-utils/runtime` from
+const defineNuxtProject = async (root: string, test: object) => {
+    const entry = createRequire(join(root, "package.json")).resolve("@nuxt/test-utils/config");
+    const { defineVitestProject } = (await import(
+        pathToFileURL(entry).href
+    )) as typeof import("@nuxt/test-utils/config");
+
+    // With jiti's module cache on, a TypeScript Nuxt module that installs @nuxtjs/i18n throws Node's
+    // ERR_INTERNAL_ASSERTION as an unhandled rejection, which kills Vitest and Nx's plugin worker
+    const jitiModuleCache = process.env.JITI_MODULE_CACHE;
+    process.env.JITI_MODULE_CACHE = "0";
+
+    try {
+        return await defineVitestProject({ root, test });
+    } finally {
+        if (jitiModuleCache === undefined) delete process.env.JITI_MODULE_CACHE;
+        else process.env.JITI_MODULE_CACHE = jitiModuleCache;
+    }
+};
+
 /** A `node` project for `server/`, `shared/` and `tools/`, and a `nuxt` project for `app/`, in the root and every layer. */
 const createNuxtConfig = async ({
     root,
@@ -76,26 +96,6 @@ const createNuxtConfig = async ({
             ],
         },
     });
-};
-
-// Resolved from the app, so this runs the same copy its specs import `@nuxt/test-utils/runtime` from
-const defineNuxtProject = async (root: string, test: object) => {
-    const entry = createRequire(join(root, "package.json")).resolve("@nuxt/test-utils/config");
-    const { defineVitestProject } = (await import(
-        pathToFileURL(entry).href
-    )) as typeof import("@nuxt/test-utils/config");
-
-    // With jiti's module cache on, a TypeScript Nuxt module that installs @nuxtjs/i18n throws Node's
-    // ERR_INTERNAL_ASSERTION as an unhandled rejection, which kills Vitest and Nx's plugin worker
-    const jitiModuleCache = process.env.JITI_MODULE_CACHE;
-    process.env.JITI_MODULE_CACHE = "0";
-
-    try {
-        return await defineVitestProject({ root, test });
-    } finally {
-        if (jitiModuleCache === undefined) delete process.env.JITI_MODULE_CACHE;
-        else process.env.JITI_MODULE_CACHE = jitiModuleCache;
-    }
 };
 
 export default createNuxtConfig;

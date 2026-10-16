@@ -18,16 +18,8 @@ const listingQuerySchema = v.object({
     author: v.optional(v.string()),
 });
 
-export default defineEventHandler(async (event): Promise<ArticleListing> => {
-    const query = parseListingQuery(event);
-    const index = await getArticleIndex(event);
-    const listing = toArticleListing(index, query, await toScope(event, query, index));
-
-    if (query.page > listing.totalPages)
-        throw notFound(`"page" must be between 1 and ${listing.totalPages}`);
-
-    return listing;
-});
+const notFound = (message: string) =>
+    createError({ statusCode: 404, statusMessage: "Listing not found", message });
 
 const parseListingQuery = (event: H3Event): ListingQuery => {
     const result = v.safeParse(listingQuerySchema, getQuery(event));
@@ -35,18 +27,6 @@ const parseListingQuery = (event: H3Event): ListingQuery => {
     if (!result.success) throw notFound(v.summarize(result.issues));
 
     return result.output;
-};
-
-const toScope = async (
-    event: H3Event,
-    { category, tag, author }: ListingQuery,
-    index: ArticleSummary[],
-): Promise<ListingScope | undefined> => {
-    if (category) return { kind: "category", term: await fetchTerm(event, "categories", category) };
-    if (tag) return { kind: "tag", term: await fetchTerm(event, "tags", tag) };
-    if (author) return toAuthorScope(author, index);
-
-    return undefined;
 };
 
 const fetchTerm = async (event: H3Event, resource: TermResource, slug: string) =>
@@ -61,5 +41,25 @@ const toAuthorScope = (slug: string, index: ArticleSummary[]): ListingScope => {
     return { kind: "author", author, since: articles.at(-1)?.publishedAt };
 };
 
-const notFound = (message: string) =>
-    createError({ statusCode: 404, statusMessage: "Listing not found", message });
+const toScope = async (
+    event: H3Event,
+    { category, tag, author }: ListingQuery,
+    index: ArticleSummary[],
+): Promise<ListingScope | undefined> => {
+    if (category) return { kind: "category", term: await fetchTerm(event, "categories", category) };
+    if (tag) return { kind: "tag", term: await fetchTerm(event, "tags", tag) };
+    if (author) return toAuthorScope(author, index);
+
+    return undefined;
+};
+
+export default defineEventHandler(async (event): Promise<ArticleListing> => {
+    const query = parseListingQuery(event);
+    const index = await getArticleIndex(event);
+    const listing = toArticleListing(index, query, await toScope(event, query, index));
+
+    if (query.page > listing.totalPages)
+        throw notFound(`"page" must be between 1 and ${listing.totalPages}`);
+
+    return listing;
+});
