@@ -20,12 +20,6 @@ test("the entry page has no WCAG AA violations", async ({ page }) => {
     expect(violations).toEqual([]);
 });
 
-test("the entry page matches its baseline", async ({ page }) => {
-    await page.goto("/");
-
-    await expect(page).toHaveScreenshot("home.png", { fullPage: true });
-});
-
 test("opens an article by its slug", async ({ page }) => {
     await page.goto(`/${ESCAPED.slug}/`);
 

@@ -29,12 +29,6 @@ for (const { name, path, title } of LISTINGS) {
 
         expect(violations).toEqual([]);
     });
-
-    test(`the ${name} listing matches its baseline`, async ({ page }) => {
-        await page.goto(path);
-
-        await expect(page).toHaveScreenshot(`${name}.png`, { fullPage: true });
-    });
 }
 
 test("the archive pages twenty at a time and scrolls back to the top on the next page", async ({

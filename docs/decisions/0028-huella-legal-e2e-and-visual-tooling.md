@@ -6,6 +6,9 @@ decision: accepted
 
 # 🧭 Huella Legal's e2e runs in-app in one pinned image, and coverage gates `test`
 
+> **Screenshot baselines were removed in #241.** Everything below about baselines describes the
+> setup that was dropped; the rest stands. See [Baselines removed](#-baselines-removed).
+
 ## Context
 
 The [implementation plan](../plans/huella-legal-implementation.md) gives each page ticket a
@@ -127,6 +130,23 @@ vendor, and that is its only e2e cost.
 - Every action in `ci.yml` is pinned by SHA with a version comment. `actions/upload-artifact` is
   the first new one, and it follows suit.
 
+## 🧹 Baselines removed
+
+#241 dropped every `toHaveScreenshot`, the PNGs under `e2e/__screenshots__/`, and the preset's
+`snapshotPathTemplate` and `ignoreSnapshots`. The specs' behaviour and axe assertions, the pinned
+image and the `.playwright/` artifact stay.
+
+| What happened | Why it outweighed the value |
+| --- | --- |
+| #192 and #240 each ended in baseline commits, and #241 failed CI on 12 missing and 3 changed ones | A new spec has no baseline by construction, so this was the normal path, not an accident |
+| The 3 changed ones came from `e2e/fakes.ts` growing for the listings | The seeded factories shift every value after a new call, so one page's data moved another page's screenshot |
+| Each fix needed a CI round trip to fetch the artifact | Baselines can't be made on a Mac |
+| The 390 px article measured three heights in one assertion | Full-page captures of a long page weren't stable |
+
+The consequence above already conceded they don't prove parity with the lab. While the design still
+moves, nearly every diff is intended, so a failure got the new PNG committed unread. Bringing them
+back is a row in the app README's Deliberately deferred table.
+
 ## Confirmation
 
 | Claim | Check |
@@ -137,7 +157,7 @@ vendor, and that is its only e2e cost.
 | E2E files don't feed the build | Touch `apps/huella-legal/e2e/upstream.ts`, then `pnpm exec nx build @monorepo/huella-legal` reads from cache |
 | No browser install anywhere | `git grep -n "playwright install" -- .github apps` returns nothing |
 | Image and package agree | The tag in `grep -n "playwright:v" .github/workflows/ci.yml` equals `@playwright/test` in `apps/huella-legal/package.json` |
-| No fixture files | `git ls-files apps/huella-legal/e2e \| grep -v "\.ts$\|__screenshots__/.*\.png$"` returns nothing |
+| No fixture files | `git ls-files apps/huella-legal/e2e \| grep -v "\.ts$"` returns nothing |
 | E2E files typecheck | A type error in `e2e/upstream.ts` fails `pnpm exec nx typecheck @monorepo/huella-legal` |
 | CI reuses the build | The `e2e` job's log shows `@monorepo/huella-legal:build` as `[remote cache]` |
 | Docs agree | `pnpm docs:map --check` passes, and the FEATURES row for `pnpm e2e` has a doc link |

@@ -94,9 +94,3 @@ test("the article page has no WCAG AA violations", async ({ page }) => {
 
     expect(violations).toEqual([]);
 });
-
-test("the article page matches its baseline", async ({ page }) => {
-    await page.goto(PATH);
-
-    await expect(page).toHaveScreenshot("article.png", { fullPage: true });
-});

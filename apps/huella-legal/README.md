@@ -318,7 +318,7 @@ Three layers, each proving something the others can't see.
 
 [`vitest.config.ts`](./vitest.config.ts) and [`playwright.config.ts`](./playwright.config.ts) are
 wrappers over the shared presets in [`@monorepo/configs`](../../packages/configs/README.md), which
-own the project split, where coverage lives, the widths and the baseline rules. What stays here is
+own the project split, where coverage lives and the widths. What stays here is
 what only this app knows: the thresholds (lines and statements 90, functions 85, branches 80), and
 `app/lab/**` and `app/pages/**` kept out of the denominator, because the lab never ships and pages
 are Playwright's. `test` runs without coverage, so the thresholds only bite on `pnpm test:coverage`.
@@ -348,14 +348,14 @@ asserts on, plus the committed locale JSON in
 packages turn those into each vendor's wire format, so the app never writes a WordPress or Tolgee
 shape itself. There are no fixture files.
 
-Each spec runs an axe scan against WCAG 2.1 AA and takes screenshots once per width. **Baselines are
-written only in CI**, inside `mcr.microsoft.com/playwright:v1.63.0-noble`, which is why
-`ignoreSnapshots` is on everywhere else. A Mac can't produce Linux baselines.
+Each spec asserts on behaviour and runs an axe scan against WCAG 2.1 AA, once per width. **There
+are no screenshot baselines**: while the pages are still being designed nearly every diff is
+intended, so they failed every page PR and got accepted unread. CI runs the specs inside
+`mcr.microsoft.com/playwright:v1.63.0-noble`, and on failure uploads `.playwright/` as the
+`playwright` artifact.
 
 | Situation | What to do |
 | --- | --- |
-| New screenshot, no baseline | CI fails and uploads the `playwright` artifact. Commit its PNG under `e2e/__screenshots__/` |
-| Changed screenshot | Commit the `-actual.png` from the artifact's `.playwright/` in place of the old baseline |
 | Bumping `@playwright/test` | Move the image tag in [`ci.yml`](../../.github/workflows/ci.yml) in the same PR. Dependabot sends it alone for that reason |
 | Running locally | Needs a Chromium that matches `@playwright/test`'s version in Playwright's browser cache. Nothing in the repo downloads one |
 | A page needs new data | Add the `Entry` or `Term` to `e2e/fakes.ts`. A route the fakes don't serve is a change to the package's `testing` entry, with its spec |
@@ -366,7 +366,8 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 
 | Later need | What changes |
 | --- | --- |
-| Firefox or WebKit | Another project per browser in the configs preset, and every baseline tripled. Linux WebKit is not Safari, so it won't stand in for iOS readers |
+| Visual regression | Once the pages stop changing, `toHaveScreenshot` on the shell alone, where a change nobody meant shows on every page. Baselines have to come from CI's image, since a Mac can't render Linux ones, and only CI should write them. [0028](../../docs/decisions/0028-huella-legal-e2e-and-visual-tooling.md) has the setup that was removed |
+| Firefox or WebKit | Another project per browser in the configs preset. Linux WebKit is not Safari, so it won't stand in for iOS readers |
 | A per-glob threshold on view models | A3 adds `shared/**` and `layers/*/app/utils/**` at 95 alongside the mappers it creates |
 | Shared client state | `@pinia/nuxt`, with `pinia.storesDirs` widened to `./layers/*/app/stores/**`: without it a layer's store isn't picked up, and the failure looks like a missing composable. Stories then need Pinia in the `setup` in `.storybook/preview.ts` |
 | Authors, categories, publish and search pages | Replace the 404 bodies of the four [link-holding pages](#-links); their names and paths stay |

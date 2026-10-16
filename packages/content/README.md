@@ -270,7 +270,7 @@ const entry = fakeEntry({ title: "La &#8220;prueba&#8221;", terms: [fakeTerm({ s
 | `faker` | The seeded `fakerES` instance itself, for any other value a spec or an e2e data file needs |
 
 They use `fakerES` with a fixed seed and reference date, so every run builds the same values and a
-screenshot baseline stays still. The order of calls decides the values, so adding a call moves every
+failure reproduces. The order of calls decides the values, so adding a call moves every
 value generated after it. Draw other values from the exported `faker` rather than a consumer's own
 import, which is a separate, unseeded instance whenever the two resolve to different copies. Slugs come out the way WordPress writes them. `msw` and `@faker-js/faker`
 are optional peers, like the Nuxt entry's dependencies.
