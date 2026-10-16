@@ -18,6 +18,21 @@ import {
 } from "#core/domain/errors";
 import { OfetchHttpClient } from "#core/adapters/clients/OfetchHttpClient";
 
+function assertLocale(locale: string | undefined, locales: string[]): asserts locale is string {
+    if (locale && locales.includes(locale)) return;
+
+    throw createError(new UndefinedLocaleError(locale));
+}
+
+const getKey = (event: H3Event<EventHandlerRequest>) => {
+    const locale = getRouterParam(event, "locale");
+    const { vendor, locales } = useRuntimeConfig(event).translations as TranslationsConfig;
+
+    assertLocale(locale, locales);
+
+    return translationsKey(vendor, locale);
+};
+
 const cacheOptions: CachedEventHandlerOptions<TranslationMap> = {
     name: "translations",
     group: "i18n",
@@ -25,6 +40,18 @@ const cacheOptions: CachedEventHandlerOptions<TranslationMap> = {
     staleMaxAge: TRANSLATIONS_STALE_MAX_AGE,
     getKey,
     shouldBypassCache: () => import.meta.dev === true,
+};
+
+const rethrowAsHttpError = (cause: unknown): never => {
+    if (cause instanceof TranslationsError) throw createError(cause);
+
+    throw cause;
+};
+
+const throwUnavailableError = (cause: unknown, locale: string): never => {
+    if (cause instanceof TranslationsError) throw createError(cause);
+
+    throw createError(new TranslationsUnavailableError(locale, cause));
 };
 
 export default defineCachedEventHandler<EventHandlerRequest, Promise<TranslationMap>>(
@@ -43,30 +70,3 @@ export default defineCachedEventHandler<EventHandlerRequest, Promise<Translation
     },
     cacheOptions,
 );
-
-function assertLocale(locale: string | undefined, locales: string[]): asserts locale is string {
-    if (locale && locales.includes(locale)) return;
-
-    throw createError(new UndefinedLocaleError(locale));
-}
-
-const rethrowAsHttpError = (cause: unknown): never => {
-    if (cause instanceof TranslationsError) throw createError(cause);
-
-    throw cause;
-};
-
-const throwUnavailableError = (cause: unknown, locale: string): never => {
-    if (cause instanceof TranslationsError) throw createError(cause);
-
-    throw createError(new TranslationsUnavailableError(locale, cause));
-};
-
-function getKey(event: H3Event<EventHandlerRequest>) {
-    const locale = getRouterParam(event, "locale");
-    const { vendor, locales } = useRuntimeConfig(event).translations as TranslationsConfig;
-
-    assertLocale(locale, locales);
-
-    return translationsKey(vendor, locale);
-}

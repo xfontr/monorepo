@@ -17,6 +17,16 @@ const CLASS_MAP: Record<string, string> = {
 
 const BIBLIOGRAPHY_HEADING = /^(?:bibliografia|fuentes|referencias)(?:-bibliograficas)?$/;
 
+const withoutClassLists = (attributes: NonNullable<Schema["attributes"]>): Schema["attributes"] =>
+    Object.fromEntries(
+        Object.entries(attributes).map(([tagName, definitions]) => [
+            tagName,
+            definitions.filter(
+                (definition) => !(Array.isArray(definition) && definition[0] === "className"),
+            ),
+        ]),
+    );
+
 const SCHEMA: Schema = {
     ...defaultSchema,
     clobber: [],
@@ -98,14 +108,3 @@ const splitLead = (nodes: RootContent[]): [RootContent[], RootContent[]] => {
 
     return [nodes.slice(0, end), nodes.slice(end)];
 };
-
-function withoutClassLists(attributes: NonNullable<Schema["attributes"]>): Schema["attributes"] {
-    return Object.fromEntries(
-        Object.entries(attributes).map(([tagName, definitions]) => [
-            tagName,
-            definitions.filter(
-                (definition) => !(Array.isArray(definition) && definition[0] === "className"),
-            ),
-        ]),
-    );
-}
