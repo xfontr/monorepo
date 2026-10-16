@@ -10,9 +10,9 @@ const global = {
     },
 };
 
-const ANA = { ...fakeAuthor({ name: "Ana de la Torre" }), to: "/autores/ana" };
-const LUIS = { ...fakeAuthor({ name: "Luis Martín" }), to: "/autores/luis" };
-const MARTA = { ...fakeAuthor({ name: "Marta Gil" }), to: "/autores/marta" };
+const ANA = { ...fakeAuthor({ name: "Ana de la Torre" }), to: "/colaboradores/ana" };
+const LUIS = { ...fakeAuthor({ name: "Luis Martín" }), to: "/colaboradores/luis" };
+const MARTA = { ...fakeAuthor({ name: "Marta Gil" }), to: "/colaboradores/marta" };
 
 describe("byline", () => {
     it('joins names the Spanish way, with commas and a final "y"', async () => {
@@ -30,8 +30,8 @@ describe("byline", () => {
         const links = wrapper.findAll("a").map((link) => [link.text(), link.attributes("href")]);
 
         expect(links).toEqual([
-            ["Ana de la Torre", "/autores/ana"],
-            ["Luis Martín", "/autores/luis"],
+            ["Ana de la Torre", "/colaboradores/ana"],
+            ["Luis Martín", "/colaboradores/luis"],
         ]);
     });
 

@@ -15,7 +15,7 @@ const AUTHOR = fakeAuthor({ name: "María José de la Vega", bio: faker.lorem.se
 describe("author card", () => {
     it("labels the section with the author's name", async () => {
         const wrapper = await mountSuspended(ArticleAuthorCard, {
-            props: { author: AUTHOR, to: "/autores/maria" },
+            props: { author: AUTHOR, to: "/colaboradores/maria" },
             global,
         });
 
@@ -29,7 +29,7 @@ describe("author card", () => {
 
     it("hides the initials from assistive tech, since the name follows them", async () => {
         const wrapper = await mountSuspended(ArticleAuthorCard, {
-            props: { author: AUTHOR, to: "/autores/maria" },
+            props: { author: AUTHOR, to: "/colaboradores/maria" },
             global,
         });
 
@@ -38,19 +38,19 @@ describe("author card", () => {
 
     it("counts the author's publications with the count as the plural", async () => {
         const wrapper = await mountSuspended(ArticleAuthorCard, {
-            props: { author: AUTHOR, to: "/autores/maria", count: 7 },
+            props: { author: AUTHOR, to: "/colaboradores/maria", count: 7 },
             global,
         });
 
         const link = wrapper.find("a");
 
-        expect(link.attributes("href")).toBe("/autores/maria");
+        expect(link.attributes("href")).toBe("/colaboradores/maria");
         expect(link.text()).toBe('t(authorCard.profileCount, {"count":7})');
     });
 
     it("still links to the profile when the count isn't known", async () => {
         const wrapper = await mountSuspended(ArticleAuthorCard, {
-            props: { author: AUTHOR, to: "/autores/maria" },
+            props: { author: AUTHOR, to: "/colaboradores/maria" },
             global,
         });
 
@@ -60,7 +60,7 @@ describe("author card", () => {
     // 9 of 42 authors have no bio
     it("leaves out the bio paragraph for an author without one", async () => {
         const wrapper = await mountSuspended(ArticleAuthorCard, {
-            props: { author: { ...AUTHOR, bio: undefined }, to: "/autores/maria" },
+            props: { author: { ...AUTHOR, bio: undefined }, to: "/colaboradores/maria" },
             global,
         });
 

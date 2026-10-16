@@ -9,7 +9,7 @@ const global = {
     },
 };
 
-const to = (page: number) => `/listado/${page}`;
+const to = (page: number) => `/publicaciones?page=${page}`;
 
 const mountAt = async (page: number, total = 48) =>
     mountSuspended(Pagination, { props: { page, total, perPage: 7, to }, global });
@@ -29,11 +29,11 @@ describe("pagination", () => {
             .map((link) => [link.text(), link.attributes("href")]);
 
         expect(pages).toEqual([
-            ["1", "/listado/1"],
-            ["9", "/listado/9"],
-            ["10", "/listado/10"],
-            ["11", "/listado/11"],
-            ["20", "/listado/20"],
+            ["1", "/publicaciones?page=1"],
+            ["9", "/publicaciones?page=9"],
+            ["10", "/publicaciones?page=10"],
+            ["11", "/publicaciones?page=11"],
+            ["20", "/publicaciones?page=20"],
         ]);
     });
 
@@ -55,7 +55,7 @@ describe("pagination", () => {
         expect(previous.element.tagName).toBe("BUTTON");
         expect(previous.attributes("disabled")).toBeDefined();
         expect(wrapper.find("[aria-label='t(pagination.next.label)']").attributes("href")).toBe(
-            "/listado/2",
+            "/publicaciones?page=2",
         );
     });
 
@@ -67,7 +67,7 @@ describe("pagination", () => {
         expect(next.element.tagName).toBe("BUTTON");
         expect(next.attributes("disabled")).toBeDefined();
         expect(wrapper.find("[aria-label='t(pagination.previous.label)']").attributes("href")).toBe(
-            "/listado/6",
+            "/publicaciones?page=6",
         );
     });
 

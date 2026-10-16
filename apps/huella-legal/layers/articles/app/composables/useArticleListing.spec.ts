@@ -1,5 +1,5 @@
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, nextTick, ref, type Ref } from "vue";
 import { useRouter, type RouteLocationRaw, type Router } from "vue-router";
 import type { ArticleListing } from "../../shared/types/ArticleListing";
@@ -74,6 +74,9 @@ const listingAt = async (route: string, scope?: Parameters<typeof useArticleList
         href: (to: RouteLocationRaw) => router.resolve(to).href,
     });
 };
+
+// Navigating there imports the page's whole graph, ~2 s cold locally and past 5 s on CI
+beforeAll(() => import("../pages/articles/index.vue"));
 
 beforeEach(() => {
     vi.clearAllMocks();
