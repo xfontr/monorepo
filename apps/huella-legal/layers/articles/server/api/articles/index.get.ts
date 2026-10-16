@@ -56,9 +56,10 @@ const toAuthorScope = (slug: string, index: ArticleSummary[]): ListingScope => {
     const articles = index.filter(({ authors }) => authors.some((author) => author.slug === slug));
     const author = articles[0]?.authors.find((candidate) => candidate.slug === slug);
 
-    if (!author) throw createError({ statusCode: 404, statusMessage: `No author "${slug}"` });
+    if (!author) throw notFound(`No author "${slug}"`);
 
     return { kind: "author", author, since: articles.at(-1)?.publishedAt };
 };
 
-const notFound = (statusMessage: string) => createError({ statusCode: 404, statusMessage });
+const notFound = (message: string) =>
+    createError({ statusCode: 404, statusMessage: "Listing not found", message });

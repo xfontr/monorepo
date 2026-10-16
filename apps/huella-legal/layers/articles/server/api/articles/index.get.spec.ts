@@ -64,6 +64,19 @@ describe("GET /api/articles", () => {
         await expect(handler({})).rejects.toMatchObject({ statusCode: 404 });
     });
 
+    // h3 mangles anything else in a status message and logs a warning for every such request
+    it("keeps the status message printable ASCII and puts what was wrong in the message", async () => {
+        nitro.query = { page: "0", sort: "más" };
+
+        const error = (await handler({}).catch((caught: unknown) => caught)) as {
+            statusMessage: string;
+            message: string;
+        };
+
+        expect(error.statusMessage).toMatch(/^[\t\x20-\x7E]*$/);
+        expect(error.message).toContain("page");
+    });
+
     it("reads a subject's own term, so the page has its description and decoded name", async () => {
         nitro.query = { category: "derecho-civil" };
         nitro.getTerm.mockResolvedValue({ ...CIVIL, description: "<p>Contratos</p>" });
