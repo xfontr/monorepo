@@ -1,10 +1,22 @@
 import AxeBuilder from "@axe-core/playwright";
+import type { Page } from "@playwright/test";
 import { expect, NOT_FOUND_DOCUMENT, test } from "@monorepo/configs/playwright/test";
 
 const WCAG_AA = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
 // The header switches to the slideover below Tailwind's `lg`
 const DESKTOP = 1024;
+
+const openMenu = async (page: Page) => {
+    const menu = page.getByRole("dialog", { name: "Menú" });
+
+    await expect(async () => {
+        if (!(await menu.isVisible()))
+            await page.getByRole("button", { name: "Abrir menú" }).click();
+
+        await expect(menu).toBeVisible({ timeout: 500 });
+    }).toPass();
+};
 
 test("the skip link is the first stop and moves focus into the main landmark", async ({ page }) => {
     await page.goto("/");
@@ -35,11 +47,7 @@ test("the header reaches every section, inline on desktop and through the menu b
 
     const wide = (page.viewportSize()?.width ?? 0) >= DESKTOP;
 
-    if (!wide) {
-        await page.getByRole("button", { name: "Abrir menú" }).click();
-
-        await expect(page.getByRole("dialog", { name: "Menú" })).toBeVisible();
-    }
+    if (!wide) await openMenu(page);
 
     const nav = wide
         ? page.getByRole("banner").getByRole("navigation", { name: "Principal" })
@@ -83,8 +91,7 @@ test("the open mobile menu has no WCAG AA violations", async ({ page }) => {
     test.skip((page.viewportSize()?.width ?? 0) >= DESKTOP, "The menu only exists below lg");
 
     await page.goto("/");
-    await page.getByRole("button", { name: "Abrir menú" }).click();
-    await expect(page.getByRole("dialog")).toBeVisible();
+    await openMenu(page);
 
     const { violations } = await new AxeBuilder({ page }).withTags(WCAG_AA).analyze();
 
