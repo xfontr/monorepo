@@ -1,4 +1,5 @@
 import { wordpressHandlers } from "@monorepo/content/testing";
+import { recordServerConsole } from "@monorepo/configs/playwright/server";
 import { tolgeeHandlers } from "@monorepo/i18n/testing";
 import { setupServer } from "msw/node";
 import { CONTENT, TRANSLATIONS } from "./fakes.ts";
@@ -8,3 +9,5 @@ setupServer(
     ...wordpressHandlers(process.env.NUXT_CONTENT_VENDOR_BASE_URL ?? "", CONTENT),
     ...tolgeeHandlers(process.env.NUXT_TRANSLATIONS_VENDOR_BASE_URL ?? "", TRANSLATIONS),
 ).listen({ onUnhandledFrame: "error" });
+
+recordServerConsole();

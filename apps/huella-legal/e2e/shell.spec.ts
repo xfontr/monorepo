@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, NOT_FOUND_DOCUMENT, test } from "@monorepo/configs/playwright/test";
 
 const WCAG_AA = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
@@ -53,24 +53,30 @@ test("the header reaches every section, inline on desktop and through the menu b
     ]);
 });
 
-test("an unknown path answers 404 with the not-found design inside the shell", async ({ page }) => {
-    const response = await page.goto("/no-existe/");
+test.describe("the not-found page", () => {
+    test.use({ allowedConsole: [NOT_FOUND_DOCUMENT] });
 
-    expect(response?.status()).toBe(404);
-    await expect(page.getByRole("banner")).toBeVisible();
-    await expect(page.getByRole("contentinfo")).toBeVisible();
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-        "Esta página no existe o ha cambiado de dirección.",
-    );
-    await expect(page).toHaveTitle("Error 404");
-});
+    test("an unknown path answers 404 with the not-found design inside the shell", async ({
+        page,
+    }) => {
+        const response = await page.goto("/no-existe/");
 
-test("the not-found page has no WCAG AA violations", async ({ page }) => {
-    await page.goto("/no-existe/");
+        expect(response?.status()).toBe(404);
+        await expect(page.getByRole("banner")).toBeVisible();
+        await expect(page.getByRole("contentinfo")).toBeVisible();
+        await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+            "Esta página no existe o ha cambiado de dirección.",
+        );
+        await expect(page).toHaveTitle("Error 404");
+    });
 
-    const { violations } = await new AxeBuilder({ page }).withTags(WCAG_AA).analyze();
+    test("the not-found page has no WCAG AA violations", async ({ page }) => {
+        await page.goto("/no-existe/");
 
-    expect(violations).toEqual([]);
+        const { violations } = await new AxeBuilder({ page }).withTags(WCAG_AA).analyze();
+
+        expect(violations).toEqual([]);
+    });
 });
 
 test("the open mobile menu has no WCAG AA violations", async ({ page }) => {
