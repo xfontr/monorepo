@@ -46,11 +46,19 @@ instruments files a test actually imported, so an untested file would vanish fro
 of counting as 0%.
 
 Both presets also carry one `globalSetup`,
-[`prepareNuxt.mjs`](./src/vitest/prepareNuxt.mjs): in a project with a `nuxt.config.ts` and no
+[`prepareNuxt.mjs`](./src/vitest/setup/prepareNuxt.mjs): in a project with a `nuxt.config.ts` and no
 `.nuxt`, it runs `nuxi prepare` before anything is transformed, because a Nuxt app's `tsconfig.json` is
 `files: []` plus references into that directory and every file fails to load while it's missing. It
 returns immediately everywhere else, so no project has to opt in or out. It is the one `.mjs` file
 here, and has to be: a `.ts` setup file is transformed by the pipeline it exists to repair.
+
+Every preset also carries one setup file, [`consoleGuard.ts`](./src/vitest/setup/consoleGuard.ts): **any
+console output fails the test that produced it**, or the whole file when it happened while the file
+was collected. CI never prints a passing task's output, so a warning that doesn't fail a test is a
+warning nobody reads. A test that expects output stubs it with
+`vi.spyOn(console, "warn").mockImplementation(() => {})` and asserts on the spy. The guard restores
+every spy after each test, so a stub never outlives it. Vue's `<Suspense>` notice is the one
+exemption. [`0032`](../../docs/decisions/0032-console-output-policy.md) has the policy.
 
 **Vitest for a Nuxt app** — `vitest.config.ts`:
 
@@ -66,7 +74,7 @@ Nuxt auto-registers, and the layers' sources count towards coverage. The options
 | --- | --- |
 | `root` | The app root, `import.meta.dirname` |
 | `nodeSpecs` | Specs under `app/` that need no Nuxt runtime; they move to the `node` project |
-| `setupFiles` | Setup files for the `nuxt` project only, run after the Nuxt entry registers its boot but before it runs |
+| `setupFiles` | Setup files for the `nuxt` project only, after the console guard. They run after the Nuxt entry registers its boot but before it runs |
 | `coverageExclude` | Paths kept out of the denominator |
 | `thresholds` | Vitest's coverage thresholds. They only bite on a `--coverage` run |
 
@@ -89,14 +97,27 @@ Nuxt auto-registers, and the layers' sources count towards coverage. The options
 ```ts
 import { playwright } from "@monorepo/configs";
 
-export default playwright.createConfig({ port: 4310, command: "node .output/server/index.mjs", env: { … } });
+export default playwright.createConfig({
+    port: 4310,
+    command: "node --import ./e2e/server.ts .output/server/index.mjs",
+    env: { … },
+});
 ```
 
 Chromium at 390, 768 and 1280 px, one project per width. Specs live in `e2e/` and output in
 `.playwright/`. There are no screenshot baselines, for the reason
-[Huella Legal's README](../../apps/huella-legal/README.md#-e2e) gives. The factory returns a plain
-object and only imports `@playwright/test`'s types, so the runner's own copy is the only one ever
-loaded. The app installs `@playwright/test` at exactly the version in CI's image tag.
+[Huella Legal's README](../../apps/huella-legal/README.md#-e2e) gives. `@playwright/test` is a
+`catalog:` entry, pinned to the version in CI's image tag, so the app and this package resolve the
+same copy; a second one fails every spec with "Requiring @playwright/test second time".
+
+The preset also owns the console half of [`0032`](../../docs/decisions/0032-console-output-policy.md):
+
+| Piece | The app's side |
+| --- | --- |
+| [`test.ts`](./src/playwright/test.ts) | Specs import `test`, `expect` and `NOT_FOUND_DOCUMENT` from `@monorepo/configs/playwright/test`. A test fails on any browser console message or page error its `allowedConsole` patterns don't match |
+| [`server.ts`](./src/playwright/server.ts) | The `node --import` preload calls `recordServerConsole()` from `@monorepo/configs/playwright/server`, a subpath so the Nitro process never loads the ESLint and Vitest halves of the barrel |
+| [`teardown.ts`](./src/playwright/teardown.ts) | Nothing: `createConfig` sets it as `globalTeardown` and passes the log path in `E2E_SERVER_CONSOLE`. It fails the run on anything the server logged, and on a missing log, which means the preload never called the recorder |
+| [`e2eFixture.ts`](./src/eslint/lib/e2eFixture.ts) | Nothing: both ESLint presets forbid importing `test` from `@playwright/test` in `e2e/**/*.spec.ts` |
 
 **TypeScript** — `tsconfig.json`:
 
@@ -143,6 +164,10 @@ Node types even in a package that otherwise doesn't.
   [`infrastructure/translations`](../../infrastructure/translations) stay diffable. The glob matches
   that layout — `projects/<project>/<locale>.json` — not a `locales/` directory
 - `@vitest/eslint-plugin` for `**/*.spec.ts`
+- `no-console` everywhere but specs, from [`lib/console.ts`](./src/eslint/lib/console.ts). The goal
+  is that no log lands by mistake, so a deliberate one opts out on its own line,
+  `// eslint-disable-next-line no-console -- <reason>`, and never per file or folder: that would wave
+  the next accidental log through too. The rule flags every `console.x` reference, not only calls
 - `eslint-plugin-regexp` (`flat/recommended`) — ESLint core does not read inside a regex literal, and
   this repo parses markdown, commit subjects and command output with them. It catches super-linear
   backtracking, dead alternatives and unread capturing groups; [`0013`](../../docs/decisions/0013-linter-coverage.md)

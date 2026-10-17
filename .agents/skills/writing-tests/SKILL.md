@@ -9,7 +9,7 @@ One recipe. None of it is configured per project — every `vitest.config.ts` in
 on [`@monorepo/configs`](../../../packages/configs/src/vitest/node.ts), so the conventions below are
 the whole of what makes a spec fit in.
 
-## The two things that break first
+## The three things that break first
 
 - **`globals: false`.** Import `describe`, `it`, `expect` and `vi` from `vitest` in every file. A
   spec written against the ambient globals fails to typecheck, not to run, so the error arrives from
@@ -22,6 +22,12 @@ the whole of what makes a spec fit in.
   incidental value (a bio, a heading, a paragraph) comes from the same entry's seeded `faker`. The one
   exception is an app's `e2e/`: Playwright specs, the `server.ts` MSW preload and its `fakes.ts` data sit there, since
   they test the built app rather than a file.
+- **Console output fails the spec.** The presets' setup file records every `console` call and throws
+  after the test, so expected output is stubbed and asserted on:
+  `vi.spyOn(console, "warn").mockImplementation(() => {})`. The guard restores every spy after each
+  test. Playwright specs import `test` from `@monorepo/configs/playwright/test`, which fails on browser
+  output.
+  [`0032`](../../../docs/decisions/0032-console-output-policy.md) has the policy.
 
 ## Titles name the failure, not the function
 

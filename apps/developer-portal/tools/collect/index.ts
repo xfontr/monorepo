@@ -10,6 +10,11 @@ import { collectScorecards } from "./scorecards.ts";
 import { SCHEMA_VERSION, SNAPSHOT_DIR } from "../lib/paths.ts";
 import { git, tryRun } from "../lib/run.ts";
 
+// eslint-disable-next-line no-console -- each collector's result line is this CLI's output
+const print = (line: string) => console.log(line);
+// eslint-disable-next-line no-console -- a failed collector is reported on stderr
+const printError = (line: string) => console.error(line);
+
 const write = async (name: string, value: unknown): Promise<void> => {
     await writeFile(
         resolve(SNAPSHOT_DIR, `${name}.json`),
@@ -43,7 +48,7 @@ const main = async (): Promise<void> => {
             artifacts,
         } satisfies Manifest);
 
-        console.error(`✗ projects — ${graph.error}`);
+        printError(`✗ projects — ${graph.error}`);
         process.exitCode = 1;
 
         return;
@@ -51,7 +56,7 @@ const main = async (): Promise<void> => {
 
     await write("projects", graph.value);
     artifacts.projects = { generatedAt, ok: true };
-    console.log(`✓ projects — ${graph.value.projects.length} projects`);
+    print(`✓ projects — ${graph.value.projects.length} projects`);
 
     const coverage = await tryRun(() => collectCoverage(graph.value.projects, generatedAt));
 
@@ -60,12 +65,10 @@ const main = async (): Promise<void> => {
         artifacts.coverage = { generatedAt, ok: true };
 
         const collected = coverage.value.projects.filter((project) => project.collected).length;
-        console.log(
-            `✓ coverage — ${collected}/${coverage.value.projects.length} projects collected`,
-        );
+        print(`✓ coverage — ${collected}/${coverage.value.projects.length} projects collected`);
     } else {
         artifacts.coverage = { generatedAt, ok: false, error: coverage.error };
-        console.error(`✗ coverage — ${coverage.error}`);
+        printError(`✗ coverage — ${coverage.error}`);
     }
 
     const metrics = await tryRun(() =>
@@ -81,10 +84,10 @@ const main = async (): Promise<void> => {
     if (metrics.ok) {
         await write("metrics", metrics.value);
         artifacts.metrics = { generatedAt, ok: true };
-        console.log(`✓ metrics — ${metrics.value.invariantFindings.length} invariant findings`);
+        print(`✓ metrics — ${metrics.value.invariantFindings.length} invariant findings`);
     } else {
         artifacts.metrics = { generatedAt, ok: false, error: metrics.error };
-        console.error(`✗ metrics — ${metrics.error}`);
+        printError(`✗ metrics — ${metrics.error}`);
     }
 
     // Independent of the project graph, so a failure here never blocks coverage or metrics.
@@ -93,12 +96,12 @@ const main = async (): Promise<void> => {
     if (deps.ok) {
         await write("deps", deps.value);
         artifacts.deps = { generatedAt, ok: true };
-        console.log(
+        print(
             `✓ deps — ${deps.value.advisories.length} advisories, ${deps.value.outdated?.length ?? 0} outdated`,
         );
     } else {
         artifacts.deps = { generatedAt, ok: false, error: deps.error };
-        console.error(`✗ deps — ${deps.error}`);
+        printError(`✗ deps — ${deps.error}`);
     }
 
     const docs = await tryRun(() => collectDocs(generatedAt));
@@ -106,12 +109,12 @@ const main = async (): Promise<void> => {
     if (docs.ok) {
         await write("docs", docs.value);
         artifacts.docs = { generatedAt, ok: true };
-        console.log(
+        print(
             `✓ docs — ${docs.value.pages.length} pages, ${docs.value.brokenLinkCount} broken links`,
         );
     } else {
         artifacts.docs = { generatedAt, ok: false, error: docs.error };
-        console.error(`✗ docs — ${docs.error}`);
+        printError(`✗ docs — ${docs.error}`);
     }
 
     const scorecards = await tryRun(() => collectScorecards(generatedAt));
@@ -121,12 +124,10 @@ const main = async (): Promise<void> => {
         artifacts.scorecards = { generatedAt, ok: true };
 
         const unparsed = scorecards.value.reviews.filter((review) => review.parseError).length;
-        console.log(
-            `✓ scorecards — ${scorecards.value.reviews.length} reviews, ${unparsed} unparsed`,
-        );
+        print(`✓ scorecards — ${scorecards.value.reviews.length} reviews, ${unparsed} unparsed`);
     } else {
         artifacts.scorecards = { generatedAt, ok: false, error: scorecards.error };
-        console.error(`✗ scorecards — ${scorecards.error}`);
+        printError(`✗ scorecards — ${scorecards.error}`);
     }
 
     // Written last so its presence means the run finished, however many collectors failed.
@@ -138,7 +139,7 @@ const main = async (): Promise<void> => {
         artifacts,
     } satisfies Manifest);
 
-    console.log(`\nSnapshot written to ${SNAPSHOT_DIR}`);
+    print(`\nSnapshot written to ${SNAPSHOT_DIR}`);
 };
 
 await main();

@@ -11,6 +11,8 @@ import { restrictedSyntax, restrictedSyntaxVue } from "./restrictedSyntax.ts";
 import templateI18n from "./templateI18n.ts";
 import templateCalls from "./templateCalls.ts";
 import { useBeforeDefine, useBeforeDefineVue } from "./useBeforeDefine.ts";
+import noConsole from "./console.ts";
+import e2eFixture from "./e2eFixture.ts";
 
 const regexp: object = regexpPlugin.configs["flat/recommended"];
 
@@ -30,5 +32,7 @@ export {
     templateCalls,
     useBeforeDefine,
     useBeforeDefineVue,
+    noConsole,
+    e2eFixture,
     regexp,
 };
