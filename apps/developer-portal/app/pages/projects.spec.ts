@@ -1,5 +1,4 @@
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
-import { mount } from "@vue/test-utils";
 import { ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Page from "./projects.vue";
@@ -158,9 +157,9 @@ describe("projects page", () => {
         void wrapper;
     });
 
-    it("renders no misleading cards when the collected project groups are empty", () => {
+    it("renders no misleading cards when the collected project groups are empty", async () => {
         state.projects = ref({ projects: { projects: [] }, manifest: {} });
-        const wrapper = mount(Page, { global });
+        const wrapper = await mountSuspended(Page, { global });
 
         expect(wrapper.findAll("article")).toHaveLength(0);
     });

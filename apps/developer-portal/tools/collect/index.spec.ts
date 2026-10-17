@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, type MockInstance, vi } from "vitest";
 
 const state = vi.hoisted(() => ({
     collectGraph: vi.fn(),
@@ -82,6 +82,10 @@ const successfulCollectors = (): void => {
     }));
 };
 
+let stderr: MockInstance<typeof console.error>;
+
+const printed = (spy: MockInstance) => spy.mock.calls.map(([line]) => String(line));
+
 const runCollector = async (): Promise<void> => {
     vi.resetModules();
     await import("./index.ts");
@@ -89,6 +93,8 @@ const runCollector = async (): Promise<void> => {
 
 beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    stderr = vi.spyOn(console, "error").mockImplementation(() => {});
     state.writes = [];
     state.originalExitCode = process.exitCode;
     process.exitCode = undefined;
@@ -114,6 +120,7 @@ describe("collector entrypoint", () => {
         await runCollector();
 
         expect(process.exitCode).toBe(1);
+        expect(printed(stderr)).toEqual(["✗ projects — graph unavailable"]);
         expect(state.collectCoverage).not.toHaveBeenCalled();
         expect(state.collectMetrics).not.toHaveBeenCalled();
         expect(state.collectDocs).not.toHaveBeenCalled();
@@ -134,6 +141,8 @@ describe("collector entrypoint", () => {
         state.collectCoverage.mockRejectedValue(new Error("coverage unavailable"));
 
         await runCollector();
+
+        expect(printed(stderr)).toEqual(["✗ coverage — coverage unavailable"]);
 
         expect(state.collectMetrics).toHaveBeenCalledWith(
             projects.projects,
@@ -159,6 +168,13 @@ describe("collector entrypoint", () => {
 
         await runCollector();
 
+        expect(printed(stderr)).toEqual([
+            "✗ metrics — metrics unavailable",
+            "✗ deps — deps unavailable",
+            "✗ docs — docs unavailable",
+            "✗ scorecards — scorecards unavailable",
+        ]);
+
         expect(state.writes.map(({ path }) => path.split("/").at(-1))).toEqual([
             "projects.json",
             "coverage.json",
@@ -183,6 +199,8 @@ describe("collector entrypoint", () => {
 
     it("writes the manifest last with shared timestamp, commit and branch across every artifact", async () => {
         await runCollector();
+
+        expect(printed(stderr)).toEqual([]);
 
         expect(state.writes.at(-1)?.path).toBe("/tmp/developer-portal-snapshot/manifest.json");
         const artifactWrites = state.writes.slice(0, 6);
