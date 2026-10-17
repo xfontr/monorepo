@@ -48,7 +48,14 @@ const config: StorybookConfig = {
     viteFinal: (config) => ({
         ...config,
         base: process.env.STORYBOOK_BASE_URL ?? config.base,
-        resolve: { ...config.resolve, alias: { ...config.resolve?.alias, "~": `${root}app` } },
+        resolve: {
+            ...config.resolve,
+            alias: {
+                ...config.resolve?.alias,
+                "~": `${root}app`,
+                "#layers": `${root}layers`,
+            },
+        },
         define: {
             ...config.define,
             __MESSAGES__: messages,
