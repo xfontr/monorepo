@@ -35,7 +35,7 @@
     "@vue/test-utils": "^2.4.11",
     "@vue/tsconfig": "^0.9.1",
     "eslint": "catalog:",
-    "happy-dom": "^20.10.6",
+    "happy-dom": "^21.0.1",
     "storybook": "^10.4.6",
     "typescript": "catalog:",
     "vite": "catalog:",
