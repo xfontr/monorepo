@@ -25,6 +25,8 @@ The exceptions are `constTables.ts` and `propsInterface.ts`, which export select
 | [`ignores.ts`](./ignores.ts) | `baseIgnores` — the glob list every factory feeds into ESLint's `ignores` |
 | [`jsonc.ts`](./jsonc.ts) | `eslint-plugin-jsonc`'s `sort-keys`, scoped to `**/projects/*/*.json` so the TMS locale files stay diffable |
 | [`format.ts`](./format.ts) | `format/prettier` with the Prettier options inline: `format` for scripts, `formatVue` for `**/*.vue` (Vue configs only), which also turns off every `vue/*` rule of type `layout` |
+| [`console.ts`](./console.ts) | `noConsole`: `no-console` at `error` for everything but `**/*.spec.ts`, where the Vitest console guard takes over |
+| [`e2eFixture.ts`](./e2eFixture.ts) | `no-restricted-imports` of `test` from `@playwright/test` in `**/e2e/**/*.spec.ts`, so every Playwright spec goes through `@monorepo/configs/playwright/test` and its console guard |
 | [`vitest.ts`](./vitest.ts) | `@vitest/eslint-plugin`'s `recommended` rules, globals and `typecheck: true`, scoped to `**/*.spec.ts` |
 
 ## 🚫 What doesn't belong here

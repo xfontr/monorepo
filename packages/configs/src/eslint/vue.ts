@@ -20,6 +20,8 @@ import {
     useBeforeDefine,
     useBeforeDefineVue,
     regexp,
+    noConsole,
+    e2eFixture,
 } from "./lib/index.ts";
 
 const ignores = {
@@ -106,6 +108,8 @@ const createBaseVueConfig = (typeChecked?: boolean): object[] => {
         useBeforeDefine,
         useBeforeDefineVue,
         regexp,
+        noConsole,
+        e2eFixture,
     ];
 };
 

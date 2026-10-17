@@ -9,6 +9,7 @@ const kit = vi.hoisted(() => ({
     addServerHandler: vi.fn(),
     installModule: vi.fn(),
     resolve: vi.fn((path: string) => `resolved(${path})`),
+    warn: vi.fn(),
 }));
 
 vi.mock("@nuxt/kit", () => ({
@@ -16,6 +17,7 @@ vi.mock("@nuxt/kit", () => ({
     createResolver: () => ({ resolve: kit.resolve }),
     addServerHandler: kit.addServerHandler,
     installModule: kit.installModule,
+    useLogger: () => ({ warn: kit.warn }),
 }));
 
 const { setup } = (await import("./module")).default as unknown as {
@@ -107,38 +109,29 @@ describe("i18n nuxt module", () => {
     });
 
     it("says so when no layer declares locales, instead of registering nothing in silence", async () => {
-        const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
         const nuxt = createNuxt(undefined);
 
         await setup({ vendor }, nuxt as unknown as Nuxt);
 
         expect(registerLocales(nuxt).locales).toEqual([]);
-        expect(warn).toHaveBeenCalledWith(expect.stringContaining("No locales declared"));
-
-        warn.mockRestore();
+        expect(kit.warn).toHaveBeenCalledWith(expect.stringContaining("No locales declared"));
     });
 
     // @nuxtjs/i18n prefixes every path when the default is not a declared locale, so `/` 404s
     it("says so when the default locale is not one of the declared ones", async () => {
-        const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
         const nuxt = declareDefaultLocale(createNuxt(["en-GB"]), "fr-FR");
 
         await setup({ vendor }, nuxt as unknown as Nuxt);
 
-        expect(warn).toHaveBeenCalledWith(expect.stringContaining('"fr-FR"'));
-
-        warn.mockRestore();
+        expect(kit.warn).toHaveBeenCalledWith(expect.stringContaining('"fr-FR"'));
     });
 
     it("stays quiet when the default locale is declared", async () => {
-        const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
         const nuxt = declareDefaultLocale(createNuxt(["en-GB"]), "en-GB");
 
         await setup({ vendor }, nuxt as unknown as Nuxt);
 
-        expect(warn).not.toHaveBeenCalled();
-
-        warn.mockRestore();
+        expect(kit.warn).not.toHaveBeenCalled();
     });
 
     it("installs @nuxtjs/i18n so the registered loader is picked up", async () => {

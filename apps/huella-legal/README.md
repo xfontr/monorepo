@@ -354,9 +354,21 @@ intended, so they failed every page PR and got accepted unread. CI runs the spec
 `mcr.microsoft.com/playwright:v1.63.0-noble`, and on failure uploads `.playwright/` as the
 `playwright` artifact.
 
+**Console output fails e2e, in the browser and on the server.** The mechanism lives in the
+[Playwright preset](../../packages/configs/README.md); this app only wires it. Specs import `test`
+from `@monorepo/configs/playwright/test`, never from `@playwright/test`, and the ESLint preset
+enforces it. Its `page` fails a test on any browser console message or uncaught page error, checked
+once the test body returns, so a test that ends on `page.goto` misses whatever the app logs as it
+boots after `load`. A test whose noise is justified allows it with
+`test.use({ allowedConsole: [NOT_FOUND_DOCUMENT] })`, a list of patterns. SSR logs in the server
+process, where no page listener reaches, so [`e2e/server.ts`](./e2e/server.ts) calls `recordServerConsole()`, and the preset's
+teardown fails the run on anything the server logged besides Nitro's `Listening on` line. That run
+fails even when every test passed, reported as "1 error was not a part of any test". The recorder
+also prints until the server listens, because a server that can't start never reaches the teardown.
+
 | Situation | What to do |
 | --- | --- |
-| Bumping `@playwright/test` | Move the image tag in [`ci.yml`](../../.github/workflows/ci.yml) in the same PR. Dependabot sends it alone for that reason |
+| Bumping `@playwright/test` | Bump its catalog entry in [`pnpm-workspace.yaml`](../../pnpm-workspace.yaml) and move the image tag in [`ci.yml`](../../.github/workflows/ci.yml) in the same PR. Dependabot sends it alone for that reason |
 | Running locally | Needs a Chromium that matches `@playwright/test`'s version in Playwright's browser cache. Nothing in the repo downloads one |
 | A page needs new data | Add the `Entry` or `Term` to `e2e/fakes.ts`. A route the fakes don't serve is a change to the package's `testing` entry, with its spec |
 

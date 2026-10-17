@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, NOT_FOUND_DOCUMENT, test } from "@monorepo/configs/playwright/test";
 import { AUTHOR, POSTS, SIBLING, SUBJECT, TAG } from "./fakes.ts";
 
 const WCAG_AA = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
@@ -98,25 +98,29 @@ test("a format pill narrows the archive and marks itself current", async ({ page
     );
 });
 
-test("a page past the end, or a query the route refuses, is a 404 and never a validation message", async ({
-    page,
-}) => {
-    for (const path of ["/publicaciones/?page=99", "/publicaciones/?sort=popular"]) {
-        const response = await page.goto(path);
+test.describe("a 404 listing", () => {
+    test.use({ allowedConsole: [NOT_FOUND_DOCUMENT] });
 
-        expect(response?.status()).toBe(404);
-        await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-            "Esta página no existe o ha cambiado de dirección.",
-        );
-    }
-});
+    test("a page past the end, or a query the route refuses, is a 404 and never a validation message", async ({
+        page,
+    }) => {
+        for (const path of ["/publicaciones/?page=99", "/publicaciones/?sort=popular"]) {
+            const response = await page.goto(path);
 
-test("an unknown subject, tag or author is a 404", async ({ page }) => {
-    for (const path of [
-        "/materias/no-existe/",
-        "/etiquetas/no-existe/",
-        "/colaboradores/no-existe/",
-    ]) {
-        expect((await page.goto(path))?.status()).toBe(404);
-    }
+            expect(response?.status()).toBe(404);
+            await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+                "Esta página no existe o ha cambiado de dirección.",
+            );
+        }
+    });
+
+    test("an unknown subject, tag or author is a 404", async ({ page }) => {
+        for (const path of [
+            "/materias/no-existe/",
+            "/etiquetas/no-existe/",
+            "/colaboradores/no-existe/",
+        ]) {
+            expect((await page.goto(path))?.status()).toBe(404);
+        }
+    });
 });

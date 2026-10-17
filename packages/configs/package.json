@@ -10,6 +10,8 @@
     ".": {
       "import": "./src/index.ts"
     },
+    "./playwright/server": "./src/playwright/server.ts",
+    "./playwright/test": "./src/playwright/test.ts",
     "./tsconfig/*": "./src/tsconfig/*"
   },
   "scripts": {
@@ -26,7 +28,7 @@
     "@eslint/js": "^10.0.1",
     "@nuxt/test-utils": "^4.3.2",
     "@nx/eslint-plugin": "23.3.0",
-    "@playwright/test": "1.63.0",
+    "@playwright/test": "catalog:",
     "@types/node": "catalog:",
     "@vitest/eslint-plugin": "^1.6.18",
     "eslint": "catalog:",
@@ -43,7 +45,7 @@
   },
   "peerDependencies": {
     "@nuxt/test-utils": "^4.3.2",
-    "@playwright/test": "1.63.0"
+    "@playwright/test": "catalog:"
   },
   "peerDependenciesMeta": {
     "@nuxt/test-utils": {

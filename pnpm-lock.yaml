@@ -173,6 +173,9 @@ catalogs:
     '@nuxtjs/i18n':
       specifier: 10.6.0
       version: 10.6.0
+    '@playwright/test':
+      specifier: 1.63.0
+      version: 1.63.0
     '@types/node':
       specifier: ^26.6.2
       version: 26.6.2
@@ -377,7 +380,7 @@ importers:
         specifier: ^4.3.2
         version: 4.3.3(cde3795bad1b435020b510d41c6d6084)
       '@playwright/test':
-        specifier: 1.63.0
+        specifier: 'catalog:'
         version: 1.63.0
       '@storybook/vue3-vite':
         specifier: ^10.6.0
@@ -514,7 +517,7 @@ importers:
         specifier: 23.3.0
         version: 23.3.0(@babel/traverse@7.29.8(supports-color@10.2.2))(@typescript-eslint/parser@8.71.1(eslint@10.11.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@10.11.0(jiti@2.7.0)(supports-color@10.2.2))(nx@23.3.0)(supports-color@10.2.2)(typescript@6.0.3)
       '@playwright/test':
-        specifier: 1.63.0
+        specifier: 'catalog:'
         version: 1.63.0
       '@types/node':
         specifier: 'catalog:'

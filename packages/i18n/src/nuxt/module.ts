@@ -1,4 +1,10 @@
-import { addServerHandler, createResolver, defineNuxtModule, installModule } from "@nuxt/kit";
+import {
+    addServerHandler,
+    createResolver,
+    defineNuxtModule,
+    installModule,
+    useLogger,
+} from "@nuxt/kit";
 import type { Nuxt } from "@nuxt/schema";
 import type { LocaleObject } from "@nuxtjs/i18n";
 import { UndefinedVendorError } from "#core/domain/errors";
@@ -14,10 +20,12 @@ const getLocaleCodes = ({ options }: Nuxt): string[] => {
     ];
 };
 
+const logger = useLogger("@monorepo/i18n");
+
 const warnAboutLocales = (locales: string[], { options }: Nuxt): void => {
     if (!locales.length) {
-        console.warn(
-            "[@monorepo/i18n] No locales declared under `i18n.locales`, so no loader was registered and nothing will translate.",
+        logger.warn(
+            "No locales declared under `i18n.locales`, so no loader was registered and nothing will translate.",
         );
         return;
     }
@@ -26,8 +34,8 @@ const warnAboutLocales = (locales: string[], { options }: Nuxt): void => {
         .i18n?.defaultLocale;
 
     if (defaultLocale && !locales.includes(defaultLocale)) {
-        console.warn(
-            `[@monorepo/i18n] \`i18n.defaultLocale\` is "${defaultLocale}", which is not one of the declared locales (${locales.join(", ")}).`,
+        logger.warn(
+            `\`i18n.defaultLocale\` is "${defaultLocale}", which is not one of the declared locales (${locales.join(", ")}).`,
         );
     }
 };
