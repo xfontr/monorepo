@@ -151,7 +151,7 @@ A Nuxt app's `tsconfig.json` is `files: []` plus references into `.nuxt/`, so an
 fails while that directory is missing. Two mechanisms cover it. In [`nx.json`](./nx.json), `lint`,
 `typecheck` and `test` depend on a `nuxt-prepare` target that only exists where a project defines
 that script — currently `apps/developer-portal` and `apps/huella-legal`. Everything else is covered by
-[`prepareNuxt.mjs`](./packages/configs/src/vitest/prepareNuxt.mjs), which every Vitest preset carries
+[`prepareNuxt.mjs`](./packages/configs/src/vitest/setup/prepareNuxt.mjs), which every Vitest preset carries
 and which runs `nuxi prepare` when a project has a `nuxt.config.ts` and no `.nuxt`: `test:coverage`,
 the per-spec targets `@nx/vitest` generates, and a bare `pnpm vitest`. A new Nuxt app needs the
 script added by hand, and Nx **silently drops** an edge naming a target a project doesn't have, so

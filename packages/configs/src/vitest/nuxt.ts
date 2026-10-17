@@ -58,7 +58,7 @@ const createNuxtConfig = async ({
         fileParallelism: false,
         include: ["app/**/*.spec.ts", "layers/*/app/**/*.spec.ts"],
         exclude: nodeSpecs,
-        setupFiles,
+        setupFiles: [nodeTest.setupFiles ?? [], setupFiles].flat(),
         environmentOptions: {
             nuxt: {
                 rootDir: root,

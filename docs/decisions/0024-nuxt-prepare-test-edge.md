@@ -9,7 +9,7 @@ decision: accepted
 ## Context
 
 [`0015`](./0015-nuxt-prepare-wiring.md) moved `.nuxt` repair into a Vitest `globalSetup`
-([`prepareNuxt.mjs`](../../packages/configs/src/vitest/prepareNuxt.mjs)) and took every
+([`prepareNuxt.mjs`](../../packages/configs/src/vitest/setup/prepareNuxt.mjs)) and took every
 `dependsOn: ["nuxt-prepare"]` off the Vitest targets in [`nx.json`](../../nx.json), leaving it on
 `lint` and `typecheck` only. Its Confirmation named a third entry in `nx.json` as the sign of that
 decision being reversed. While working on #144, a test run failed on a missing `.nuxt` with the
