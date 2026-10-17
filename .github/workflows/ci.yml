@@ -47,7 +47,7 @@ jobs:
         runs-on: ubuntu-latest
         # Ships the browsers, and its tag must equal @playwright/test's exact version in huella-legal
         container:
-            image: mcr.microsoft.com/playwright:v1.63.0-noble
+            image: mcr.microsoft.com/playwright:v1.64.0-noble
             options: --user 1001
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

@@ -146,7 +146,7 @@ describe("useContent", () => {
         ["an empty slug", () => useContent(EVENT).getEntry("posts", " ")],
     ])("refuses %s without keying it or asking the vendor", async (_, read) => {
         await expect(read()).rejects.toMatchObject({
-            statusCode: expect.any(Number) as unknown as number,
+            statusCode: expect.any(Number) as unknown,
         });
         expect(nitro.calls).toEqual([]);
         expect(transport.raw).not.toHaveBeenCalled();
@@ -168,9 +168,7 @@ describe("useContent", () => {
 
         await expect(useContent(EVENT).getEntry("posts", "hello-world")).rejects.toMatchObject({
             statusCode: 500,
-            statusMessage: expect.stringContaining(
-                "baseURL is not an absolute URL",
-            ) as unknown as string,
+            statusMessage: expect.stringContaining("baseURL is not an absolute URL") as unknown,
         });
         expect(transport.raw).not.toHaveBeenCalled();
     });
@@ -211,7 +209,7 @@ describe("useContent", () => {
         );
 
         await expect(useContent(EVENT).listEntries("posts")).rejects.toMatchObject({
-            statusMessage: expect.not.stringContaining("wp.test") as unknown as string,
+            statusMessage: expect.not.stringContaining("wp.test") as unknown,
         });
     });
 

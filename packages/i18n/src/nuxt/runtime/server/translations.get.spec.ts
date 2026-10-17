@@ -93,7 +93,7 @@ describe("GET /api/translations/:locale", () => {
 
         await expect(handler(createEvent("en-GB"))).rejects.toMatchObject({
             statusCode: 500,
-            statusMessage: expect.stringContaining("options.token is empty") as unknown as string,
+            statusMessage: expect.stringContaining("options.token is empty") as unknown,
         });
 
         expect(ofetch.request).not.toHaveBeenCalled();
@@ -112,9 +112,7 @@ describe("GET /api/translations/:locale", () => {
 
         await expect(handler(createEvent("en-GB"))).rejects.toMatchObject({
             statusCode: 500,
-            statusMessage: expect.stringContaining(
-                "does not exist for Tolgee",
-            ) as unknown as string,
+            statusMessage: expect.stringContaining("does not exist for Tolgee") as unknown,
         });
     });
 
