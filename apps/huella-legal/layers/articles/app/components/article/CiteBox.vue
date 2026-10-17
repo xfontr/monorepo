@@ -57,14 +57,16 @@ const copy = async (text: string): Promise<void> => {
         <p v-else class="mt-4 font-serif text-citation break-words text-toned">
             {{ citation.text }}
         </p>
-        <UButton
-            v-if="canCopy"
-            variant="outline"
-            color="neutral"
-            icon="i-lucide-copy"
-            :label="$t('citeBox.copy')"
-            class="mt-4 print:hidden"
-            @click="copy(citation.text)"
-        />
+        <ClientOnly>
+            <UButton
+                v-if="canCopy"
+                variant="outline"
+                color="neutral"
+                icon="i-lucide-copy"
+                :label="$t('citeBox.copy')"
+                class="mt-4 print:hidden"
+                @click="copy(citation.text)"
+            />
+        </ClientOnly>
     </section>
 </template>

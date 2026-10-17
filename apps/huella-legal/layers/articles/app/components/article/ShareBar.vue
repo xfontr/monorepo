@@ -48,15 +48,17 @@ const print = (): void => {
             :to="citeTo"
             class="px-3"
         />
-        <UButton
-            v-if="canNativeShare || canCopy"
-            square
-            variant="ghost"
-            color="neutral"
-            icon="i-lucide-share"
-            :aria-label="$t('shareBar.share')"
-            @click="share"
-        />
+        <ClientOnly>
+            <UButton
+                v-if="canNativeShare || canCopy"
+                square
+                variant="ghost"
+                color="neutral"
+                icon="i-lucide-share"
+                :aria-label="$t('shareBar.share')"
+                @click="share"
+            />
+        </ClientOnly>
         <UButton
             square
             variant="ghost"
