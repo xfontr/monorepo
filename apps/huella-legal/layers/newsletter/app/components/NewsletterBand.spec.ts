@@ -1,5 +1,4 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { flushPromises } from "@vue/test-utils";
 import { beforeAll, describe, expect, it } from "vitest";
 import NewsletterBand from "./NewsletterBand.vue";
 
@@ -7,21 +6,15 @@ import NewsletterBand from "./NewsletterBand.vue";
 const MESSAGES = {
     newsletterBand: {
         kicker: "kicker",
-        note: "note {privacy}",
-        privacy: "privacy",
         title: "title",
     },
     newsletterForm: {
-        email: {
-            errors: { invalid: "invalid", required: "required" },
-            label: "email",
-            placeholder: "placeholder",
-        },
+        email: { label: "email", placeholder: "placeholder" },
+        notice: "notice {privacy}",
+        privacy: "privacy",
         submit: "submit",
     },
 };
-
-const PROPS = { privacyTo: "/privacidad" };
 
 describe("newsletter band", () => {
     beforeAll(() => {
@@ -31,7 +24,7 @@ describe("newsletter band", () => {
     it.each(["paper", "slate"] as const)(
         "renders the %s tone as a landmark named by its title",
         async (tone) => {
-            const wrapper = await mountSuspended(NewsletterBand, { props: { ...PROPS, tone } });
+            const wrapper = await mountSuspended(NewsletterBand, { props: { tone } });
 
             const section = wrapper.find("section");
 
@@ -41,42 +34,19 @@ describe("newsletter band", () => {
     );
 
     it("leaves the anchor to the page that places it, so only the linked band carries one", async () => {
-        const bare = await mountSuspended(NewsletterBand, { props: PROPS });
-        const anchored = await mountSuspended(NewsletterBand, {
-            props: PROPS,
-            attrs: { id: "newsletter" },
-        });
+        const bare = await mountSuspended(NewsletterBand);
+        const anchored = await mountSuspended(NewsletterBand, { attrs: { id: "newsletter" } });
 
         expect(bare.find("section").attributes("id")).toBeUndefined();
         expect(anchored.find("section").attributes("id")).toBe("newsletter");
     });
 
-    it("links the privacy policy from the note under the field", async () => {
-        const wrapper = await mountSuspended(NewsletterBand, { props: PROPS });
+    it("hands its tone to an inline form, so the slate band gets the slate field", async () => {
+        const wrapper = await mountSuspended(NewsletterBand, { props: { tone: "slate" } });
 
-        expect(wrapper.find("form a").attributes("href")).toBe("/privacidad");
-    });
-
-    it("hands its tone and state to the form, so the slate band gets the slate field", async () => {
-        const wrapper = await mountSuspended(NewsletterBand, {
-            props: { ...PROPS, tone: "slate", pending: true, error: "Ya estás suscrita" },
-        });
-
-        expect(wrapper.findComponent({ name: "NewsletterForm" }).props()).toMatchObject({
+        expect(wrapper.findComponent({ name: "NewsletterForm" }).props()).toEqual({
             layout: "inline",
             tone: "slate",
-            pending: true,
-            error: "Ya estás suscrita",
         });
-    });
-
-    it("passes the submit through, so the caller drives the band like the form", async () => {
-        const wrapper = await mountSuspended(NewsletterBand, { props: PROPS });
-
-        await wrapper.find("input").setValue("lucia@ejemplo.es");
-        await wrapper.find("form").trigger("submit");
-        await flushPromises();
-
-        expect(wrapper.emitted("submit")).toEqual([["lucia@ejemplo.es"]]);
     });
 });
