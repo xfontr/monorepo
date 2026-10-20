@@ -6,12 +6,6 @@ export default defineEventHandler(async (event): Promise<Article> => {
         public: { site },
     } = useRuntimeConfig(event);
 
-    if (!site.url)
-        throw createError({
-            statusCode: 500,
-            statusMessage: "Site is misconfigured: NUXT_PUBLIC_SITE_URL is not set",
-        });
-
     const entry = await useContent(event).getEntry(
         "posts",
         getRouterParam(event, "slug", { decode: true }) ?? "",
