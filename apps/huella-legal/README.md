@@ -23,7 +23,8 @@ pnpm dev                                    # or from this directory
 | `pnpm build:storybook` | Static Storybook build (output in `storybook-static/`) |
 | `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
 
-One module beyond the shared ones is installed here: `@nuxt/fonts`.
+One module beyond the shared ones is installed here, `@nuxt/fonts`, and the `forms` layer installs
+`@nuxtjs/turnstile`.
 
 ## 🚢 Deployment
 
@@ -56,8 +57,20 @@ rather than reading the API once.
 
 ## 🔑 Environment
 
-Translations and articles are both fetched over the network, so an unset vendor is not a degraded
-page but a `500` naming what is missing, on the first request that needs it.
+A variable a feature can't work without is listed under `requiredEnv` in the `nuxt.config.ts` of
+the layer that uses it. [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) checks the merged list
+once, so no route re-checks its config per request:
+
+| Where | An unset required variable |
+| --- | --- |
+| Netlify production build (`CONTEXT=production`) | Fails the build naming each one, so the live deploy keeps serving. Netlify has to expose them to builds as well as functions, which is its default |
+| `nuxt dev` | One warning at startup naming each one |
+| Any other build, CI's included | Nothing: CI builds with none of them set |
+
+A wrong value is the vendor's to refuse, and the adapter maps the refusal: anything Cloudflare
+refuses is a `403` and anything Mailchimp refuses is a `502`, each carrying the vendor's answer as
+`cause`. Optional variables (telemetry, social profiles) stay out of the list, since unset only
+turns their feature off.
 
 | Variable | What it is |
 | --- | --- |
@@ -65,7 +78,12 @@ page but a `500` naming what is missing, on the first request that needs it.
 | `NUXT_TRANSLATIONS_VENDOR_BASE_URL` | The TMS API base URL (absolute, with scheme): the translations server in development, Tolgee in a build |
 | `NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN` | The Tolgee API key. Unset in development |
 | `NUXT_CONTENT_VENDOR_BASE_URL` | The WordPress site root, **without** `/wp-json` — the provider owns that path. Only `/publicaciones/` and `/:slug/` need it |
-| `NUXT_PUBLIC_SITE_URL` | The public origin, with scheme. Article permalinks, the share link and both citations are built on it rather than on the request's host. Unset, `/api/articles/:slug` answers `500` naming it |
+| `NUXT_NEWSLETTER_BASE_URL` | The Mailchimp API origin for the account's data centre, **without** `/3.0` — the adapter owns that path |
+| `NUXT_NEWSLETTER_API_KEY` | The Mailchimp API key, sent as the Basic auth password |
+| `NUXT_NEWSLETTER_AUDIENCE_ID` | The audience new readers join |
+| `NUXT_TURNSTILE_SECRET_KEY` | The Turnstile widget's secret key. Rejected by Cloudflare, every form route answers `403`, with `invalid-input-secret` in the `cause` |
+| `NUXT_PUBLIC_TURNSTILE_SITE_KEY` | The Turnstile widget's site key. Unset, the form shows its error state on submit |
+| `NUXT_PUBLIC_SITE_URL` | The public origin, with scheme. Article permalinks, the share link and both citations are built on it rather than on the request's host |
 | `NUXT_PUBLIC_OBSERVABILITY_URL` | Faro collector URL. Leave unset and browser telemetry stays off |
 | `NUXT_PUBLIC_OBSERVABILITY_APP_VERSION` | Stamped on browser *and* server spans. Defaults to `0.0.0`, which nothing can be attributed to — set it at deploy time |
 | `NUXT_PUBLIC_OBSERVABILITY_APP_ENVIRONMENT` | Stamped the same way. Defaults to `development` |
@@ -166,7 +184,10 @@ and the gotchas.
 
 [`app/`](./app) is the front-end shell and stays thin: a layout, an error page and its dev-only debug
 panel, two client plugins (Faro telemetry, and a dev-only console filter for a known Nuxt/Vue
-warning), and three pages — an entry page, and the `publish` and `search` placeholders. The app's own server code is one Nitro plugin, for telemetry.
+warning), and three pages — an entry page, and the `publish` and `search` placeholders. Its own
+server code is two Nitro plugins (telemetry, and a log line for every handled `5xx`). Beside it,
+[`modules/requiredEnv.ts`](./modules/requiredEnv.ts) checks the
+[required variables](#-environment) once per build.
 
 | Piece | What it holds |
 | --- | --- |
@@ -182,14 +203,17 @@ warning), and three pages — an entry page, and the `publish` and `search` plac
 `/lab` pages draw their own lab header and footer, so a `$development` hook in `nuxt.config.ts` sets
 `layout: false` on them.
 
-Domain logic lives in Nuxt layers under [`layers/`](./layers), one directory per domain. Nuxt
-auto-registers `<rootDir>/layers/*` by their presence, so there is no `extends` array to add, and
-adding one is the mistake.
+Domain logic lives in Nuxt layers under [`layers/`](./layers), one directory per domain, plus one
+per concern that several domains share, such as `forms`. Nuxt auto-registers `<rootDir>/layers/*` by
+their presence, so there is no `extends` array to add, and adding one is the mistake. A layer reaches
+another layer's server code and shared types through Nitro's and Nuxt's auto-imports, never by a
+relative path.
 
 | Layer | `shared/` | `app/components/` | `server/` |
 | --- | --- | --- | --- |
 | [`articles`](./layers/articles) | The view models the server returns: `Article`, `ArticleBody`, `ArticleSummary`, `ArticleListing` (with its `Facet` counts and `ListingScope`), `Author`, `Category`, `Citation`, `Note`, `TocItem`, plus the `ListingQuery` the listing route accepts. `Article` carries its absolute `permalink` and `citations` | Grouped by the view model they render, so a folder names its components' prefix. `summary/` is an `ArticleSummary` wherever articles are listed: `SummaryCard` in five variants (lead, optionally split, standard, compact, media, row), and `SummaryGrid` and `SummaryList` to lay them out. `article/` is the article page, one component per section (`ArticleHeader`, `ArticleToc`, `ArticleProse`, `ArticleBackMatter`, `ArticleRelated`) plus the parts only it uses: `ArticleShareBar`, `ArticleNotes`, `ArticleBibliography`, `ArticleCiteBox` and `ArticleAuthorCard`. `ArticleToc` is a rail or an accordion, lit by Nuxt UI's `useScrollspy`. `archive/` is an `ArticleListing` on every listing page, one component per section: `ArchiveIntro` (the breadcrumb, from home) holding `ArchiveHeading` or, on a profile, `ArchiveAuthor`, then `ArchiveResults` and the `ArchiveSubjects` aside. `Byline` (authors, date and reading time) and `MediaFallback` stay at the root because both `summary/` and `article/` use them. A file inside a folder drops the folder's prefix (`article/Header.vue`): Nuxt collapses a repeated prefix and Storybook doesn't, so `article/ArticleHeader.vue` would register under two different names. `useArticle` in `app/composables/` is the article page's controller: the fetches, the error, the breadcrumb and the SEO meta. `useArticleListing` is every listing page's: the fetch, the query in the URL, the sort and the format pills. `noteAnchor`/`noteReferenceAnchor` in `shared/utils/` are the note ids the body mapper and `ArticleNotes` share. `.hl-prose` in [`app/assets/prose.css`](./layers/articles/app/assets/prose.css) styles the sanitised body | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time parse with the domain-free helpers in `server/utils/hast.ts`, and stay server-side. `toArticleBody` is the WP HTML pipeline, with `extractNotes` and `annotateHeadings` beside the view models they produce, `toCitations` writes APA 7 and the journal's own style, `GET /api/articles/:slug` serves the `Article`, `GET /api/articles/:slug/related` its related `ArticleSummary` list, and `getArticleIndex` in `server/services/` caches every post's summary for `toArticleListing` to slice into `GET /api/articles` |
-| [`newsletter`](./layers/newsletter) | `subscriptionSchema`, the Valibot rules a subscription must pass, worded by the caller so the server can reuse them | `NewsletterForm`, the field and button, stacked or inline, in a paper or slate tone. It emits `submit` only once the schema passes, and takes `pending` and a server `error`. It is private to the layer: the layer's `nuxt.config.ts` keeps it out of auto-registration, so only `NewsletterBand` and `NewsletterCard` import it. `NewsletterBand` (a landmark with the privacy note; the home page gives it `id="newsletter"`, which the header's newsletter links target) and `NewsletterCard` (the sidebar, naming an optional `subject`) wrap it and pass `pending`, `error` and `submit` through. The field keeps its own value, so a caller that needs it empty again remounts the form with a new `key` | — until E1 adds the subscribe route |
+| [`forms`](./layers/forms) | `Challenge`, the type of `FormChallenge`'s slot prop, and `FormRequest`, the `website` and `token` fields every form posts | Two components that every form uses, kept apart because they do different jobs. `FormHoneypot` is a hidden field bound with `v-model`, placed among the form's own fields so a bot filling the form fills it too. `FormChallenge` wraps the form and holds `@nuxtjs/turnstile`'s `NuxtTurnstile`, which stays invisible unless Cloudflare wants an interaction. The widget mounts on the wrapped form's first `focusin`, so a page nobody signs up from never loads Cloudflare's script. The module's own `trigger` can't do this, since it only listens on the widget's element. Its slot gets `challenge(send)`, which waits up to 30 s for a token, hands it to `send`, and resets the widget once `send` settles, since a token is single-use. The layer's `nuxt.config.ts` installs the module and declares both keys empty, which also keeps out the always-pass keys the module would default to in dev | `assertChallenge` in `server/utils/turnstile.ts` makes one siteverify call through the module's `verifyTurnstileToken` and reads only its `success` flag, never the error codes. A refusal is a `403` carrying Cloudflare's answer as `cause`, even when it arrives as a thrown `400`, and no answer at all is a `502`. `assertForm` in `server/utils/assertForm.ts` re-runs a route's schema, returning its output or throwing a `422` with one `FormError` per issue. The honeypot is neither's job: each route returns early on it |
+| [`newsletter`](./layers/newsletter) | `subscriptionSchema`, the Valibot rules a subscription must pass, worded by the caller so the server reuses them, and `NewsletterRequest`, the route's body: the address plus `FormRequest` | `NewsletterForm`, the field and button, stacked or inline, in a paper or slate tone, with the privacy notice every variant needs under it. It runs its own `useNewsletter`, so `NewsletterBand` (a landmark; the home page gives it `id="newsletter"`, which the header's newsletter links target) and `NewsletterCard` (the sidebar, naming an optional `subject`) only place it. It is private to the layer: the layer's `nuxt.config.ts` keeps it out of auto-registration. `useNewsletter` in `app/composables/` is the state machine, idle → submitting → success, invalid or error, one per form: a `422` becomes field errors through `UForm`'s `setErrors`, anything else the alert. Success replaces the form with `FormSuccessPanel`, asking the reader to confirm by email. The form sits inside `FormChallenge` with a `FormHoneypot` among its fields, and `subscribe` sends the honeypot's value through `challenge`, so a Turnstile token rides with every post | `POST /api/newsletter` answers a filled honeypot like a success and sends nothing, then calls `assertChallenge`, re-validates with the same schema through `assertForm` and calls `addSubscriber` in `server/adapters/mailchimp.ts`: a `PUT` with `status_if_new: "pending"` and no `status`, so Mailchimp sends its confirmation and never resubscribes an address that left. The rest is `422` with `FormError[]`, `403` on a failed challenge, `502` when a vendor fails. Two of Mailchimp's `400`s are not failures: an address it judges fake is a `422` on the field (`rejected`), and one it won't re-add (`Member In Compliance State`, `Forgotten Email Not Subscribed`) answers like a success. [0029](../../docs/decisions/0029-huella-legal-forms-and-integrations.md) has the reasoning |
 
 ### 🔗 Links
 
@@ -256,6 +280,8 @@ Nuxt modules would otherwise give it:
 | `vue-i18n` in [`preview.ts`](./.storybook/preview.ts) | `@nuxtjs/i18n`: `$t` in templates, `useI18n()` in scripts | The `es-ES.json` [dev reads](#-i18n) and `i18n.config.ts`'s date formats, injected by `main.ts` |
 | `autoImport.dirs` | Nuxt's `utils` auto-imports, in scripts and templates | `app/utils/`, `layers/*/app/utils/` |
 | `components.dirs` | Nuxt's component auto-imports, namespaced by directory so `base/Kicker.vue` is `BaseKicker` | `app/components/`, `layers/*/app/components/` |
+| `sb.mock` of `useNewsletter` in [`preview.ts`](./.storybook/preview.ts) | The newsletter controller, with `POST /api/newsletter` behind it. Its [`__mocks__`](./layers/newsletter/app/composables/__mocks__/useNewsletter.ts) copy holds one status and never sends a request. Storybook restores its idle default before every story, and a `NewsletterForm` state story sets its own in `beforeEach` | — |
+| A `NuxtTurnstile` stub in [`preview.ts`](./.storybook/preview.ts) | The module's widget, which `FormChallenge` mounts when a story's field takes focus, so no story loads Cloudflare's script | — |
 
 Both configs are imported, not copied, so a theme change reaches the stories with no second edit.
 Each script runs `nuxi prepare` first because Vite follows `tsconfig.json` into `.nuxt/`.
@@ -346,7 +372,11 @@ the seeded factories in `@monorepo/content/testing`, two of them pinned to the v
 asserts on, plus the committed locale JSON in
 [`infrastructure/translations`](../../infrastructure/translations/projects/huella-legal). The
 packages turn those into each vendor's wire format, so the app never writes a WordPress or Tolgee
-shape itself. There are no fixture files.
+shape itself. There are no fixture files. Mailchimp and Turnstile have no package, so their MSW
+handlers live in [`e2e/vendors.ts`](./e2e/vendors.ts), along with the stand-in Turnstile `api.js`
+that a spec serves with `page.route`, since the browser fetches that script itself. Both match Turnstile's
+paths on any host, because `@nuxtjs/turnstile` fixes Cloudflare's URLs rather than reading them from
+config.
 
 Each spec asserts on behaviour and runs an axe scan against WCAG 2.1 AA, once per width. **There
 are no screenshot baselines**: while the pages are still being designed nearly every diff is
@@ -385,7 +415,9 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | Authors, categories, publish and search pages | Replace the 404 bodies of the four [link-holding pages](#-links); their names and paths stay |
 | Quote and callout styles | `hl-quote`, `hl-quote-short`, `hl-callout` and `hl-highlight` reach the page unstyled. B6 moved `.hl-prose` into the articles layer without rules for them, because no D design covers them |
 | Tag links on the article | The *Temas* line is still plain text, though `/etiquetas/<slug>/` now exists to link it to |
-| The newsletter band under the article and the listings | Left out until E1 gives `NewsletterBand` a submit to call; a form that drops the address is worse than none |
+| The newsletter band on the home page | C3 places it with `id="newsletter"`, the anchor the header's links already target |
+| The newsletter's failure paths in e2e | A vendor `5xx` makes `errorLog.ts` write to the server console, which fails the run, so the `403` and `502` paths are pinned in the route and controller specs only |
+| The privacy notice's wording | A draft: the owner rewrites the legal text ([0029](../../docs/decisions/0029-huella-legal-forms-and-integrations.md)), and the notice links `aviso-legal#privacidad` until C6 gives privacy a page |
 | *Publicaciones* lit in the header on an article | `useSiteNav` marks sections by route, and `/:slug/` also serves WordPress pages (C6), so it needs to know which one it rendered |
 | The `onServerPrefetch` tree-shake override in `nuxt.config.ts` | Drop it once Nuxt stops stripping that hook from client builds; the article e2e's axe scan fails on `aria-controls` if it goes too early |
 | Parity with the `/lab` pages | Still a human check: the lab is stripped from production builds, and Linux substitutes a serif for Georgia |

@@ -3,9 +3,11 @@
 See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry setup.
 
 - **No URL or credential gets a default in [`nuxt.config.ts`](./nuxt.config.ts), and nothing there
-  reads `process.env`.** An unset vendor is supposed to fail loudly on the first request naming what
-  is missing, not fall back to something plausible. Declare the key empty and let the
-  `NUXT_`-prefixed var fill it at startup; the
+  reads `process.env`.** An unset vendor must fail loudly, not fall back to something plausible: list
+  a var the feature can't work without under `requiredEnv` in the `nuxt.config.ts` of the layer that
+  uses it, and [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) fails a production deploy naming
+  it. Never re-check it per request. Declare the key empty and let the `NUXT_`-prefixed var fill it
+  at startup; the
   [i18n module](../../packages/i18n/src/nuxt/README.md#-usage) says why. The vendor `name` fields are
   the exception: they select a config type, so they stay literals. So are the observability `version`
   and `environment`, which default to `0.0.0` and `development`. New config goes in `.env.example`
@@ -17,11 +19,14 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   Don't update Tolgee; the owner brings it up to date.
 - **Domain logic lives in a Nuxt layer under `layers/`**, one directory per domain, beside `app/`
   rather than inside it: Nuxt auto-registers only `<rootDir>/layers/*`, so never add an `extends`
-  array. `app/` stays thin, with no domain logic of its own. A layer's view-model types go in
+  array. A concern several domains share, such as `forms` (the honeypot and Turnstile), gets a layer
+  too, and other layers reach its server code through Nitro's auto-import, never a relative path.
+  `app/` stays thin, with no domain logic of its own. A layer's view-model types go in
   `shared/types/`, one per file, and its `server/` maps vendor shapes into them, so an `Entry` never
   reaches the browser. Those mappers go in `server/mappers/`, one file per view model and named for
   it; `server/utils/` is only for helpers that know nothing about the domain, so a cached read that
-  several routes share goes in `server/services/`.
+  several routes share goes in `server/services/`. A vendor client that one layer calls goes in
+  `server/adapters/`, named for the vendor, so it stays out of Nitro's auto-imports.
 - Typechecking runs on build (`typescript.typeCheck: "build"`), so `pnpm build` is slow and already
   covers what `pnpm typecheck` would.
 - [`tsconfig.json`](./tsconfig.json) only references `./.nuxt/tsconfig.*.json`, which `nuxi
@@ -50,8 +55,9 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
 - **`vitest.config.ts` and `playwright.config.ts` are wrappers over `@monorepo/configs`.** A setting
   every Nuxt app would want goes in the preset; only this app's specifics are passed as options.
   Don't lower a threshold to get green; write the spec.
-- `e2e/` holds the Playwright specs, `server.ts` (the MSW preload) and `fakes.ts` (its data), the
-  workspace's exception to "beside its subject" and "no fixtures". Vendor wire formats belong in the
-  packages' `testing` entries, never here.
+- `e2e/` holds the Playwright specs, `server.ts` (the MSW preload), `fakes.ts` (its data) and
+  `vendors.ts` (handlers for the vendors with no package), the workspace's exception to "beside its
+  subject" and "no fixtures". A packaged vendor's wire format belongs in that package's `testing`
+  entry, never here. Test-only code never goes under `layers/`, `app/` or `server/`.
 - **No `toHaveScreenshot`.** Baselines failed every page PR while the design still moves; the
   [README](./README.md#-e2e) says when they come back. Assert on roles, text and status instead.
