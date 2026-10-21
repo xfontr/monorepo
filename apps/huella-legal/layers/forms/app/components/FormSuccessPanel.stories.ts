@@ -1,24 +1,24 @@
 import type { Meta, StoryObj } from "@storybook/vue3-vite";
 
-import SuccessPanel from "./SuccessPanel.vue";
+import FormSuccessPanel from "./FormSuccessPanel.vue";
 
-const meta: Meta<typeof SuccessPanel> = {
-    component: SuccessPanel,
+const meta: Meta<typeof FormSuccessPanel> = {
+    component: FormSuccessPanel,
     args: {
         title: "Recibido. Gracias, María-José.",
         action: { label: "Enviar otra propuesta", to: "#" },
     },
     render: (args) => ({
-        components: { SuccessPanel },
+        components: { FormSuccessPanel },
         setup: () => ({ args }),
         template:
-            '<SuccessPanel v-bind="args">Te confirmaremos la recepción en 24–72 horas, y tendrás una decisión razonada en cinco días como máximo.</SuccessPanel>',
+            '<FormSuccessPanel v-bind="args">Te confirmaremos la recepción en 24–72 horas, y tendrás una decisión razonada en cinco días como máximo.</FormSuccessPanel>',
     }),
 };
 
 export default meta;
 
-type Story = StoryObj<typeof SuccessPanel>;
+type Story = StoryObj<typeof FormSuccessPanel>;
 
 export const WithAction: Story = {};
 

@@ -27,6 +27,10 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   it; `server/utils/` is only for helpers that know nothing about the domain, so a cached read that
   several routes share goes in `server/services/`. A vendor client that one layer calls goes in
   `server/adapters/`, named for the vendor, so it stays out of Nitro's auto-imports.
+  **Only the shell may use anything:** the kit (`app/components/base`, `app/components/listing`,
+  `app/types`, `app/utils`, `app/composables`) uses only itself, a layer uses itself, the kit and
+  `forms`, and only a feature's `app/pages/` may render another feature's auto-registered
+  components. Nothing checks this but review, since auto-imports hide every edge from the linter.
 - Typechecking runs on build (`typescript.typeCheck: "build"`), so `pnpm build` is slow and already
   covers what `pnpm typecheck` would.
 - [`tsconfig.json`](./tsconfig.json) only references `./.nuxt/tsconfig.*.json`, which `nuxi
