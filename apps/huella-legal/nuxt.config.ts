@@ -46,7 +46,10 @@ export default defineNuxtConfig({
 
     typescript: {
         typeCheck: "build",
-        tsConfig: { include: ["../vitest.setup.ts"] },
+        tsConfig: {
+            include: ["../vitest.setup.ts"],
+            vueCompilerOptions: { checkUnknownComponents: true },
+        },
     },
 
     i18n: {
