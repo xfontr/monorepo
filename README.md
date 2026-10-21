@@ -54,19 +54,27 @@ Projects are layered with Nx tags (declared in each `package.json` under `nx.tag
 
 | Tag | May depend on | Who has it |
 | --- | --- | --- |
-| `type:app` | `type:feature`, `type:domain`, `type:ui`, `type:i18n`, `type:content`, `type:observability`, `type:config` | `developer-portal`, `huella-legal` |
-| `type:feature` | `type:domain`, `type:ui`, `type:i18n`, `type:content`, `type:config` | — |
-| `type:domain` | `type:domain`, `type:config` | — |
-| `type:ui` | `type:ui`, `type:config` | `ui` |
-| `type:i18n` | `type:config` | `i18n` |
-| `type:content` | `type:config` | `content` |
+| `type:app` | `type:integration`, `type:observability`, `type:ui`, `type:config` | `developer-portal`, `huella-legal` |
+| `type:integration` | `type:config` | `content`, `i18n` |
 | `type:observability` | `type:config` | `observability` |
+| `type:ui` | `type:ui`, `type:config` | `ui` |
 | `type:infra` | `type:config` | `translations` |
 | `type:tooling` | `type:config` | `scripts` |
 | `type:config` | nothing | `configs` |
 
-The rule of thumb: apps compose, everything else stays a leaf. `type:feature` and `type:domain`
-are reserved for upcoming packages; no project uses them yet. The constraints live in
+Every project also carries exactly one `scope:*` tag, and both rules apply at once:
+
+| Scope | May depend on | Who has it |
+| --- | --- | --- |
+| `scope:shared` | `scope:shared` | `configs`, `content`, `i18n`, `observability`, `ui` |
+| `scope:huella-legal` | `scope:huella-legal`, `scope:shared` | `huella-legal` |
+| `scope:internal` | `scope:internal`, `scope:shared` | `developer-portal` |
+| `scope:tooling` | `scope:tooling`, `scope:shared` | `scripts` |
+| `scope:infra` | `scope:infra`, `scope:shared` | `translations` |
+
+The rule of thumb: apps compose, everything else stays a leaf, and nothing reaches into another
+product's scope. A tag gets a row when its first project exists, not before;
+[`docs/concepts/boundaries.md`](./docs/concepts/boundaries.md) says why. The constraints live in
 [`packages/configs/src/eslint/lib/boundaries.ts`](./packages/configs/src/eslint/lib/boundaries.ts).
 
 ## 🔧 Tooling conventions

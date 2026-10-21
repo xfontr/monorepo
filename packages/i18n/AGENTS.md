@@ -28,7 +28,7 @@ The invariants worth losing a build over:
 - No service layer over the port. Locale fallback or merging local overrides would be the day that
   changes.
 
-Tagged `type:i18n`, so it may depend only on `@monorepo/configs`.
+Tagged `type:integration`, so it may depend only on `@monorepo/configs`.
 
 [`runtime/locales/loader.ts`](./src/nuxt/runtime/locales/loader.ts) is one line on purpose. It hands
 the failure to the BFF route, which already maps every `TranslationsError` to a status — a

@@ -56,7 +56,11 @@ with two entry points and optional peers. 2-space indent, because pnpm rewrites 
 
 - **No build step**: the `exports` map points at source. No `main`, no `types`, no `dist`.
 - **Exactly two Nx tags**, `type:<kind>` and `scope:<area>`. They live here, not in a
-  `project.json` — there are none in this workspace.
+  `project.json` — there are none in this workspace. Pick `<kind>` from the
+  [root README's tag table](../../../README.md#-architecture--boundaries): a vendor wrapper is
+  `type:integration`, like `content` and `i18n`. Every project needs exactly one `scope:*` tag too,
+  since the scope rules bind it the moment it is tagged: `scope:shared` for a package any app may
+  use, otherwise the app or area it belongs to.
 - If the package has internal layers, add Node subpath imports the way `content` and `i18n` do:
   `"imports": { "#core/*": "./src/core/*.ts" }`. Use them internally instead of `../../`.
 - A second entry point (a framework integration) goes in the `exports` map with its framework deps
@@ -97,15 +101,17 @@ Follow the `house-docs` skill. A new package's README earns its keep by saying w
 
 ## 5. The boundary wiring — the step that gets skipped
 
-If the project introduces a **new** `type:` tag, three edits, all outside the new directory:
+If the project introduces a **new** `type:` or `scope:` tag, three edits, all outside the new
+directory:
 
 1. Add its own `depConstraints` entry to
    [`boundaries.ts`](../../../packages/configs/src/eslint/lib/boundaries.ts). A leaf package gets
    `onlyDependOnLibsWithTags: ["type:config"]` — the rule of thumb is that apps compose and
    everything else stays a leaf.
 2. Add the new tag to the `onlyDependOnLibsWithTags` of whatever is allowed to consume it — usually
-   `type:app`, sometimes `type:feature` too.
-3. Add the row to the tag table in the [root README](../../../README.md#-architecture--boundaries).
+   `type:app` alone. A new scope gets `["scope:<area>", "scope:shared"]` and joins no other list.
+3. Add the row to the tag or scope table in the
+   [root README](../../../README.md#-architecture--boundaries).
    It is the readable copy of the same rules and it drifts the moment you forget.
 
 ## 6. The root README
