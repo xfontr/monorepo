@@ -15,6 +15,7 @@ describe("subscription schema", () => {
         ["an empty address", "", "required"],
         ["a blank address", "   ", "required"],
         ["an address with no domain", "lucia@", "invalid"],
+        ["no address at all", undefined, "required"],
     ])("rejects %s with the issue the caller words", (_, email, issue) => {
         const result = v.safeParse(schema, { email });
 

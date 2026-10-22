@@ -168,10 +168,11 @@
         "item": "{field}: {message}",
         "title": "Revisa un campo antes de enviar | Revisa {count} campos antes de enviar"
     },
+    "formHoneypot": {
+        "label": "Deja este campo vacío"
+    },
     "newsletterBand": {
         "kicker": "Boletín mensual",
-        "note": "Puedes darte de baja desde cualquier correo. Tratamos tu dirección según la {privacy}.",
-        "privacy": "política de privacidad",
         "title": "Un correo al mes con lo que hemos publicado. Nada más."
     },
     "newsletterCard": {
@@ -183,12 +184,23 @@
         "email": {
             "errors": {
                 "invalid": "Revisa la dirección: por ejemplo, nombre{'@'}ejemplo.es",
+                "rejected": "No podemos enviar a esta dirección. Prueba con otra.",
                 "required": "Escribe tu correo electrónico"
             },
             "label": "Correo electrónico",
             "placeholder": "nombre{'@'}ejemplo.es"
         },
-        "submit": "Suscribirme"
+        "error": {
+            "description": "Inténtalo de nuevo en unos minutos.",
+            "title": "No hemos podido completar la suscripción"
+        },
+        "notice": "Huella Legal usa tu correo solo para enviarte el boletín, con tu consentimiento. Mailchimp envía los correos, y Netlify y Cloudflare alojan y protegen este formulario. Puedes darte de baja desde cualquier correo y ejercer tus derechos como explica la {privacy}.",
+        "privacy": "política de privacidad",
+        "submit": "Suscribirme",
+        "success": {
+            "description": "Te hemos enviado un correo para confirmar tu dirección. Si ya recibías el boletín, no tienes que hacer nada.",
+            "title": "Revisa tu bandeja de entrada"
+        }
     },
     "noResults": {
         "broaden": "Prueba con una palabra más general o con el apellido del autor.",

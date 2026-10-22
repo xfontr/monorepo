@@ -37,5 +37,6 @@ useSeoMeta({ title: () => t("publications.title"), description: lead });
                 class="lg:col-span-4"
             />
         </UContainer>
+        <NewsletterBand />
     </div>
 </template>

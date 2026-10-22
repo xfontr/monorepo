@@ -26,5 +26,5 @@ The invariants worth losing a build over:
 - No service layer over the provider port, and no caching in the core — the Nuxt half's `useContent`
   caches, other consumers bring their own.
 
-Tagged `type:content`, so it may depend only on `@monorepo/configs`. That is why nothing here emits
-a span; instrument from the consuming app.
+Tagged `type:integration`, so it may depend only on `@monorepo/configs`. That is why nothing here
+emits a span; instrument from the consuming app.

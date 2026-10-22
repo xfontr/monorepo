@@ -22,6 +22,7 @@ const createNodeConfig = () =>
                     "app/**/*.vue",
                     "server/**/*.ts",
                     "shared/**/*.ts",
+                    "modules/**/*.ts",
                     "tools/**/*.ts",
                 ],
                 exclude: [

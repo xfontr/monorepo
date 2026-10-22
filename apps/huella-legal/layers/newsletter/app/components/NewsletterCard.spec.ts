@@ -1,5 +1,4 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { flushPromises } from "@vue/test-utils";
 import { beforeAll, describe, expect, it } from "vitest";
 import NewsletterCard from "./NewsletterCard.vue";
 
@@ -10,11 +9,9 @@ const MESSAGES = {
         subjectLead: "lead: {subject}",
     },
     newsletterForm: {
-        email: {
-            errors: { invalid: "invalid", required: "required" },
-            label: "email",
-            placeholder: "placeholder",
-        },
+        email: { label: "email", placeholder: "placeholder" },
+        notice: "notice {privacy}",
+        privacy: "privacy",
         submit: "submit",
     },
 };
@@ -39,25 +36,16 @@ describe("newsletter card", () => {
         expect(wrapper.find("p").text()).toBe("lead: derecho penal");
     });
 
-    it("hands its state to a stacked form", async () => {
-        const wrapper = await mountSuspended(NewsletterCard, {
-            props: { pending: true, error: "Ya estás suscrita" },
-        });
-
-        expect(wrapper.findComponent({ name: "NewsletterForm" }).props()).toMatchObject({
-            layout: "stacked",
-            pending: true,
-            error: "Ya estás suscrita",
-        });
-    });
-
-    it("passes the submit through, so the caller drives the card like the form", async () => {
+    it("stacks its form, since the sidebar is too narrow for a row", async () => {
         const wrapper = await mountSuspended(NewsletterCard);
 
-        await wrapper.find("input").setValue("lucia@ejemplo.es");
-        await wrapper.find("form").trigger("submit");
-        await flushPromises();
+        expect(wrapper.findComponent({ name: "NewsletterForm" }).props("layout")).toBe("stacked");
+    });
 
-        expect(wrapper.emitted("submit")).toEqual([["lucia@ejemplo.es"]]);
+    // The sidebar form has no band around it, so the form must bring its own notice
+    it("carries the privacy notice like every other newsletter form", async () => {
+        const wrapper = await mountSuspended(NewsletterCard);
+
+        expect(wrapper.find("form p").text()).toContain("notice");
     });
 });

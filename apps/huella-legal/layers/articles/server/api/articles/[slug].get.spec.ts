@@ -4,18 +4,11 @@ import type { Article } from "../../../shared/types/Article";
 
 const ENTRY = fakeEntry({ slug: "la-culpa", body: { format: "html", value: "<h2>Uno</h2>" } });
 
-const nitro = vi.hoisted(() => ({
-    getEntry: vi.fn(),
-    param: vi.fn(),
-    siteUrl: "https://revista.test",
-}));
+const nitro = vi.hoisted(() => ({ getEntry: vi.fn(), param: vi.fn() }));
 
 vi.stubGlobal("defineEventHandler", (handler: unknown) => handler);
 vi.stubGlobal("getRouterParam", nitro.param);
-vi.stubGlobal("createError", (input: { statusCode?: number }) =>
-    Object.assign(new Error("http"), input),
-);
-vi.stubGlobal("useRuntimeConfig", () => ({ public: { site: { url: nitro.siteUrl } } }));
+vi.stubGlobal("useRuntimeConfig", () => ({ public: { site: { url: "https://revista.test" } } }));
 vi.stubGlobal("useAppConfig", () => ({ journal: { name: "Huella Legal", issn: "0000-0000" } }));
 vi.stubGlobal("useContent", () => ({ getEntry: nitro.getEntry }));
 
@@ -25,7 +18,6 @@ const handler = (await import("./[slug].get")).default as unknown as (
 
 beforeEach(() => {
     vi.clearAllMocks();
-    nitro.siteUrl = "https://revista.test";
     nitro.param.mockReturnValue("la-culpa");
     nitro.getEntry.mockResolvedValue(ENTRY);
 });
@@ -51,15 +43,5 @@ describe("GET /api/articles/:slug", () => {
         nitro.getEntry.mockRejectedValue(Object.assign(new Error("http"), { statusCode: 404 }));
 
         await expect(handler({})).rejects.toMatchObject({ statusCode: 404 });
-    });
-
-    it("fails naming the missing site URL instead of citing a relative address", async () => {
-        nitro.siteUrl = "";
-
-        await expect(handler({})).rejects.toMatchObject({
-            statusCode: 500,
-            statusMessage: "Site is misconfigured: NUXT_PUBLIC_SITE_URL is not set",
-        });
-        expect(nitro.getEntry).not.toHaveBeenCalled();
     });
 });

@@ -3,6 +3,7 @@ import "../app/assets/css/main.css";
 import UApp from "@nuxt/ui/components/App.vue";
 import ui from "@nuxt/ui/vue-plugin";
 import { setup, type Preview } from "@storybook/vue3-vite";
+import { sb } from "storybook/test";
 import { createI18n } from "vue-i18n";
 import { createMemoryHistory, createRouter } from "vue-router";
 
@@ -19,7 +20,13 @@ const routes = [
     { name: "category", path: "/materias/:slug/" },
 ].map((route) => ({ ...route, component: { render: () => null } }));
 
+// Swapped for its `__mocks__` copy, so a story's form never posts; Storybook restores the copy's
+// idle default before each story
+sb.mock("../layers/newsletter/app/composables/useNewsletter.ts");
+
 setup((app) => {
+    // FormChallenge mounts the module's widget on focus, which would load Cloudflare's script
+    app.component("NuxtTurnstile", { render: () => null });
     app.use(ui);
     app.use(createRouter({ history: createMemoryHistory(), routes }));
     app.use(
