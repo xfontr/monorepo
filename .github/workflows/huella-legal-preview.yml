@@ -1,0 +1,115 @@
+name: Huella Legal preview
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened, closed]
+        paths:
+            - apps/huella-legal/**
+            - packages/content/**
+            - packages/i18n/**
+            - packages/observability/**
+            - package.json
+            - pnpm-lock.yaml
+            - pnpm-workspace.yaml
+            - .nvmrc
+            - .github/workflows/huella-legal-preview.yml
+
+permissions:
+    contents: read
+
+concurrency:
+    group: huella-legal-preview-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
+
+jobs:
+    deploy:
+        # Forks and Dependabot get no OIDC token, and an unconfigured repo has nowhere to deploy.
+        if: >-
+            github.event.action != 'closed' &&
+            github.event.pull_request.head.repo.full_name == github.repository &&
+            github.event.pull_request.user.login != 'dependabot[bot]' &&
+            vars.GCP_PROJECT_ID != '' &&
+            vars.GCP_WORKLOAD_IDENTITY_PROVIDER != '' &&
+            vars.GCP_SERVICE_ACCOUNT != '' &&
+            vars.CLOUD_RUN_PREVIEW_SERVICE != '' &&
+            vars.CLOUD_RUN_REGION != ''
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            id-token: write
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+            - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version-file: .nvmrc
+                  cache: pnpm
+
+            - run: pnpm install --frozen-lockfile --ignore-scripts
+
+            # The preset isn't an Nx input, so a cached build from another host could be restored.
+            - run: pnpm exec nx build @monorepo/huella-legal --skip-nx-cache
+              env:
+                  NITRO_PRESET: node_server
+
+            - name: Add the Dockerfile
+              run: |
+                  {
+                      echo "FROM node:$(cat .nvmrc)-slim"
+                      echo "WORKDIR /app"
+                      echo "COPY . ."
+                      echo "ENV NODE_ENV=production"
+                      echo 'CMD ["node", "server/index.mjs"]'
+                  } > apps/huella-legal/.output/Dockerfile
+
+            - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+              with:
+                  project_id: ${{ vars.GCP_PROJECT_ID }}
+                  workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+                  service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+            # Nitro's SWR refresh runs after the response, so CPU has to stay allocated past it.
+            - uses: google-github-actions/deploy-cloudrun@2028e2d7d30a78c6910e0632e48dd561b064884d # v3.0.1
+              with:
+                  service: ${{ vars.CLOUD_RUN_PREVIEW_SERVICE }}
+                  region: ${{ vars.CLOUD_RUN_REGION }}
+                  source: apps/huella-legal/.output
+                  tag: pr-${{ github.event.pull_request.number }}
+                  no_traffic: true
+                  flags: --no-cpu-throttling
+                  env_vars: |-
+                      NUXT_PUBLIC_OBSERVABILITY_APP_VERSION=${{ github.event.pull_request.head.sha }}
+                      NUXT_PUBLIC_OBSERVABILITY_APP_ENVIRONMENT=preview
+
+    cleanup:
+        if: >-
+            github.event.action == 'closed' &&
+            github.event.pull_request.head.repo.full_name == github.repository &&
+            github.event.pull_request.user.login != 'dependabot[bot]' &&
+            vars.GCP_PROJECT_ID != '' &&
+            vars.GCP_WORKLOAD_IDENTITY_PROVIDER != '' &&
+            vars.GCP_SERVICE_ACCOUNT != '' &&
+            vars.CLOUD_RUN_PREVIEW_SERVICE != '' &&
+            vars.CLOUD_RUN_REGION != ''
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            id-token: write
+        steps:
+            - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+              with:
+                  project_id: ${{ vars.GCP_PROJECT_ID }}
+                  workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+                  service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+            - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+
+            - run: >-
+                  gcloud run services update-traffic "$SERVICE" --region "$REGION"
+                  --remove-tags "pr-$PR_NUMBER"
+              env:
+                  SERVICE: ${{ vars.CLOUD_RUN_PREVIEW_SERVICE }}
+                  REGION: ${{ vars.CLOUD_RUN_REGION }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}

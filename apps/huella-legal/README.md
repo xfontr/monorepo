@@ -27,32 +27,94 @@ One module beyond the shared ones is installed here: `@nuxt/fonts`.
 
 ## 🚢 Deployment
 
-The app ships through Netlify's own git integration, with build settings in the Netlify UI and no
-build or deploy step in this repo. [`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml)
-builds and deploys nothing itself: once Netlify's own pipeline publishes a commit, it polls
-Netlify's Deploys API for that commit and records a GitHub Deployment against the
-`huella-legal` environment, so the live URL shows up on the repo's Deployments page
-alongside `developer-portal` instead of only in Netlify's own dashboard.
+The app runs on Google Cloud Run, per
+[0030](../../docs/decisions/0030-huella-legal-rendering-hosting-and-cost.md). Nitro has no Cloud Run
+preset, so the deploy builds with `NITRO_PRESET=node_server`: `.output/` is a self-contained Node
+server that listens on the `PORT` Cloud Run injects and reads every `NUXT_*` variable from the
+service at startup. The same artifact therefore runs in any environment. `nuxt.config.ts` pins no
+preset, so the Netlify build below still auto-detects its own.
 
-The root [`netlify.toml`](../../netlify.toml) holds only an `ignore` command, which runs
-[`netlify-ignore.sh`](./netlify-ignore.sh). It cancels the build unless the diff touches this app,
-`content`, `i18n`, `observability` or the pnpm and Node pins. Docs, specs, stories, e2e and lint
-config don't count.
+### 🗄 Caching
 
-| Build | Diffed from |
+Pages, the BFF and `@nuxtjs/i18n`'s message bundles are cached in Nitro through `routeRules`, set
+under `$production` only, because dev mounts the cache on disk and would serve a page rendered
+before your last edit. Every cached response carries `s-maxage` and `stale-while-revalidate`, so a
+CDN put in front later honours the same windows.
+
+| Route | Fresh for | Stale for | Why |
+| --- | --- | --- | --- |
+| `/**`, which covers posts at `/:slug/` | 6 h | 7 d | `@monorepo/content`'s item TTL |
+| `/` and everything under `/publicaciones/`, `/materias/`, `/etiquetas/`, `/colaboradores/` and `/buscar/` | 1 h | 1 d | The list TTL. Each query string is its own entry |
+| `/feed/`, `/sitemap.xml` | 1 h | 1 d | They list what the listings list. Neither route exists yet; the rules keep them off `/**`'s 6 h when they land |
+| `/api/articles/**` | 1 h | 1 d | Browsers call it on client navigation; SSR reads it in-process |
+| `/_i18n/**` | 1 h | 1 d | The translations TTL |
+| `/api/**`, `/robots.txt` | — | — | Kept out of `/**`: POST routes, and an answer that will vary by host |
+
+- **A listing index needs a rule of its own.** Nitro routes `/publicaciones/` to the `/**` handler,
+  not to `/publicaciones/**`, so without `/publicaciones` it would get the six-hour item TTL.
+  [`cache.spec.ts`](./e2e/cache.spec.ts) pins it.
+- **The cache is an LRU of 1,000 entries, capped at 128 MB.** The key is the full URL, query string
+  included, so an unbounded store would grow with every `?utm_…` a crawler invents. The driver's
+  default `max` of 1,000 entries binds well before the byte cap. The `lru-cache` driver ships with
+  Nitro's `unstorage`, so it adds no dependency. Each instance warms its own copy.
+- **Stray query strings don't share a listing's entry.** 0030's Netlify design keyed listings on
+  `page`, `sort` and `tag` only; here every `?utm_…` is its own render and its own LRU entry.
+- **A 5xx is marked `no-store`.** Nitro never caches a thrown error, and it never gets `s-maxage`,
+  so [`cdn.ts`](./server/plugins/cdn.ts) is a guard against a CDN's negative caching. It works in
+  Nitro's `error` hook, since `beforeResponse` doesn't fire for a thrown error, and skips an SWR
+  refresh that fails after its response has gone out. A translations outage still renders a 200
+  with raw keys, which this can't see.
+- **The payload stays inlined** (`experimental.payloadExtraction: false`). Any cache rule
+  otherwise has every visible `NuxtLink` prefetch its page's `_payload.json`, and each one is a
+  cold SSR render on a miss. The placeholder 404 pages only surfaced it, by failing those
+  prefetches. Client navigation keeps calling the BFF instead.
+- **CPU stays allocated after the response** (`--no-cpu-throttling`), because Nitro refreshes a
+  stale entry after it has answered with it. Request-based billing would starve that refresh.
+
+### 🔍 Previews
+
+[`huella-legal-preview.yml`](../../.github/workflows/huella-legal-preview.yml) deploys every
+same-repo PR that touches this app, a runtime package or the pnpm and Node pins. It builds
+`.output/`, wraps it in a `node:<.nvmrc>-slim` image, and deploys it to a dedicated preview service
+as a no-traffic revision tagged `pr-<number>`, which gives it its own URL. Closing the PR removes
+the tag. The revision stamps the head SHA and `preview` on its spans; every other variable comes
+from the preview service's own settings, so set them there once.
+
+Previews deploy to their own service because a no-traffic revision still becomes the latest one,
+and a later `--to-latest` would promote the PR's image. The workflow naming that service is only a
+convention: `pull_request` runs the PR head's copy of the file, so a PR can rewrite it. The control
+is IAM, and it has two parts:
+
+| Where | Setting |
 | --- | --- |
-| Production | Netlify's last build |
-| Deploy preview | The PR's merge base with `master` |
-| `netlify-deployment.yml` | The push's `before`, and it skips recording when the script says so |
+| The service account | `roles/run.developer` on the preview service resource only, never project-wide |
+| The WIF provider | An attribute condition on `assertion.repository`, so only this repo's tokens are trusted |
 
-The ignore command runs before dependencies are installed, so it can't ask Nx and the list is kept
-by hand. A new runtime `@monorepo/*` import needs a line there. Any `pnpm-lock.yaml` change still
-builds, even one that only touches another project.
+Each deploy from source pushes an image of about 100 MB to Artifact Registry, against the 0.5 GiB
+free tier 0030 prices. Give the repository Cloud Build writes to a cleanup policy that keeps the
+few most recent images and deletes the rest after a week or two. Closing a PR removes its tag but
+leaves the revision itself, which stays until someone deletes it.
 
-The site ID and auth token never enter this repo: `NETLIFY_SITE_ID` is a GitHub Actions repo
-variable and `NETLIFY_AUTH_TOKEN` a secret, both read at workflow runtime with no default. Netlify
-deploys asynchronously after the push that triggers the workflow, so it polls for up to 10 minutes
-rather than reading the API once.
+| GitHub Actions variable | What it is |
+| --- | --- |
+| `GCP_PROJECT_ID` | The Google Cloud project |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | The Workload Identity Federation provider that trusts this repo's OIDC token |
+| `GCP_SERVICE_ACCOUNT` | The service account the workflow impersonates; it needs the rights to deploy Cloud Run from source |
+| `CLOUD_RUN_PREVIEW_SERVICE` | The preview service |
+| `CLOUD_RUN_REGION` | Its region. 0030 priced `europe-southwest1` |
+
+No key is stored: authentication is keyless through Workload Identity Federation, and every value
+above is a repo variable with no default. With any of them unset the workflow skips, so an
+unconfigured repo stays green. It also skips forks and Dependabot, which get no OIDC token.
+
+### 🪦 Netlify
+
+Netlify's git integration is still wired: the root [`netlify.toml`](../../netlify.toml),
+[`netlify-ignore.sh`](./netlify-ignore.sh) and
+[`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml), with `NETLIFY_SITE_ID`
+and `NETLIFY_AUTH_TOKEN` in the repo's Actions settings. Only the Cloud Run build sets a preset, so
+Nitro still detects Netlify there and the site keeps building as before until F2 moves the domain.
+Retiring the integration is the owner's call.
 
 ## 🔑 Environment
 
@@ -389,4 +451,6 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | The newsletter band under the article and the listings | Left out until E1 gives `NewsletterBand` a submit to call; a form that drops the address is worse than none |
 | *Publicaciones* lit in the header on an article | `useSiteNav` marks sections by route, and `/:slug/` also serves WordPress pages (C6), so it needs to know which one it rendered |
 | The `onServerPrefetch` tree-shake override in `nuxt.config.ts` | Drop it once Nuxt stops stripping that hook from client builds; the article e2e's axe scan fails on `aria-controls` if it goes too early |
+| Production deploys | Nothing deploys the production service yet. A push-to-`master` job like the preview's, without `tag` and `no_traffic`, pointed at its own `CLOUD_RUN_SERVICE` variable, stamping the version and `production` |
+| A CDN in front of Cloud Run | Cloud CDN behind a load balancer or Firebase Hosting, both priced in [0030](../../docs/decisions/0030-huella-legal-rendering-hosting-and-cost.md). The `s-maxage` headers and the 5xx guard are already in place |
 | Parity with the `/lab` pages | Still a human check: the lab is stripped from production builds, and Linux substitutes a serif for Georgia |
