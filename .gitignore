@@ -33,6 +33,7 @@ logs
 # Claude Code personal overrides and generated compatibility files
 .claude/settings.local.json
 .claude/generated.json
+.claude/worktrees/
 .claude/skills/
 **/CLAUDE.md
 

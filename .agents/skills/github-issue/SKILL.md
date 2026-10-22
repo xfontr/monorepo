@@ -100,33 +100,16 @@ issue number and URL `gh issue create` prints, not just "done".
 
 ## 5. Offer to pick it
 
-Once it's filed, ask whether the user also wants to pick it up now. If yes, this is the manual
-equivalent of `pnpm issue:pick` for the issue you just created — you can't run that script, so do
-what it does by hand:
+Once it's filed, ask whether the user also wants to pick it up now. If yes, run the same script
+they would, with the number so it asks nothing:
 
-1. Ask the branch type (`feature`, `fix`, `hotfix`, `release`) if it isn't obvious from the kind —
-   `feature` for a task, `fix` for a bug; a spike is usually `feature` too, but ask if unsure.
-2. Build the branch name the same way the script does: `<type>/<project>/<issue number>-<slug>`,
-   where `<project>` is the project you filed the issue onto in step 4 above (slugified the same
-   way as the title — lowercase, letters/digits/hyphens only), and `<slug>` is a short, hyphenated
-   summary of the title. If step 4 dropped `--project`, ask which open project board this branch
-   should reference — `pnpm issue:pick`'s own Project prompt has no *none* option either.
-3. Create and link the branch in one call — this both creates the branch on the issue's Development
-   panel and checks it out, same as the script:
+```sh
+pnpm issue:pick <issue number>
+```
 
-   ```sh
-   gh issue develop <issue number> --name <type>/<project>/<issue number>-<slug> --checkout
-   ```
-
-4. Assign the issue to the user: `gh issue edit <issue number> --add-assignee @me`. If it fails
-   (no write access), warn and move on — the branch is still theirs.
-5. Move the issue to *In Progress* on the board, same as the script:
-
-   ```sh
-   gh project item-edit <project number> --owner <owner> --url <issue url> --field "Status" --value "In Progress"
-   ```
-
-   `<project number>` is the number from `gh project list` (not the title used above), `<owner>`
-   is `gh repo view --json owner --jq .owner.login`. This assumes the default GitHub Projects
-   template's "Status" field and "In Progress" option — if it fails, warn and move on, same as the
-   assignment.
+It takes the board from the issue (the project you filed it onto in step 4) and the branch type from
+the label: `enhancement` is `feature`, `bug` is `fix`. It fails rather than guessing for a `spike`
+or an issue with no board, and the message names the flag to pass — `--type=<feature|fix|hotfix|release>`
+or `--project=<board title>`; ask the user for either if it isn't obvious. Pass a short
+`--title="…"` when the issue title would make a long slug. A failed assignment or board move only
+warns; the branch is still checked out.

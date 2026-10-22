@@ -96,7 +96,8 @@ Vue spec from it if you must, but not its titles, and fix it if you touch it.
 ## Verify
 
 ```sh
-pnpm exec nx test @monorepo/<name>
+pnpm check                                 # affected lint, typecheck and test, failures inline
+pnpm exec nx test @monorepo/<name>         # the test target alone, full output
 pnpm exec nx run-many -t test              # the whole workspace
 ```
 

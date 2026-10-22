@@ -73,9 +73,13 @@ Never `console.log`, and never `@clack/prompts`' `log`/`intro`/`outro`/`spinner`
 plain lines from
 `isTTY && !CI`, and sends `warn`/`error` to stderr in both. Import `confirm`, `select`,
 `autocomplete` and `text` from clack directly, since a prompt needs a terminal by definition; wrap
-every one in `orExit`. A prompt can't run without a terminal at all, so a command that might be
-invoked by CI or a hook checks `isInteractive()` first and throws an `ExpectedError` naming the
-choices, the way [`dev/main.ts`](../../../infrastructure/scripts/src/dev/main.ts) does.
+every one in `orExit`. A prompt can't run without a terminal at all, and an agent's shell never has
+one, so every command with a prompt also takes the answers as arguments and calls
+`requireTerminal(hint)` before the first prompt, the hint naming those arguments. `pnpm issue:pick`
+is the example: `pick <number> --type=…` asks nothing, and a bare `pick` with no terminal fails at
+once. Read a `--name=value` flag with `optionValue` from
+[`shared/domain/cli.ts`](../../../infrastructure/scripts/src/shared/domain/cli.ts); a bare
+`--name value` parses as a flag plus a positional.
 
 **`select` or `autocomplete` is decided by the list, not by taste.** A list that grows with the repo
 — open issues, labels, projects with a dev server — is `autocomplete`, so it can be typed at instead
@@ -102,9 +106,9 @@ Two script folders never import each other.
 ## Verify
 
 ```sh
-pnpm exec nx run-many -t lint typecheck test --projects @monorepo/scripts
 pnpm docs:map            # then commit docs/FEATURES.md
-node src/<name>/index.ts # and once more with CI=1, if a hook or CI will run it
+pnpm check               # affected lint, typecheck and test, then both --checks
+node src/<name>/index.ts # and once more with CI=1 and </dev/null: an agent's shell has no terminal
 ```
 
 A spec is only owed by real logic — a parser, a diff, a mapping — and that logic lives in `domain/`,

@@ -29,65 +29,44 @@ the wrong issue is expensive to notice later. Don't guess past one weak match.
 
 Skip this if step 1 already found you standing on the issue's branch.
 
-Otherwise this is `pnpm issue:pick` for an issue you already picked out, so do what it does by
-hand — same procedure as the `github-issue` skill's "Offer to pick it" step:
+Otherwise run `pnpm issue:pick` with the number. It asks nothing, and does what the interactive
+pick does: builds `<type>/<project>/<number>-<slug>`, runs `gh issue develop --checkout` so the
+branch is linked on the issue, self-assigns, and moves the issue to *In Progress*.
 
-1. Pick the branch type from the issue's label (`enhancement` → `feature`, `bug` → `fix`) or ask if
-   it's a `spike` or the label doesn't map cleanly.
-2. Read the issue's project off `gh issue view <number> --json projectItems --jq
-   '.projectItems[0].title'` and slugify it the same way as the branch title (lowercase, accents
-   stripped, everything else collapsed to dashes — see `domain/branch.ts`). Ask which open project
-   board to use if the issue isn't on one; `pnpm issue:pick`'s own Project prompt has no *none*
-   option either.
-3. Build `<type>/<project>/<issue number>-<slug>`, slug lowercased and hyphenated from the title.
-4. `gh issue develop <number> --name <type>/<project>/<number>-<slug> --checkout` — links the
-   branch on the issue's Development panel and checks it out in one call.
-5. `gh issue edit <number> --add-assignee @me`. A failure here (no write access) only costs the
-   assignment — warn and keep going, the branch is still checked out.
-6. Move the issue to *In Progress* on the board:
+```sh
+pnpm issue:pick <number>                                 # type from the label, board from the issue
+pnpm issue:pick <number> --type=feature --title="Short"  # when the label or the title won't do
+```
 
-   ```sh
-   gh project item-edit <project number> --owner <owner> --url <issue url> --field "Status" --value "In Progress"
-   ```
+- **It fails rather than guessing** on a `spike` or an unmapped label (pass `--type=`) and on an
+  issue with no board (pass `--project=<board title>`, after asking which). Ask the user when the
+  message names a choice you can't settle from the issue.
+- **The title becomes the slug**, so pass a shorter `--title=` when the issue title is long.
+- **An existing branch for the number is checked out** instead of creating a second one, so
+  resuming is the same command.
+- A failed assignment or board move only warns; the branch is still checked out.
 
-   `<project number>` is the number from `gh project list`, not the title used to build the branch
-   above; `<owner>` is `gh repo view --json owner --jq .owner.login`. A failure here (renamed
-   "Status" field or option) only costs the board move — warn and keep going.
-
-Check `git status --porcelain` first if you're not sure the tree is clean: the checkout above
-carries uncommitted changes over silently, which is usually fine but worth flagging before it
-happens rather than after.
-
-If a branch for this issue already exists (you're resuming, not starting), `gh issue develop` fails
-on the name collision — check for one first (branch names embed the issue number, so
-`git branch --list "*/<number>-*"` finds it) and check it out instead of creating a second one.
+Check `git status --porcelain` first if you're not sure the tree is clean: the checkout carries
+uncommitted changes over silently, which is usually fine but worth flagging before it happens.
 
 ## 3. Read the full context
 
-One call gets the whole thread:
+One call gets the issue and everything it points at:
 
 ```sh
-gh issue view <number> --comments
+pnpm issue:brief            # on the issue's branch
+pnpm issue:brief <number>   # anywhere else
 ```
 
-Read past the body — the decision often lives in a comment, not the description. Then follow what
-it points at:
+It prints the body and every comment untrimmed — read past the body, the decision often lives in a
+comment — then four sections, each a lookup you'd otherwise run by hand:
 
-- **`Blocked by #<n>`** (the `github-issue` skill's task template) — `gh issue view <n>` for that
-  issue too. You need to know what it settled, not just that it's closed.
-- **A spike or a past decision mentioned in the text** — a resolved one lives in
-  `docs/decisions/` (see the `decision-report` skill). **Its filename number is the decision's, not
-  the issue's**, so match on frontmatter rather than on the name, and expect more than one hit —
-  one issue may have raised two questions:
-
-  ```sh
-  grep -l "^issue: <number>$" docs/decisions/*.md
-  ```
-
-  Read every hit before writing any code that touches the same ground — that's the whole reason the
-  report exists instead of a comment. A report still on `status: to-implement` is the work you're
-  about to do: its Result names the files to change, its Consequences carries the order and the
-  tripwires, and its Confirmation is what you run when you're done.
+| Section | What to do with it |
+| --- | --- |
+| Blockers | Every `Blocked by #n`, with its title and state. For one that's closed, `pnpm issue:brief <n>` to learn what it settled, not just that it's done |
+| Decisions | Reports in `docs/decisions/` whose frontmatter names this issue or one the thread mentions. Read every one before writing code on the same ground; a report on `status: to-implement` is the work you're about to do — its Result names the files, its Consequences the order and the tripwires, its Confirmation what to run at the end |
+| Projects | The folders the issue touches, each with its `AGENTS.md`. Read those, since Codex doesn't load nested ones on its own |
+| Docs mentioned | Plans and guides the thread links. Read the ones the acceptance criteria lean on |
 
 ## 4. Confirm before diving in
 

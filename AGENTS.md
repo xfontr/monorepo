@@ -19,7 +19,8 @@ so either agent can discover them from a root session.
 ## ✍️ Style
 
 - 4-space indent, double quotes, semicolons, 100 columns. Prettier enforces it as an ESLint rule
-  through `@monorepo/configs`, so `pnpm exec eslint --fix` settles any argument. There is no
+  through `@monorepo/configs`, so `pnpm exec eslint --fix`, run from the project's directory since
+  the root has no `eslint` binary, settles any argument. There is no
   `.prettierrc`, so a Prettier editor extension would format with its own defaults; the workspace
   settings turn it off and leave formatting to the ESLint extension.
 - `package.json` files are 2-space because pnpm rewrites them that way. Leave them alone.
@@ -114,10 +115,22 @@ changed since `master`, same as CI and the pre-push hook.
 
 | Need | Command |
 | --- | --- |
+| Is my change green? | `pnpm check` — lint, typecheck and test on affected projects with failing output inline, then both `--check`s |
+| What an issue says and points at | `pnpm issue:brief [number]` — no number reads it off the branch |
+| Why CI is red on a PR | `pnpm ci:failures [pr]` — no PR means the current branch's |
+| Branch off an issue | `pnpm issue:pick <number> [--type=…] [--project=…] [--title=…]` — only when asked |
+| A new worktree that won't lint | `pnpm worktree:prepare <path>`, from an installed checkout |
 | The whole workspace | `pnpm exec nx run-many -t <target>` |
 | One project | `pnpm exec nx <target> @monorepo/<name>` |
 | What targets a project has | `pnpm exec nx show project @monorepo/<name>` |
 | Why something rebuilt | `pnpm graph` |
+
+Reach for `pnpm check` over a bare `nx` call. Nx switches to `--outputStyle=summary` when it detects
+an agent, which prints only a log path per failed task; `check` asks for `static-failures-only`, so
+the errors arrive inline. It runs `eslint:lint` rather than `lint`, because `lint` is a nested
+`nx eslint:lint` that would pick `summary` again, and runs `nuxt-prepare` first, because
+`eslint:lint` lacks that dependency. A run with a cold cache can take longer than the shell's
+default two-minute timeout, so give it a longer one.
 
 The rest of this section is reference for when the user asks for it, not licence to offer it.
 [`docs/guides/change-lifecycle.md`](./docs/guides/change-lifecycle.md) has the whole flow; these are

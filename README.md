@@ -148,6 +148,8 @@ checks, is in [`docs/guides/change-lifecycle.md`](./docs/guides/change-lifecycle
 - [`pre-push`](./.husky/pre-push) rejects a bad branch name or an added `TODO`/`FIXME` comment,
   then runs lint, test and typecheck on affected projects. File a flagged comment with
   [`pnpm issue:add`](./infrastructure/scripts/src/issue/README.md) and delete it.
+- `pnpm check` runs the same three targets plus the two `--check`s CI adds, printing only what
+  failed. It's the command agents use before pushing.
 - [`pnpm issue:ship`](./infrastructure/scripts/src/ship/README.md) pushes, opens the PR and arms
   auto-merge. Auto-merge and delete-branch-on-merge are on for this repo.
 - A PR gets its title, assignees and project from the issue
