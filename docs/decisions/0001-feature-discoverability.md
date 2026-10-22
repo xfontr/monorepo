@@ -16,7 +16,7 @@ later.
 
 What made it a decision rather than a ticket is that the tree already holds forty-three hand-written
 markdown files, with every one of the eight projects carrying both a README and a `CLAUDE.md` and
-[`house-docs`](../../.agents/skills/house-docs/SKILL.md) setting their voice. So the question was
+[`house-docs`](../../.claude/skills/house-docs/SKILL.md) setting their voice. So the question was
 what a new collection holds that those don't — because anything that re-tells them is a second copy
 of content [`0002-docs-drift-detection.md`](./0002-docs-drift-detection.md) had just named as this
 repo's standing failure mode.
