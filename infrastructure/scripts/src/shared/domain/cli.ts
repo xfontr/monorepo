@@ -32,6 +32,13 @@ export const parse = (argv: string[]): Args => ({
     positionals: argv.filter((arg) => !arg.startsWith("--")),
 });
 
+export const optionValue = (flags: ReadonlySet<string>, name: string): string | undefined => {
+    const prefix = `${name}=`;
+    for (const flag of flags)
+        if (flag.startsWith(prefix)) return flag.slice(prefix.length) || undefined;
+    return undefined;
+};
+
 export const dispatch = <T>(
     commands: Record<string, T>,
     args: Args,
@@ -58,7 +65,7 @@ export const invocation = (entry: string, cwd: string): string => {
     return `node ${path && !path.startsWith("..") ? path : entry}`;
 };
 
-const detailOf = (error: unknown): string | undefined =>
+export const detailOf = (error: unknown): string | undefined =>
     (error as { stderr?: Buffer | string }).stderr?.toString().trim() || undefined;
 
 export const report = (error: unknown): ErrorReport => {

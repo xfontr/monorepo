@@ -67,26 +67,24 @@ describe("map filesystem adapter", () => {
         ]);
     });
 
-    it("finds named skills and walks markdown while excluding generated, ignored and review docs", () => {
-        mkdirSync(join(directory, ".agents", "skills", "demo"), { recursive: true });
-        mkdirSync(join(directory, "docs", "reviews"), { recursive: true });
+    it("finds named skills and walks markdown while excluding ignored and review docs", () => {
         mkdirSync(join(directory, ".claude", "skills", "demo"), { recursive: true });
+        mkdirSync(join(directory, "docs", "reviews"), { recursive: true });
         mkdirSync(join(directory, "worktrees", "old"), { recursive: true });
-        writeFileSync(join(directory, ".agents", "skills", "demo", "SKILL.md"), "name: Demo\n");
+        writeFileSync(join(directory, ".claude", "skills", "demo", "SKILL.md"), "name: Demo\n");
         writeFileSync(join(directory, "README.md"), "readme");
-        writeFileSync(join(directory, "CLAUDE.md"), "generated");
+        writeFileSync(join(directory, "CLAUDE.md"), "guidance");
         writeFileSync(join(directory, "docs", "guide.md"), "guide");
         writeFileSync(join(directory, "docs", "CHANGELOG.md"), "change");
         writeFileSync(join(directory, "docs", "reviews", "review.md"), "review");
-        writeFileSync(join(directory, ".claude", "skills", "demo", "SKILL.md"), "generated");
         writeFileSync(join(directory, "worktrees", "old", "README.md"), "old");
 
-        expect(skillFiles()).toEqual([{ source: ".agents/skills/demo/SKILL.md", name: "Demo" }]);
+        expect(skillFiles()).toEqual([{ source: ".claude/skills/demo/SKILL.md", name: "Demo" }]);
         expect(
             docs()
                 .map(({ path }) => path)
                 .sort(),
-        ).toEqual([".agents/skills/demo/SKILL.md", "README.md", "docs/guide.md"]);
+        ).toEqual([".claude/skills/demo/SKILL.md", "CLAUDE.md", "README.md", "docs/guide.md"]);
     });
 
     it("returns an empty map when the generated file does not exist", () => {

@@ -73,7 +73,7 @@ const skillsUnder = (dir: string): { source: string; name: string }[] =>
             name: nameField(read(at(source))) ?? source,
         }));
 
-export const skillFiles = (): { source: string; name: string }[] => skillsUnder(".agents/skills");
+export const skillFiles = (): { source: string; name: string }[] => skillsUnder(".claude/skills");
 
 /** Ignore linked worktrees or duplicate docs would make the map branch-dependent. */
 const IGNORED_DIRS = new Set([
@@ -89,11 +89,10 @@ const IGNORED_DIRS = new Set([
 const walkMarkdown = (dir: string, found: string[] = []): string[] => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
         const child = join(dir, entry.name);
-        const generatedClaudeSkills = relative(repoRoot(), child) === ".claude/skills";
 
-        if (entry.isDirectory() && !IGNORED_DIRS.has(entry.name) && !generatedClaudeSkills) {
+        if (entry.isDirectory() && !IGNORED_DIRS.has(entry.name)) {
             walkMarkdown(child, found);
-        } else if (entry.isFile() && entry.name.endsWith(".md") && entry.name !== "CLAUDE.md") {
+        } else if (entry.isFile() && entry.name.endsWith(".md")) {
             found.push(relative(repoRoot(), child));
         }
     }

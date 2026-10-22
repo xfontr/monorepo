@@ -156,7 +156,7 @@ Nothing here needs a new package or a `@monorepo/*` change.
 - *Form only*: `readMultipartFormData` buffers the whole body. That is only safe because the cap sits below the
   platform limit.
 - Specs for `server/` stub Nitro's auto-imports as globals, per [the app's
-  AGENTS.md](../../apps/huella-legal/AGENTS.md).
+  AGENTS.md](../../apps/huella-legal/CLAUDE.md).
 
 Revisit this if S2 leaves Netlify Functions, if messages pass Resend Free's 100 a day, or if the
 newsletter leaves Mailchimp.

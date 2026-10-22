@@ -10,7 +10,7 @@ const clack = vi.hoisted(() => ({
 }));
 
 vi.mock("@clack/prompts", () => clack);
-import { isInteractive } from "./io.ts";
+import { isInteractive, requireTerminal } from "./io.ts";
 
 const ORIGINAL_CI = process.env.CI;
 const ORIGINAL_TTY = process.stdout.isTTY;
@@ -123,5 +123,19 @@ describe("isInteractive", () => {
         setEnvironment(isTTY, ci);
 
         expect(isInteractive()).toBe(expected);
+    });
+});
+
+describe("requireTerminal", () => {
+    it("fails at once with the hint, instead of letting a prompt wait on input nobody can give", () => {
+        expect(() => requireTerminal("pass a number")).toThrow(
+            "No terminal to prompt in — pass a number",
+        );
+    });
+
+    it("lets the prompt run in a terminal", () => {
+        setEnvironment(true, false);
+
+        expect(() => requireTerminal("pass a number")).not.toThrow();
     });
 });

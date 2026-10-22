@@ -178,7 +178,7 @@ Node types even in a package that otherwise doesn't.
 - `no-restricted-imports` under `**/src/core/**`, from
   [`lib/coreIsolation.ts`](./src/eslint/lib/coreIsolation.ts) — the framework-agnostic half of a
   package may not import `@nuxt/*`, `@nuxtjs/*`, `nitropack`, `h3` or `#nuxt/*`. That invariant is
-  stated in the `content` and `i18n` AGENTS.md files, and the tag rule above cannot reach it: it
+  stated in the `content` and `i18n` CLAUDE.md files, and the tag rule above cannot reach it: it
   reasons about project-to-project edges, never subpaths inside one project
 - `no-restricted-imports` under Nuxt `app/` and `server/`, from
   [`lib/layerIsolation.ts`](./src/eslint/lib/layerIsolation.ts) — neither layer may import the

@@ -99,7 +99,6 @@ Requires the Node version in `.nvmrc` and pnpm (version pinned via `packageManag
 ```sh
 pnpm install
 pnpm quick-start                        # hooks, workspace coverage and developer-portal snapshot
-pnpm agents:sync                        # Claude adapters; Codex reads the sources directly
 pnpm dev                                # pick a project to start
 ```
 
@@ -109,7 +108,7 @@ itself if `node_modules` isn't there yet, then asks which project to start. See
 
 That second line makes a clone useful beyond compiling: it installs Git hooks, runs the workspace's
 coverage suite and writes the developer portal's snapshot from the current tree. Husky normally
-installs itself from a `prepare` script, and [lifecycle scripts are banned here](./AGENTS.md) because
+installs itself from a `prepare` script, and [lifecycle scripts are banned here](./CLAUDE.md) because
 every workflow that installs uses `--ignore-scripts` — so a hook hung off one works locally and
 silently does nothing where it matters. Skip setup and the [commit and push gates](#-git-conventions) below
 simply never fire, while the portal has no current coverage or derived docs to show.
@@ -135,7 +134,6 @@ which is also what CI runs, except `pnpm test:coverage`. For the whole workspace
 | `pnpm test:coverage` | Test the **whole workspace** with a V8 coverage report, then merge every project's into one browsable [`coverage/index.html`](./infrastructure/scripts/src/coverage-report/README.md) |
 | `pnpm build` | Build affected projects |
 | `pnpm graph` | Open the Nx project graph |
-| `pnpm agents:sync` | Render ignored Claude adapters from canonical `AGENTS.md` files and `.agents/skills/`; `--check` reports local drift |
 | `pnpm docs:map` | Re-render [`docs/FEATURES.md`](./docs/FEATURES.md); `--check` asserts it is current |
 | `pnpm release:dry` | Preview a release (versioning + changelogs) |
 
@@ -156,6 +154,8 @@ checks, is in [`docs/guides/change-lifecycle.md`](./docs/guides/change-lifecycle
 - [`pre-push`](./.husky/pre-push) rejects a bad branch name or an added `TODO`/`FIXME` comment,
   then runs lint, test and typecheck on affected projects. File a flagged comment with
   [`pnpm issue:add`](./infrastructure/scripts/src/issue/README.md) and delete it.
+- `pnpm check` runs the same three targets plus the two `--check`s CI adds, printing only what
+  failed. It's the command agents use before pushing.
 - [`pnpm issue:ship`](./infrastructure/scripts/src/ship/README.md) pushes, opens the PR and arms
   auto-merge. Auto-merge and delete-branch-on-merge are on for this repo.
 - A PR gets its title, assignees and project from the issue

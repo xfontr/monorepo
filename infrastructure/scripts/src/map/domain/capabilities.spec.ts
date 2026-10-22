@@ -74,15 +74,15 @@ describe("projectCommands", () => {
 });
 
 describe("skills", () => {
-    it("uses the unique canonical name Codex invokes from the root", () => {
+    it("invokes a skill by its frontmatter name as a slash command", () => {
         const rows = skills([
-            { source: ".agents/skills/content-new-vendor/SKILL.md", name: "content-new-vendor" },
-            { source: ".agents/skills/i18n-new-vendor/SKILL.md", name: "i18n-new-vendor" },
+            { source: ".claude/skills/content-new-vendor/SKILL.md", name: "content-new-vendor" },
+            { source: ".claude/skills/i18n-new-vendor/SKILL.md", name: "i18n-new-vendor" },
         ]);
 
         expect(rows.map((row) => row.invocation)).toEqual([
-            "$content-new-vendor",
-            "$i18n-new-vendor",
+            "/content-new-vendor",
+            "/i18n-new-vendor",
         ]);
     });
 });
@@ -97,34 +97,34 @@ describe("documentedBy", () => {
     });
 
     it("never lets a skill cite its own SKILL.md, which would answer every row trivially", () => {
-        const own = ".agents/skills/house-docs/SKILL.md";
+        const own = ".claude/skills/house-docs/SKILL.md";
         const docs: Doc[] = [
             { path: own, text: "name: house-docs" },
-            { path: "AGENTS.md", text: "| `house-docs` | Writing markdown |" },
+            { path: "CLAUDE.md", text: "| `house-docs` | Writing markdown |" },
         ];
 
         expect(documentedBy(skills([{ source: own, name: "house-docs" }])[0]!, docs)).toBe(
-            "AGENTS.md",
+            "CLAUDE.md",
         );
     });
 
     // Nearness alone sent skills to a sibling skill, and ranking alone to whichever README named them.
     it.each([
-        { other: ".agents/skills/doc-drift-check/SKILL.md", text: "follow the house-docs skill" },
+        { other: ".claude/skills/doc-drift-check/SKILL.md", text: "follow the house-docs skill" },
         {
             other: "infrastructure/scripts/src/drift/README.md",
             text: "per the `house-docs` skill's rules",
         },
-    ])("sends a skill to the AGENTS.md table even when $other also names it", ({ other, text }) => {
+    ])("sends a skill to the CLAUDE.md table even when $other also names it", ({ other, text }) => {
         const docs: Doc[] = [
             { path: other, text },
-            { path: "AGENTS.md", text: "| `house-docs` | Writing markdown |" },
+            { path: "CLAUDE.md", text: "| `house-docs` | Writing markdown |" },
         ];
         const capability = skills([
-            { source: ".agents/skills/house-docs/SKILL.md", name: "house-docs" },
+            { source: ".claude/skills/house-docs/SKILL.md", name: "house-docs" },
         ])[0]!;
 
-        expect(documentedBy(capability, docs)).toBe("AGENTS.md");
+        expect(documentedBy(capability, docs)).toBe("CLAUDE.md");
     });
 
     it("points a project's command at the README beside it, not at the root one", () => {
@@ -146,7 +146,7 @@ describe("documentedBy", () => {
 
     it("sends a reader to a README rather than the agent-facing file that also names it", () => {
         const docs: Doc[] = [
-            { path: "AGENTS.md", text: "the `pre-push` gate" },
+            { path: "CLAUDE.md", text: "the `pre-push` gate" },
             { path: "README.md", text: "The `pre-push` hook runs lint, test and typecheck" },
         ];
 

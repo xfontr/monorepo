@@ -11,7 +11,7 @@ decision: accepted
 `@monorepo/content/nuxt` mounted two public cached routes, `GET /api/content/:resource` and
 `/:resource/:slug`, and auto-imported a client `useContent` that read them. It assumed pages render
 `Entry` directly. Huella's rule is the opposite: a layer's `server/` maps vendor shapes into view
-models "so an `Entry` never reaches the browser" ([`AGENTS.md`](../../apps/huella-legal/AGENTS.md)).
+models "so an `Entry` never reaches the browser" ([`AGENTS.md`](../../apps/huella-legal/CLAUDE.md)).
 So #240's article routes had no server-side way into the module, and they `$fetch`ed its public
 routes in-process: one Nitro server calling itself over h3.
 

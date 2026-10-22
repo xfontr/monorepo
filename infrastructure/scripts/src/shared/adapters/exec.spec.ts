@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { assertNotFlagLike, inherit, run } from "./exec.ts";
+import { assertNotFlagLike, capture, inherit, run } from "./exec.ts";
 
 describe("run", () => {
     it("uses the executable selected by PATH so machine-specific installations work", () => {
@@ -29,6 +29,17 @@ describe("run", () => {
         expect(() =>
             run(process.execPath, ["-e", "process.stderr.write('failure'); process.exit(2)"]),
         ).toThrow();
+    });
+});
+
+describe("capture", () => {
+    it("returns a failing child's status and both streams instead of throwing", () => {
+        expect(
+            capture(process.execPath, [
+                "-e",
+                "process.stdout.write('out'); process.stderr.write('err'); process.exit(4)",
+            ]),
+        ).toEqual({ status: 4, stdout: "out", stderr: "err" });
     });
 });
 

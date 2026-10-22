@@ -158,8 +158,8 @@ describe("collectDocs", () => {
     it("collects only tracked and unignored markdown paths with titles, fallback names and timestamps", async () => {
         const files = [
             ["README.md", "# Workspace\n"],
-            ["AGENTS.md", "## Agent guidance\n"],
-            [".agents/skills/example/SKILL.md", "# Skill\n"],
+            ["CLAUDE.md", "## Agent guidance\n"],
+            [".claude/skills/example/SKILL.md", "# Skill\n"],
             ["packages/ui/CHANGELOG.md", "# Changelog\n"],
             ["docs/reviews/2026-09-20-abc123.md", "# Review\n"],
             ["docs/decisions/0001-first.md", "# Decision\n"],
@@ -181,12 +181,12 @@ describe("collectDocs", () => {
             title: "Workspace",
             updatedAt: "2026-09-01T10:00:00Z",
         });
-        expect(result.pages.find((page) => page.path === "AGENTS.md")).toMatchObject({
+        expect(result.pages.find((page) => page.path === "CLAUDE.md")).toMatchObject({
             kind: "agent",
             title: "Agent guidance",
         });
         expect(
-            result.pages.find((page) => page.path === ".agents/skills/example/SKILL.md"),
+            result.pages.find((page) => page.path === ".claude/skills/example/SKILL.md"),
         ).toMatchObject({ kind: "skill", title: "Skill" });
         expect(result.pages.find((page) => page.path === "packages/ui/CHANGELOG.md")).toMatchObject(
             { kind: "changelog" },

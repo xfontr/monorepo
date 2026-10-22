@@ -20,9 +20,9 @@ const PAGES = [
     { path: "/packages/ui/readme", title: "📦 @monorepo/ui" },
     { path: "/packages/ui/agents", title: "🤖 @monorepo/ui" },
     { path: "/packages/ui/changelog", title: "CHANGELOG" },
-    { path: "/.agents/skills/ui-new-component/skill", title: "Adding a UI component" },
+    { path: "/.claude/skills/ui-new-component/skill", title: "Adding a UI component" },
     { path: "/packages/content/src/nuxt/readme", title: "🟢 @monorepo/content/nuxt" },
-    { path: "/.agents/skills/house-docs/skill", title: "Writing docs here" },
+    { path: "/.claude/skills/house-docs/skill", title: "Writing docs here" },
 ];
 
 const sectionOf = (id: string) => buildWiki(PAGES).find((section) => section.id === id);

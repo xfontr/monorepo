@@ -31,7 +31,7 @@ That one field belongs in frontmatter. The scores do not.**
 | Fact | Where it lives | Read by |
 | --- | --- | --- |
 | Date, commit | The filename | `FILENAME` in [`collect/scorecards.ts`](../../apps/developer-portal/tools/collect/scorecards.ts) |
-| Seven scores, total, Δ, verdicts | The `## 🧮 Scores` table | [`parseScoresTable`](../../apps/developer-portal/tools/lib/scorecards.ts), guarded by `scorecardShapeProblems`, `compareScorecardShape`, a `parseError` field and a paragraph of [`SKILL.md`](../../.agents/skills/repo-review/SKILL.md) |
+| Seven scores, total, Δ, verdicts | The `## 🧮 Scores` table | [`parseScoresTable`](../../apps/developer-portal/tools/lib/scorecards.ts), guarded by `scorecardShapeProblems`, `compareScorecardShape`, a `parseError` field and a paragraph of [`SKILL.md`](../../.claude/skills/repo-review/SKILL.md) |
 | Branch, **method version**, previous review | The opening line | Nothing |
 
 The scores half works. The regex is best-effort by design, a malformed table degrades to fewer cards
