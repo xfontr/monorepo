@@ -177,7 +177,8 @@ warning), and three pages — an entry page, and the `publish` and `search` plac
 | [`types/`](./app/types) | The vocabulary kits share across layers: `LinkAction`, the `{ label, to }` every link and action prop takes, and `Tone`, the `paper` or `slate` surface a component renders on |
 | [`error.vue`](./app/error.vue) | The 404 design for a 404 and the server design for anything else, inside the same layout. It wraps itself in `UApp`, since Nuxt renders it in place of `app.vue` |
 | [`utils/createPageError.ts`](./app/utils/createPageError.ts) | A failed page fetch as the fatal error `error.vue` renders: the status the route answered with, or `502` when no response came back, with data and stack kept. Every page controller raises through it, and client code reads and writes `status`/`statusText`, since Nuxt deprecates `statusCode`/`statusMessage` |
-| [`app.config.ts`](./app/app.config.ts) | The journal's name and ISSN under `journal`, read by the citation mapper on the server too, the `UContainer` gutters every section shares, and `UEmpty` left-aligned for the listing kit's empty states |
+| [`app.config.ts`](./app/app.config.ts) | The journal's name and ISSN under `journal`, read by the citation mapper on the server too, the colour aliases, and the Nuxt UI theme composed from `theme/` |
+| [`theme/`](./app/theme) | The Nuxt UI component theme, one file per component and named for its `ui` key (`button.ts`, `footerColumns.ts`), plus `tv.ts` for the tailwind-merge type steps |
 
 `/lab` pages draw their own lab header and footer, so a `$development` hook in `nuxt.config.ts` sets
 `layout: false` on them.
