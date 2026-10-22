@@ -24,12 +24,14 @@ const handleRejection = (cause: FetchError<MailchimpProblem>): void => {
 
 export const addSubscriber = async (event: H3Event, email: string): Promise<void> => {
     const { baseURL, apiKey, audienceId } = useRuntimeConfig(event).newsletter;
-    const member = createHash("md5").update(email.toLowerCase()).digest("hex");
+    // Mailchimp keys members by this MD5, and it keeps the address out of the URL a FetchError logs.
+    const member = createHash("md5").update(email.toLowerCase()).digest("hex"); // NOSONAR
+    const credentials = btoa(`huella:${apiKey}`);
 
     await $fetch(`/3.0/lists/${audienceId}/members/${member}`, {
         baseURL,
         method: "PUT",
-        headers: { Authorization: `Basic ${btoa(`huella:${apiKey}`)}` },
+        headers: { Authorization: `Basic ${credentials}` },
         body: { email_address: email, status_if_new: "pending" },
     }).catch(handleRejection);
 };
