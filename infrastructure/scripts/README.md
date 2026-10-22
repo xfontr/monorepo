@@ -16,8 +16,10 @@ One folder per script under `src/`, each with its own README. This one only cove
 ```
 src/
   dev/              pnpm dev — pick a project to start, installing the workspace first if it's a fresh clone
-  issue/            pnpm issue:add | issue:pick — file a GitHub issue, or branch off one
+  issue/            pnpm issue:add | issue:pick | issue:brief — file an issue, branch off one, or read one whole
   ship/             pnpm issue:ship — push, open or reuse the PR, arm auto-merge, watch checks
+  ci-failures/      pnpm ci:failures — a PR's failed checks, cut down to their error lines
+  worktree/         pnpm worktree:prepare — copy env files into a linked worktree and install it
   agents-sync/      pnpm agents:sync — render Claude adapters from canonical agent instructions
   drift/            pnpm docs:drift — warn when a project's docs may be stale, offer to file an issue
   map/              pnpm docs:map — render docs/FEATURES.md, the index of everything this repo can do
@@ -41,13 +43,32 @@ domain/      pure functions and their types. No fs, no subprocess, no clack, no 
 | [`dev`](./src/dev/README.md) | `pnpm dev` | Picking which project to start, and installing the workspace first on a fresh clone |
 | [`issue add`](./src/issue/README.md#-pnpm-issueadd) | `pnpm issue:add` | Picking a project and label, then filing an issue with `gh` |
 | [`issue pick`](./src/issue/README.md#-pnpm-issuepick) | `pnpm issue:pick` | Picking an open issue off a project board, then branching off it and self-assigning |
+| [`issue brief`](./src/issue/README.md#-pnpm-issuebrief) | `pnpm issue:brief` | Printing an issue with its comments, blockers, decisions, projects and linked docs |
 | [`ship`](./src/ship/README.md) | `pnpm issue:ship` | Pushing the current branch, opening or reusing its PR, arming auto-merge, then blocking on checks |
+| [`ci-failures`](./src/ci-failures/README.md) | `pnpm ci:failures` | Reporting a PR's failed checks, each Actions job cut to its error lines |
+| [`worktree`](./src/worktree/README.md) | `pnpm worktree:prepare` | Copying env files into a linked worktree and installing it the way CI does |
 | [`agents-sync`](./src/agents-sync/README.md) | `pnpm agents:sync` | Rendering ignored Claude adapters from `AGENTS.md` and `.agents/skills/` |
 | [`drift`](./src/drift/README.md) | `pnpm docs:drift` | Warning when a changed project's docs look stale, and offering to file it |
 | [`map`](./src/map/README.md) | `pnpm docs:map` | Rendering the feature index, and asserting in CI that it's current |
 | [`package-contracts`](./src/package-contracts/README.md) | `pnpm package:check` | Validating package metadata, export targets and peer metadata without packing |
 | [`review-version`](./src/review-version/README.md) | `pnpm review:version` | Versioning the repo-review method, and asserting in CI that the version moved with it |
 | [`coverage-report`](./src/coverage-report/README.md) | `pnpm test:coverage` (root) | Merging every project's coverage into one browsable HTML report |
+
+## 🤖 Run by agents, not only by people
+
+An agent's shell has no terminal, so `isTTY` is false and `out` prints plain lines. Two rules
+follow for every script:
+
+- **A prompt never runs without a terminal.** Call `requireTerminal(hint)` from
+  [`io.ts`](./src/shared/adapters/io.ts) before the first one, with a hint naming the arguments
+  that make the prompt unnecessary. `pnpm issue:pick` with no number fails that way at once; with a
+  number it asks nothing.
+- **A command that reports a failure exits 1.** `ci:failures` calls `fail` after printing, so the
+  tool result shows red before anyone reads the digest.
+
+`ci:failures` and `issue:brief` exist for agents, which is why each prints a digest rather than the
+raw output. `pnpm check` needed no script: it's one root `package.json` line asking Nx for
+`--outputStyle=static-failures-only`, the style Nx swaps for `summary` when it detects an agent.
 
 ## 🧱 Which way imports go
 

@@ -25,7 +25,11 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm graph` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm issue:add` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm issue:pick` | [`package.json`](../package.json) | [`README.md`](../README.md) |
+| `pnpm issue:brief` | [`package.json`](../package.json) | [`infrastructure/scripts/README.md`](../infrastructure/scripts/README.md) |
 | `pnpm issue:ship` | [`package.json`](../package.json) | [`README.md`](../README.md) |
+| `pnpm check` | [`package.json`](../package.json) | [`README.md`](../README.md) |
+| `pnpm ci:failures` | [`package.json`](../package.json) | [`infrastructure/scripts/README.md`](../infrastructure/scripts/README.md) |
+| `pnpm worktree:prepare` | [`package.json`](../package.json) | [`infrastructure/scripts/README.md`](../infrastructure/scripts/README.md) |
 | `pnpm agents:sync` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm docs:drift` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm docs:map` | [`package.json`](../package.json) | [`README.md`](../README.md) |
