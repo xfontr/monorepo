@@ -62,7 +62,7 @@ export const decisionNumbersIn = (text: string): string[] =>
     ).filter(Boolean);
 
 const field = (frontmatter: string, name: string): string | undefined =>
-    new RegExp(`^${name}:\\s*(.+)$`, "m").exec(frontmatter)?.[1]?.trim();
+    new RegExp(String.raw`^${name}:\s*(.+)$`, "m").exec(frontmatter)?.[1]?.trim();
 
 export const parseDecision = (path: string, text: string): Decision => {
     const frontmatter = /^---\n([\s\S]*?)\n---/.exec(text)?.[1] ?? "";

@@ -23,7 +23,7 @@ export const prTitle = (pr: string | undefined): string =>
         "--json",
         "number,title",
         "--jq",
-        '"#\\(.number) \\(.title)"',
+        String.raw`"#\(.number) \(.title)"`,
     ]);
 
 /** With `--json`, `gh pr checks` exits 0 whatever the checks concluded. */

@@ -18,5 +18,7 @@ export const isEnvFile = (path: string): boolean => {
     return !path.includes("node_modules/") && (name === ".env" || name.startsWith(".env."));
 };
 
-export const preparedLine = (path: string, copied: string[]): string =>
-    `${path}: installed${copied.length > 0 ? `, copied ${copied.join(", ")}` : ", no env files to copy"}`;
+export const preparedLine = (path: string, copied: string[]): string => {
+    const env = copied.length > 0 ? `copied ${copied.join(", ")}` : "no env files to copy";
+    return `${path}: installed, ${env}`;
+};

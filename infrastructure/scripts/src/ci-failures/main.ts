@@ -19,9 +19,10 @@ const report = (check: Check): string[] => {
     const log = stripLogPrefix(failedLog(job.run, job.job));
     const path = saveLog(job.job, log);
     const { lines, omitted } = excerpt(log);
+    const name = check.workflow ? `${check.workflow} / ${check.name}` : check.name;
 
     return [
-        `✖ ${check.workflow ? `${check.workflow} / ` : ""}${check.name}`,
+        `✖ ${name}`,
         ...lines.map((line) => `  ${line}`),
         omitted > 0 ? `  … ${omitted} more lines in ${path}` : `  full log: ${path}`,
     ];

@@ -31,7 +31,7 @@ export interface Excerpt {
     omitted: number;
 }
 
-export const stripAnsi = (text: string): string => text.replace(ANSI, "").replace(/\r/g, "");
+export const stripAnsi = (text: string): string => text.replaceAll(ANSI, "").replaceAll("\r", "");
 
 const clean = (text: string): string[] => {
     const lines = stripAnsi(text)
