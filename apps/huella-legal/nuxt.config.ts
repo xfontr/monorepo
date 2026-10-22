@@ -34,11 +34,22 @@ export default defineNuxtConfig({
                 }
             },
         },
+
+        requiredEnv: {
+            translations: [
+                "NUXT_TRANSLATIONS_VENDOR_BASE_URL",
+                "NUXT_TRANSLATIONS_VENDOR_PROJECT",
+                "NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN",
+            ],
+        },
     },
 
     typescript: {
         typeCheck: "build",
-        tsConfig: { include: ["../vitest.setup.ts"] },
+        tsConfig: {
+            include: ["../vitest.setup.ts"],
+            vueCompilerOptions: { checkUnknownComponents: true },
+        },
     },
 
     i18n: {
@@ -77,6 +88,10 @@ export default defineNuxtConfig({
                 baseURL: "",
             },
         },
+
+        requiredEnv: {
+            translations: ["NUXT_TRANSLATIONS_VENDOR_BASE_URL"],
+        },
     },
 
     content: {
@@ -84,6 +99,11 @@ export default defineNuxtConfig({
             name: "wordpress",
             baseURL: "",
         },
+    },
+
+    requiredEnv: {
+        content: ["NUXT_CONTENT_VENDOR_BASE_URL"],
+        site: ["NUXT_PUBLIC_SITE_URL"],
     },
 
     runtimeConfig: {

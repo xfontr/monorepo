@@ -3,15 +3,9 @@ import NewsletterForm from "./NewsletterForm.vue";
 
 interface Props {
     subject?: string;
-    pending?: boolean;
-    error?: string;
 }
 
-withDefaults(defineProps<Props>(), {
-    pending: false,
-});
-
-const emit = defineEmits<{ submit: [email: string] }>();
+defineProps<Props>();
 </script>
 
 <template>
@@ -22,6 +16,6 @@ const emit = defineEmits<{ submit: [email: string] }>();
                 subject ? $t("newsletterCard.subjectLead", { subject }) : $t("newsletterCard.lead")
             }}
         </p>
-        <NewsletterForm :pending :error class="mt-4" @submit="emit('submit', $event)" />
+        <NewsletterForm class="mt-4" />
     </div>
 </template>

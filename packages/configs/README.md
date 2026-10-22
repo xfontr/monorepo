@@ -66,7 +66,7 @@ exemption. [`0032`](../../docs/decisions/0032-console-output-policy.md) has the 
 export default vitest.createNuxtConfig({ root: import.meta.dirname, thresholds: { lines: 90 } });
 ```
 
-Two projects: `node` for `server/`, `shared/` and `tools/`, and `nuxt` for `app/`, booted through
+Two projects: `node` for `server/`, `shared/`, `modules/` and `tools/`, and `nuxt` for `app/`, booted through
 `@nuxt/test-utils` on happy-dom. Both also cover the same directories inside each `layers/*`, which
 Nuxt auto-registers, and the layers' sources count towards coverage. The options are only what differs per app:
 
