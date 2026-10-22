@@ -1,8 +1,9 @@
 # 📝 issue
 
-Two subcommands over `gh`, either side of the same tracker: `add` files an issue from the terminal,
+Three subcommands over `gh`, around the same tracker: `add` files an issue from the terminal,
 `pick` takes one off a project board and puts you on a branch for it — and, once `add` succeeds from
-`master`, calls `pick` directly instead of telling you to run it separately. They live in one folder
+`master`, calls `pick` directly instead of telling you to run it separately. `brief` prints an
+issue with everything it points at, for whoever is about to implement it. They live in one folder
 because they share the project prompt, the cancel handling, and now that direct call between them —
 splitting them back apart means duplicating both. The `gh` wrapper, the file cache and the cancel
 helper itself moved out to [`../shared/`](../shared/) once [`drift/`](../drift/README.md) needed
@@ -12,8 +13,11 @@ them too; `issue/adapters/gh.ts` still holds everything genuinely specific to fi
 ```sh
 pnpm issue:add     # node src/issue/index.ts add
 pnpm issue:pick    # node src/issue/index.ts pick
+pnpm issue:brief   # node src/issue/index.ts brief
 
-pnpm issue:add --refresh   # skip the 24h project/label cache for this run
+pnpm issue:add --refresh                 # skip the 24h project/label cache for this run
+pnpm issue:pick 288 --type=feature       # no prompts; see "Picking by number" below
+pnpm issue:brief 288                     # or no number, on that issue's branch
 ```
 
 `index.ts` is a dispatcher and nothing else; an unknown or missing subcommand prints the usage and
@@ -22,17 +26,20 @@ exits `1`. Ctrl+C at any prompt exits without creating an issue or touching the 
 ## 🗂 Structure
 
 ```
-index.ts               hands { add, pick } to run(), which dispatches on the first argument
+index.ts               hands { add, brief, pick } to run(), which dispatches on the first argument
 add.ts                 the filing flow, offering a pick when it finishes on master
+brief.ts               one issue, its blockers, decisions, projects and linked docs, printed once
 pick.ts                the pick-an-issue-and-branch flow, cache-backed when gh is unreachable
-adapters/gh.ts         repo owner, connectivity, projects, labels, open issues, assign, develop branch
+adapters/gh.ts         repo owner, connectivity, projects, labels, open issues, one issue's thread, assign, develop branch
 adapters/git.ts        current branch, find a branch for an issue, checkout
+adapters/files.ts      decision frontmatter, project folders, whether a path exists
 adapters/prompts.ts    this folder's prompt vocabulary — the option lists, the none option, the missing-scope hint
-domain/branch.ts       slug and branch-name building
+domain/branch.ts       slug and branch-name building, reading a branch name back, label → branch type
+domain/brief.ts        blockers, references, decision matching and the brief's layout
 domain/search.ts       what a typed search matches, for the two prompts that have one
 ```
 
-This is the one folder with two commands, so it's also the one where `index.ts` passes a record
+This is the one folder with several commands, so it's also the one where `index.ts` passes a record
 rather than a single `main` — an unknown or missing subcommand prints the usage on stderr and exits
 1, which `run` does for every script rather than each one hand-rolling it.
 
@@ -96,6 +103,22 @@ The issue URL sits in the picker's hint so the terminal can turn it into a link 
 read the ticket before I commit to it" escape hatch, and the reason the prompt shows nothing else
 about the issue. clack draws a hint only for the row you're on, which is what keeps a column of
 URLs from burying the titles.
+
+### 🔢 Picking by number
+
+`pnpm issue:pick <number>` asks nothing. It's the form an agent uses — no terminal means no
+prompt, and the bare command fails at once naming this form rather than hanging on a `select`.
+Every answer the prompts would collect comes off the issue or a flag:
+
+| Answer | From |
+| --- | --- |
+| Board | `--project=<board title>`, else the issue's first board. A new branch for an issue on none fails and names the flag; a resumed one just skips the board move |
+| Branch type | `--type=<feature\|fix\|hotfix\|release>`, else the label: `enhancement` is `feature`, `bug` is `fix`. A `spike`, or both labels, fails and names the flag |
+| Branch title | `--title=<text>`, else the issue title. One that slugs to nothing fails, as the prompt's validation does |
+| Resume | An existing branch for the number is checked out, without asking |
+
+Flags take the `--name=value` form only. `run` parses argv into a set of flags and a list of
+positionals, so `--type fix` would read `fix` as a second positional.
 
 ### 🔎 Two of the four prompts are searchable
 
@@ -175,6 +198,26 @@ on top of the `gh project list` call already made. `gh issue list --json project
 open-only by definition, and the project filter is a `some()` on the result. It caps at 100 issues,
 which is roughly 90 more than this board will ever hold.
 
+## 📇 `pnpm issue:brief`
+
+Everything `start-issue` used to collect by hand before writing code, in one print: the issue's
+state, labels, assignees and board column, its body and every comment untrimmed, then four
+sections that are each a lookup the reader would otherwise run.
+
+| Section | Found by |
+| --- | --- |
+| Blockers | Every `#n` on a `Blocked by` line, each fetched for its title and state |
+| Decisions | `docs/decisions/*.md` whose frontmatter `issue:` is this issue or any issue the thread mentions, plus any `ADR 0028`-style mention. Matched on frontmatter, since a decision's file number is its own |
+| Projects | `app:` and `package:` labels, the branch's board segment, and project paths in the text, each with its `AGENTS.md` |
+| Docs mentioned | Paths under `docs/` or `.agents/` that the thread names and that exist |
+
+Comments aren't capped. Threads here are short, and the decision often sits in the comment a cap
+would cut.
+
+With no number it reads the one in the current branch name, through `issueFromBranch` in
+[`domain/branch.ts`](./domain/branch.ts). The board segment only counts toward Projects when the
+branch is the issue's own.
+
 ## 🗄 Caching projects, labels and issues
 
 Projects and labels change on the order of quarters, not per run. [`../shared/adapters/cache.ts`](../shared/adapters/cache.ts)
@@ -202,8 +245,9 @@ fail-open stance the missing `project` scope already gets in `listProjects` — 
 
 ## ✅ Tests
 
-[`domain/branch.spec.ts`](./domain/branch.spec.ts) covers `slugify` and `branchName` — the only real logic left in
-this folder, per [`writing-tests`](../../../../.agents/skills/writing-tests/SKILL.md).
+[`domain/branch.spec.ts`](./domain/branch.spec.ts) covers `slugify`, `branchName`, `issueFromBranch`
+and `branchTypeFor`, and [`domain/brief.spec.ts`](./domain/brief.spec.ts) the brief's matching and
+layout, per [`writing-tests`](../../../../.agents/skills/writing-tests/SKILL.md).
 [`../shared/adapters/cache.spec.ts`](../shared/adapters/cache.spec.ts) covers the TTL and `--refresh` bypass in
 `cached`, plus the TTL-free reads and writes in `readCache`/`writeCache`. `isOnline` and the offline
 branches of `listProjects`/`listIssues` are `gh` calls and cache reads respectively, both already

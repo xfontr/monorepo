@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { branchName, slugify } from "./branch.ts";
+import { branchName, branchTypeFor, issueFromBranch, slugify } from "./branch.ts";
 
 describe("slugify", () => {
     it.each([
@@ -25,5 +25,30 @@ describe("branchName", () => {
         expect(branchName("feature", "Website", 42, "Add dashboards for spaces")).toBe(
             "feature/website/42-add-dashboards-for-spaces",
         );
+    });
+});
+
+describe("issueFromBranch", () => {
+    it("reads back the board slug and number that branchName wrote", () => {
+        expect(issueFromBranch(branchName("fix", "Huella Legal", 7, "Broken link"))).toEqual({
+            board: "huella-legal",
+            number: 7,
+        });
+    });
+
+    it("finds no issue on a branch outside the convention, such as master", () => {
+        expect(issueFromBranch("master")).toBeUndefined();
+        expect(issueFromBranch("dependabot/npm_and_yarn/vitest-92ac8026ca")).toBeUndefined();
+    });
+});
+
+describe("branchTypeFor", () => {
+    it.each([
+        [["enhancement", "app:huella-legal"], "feature"],
+        [["bug"], "fix"],
+        [["spike"], undefined],
+        [["bug", "enhancement"], undefined],
+    ])("maps %j to %s, refusing to guess between two", (labels, expected) => {
+        expect(branchTypeFor(labels)).toBe(expected);
     });
 });

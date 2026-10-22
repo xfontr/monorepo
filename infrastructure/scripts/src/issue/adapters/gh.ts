@@ -1,6 +1,7 @@
 import { cached, readCache, writeCache } from "../../shared/adapters/cache.ts";
 import { gh } from "../../shared/adapters/gh.ts";
 import { slugify } from "../domain/branch.ts";
+import type { IssueStatus, IssueThread } from "../domain/brief.ts";
 
 export interface Project {
     title: string;
@@ -124,3 +125,46 @@ export const moveToInProgress = (project: Project, issue: Issue): void => {
         "In Progress",
     );
 };
+
+interface RawThread {
+    number: number;
+    title: string;
+    state: string;
+    url: string;
+    body: string;
+    labels: { name: string }[];
+    assignees: { login: string }[];
+    projectItems: { title: string; status?: { name: string } | null }[];
+    comments: { author: { login: string }; createdAt: string; body: string }[];
+}
+
+export const viewThread = (issue: number): IssueThread => {
+    const raw = JSON.parse(
+        gh(
+            "issue",
+            "view",
+            String(issue),
+            "--json",
+            "number,title,state,url,body,labels,assignees,projectItems,comments",
+        ),
+    ) as RawThread;
+
+    return {
+        number: raw.number,
+        title: raw.title,
+        state: raw.state,
+        url: raw.url,
+        body: raw.body,
+        labels: raw.labels.map(({ name }) => name),
+        assignees: raw.assignees.map(({ login }) => login),
+        boards: raw.projectItems.map(({ title, status }) => ({ title, status: status?.name })),
+        comments: raw.comments.map(({ author, createdAt, body }) => ({
+            author: author.login,
+            createdAt,
+            body,
+        })),
+    };
+};
+
+export const issueStatus = (issue: number): IssueStatus =>
+    JSON.parse(gh("issue", "view", String(issue), "--json", "number,title,state")) as IssueStatus;

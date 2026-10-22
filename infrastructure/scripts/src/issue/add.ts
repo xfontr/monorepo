@@ -1,6 +1,6 @@
 import { autocomplete, confirm, select, text } from "@clack/prompts";
 import { createIssue } from "../shared/adapters/gh.ts";
-import { out } from "../shared/adapters/io.ts";
+import { out, requireTerminal } from "../shared/adapters/io.ts";
 import { orExit, type Cancellable } from "../shared/adapters/prompts.ts";
 import { listLabels, listProjects, type Label, type Project } from "./adapters/gh.ts";
 import { currentBranch } from "./adapters/git.ts";
@@ -58,6 +58,7 @@ const offerPick = async (): Promise<void> => {
 };
 
 export const add = async (): Promise<void> => {
+    requireTerminal("file it with `gh issue create --title … --body … --label … --project …`.");
     out.begin("📝 Add an issue");
 
     const loading = out.spinner();

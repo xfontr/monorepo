@@ -12,6 +12,7 @@ const sharedGh = vi.hoisted(() => ({ createIssue: vi.fn() }));
 const git = vi.hoisted(() => ({ currentBranch: vi.fn() }));
 const pickCommand = vi.hoisted(() => ({ pick: vi.fn() }));
 const io = vi.hoisted(() => ({
+    requireTerminal: vi.fn(),
     out: {
         begin: vi.fn(),
         end: vi.fn(),
@@ -50,6 +51,16 @@ beforeEach(() => {
 });
 
 describe("issue add", () => {
+    it("fails before reading gh or prompting when there is no terminal", async () => {
+        io.requireTerminal.mockImplementationOnce(() => {
+            throw new Error("No terminal");
+        });
+
+        await expect(add()).rejects.toThrow("No terminal");
+        expect(gh.listProjects).not.toHaveBeenCalled();
+        expect(prompts.select).not.toHaveBeenCalled();
+    });
+
     it("warns when no project list is available and omits None selections from the issue", async () => {
         gh.listProjects.mockReturnValue([]);
         prompts.autocomplete.mockResolvedValue("");

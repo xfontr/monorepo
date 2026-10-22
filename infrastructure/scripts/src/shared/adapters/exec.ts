@@ -12,6 +12,23 @@ export const run = (command: string, args: string[]): string =>
         maxBuffer: MAX_BUFFER_BYTES,
     }).trim();
 
+export interface Captured {
+    status: number | null;
+    stdout: string;
+    stderr: string;
+}
+
+/** For a child whose non-zero exit is an answer to report, not an error to throw. */
+export const capture = (command: string, args: string[]): Captured => {
+    const { status, stdout, stderr } = spawnSync(command, args, {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+        maxBuffer: MAX_BUFFER_BYTES,
+    });
+
+    return { status, stdout, stderr };
+};
+
 /** A `null` status means a signal ended the child — Ctrl+C out of a dev server, not a failure. */
 export const inherit = (command: string, args: string[]): number | null =>
     spawnSync(command, args, { stdio: "inherit" }).status;

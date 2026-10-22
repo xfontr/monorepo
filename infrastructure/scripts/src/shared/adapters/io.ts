@@ -1,8 +1,14 @@
 import { cancel, intro, log, note, outro, spinner as clackSpinner } from "@clack/prompts";
 import process from "node:process";
+import { ExpectedError } from "../errors.ts";
 
 /** CI and GUI Git clients lack a readable terminal, so clack decoration would pollute logs. */
 export const isInteractive = (): boolean => Boolean(process.stdout.isTTY) && !process.env.CI;
+
+/** Call before any prompt: the hint names the flags or arguments that make it unnecessary. */
+export const requireTerminal = (hint: string): void => {
+    if (!isInteractive()) throw new ExpectedError(`No terminal to prompt in — ${hint}`);
+};
 
 const line = (stream: NodeJS.WriteStream, message: string): void =>
     void stream.write(`${message}\n`);
