@@ -128,7 +128,7 @@ const colors = computed<ToneRecipe>(() => TONES[props.tone]);
                 :title="$t('newsletterForm.error.title')"
                 :description="$t('newsletterForm.error.description')"
             />
-            <i18nT
+            <I18nT
                 keypath="newsletterForm.notice"
                 scope="global"
                 tag="p"
@@ -145,7 +145,7 @@ const colors = computed<ToneRecipe>(() => TONES[props.tone]);
                         {{ $t("newsletterForm.privacy") }}
                     </ULink>
                 </template>
-            </i18nT>
+            </I18nT>
         </UForm>
     </FormChallenge>
 </template>
