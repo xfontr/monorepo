@@ -41,7 +41,7 @@ const headingId = useId();
                 <template v-if="heading">
                     {{ heading }}
                 </template>
-                <i18nT
+                <I18nT
                     v-else
                     keypath="archiveResults.count"
                     :plural="listing.total"
@@ -53,7 +53,7 @@ const headingId = useId();
                             listing.total
                         }}</strong>
                     </template>
-                </i18nT>
+                </I18nT>
             </h2>
             <ListingSortSelect v-if="listing.total > 1" v-model="sort" />
         </div>

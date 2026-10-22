@@ -24,14 +24,14 @@ defineProps<Props>();
         <template #description>
             <ul class="list-disc pl-5">
                 <li v-for="{ id, label, message } in errors" :key="id">
-                    <i18nT keypath="formErrorSummary.item" scope="global">
+                    <I18nT keypath="formErrorSummary.item" scope="global">
                         <template #field>
                             <a :href="`#${id}`" class="underline">{{ label }}</a>
                         </template>
                         <template #message>
                             {{ message }}
                         </template>
-                    </i18nT>
+                    </I18nT>
                 </li>
             </ul>
         </template>

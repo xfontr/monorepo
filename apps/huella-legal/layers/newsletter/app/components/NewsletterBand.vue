@@ -61,7 +61,7 @@ const titleId = useId();
                 @submit="emit('submit', $event)"
             >
                 <template #note>
-                    <i18nT
+                    <I18nT
                         keypath="newsletterBand.note"
                         scope="global"
                         tag="p"
@@ -78,7 +78,7 @@ const titleId = useId();
                                 {{ $t("newsletterBand.privacy") }}
                             </ULink>
                         </template>
-                    </i18nT>
+                    </I18nT>
                 </template>
             </NewsletterForm>
         </UContainer>
