@@ -93,7 +93,7 @@ const kindOf = (path: string): DocKind => {
     if (DECISION_PATH.test(path)) return "decision";
     if (AUDIT_PATH.test(path)) return "audit";
     if (path.endsWith("CHANGELOG.md")) return "changelog";
-    if (path.endsWith("AGENTS.md")) return "agent";
+    if (path.endsWith("CLAUDE.md")) return "agent";
     if (path.endsWith("SKILL.md")) return "skill";
     if (path.startsWith("docs/")) return "doc";
 

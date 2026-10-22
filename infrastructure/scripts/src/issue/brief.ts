@@ -50,7 +50,7 @@ export const brief = ({ positionals }: Args): void => {
             ),
             projects: projectsFor(thread, boardSlug, projectDirs()).map((dir) => ({
                 dir,
-                agents: exists(`${dir}/AGENTS.md`) ? `${dir}/AGENTS.md` : undefined,
+                agents: exists(`${dir}/CLAUDE.md`) ? `${dir}/CLAUDE.md` : undefined,
             })),
             docs: docsIn(text, exists),
         }),

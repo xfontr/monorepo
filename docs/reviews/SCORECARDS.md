@@ -149,8 +149,8 @@ Start at every project README against its code, then the ratio of markdown to co
 - Does the setup help agents do good work, or only stop them doing bad work?
 - What does it cost to maintain, relative to the product code it serves?
 
-Start at [`AGENTS.md`](../../AGENTS.md), [`.claude/settings.json`](../../.claude/settings.json),
-`.claude/hooks/` and `.agents/skills/`.
+Start at [`CLAUDE.md`](../../CLAUDE.md), [`.claude/settings.json`](../../.claude/settings.json),
+`.claude/hooks/` and `.claude/skills/`.
 
 | 5 | 3 | 1 |
 | --- | --- | --- |

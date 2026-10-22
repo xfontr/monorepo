@@ -16,7 +16,7 @@ measures is worthless as a baseline.
 ## 1. Collect the facts
 
 ```sh
-.agents/skills/repo-review/collect-facts.sh
+.claude/skills/repo-review/collect-facts.sh
 ```
 
 This takes a few minutes: it runs `lint`, `typecheck`, `test` and `build` across every project and
@@ -38,7 +38,7 @@ broken repo.
 ## 2. Gather evidence per card
 
 Launch seven [`repo-review-card`](../../../.claude/agents/repo-review-card.md) agents in one message,
-one per card, so they run concurrently. Codex uses seven general subagents with the same prompt.
+one per card, so they run concurrently.
 Give each one:
 
 ```

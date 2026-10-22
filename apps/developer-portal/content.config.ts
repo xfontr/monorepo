@@ -19,8 +19,6 @@ export default defineContentConfig({
                     "**/dist/**",
                     "**/coverage/**",
                     "**/storybook-static/**",
-                    "**/CLAUDE.md",
-                    "**/.claude/skills/**",
                     // Each is a full checkout of the repo at a point in time — every doc in it duplicates one already collected.
                     "**/.claude/worktrees/**",
                 ],

@@ -5,7 +5,7 @@ See [README.md](./README.md) for the layout rule and the per-script docs it link
 
 - **This is CLI tooling, not a library.** Nothing in the workspace imports it — scripts are run as
   CLIs, which is also why it's `infrastructure/` rather than `packages/`, same reasoning as
-  [`translations`](../translations/AGENTS.md).
+  [`translations`](../translations/CLAUDE.md).
 - `private: true` and outside `nx release`'s `packages/*`, so it has **no `CHANGELOG.md` and no
   version to bump**.
 - **One folder per script, laid out entry → command → `adapters/` → `domain/`** — the README has the

@@ -20,7 +20,6 @@ src/
   ship/             pnpm issue:ship — push, open or reuse the PR, arm auto-merge, watch checks
   ci-failures/      pnpm ci:failures — a PR's failed checks, cut down to their error lines
   worktree/         pnpm worktree:prepare — copy env files into a linked worktree and install it
-  agents-sync/      pnpm agents:sync — render Claude adapters from canonical agent instructions
   drift/            pnpm docs:drift — warn when a project's docs may be stale, offer to file an issue
   map/              pnpm docs:map — render docs/FEATURES.md, the index of everything this repo can do
   package-contracts/ pnpm package:check — validate package metadata and raw-source export contracts
@@ -47,7 +46,6 @@ domain/      pure functions and their types. No fs, no subprocess, no clack, no 
 | [`ship`](./src/ship/README.md) | `pnpm issue:ship` | Pushing the current branch, opening or reusing its PR, arming auto-merge, then blocking on checks |
 | [`ci-failures`](./src/ci-failures/README.md) | `pnpm ci:failures` | Reporting a PR's failed checks, each Actions job cut to its error lines |
 | [`worktree`](./src/worktree/README.md) | `pnpm worktree:prepare` | Copying env files into a linked worktree and installing it the way CI does |
-| [`agents-sync`](./src/agents-sync/README.md) | `pnpm agents:sync` | Rendering ignored Claude adapters from `AGENTS.md` and `.agents/skills/` |
 | [`drift`](./src/drift/README.md) | `pnpm docs:drift` | Warning when a changed project's docs look stale, and offering to file it |
 | [`map`](./src/map/README.md) | `pnpm docs:map` | Rendering the feature index, and asserting in CI that it's current |
 | [`package-contracts`](./src/package-contracts/README.md) | `pnpm package:check` | Validating package metadata, export targets and peer metadata without packing |
@@ -138,7 +136,7 @@ imports use the explicit `.ts` extension** — `./gh.ts`, not `./gh`.
 `test` still passes with `--passWithNoTests`, because most of what's here is prompts and `gh`
 invocations — a spec can only assert those against a mock of itself. The rule is that real logic — a
 parser, a diff, a mapping or a formatting decision — goes in its own file and gets a spec beside it,
-per [`writing-tests`](../../.agents/skills/writing-tests/SKILL.md). Keep orchestration and external
+per [`writing-tests`](../../.claude/skills/writing-tests/SKILL.md). Keep orchestration and external
 calls out of that boundary; test the pure decision rather than a mock of `gh`, Git or a prompt.
 
 Note that the folder is `coverage-report/`, not `coverage/`: `**/coverage` is in

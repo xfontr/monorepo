@@ -110,8 +110,8 @@ describe("projectsFor", () => {
 
 describe("docsIn", () => {
     it("finds a backticked skill path, which a word boundary before the dot would miss", () => {
-        expect(docsIn("See `.agents/skills/start-issue/SKILL.md`.", () => true)).toEqual([
-            ".agents/skills/start-issue/SKILL.md",
+        expect(docsIn("See `.claude/skills/start-issue/SKILL.md`.", () => true)).toEqual([
+            ".claude/skills/start-issue/SKILL.md",
         ]);
     });
 
@@ -127,7 +127,7 @@ describe("renderBrief", () => {
             thread: THREAD,
             blockers: [{ number: 244, title: "Redirect map", state: "CLOSED" }],
             decisions: [],
-            projects: [{ dir: "apps/huella-legal", agents: "apps/huella-legal/AGENTS.md" }],
+            projects: [{ dir: "apps/huella-legal", agents: "apps/huella-legal/CLAUDE.md" }],
             docs: [],
         });
 
@@ -137,7 +137,7 @@ describe("renderBrief", () => {
             "OPEN · enhancement, app:huella-legal · unassigned · Huella Legal: Todo",
         );
         expect(brief).toContain("#244 Redirect map — CLOSED");
-        expect(brief).toContain("apps/huella-legal — read apps/huella-legal/AGENTS.md");
+        expect(brief).toContain("apps/huella-legal — read apps/huella-legal/CLAUDE.md");
         expect(brief).not.toContain("## Decisions");
     });
 });

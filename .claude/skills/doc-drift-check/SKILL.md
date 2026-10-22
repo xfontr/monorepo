@@ -1,6 +1,6 @@
 ---
 name: doc-drift-check
-description: Compare a README (or the root README/AGENTS.md) against the code it describes — commands, exports, CLI flags, env vars, config shape, the boundaries table, the workspace layout — and report claims that no longer hold. Use after a change that alters a package's public surface (exports map, CLI flags, config shape, routes/composables, documented commands), or when asked to check for doc drift, before opening a PR. Skip for pure refactors, style-only diffs, or a project with no README nearby — there's nothing to compare against.
+description: Compare a README (or the root README/CLAUDE.md) against the code it describes — commands, exports, CLI flags, env vars, config shape, the boundaries table, the workspace layout — and report claims that no longer hold. Use after a change that alters a package's public surface (exports map, CLI flags, config shape, routes/composables, documented commands), or when asked to check for doc drift, before opening a PR. Skip for pure refactors, style-only diffs, or a project with no README nearby — there's nothing to compare against.
 ---
 
 # Checking docs against code

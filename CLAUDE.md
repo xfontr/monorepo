@@ -5,17 +5,6 @@ project has its own README — read those first. This file only holds what they 
 gets got wrong anyway. Shared checks live in scripts and CI; Claude additionally uses
 [`.claude/settings.json`](./.claude/settings.json) and two `PostToolUse` hooks for earlier feedback.
 
-## 🔄 Agent sources
-
-`AGENTS.md` files and [`.agents/skills/`](./.agents/skills/) are the only editable agent guidance.
-`pnpm agents:sync` renders ignored `CLAUDE.md` files and `.claude/skills/` adapters from them. Never
-edit a generated adapter; change its named source and rerun the command.
-
-Codex loads instructions only from the repository root down to the directory where its session
-started. Before changing a project, read that project's nearest `AGENTS.md`; starting at the root
-does not load nested project guidance automatically. All skills are root-scoped and uniquely named
-so either agent can discover them from a root session.
-
 ## ✍️ Style
 
 - 4-space indent, double quotes, semicolons, 100 columns. Prettier enforces it as an ESLint rule
@@ -42,7 +31,7 @@ how `infrastructure/scripts` reached one comment line per four lines of code.
   human reads the line faster than the comment, and so does an agent.
 - Never argue. A comment informs the next reader; it does not persuade a critic that the decision
   was right. That belongs in the PR or in a decision report.
-- Never repeat what a README, an `AGENTS.md` or a decision report already says. It's a third copy, free to
+- Never repeat what a README, a `CLAUDE.md` or a decision report already says. It's a third copy, free to
   drift, and both readers reach the original anyway.
 - Never address the diff. "Updated to v2", "as requested" belong in the commit message. Every
   comment must read correctly to someone opening the file cold in a year.

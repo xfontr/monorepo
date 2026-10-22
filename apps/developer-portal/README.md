@@ -3,7 +3,7 @@
 A read-only portal for exploring the monorepo's projects, documentation, architecture and engineering
 health. It gives newcomers a clear starting point while keeping deeper developer views close by.
 
-It renders every markdown file in the workspace as a wiki — READMEs, `AGENTS.md`s, the
+It renders every markdown file in the workspace as a wiki — READMEs, `CLAUDE.md`s, the
 [`docs/`](../../docs/README.md) tree, reviews and changelogs — beside the things that are not written
 down anywhere: coverage, the project graph, open GitHub issues and which two files have stopped agreeing.
 
@@ -140,22 +140,20 @@ doc added anywhere appears in the nav on the next reload instead.
 | --- | --- |
 | Workspace | The two files at the root, plus the generated `docs/FEATURES.md` |
 | Docs | `docs/`, grouped by subdirectory: concepts, guides, the decision, audit and review rubrics |
-| Projects | One group per project, holding its README, its `AGENTS.md` and its nested READMEs |
-| Agent setup | The canonical `.agents/skills/` and Claude's native `.claude/agents/` definitions |
+| Projects | One group per project, holding its README, its `CLAUDE.md` and its nested READMEs |
+| Agent setup | `.claude/skills/` and `.claude/agents/` |
 
 Four things are deliberately **not** in the tree: `CHANGELOG.md`s, the dated reviews, the dated
 audits and the numbered decision reports. Each already has a page of its own here, and a wiki that also lists them is a
 second route to the same file that ages differently. The `README.md` beside each of those — the
 review rubric, the decision template's rules — stays, because a doc about how a record is written is
-not one of the records. Project-specific skills still live at the root with namespaced names. Codex
-only discovers skills from directories above its starting point, so one canonical root avoids a
-package skill silently disappearing when an agent starts at the workspace root.
+not one of the records.
 
 Labels are the one thing not taken verbatim: under a group already called `packages/ui`, a README
 titled `📦 @monorepo/ui` says the name three times and the subject none, so it reads `Overview`. The
 real title is still the page's own heading.
 
-⌘K searches every README, `AGENTS.md`, changelog, skill and doc, fed straight from the content
+⌘K searches every README, `CLAUDE.md`, changelog, skill and doc, fed straight from the content
 collection so there is no second index to keep in step. It is fetched **on the first open**, not by
 the layout: the layout wraps every page, so an index built there rode in every prerendered payload
 and made each one about ten times larger —

@@ -131,7 +131,7 @@ interface Placed {
     entry: WikiEntry;
 }
 
-/** Generic labels for README/AGENTS.md — the group name already says the project; the real title is still the page's own heading. */
+/** Generic labels for README/CLAUDE.md — the group name already says the project; the real title is still the page's own heading. */
 const labelWithin = (root: string, path: string, title: string): string => {
     const raw = segmentsOf(path.slice(root.length));
     // `src` is where the code lives, not a taxonomy a reader navigates by — a nested README's own directory names it.
@@ -152,7 +152,7 @@ const place = (page: WikiPage): Placed => {
     const segments = segmentsOf(path);
     const kind = kindOf(path);
 
-    if (segments[0] === ".agents" || segments[0] === ".claude") {
+    if (segments[0] === ".claude") {
         const group = segments[1] ?? "skills";
 
         return {

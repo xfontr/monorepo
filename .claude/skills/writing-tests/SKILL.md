@@ -40,7 +40,7 @@ it("rejects an unregistered vendor name instead of returning a broken provider",
 ```
 
 A comment above a `describe` or a tricky `it` explains why the test exists — the same rule the root
-[`AGENTS.md`](../../../AGENTS.md) applies to code comments. `it.each` covers validation matrices;
+[`CLAUDE.md`](../../../CLAUDE.md) applies to code comments. `it.each` covers validation matrices;
 [`TolgeeProvider.spec.ts`](../../../packages/i18n/src/core/adapters/providers/TolgeeProvider.spec.ts)
 is the example.
 

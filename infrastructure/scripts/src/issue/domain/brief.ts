@@ -108,7 +108,7 @@ export const projectsFor = (
 
 export const docsIn = (text: string, exists: (path: string) => boolean): string[] =>
     unique(
-        [...text.matchAll(/(?<![\w./-])(?:docs|\.agents)\/[\w./-]+\.md\b/g)].map(([path]) => path),
+        [...text.matchAll(/(?<![\w./-])(?:docs|\.claude)\/[\w./-]+\.md\b/g)].map(([path]) => path),
     ).filter(exists);
 
 const section = (title: string, lines: string[]): string[] =>

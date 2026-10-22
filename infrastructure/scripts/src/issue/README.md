@@ -76,7 +76,7 @@ The body is whatever you typed, verbatim. There is no task/bug/spike shape, no a
 no repro steps — that structure is what made the previous version of this script something you
 avoided using.
 
-The [`github-issue`](../../../../.agents/skills/github-issue/SKILL.md) skill still has the three
+The [`github-issue`](../../../../.claude/skills/github-issue/SKILL.md) skill still has the three
 templates, and Claude still fills them in when it files an issue. The two produce different-looking
 issues on purpose: the skill is for issues worth the ceremony, this is for the ones that would
 otherwise never get written down.
@@ -208,8 +208,8 @@ sections that are each a lookup the reader would otherwise run.
 | --- | --- |
 | Blockers | Every `#n` on a `Blocked by` line, each fetched for its title and state |
 | Decisions | `docs/decisions/*.md` whose frontmatter `issue:` is this issue or any issue the thread mentions, plus any `ADR 0028`-style mention. Matched on frontmatter, since a decision's file number is its own |
-| Projects | `app:` and `package:` labels, the branch's board segment, and project paths in the text, each with its `AGENTS.md` |
-| Docs mentioned | Paths under `docs/` or `.agents/` that the thread names and that exist |
+| Projects | `app:` and `package:` labels, the branch's board segment, and project paths in the text, each with its `CLAUDE.md` |
+| Docs mentioned | Paths under `docs/` or `.claude/` that the thread names and that exist |
 
 Comments aren't capped. Threads here are short, and the decision often sits in the comment a cap
 would cut.
@@ -247,7 +247,7 @@ fail-open stance the missing `project` scope already gets in `listProjects` — 
 
 [`domain/branch.spec.ts`](./domain/branch.spec.ts) covers `slugify`, `branchName`, `issueFromBranch`
 and `branchTypeFor`, and [`domain/brief.spec.ts`](./domain/brief.spec.ts) the brief's matching and
-layout, per [`writing-tests`](../../../../.agents/skills/writing-tests/SKILL.md).
+layout, per [`writing-tests`](../../../../.claude/skills/writing-tests/SKILL.md).
 [`../shared/adapters/cache.spec.ts`](../shared/adapters/cache.spec.ts) covers the TTL and `--refresh` bypass in
 `cached`, plus the TTL-free reads and writes in `readCache`/`writeCache`. `isOnline` and the offline
 branches of `listProjects`/`listIssues` are `gh` calls and cache reads respectively, both already

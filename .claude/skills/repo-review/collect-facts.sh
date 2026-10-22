@@ -167,16 +167,16 @@ echo
 code_total=$(sources | sumlines)
 spec_total=$(git ls-files '*.spec.ts' | sumlines)
 md_total=$(git ls-files '*.md' | grep -v -E 'CHANGELOG\.md$|^docs/reviews/[0-9]|^docs/audits/[0-9]' | sumlines)
-agents_total=$(git ls-files 'AGENTS.md' '*/AGENTS.md' '.agents/*' '.claude/*' | sumlines)
-review_total=$(git ls-files '.agents/skills/repo-review/*' '.claude/agents/repo-review-card.md' 'docs/reviews/SCORECARDS.md' 'docs/reviews/METHOD.md' 'docs/reviews/TEMPLATE.md' 'infrastructure/scripts/src/review-version/*' | sumlines)
+agents_total=$(git ls-files 'CLAUDE.md' '*/CLAUDE.md' '.claude/*' | sumlines)
+review_total=$(git ls-files '.claude/skills/repo-review/*' '.claude/agents/repo-review-card.md' 'docs/reviews/SCORECARDS.md' 'docs/reviews/METHOD.md' 'docs/reviews/TEMPLATE.md' 'infrastructure/scripts/src/review-version/*' | sumlines)
 echo "| Measure | Lines |"
 echo "| --- | --- |"
 echo "| Source (non-spec ts/mts/vue) | $code_total |"
 echo "| Specs | $spec_total |"
 echo "| Markdown (excl. changelogs, dated reviews and audits) | $md_total |"
-echo "| Agent guidance (\`AGENTS.md\` files, \`.agents/\`, \`.claude/\`) | $agents_total |"
+echo "| Agent guidance (\`CLAUDE.md\` files, \`.claude/\`) | $agents_total |"
 echo "| Review machinery (skill, collector, card agent, rubric, method, template, \`review-version\`) | $review_total |"
-echo "| Root \`AGENTS.md\`, loaded on every agent turn | $(wc -l < AGENTS.md | tr -d ' ') |"
+echo "| Root \`CLAUDE.md\`, loaded on every agent turn | $(wc -l < CLAUDE.md | tr -d ' ') |"
 echo
 echo "Decisions by status: $(git grep -h -E '^status: ' -- 'docs/decisions/[0-9]*.md' 2>/dev/null | sort | uniq -c | awk '{ printf "%s%s %s", sep, $3, $1; sep=", " }')."
 echo "Audits: $(git ls-files 'docs/audits/[0-9]*.md' | lines) filed; open findings: $(git grep -h -E '\| open \|$' -- 'docs/audits/[0-9]*.md' 2>/dev/null | lines)."

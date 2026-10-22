@@ -44,7 +44,7 @@ describe("issue brief", () => {
         brief(args());
 
         expect(gh.viewThread).toHaveBeenCalledWith(42);
-        expect(printed()).toContain("apps/huella-legal — read apps/huella-legal/AGENTS.md");
+        expect(printed()).toContain("apps/huella-legal — read apps/huella-legal/CLAUDE.md");
     });
 
     it("ignores the branch's board for another issue, whose project it says nothing about", () => {

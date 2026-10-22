@@ -65,7 +65,7 @@ comment — then four sections, each a lookup you'd otherwise run by hand:
 | --- | --- |
 | Blockers | Every `Blocked by #n`, with its title and state. For one that's closed, `pnpm issue:brief <n>` to learn what it settled, not just that it's done |
 | Decisions | Reports in `docs/decisions/` whose frontmatter names this issue or one the thread mentions. Read every one before writing code on the same ground; a report on `status: to-implement` is the work you're about to do — its Result names the files, its Consequences the order and the tripwires, its Confirmation what to run at the end |
-| Projects | The folders the issue touches, each with its `AGENTS.md`. Read those, since Codex doesn't load nested ones on its own |
+| Projects | The folders the issue touches, each with its `CLAUDE.md`. Read those, since Claude only loads a nested one once it reads a file there |
 | Docs mentioned | Plans and guides the thread links. Read the ones the acceptance criteria lean on |
 
 ## 4. Confirm before diving in

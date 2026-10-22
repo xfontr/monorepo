@@ -15,7 +15,7 @@ The pieces below are the plan as written. Building it changed six things:
 | `check` covers lint, typecheck, test; `--ci` deferred | Also runs `docs:map --check` and `review:version --check`; no flags | Both are cheap, run in pre-commit and CI, and are tripped by agent edits. `--projects` and `--ci` were dropped with the script; `nx run-many` with the same style covers them |
 | Comments capped at 1,500 characters | Untrimmed | Threads are short, and the decision often sits where a cap cuts |
 | `issue:pick <n> --worktree` | `issue:pick <n>`, plus a separate `worktree:prepare <path>` with no `nuxi prepare` | Claude Code creates most worktrees itself, and a fresh one lints a Nuxt app through the existing `nuxt-prepare` edge |
-| Delivery: scripts, READMEs, `docs:map` | Also the root `AGENTS.md` commands table, the `.claude/settings.json` allowlist and four skills | A command an agent isn't told about saves nothing |
+| Delivery: scripts, READMEs, `docs:map` | Also the root `CLAUDE.md` commands table, the `.claude/settings.json` allowlist and four skills | A command an agent isn't told about saves nothing |
 | — | `eslint-fix.sh` runs from the file's package and reports leftover errors | The root has no `eslint` binary, so the hook had been a silent no-op |
 
 Each script's README has the details; this file stays as the record of the plan.
@@ -23,7 +23,7 @@ Each script's README has the details; this file stays as the record of the plan.
 ## 🧭 Why the existing tools don't fit
 
 `issue:pick` and `issue:add` are built on `@clack/prompts`, which needs a terminal. Claude's shell
-has none, so `pick` can't run there and the [`start-issue`](../../.agents/skills/start-issue/SKILL.md)
+has none, so `pick` can't run there and the [`start-issue`](../../.claude/skills/start-issue/SKILL.md)
 skill redoes its seven steps by hand with `gh`. The output side is already fine: `out` in
 [`io.ts`](../../infrastructure/scripts/src/shared/adapters/io.ts) falls back to plain lines when
 there is no TTY. So the fix is an argument path that skips the prompts, not a new prompt library.
@@ -33,7 +33,7 @@ there is no TTY. So the fix is an argument path that skips the prompts, not a ne
 | Arguments and flags only, no prompt on the new paths | Works with no TTY; a human still gets the prompts when they pass nothing |
 | Plain text on stdout, errors on stderr via `out` and `ExpectedError` | Same contract as the other scripts |
 | A digest, never a log | The point is fewer tokens; the full output goes to a file the digest names |
-| No new dependency | [`AGENTS.md`](../../infrastructure/scripts/AGENTS.md): small, prompts and subprocess calls |
+| No new dependency | [`CLAUDE.md`](../../infrastructure/scripts/CLAUDE.md): small, prompts and subprocess calls |
 
 ## 📋 The four pieces
 
@@ -62,7 +62,7 @@ Prints one block:
 | Comments | Author and body, newest last, each capped at about 1,500 characters with a marker where it was cut |
 | Blockers | Every `Blocked by #n` in the body, each fetched as number, title and state only |
 | Decisions | Files in `docs/decisions/` whose frontmatter names the issue or a spike the issue references |
-| Project | The branch's `<project>` segment resolved to a directory under `apps/`, `packages/` or `infrastructure/`, plus the path of its nearest `AGENTS.md` |
+| Project | The branch's `<project>` segment resolved to a directory under `apps/`, `packages/` or `infrastructure/`, plus the path of its nearest `CLAUDE.md` |
 
 Pure parts go in `domain/` with specs: blocker extraction, comment truncation, the decision lookup
 and the branch parser. `domain/branch.ts` already slugifies; add the inverse there. The decision
@@ -138,7 +138,7 @@ Worktree paths sit outside the repo, and
 
 ## ✅ Delivery
 
-Each piece follows the [`scripts-new-script`](../../.agents/skills/scripts-new-script/SKILL.md)
+Each piece follows the [`scripts-new-script`](../../.claude/skills/scripts-new-script/SKILL.md)
 skill: folder layout, `package.json` line, README row, a root forwarding line, then
 `pnpm docs:map`. Every path comes from `at()`, and every external value goes through
 `assertNotFlagLike`.
@@ -163,5 +163,5 @@ skill: folder layout, `package.json` line, README row, a root forwarding line, t
 | Scaffolding generators (`new-package`, `ui-new-component`) | They write many files across boundaries and the boundary tables must stay in sync, so a wrong generator does more damage than a skill Claude reads. Revisit when one fixed recipe has gone unchanged for several uses |
 | `pnpm check --ci` (adds `build`, `docs:map --check`, `review:version --check`) | A green push is not a green pipeline, but the three-target check covers the common loop. Add the flag once the digest format is settled |
 | Boundary-table sync check | The tag table in `boundaries.ts` and the root README must agree. A script that diffs them belongs with `docs:map --check` and is a separate issue |
-| Project context pack (tags, dependents, exports in one print) | `issue:brief` covers the project's `AGENTS.md`; the Nx MCP server already answers graph questions |
+| Project context pack (tags, dependents, exports in one print) | `issue:brief` covers the project's `CLAUDE.md`; the Nx MCP server already answers graph questions |
 | `--json` output | Plain text is enough for Claude. Add it only if something other than a person or Claude starts consuming these |

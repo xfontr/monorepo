@@ -46,8 +46,8 @@ describe("render", () => {
         const capabilities: Capability[] = [
             {
                 kind: "skill",
-                invocation: "$new-package",
-                source: ".agents/skills/new-package/SKILL.md",
+                invocation: "/new-package",
+                source: ".claude/skills/new-package/SKILL.md",
                 token: "new-package",
             },
             command("pnpm lint", "package.json", "lint"),
