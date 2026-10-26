@@ -45,7 +45,8 @@ combination fails to typecheck in `nuxt.config`.
 
 `runtimeConfig` (server-side, not `public`) carries the vendor for `useContent` to read per call, so
 every field of it is overridable per deployment with the `NUXT_`-prefixed form —
-`NUXT_CONTENT_VENDOR_BASE_URL`. Declare the field empty, as above, and never read `process.env` in
+`NUXT_CONTENT_VENDOR_BASE_URL`. A public value that is the same in every environment can be a
+literal; anything else is declared empty, as above. Never read `process.env` in
 `nuxt.config` instead — the [i18n module](../../../i18n/src/nuxt/README.md#-usage) says why, and why
 `name` stays a literal.
 

@@ -45,8 +45,9 @@ Because `vendor` lands in `runtimeConfig`, every field of it is overridable per 
 `NUXT_`-prefixed form — `NUXT_TRANSLATIONS_VENDOR_BASE_URL`, `NUXT_TRANSLATIONS_VENDOR_PROJECT`,
 `NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN`. **Prefer that to reading `process.env` in `nuxt.config`**:
 a value read there is resolved at build time and baked into the output, which for a token means the
-artifact carries it. Declare the field empty instead — the key has to exist for Nuxt to override it —
-and let the environment fill it at startup. `name` is the exception: it picks the vendor and its type,
+artifact carries it. Declare a secret or per-environment field empty instead — the key has to exist
+for Nuxt to override it — and let the environment fill it at startup. A public value that is the same
+everywhere, such as a vendor's API root, can be a literal. `name` is the exception: it picks the vendor and its type,
 so it stays a literal.
 
 You do not write `locales` yourself — it is derived. It sits on `TranslationsConfig`, which is also
