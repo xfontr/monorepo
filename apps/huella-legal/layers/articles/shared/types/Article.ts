@@ -1,11 +1,8 @@
-import type { SEO } from "@monorepo/content";
-import type { ArticleBody } from "./ArticleBody";
 import type { ArticleSummary } from "./ArticleSummary";
 import type { Citation } from "./Citation";
+import type { Page } from "./Page";
 
-export type Article = ArticleSummary & {
-    body: ArticleBody;
-    seo?: SEO;
-    permalink: string;
-    citations: Citation[];
-};
+export type Article = Page &
+    ArticleSummary & {
+        citations: Citation[];
+    };

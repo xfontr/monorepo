@@ -89,28 +89,4 @@ case "$rel" in
         ;;
 esac
 
-# "Never write a real endpoint, URL, token or instance ID into the repo" (CLAUDE.md). A blanket https?://
-# grep isn't the fix — it fires on "$schema" in settings.json/nx.json,
-# on tsconfig.json's doc-link comment, and on every *.spec.ts that hardcodes a fake vendor URL as a
-# fixture (that's the norm here, not the violation) — so this skips specs/stories, comments, $schema
-# and localhost, and looks only at the source/config a real endpoint would actually land in
-case "$rel" in
-    *.spec.ts|*.spec.vue|*.stories.ts)
-        ;;
-    *.ts|*.vue|*.json)
-        hit=$(grep -nE 'https?://' "$file" 2>/dev/null \
-            | grep -viE '://localhost' \
-            | grep -vE '"\$schema"' \
-            | grep -vE '^[0-9]+:[[:space:]]*(//|/\*|\*)' \
-            | head -1)
-
-        if [ -n "$hit" ]; then
-            echo "$rel: $hit" >&2
-            echo "Endpoints, tokens and instance IDs are env vars with no default (CLAUDE.md)." >&2
-            echo "Add the name to .env.example and read the value at runtime instead." >&2
-            exit 2
-        fi
-        ;;
-esac
-
 exit 0

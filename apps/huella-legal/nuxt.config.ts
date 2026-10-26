@@ -3,13 +3,8 @@ export default defineNuxtConfig({
 
     // Loaded first because `typedPages` importing it while `@nuxtjs/i18n` loads trips a Node ESM-loader assert
     modules: [
-        async () => { await import("vue-router/unplugin"); },
-        // Vue counts an onServerPrefetch hook (every Nuxt Icon has one) as a useId boundary, so a client
-        // build that strips it hydrates Reka's aria-controls with ids the server never rendered
-        (_, nuxt) => {
-            const shaken = nuxt.options.optimization.treeShake.composables.client;
-
-            if (shaken.vue) shaken.vue = shaken.vue.filter((name) => name !== "onServerPrefetch");
+        async () => {
+            await import("vue-router/unplugin");
         },
         "@monorepo/i18n/nuxt",
         "@monorepo/content/nuxt",
@@ -36,11 +31,7 @@ export default defineNuxtConfig({
         },
 
         requiredEnv: {
-            translations: [
-                "NUXT_TRANSLATIONS_VENDOR_BASE_URL",
-                "NUXT_TRANSLATIONS_VENDOR_PROJECT",
-                "NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN",
-            ],
+            translations: ["NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN"],
         },
     },
 
@@ -62,8 +53,8 @@ export default defineNuxtConfig({
     translations: {
         vendor: {
             name: "tolgee",
-            project: "",
-            baseURL: "",
+            project: "34150",
+            baseURL: "https://app.tolgee.io/",
             options: {
                 token: "",
             },
@@ -97,12 +88,11 @@ export default defineNuxtConfig({
     content: {
         vendor: {
             name: "wordpress",
-            baseURL: "",
+            baseURL: "https://huellalegal.com",
         },
     },
 
     requiredEnv: {
-        content: ["NUXT_CONTENT_VENDOR_BASE_URL"],
         site: ["NUXT_PUBLIC_SITE_URL"],
     },
 

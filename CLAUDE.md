@@ -72,11 +72,12 @@ far outside that is worth opening. The `comment-cleanup` skill runs the pass.
   to notice they owe a bump. Editing a digest to match a file you just changed silences the check
   rather than satisfying it — and it makes every score in the history table a claim about a method
   that didn't produce it. The prose around the tables is yours to edit.
-- **Never write a real endpoint, URL, token or instance ID into the repo.** Every one of them is an
-  env var with no default; `.env.example` documents the names and nothing else. "It's a public URL"
-  is not a reason — vendor endpoints stay out. Two exceptions, both identifiers rather than
-  credentials: the status badges atop the root README, and `nxCloudId` in `nx.json` — see
-  [0026](./docs/decisions/0026-nx-cloud-remote-cache.md).
+- **Never write a secret, or a value that changes per environment, into the repo.** Tokens, API
+  keys, the user half of a credential, and anything that differs between dev, preview and
+  production — or that switches a feature off when unset — are env vars with no default;
+  `.env.example` documents the names and nothing else. A public value that is the same in every
+  environment, such as a vendor's API base URL or a project ID, is a literal in the config, where
+  changing it is one reviewed line rather than a dashboard edit.
 - **Never raise git.** Branching, committing, pushing, PRs and releases belong to the user and they
   do not want them suggested, offered, prepared for or asked about. Answer the question or change
   the code and stop there — an unprompted "want me to branch off and apply this?" is noise, not

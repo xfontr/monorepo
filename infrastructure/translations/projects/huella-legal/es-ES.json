@@ -207,6 +207,12 @@
         "browse": "O explora por materia",
         "title": "Ningún resultado para «{query}»"
     },
+    "page": {
+        "breadcrumb": {
+            "home": "Portada"
+        },
+        "toc": "En esta página"
+    },
     "pagination": {
         "label": "Paginación",
         "next": {

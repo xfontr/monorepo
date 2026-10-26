@@ -1,4 +1,5 @@
 import { playwright } from "@monorepo/configs";
+import { PAGES } from "./e2e/fakes.ts";
 
 export default playwright.createConfig({
     port: 4310,
@@ -16,6 +17,7 @@ export default playwright.createConfig({
         NUXT_TURNSTILE_SECRET_KEY: "e2e",
         NUXT_PUBLIC_TURNSTILE_SITE_KEY: "e2e",
         NUXT_PUBLIC_SITE_URL: "http://localhost:4310",
+        NUXT_PUBLIC_PAGE_SLUGS: JSON.stringify(PAGES.map(({ slug }) => slug)),
         NUXT_PUBLIC_OBSERVABILITY_URL: "",
         NUXT_OBSERVABILITY_URL: "",
     },

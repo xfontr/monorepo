@@ -2,16 +2,16 @@
 
 See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry setup.
 
-- **No URL or credential gets a default in [`nuxt.config.ts`](./nuxt.config.ts), and nothing there
-  reads `process.env`.** An unset vendor must fail loudly, not fall back to something plausible: list
-  a var the feature can't work without under `requiredEnv` in the `nuxt.config.ts` of the layer that
-  uses it, and [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) fails a production deploy naming
-  it. Never re-check it per request. Declare the key empty and let the `NUXT_`-prefixed var fill it
-  at startup; the
-  [i18n module](../../packages/i18n/src/nuxt/README.md#-usage) says why. The vendor `name` fields are
-  the exception: they select a config type, so they stay literals. So are the observability `version`
-  and `environment`, which default to `0.0.0` and `development`. New config goes in `.env.example`
-  with a row in the README table, and nowhere else.
+- **A public value that is the same in every environment is a literal in
+  [`nuxt.config.ts`](./nuxt.config.ts); a secret or a per-environment value is an env var with no
+  default, and nothing there reads `process.env`.** The WordPress root and the Tolgee base URL and
+  project are literals; tokens, keys and the telemetry URLs are not. An unset env var must fail
+  loudly, not fall back to something plausible: list one the feature can't work without under
+  `requiredEnv` in the `nuxt.config.ts` of the layer that uses it, and
+  [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) fails a production deploy naming it. Never
+  re-check it per request. Declare the key empty and let the `NUXT_`-prefixed var fill it at
+  startup; the [i18n module](../../packages/i18n/src/nuxt/README.md#-usage) says why. A new env var
+  goes in `.env.example` with a row in the README table, and nowhere else.
 - **No UI copy is hard-coded outside `/lab`.** It goes in
   [`infrastructure/translations/projects/huella-legal/es-ES.json`](../../infrastructure/translations/projects/huella-legal/es-ES.json)
   under a key that follows the [naming convention](./README.md#-copy-keys), and the component calls

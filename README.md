@@ -114,9 +114,9 @@ silently does nothing where it matters. Skip setup and the [commit and push gate
 simply never fire, while the portal has no current coverage or derived docs to show.
 
 `huella-legal` fetches both its translations and its articles over the network at runtime, so it
-needs `NUXT_TRANSLATIONS_VENDOR_*` set before any page renders, and `NUXT_CONTENT_VENDOR_BASE_URL`
-before `/articles` does. See [`apps/huella-legal`](./apps/huella-legal/README.md) for which vars,
-and for the local translations server `nuxt dev` reads from.
+needs `NUXT_TRANSLATIONS_VENDOR_*` set before any page renders. See
+[`apps/huella-legal`](./apps/huella-legal/README.md) for which vars, and for the local translations
+server `nuxt dev` reads from.
 
 The everyday commands. [`docs/FEATURES.md`](./docs/FEATURES.md) lists every other one — the
 `issue:*` scripts, `docs:drift`, `review:version`, `package:check` — with the doc that explains it.
