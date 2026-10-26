@@ -168,6 +168,49 @@
         "item": "{field}: {message}",
         "title": "Revisa un campo antes de enviar | Revisa {count} campos antes de enviar"
     },
+    "interestCalculator": {
+        "customPercent": {
+            "hint": "Porcentaje anual",
+            "label": "Tipo personalizado"
+        },
+        "disclaimer": "Interés simple: capital × tipo anual × días transcurridos ÷ 365. El resultado es orientativo y no sustituye el asesoramiento jurídico.",
+        "errors": {
+            "customPercent": "Escribe un tipo mayor que cero y no superior al 100 %",
+            "from": "Indica la fecha de inicio",
+            "order": "La fecha final no puede ser anterior a la de inicio",
+            "principal": "Escribe un capital mayor que cero",
+            "to": "Indica la fecha final"
+        },
+        "from": {
+            "label": "Fecha de inicio"
+        },
+        "kicker": "Herramienta",
+        "lead": "Calcula el interés de una cantidad entre dos fechas.",
+        "principal": {
+            "hint": "En euros",
+            "label": "Capital"
+        },
+        "rate": {
+            "label": "Tipo de interés",
+            "options": {
+                "custom": "Personalizado",
+                "judicial": "Interés judicial ({percent} %)",
+                "legal": "Interés legal ({percent} %)"
+            }
+        },
+        "result": {
+            "days": "Día transcurrido | Días transcurridos",
+            "empty": "Rellena el formulario para ver el resultado.",
+            "interest": "Intereses",
+            "label": "Resultado",
+            "total": "Capital más intereses"
+        },
+        "submit": "Calcular",
+        "title": "Cálculo de intereses",
+        "to": {
+            "label": "Fecha final"
+        }
+    },
     "newsletterBand": {
         "kicker": "Boletín mensual",
         "note": "Puedes darte de baja desde cualquier correo. Tratamos tu dirección según la {privacy}.",
