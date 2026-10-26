@@ -4,6 +4,7 @@ import { useResizeObserver } from "@vueuse/core";
 
 interface Props {
     items: TocItem[];
+    title?: string;
 }
 
 const props = defineProps<Props>();
@@ -53,9 +54,9 @@ useResizeObserver(rail, measure);
 </script>
 
 <template>
-    <nav v-if="sections.length" :aria-label="$t('articleToc.title')" class="print:hidden">
+    <nav v-if="sections.length" :aria-label="title ?? $t('articleToc.title')" class="print:hidden">
         <UAccordion
-            :items="[{ label: $t('articleToc.title'), slot: 'toc' as const }]"
+            :items="[{ label: title ?? $t('articleToc.title'), slot: 'toc' as const }]"
             :ui="{
                 trigger: 'min-h-12 font-sans text-sm font-semibold text-highlighted',
                 body: 'pb-4',
@@ -79,7 +80,7 @@ useResizeObserver(rail, measure);
 
         <div class="sticky top-8 hidden lg:block">
             <p class="text-kicker">
-                {{ $t("articleToc.title") }}
+                {{ title ?? $t("articleToc.title") }}
             </p>
             <div ref="rail" class="relative mt-3">
                 <span

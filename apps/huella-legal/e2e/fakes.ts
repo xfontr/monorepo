@@ -91,8 +91,45 @@ export const POSTS: Entry[] = [
 const locale = (code: string): TranslationMap =>
     JSON.parse(readFileSync(new URL(`${code}.json`, LOCALES), "utf8")) as TranslationMap;
 
+// The footer's privacy and cookies links target these headings' ids
+export const PRIVACY = "Privacidad";
+export const COOKIES = "Cookies";
+
+export const LEGAL = fakeEntry({
+    slug: "aviso-legal",
+    title: "Aviso legal",
+    terms: [],
+    authors: [],
+    body: {
+        format: "html",
+        value:
+            `<p>${faker.lorem.paragraph()}</p>` +
+            `<h2>${PRIVACY}</h2><p>${faker.lorem.paragraph()}</p>` +
+            `<h2>${COOKIES}</h2><p>${faker.lorem.paragraph()}</p><p>${faker.lorem.paragraph()}</p>`,
+    },
+});
+
+export const SOURCE = faker.lorem.sentence();
+
+// Any other page takes the same template, footnotes and closing reference list included
+export const PAGE = fakeEntry({
+    slug: "nota-editorial",
+    terms: [],
+    authors: [],
+    body: {
+        format: "html",
+        value:
+            `<p>${faker.lorem.paragraph()}<a href="#_ftn1">[1]</a></p>` +
+            `<h2>Fuentes</h2><p>${SOURCE}</p>` +
+            `<hr><p><a href="#_ftnref1">[1]</a> ${faker.lorem.sentence()}</p>`,
+    },
+});
+
+export const PAGES: Entry[] = [LEGAL, PAGE];
+
 export const CONTENT: WordpressContent = {
     posts: POSTS,
+    pages: PAGES,
     categories: CATEGORIES,
     tags: [TAG, THESIS],
 };

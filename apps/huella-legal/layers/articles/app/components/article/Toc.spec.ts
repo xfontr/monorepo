@@ -87,6 +87,17 @@ describe("article TOC", () => {
         expect(wrapper.find("nav").attributes("aria-label")).toBe("t(articleToc.title)");
     });
 
+    // A page that isn't an article reuses the TOC, and "En este artículo" would misname it
+    it("takes the caller's title in place of the article one", async () => {
+        const wrapper = await mountSuspended(ArticleToc, {
+            props: { items, title: "En esta página" },
+            global,
+        });
+
+        expect(wrapper.find("nav").attributes("aria-label")).toBe("En esta página");
+        expect(wrapper.text()).not.toContain("t(articleToc.title)");
+    });
+
     it("opens the small-screen accordion onto the same sections", async () => {
         const wrapper = await mountSuspended(ArticleToc, {
             props: { items },
