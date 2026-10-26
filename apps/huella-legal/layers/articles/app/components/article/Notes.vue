@@ -29,7 +29,7 @@ const headingId = useId();
                     {{ note.id }}
                 </ULink>
                 <!-- eslint-disable vue/no-v-html -- only ever fed from the articles layer's sanitising body mapper -->
-                <span class="break-words hl-links" v-html="note.html" />
+                <span class="wrap-break-word hl-links" v-html="note.html" />
                 <!-- eslint-enable vue/no-v-html -->
             </li>
         </ol>

@@ -27,8 +27,7 @@ export const tagsInBoundaries = (source: string): string[] =>
 export const tagsInReadmeTable = (readme: string): string[] =>
     readme
         .split("\n")
-        .filter((line) => line.startsWith("| `type:"))
-        .map((line) => /`(type:[^`]+)`/.exec(line)?.[1] ?? "")
+        .map((line) => /^\| `((?:type|scope):[^`]+)`/.exec(line)?.[1] ?? "")
         .filter(Boolean);
 
 /** Project directories listed in the README's workspace-layout code block. */

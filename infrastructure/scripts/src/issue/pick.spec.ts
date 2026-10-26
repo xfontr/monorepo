@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { parse } from "../shared/domain/cli.ts";
 import { CancelledError } from "../shared/errors.ts";
 
 const prompts = vi.hoisted(() => ({
@@ -15,12 +16,15 @@ const gh = vi.hoisted(() => ({
     listIssues: vi.fn(),
     listProjects: vi.fn(),
     moveToInProgress: vi.fn(),
+    viewThread: vi.fn(),
 }));
 const git = vi.hoisted(() => ({ branchForIssue: vi.fn(), checkout: vi.fn() }));
 const io = vi.hoisted(() => ({
+    requireTerminal: vi.fn(),
     out: {
         begin: vi.fn(),
         end: vi.fn(),
+        info: vi.fn(),
         note: vi.fn(),
         warn: vi.fn(),
         success: vi.fn(),
@@ -197,5 +201,106 @@ describe("issue pick", () => {
         await expect(pick()).rejects.toThrow(
             new CancelledError("Cancelled — still on the same branch."),
         );
+    });
+});
+
+describe("issue pick <number>", () => {
+    const THREAD = {
+        ...ISSUE,
+        state: "OPEN",
+        body: "",
+        assignees: [],
+        comments: [],
+        boards: [{ title: "Roadmap", status: "Todo" }],
+    };
+    const args = (...argv: string[]) => parse(argv);
+
+    beforeEach(() => {
+        gh.viewThread.mockReturnValue(THREAD);
+    });
+
+    it("branches, assigns and moves the issue without a single prompt", async () => {
+        await pick(args("42"));
+
+        expect(gh.developBranch).toHaveBeenCalledWith(42, "fix/roadmap/42-fix-picker");
+        expect(gh.assignToMe).toHaveBeenCalledWith(42);
+        expect(gh.moveToInProgress).toHaveBeenCalledWith(PROJECT, ISSUE);
+        expect(io.requireTerminal).not.toHaveBeenCalled();
+        expect(prompts.select).not.toHaveBeenCalled();
+    });
+
+    it("lets the flags override the label, the board and the branch title", async () => {
+        gh.listProjects.mockReturnValue([{ ...PROJECT, title: "DX" }]);
+
+        await pick(args("#42", "--type=hotfix", "--project=DX", "--title=Short"));
+
+        expect(gh.developBranch).toHaveBeenCalledWith(42, "hotfix/dx/42-short");
+    });
+
+    it("refuses to guess a branch type for a spike, and names the flag that settles it", async () => {
+        gh.viewThread.mockReturnValue({ ...THREAD, labels: ["spike"] });
+
+        await expect(pick(args("42"))).rejects.toThrow("--type=<feature|fix|hotfix|release>");
+        expect(gh.developBranch).not.toHaveBeenCalled();
+    });
+
+    it("names the valid types when --type is misspelt, rather than blaming the label", async () => {
+        await expect(pick(args("42", "--type=feat"))).rejects.toThrow(
+            '"feat" isn\'t a branch type',
+        );
+        expect(gh.developBranch).not.toHaveBeenCalled();
+    });
+
+    it("refuses a title that slugs to nothing, which would leave the branch name without one", async () => {
+        await expect(pick(args("42", "--title=???"))).rejects.toThrow("--title=<branch title>");
+        expect(gh.developBranch).not.toHaveBeenCalled();
+    });
+
+    it("rejects an argument that isn't an issue before calling gh", async () => {
+        await expect(pick(args("feature"))).rejects.toThrow("isn't an issue number or URL");
+        expect(gh.viewThread).not.toHaveBeenCalled();
+    });
+
+    it("still branches when --project names no open board, leaving the board column alone", async () => {
+        await pick(args("42", "--project=Archived"));
+
+        expect(gh.developBranch).toHaveBeenCalledWith(42, "fix/archived/42-fix-picker");
+        expect(gh.moveToInProgress).not.toHaveBeenCalled();
+        expect(io.out.warn).toHaveBeenCalledWith(expect.stringContaining('"Archived"'));
+    });
+
+    it("asks for --project when the issue is on no board, since the branch name needs one", async () => {
+        gh.viewThread.mockReturnValue({ ...THREAD, boards: [] });
+
+        await expect(pick(args("42"))).rejects.toThrow("--project=<board title>");
+    });
+
+    it("checks out an existing branch for the issue instead of creating a second one", async () => {
+        git.branchForIssue.mockReturnValue("feature/roadmap/42-old-name");
+
+        await pick(args("42"));
+
+        expect(git.checkout).toHaveBeenCalledWith("feature/roadmap/42-old-name");
+        expect(gh.developBranch).not.toHaveBeenCalled();
+    });
+
+    it("resumes an existing branch even when the issue has left every board", async () => {
+        git.branchForIssue.mockReturnValue("feature/roadmap/42-old-name");
+        gh.viewThread.mockReturnValue({ ...THREAD, boards: [] });
+
+        await pick(args("42"));
+
+        expect(git.checkout).toHaveBeenCalledWith("feature/roadmap/42-old-name");
+        expect(gh.assignToMe).toHaveBeenCalledWith(42);
+        expect(gh.moveToInProgress).not.toHaveBeenCalled();
+    });
+
+    it("prompts only after confirming there is a terminal to prompt in", async () => {
+        io.requireTerminal.mockImplementation(() => {
+            throw new Error("No terminal");
+        });
+
+        await expect(pick()).rejects.toThrow("No terminal");
+        expect(prompts.select).not.toHaveBeenCalled();
     });
 });

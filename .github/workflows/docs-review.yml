@@ -170,8 +170,8 @@ jobs:
                       }
                   };
 
-                  documentationFiles.add(path.join(workspace, "AGENTS.md"));
-                  for (const file of changedFiles) addAncestors(file, "AGENTS.md");
+                  documentationFiles.add(path.join(workspace, "CLAUDE.md"));
+                  for (const file of changedFiles) addAncestors(file, "CLAUDE.md");
 
                   const rootBehaviorChanged = changedFiles.some((file) =>
                       ["package.json", "pnpm-workspace.yaml", "nx.json"].includes(file) ||

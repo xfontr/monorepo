@@ -11,6 +11,9 @@ const term = computed(() =>
     listing.value?.scope?.kind === "category" ? listing.value.scope.term : undefined,
 );
 
+// The card's lead runs the name mid-sentence
+const subject = computed(() => term.value?.name.toLocaleLowerCase("es"));
+
 useSeoMeta({ title: () => term.value?.name, description: () => term.value?.description });
 </script>
 
@@ -38,13 +41,15 @@ useSeoMeta({ title: () => term.value?.name, description: () => term.value?.descr
                 :empty-subject="term.name"
                 class="lg:col-span-8"
             />
-            <ArchiveSubjects
-                :title="$t('category.subjects')"
-                :subjects="listing.subjects"
-                :current-subject="term.id"
-                archive-link
-                class="lg:col-span-4"
-            />
+            <div class="flex flex-col gap-10 lg:col-span-4">
+                <ArchiveSubjects
+                    :title="$t('category.subjects')"
+                    :subjects="listing.subjects"
+                    :current-subject="term.id"
+                    archive-link
+                />
+                <NewsletterCard :subject />
+            </div>
         </UContainer>
     </div>
 </template>

@@ -55,7 +55,7 @@ export const workflows = (files: { file: string; name: string }[]): Capability[]
 export const skills = (found: { source: string; name: string }[]): Capability[] =>
     found.map(({ source, name }) => ({
         kind: "skill" as const,
-        invocation: `$${name}`,
+        invocation: `/${name}`,
         source,
         token: name,
     }));
@@ -79,7 +79,7 @@ const sharedPrefix = (a: string, b: string): number => {
 const audience = (path: string): number => {
     const name = path.split("/").pop();
     if (name === "README.md") return 0;
-    if (name === "AGENTS.md") return 2;
+    if (name === "CLAUDE.md") return 2;
     if (name === "SKILL.md") return 3;
     return 1;
 };
@@ -89,9 +89,9 @@ export interface Doc {
     text: string;
 }
 
-const SKILL_INDEX = "AGENTS.md";
+const SKILL_INDEX = "CLAUDE.md";
 
-/** Skills cite the AGENTS.md table; everything else ranks by audience, then nearness. */
+/** Skills cite the CLAUDE.md table; everything else ranks by audience, then nearness. */
 export const documentedBy = (
     { kind, source, token }: Capability,
     docs: Doc[],

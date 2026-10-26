@@ -3,7 +3,8 @@
 # the quotes wrong is a lint failure that only surfaces at push time. Fixing it on the way out keeps
 # that argument from ever reaching a diff.
 #
-# Every failure path exits 0: a formatter must never block an edit that was otherwise fine.
+# Errors --fix can't settle go back to the model on stderr with exit 2, which doesn't undo the edit.
+# Every other path exits 0: a formatter must never block an edit that was otherwise fine.
 
 command -v jq >/dev/null 2>&1 || exit 0
 
@@ -17,7 +18,16 @@ case "$file" in
     *) exit 0 ;;
 esac
 
-cd "${CLAUDE_PROJECT_DIR:-.}" 2>/dev/null || exit 0
-pnpm exec eslint --fix "$file" >/dev/null 2>&1
+# The root has no eslint binary, only each project does, so run it from the file's own package
+dir=$(dirname "$file")
+while [ "$dir" != "/" ] && [ "$dir" != "." ] && [ ! -f "$dir/package.json" ]; do
+    dir=$(dirname "$dir")
+done
+[ -f "$dir/package.json" ] || exit 0
 
-exit 0
+# --quiet skips warn-level rules, fixes included; exit 1 means errors remain, 2 that eslint failed
+residue=$(cd "$dir" && pnpm exec eslint --fix --quiet "$file" 2>/dev/null)
+[ $? -eq 1 ] && [ -n "$residue" ] || exit 0
+
+echo "eslint errors --fix couldn't settle:$residue" >&2
+exit 2

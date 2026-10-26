@@ -11,14 +11,14 @@ const COLLECTED = new Set([
     "docs/decisions/README.md",
     "docs/decisions/0011-docs-system-enforcement.md",
     "apps/developer-portal/README.md",
-    ".agents/skills/writing-tests/SKILL.md",
-    ".agents/skills/house-docs/SKILL",
+    ".claude/skills/writing-tests/SKILL.md",
+    ".claude/skills/house-docs/SKILL",
 ]);
 
 const isPage = (path: string): boolean => COLLECTED.has(path);
 
-/** `AGENTS.md` at the repo root, whose links are relative to the root itself. */
-const ROOT = "AGENTS.md";
+/** `CLAUDE.md` at the repo root, whose links are relative to the root itself. */
+const ROOT = "CLAUDE.md";
 
 const DECISION = "docs/decisions/0014-developer-portal-deployment.md";
 
@@ -57,8 +57,8 @@ describe("resolveDocLink", () => {
     });
 
     it("drops a line range, which narrows a file rather than naming another one", () => {
-        expect(resolveDocLink("./.agents/skills/writing-tests/SKILL.md:91-94", ROOT, isPage)).toBe(
-            "/docs/.agents/skills/writing-tests/skill",
+        expect(resolveDocLink("./.claude/skills/writing-tests/SKILL.md:91-94", ROOT, isPage)).toBe(
+            "/docs/.claude/skills/writing-tests/skill",
         );
     });
 
@@ -78,8 +78,8 @@ describe("resolveDocLink", () => {
     });
 
     it("routes an extension-less target the collection knows, since these docs may omit `.md`", () => {
-        expect(resolveDocLink("./.agents/skills/house-docs/SKILL", ROOT, isPage)).toBe(
-            "/docs/.agents/skills/house-docs/skill",
+        expect(resolveDocLink("./.claude/skills/house-docs/SKILL", ROOT, isPage)).toBe(
+            "/docs/.claude/skills/house-docs/skill",
         );
     });
 

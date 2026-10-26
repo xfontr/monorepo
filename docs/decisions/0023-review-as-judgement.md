@@ -32,10 +32,10 @@ cards. Individual defects are [audits](../audits/README.md).
 | --- | --- |
 | Caps, the calibration-rule table and the density floor are gone. Each card is a set of questions, plus 5/3/1 anchors for its own dimension | [`docs/reviews/SCORECARDS.md`](../reviews/SCORECARDS.md) |
 | New ⚖️ How to judge rules: judge the whole, not the worst line; proportionality is quality; enforcement is evidence, not the definition; unevenness and trajectory are findings; every score is steelmanned in both directions | `SCORECARDS.md` |
-| The orchestrator writes the thesis first and sets scores last. A score resting on one bug is wrong by definition | [`.agents/skills/repo-review/SKILL.md`](../../.agents/skills/repo-review/SKILL.md) |
+| The orchestrator writes the thesis first and sets scores last. A score resting on one bug is wrong by definition | [`.agents/skills/repo-review/SKILL.md`](../../.claude/skills/repo-review/SKILL.md) |
 | Card agents are no longer isolated. They read git history, return strengths, weaknesses as patterns, over- and under-engineering, low-hanging fruit and trajectory, and carry no model pin | [`.claude/agents/repo-review-card.md`](../../.claude/agents/repo-review-card.md) |
 | The template gains 🔭 The big picture, 🔥 What's really wrong, 🏗 Over- and under-engineering and 🍒 Low-hanging fruit. The Scores table shape is unchanged, so the portal parser is untouched | [`docs/reviews/TEMPLATE.md`](../reviews/TEMPLATE.md) |
-| The collector reports sizes, markdown against code, agent-guidance and review-machinery weight, and per-project activity since the last review. It picks the previous review by date, with commit time breaking a tie. It labels nothing as a cap | [`collect-facts.sh`](../../.agents/skills/repo-review/collect-facts.sh) |
+| The collector reports sizes, markdown against code, agent-guidance and review-machinery weight, and per-project activity since the last review. It picks the previous review by date, with commit time breaking a tie. It labels nothing as a cap | [`collect-facts.sh`](../../.claude/skills/repo-review/collect-facts.sh) |
 
 Three of `0012`'s four adopted changes survive unchanged:
 - method versioning over all four artifacts;

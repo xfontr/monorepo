@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CancelledError, ExpectedError } from "../errors.ts";
-import { dispatch, invocation, parse, report } from "./cli.ts";
+import { dispatch, invocation, optionValue, parse, report } from "./cli.ts";
 
 describe("parse", () => {
     it("separates flags from positionals", () => {
@@ -15,6 +15,20 @@ describe("parse", () => {
             flags: new Set(["check", "refresh"]),
             positionals: ["value"],
         });
+    });
+});
+
+describe("optionValue", () => {
+    it("reads the value after the equals sign", () => {
+        expect(optionValue(parse(["--type=fix", "42"]).flags, "type")).toBe("fix");
+    });
+
+    it("ignores a flag that only shares the prefix", () => {
+        expect(optionValue(parse(["--types=fix"]).flags, "type")).toBeUndefined();
+    });
+
+    it("treats an empty value as missing", () => {
+        expect(optionValue(parse(["--type="]).flags, "type")).toBeUndefined();
     });
 });
 

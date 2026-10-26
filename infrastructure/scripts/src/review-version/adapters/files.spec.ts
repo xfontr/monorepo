@@ -30,8 +30,8 @@ describe("review-version filesystem adapter", () => {
 
     it("digests every method artifact and marks missing artifacts empty", () => {
         writeFileSync(join(directory, "docs/reviews/SCORECARDS.md"), "scorecards");
-        mkdirSync(join(directory, ".agents/skills/repo-review"), { recursive: true });
-        writeFileSync(join(directory, ".agents/skills/repo-review/SKILL.md"), "skill", {
+        mkdirSync(join(directory, ".claude/skills/repo-review"), { recursive: true });
+        writeFileSync(join(directory, ".claude/skills/repo-review/SKILL.md"), "skill", {
             flag: "w",
         });
 

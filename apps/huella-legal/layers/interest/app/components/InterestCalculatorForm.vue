@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { FormErrorEvent, FormSubmitEvent } from "@nuxt/ui";
-import FormErrorSummary from "~/components/form/FormErrorSummary.vue";
 import { type InterestForm, interestFormSchema } from "../schemas/interestForm";
 import type { InterestInput } from "../types/InterestInput";
 import type { InterestRate } from "../types/InterestRate";

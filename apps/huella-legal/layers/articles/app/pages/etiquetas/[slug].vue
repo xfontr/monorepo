@@ -44,5 +44,6 @@ useSeoMeta({ title: () => term.value?.name, description: () => term.value?.descr
                 class="lg:col-span-4"
             />
         </UContainer>
+        <NewsletterBand />
     </div>
 </template>

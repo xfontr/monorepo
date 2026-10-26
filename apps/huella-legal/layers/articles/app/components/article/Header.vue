@@ -35,9 +35,8 @@ const bylineAuthors = computed(() =>
 </script>
 
 <template>
-    <UContainer as="header" class="grid grid-cols-1 pt-6 md:pt-10 lg:grid-cols-12 lg:gap-x-8">
-        <div class="lg:col-span-9 lg:col-start-4">
-            <UBreadcrumb :items="breadcrumb" class="print:hidden" />
+    <ArticleTitle :breadcrumb :title="article.title">
+        <template #kicker>
             <p class="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-xs md:mt-8">
                 <BaseKicker>{{ formatLabel }}</BaseKicker>
                 <template v-if="article.category">
@@ -51,34 +50,30 @@ const bylineAuthors = computed(() =>
                     </ULink>
                 </template>
             </p>
-            <h1
-                class="mt-4 max-w-[18ch] font-serif text-display-sm text-highlighted text-balance md:text-display lg:text-display-lg"
-            >
-                {{ article.title }}
-            </h1>
-            <p
-                v-if="article.excerpt"
-                class="mt-6 max-w-measure border-y border-default py-5 font-serif text-standfirst text-toned italic md:text-standfirst-lg"
-            >
-                {{ article.excerpt }}
-            </p>
+        </template>
 
-            <div
-                class="mt-5 flex max-w-measure flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-            >
-                <Byline
-                    :authors="bylineAuthors"
-                    :published-at="article.publishedAt"
-                    :reading-minutes="article.readingMinutes"
-                    avatars
-                />
-                <ArticleShareBar
-                    :title="article.title"
-                    :url="article.permalink"
-                    :cite-to="{ hash: '#citar' }"
-                    class="-ml-3 sm:-mr-3 sm:ml-0"
-                />
-            </div>
+        <p
+            v-if="article.excerpt"
+            class="mt-6 max-w-measure border-y border-default py-5 font-serif text-standfirst text-toned italic md:text-standfirst-lg"
+        >
+            {{ article.excerpt }}
+        </p>
+
+        <div
+            class="mt-5 flex max-w-measure flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        >
+            <Byline
+                :authors="bylineAuthors"
+                :published-at="article.publishedAt"
+                :reading-minutes="article.readingMinutes"
+                avatars
+            />
+            <ArticleShareBar
+                :title="article.title"
+                :url="article.permalink"
+                :cite-to="{ hash: '#citar' }"
+                class="-ml-3 sm:-mr-3 sm:ml-0"
+            />
         </div>
-    </UContainer>
+    </ArticleTitle>
 </template>

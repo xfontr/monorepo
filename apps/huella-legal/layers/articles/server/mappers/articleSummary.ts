@@ -23,7 +23,7 @@ const toFormat = (categorySlugs: string[], tagSlugs: string[]): ArticleSummary["
 };
 
 // WordPress renders titles and excerpts as entity-escaped HTML; this is display text, not sanitising
-const toText = (html: string): string => textContent(parseFragment(html));
+export const toText = (html: string): string => textContent(parseFragment(html));
 
 export const toCategory = (term: Term): Category => ({
     id: term.id,

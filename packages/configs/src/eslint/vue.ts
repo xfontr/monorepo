@@ -83,6 +83,11 @@ const createBaseVueConfig = (typeChecked?: boolean): object[] => {
                 "vue/require-default-prop": "off",
                 "vue/v-bind-style": ["error", "shorthand", { sameNameShorthand: "always" }],
                 "vue/prefer-separate-static-class": "error",
+                "vue/component-name-in-template-casing": [
+                    "error",
+                    "PascalCase",
+                    { registeredComponentsOnly: false },
+                ],
                 "vue/define-macros-order": [
                     "error",
                     { order: ["defineProps", "defineEmits", "defineModel", "defineSlots"] },
