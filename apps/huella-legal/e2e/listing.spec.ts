@@ -6,7 +6,7 @@ const WCAG_AA = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
 const LISTINGS = [
     { name: "publications", path: "/publicaciones/", title: "Publicaciones" },
-    { name: "subject", path: `/materias/${SUBJECT.slug}/`, title: SUBJECT.name },
+    { name: "subject", path: `/areas/${SUBJECT.slug}/`, title: SUBJECT.name },
     { name: "tag", path: `/etiquetas/${TAG.slug}/`, title: TAG.name },
     { name: "author", path: `/colaboradores/${AUTHOR.slug}/`, title: AUTHOR.name },
 ];
@@ -54,14 +54,14 @@ test("the archive pages twenty at a time and scrolls back to the top on the next
 });
 
 test("moving from one subject to another swaps the listing, not just the URL", async ({ page }) => {
-    await page.goto(`/materias/${SUBJECT.slug}/`);
+    await page.goto(`/areas/${SUBJECT.slug}/`);
 
     await page
         .getByRole("complementary")
         .getByRole("link", { name: new RegExp(`^${SIBLING.name}\\s`) })
         .click();
 
-    await expect(page).toHaveURL(new RegExp(`/materias/${SIBLING.slug}/$`));
+    await expect(page).toHaveURL(new RegExp(`/areas/${SIBLING.slug}/$`));
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(SIBLING.name);
 });
 
@@ -89,10 +89,10 @@ test("a format pill narrows the archive and marks itself current", async ({ page
 
     const pills = page.getByRole("navigation", { name: "Formato" });
 
-    await pills.getByRole("link", { name: /^Ensayos/ }).click();
+    await pills.getByRole("link", { name: /^TFG y TFM/ }).click();
 
-    await expect(page).toHaveURL(/\?format=ensayo$/);
-    await expect(pills.getByRole("link", { name: /^Ensayos/ })).toHaveAttribute(
+    await expect(page).toHaveURL(/\?format=tfg-tfm$/);
+    await expect(pills.getByRole("link", { name: /^TFG y TFM/ })).toHaveAttribute(
         "aria-current",
         "page",
     );
@@ -116,7 +116,7 @@ test.describe("a 404 listing", () => {
 
     test("an unknown subject, tag or author is a 404", async ({ page }) => {
         for (const path of [
-            "/materias/no-existe/",
+            "/areas/no-existe/",
             "/etiquetas/no-existe/",
             "/colaboradores/no-existe/",
         ]) {

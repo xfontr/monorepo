@@ -43,7 +43,7 @@ export const Archive: Story = {
         formatPills: [
             { label: "Todo", count: 48, to: "#", active: true },
             { label: "Artículos", count: 40, to: "#" },
-            { label: "Ensayos", count: 8, to: "#" },
+            { label: "Comentarios", count: 8, to: "#" },
         ],
     },
 };

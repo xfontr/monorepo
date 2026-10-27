@@ -55,7 +55,7 @@ test("the header reaches every section, inline on desktop and through the menu b
 
     await expect(nav.getByRole("link")).toHaveText([
         "Publicaciones",
-        "Materias",
+        "Áreas",
         "Colaboradores",
         "Publicar",
     ]);

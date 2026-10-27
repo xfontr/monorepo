@@ -63,7 +63,7 @@ describe("archive results", () => {
                 ...props,
                 formatPills: [
                     { label: "Todo", count: 2, to: "/", active: true },
-                    { label: "Ensayos", count: 1, to: "/?format=ensayo" },
+                    { label: "Comentarios", count: 1, to: "/?format=comentario" },
                 ],
             },
             global,

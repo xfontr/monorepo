@@ -7,7 +7,7 @@ import { toArticleSummary, toCategory } from "./articleSummary";
 
 const CIVIL = fakeTerm({ name: "Derecho civil" });
 const PENAL = fakeTerm({ name: "Derecho penal" });
-const ESSAYS = fakeTerm({ slug: "ensayos", name: "Ensayos" });
+const COMMENTS = fakeTerm({ resource: "tags", slug: "jurisprudencia-tc" });
 const THESIS = fakeTerm({ resource: "tags", slug: "trabajos-de-fin-de-grado" });
 const AUTHOR = fakeAuthor();
 
@@ -73,14 +73,14 @@ describe("toArticleListing", () => {
     });
 
     it("counts formats before the format filter, so the other pills keep their numbers", () => {
-        const articles = [...index(3), ...index(2, { terms: [ESSAYS] })];
+        const articles = [...index(3), ...index(2, { terms: [CIVIL, COMMENTS] })];
 
-        const listing = toArticleListing(articles, { ...QUERY, format: "ensayo" });
+        const listing = toArticleListing(articles, { ...QUERY, format: "comentario" });
 
         expect(listing.total).toBe(2);
         expect(listing.formats).toEqual([
             { value: "articulo", count: 3 },
-            { value: "ensayo", count: 2 },
+            { value: "comentario", count: 2 },
         ]);
     });
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 interface Props {
     article: Article;
+    authorCounts: Record<string, number>;
 }
 
 const props = defineProps<Props>();
@@ -27,6 +28,7 @@ const tagNames = computed<string>(() => props.article.tags.map(({ name }) => nam
                 v-for="author in article.authors"
                 :key="author.id"
                 :author
+                :count="authorCounts[author.id]"
                 :to="{ name: 'author', params: { slug: author.slug } }"
             />
         </div>

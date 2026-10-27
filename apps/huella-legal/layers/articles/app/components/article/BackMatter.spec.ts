@@ -15,7 +15,7 @@ const ARTICLE: Article = {
         { id: "3", slug: "dolo", name: "Dolo" },
         { id: "4", slug: "imprudencia", name: "Imprudencia" },
     ],
-    format: "ensayo",
+    format: "comentario",
     readingMinutes: 12,
     body: { lead: "", html: "", toc: [], notes: [], bibliography: [] },
     permalink: "https://revista.test/la-culpa/",
@@ -26,7 +26,7 @@ describe("article back matter", () => {
     // ArticleHeader's share bar and byline link to these two ids
     it("keeps the citation at #citar and the author cards at #autor", async () => {
         const wrapper = await mountSuspended(ArticleBackMatter, {
-            props: { article: ARTICLE },
+            props: { article: ARTICLE, authorCounts: {} },
             global,
         });
 
@@ -36,7 +36,7 @@ describe("article back matter", () => {
 
     it("links each author card to that author's profile", async () => {
         const wrapper = await mountSuspended(ArticleBackMatter, {
-            props: { article: ARTICLE },
+            props: { article: ARTICLE, authorCounts: {} },
             global,
         });
 
@@ -48,9 +48,23 @@ describe("article back matter", () => {
         ).toEqual(["/colaboradores/marta-gil/", "/colaboradores/luis-martin/"]);
     });
 
+    it("gives each author card its own count, and none to an author missing from the counts", async () => {
+        const wrapper = await mountSuspended(ArticleBackMatter, {
+            props: { article: ARTICLE, authorCounts: { [ARTICLE.authors[0]!.id]: 3 } },
+            global,
+        });
+
+        expect(
+            wrapper
+                .find("#autor")
+                .findAll("a")
+                .map((link) => link.text()),
+        ).toEqual(["t(authorCard.profileCount)", "t(authorCard.profile)"]);
+    });
+
     it("lists the tags in one line", async () => {
         const wrapper = await mountSuspended(ArticleBackMatter, {
-            props: { article: ARTICLE },
+            props: { article: ARTICLE, authorCounts: {} },
             global,
         });
 
@@ -59,7 +73,7 @@ describe("article back matter", () => {
 
     it("leaves out the tags line for an article without tags", async () => {
         const wrapper = await mountSuspended(ArticleBackMatter, {
-            props: { article: { ...ARTICLE, tags: [] } },
+            props: { article: { ...ARTICLE, tags: [] }, authorCounts: {} },
             global,
         });
 

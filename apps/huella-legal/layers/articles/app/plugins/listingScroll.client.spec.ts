@@ -31,7 +31,9 @@ describe("listing scroll", () => {
 
     it("leaves a re-sort or re-filter to Nuxt, which keeps the controls under the pointer", () => {
         expect(scroll("/publicaciones/?sort=oldest", "/publicaciones/")).toBe(false);
-        expect(scroll("/publicaciones/?format=ensayo", "/publicaciones/?sort=oldest")).toBe(false);
+        expect(scroll("/publicaciones/?format=comentario", "/publicaciones/?sort=oldest")).toBe(
+            false,
+        );
     });
 
     it("leaves in-page anchors to Nuxt", () => {

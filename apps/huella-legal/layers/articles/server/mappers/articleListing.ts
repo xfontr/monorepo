@@ -1,17 +1,16 @@
-import { JOURNAL_LOCALE } from "../../../../i18n/dateFormats";
 import type { ArticleListing } from "../../shared/types/ArticleListing";
 import type { ArticleSummary } from "../../shared/types/ArticleSummary";
 import type { Category } from "../../shared/types/Category";
 import type { Facet } from "../../shared/types/Facet";
 import type { ListingQuery } from "../../shared/types/ListingQuery";
 import type { ListingScope } from "../../shared/types/ListingScope";
+import { byName, toFacets } from "./facet";
 
 const PER_PAGE = 20;
 
 export const FORMATS = [
     "articulo",
     "comentario",
-    "ensayo",
     "tfg-tfm",
 ] as const satisfies readonly ArticleSummary["format"][];
 
@@ -33,20 +32,14 @@ const isInScope = (article: ArticleSummary, scope?: ListingScope): boolean => {
     }
 };
 
-const toSubjects = (articles: ArticleSummary[]): Facet<Category>[] => {
-    const subjects = new Map<string, Facet<Category>>();
+export const toSubjects = (articles: ArticleSummary[]): Facet<Category>[] =>
+    toFacets(articles.flatMap(({ category }) => category ?? [])).sort(byName);
 
-    for (const { category } of articles) {
-        if (!category) continue;
-
-        const subject = subjects.get(category.id) ?? { value: category, count: 0 };
-        subjects.set(category.id, { ...subject, count: subject.count + 1 });
-    }
-
-    return [...subjects.values()].sort((a, b) =>
-        a.value.name.localeCompare(b.value.name, JOURNAL_LOCALE),
-    );
-};
+export const toFormats = (articles: ArticleSummary[]): Facet<ArticleSummary["format"]>[] =>
+    FORMATS.map((value) => ({
+        value,
+        count: articles.filter(({ format }) => format === value).length,
+    }));
 
 export const toArticleListing = (
     index: ArticleSummary[],
@@ -64,10 +57,7 @@ export const toArticleListing = (
         total: matches.length,
         totalPages: Math.max(1, Math.ceil(matches.length / PER_PAGE)),
         scope,
-        formats: FORMATS.map((format) => ({
-            value: format,
-            count: scoped.filter((article) => article.format === format).length,
-        })).filter(({ count }) => count > 0),
+        formats: toFormats(scoped).filter(({ count }) => count > 0),
         subjects: toSubjects(scope?.kind === "author" ? scoped : index),
     };
 };

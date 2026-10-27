@@ -48,7 +48,7 @@ and SEO.** `WordpressProvider.listEntries` never embeds `author`, and `toEntry` 
 | Citation | Authors, title, date, new URL | App mapper |
 | Issue "Nº" | Nothing | Dropped |
 | Series | No tag or category convention; one two-post run, numbered only in its titles | Dropped |
-| Format (B designs) | Category `ensayos`, tag `trabajos-de-fin-de-grado`, the `jurisprudencia-*` tags | App term map |
+| Format (B designs) | Tag `trabajos-de-fin-de-grado`, the `jurisprudencia-*` tags | App term map. Amended 2026-10-27: category `ensayos` was read as a format too, but its posts are short opinion pieces filed under it alone, so it is a subject like any other |
 | Primary category | The first category; 103 posts have exactly one | App mapper |
 | `hl-note` | Theme class `contenedor` (13 uses) | App pipeline class map |
 | Quote and callout styles | `cita-larga` (53 posts), `cita-corta` (32), `texto-importante` (24), `texto-destacado` | App pipeline class map |

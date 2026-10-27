@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ name: "category", path: "/materias/:slug/" });
+definePageMeta({ name: "category", path: "/areas/:slug/" });
 
 const route = useRoute("category");
 

@@ -44,7 +44,7 @@ describe("article related", () => {
 
         const hrefs = wrapper.findAll("a").map((link) => link.attributes("href"));
 
-        expect(hrefs).toContain("/materias/derecho-penal/");
+        expect(hrefs).toContain("/areas/derecho-penal/");
         expect(hrefs).toContain("/el-dolo/");
     });
 

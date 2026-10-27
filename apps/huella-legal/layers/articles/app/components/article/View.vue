@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { article, related } = await useArticle();
+const { article, related, authorCounts } = await useArticle();
 </script>
 
 <template>
@@ -17,7 +17,7 @@ const { article, related } = await useArticle();
                     :html="article.body.html"
                     :image="article.image"
                 />
-                <ArticleBackMatter :article class="mt-12 lg:mt-16" />
+                <ArticleBackMatter :article :author-counts class="mt-12 lg:mt-16" />
             </div>
         </UContainer>
 

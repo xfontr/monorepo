@@ -10,7 +10,7 @@ const article = (id: string, title: string, category: string): ArticleSummary =>
         "Una lectura de la jurisprudencia reciente y de lo que cambia para quien estudia la materia por primera vez.",
     publishedAt: "2024-03-12T09:00:00Z",
     authors: [{ id, slug: `autor-${id}`, name: "Luis Martín Ortega" }],
-    category: { id, slug: `materia-${id}`, name: category },
+    category: { id, slug: `area-${id}`, name: category },
     tags: [],
     format: "articulo",
     readingMinutes: 9,

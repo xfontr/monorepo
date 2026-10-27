@@ -11,7 +11,7 @@ const meta: Meta<typeof SiteFooter> = {
                 label: "Revista",
                 children: [
                     { label: "Publicaciones", to: { name: "publications" } },
-                    { label: "Materias", to: { name: "categories" } },
+                    { label: "Áreas", to: { name: "categories" } },
                     { label: "Colaboradores", to: { name: "authors" } },
                 ],
             },

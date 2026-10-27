@@ -12,11 +12,11 @@ const global = {
 describe("tag pill", () => {
     it("marks the active pill as the current page, which Nuxt UI skips for a forced active", async () => {
         const active = await mountSuspended(TagPill, {
-            props: { label: "Derecho penal", to: "/materias/penal", active: true },
+            props: { label: "Derecho penal", to: "/areas/penal", active: true },
             global,
         });
         const idle = await mountSuspended(TagPill, {
-            props: { label: "Derecho civil", to: "/materias/civil" },
+            props: { label: "Derecho civil", to: "/areas/civil" },
             global,
         });
 
@@ -26,7 +26,7 @@ describe("tag pill", () => {
 
     it("fills the active pill instead of outlining it", async () => {
         const wrapper = await mountSuspended(TagPill, {
-            props: { label: "Derecho penal", to: "/materias/penal", active: true },
+            props: { label: "Derecho penal", to: "/areas/penal", active: true },
             global,
         });
 
@@ -35,7 +35,7 @@ describe("tag pill", () => {
 
     it("reads the count as a phrase, since a bare number means nothing out loud", async () => {
         const wrapper = await mountSuspended(TagPill, {
-            props: { label: "Derecho penal", to: "/materias/penal", count: 12 },
+            props: { label: "Derecho penal", to: "/areas/penal", count: 12 },
             global,
         });
 
@@ -45,7 +45,7 @@ describe("tag pill", () => {
 
     it("shows no count when none is given", async () => {
         const wrapper = await mountSuspended(TagPill, {
-            props: { label: "Derecho penal", to: "/materias/penal" },
+            props: { label: "Derecho penal", to: "/areas/penal" },
             global,
         });
 

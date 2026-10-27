@@ -13,6 +13,6 @@ export interface ArticleSummary {
     authors: Author[];
     category?: Category;
     tags: Category[];
-    format: "articulo" | "comentario" | "ensayo" | "tfg-tfm";
+    format: "articulo" | "comentario" | "tfg-tfm";
     readingMinutes: number;
 }

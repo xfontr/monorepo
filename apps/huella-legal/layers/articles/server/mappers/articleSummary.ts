@@ -8,14 +8,14 @@ const WORDS_PER_MINUTE = 230;
 
 const FORMAT_SLUGS = {
     thesisTag: "trabajos-de-fin-de-grado",
-    essayCategory: "ensayos",
     caseCommentTagPrefix: "jurisprudencia-",
 } as const;
 
+export const isTopic = ({ slug }: Category): boolean => slug !== FORMAT_SLUGS.thesisTag;
+
 // A post carrying more than one marker takes the first rule that matches
-const toFormat = (categorySlugs: string[], tagSlugs: string[]): ArticleSummary["format"] => {
+const toFormat = (tagSlugs: string[]): ArticleSummary["format"] => {
     if (tagSlugs.includes(FORMAT_SLUGS.thesisTag)) return "tfg-tfm";
-    if (categorySlugs.includes(FORMAT_SLUGS.essayCategory)) return "ensayo";
     if (tagSlugs.some((slug) => slug.startsWith(FORMAT_SLUGS.caseCommentTagPrefix)))
         return "comentario";
 
@@ -69,10 +69,7 @@ export const toArticleSummary = (entry: Entry): ArticleSummary => {
         authors: entry.authors.map(toAuthor),
         category: categories[0],
         tags,
-        format: toFormat(
-            categories.map(({ slug }) => slug),
-            tags.map(({ slug }) => slug),
-        ),
+        format: toFormat(tags.map(({ slug }) => slug)),
         readingMinutes: toReadingMinutes(entry.body),
     };
 };

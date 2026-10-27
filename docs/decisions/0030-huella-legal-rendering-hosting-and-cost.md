@@ -88,7 +88,7 @@ of this report.
 | --- | --- | --- | --- |
 | `/**` (posts and pages at the root, per S4) | 21600 | — | `ITEM_MAX_AGE`: a warm instance holds the item that long anyway |
 | `/` | 3600 | — | `LIST_MAX_AGE`. Every query parameter stays in the key, so S4's `/?s=` 301 is cached apart from the home page |
-| `/publicaciones/**`, `/materias/**`, `/etiquetas/**`, `/colaboradores/**` | 3600 | `query=page\|sort\|tag` | `LIST_MAX_AGE` |
+| `/publicaciones/**`, `/areas/**`, `/etiquetas/**`, `/colaboradores/**` | 3600 | `query=page\|sort\|tag` | `LIST_MAX_AGE` |
 | `/buscar/**` | 3600 | `query=q\|page` | Same as lists; each query is its own entry |
 | `/feed/`, `/sitemap.xml` | 3600 | — | They list what the listings list |
 | `/robots.txt` | `false` | — | S4 answers `Disallow: /` off the canonical host, and Netlify's caching page doesn't say the host is in the key |

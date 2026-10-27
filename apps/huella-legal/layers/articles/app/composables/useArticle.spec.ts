@@ -4,6 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { NuxtError } from "#app";
 import { defineComponent, ref, type Ref } from "vue";
 import type { Article } from "../../shared/types/Article";
+import type { Author } from "../../shared/types/Author";
+import type { Facet } from "../../shared/types/Facet";
 import { useArticle } from "./useArticle";
 
 const ARTICLE: Article = {
@@ -19,7 +21,7 @@ const ARTICLE: Article = {
         { id: "3", slug: "dolo", name: "Dolo" },
         { id: "4", slug: "imprudencia", name: "Imprudencia" },
     ],
-    format: "ensayo",
+    format: "comentario",
     readingMinutes: 12,
     body: { lead: "", html: "", toc: [], notes: [], bibliography: [] },
     permalink: "https://revista.test/la-culpa/",
@@ -36,7 +38,8 @@ const nuxt = vi.hoisted(() => ({
 mockNuxtImport("useFetch", () => (url: string, options?: Record<string, unknown>) => {
     nuxt.fetches.set(url, options);
 
-    if (url.endsWith("/related")) return { data: ref([]), error: ref(new Error("related failed")) };
+    if (url.endsWith("/related") || url === "/api/authors")
+        return { data: ref([]), error: ref(new Error(`${url} failed`)) };
 
     const result = { data: nuxt.article, error: nuxt.error };
 
@@ -79,12 +82,13 @@ beforeEach(() => {
 });
 
 describe("useArticle", () => {
-    it("reads the article named by the route, and its related posts", async () => {
+    it("reads the article named by the route, its related posts and the author counts", async () => {
         await setUp("/la-culpa/");
 
         expect([...nuxt.fetches.keys()].sort()).toEqual([
             "/api/articles/la-culpa",
             "/api/articles/la-culpa/related",
+            "/api/authors",
         ]);
     });
 
@@ -96,8 +100,38 @@ describe("useArticle", () => {
         expect(nuxt.fetches.get("/api/articles/la-culpa/related")).not.toHaveProperty("server");
     });
 
-    it("still serves the article when the related list fails", async () => {
+    it("still serves the article when the related list or the author counts fail", async () => {
         expect((await setUp()).failure).toBeUndefined();
+    });
+
+    describe("author counts", () => {
+        // The directory reads the same route whole, and a shared key would hand one the other's shape
+        it("reads them lazily under a key of their own", async () => {
+            await setUp();
+
+            expect(nuxt.fetches.get("/api/authors")).toMatchObject({
+                key: "author-counts",
+                lazy: true,
+            });
+        });
+
+        // Counting needs the whole post index, which a cold server would fill before any HTML
+        it("reads them only in the browser, so the article's server render never waits on them", async () => {
+            await setUp();
+
+            expect(nuxt.fetches.get("/api/authors")).toMatchObject({ server: false });
+        });
+
+        it("keeps only each author's count, so the article's payload carries no bios", async () => {
+            await setUp();
+
+            const { transform } = nuxt.fetches.get("/api/authors") as {
+                transform: (authors: Facet<Author>[]) => Record<string, number>;
+            };
+            const author = fakeAuthor();
+
+            expect(transform([{ value: author, count: 4 }])).toEqual({ [author.id]: 4 });
+        });
     });
 
     // Thrown during setup, so server rendering answers with the route's own status

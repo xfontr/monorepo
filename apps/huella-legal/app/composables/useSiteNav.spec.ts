@@ -44,19 +44,19 @@ beforeEach(() => {
 
 describe("useSiteNav", () => {
     it("marks the section being read as the current page, and nothing else", async () => {
-        const nav = await navAt("/materias/");
+        const nav = await navAt("/areas/");
 
         expect(currentOf(nav)).toEqual([undefined, "page", undefined, undefined]);
     });
 
     it("keeps a section current on its detail pages, without claiming to be that page", async () => {
-        const nav = await navAt("/materias/derecho-civil/");
+        const nav = await navAt("/areas/derecho-civil/");
 
         expect(currentOf(nav)).toEqual([undefined, "true", undefined, undefined]);
     });
 
     it("still finds the section when the URL arrives without its trailing slash", async () => {
-        const nav = await navAt("/materias");
+        const nav = await navAt("/areas");
 
         expect(currentOf(nav)).toEqual([undefined, "page", undefined, undefined]);
     });
@@ -74,7 +74,7 @@ describe("useSiteNav", () => {
             nav.columns.value.flatMap(({ children }) => children?.map(({ to }) => nav.href(to!))),
         ).toEqual([
             "/publicaciones/",
-            "/materias/",
+            "/areas/",
             "/colaboradores/",
             "/sobre/",
             "/publicar/",

@@ -10,6 +10,17 @@ export const useArticle = async () => {
         },
     );
 
+    // Keyed apart from the directory's read of the same route, which keeps the whole list
+    const { data: authorCounts } = useFetch("/api/authors", {
+        key: "author-counts",
+        // A cold index fill would otherwise hold back every article's server render
+        server: false,
+        lazy: true,
+        default: () => ({}),
+        transform: (authors): Record<string, number> =>
+            Object.fromEntries(authors.map(({ value, count }) => [value.id, count])),
+    });
+
     const request = useFetch<Article>(`/api/articles/${route.params.slug}`);
     const { data: article } = request;
 
@@ -31,5 +42,5 @@ export const useArticle = async () => {
 
     if (error.value) throw createPageError(error.value);
 
-    return { article, related };
+    return { article, related, authorCounts };
 };

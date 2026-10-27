@@ -5,7 +5,7 @@ import ArchiveHeading from "./Heading.vue";
 const meta: Meta<typeof ArchiveHeading> = {
     component: ArchiveHeading,
     args: {
-        kicker: "Materia · 12 publicaciones",
+        kicker: "Área · 12 publicaciones",
         title: "Derecho penal",
         lead: "Dogmática, teoría del delito, política criminal y análisis de reformas del Código Penal.",
     },

@@ -11,6 +11,7 @@ import footerColumns from "./theme/footerColumns";
 import header from "./theme/header";
 import input from "./theme/input";
 import navigationMenu from "./theme/navigationMenu";
+import pageCard from "./theme/pageCard";
 import pagination from "./theme/pagination";
 import select from "./theme/select";
 import skeleton from "./theme/skeleton";
@@ -46,6 +47,7 @@ export default defineAppConfig({
         breadcrumb,
         pagination,
         empty,
+        pageCard,
         skeleton,
         select,
         textarea,

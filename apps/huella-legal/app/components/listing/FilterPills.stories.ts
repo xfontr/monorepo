@@ -9,9 +9,8 @@ const meta: Meta<typeof FilterPills> = {
         items: [
             { label: "Todo", to: "#", count: 29, active: true },
             { label: "Artículos", to: "#", count: 17 },
-            { label: "Ensayos", to: "#", count: 6 },
+            { label: "Comentarios", to: "#", count: 8 },
             { label: "TFG y TFM", to: "#", count: 4 },
-            { label: "Comentarios de jurisprudencia", to: "#", count: 2 },
         ],
     },
 };
@@ -27,7 +26,7 @@ export const FormatActive: Story = {
         items: [
             { label: "Todo", to: "#", count: 29 },
             { label: "Artículos", to: "#", count: 17, active: true },
-            { label: "Ensayos", to: "#", count: 6 },
+            { label: "Comentarios", to: "#", count: 8 },
         ],
     },
 };
