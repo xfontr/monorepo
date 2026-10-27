@@ -19,7 +19,7 @@ export const useArticleListing = async (
         format: route.query.format,
     }));
 
-    const request = useFetch<ArticleListing>("/api/articles", { query });
+    const request = useCachedFetch<ArticleListing>("/api/articles", { query });
 
     // Watched as well: a new page or sort only changes the query, so setup never runs a second time
     watch(request.error, (value) => value && showError(createPageError(value)));

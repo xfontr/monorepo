@@ -28,7 +28,7 @@ const fetching = vi.hoisted(() => ({
 const errors = vi.hoisted(() => ({ show: vi.fn() }));
 
 mockNuxtImport(
-    "useFetch",
+    "useCachedFetch",
     () => (_url: string, options: { query: Ref<Record<string, unknown>> }) => {
         fetching.query = options.query;
         fetching.errorRef = ref(fetching.error);
