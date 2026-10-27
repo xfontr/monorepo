@@ -42,7 +42,7 @@ const ARTICLE: Article = {
 
 const meta: Meta<typeof ArticleBackMatter> = {
     component: ArticleBackMatter,
-    args: { article: ARTICLE },
+    args: { article: ARTICLE, authorCounts: {} },
 };
 
 export default meta;

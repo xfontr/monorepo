@@ -12,7 +12,7 @@ const ARTICLE: Article = {
     authors: [],
     tags: [],
     category: { id: "2", slug: "derecho-penal", name: "Derecho penal" },
-    format: "ensayo",
+    format: "comentario",
     readingMinutes: 12,
     body: { lead: "<p>Uno</p>", html: "", toc: [], notes: [], bibliography: [] },
     permalink: "https://revista.test/la-culpa/",
@@ -37,6 +37,7 @@ const nuxt = vi.hoisted(() => ({
 mockNuxtImport("useArticle", () => async () => ({
     article: nuxt.article,
     related: nuxt.related,
+    authorCounts: ref({}),
 }));
 
 beforeEach(() => {
