@@ -310,7 +310,7 @@ Sized for a small monorepo. When it grows:
 
 | Later need | What changes |
 | --- | --- |
-| A timeout, or a retry policy | `OfetchHttpClient` passes only headers and query, so a slow vendor holds an SSR request open until the platform kills it — and `staleMaxAge` cannot help, because SWR only serves stale content after a successful fill. ofetch supports both natively: default them in the client, or widen `RequestOptions` if a provider needs to tune them per call |
+| A timeout, or a retry policy | `OfetchHttpClient` passes only headers and query, so a slow vendor holds an SSR request open until the platform kills it — and SWR cannot help, because it only serves stale content after a successful fill. ofetch supports both natively: default them in the client, or widen `RequestOptions` if a provider needs to tune them per call |
 | A `title` that is not HTML | `Entry.title` is a bare `string` holding whatever the vendor rendered, so a consumer has to know to `v-html` it while `body` and `excerpt` say so in their own type. Decode entities in the mapper (making it genuinely plain text) or type it `RichText` — the inconsistency is the bug, not the choice |
 | Untrusted authors in the CMS | nothing sanitises the HTML in `body`. That is fine while the CMS is first-party, and a documented assumption rather than an oversight — a vendor whose authors are not trusted needs sanitising where it is rendered |
 | A vendor with more than one document family | `Resource` is two closed unions. A vendor with custom post types needs them opened up, and `TAXONOMIES` in the WordPress adapter is where the mapping between its names and ours already lives |

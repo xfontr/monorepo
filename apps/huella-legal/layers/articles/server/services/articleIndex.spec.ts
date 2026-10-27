@@ -4,7 +4,8 @@ import type { ArticleSummary } from "../../shared/types/ArticleSummary";
 
 const nitro = vi.hoisted(() => ({
     listEntries: vi.fn(),
-    cache: {} as { getKey?: () => string; maxAge?: number },
+    cache: {} as { getKey?: () => string; maxAge?: number; swr?: boolean },
+    window: { maxAge: 300, swr: false },
 }));
 
 vi.stubGlobal("defineCachedFunction", (fn: unknown, options: typeof nitro.cache) => {
@@ -12,6 +13,7 @@ vi.stubGlobal("defineCachedFunction", (fn: unknown, options: typeof nitro.cache)
 
     return fn;
 });
+vi.stubGlobal("useRuntimeConfig", () => ({ articles: { cache: nitro.window } }));
 vi.stubGlobal("useContent", () => ({ listEntries: nitro.listEntries }));
 
 const { getArticleIndex } = (await import("./articleIndex")) as unknown as {
@@ -40,6 +42,9 @@ describe("getArticleIndex", () => {
 
     it("is cached as one entry, so listings never remap the archive per query", () => {
         expect(nitro.cache.getKey?.()).toBe("posts");
-        expect(nitro.cache.maxAge).toBeGreaterThan(0);
+    });
+
+    it("caches for the window the runtime config sets, not a fixed one", () => {
+        expect(nitro.cache).toMatchObject(nitro.window);
     });
 });

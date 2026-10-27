@@ -1,4 +1,4 @@
-// Nuxt's default reuses fetched data only while hydrating, so each client navigation would refetch
+// Nuxt's default reuses fetched data only while hydrating or from a prerendered payload
 export const useCachedFetch = createUseFetch({
     getCachedData: (key, nuxtApp, { cause }) =>
         cause === "refresh:manual" || cause === "refresh:hook"

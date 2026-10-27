@@ -21,6 +21,7 @@ pnpm dev                                    # or from this directory
 | `pnpm test:e2e` | Playwright against the built `.output/`, with the vendors faked by MSW. Run `pnpm build` first; `nx test:e2e` does it for you |
 | `pnpm storybook` | Storybook on port 6007 — see [Storybook](#-storybook) |
 | `pnpm build:storybook` | Static Storybook build (output in `storybook-static/`) |
+| `pnpm cache:clear` | Deletes the `articles` and `content` caches under `.nuxt/cache/`, so the next request rereads WordPress. Safe with the dev server running, and only touches local dev — see [Content](#-content) |
 | `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
 
 One module beyond the shared ones is installed here, `@nuxt/fonts`, and the `forms` layer installs
@@ -186,7 +187,10 @@ because WordPress can filter on neither format nor author slug, and has no count
 reads every page of posts through `useContent` at its ceiling of 50, about 5.7 MB upstream for the
 current archive, and is kept for an hour. That index is the one view model cached on top of
 `useContent`, since remapping every body per request would cost far more than one post's few
-milliseconds, so a new post can take up to two hours to list. A subject or tag is read whole through
+milliseconds, so a new post can take up to two hours to list. In dev, both caches keep five minutes
+and refetch an expired entry before answering, set by the `$development` blocks in
+[`nuxt.config.ts`](./nuxt.config.ts) and the [`articles` layer's](./layers/articles/nuxt.config.ts),
+and `pnpm cache:clear` empties them at once. A subject or tag is read whole through
 `useContent(event).getTerm`, since embedded terms carry no description. Nothing a listing renders is
 HTML: titles and excerpts are decoded to plain text on the server.
 

@@ -4,12 +4,15 @@ import type { CacheOptions } from "nitropack/types";
 import { FetchError } from "ofetch";
 import { contentKey } from "#core/contentKey";
 import type { VendorConfig } from "#core/registry";
-import { ITEM_MAX_AGE, ITEM_STALE_MAX_AGE, LIST_MAX_AGE, LIST_STALE_MAX_AGE } from "#nuxt/config";
 
 const nitro = vi.hoisted(() => ({
     vendor: undefined as VendorConfig | undefined,
     caches: {} as Record<string, CacheOptions>,
     calls: [] as { name: string; key: string; event: unknown }[],
+    cache: {
+        list: { maxAge: 120, swr: false },
+        item: { maxAge: 480, swr: true },
+    },
 }));
 
 const transport = vi.hoisted(() => ({ raw: vi.fn() }));
@@ -29,7 +32,7 @@ vi.mock("nitropack/runtime", () => ({
             return fn(...args);
         };
     },
-    useRuntimeConfig: () => ({ content: { vendor: nitro.vendor } }),
+    useRuntimeConfig: () => ({ content: { vendor: nitro.vendor, cache: nitro.cache } }),
 }));
 
 // Only the instance is replaced: FetchError stays real, since that is what the client maps a status off
@@ -268,14 +271,12 @@ describe("the list cache", () => {
         expect(nitro.calls[0]?.event).toBe(EVENT);
     });
 
-    it("caches outside of dev, for the windows the config declares", () => {
-        expect(nitro.caches["content-list"]?.shouldBypassCache?.()).toBe(false);
+    it("caches for the window the app configures, not a fixed one", () => {
         expect(nitro.caches["content-list"]).toMatchObject({
             group: "content",
-            maxAge: LIST_MAX_AGE,
-            staleMaxAge: LIST_STALE_MAX_AGE,
+            maxAge: 120,
+            swr: false,
         });
-        expect(LIST_STALE_MAX_AGE).toBeGreaterThan(LIST_MAX_AGE);
     });
 });
 
@@ -298,14 +299,11 @@ describe("the item cache", () => {
         expect(keyOf("content-item")).not.toBe(post);
     });
 
-    // A document addressed by slug stays valid far longer than a list a new entry reorders
-    it("holds a document for longer than the list it appears in", () => {
-        expect(nitro.caches["content-item"]?.shouldBypassCache?.()).toBe(false);
+    it("caches for its own configured window, apart from the list's", () => {
         expect(nitro.caches["content-item"]).toMatchObject({
             group: "content",
-            maxAge: ITEM_MAX_AGE,
-            staleMaxAge: ITEM_STALE_MAX_AGE,
+            maxAge: 480,
+            swr: true,
         });
-        expect(ITEM_MAX_AGE).toBeGreaterThan(LIST_MAX_AGE);
     });
 });

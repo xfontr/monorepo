@@ -4,8 +4,7 @@ import type { ArticleSummary } from "../../shared/types/ArticleSummary";
 import { toArticleSummary } from "../mappers/articleSummary";
 import { readAllPages } from "../utils/readAllPages";
 
-const MAX_AGE = 60 * 60;
-const STALE_MAX_AGE = 60 * 60 * 24;
+const { cache } = useRuntimeConfig().articles;
 
 const newestFirst = (a: ArticleSummary, b: ArticleSummary): number =>
     (b.publishedAt ?? "").localeCompare(a.publishedAt ?? "");
@@ -22,9 +21,7 @@ export const getArticleIndex = defineCachedFunction(
     {
         name: "article-index",
         group: "articles",
-        maxAge: MAX_AGE,
-        staleMaxAge: STALE_MAX_AGE,
+        ...cache,
         getKey: () => "posts",
-        shouldBypassCache: () => import.meta.dev === true,
     },
 );
