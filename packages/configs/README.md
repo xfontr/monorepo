@@ -153,6 +153,10 @@ Node types even in a package that otherwise doesn't.
   when converting it would change behaviour: one that reads `this`, `arguments` or `new.target`, a
   generator, a TypeScript overload or assertion signature, or one the file uses at module init
   before its declaration, where a `const` would hit the temporal dead zone
+- core `prefer-destructuring`, from [`lib/destructuring.ts`](./src/eslint/lib/destructuring.ts) —
+  `const name = user.name` becomes `const { name } = user`. Only declarations are checked: arrays
+  (`const first = list[0]`) and plain assignments (`this.x = opts.x`) are left alone, since
+  destructuring either one reads worse. A rename (`const n = user.name`) also passes
 - `@typescript-eslint/no-use-before-define` under `**/*.ts` and `**/*.vue`, from
   [`lib/useBeforeDefine.ts`](./src/eslint/lib/useBeforeDefine.ts) — a module reads bottom-up,
   every helper above the code that calls it. That is the one order a rule can check, and with every

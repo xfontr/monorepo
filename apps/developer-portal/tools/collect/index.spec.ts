@@ -205,7 +205,7 @@ describe("collector entrypoint", () => {
         expect(state.writes.at(-1)?.path).toBe("/tmp/developer-portal-snapshot/manifest.json");
         const artifactWrites = state.writes.slice(0, 6);
         const manifestWrite = state.writes[state.writes.length - 1]!;
-        const generatedAt = (manifestWrite.value as { generatedAt: string }).generatedAt;
+        const { generatedAt } = manifestWrite.value as { generatedAt: string };
 
         expect(
             artifactWrites.map((write) => (write.value as { generatedAt: string }).generatedAt),

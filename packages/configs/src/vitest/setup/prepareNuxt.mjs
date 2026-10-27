@@ -7,7 +7,7 @@ import { resolve } from "node:path";
 
 /** Regenerates `.nuxt` when a Nuxt project is tested without it. */
 export default function prepareNuxt(project) {
-    const root = project.config.root;
+    const { root } = project.config;
 
     if (!existsSync(resolve(root, "nuxt.config.ts"))) return;
     if (existsSync(resolve(root, ".nuxt/tsconfig.app.json"))) return;

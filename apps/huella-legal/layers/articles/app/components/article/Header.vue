@@ -11,7 +11,7 @@ const props = defineProps<Props>();
 const { t } = useI18n();
 
 const breadcrumb = computed<BreadcrumbItem[]>(() => {
-    const category = props.article.category;
+    const { category } = props.article;
     const items: BreadcrumbItem[] = [
         { label: t("article.breadcrumb.home"), to: { name: "index" } },
         { label: t("article.breadcrumb.publications"), to: { name: "publications" } },

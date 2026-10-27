@@ -20,7 +20,7 @@ useHead({
 const article = archive.find((item) => item.slug === "la-teoria-juridica-del-delito")!;
 const author = article.authors[0]!;
 const inSeries = seriesEntries("fundamentos");
-const position = article.series!.position;
+const { position } = article.series!;
 const previous = inSeries[position - 2];
 const next = inSeries[position];
 const alsoIn = archive

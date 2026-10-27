@@ -147,7 +147,7 @@ const labelWithin = (root: string, path: string, title: string): string => {
 };
 
 const place = (page: WikiPage): Placed => {
-    const path = page.path;
+    const { path } = page;
     const title = page.title ?? path;
     const segments = segmentsOf(path);
     const kind = kindOf(path);

@@ -1,6 +1,7 @@
 import regexpPlugin from "eslint-plugin-regexp";
 import { format, formatVue } from "./format.ts";
 import arrowFunctions from "./arrowFunctions.ts";
+import destructuring from "./destructuring.ts";
 import jsonc from "./jsonc.ts";
 import boundaries from "./boundaries.ts";
 import vitestConfig from "./vitest.ts";
@@ -20,6 +21,7 @@ export {
     format,
     formatVue,
     arrowFunctions,
+    destructuring,
     jsonc,
     boundaries,
     vitestConfig,

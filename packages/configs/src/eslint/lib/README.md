@@ -21,6 +21,7 @@ The exceptions are `constTables.ts` and `propsInterface.ts`, which export select
 | [`templateI18n.ts`](./templateI18n.ts) | `vue/no-restricted-syntax` under `**/*.vue`, requiring the global `$t`/`$te`/`$tm`/`$rt`/`$d`/`$n` inside `<template>` instead of the `useI18n()` binding. Vue configs only |
 | [`templateCalls.ts`](./templateCalls.ts) | `monorepo/no-template-call` under `**/*.vue`, a local rule that moves template calls reading only component state into a `computed`. `$` globals, `v-on` handlers and calls on `v-for`/slot variables pass. Vue configs only |
 | [`arrowFunctions.ts`](./arrowFunctions.ts) | `prefer-arrow-functions/prefer-arrow-functions` and core `prefer-arrow-callback` for scripts and `**/*.vue`, so `--fix` turns every `function` an arrow can replace into one |
+| [`destructuring.ts`](./destructuring.ts) | Core `prefer-destructuring` for scripts and `**/*.vue`, on variable declarations and objects only — array access and assignments are exempt |
 | [`useBeforeDefine.ts`](./useBeforeDefine.ts) | `@typescript-eslint/no-use-before-define`, types exempt: `useBeforeDefine` for `**/*.ts` and `useBeforeDefineVue` for `**/*.vue` (Vue configs only), so every module declares a helper above the code that calls it |
 | [`ignores.ts`](./ignores.ts) | `baseIgnores` — the glob list every factory feeds into ESLint's `ignores` |
 | [`jsonc.ts`](./jsonc.ts) | `eslint-plugin-jsonc`'s `sort-keys`, scoped to `**/projects/*/*.json` so the TMS locale files stay diffable |
