@@ -17,8 +17,7 @@ const LOCALES = new URL(
 
 export const SUBJECT = fakeTerm({ description: faker.lorem.sentence() });
 
-// The slugs the articles layer reads formats from
-const ESSAYS = fakeTerm({ slug: "ensayos", name: "Ensayos" });
+// The slug the articles layer reads the thesis format from
 const THESIS = fakeTerm({
     resource: "tags",
     slug: "trabajos-de-fin-de-grado",
@@ -29,7 +28,7 @@ export const TAG = fakeTerm({ resource: "tags" });
 
 export const SIBLING = fakeTerm();
 
-const CATEGORIES = [SUBJECT, SIBLING, ESSAYS];
+const CATEGORIES = [SUBJECT, SIBLING, fakeTerm()];
 const AUTHORS = [fakeAuthor({ bio: faker.lorem.sentence() }), fakeAuthor()];
 
 export const AUTHOR = AUTHORS[0]!;
@@ -84,6 +83,13 @@ export const POSTS: Entry[] = [
                 ...(index % 7 === 0 ? [THESIS] : []),
             ],
             authors: [AUTHORS[index % 2] ?? fakeAuthor()],
+        }),
+    ),
+    // One post each from more authors than the directory's first twelve, so it has more to show
+    ...Array.from({ length: 12 }, (_, index) =>
+        fakeEntry({
+            terms: [SIBLING],
+            authors: [fakeAuthor(index % 2 === 0 ? { bio: faker.lorem.sentence() } : {})],
         }),
     ),
 ];
