@@ -92,10 +92,6 @@ export default defineNuxtConfig({
         },
     },
 
-    requiredEnv: {
-        site: ["NUXT_PUBLIC_SITE_URL"],
-    },
-
     runtimeConfig: {
         observability: {
             url: "",
@@ -105,7 +101,7 @@ export default defineNuxtConfig({
 
         public: {
             site: {
-                url: "",
+                url: "https://www.huellalegal.com",
             },
 
             observability: {

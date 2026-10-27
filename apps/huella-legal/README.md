@@ -78,13 +78,13 @@ turns their feature off.
 | `NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN` | The Tolgee API key. Unset in development |
 | `NUXT_TRANSLATIONS_VENDOR_PROJECT` | Optional. Overrides the Tolgee project ID set in `nuxt.config.ts` |
 | `NUXT_CONTENT_VENDOR_BASE_URL` | Optional. Overrides the WordPress site root set in `nuxt.config.ts` |
+| `NUXT_PUBLIC_SITE_URL` | Optional. Overrides the public origin set in `nuxt.config.ts`, with scheme. Article permalinks, the share link and both citations are built on it rather than on the request's host |
 | `NUXT_PUBLIC_PAGE_SLUGS` | A JSON array of the WordPress page slugs served at `/:slug/`, such as `["aviso-legal"]`. Every other slug there is read as a post. The `articles` layer defaults it to `["aviso-legal"]`; set but empty, it replaces the list with `""`, so leave it unset instead |
 | `NUXT_NEWSLETTER_API_KEY` | The Kit v4 API key, sent as `X-Kit-Api-Key` |
 | `NUXT_NEWSLETTER_FORM_ID` | The Kit form new readers join. Its incentive email must be on, since that is the confirmation Kit sends |
 | `NUXT_NEWSLETTER_BASE_URL` | Optional. Overrides the Kit API origin set in the `newsletter` layer, **without** `/v4` — the adapter owns that path |
 | `NUXT_TURNSTILE_SECRET_KEY` | The Turnstile widget's secret key. Rejected by Cloudflare, every form route answers `403`, with `invalid-input-secret` in the `cause` |
 | `NUXT_PUBLIC_TURNSTILE_SITE_KEY` | The Turnstile widget's site key. Unset, the form shows its error state on submit |
-| `NUXT_PUBLIC_SITE_URL` | The public origin, with scheme. Article permalinks, the share link and both citations are built on it rather than on the request's host |
 | `NUXT_PUBLIC_OBSERVABILITY_URL` | Faro collector URL. Leave unset and browser telemetry stays off |
 | `NUXT_PUBLIC_OBSERVABILITY_APP_VERSION` | Stamped on browser *and* server spans. Defaults to `0.0.0`, which nothing can be attributed to — set it at deploy time |
 | `NUXT_PUBLIC_OBSERVABILITY_APP_ENVIRONMENT` | Stamped the same way. Defaults to `development` |
@@ -99,6 +99,7 @@ everywhere is a literal in [`nuxt.config.ts`](./nuxt.config.ts), so changing it 
 | Literal | Value |
 | --- | --- |
 | `content.vendor.baseURL` | The WordPress site root, **without** `/wp-json` — the provider owns that path |
+| `public.site.url` | The site's public origin, `www` included, with no trailing slash |
 | `translations.vendor.baseURL`, `.project` | Tolgee's API root and the project ID, for builds. Development overrides both |
 | `translations.vendor.name`, `content.vendor.name` | Each selects its vendor's config type |
 
