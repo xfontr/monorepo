@@ -9,7 +9,7 @@ const global = {
     },
 };
 
-const PROPS = { subject: "Derecho administrativo", publishTo: "/publicar", browseTo: "/materias" };
+const PROPS = { subject: "Derecho administrativo", publishTo: "/publicar", browseTo: "/areas" };
 
 describe("empty state", () => {
     it("names the subject in the heading and the landmark", async () => {
@@ -30,7 +30,7 @@ describe("empty state", () => {
 
         expect(links).toEqual([
             ["t(emptyState.publish)", "/publicar"],
-            ["t(emptyState.browse)", "/materias"],
+            ["t(emptyState.browse)", "/areas"],
         ]);
     });
 });

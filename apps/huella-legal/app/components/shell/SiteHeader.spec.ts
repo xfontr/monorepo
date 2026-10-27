@@ -8,7 +8,7 @@ const translate = (key: string) => `t(${key})`;
 
 const SECTIONS: NavigationMenuItem[] = [
     { label: "Publicaciones", to: { name: "publications" } },
-    { label: "Materias", to: { name: "categories" }, active: true, "aria-current": "page" },
+    { label: "Áreas", to: { name: "categories" }, active: true, "aria-current": "page" },
 ];
 
 const mountHeader = () =>
@@ -32,7 +32,7 @@ describe("site header", () => {
                 .map((link) => [link.attributes("href"), link.attributes("aria-current")]),
         ).toEqual([
             ["/publicaciones/", undefined],
-            ["/materias/", "page"],
+            ["/areas/", "page"],
         ]);
     });
 

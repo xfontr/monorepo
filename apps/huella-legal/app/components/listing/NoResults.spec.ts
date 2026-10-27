@@ -12,8 +12,8 @@ const MESSAGES = {
 };
 
 const SUBJECTS = [
-    { label: "Derecho penal", to: "/materias/penal" },
-    { label: "Derecho civil", to: "/materias/civil" },
+    { label: "Derecho penal", to: "/areas/penal" },
+    { label: "Derecho civil", to: "/areas/civil" },
 ];
 
 describe("no results", () => {
@@ -56,8 +56,8 @@ describe("no results", () => {
         });
 
         expect(withSubjects.findAll("a").map((link) => link.attributes("href"))).toEqual([
-            "/materias/penal",
-            "/materias/civil",
+            "/areas/penal",
+            "/areas/civil",
         ]);
         expect(without.text()).not.toContain("browse");
     });

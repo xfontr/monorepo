@@ -116,8 +116,10 @@ describe("the reading time", () => {
 describe("the format", () => {
     const formatOf = (...terms: Term[]) => summarise({ terms }).format;
 
-    it("reads an essay from the ensayos category", () => {
-        expect(formatOf(category("ensayos"))).toBe("ensayo");
+    it("leaves an ensayos post an article whose subject is Ensayos", () => {
+        const essay = summarise({ terms: [category("ensayos")] });
+
+        expect(essay).toMatchObject({ format: "articulo", category: { slug: "ensayos" } });
     });
 
     it("reads a TFG or TFM from its tag", () => {
@@ -134,18 +136,7 @@ describe("the format", () => {
         expect(formatOf(tag("jurisprudencia"))).toBe("articulo");
     });
 
-    it("does not take an ensayos tag for the essay category", () => {
-        expect(formatOf(tag("ensayos"))).toBe("articulo");
-    });
-
-    it("ranks a TFG above an essay, and an essay above a case comment", () => {
-        expect(
-            formatOf(
-                category("ensayos"),
-                tag("trabajos-de-fin-de-grado"),
-                tag("jurisprudencia-tc"),
-            ),
-        ).toBe("tfg-tfm");
-        expect(formatOf(category("ensayos"), tag("jurisprudencia-tc"))).toBe("ensayo");
+    it("ranks a TFG above a case comment", () => {
+        expect(formatOf(tag("trabajos-de-fin-de-grado"), tag("jurisprudencia-tc"))).toBe("tfg-tfm");
     });
 });

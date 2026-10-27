@@ -2,7 +2,7 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { describe, expect, it } from "vitest";
 import ArchiveHeading from "./Heading.vue";
 
-const props = { kicker: "Materia · 12 publicaciones", title: "Derecho penal" };
+const props = { kicker: "Área · 12 publicaciones", title: "Derecho penal" };
 
 describe("archive heading", () => {
     it("titles the page with its one h1, under the kicker", async () => {

@@ -36,8 +36,8 @@ only adds or strips the slash loops.
 | `aviso-legal`, `contacto`, `sobre`, `empieza-aqui`, `recursos`, `chupitos-de-derecho`, `consulta-legal-gratis`, `listado-de-preguntas-y-respuestas`, `suscripcion` | 9 | Same | Same `[slug]` route, C6 template |
 | `recursos/conecta` | 1 | Same | Its own page file, the only nested page kept |
 | `/`, `/publicaciones/`, `/colaboradores/`, `/calculo-intereses/` | 4 | Same | App pages replace the WP pages |
-| `/categorias/` | 1 | `/materias/` | 301 |
-| `/Categoria/<slug>/` | 14 | `/materias/<slug>/` | 301, one splat rule |
+| `/categorias/` | 1 | `/areas/` | 301 |
+| `/Categoria/<slug>/` | 14 | `/areas/<slug>/` | 301, one splat rule |
 | `/Etiqueta/<slug>/` | 35 | `/etiquetas/<slug>/` | 301, one splat rule |
 | `/author/<slug>/` | 42 | `/colaboradores/<slug>/` | 301, one splat rule |
 | `/publicar-mi-articulo/` and its child `publicar-tfm-tfg-derecho/` | 2 | `/publicar/` | 301 |
@@ -52,7 +52,7 @@ only adds or strips the slash loops.
 | Concern | Live today | Decided |
 | --- | --- | --- |
 | Canonical, `og:url` | Yoast, on the WP host | `NUXT_PUBLIC_SITE_URL` + the entry's own path, never the request's, ending in `/` |
-| Sitemap, `noindex` | Yoast's index; every term archive `noindex` | Hand-rolled: posts, kept pages, materias, colaboradores. A post or page with `seo.noindex` is left out and gets a robots `noindex` meta. Materias and colaboradores are indexed and ignore `Term.seo.noindex`, which Yoast set for WP's theme archives; etiquetas stay `noindex` |
+| Sitemap, `noindex` | Yoast's index; every term archive `noindex` | Hand-rolled: posts, kept pages, áreas, colaboradores. A post or page with `seo.noindex` is left out and gets a robots `noindex` meta. Áreas and colaboradores are indexed and ignore `Term.seo.noindex`, which Yoast set for WP's theme archives; etiquetas stay `noindex` |
 | Robots | Yoast block, allow all | Allow all plus the sitemap on the canonical host; `Disallow: /` on any other host, so previews stay out |
 | JSON-LD | Yoast's `ScholarlyArticle` graph | Generated: `ScholarlyArticle` with authors and dates, `isPartOf` a `Periodical` carrying the ISSN |
 | Scholar tags | None | `citation_title`, `citation_author`, `citation_publication_date` (Google Scholar's three required), `citation_journal_title`, `citation_issn` |
@@ -95,7 +95,7 @@ Line numbers are as of this report, in `apps/huella-legal/`:
 
 ## Consequences
 
-This unlocks C's route names (`/publicaciones/`, `/materias/[slug]/`, `/etiquetas/[slug]/`,
+This unlocks C's route names (`/publicaciones/`, `/areas/[slug]/`, `/etiquetas/[slug]/`,
 `/colaboradores/[slug]/`, `/publicar/`, `/buscar/`), E3 (changes 7–9) and F2. It forecloses one
 thing: a future post whose slug equals an app route is shadowed by that route. WordPress won't
 stop an editor from creating one. Revisit this if the design ever needs a post URL prefix.

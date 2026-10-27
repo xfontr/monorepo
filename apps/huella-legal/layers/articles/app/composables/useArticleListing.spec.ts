@@ -13,7 +13,7 @@ const LISTING: ArticleListing = {
     totalPages: 2,
     formats: [
         { value: "articulo", count: 25 },
-        { value: "ensayo", count: 5 },
+        { value: "comentario", count: 5 },
     ],
     subjects: [],
 };
@@ -86,7 +86,7 @@ beforeEach(() => {
 
 describe("useArticleListing", () => {
     it("reads page, sort and format from the URL and sends them to the route with the scope", async () => {
-        const listing = await listingAt("/publicaciones/?page=2&sort=oldest&format=ensayo", {
+        const listing = await listingAt("/publicaciones/?page=2&sort=oldest&format=comentario", {
             category: "derecho-civil",
         });
 
@@ -94,7 +94,7 @@ describe("useArticleListing", () => {
             category: "derecho-civil",
             page: "2",
             sort: "oldest",
-            format: "ensayo",
+            format: "comentario",
         });
         expect(listing.sort.value).toBe("oldest");
     });
@@ -107,15 +107,15 @@ describe("useArticleListing", () => {
         expect(listing.formatPills.value.map(({ to }) => listing.href(to))).toEqual([
             "/publicaciones/",
             "/publicaciones/?format=articulo",
-            "/publicaciones/?format=ensayo",
+            "/publicaciones/?format=comentario",
         ]);
     });
 
     it("keeps sort and format while paging, but restarts at page one when either changes", async () => {
-        const listing = await listingAt("/publicaciones/?page=2&sort=oldest&format=ensayo");
+        const listing = await listingAt("/publicaciones/?page=2&sort=oldest&format=comentario");
 
         expect(listing.href(listing.pageLink(3))).toBe(
-            "/publicaciones/?page=3&sort=oldest&format=ensayo",
+            "/publicaciones/?page=3&sort=oldest&format=comentario",
         );
         expect(listing.href(listing.formatPills.value[0]!.to)).toBe("/publicaciones/?sort=oldest");
     });
@@ -134,7 +134,7 @@ describe("useArticleListing", () => {
     });
 
     it("totals every format in the first pill and marks the one the URL selects", async () => {
-        const listing = await listingAt("/publicaciones/?format=ensayo");
+        const listing = await listingAt("/publicaciones/?format=comentario");
 
         expect(listing.archiveTotal.value).toBe(30);
         expect(listing.formatPills.value.map(({ count, active }) => [count, active])).toEqual([

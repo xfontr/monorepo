@@ -8,7 +8,7 @@ const CIVIL = { id: "1", slug: "derecho-civil", name: "Derecho civil" };
 const PENAL = { id: "2", slug: "derecho-penal", name: "Derecho penal" };
 
 const props = {
-    title: "Materias",
+    title: "Áreas",
     subjects: [
         { value: CIVIL, count: 3 },
         { value: PENAL, count: 1 },
@@ -20,8 +20,8 @@ describe("archive subjects", () => {
         const wrapper = await mountSuspended(ArchiveSubjects, { props, global });
 
         expect(wrapper.findAll("li a").map((link) => link.attributes("href"))).toEqual([
-            "/materias/derecho-civil/",
-            "/materias/derecho-penal/",
+            "/areas/derecho-civil/",
+            "/areas/derecho-penal/",
         ]);
     });
 

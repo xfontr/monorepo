@@ -38,7 +38,7 @@ export const SeveralAuthors: Story = {
 };
 
 export const NoCategory: Story = {
-    args: { article: { ...ARTICLE, category: undefined, format: "ensayo" } },
+    args: { article: { ...ARTICLE, category: undefined, format: "comentario" } },
 };
 
 export const NoExcerpt: Story = {

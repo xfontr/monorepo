@@ -16,7 +16,7 @@ const ARTICLE: Article = {
     authors: [fakeAuthor()],
     category: { id: "2", slug: "derecho-penal", name: "Derecho penal" },
     tags: [],
-    format: "ensayo",
+    format: "comentario",
     readingMinutes: 12,
     body: { lead: "", html: "", toc: [], notes: [], bibliography: [] },
     permalink: "https://revista.test/la-culpa/",
@@ -36,11 +36,7 @@ describe("article header", () => {
             global,
         });
 
-        expect(hrefsIn(wrapper, "nav")).toEqual([
-            "/",
-            "/publicaciones/",
-            "/materias/derecho-penal/",
-        ]);
+        expect(hrefsIn(wrapper, "nav")).toEqual(["/", "/publicaciones/", "/areas/derecho-penal/"]);
         expect(wrapper.find("nav").text()).toContain("Derecho penal");
     });
 
@@ -61,8 +57,8 @@ describe("article header", () => {
 
         const kicker = wrapper.find("h1").element.previousElementSibling!;
 
-        expect(kicker.textContent).toContain("article.formats.essay");
-        expect(kicker.querySelector("a")?.getAttribute("href")).toBe("/materias/derecho-penal/");
+        expect(kicker.textContent).toContain("article.formats.comment");
+        expect(kicker.querySelector("a")?.getAttribute("href")).toBe("/areas/derecho-penal/");
     });
 
     // The standfirst draws its own rules, so an empty one would leave two lines with nothing between them

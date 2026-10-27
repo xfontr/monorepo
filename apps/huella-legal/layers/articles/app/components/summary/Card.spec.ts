@@ -42,7 +42,7 @@ describe("article card", () => {
         const hrefs = wrapper.findAll("a").map((link) => link.attributes("href"));
 
         expect(hrefs).toEqual([
-            "/materias/derecho-penal/",
+            "/areas/derecho-penal/",
             "/la-teoria-juridica-del-delito/",
             "/colaboradores/ana-gil/",
         ]);
@@ -52,7 +52,7 @@ describe("article card", () => {
     it("drops the kicker for an uncategorised post instead of printing an empty link", async () => {
         const wrapper = await mount({ article: { ...ARTICLE, category: undefined } });
 
-        expect(wrapper.find("a[href^='/materias/']").exists()).toBe(false);
+        expect(wrapper.find("a[href^='/areas/']").exists()).toBe(false);
     });
 
     it("keeps the compact card to title and names, without excerpt or reading time", async () => {

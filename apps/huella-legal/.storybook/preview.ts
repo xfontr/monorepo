@@ -14,10 +14,10 @@ const routes = [
     { name: "publish", path: "/publicar/" },
     { name: "search", path: "/buscar/" },
     { name: "authors", path: "/colaboradores/" },
-    { name: "categories", path: "/materias/" },
+    { name: "categories", path: "/areas/" },
     { name: "article", path: "/:slug/" },
     { name: "author", path: "/colaboradores/:slug/" },
-    { name: "category", path: "/materias/:slug/" },
+    { name: "category", path: "/areas/:slug/" },
 ].map((route) => ({ ...route, component: { render: () => null } }));
 
 // Swapped for its `__mocks__` copy, so a story's form never posts; Storybook restores the copy's

@@ -41,7 +41,7 @@ test("refuses an address with no domain without sending it", async ({ page }) =>
         if (request.url().endsWith("/api/newsletter")) sent = true;
     });
 
-    await page.goto(`/materias/${SUBJECT.slug}/`);
+    await page.goto(`/areas/${SUBJECT.slug}/`);
 
     // The sidebar card is the subject page's only newsletter form
     const email = page.getByRole("textbox", { name: "Correo electrónico" });

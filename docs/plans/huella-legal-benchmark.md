@@ -69,7 +69,7 @@ The A index mixes three axes in one list of eleven "materias". B splits them:
 | A "materia" | What it really is | Where it goes in B |
 | --- | --- | --- |
 | Nine areas of law | Subject | Subject, each with 1–4 subtopics |
-| Ensayos jurídicos | Format | Format: Artículo · Comentario · Ensayo · TFG o TFM |
+| Ensayos jurídicos | Subject | Subject, beside the areas of law; the formats are Artículo · Comentario · TFG o TFM |
 | Trabajos TFG y TFM | Student work | Format, with its own band on the home and index pages, like HLR's "Student Writing" |
 | Fundamentos (a homepage block) | Collection | Series, with a landing page, a position on every piece and previous/next |
 | Tags | Cross-cutting theme | Kept on the article and in an A–Z index, never in the nav |
