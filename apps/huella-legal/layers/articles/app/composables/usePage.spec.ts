@@ -20,7 +20,7 @@ const nuxt = vi.hoisted(() => ({
     seo: {} as Record<string, unknown>,
 }));
 
-mockNuxtImport("useFetch", () => (url: string) => {
+mockNuxtImport("useCachedFetch", () => (url: string) => {
     nuxt.url = url;
 
     const result = { data: nuxt.page, error: nuxt.error };

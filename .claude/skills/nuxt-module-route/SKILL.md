@@ -22,7 +22,7 @@ with a second set of paths, casts and status codes, and an endpoint nobody neede
 ## The files
 
 ```
-src/nuxt/config.ts                              the path const (routes only), the TTL consts, the RuntimeConfig augmentation
+src/nuxt/config.ts                              the path const (routes only), the TTL consts or defaults, the RuntimeConfig augmentation
 src/nuxt/module.ts                              addServerHandler / addServerImports
 src/nuxt/runtime/server/<name>.get.ts           a route: defineCachedEventHandler + getKey
 src/nuxt/runtime/server/utils/<useName>.ts      an import: module-scope defineCachedFunction + getKey
@@ -37,13 +37,18 @@ whatever calls it. That is the only thing stopping the two from drifting.
 ```ts
 export const TRANSLATIONS_API_PATH = "/api/translations";
 
-export const LIST_MAX_AGE = 60 * 60;
-export const LIST_STALE_MAX_AGE = 60 * 60 * 24;
+export const TRANSLATIONS_MAX_AGE = 60 * 60;
+export const TRANSLATIONS_STALE_MAX_AGE = 60 * 60 * 24;
 ```
+
+`staleMaxAge` belongs on a `defineCachedEventHandler` only, which turns it into the
+`stale-while-revalidate` of its `Cache-Control`. `defineCachedFunction` ignores it, so don't pass one.
 
 Nitro reads cache options when the handler or function is defined, so a TTL cannot vary per call —
 a genuinely different TTL means a different cached handler or function. Don't work around it with a
-conditional inside `getKey`.
+conditional inside `getKey`. A window an app should tune, such as a short one for local dev, is
+module options instead: `@monorepo/content` takes `content.cache` with defaults in `config.ts` and
+reads it from `useRuntimeConfig()` once, at module scope.
 
 ## 2. Two places declare the runtime config
 
@@ -88,10 +93,8 @@ an unknown vendor name there.
 const readList = defineCachedFunction(async (event: H3Event, resource: Resource, query: EntryQuery) => { … }, {
     name: "content-list",
     group: "content",
-    maxAge: LIST_MAX_AGE,
-    staleMaxAge: LIST_STALE_MAX_AGE,
+    ...cache.list,
     getKey: (event, resource, query) => contentKey(readVendor(event), resource, query),
-    shouldBypassCache: () => import.meta.dev === true,
 });
 ```
 

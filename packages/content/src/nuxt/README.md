@@ -43,6 +43,12 @@ the platform's `waitUntil` when it is given one; without it, the refresh runs un
 vendor from the registry, and the shape of the rest follows from that name, so an invalid
 combination fails to typecheck in `nuxt.config`.
 
+`content.cache` sets the two cache windows, `list` and `item`, each a `maxAge` in seconds and an
+`swr` switch. Left out, the defaults in [`config.ts`](./config.ts) apply; set, it takes both
+windows in full — usually a short one with `swr: false` under `$development`, so a CMS edit shows
+up locally within minutes. They are read once when the server
+starts, since Nitro fixes a cached function's options when it is defined.
+
 `runtimeConfig` (server-side, not `public`) carries the vendor for `useContent` to read per call, so
 every field of it is overridable per deployment with the `NUXT_`-prefixed form —
 `NUXT_CONTENT_VENDOR_BASE_URL`. A public value that is the same in every environment can be a
@@ -84,16 +90,18 @@ upstream request rather than one per entry.
 
 Both reads are `defineCachedFunction`s, created once when the module loads so concurrent misses for
 one key share a single upstream request. They are keyed by `contentKey` from the core, and the
-windows are fixed in `config.ts`:
+windows come from [`content.cache`](#options), defaulting to:
 
-| | `maxAge` | `staleMaxAge` |
+| | `maxAge` | `swr` |
 | --- | --- | --- |
-| a list | 1 h | 24 h |
-| one document | 6 h | 7 d |
+| a list | 1 h | on |
+| one document | 6 h | on |
 
 A document addressed by slug stays valid far longer than any list that a newly published entry
-reorders. Dev bypasses both. A failed read is never stored: the next call tries the vendor again,
-and a failed background refresh keeps serving the stale value.
+reorders. With `swr` on, an expired entry is answered at once while it refreshes in the background;
+off, it is refetched before the request answers. A failed read is never stored: the next call tries
+the vendor again, and a failed background refresh keeps serving the stale value, with no upper
+bound: Nitro's `defineCachedFunction` ignores `staleMaxAge`, so neither read passes one.
 
 The key comes from the core so a non-Nuxt consumer caching the same documents keys them the same
 way instead of reinventing it — and it is built from the **normalised** query, so `{}`,

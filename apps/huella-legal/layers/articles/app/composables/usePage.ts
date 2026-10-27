@@ -1,7 +1,7 @@
 export const usePage = async () => {
     const route = useRoute("article");
 
-    const request = useFetch<Page>(`/api/pages/${route.params.slug}`);
+    const request = useCachedFetch<Page>(`/api/pages/${route.params.slug}`);
     const { data: page } = request;
 
     useSeoMeta({

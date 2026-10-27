@@ -2,7 +2,7 @@ export const useArticle = async () => {
     const route = useRoute("article");
 
     // Not awaited, so a failing list only hides its band instead of failing the article
-    const { data: related } = useFetch<ArticleSummary[]>(
+    const { data: related } = useCachedFetch<ArticleSummary[]>(
         `/api/articles/${route.params.slug}/related`,
         {
             lazy: true,
@@ -11,7 +11,7 @@ export const useArticle = async () => {
     );
 
     // Keyed apart from the directory's read of the same route, which keeps the whole list
-    const { data: authorCounts } = useFetch("/api/authors", {
+    const { data: authorCounts } = useCachedFetch("/api/authors", {
         key: "author-counts",
         // A cold index fill would otherwise hold back every article's server render
         server: false,
@@ -21,7 +21,7 @@ export const useArticle = async () => {
             Object.fromEntries(authors.map(({ value, count }) => [value.id, count])),
     });
 
-    const request = useFetch<Article>(`/api/articles/${route.params.slug}`);
+    const request = useCachedFetch<Article>(`/api/articles/${route.params.slug}`);
     const { data: article } = request;
 
     useSeoMeta({

@@ -347,7 +347,7 @@ export const validatePackage = (source: PackageSource): PackageReport => {
         return { packageName, errors, skipped };
     }
 
-    const manifest = source.manifest;
+    const { manifest } = source;
     validateStringField(
         packageName,
         manifest,

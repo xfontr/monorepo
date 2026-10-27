@@ -83,6 +83,13 @@ export default defineNuxtConfig({
         requiredEnv: {
             translations: ["NUXT_TRANSLATIONS_VENDOR_BASE_URL"],
         },
+
+        content: {
+            cache: {
+                list: { maxAge: 60 * 5, swr: false },
+                item: { maxAge: 60 * 5, swr: false },
+            },
+        },
     },
 
     content: {

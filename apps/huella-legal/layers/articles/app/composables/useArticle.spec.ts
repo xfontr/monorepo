@@ -35,7 +35,7 @@ const nuxt = vi.hoisted(() => ({
     seo: {} as Record<string, unknown>,
 }));
 
-mockNuxtImport("useFetch", () => (url: string, options?: Record<string, unknown>) => {
+mockNuxtImport("useCachedFetch", () => (url: string, options?: Record<string, unknown>) => {
     nuxt.fetches.set(url, options);
 
     if (url.endsWith("/related") || url === "/api/authors")

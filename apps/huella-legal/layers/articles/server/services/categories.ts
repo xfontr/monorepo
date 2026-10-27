@@ -4,8 +4,7 @@ import type { Category } from "../../shared/types/Category";
 import { toCategory } from "../mappers/articleSummary";
 import { readAllPages } from "../utils/readAllPages";
 
-const MAX_AGE = 60 * 60;
-const STALE_MAX_AGE = 60 * 60 * 24;
+const { cache } = useRuntimeConfig().articles;
 
 export const getCategories = defineCachedFunction(
     async (event: H3Event): Promise<Category[]> => {
@@ -19,9 +18,7 @@ export const getCategories = defineCachedFunction(
     {
         name: "categories",
         group: "articles",
-        maxAge: MAX_AGE,
-        staleMaxAge: STALE_MAX_AGE,
+        ...cache,
         getKey: () => "categories",
-        shouldBypassCache: () => import.meta.dev === true,
     },
 );

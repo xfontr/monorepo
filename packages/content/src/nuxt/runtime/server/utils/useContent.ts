@@ -19,13 +19,7 @@ import { ContentError, ContentUnavailableError } from "#core/domain/errors";
 import type ContentProvider from "#core/ports/ContentProvider";
 import type { VendorConfig } from "#core/registry";
 import createProvider from "#core/registry";
-import {
-    type ContentConfig,
-    ITEM_MAX_AGE,
-    ITEM_STALE_MAX_AGE,
-    LIST_MAX_AGE,
-    LIST_STALE_MAX_AGE,
-} from "#nuxt/config";
+import type { ContentConfig } from "#nuxt/config";
 import { toEntryQuery, toQuery, toSlug } from "./query";
 
 const readVendor = (event: H3Event): VendorConfig => {
@@ -33,6 +27,8 @@ const readVendor = (event: H3Event): VendorConfig => {
 
     return vendor;
 };
+
+const { cache } = useRuntimeConfig().content as ContentConfig;
 
 const rethrowAsHttpError = (cause: unknown): never => {
     if (cause instanceof ContentError) throw createError(cause);
@@ -71,10 +67,8 @@ const readList = defineCachedFunction(
     {
         name: "content-list",
         group: "content",
-        maxAge: LIST_MAX_AGE,
-        staleMaxAge: LIST_STALE_MAX_AGE,
+        ...cache.list,
         getKey: (event, resource, query) => contentKey(readVendor(event), resource, query),
-        shouldBypassCache: () => import.meta.dev === true,
     },
 );
 
@@ -91,10 +85,8 @@ const readItem = defineCachedFunction(
     {
         name: "content-item",
         group: "content",
-        maxAge: ITEM_MAX_AGE,
-        staleMaxAge: ITEM_STALE_MAX_AGE,
+        ...cache.item,
         getKey: (event, resource, slug) => contentKey(readVendor(event), resource, { slug }),
-        shouldBypassCache: () => import.meta.dev === true,
     },
 );
 

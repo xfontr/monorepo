@@ -15,7 +15,7 @@ const nuxt = vi.hoisted(() => ({
     error: undefined as unknown as Ref<NuxtError | undefined>,
 }));
 
-mockNuxtImport("useFetch", () => (url: string, options?: Record<string, unknown>) => {
+mockNuxtImport("useCachedFetch", () => (url: string, options?: Record<string, unknown>) => {
     nuxt.fetches.set(url, options);
 
     const result = { data: nuxt.authors, error: nuxt.error };

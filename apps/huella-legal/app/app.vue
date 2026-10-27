@@ -4,6 +4,7 @@ import { es } from "@nuxt/ui/locale";
 
 <template>
     <UApp :locale="es">
+        <NuxtLoadingIndicator color="var(--ui-primary)" />
         <NuxtLayout>
             <NuxtPage />
         </NuxtLayout>

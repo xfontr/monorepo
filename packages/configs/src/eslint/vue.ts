@@ -6,6 +6,7 @@ import vueParser from "vue-eslint-parser";
 import {
     format,
     arrowFunctions,
+    destructuring,
     formatVue,
     jsonc,
     boundaries,
@@ -101,6 +102,7 @@ const createBaseVueConfig = (typeChecked?: boolean): object[] => {
             : { ...vitestConfig, settings: { vitest: { typecheck: false } } },
         format,
         arrowFunctions,
+        destructuring,
         formatVue,
         jsonc,
         boundaries,

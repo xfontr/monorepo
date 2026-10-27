@@ -1,10 +1,12 @@
 import { addServerImports, createResolver, defineNuxtModule } from "@nuxt/kit";
 import { UndefinedVendorError } from "#core/domain/errors";
 import { isVendorName, VENDOR_NAMES } from "#core/registry";
-import type { ContentConfig } from "./config";
+import { CACHE_DEFAULTS, type ContentConfig } from "./config";
 
 export default defineNuxtModule<ContentConfig>({
     meta: { name: "@monorepo/content/nuxt", configKey: "content" },
+
+    defaults: { cache: CACHE_DEFAULTS },
 
     setup: (resolvedOptions, nuxt) => {
         const resolver = createResolver(import.meta.url);
