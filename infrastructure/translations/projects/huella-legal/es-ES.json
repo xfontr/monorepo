@@ -328,6 +328,104 @@
         "subjects": "Áreas",
         "title": "Publicaciones"
     },
+    "publish": {
+        "actions": {
+            "article": "Enviar un artículo",
+            "thesis": "Publicar un TFG o TFM"
+        },
+        "breadcrumb": "Publicar",
+        "faq": {
+            "items": {
+                "advertising": {
+                    "answer": "No más allá de una breve reseña profesional y enlaces de contacto.",
+                    "question": "¿Puedo incluir publicidad en mi biografía?"
+                },
+                "changes": {
+                    "answer": "Sí. Escríbenos y lo actualizamos o lo retiramos; el artículo sigue siendo tuyo.",
+                    "question": "¿Puedo modificar o retirar el artículo después?"
+                },
+                "format": {
+                    "answer": "Preferimos .docx, .doc, .pages o .rtf, adjunto al correo.",
+                    "question": "¿En qué formato lo envío?"
+                },
+                "length": {
+                    "answer": "Un mínimo de 5.000 caracteres, unas 1.000 palabras. No hay extensión máxima.",
+                    "question": "¿Qué extensión debe tener el artículo?"
+                },
+                "topics": {
+                    "answer": "Cualquier cuestión jurídica, de cualquier rama del Derecho. Los textos deben ser originales e inéditos.",
+                    "question": "¿Sobre qué temas puedo escribir?"
+                }
+            },
+            "title": "Preguntas frecuentes"
+        },
+        "kicker": "Publicar en Huella Legal",
+        "lead": "Publicamos trabajos jurídicos rigurosos de cualquier rama del Derecho. Gratis, con revisión editorial y una decisión razonada en cinco días como máximo.",
+        "proposal": {
+            "checklist": {
+                "file": "El trabajo completo como archivo adjunto: .docx, .doc, .pages o .rtf",
+                "kind": "El tipo de trabajo: artículo, TFG o TFM",
+                "name": "Tu nombre y apellidos",
+                "summary": "Un resumen de dos o tres frases: tema, tesis y fuentes principales",
+                "title": "Un título provisional, si ya lo tienes"
+            },
+            "lead": "Escríbenos a {email} e incluye:",
+            "mail": {
+                "body": "Nombre y apellidos:\nTipo de trabajo (artículo, TFG o TFM):\nTítulo provisional:\nResumen:\n\nAdjunto el trabajo completo.",
+                "subject": "Propuesta de publicación"
+            },
+            "policy": "política de privacidad",
+            "privacy": "Usamos tus datos solo para valorar la propuesta. Más información en la {policy}.",
+            "reply": "Respondemos en 24–72 horas.",
+            "send": "Escribir un correo",
+            "title": "Envía tu propuesta"
+        },
+        "reasons": {
+            "free": {
+                "body": "Publicar no cuesta nada. Tu artículo lleva tu firma, tu biografía y un enlace a tu perfil profesional.",
+                "title": "Gratis, siempre"
+            },
+            "review": {
+                "body": "Valoramos claridad, fuentes y originalidad. Si hace falta, te proponemos cambios concretos antes de publicar.",
+                "title": "Revisión editorial"
+            },
+            "visibility": {
+                "body": "Demuestra tu capacidad de análisis ante más de 6.000 lectores en redes. Cada artículo se difunde varias veces.",
+                "title": "Hazte ver"
+            }
+        },
+        "steps": {
+            "items": {
+                "decision": {
+                    "body": "En un máximo de cinco días: aceptado, aceptado con cambios o no aceptado, siempre razonado.",
+                    "title": "Decisión"
+                },
+                "evaluation": {
+                    "body": "Revisamos claridad, fuentes y originalidad.",
+                    "title": "Evaluación"
+                },
+                "publication": {
+                    "body": "Con tu biografía y foto, si quieres, y difusión en redes.",
+                    "title": "Publicación"
+                },
+                "reading": {
+                    "body": "Confirmamos la recepción en 24–72 horas.",
+                    "title": "Primera lectura"
+                },
+                "summary": {
+                    "body": "Escríbenos con el tema, la tesis y tu archivo adjunto.",
+                    "title": "Envía un resumen"
+                }
+            },
+            "title": "Cómo funciona"
+        },
+        "thesis": {
+            "action": "Ver trabajos publicados",
+            "body": "Los trabajos de fin de grado y de máster se publican íntegramente en su propio archivo. Indica «TFG» o «TFM» en tu correo.",
+            "title": "¿Es un TFG o un TFM?"
+        },
+        "title": "Tu artículo, leído con la atención que merece."
+    },
     "shareBar": {
         "cite": "Citar",
         "linkCopied": "Enlace copiado",

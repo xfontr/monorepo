@@ -1,3 +1,4 @@
+import accordion from "./theme/accordion";
 import alert from "./theme/alert";
 import avatar from "./theme/avatar";
 import breadcrumb from "./theme/breadcrumb";
@@ -52,5 +53,6 @@ export default defineAppConfig({
         select,
         textarea,
         alert,
+        accordion,
     },
 });
