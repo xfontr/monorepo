@@ -11,9 +11,9 @@ export default playwright.createConfig({
         NUXT_TRANSLATIONS_VENDOR_PROJECT: "huella-legal",
         // TolgeeProvider refuses an empty token
         NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN: "e2e",
-        NUXT_NEWSLETTER_BASE_URL: "http://localhost/mailchimp",
+        NUXT_NEWSLETTER_BASE_URL: "http://localhost/kit",
         NUXT_NEWSLETTER_API_KEY: "e2e",
-        NUXT_NEWSLETTER_AUDIENCE_ID: "e2e",
+        NUXT_NEWSLETTER_FORM_ID: "e2e",
         NUXT_TURNSTILE_SECRET_KEY: "e2e",
         NUXT_PUBLIC_TURNSTILE_SITE_KEY: "e2e",
         NUXT_PUBLIC_SITE_URL: "http://localhost:4310",

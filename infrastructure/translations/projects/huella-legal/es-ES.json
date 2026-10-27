@@ -290,7 +290,7 @@
             "description": "Inténtalo de nuevo en unos minutos.",
             "title": "No hemos podido completar la suscripción"
         },
-        "notice": "Huella Legal usa tu correo solo para enviarte el boletín, con tu consentimiento. Mailchimp envía los correos, y Netlify y Cloudflare alojan y protegen este formulario. Puedes darte de baja desde cualquier correo y ejercer tus derechos como explica la {privacy}.",
+        "notice": "Huella Legal usa tu correo solo para enviarte el boletín, con tu consentimiento. Kit envía los correos, y Netlify y Cloudflare alojan y protegen este formulario. Puedes darte de baja desde cualquier correo y ejercer tus derechos como explica la {privacy}.",
         "privacy": "política de privacidad",
         "submit": "Suscribirme",
         "success": {

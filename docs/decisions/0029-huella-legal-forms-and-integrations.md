@@ -21,6 +21,13 @@ decision: accepted
 > address Mailchimp won't re-add now sees `rejected` rather than success. Row 2 and the tripwires say
 > so. `layers/forms/` also has `assertForm`, which re-runs a schema and throws the `422` with its
 > `FormError[]`, so no route maps issues itself. Rows 4 and 5 say so.
+>
+> **Amended 2026-10-27.** The newsletter left Mailchimp for Kit, which has no JavaScript SDK, so it
+> stays a `$fetch` adapter in the layer: one app subscribes, and the route already depends only on
+> `addSubscriber`. Kit has one API origin for every account, so it is a literal in the layer's
+> config, as the root `CLAUDE.md` asks of a public value. The provider, GDPR and Confirmation rows,
+> rows 2, 8 and 9, the owner decisions and the tripwires say so. Where a sentence elsewhere names
+> Mailchimp, it records the live site or what was weighed at the time.
 
 ## Context
 
@@ -47,15 +54,15 @@ The live site was read unauthenticated on 29 Sep 2026, the same way as
 | Privacy text | A section of `aviso-legal`, the only legal page among the 21. It cites LOPD 15/1999, which LO 3/2018 repealed, and names MailChimp. It gives no legal basis, retention period or right to complain | — |
 
 **The lean holds.** There are two Nitro routes, plus a third if Publicar keeps its form, and three
-vendors. Mailchimp and Resend are called with `$fetch`; Turnstile goes through `@nuxtjs/turnstile`
+vendors. Kit (Mailchimp until 2026-10-27) and Resend are called with `$fetch`; Turnstile goes through `@nuxtjs/turnstile`
 (amended 2026-10-18):
 
 | Question | Answer |
 | --- | --- |
-| Newsletter provider | Mailchimp, into the same audience. `PUT /3.0/lists/{audience}/members/{md5 of the lowercased email}` with `status_if_new: "pending"`, which sends Mailchimp's confirmation email. The request carries no `status`, so an address that unsubscribed is never resubscribed. The route answers with the same success whether or not the address was already on the list |
+| Newsletter provider | Amended 2026-10-27: Kit, into one form whose incentive email is on. `POST /v4/subscribers` with `state: "inactive"`, an upsert that never changes an existing subscriber's state, then `POST /v4/forms/{form}/subscribers/{id}`, which sends the incentive email as the confirmation. Kit's own WPForms plugin makes the same two calls. A subscriber who is `cancelled`, `bounced` or `complained` never reaches the second call, so an address that unsubscribed is never resubscribed. The route answers with the same success whether or not the address was already on the list |
 | Where submissions go | **Pending: the owner decides when E2 starts.** The owner leans towards a `mailto:` to the editorial inbox, because accepting uploaded files is a safety risk they won't take on. The documented alternative is the form, sent as a Resend email with Reply-To set to the author and the file attached. In that variant the file stays optional and is capped at **4 MB**: Netlify's 6 MB buffered request is 4.5 MB of binary after base64. A larger file is refused with copy telling the author to send the proposal without it and reply with the file later, which is today's flow. The published PDFs in WP media serve as a proxy for manuscript size: of the 14 that report one, the median is 0.7 MB and one (11.8 MB) is over the cap. Rows marked *form only* apply only if E2 picks the form |
 | Spam protection | A hidden honeypot field plus Cloudflare Turnstile in invisible mode, on both routes, verified server-side through `siteverify`. A filled honeypot gets the success response and nothing is sent. The widget script loads through `@nuxtjs/turnstile`'s `useScriptCloudflareTurnstile` on a manual trigger, fired by the form's first `focusin`, so a page nobody signs up from never loads it. Amended 2026-10-18: the module is `@nuxt/scripts`' `useScript` plus Turnstile's types, and its `verifyTurnstileToken` replaces the hand-written `siteverify` call. It sends no `remoteip`, which Cloudflare treats as optional. Amended 2026-10-19: the honeypot and the widget are two components in `layers/forms/`. `FormHoneypot` sits among a form's fields, and `FormChallenge` wraps the form and mounts the widget on its first `focusin`. The server check is that layer's `assertChallenge` |
-| GDPR | Each form carries a first-layer notice: controller, purpose, legal basis, recipients, rights, and a link to the policy. The recipients are Netlify and Cloudflare on both forms, plus Mailchimp for the newsletter and Resend for Contacto (and Publicar, if it keeps its form). Resend acts as a processor under its DPA, and its US transfers are covered by the SCCs and the EU-U.S. Data Privacy Framework. The app stores nothing: a message exists only in the inbox and in Resend's log, which the Free plan keeps for 30 days |
+| GDPR | Each form carries a first-layer notice: controller, purpose, legal basis, recipients, rights, and a link to the policy. The recipients are Netlify and Cloudflare on both forms, plus Kit (amended 2026-10-27) for the newsletter and Resend for Contacto (and Publicar, if it keeps its form). Resend acts as a processor under its DPA, and its US transfers are covered by the SCCs and the EU-U.S. Data Privacy Framework. The app stores nothing: a message exists only in the inbox and in Resend's log, which the Free plan keeps for 30 days |
 | Contacto | A form at `/contacto`, with the live form's fields: Nombre, Email, Mensaje and consent. It is sent as a Resend email with Reply-To set to the sender, behind the honeypot and Turnstile checks. The route keeps its live path. WP page 625 can't supply it, because its body is Fluent Form 1, which posts to the WP host and which 0027's sanitiser strips. Its TFG job moves to Publicar |
 | Validation library | Valibot, amended 2026-10-18: #199 adopted it before E1, in place of the hand-rolled `validate` this row first chose. One schema factory per form in its layer's `shared/schemas/` (`subscriptionSchema` for the newsletter) takes a function that words each issue code. The form passes it to `UForm`'s `schema` prop with i18n wording, and the route re-runs it with the bare codes and answers them as `FormError[]` (`{ name, message }`) for the client to word. The email rule is the HTML spec's valid e-mail address, the rule `type="email"` enforces |
 
@@ -66,15 +73,15 @@ promotes the markup from; the wiring goes into the promoted components, not into
 | # | File | Change |
 | --- | --- | --- |
 | 1 | `apps/huella-legal/layers/newsletter/shared/schemas/subscription.ts`, and one schema per E2 form in its own layer | `subscriptionSchema` for the newsletter; a contact schema and, *form only*, a submission schema for E2. Email is required in all three. For a submission: name, kind (Artículo, TFG or TFM) and summary required, title optional, file extension one of `.docx .doc .pages .rtf` and at most 4 MB, consent `true`. For contact: name, message and consent `true`. Messages are A2 keys |
-| 2 | `apps/huella-legal/layers/newsletter/server/adapters/mailchimp.ts` | The adapter: the `PUT` above, with an MD5 from `node:crypto`. Amended 2026-10-20: it branches on the status code alone. A `400` is a `422` on `email`, whatever Mailchimp's title, and logs only that title, since the `detail` names the address. Anything else is a `502` |
+| 2 | `apps/huella-legal/layers/newsletter/server/adapters/kit.ts` | Amended 2026-10-27: the adapter, the two calls above with the state check between them, authenticated with `X-Kit-Api-Key`. A `422` from either is a `422` on `email` and logs no part of Kit's `errors`, which may name the address. Anything else is a `502` |
 | 3 | `apps/huella-legal/server/utils/resend.ts` (new) | The adapter: plain-text body, Reply-To and, *form only*, an optional base64 attachment |
 | 4 | `apps/huella-legal/layers/forms/` | `assertChallenge` in `server/utils/turnstile.ts`: one call to the module's `verifyTurnstileToken`, reading only its `success` flag, since mapping Cloudflare's error codes would copy a list it owns. A refusal is 403 with the answer as `cause`, and no answer is 502. `app/components/` holds the client half: `FormHoneypot`, the hidden field a form places among its own, and `FormChallenge`, which wraps the form, mounts the widget on its first `focusin` and hands its slot a `challenge` that waits for a token. The layer's `nuxt.config.ts` installs the module and declares its two keys. `assertForm` in `server/utils/assertForm.ts` re-runs a route's schema and returns its output or throws the 422 with the `FormError[]`. Other layers call both as Nitro auto-imports |
 | 5 | `apps/huella-legal/layers/newsletter/server/api/newsletter.post.ts` | JSON body → an early success on a filled honeypot → `assertChallenge` → 1 through `assertForm` → 2. It answers 422 with the `FormError[]`, 403 on a failed challenge, and 502 when the vendor fails |
 | 6 | `apps/huella-legal/server/api/submissions.post.ts` (new, *form only*) | `readMultipartFormData` → honeypot → 4 → 1 → 3, with the same status mapping |
 | 6b | `apps/huella-legal/server/api/contact.post.ts` (new) | JSON body → honeypot → 4 → 1 → 3 with no attachment, with the same status mapping |
 | 7 | `apps/huella-legal/layers/newsletter/app/composables/useNewsletter.ts`, with `useContact` and, *form only*, `useSubmission` in their own layers | The lab's states as a machine: idle → submitting → success, invalid or error. A 422 becomes invalid, with the server's errors passed to `setErrors`; anything else becomes error. Each sends its form's honeypot value and posts through `FormChallenge`'s `challenge`, which supplies the token |
-| 8 | Each layer's `nuxt.config.ts`, `runtimeConfig` and `requiredEnv` | `newsletter: { baseURL, apiKey, audienceId }` in `layers/newsletter/`, `mail: { baseURL, apiKey, from, to }` in each E2 layer that sends mail, and `public.submissionEmail` in Publicar's for the `mailto:` variant, every value `""` and every name listed under `requiredEnv`. `turnstile: { secretKey }` and `public.turnstile: { siteKey }` live in `layers/forms/nuxt.config.ts`, where the empty values also keep out the module's always-pass dev keys |
-| 9 | `apps/huella-legal/.env.example`, `README.md` "🔑 Environment" | One row each: `NUXT_NEWSLETTER_BASE_URL`, `NUXT_NEWSLETTER_API_KEY`, `NUXT_NEWSLETTER_AUDIENCE_ID`, `NUXT_MAIL_BASE_URL`, `NUXT_MAIL_API_KEY`, `NUXT_MAIL_FROM`, `NUXT_MAIL_TO`, `NUXT_TURNSTILE_SECRET_KEY`, `NUXT_PUBLIC_TURNSTILE_SITE_KEY`, and `NUXT_PUBLIC_SUBMISSION_EMAIL` for the `mailto:` variant |
+| 8 | Each layer's `nuxt.config.ts`, `runtimeConfig` and `requiredEnv` | `newsletter: { baseURL, apiKey, formId }` in `layers/newsletter/`, `baseURL` being Kit's origin as a literal (amended 2026-10-27), `mail: { baseURL, apiKey, from, to }` in each E2 layer that sends mail, and `public.submissionEmail` in Publicar's for the `mailto:` variant, every value `""` and every name listed under `requiredEnv`. `turnstile: { secretKey }` and `public.turnstile: { siteKey }` live in `layers/forms/nuxt.config.ts`, where the empty values also keep out the module's always-pass dev keys |
+| 9 | `apps/huella-legal/.env.example`, `README.md` "🔑 Environment" | One row each: `NUXT_NEWSLETTER_API_KEY`, `NUXT_NEWSLETTER_FORM_ID` (amended 2026-10-27; `NUXT_NEWSLETTER_BASE_URL` is now an optional override), `NUXT_MAIL_BASE_URL`, `NUXT_MAIL_API_KEY`, `NUXT_MAIL_FROM`, `NUXT_MAIL_TO`, `NUXT_TURNSTILE_SECRET_KEY`, `NUXT_PUBLIC_TURNSTILE_SITE_KEY`, and `NUXT_PUBLIC_SUBMISSION_EMAIL` for the `mailto:` variant |
 | 10 | `app/pages/lab/publicar.vue:201` `<form>`, `:318` *Archivo*, `:332` `UCheckbox` | `mailto:` variant: the form block becomes a `mailto:` from `public.submissionEmail`, with the fields as a checklist of what to include, and the file goes as an ordinary attachment. Form variant: E2 wires the B4 form to `useSubmission`, the file help text states the 4 MB cap and the send-it-later fallback, and the first-layer notice sits by the checkbox |
 | 11 | `app/lab/NewsletterBand.vue:28` `<form>`, `:56` notice; `app/pages/lab/category.vue:230` sidebar form | E1 wires every NewsletterForm variant to `useNewsletter`, and the notice names its recipients |
 | 12 | `apps/huella-legal/app/pages/contacto.vue` (new, C6) | The form, built from B4's field patterns and wired to `useContact`. There is no lab design, so parity is checked against Publicar's form |
@@ -115,8 +122,8 @@ Nothing here needs a new package or a `@monorepo/*` change.
 - how long the inbox keeps a submission that is not accepted, which the privacy policy has to state
 - *form only*: whether the name stays required, since the live guide prefers anonymous submissions and the lab
   requires *Nombre y apellidos*
-- which Mailchimp plan the audience is on. Free caps at 250 contacts and 500 sends a month, and the
-  pricing page doesn't say whether Free includes API access
+- which Kit plan the account is on, whether it allows v4 API keys and a form's incentive email, and
+  moving the Mailchimp audience into it with Kit's importer (amended 2026-10-27)
 - where Fluent Form 2's entries go, and what happens to the entries Fluent Forms already stores in WP
 - the rewritten legal text
 - switching the three Fluent Forms off at cutover, since they keep accepting posts on the WP host
@@ -137,29 +144,35 @@ Nothing here needs a new package or a `@monorepo/*` change.
   reCAPTCHA sitekey and the contact address are all readable on the live site. That includes the
   vendor API roots, which is why 9 has `BASE_URL` variables. Turnstile's two URLs live in
   `@nuxtjs/turnstile`, not the repo, so the e2e fakes match their paths on any host. Specs use
-  `.test` hosts.
+  `.test` hosts. Amended 2026-10-27: Kit's API origin is the exception, a literal in the layer's
+  config, because it is public and the same for every account.
 - Resend sends only from a domain verified with DNS records, so the owner adds them before the
   first send, and `NUXT_MAIL_FROM` has to be on that domain.
 - Turnstile tokens are single-use and expire after 300 s, so a retry after a failed send must reset
   the widget rather than resend the old token.
 - A rejected Turnstile secret answers every form post with 403, like a failed challenge. Only the
   `cause` on that error, with `invalid-input-secret` in it, tells the two apart.
-- Web Crypto has no MD5, so the subscriber hash needs `node:crypto`. If S2 moves off Node, that has
-  to stay available.
-- An address that unsubscribed and signs up again sees success and gets nothing, because the request
-  carries no `status`. Rejoining is left to Mailchimp's own flows.
-- Mailchimp allows 10 simultaneous connections and answers a 429 past that, which maps to 502.
-- The request body never varies, so a `400` means Mailchimp refused the address: fake, invalid,
-  deleted or under compliance review. Its titles for those cases appear only in old forum logs, not
-  in its docs, so nothing branches on them. A misconfigured audience, such as one with a required
-  merge field, also answers `400`, so every signup failing as `rejected` points at the audience.
+- An address that unsubscribed and signs up again sees success and gets nothing, because the
+  adapter stops at its state. Rejoining is left to Kit's own flows. Kit doesn't document what adding
+  a cancelled subscriber to a form does, which is why the adapter doesn't try.
+- An `inactive` address that signs up again is already on the form, so Kit doesn't resend the
+  incentive email.
+- Kit allows an API key 120 requests in any 60 seconds, and a signup costs two, so about 60 signups
+  a minute is the ceiling before a 429, which maps to 502.
+- Kit offers API keys for automating your own account and supports only OAuth for public apps. One
+  site writing to its owner's account is the first case.
+- The request bodies never vary, so a `422` means Kit refused the address. A wrong form ID answers
+  `404`, which is a 502, so every signup failing that way points at `NUXT_NEWSLETTER_FORM_ID`.
+- If no confirmation arrives, the form's incentive email is off. That is a setting in Kit, not code.
+- The two calls are safe to retry: a retry after the second one fails upserts the same subscriber
+  and goes on.
 - *Form only*: `readMultipartFormData` buffers the whole body. That is only safe because the cap sits below the
   platform limit.
 - Specs for `server/` stub Nitro's auto-imports as globals, per [the app's
   AGENTS.md](../../apps/huella-legal/CLAUDE.md).
 
 Revisit this if S2 leaves Netlify Functions, if messages pass Resend Free's 100 a day, or if the
-newsletter leaves Mailchimp.
+newsletter leaves Kit (amended 2026-10-27).
 
 ## Confirmation
 
@@ -169,7 +182,7 @@ newsletter leaves Mailchimp.
 | The route re-validates (*form only*) | A spec beside `submissions.post.ts`: `autora@` and an empty summary answer 422 naming `email` and `summary`, and the Resend stub is never called |
 | The cap holds (*form only*) | The same spec: a file of 4 MB plus one byte answers 422 on `file` |
 | A bot gets nothing | A spec per route: a filled honeypot answers success and neither adapter is called |
-| Nobody is resubscribed | A `mailchimp.ts` spec: the body has `status_if_new: "pending"` and no `status` key |
+| Nobody is resubscribed | A `kit.ts` spec, amended 2026-10-27: a `cancelled`, `bounced` or `complained` subscriber never reaches the form call |
 | Contacto sends through the shared pipe | A spec beside `contact.post.ts`: a valid body calls the Resend stub once, with no attachment and Reply-To set to the sender |
-| No endpoint is committed | `git grep -niE "list-manage\|api\.mailchimp\|api\.resend\|challenges\.cloudflare" -- apps/huella-legal` finds nothing, and neither does a `git grep` for the live hostname |
+| No endpoint is committed | `git grep -niE "list-manage\|api\.resend\|challenges\.cloudflare" -- apps/huella-legal` finds nothing, and neither does a `git grep` for the live hostname |
 | Every variable is documented | Each `NUXT_` name from 9 appears in both `apps/huella-legal/.env.example` and the README's 🔑 table |

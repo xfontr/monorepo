@@ -8,7 +8,7 @@ const nitro = vi.hoisted(() => ({
     addSubscriber: vi.fn(),
 }));
 
-vi.mock("../adapters/mailchimp", () => ({ addSubscriber: nitro.addSubscriber }));
+vi.mock("../adapters/kit", () => ({ addSubscriber: nitro.addSubscriber }));
 
 vi.stubGlobal("assertChallenge", nitro.assertChallenge);
 vi.stubGlobal("assertForm", nitro.assertForm);
