@@ -1,12 +1,18 @@
 import { http, HttpResponse, type HttpHandler } from "msw";
 
-/** MSW handlers that accept every member the way Mailchimp's upsert does for a new address. */
-export const mailchimpHandlers = (baseURL: string): HttpHandler[] => [
-    http.put(`${baseURL}/3.0/lists/:audience/members/:member`, async ({ request }) => {
+/** MSW handlers that accept every address the way Kit does a new one on a double opt-in form. */
+export const kitHandlers = (baseURL: string): HttpHandler[] => [
+    http.post(`${baseURL}/v4/subscribers`, async ({ request }) => {
         const { email_address } = (await request.json()) as { email_address: string };
 
-        return HttpResponse.json({ email_address, status: "pending" });
+        return HttpResponse.json(
+            { subscriber: { id: 1, email_address, state: "inactive" } },
+            { status: 201 },
+        );
     }),
+    http.post(`${baseURL}/v4/forms/:form/subscribers/:subscriber`, () =>
+        HttpResponse.json({}, { status: 201 }),
+    ),
 ];
 
 /** Matches Turnstile's `api.js` on whichever host `@nuxtjs/turnstile` loads it from. */

@@ -3,17 +3,13 @@ export default defineNuxtConfig({
 
     runtimeConfig: {
         newsletter: {
-            baseURL: "",
+            baseURL: "https://api.kit.com",
             apiKey: "",
-            audienceId: "",
+            formId: "",
         },
     },
 
     requiredEnv: {
-        newsletter: [
-            "NUXT_NEWSLETTER_BASE_URL",
-            "NUXT_NEWSLETTER_API_KEY",
-            "NUXT_NEWSLETTER_AUDIENCE_ID",
-        ],
+        newsletter: ["NUXT_NEWSLETTER_API_KEY", "NUXT_NEWSLETTER_FORM_ID"],
     },
 });
