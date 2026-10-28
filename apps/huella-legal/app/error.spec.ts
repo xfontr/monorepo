@@ -52,7 +52,7 @@ describe("error page", () => {
             form.attributes("action"),
             form.attributes("method"),
             form.find("input").attributes("name"),
-        ]).toEqual(["/buscar/", "get", "q"]);
+        ]).toEqual(["/buscar/", "get", "query"]);
     });
 
     it.each([500, 502, 503])(

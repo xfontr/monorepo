@@ -1,9 +1,7 @@
 export const useAuthorDirectory = async () => {
-    const { data: authors, error } = await useCachedFetch<Facet<Author>[]>("/api/authors", {
-        default: () => [],
-    });
+    const request = useCachedFetch<Facet<Author>[]>("/api/authors", { default: () => [] });
 
-    if (error.value) throw createPageError(error.value);
+    await useFailOnError(request);
 
-    return { authors };
+    return { authors: request.data };
 };

@@ -1,4 +1,4 @@
-import type { LocationQueryRaw, RouteLocationRaw } from "vue-router";
+import type { RouteLocationRaw } from "vue-router";
 import type { FilterPill } from "~/components/listing/FilterPills.vue";
 import { FORMAT_KEYS } from "#layers/articles/app/constants";
 
@@ -9,44 +9,29 @@ export const useArticleListing = async (
 ) => {
     const { t } = useI18n();
     const route = useRoute();
-    const router = useRouter();
+    const { link, navigate } = useListingQuery({ page: "1", sort: "newest" });
 
-    // Passed through raw: the route answers any value it can't serve with a 404
-    const query = computed(() => ({
-        ...scope,
-        page: route.query.page,
-        sort: route.query.sort,
-        format: route.query.format,
-    }));
-
-    const request = useCachedFetch<ArticleListing>("/api/articles", { query });
-
-    // Watched as well: a new page or sort only changes the query, so setup never runs a second time
-    watch(request.error, (value) => value && showError(createPageError(value)));
-
-    const { data: listing, error, status } = await request;
-
-    if (error.value) throw createPageError(error.value);
-
-    // Page one, newest first and no format are the defaults, so they never appear in the URL and each
-    // listing keeps a single canonical address
-    const link = (patch: LocationQueryRaw): RouteLocationRaw => ({
-        query: { ...route.query, page: undefined, ...patch },
+    const request = useCachedFetch<ArticleListing>("/api/articles", {
+        query: computed(() => ({
+            ...scope,
+            page: route.query.page,
+            sort: route.query.sort,
+            format: route.query.format,
+        })),
     });
+    const { data: listing, status } = request;
 
     const sort = computed<Sort>({
         get: () => (route.query.sort === "oldest" ? "oldest" : "newest"),
-        set: (value) => router.push(link({ sort: value === "oldest" ? value : undefined })),
+        set: (value) => navigate({ sort: value }),
     });
 
-    const pageLink = (target: number): RouteLocationRaw =>
-        link({ page: target > 1 ? String(target) : undefined });
+    const pageLink = (page: number): RouteLocationRaw => link({ page: String(page) });
 
     const archiveTotal = computed<number>(
         () => listing.value?.formats.reduce((sum, { count }) => sum + count, 0) ?? 0,
     );
 
-    // A pill with nothing behind it is noise, and one format alone needs no pills at all
     const formatPills = computed<FilterPill[]>(() => {
         const formats = listing.value?.formats ?? [];
 
@@ -67,6 +52,8 @@ export const useArticleListing = async (
             })),
         ];
     });
+
+    await useFailOnError(request, { refetches: true });
 
     return { listing, status, sort, archiveTotal, formatPills, pageLink };
 };

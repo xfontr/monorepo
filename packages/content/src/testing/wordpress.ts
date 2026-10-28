@@ -30,6 +30,19 @@ const inTerms = (item: WordpressEntry | WordpressTerm, query: URLSearchParams): 
     );
 };
 
+// WordPress matches every word of the search, case-insensitively, against the title, excerpt or body
+const inSearch = (item: WordpressEntry | WordpressTerm, query: URLSearchParams): boolean => {
+    const words = query.get("search")?.toLowerCase().split(/\s+/).filter(Boolean) ?? [];
+
+    if (!words.length || !("_embedded" in item)) return true;
+
+    const text = [item.title, item.excerpt, item.content]
+        .map((field) => field?.rendered.toLowerCase() ?? "")
+        .join(" ");
+
+    return words.every((word) => text.includes(word));
+};
+
 const toYoast = (seo?: SEO): WordpressYoast | undefined =>
     seo && {
         title: seo.title,
@@ -113,7 +126,8 @@ export const wordpressHandlers = (baseURL: string, content: WordpressContent): H
         const perPage = Number(query.get("per_page") ?? 10);
 
         const matches = items.filter(
-            (item) => (!slug || item.slug === slug) && inTerms(item, query),
+            (item) =>
+                (!slug || item.slug === slug) && inTerms(item, query) && inSearch(item, query),
         );
         const totalPages = Math.max(1, Math.ceil(matches.length / perPage));
 

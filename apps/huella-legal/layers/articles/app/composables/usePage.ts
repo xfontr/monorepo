@@ -14,9 +14,7 @@ export const usePage = async () => {
         robots: () => (page.value?.seo?.noindex ? "noindex" : undefined),
     });
 
-    const { error } = await request;
-
-    if (error.value) throw createPageError(error.value);
+    await useFailOnError(request);
 
     return { page };
 };

@@ -43,9 +43,9 @@ useHead(
                         role="search"
                         class="mt-8 flex max-w-lg flex-col gap-3 sm:flex-row sm:items-end"
                     >
-                        <UFormField :label="$t('error.search.label')" name="q" class="flex-1">
+                        <UFormField :label="$t('error.search.label')" name="query" class="flex-1">
                             <UInput
-                                name="q"
+                                name="query"
                                 icon="i-lucide-search"
                                 :placeholder="$t('error.search.placeholder')"
                                 class="w-full"
