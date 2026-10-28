@@ -38,9 +38,7 @@ export const useArticle = async () => {
         robots: () => (article.value?.seo?.noindex ? "noindex" : undefined),
     });
 
-    const { error } = await request;
-
-    if (error.value) throw createPageError(error.value);
+    await useFailOnError(request);
 
     return { article, related, authorCounts };
 };
