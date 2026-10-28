@@ -4,7 +4,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "nx nuxt:build",
+        "build": "nuxi prepare && nx nuxt:build",
         "build:storybook": "nuxi prepare && storybook build",
         "storybook": "nuxi prepare && storybook dev -p 6007",
         "dev": "nx serve",
@@ -34,9 +34,6 @@
                 ]
             },
             "nuxt:build": {
-                "dependsOn": [
-                    "nuxt-prepare"
-                ],
                 "inputs": [
                     "production",
                     "^production",
