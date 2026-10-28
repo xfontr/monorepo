@@ -27,11 +27,12 @@ const authors = computed(() => bylineAuthors(props.lead.authors));
         <article class="group relative flex flex-col gap-5 lg:col-span-8 lg:pr-12">
             <div class="@container aspect-[16/10] overflow-hidden rounded-xs">
                 <!-- Decorative: the title below it already names the article -->
-                <img
+                <NuxtImg
                     v-if="lead.image"
                     :src="lead.image.url"
                     :width="lead.image.width"
                     :height="lead.image.height"
+                    sizes="100vw lg:720px"
                     alt=""
                     fetchpriority="high"
                     class="size-full object-cover"

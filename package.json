@@ -32,14 +32,14 @@
         "release:dry": "nx release --skip-publish --dry-run"
     },
     "devDependencies": {
-        "@commitlint/cli": "^21.1.0",
-        "@commitlint/config-conventional": "^21.1.0",
-        "@nx/eslint": "23.3.0",
-        "@nx/js": "23.3.0",
-        "@nx/nuxt": "23.3.0",
-        "@nx/vite": "23.3.0",
-        "@nx/vitest": "23.3.0",
+        "@commitlint/cli": "^21.2.4",
+        "@commitlint/config-conventional": "^21.2.4",
+        "@nx/eslint": "23.3.1",
+        "@nx/js": "23.3.1",
+        "@nx/nuxt": "23.3.1",
+        "@nx/vite": "23.3.1",
+        "@nx/vitest": "23.3.1",
         "husky": "^9.1.7",
-        "nx": "23.3.0"
+        "nx": "23.3.1"
     }
 }

@@ -15,11 +15,12 @@ defineProps<Props>();
         <!-- eslint-disable vue/no-v-html -- sanitised by the articles layer's body mapper -->
         <div class="hl-prose max-w-measure" v-html="lead" />
         <figure v-if="image" class="my-10 max-w-measure md:my-11">
-            <img
+            <NuxtImg
                 :src="image.url"
                 :alt="image.alt"
                 :width="image.width"
                 :height="image.height"
+                sizes="100vw md:680px"
                 class="aspect-video w-full rounded-xs object-cover"
             />
         </figure>

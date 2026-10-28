@@ -10,12 +10,15 @@ export default defineNuxtConfig({
         "@monorepo/content/nuxt",
         "@nuxt/ui",
         "@nuxt/fonts",
+        "@nuxt/image",
     ],
 
     devtools: false,
 
     experimental: {
         typedPages: true,
+        // Nuxt 4.6's default `$fetch` typing fails with TS2321 on `/api/newsletter`.
+        routeTypedFetch: true,
         // `true` makes every isr page fetch its payload as a second request, `_payload.json`
         payloadExtraction: "client",
     },
@@ -135,11 +138,19 @@ export default defineNuxtConfig({
         theme: {
             colors: ["primary", "secondary", "neutral", "error"],
         },
+        experimental: {
+            componentDetection: true,
+        },
+    },
+
+    image: {
+        domains: ["www.huellalegal.com"],
     },
 
     fonts: {
         defaults: {
             weights: [400, 500, 600, 700],
+            preload: true,
         },
     },
 
