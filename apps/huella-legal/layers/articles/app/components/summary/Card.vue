@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { RouteLocationRaw } from "vue-router";
-
 type Variant = "lead" | "standard" | "compact" | "media" | "row";
 
 interface Recipe {
@@ -90,12 +88,7 @@ const ui = computed<Recipe>(() => VARIANTS[props.variant]);
 const hasMedia = computed<boolean>(
     () => ui.value.media === "always" || (ui.value.media === "image" && !!props.article.image),
 );
-const authors = computed(() =>
-    props.article.authors.map((author) => ({
-        ...author,
-        to: { name: "author", params: { slug: author.slug } } satisfies RouteLocationRaw,
-    })),
-);
+const authors = computed(() => bylineAuthors(props.article.authors));
 </script>
 
 <template>

@@ -224,6 +224,56 @@
     "formHoneypot": {
         "label": "Deja este campo vacío"
     },
+    "home": {
+        "hero": {
+            "emphasis": "leído",
+            "lead": "Revista jurídica de acceso libre. Artículos revisados de profesionales, docentes y estudiantes de todo el ámbito hispanohablante.",
+            "title": "Derecho riguroso, escrito para ser {emphasis}."
+        },
+        "publish": {
+            "action": "Cómo publicar",
+            "label": "Publicar en Huella Legal",
+            "prompt": "¿Escribes sobre Derecho? Publicamos artículos, comentarios, ensayos y trabajos académicos, con revisión editorial y respuesta en cinco días."
+        },
+        "recent": {
+            "all": "Ver todas",
+            "title": "Publicaciones recientes"
+        }
+    },
+    "homeFeatured": {
+        "formats": {
+            "article": "Artículo",
+            "comment": "Comentario",
+            "thesis": "TFG o TFM"
+        },
+        "label": "Destacado y últimas publicaciones",
+        "latest": {
+            "all": "Todas las publicaciones",
+            "title": "Lo último"
+        }
+    },
+    "homeSubjects": {
+        "all": "Todas las áreas",
+        "count": "{count} publicación | {count} publicaciones",
+        "formats": {
+            "article": "Artículos",
+            "comment": "Comentarios",
+            "label": "Formatos",
+            "prompt": "Por formato:",
+            "thesis": "TFG y TFM"
+        },
+        "kicker": "Índice",
+        "lead": "{count} área del Derecho. Cada texto pertenece a una y tiene un formato. | {count} áreas del Derecho. Cada texto pertenece a una y tiene un formato.",
+        "title": "Áreas"
+    },
+    "homeTheses": {
+        "all": "Ver los trabajos",
+        "kicker": "Archivo académico",
+        "lead": "Publicados íntegramente y enlazados desde su área, para que un buen trabajo no acabe en un cajón.",
+        "publish": "Publicar el tuyo",
+        "readingTime": "{minutes}\u00a0min",
+        "title": "Trabajos de fin de grado y de máster"
+    },
     "interestCalculator": {
         "customPercent": {
             "hint": "Porcentaje anual",
