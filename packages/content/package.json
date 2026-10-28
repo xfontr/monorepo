@@ -65,8 +65,8 @@
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
     "@monorepo/configs": "workspace:*",
-    "@nuxt/kit": "^4.5.0",
-    "@nuxt/schema": "^4.5.0",
+    "@nuxt/kit": "^4.6.3",
+    "@nuxt/schema": "^4.6.3",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",

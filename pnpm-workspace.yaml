@@ -5,7 +5,7 @@ packages:
 catalog:
   '@nuxt/fonts': 1.0.1
   '@nuxtjs/i18n': 10.6.0
-  nuxt: ^4.5.1
+  nuxt: ^4.6.3
   vue-tsc: ^3.3.0
   vue: ^3.5.38
   vite: ^8.0.16
@@ -15,7 +15,7 @@ catalog:
   '@vitest/coverage-v8': 5.0.5
   '@playwright/test': 1.64.1
   eslint: ^10.4.1
-  hono: ^4.13.5
+  hono: ^4.13.14
   '@hono/node-server': ^2.1.1
 overrides:
   axios: '>=1.18.0'
@@ -27,13 +27,15 @@ overrides:
   postcss: '>=8.5.23'
   brace-expansion@>=2.0.0 <2.1.4: '>=2.1.4'
   brace-expansion@>=3.0.0 <5.0.9: '>=5.0.9'
-  nx: '>=23.0.2'
-  '@nuxt/devtools': '>=3.3.1'
+  nx: '>=23.0.2 <24'
+  '@nuxt/devtools': '>=3.3.1 <4'
   tar: '>=7.5.21'
   browserslist: '>=4.28.7'
   baseline-browser-mapping: '>=2.11.0'
   postcss-selector-parser: '>=7.1.3'
   esbuild: '>=0.28.1'
+  undici@>=7.0.0 <7.30.1: ^7.30.1
+  tinypool@<2.1.2: ^2.2.0
   '@vitest/coverage-v8': 5.0.5
 allowBuilds:
   '@parcel/watcher': false

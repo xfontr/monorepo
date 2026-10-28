@@ -1,7 +1,7 @@
 import type { NavigationMenuItem } from "@nuxt/ui";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import SiteHeader from "./SiteHeader.vue";
 
 const translate = (key: string) => `t(${key})`;
@@ -47,7 +47,12 @@ describe("site header", () => {
 
         await wrapper.find("[data-slot='toggle']").trigger("click");
 
-        const dialog = document.body.querySelector("[role='dialog']");
+        // UHeader imports its slideover lazily, so the dialog lands after a module load, not a tick.
+        const dialog = await vi.waitFor(() => {
+            const found = document.body.querySelector("[role='dialog']");
+            expect(found).not.toBeNull();
+            return found;
+        });
 
         expect(dialog?.textContent).toContain("t(app.header.menu.title)");
         expect(document.getElementById(dialog!.getAttribute("aria-labelledby")!)?.textContent).toBe(

@@ -17,6 +17,8 @@ export default defineNuxtConfig({
 
     experimental: {
         typedPages: true,
+        // Nuxt 4.6's default `$fetch` typing fails with TS2321 on `/api/newsletter`.
+        routeTypedFetch: true,
         // `true` makes every isr page fetch its payload as a second request, `_payload.json`
         payloadExtraction: "client",
     },
