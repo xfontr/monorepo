@@ -1,3 +1,22 @@
+## 0.0.18 (2026-10-28)
+
+### 🚀 Features
+
+- [#242] enforce scope tags and fold content and i18n into type:integration ([#242](https://github.com/xfontr/monorepo/issues/242))
+
+### 🩹 Fixes
+
+- [#271] remove the console output huella-legal and the i18n module emitted ([#271](https://github.com/xfontr/monorepo/issues/271))
+- [#270] declare the init-time helpers before their first use ([#270](https://github.com/xfontr/monorepo/issues/270))
+
+### 🧱 Updated Dependencies
+
+- Updated @monorepo/configs to 0.0.17
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.17 (2026-10-08)
 
 ### 🧱 Updated Dependencies

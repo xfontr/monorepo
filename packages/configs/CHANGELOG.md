@@ -1,3 +1,20 @@
+## 0.0.17 (2026-10-28)
+
+### 🚀 Features
+
+- [#242] enforce scope tags and fold content and i18n into type:integration ([#242](https://github.com/xfontr/monorepo/issues/242))
+- [#242] cover modules/ in the nuxt vitest preset ([#242](https://github.com/xfontr/monorepo/issues/242))
+- [#271] forbid console calls through eslint and document the policy ([#271](https://github.com/xfontr/monorepo/issues/271))
+- [#271] fail an e2e run on browser or server console output ([#271](https://github.com/xfontr/monorepo/issues/271))
+- [#271] fail a vitest spec on unexpected console output ([#271](https://github.com/xfontr/monorepo/issues/271))
+- [#270] enforce define-before-use ordering through eslint ([#270](https://github.com/xfontr/monorepo/issues/270))
+- [#257] convert functions to arrows through eslint ([#257](https://github.com/xfontr/monorepo/issues/257))
+- [#257] format with prettier through eslint at 100 columns ([#257](https://github.com/xfontr/monorepo/issues/257))
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.16 (2026-10-08)
 
 ### 🚀 Features

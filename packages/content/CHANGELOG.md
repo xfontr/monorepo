@@ -1,3 +1,22 @@
+## 0.0.12 (2026-10-28)
+
+### 🚀 Features
+
+- [#304] make content cache windows configurable and add a loading indicator ([#304](https://github.com/xfontr/monorepo/issues/304))
+- [#242] enforce scope tags and fold content and i18n into type:integration ([#242](https://github.com/xfontr/monorepo/issues/242))
+
+### 🩹 Fixes
+
+- [#241] log handled server errors with their cause ([#241](https://github.com/xfontr/monorepo/issues/241))
+
+### 🧱 Updated Dependencies
+
+- Updated @monorepo/configs to 0.0.17
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.11 (2026-10-08)
 
 ### 🧱 Updated Dependencies
