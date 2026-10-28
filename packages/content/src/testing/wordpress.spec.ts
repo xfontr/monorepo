@@ -113,6 +113,28 @@ describe("the fake WordPress", () => {
         expect(items).toEqual(POSTS);
     });
 
+    it("searches every word across title, excerpt and body, so a search never serves every post", async () => {
+        const wordpress = await provider();
+
+        await expect(
+            wordpress.listEntries("posts", { search: "SUMMARY 2" }),
+        ).resolves.toMatchObject({
+            items: [POSTS[1]],
+            total: 1,
+        });
+        await expect(
+            wordpress.listEntries("posts", { search: "body 3 post" }),
+        ).resolves.toMatchObject({
+            items: [POSTS[2]],
+        });
+        await expect(
+            wordpress.listEntries("posts", { search: "summary absent" }),
+        ).resolves.toMatchObject({
+            items: [],
+            total: 0,
+        });
+    });
+
     it("refuses a page past the end with a 400, as WordPress does", async () => {
         const failure = (await provider()).listEntries("posts", { page: 9 });
 
