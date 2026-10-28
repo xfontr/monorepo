@@ -115,11 +115,11 @@ describe("useArticle", () => {
             });
         });
 
-        // Counting needs the whole post index, which a cold server would fill before any HTML
-        it("reads them only in the browser, so the article's server render never waits on them", async () => {
+        // Read in the browser, they would invoke a function on every view of a prerendered article
+        it("server-renders them, so a prerendered article carries them in its payload", async () => {
             await setUp();
 
-            expect(nuxt.fetches.get("/api/authors")).toMatchObject({ server: false });
+            expect(nuxt.fetches.get("/api/authors")).not.toHaveProperty("server");
         });
 
         it("keeps only each author's count, so the article's payload carries no bios", async () => {

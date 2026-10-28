@@ -13,8 +13,6 @@ export const useArticle = async () => {
     // Keyed apart from the directory's read of the same route, which keeps the whole list
     const { data: authorCounts } = useCachedFetch("/api/authors", {
         key: "author-counts",
-        // A cold index fill would otherwise hold back every article's server render
-        server: false,
         lazy: true,
         default: () => ({}),
         transform: (authors): Record<string, number> =>

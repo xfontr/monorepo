@@ -56,6 +56,47 @@ variable and `NETLIFY_AUTH_TOKEN` a secret, both read at workflow runtime with n
 deploys asynchronously after the push that triggers the workflow, so it polls for up to 10 minutes
 rather than reading the API once.
 
+### 🗄 Rendering
+
+A Netlify build prerenders every page that reads nothing from the query string, and Netlify's CDN
+caches the rest for a day through `isr` route rules.
+[0033](../../docs/decisions/0033-huella-legal-hybrid-prerender.md) has the reasoning and the
+tripwires.
+
+| Route | Served as |
+| --- | --- |
+| `/:slug/` for every post and every slug in `pageSlugs`, `/areas/`, `/colaboradores/`, `/calculo-intereses/`, `/publicar/` | A prerendered file. A slug added since the last build falls through to the function, which renders it once under `/**`'s `isr` |
+| `/`, and the `GET /api/*` routes | `isr` 86400 |
+| `/publicaciones/`, `/areas/:slug/`, `/etiquetas/:slug/`, `/colaboradores/:slug/`, `/buscar/`, their `_payload.json`, `/api/articles`, `/api/search` | `isr` 86400, with a `Netlify-Vary` naming the query keys each one reads |
+| `/api/newsletter`, `/robots.txt` | The function, uncached |
+
+Nuxt turns every `isr` rule into a client-side payload rule, so client navigation and link prefetch
+read `<route>/_payload.json` rather than the API. `experimental.payloadExtraction` is `"client"`, so
+a first view still gets its payload inlined instead of fetching it as a second request.
+
+[`modules/rendering.ts`](./modules/rendering.ts) holds the route rules, and only switches
+prerendering on when `CONTEXT` is set, which Netlify does on every build. CI and e2e build without
+it, since a prerendered file would shadow e2e's fakes. `CONTEXT` is a cache input of `build` and `nuxt:build`, so Nx never restores one
+kind of build for the other. To reproduce a Netlify build locally:
+
+```sh
+CONTEXT=deploy-preview pnpm exec nx build @monorepo/huella-legal --skip-nx-cache
+```
+
+That build reads the live WordPress and Tolgee, and it needs `NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN`.
+It fails on any page that fails, so a WordPress or Tolgee outage fails the build, and Netlify keeps
+the previous deploy live. Tolgee answering with stale copy doesn't fail it; only messages that never
+loaded do, through [`prerenderTranslations.server.ts`](./app/plugins/prerenderTranslations.server.ts).
+A 5xx answers `netlify-cdn-cache-control: no-store` from
+[`server/plugins/cdn.ts`](./server/plugins/cdn.ts), so an outage never sits in the CDN for a day.
+
+A prerendered page only changes on a build.
+[`huella-legal-rebuild.yml`](../../.github/workflows/huella-legal-rebuild.yml) posts to a Netlify
+build hook every Monday at 05:00 UTC, which refreshes author counts, related posts and corrections to
+old posts. The hook URL is the `NETLIFY_BUILD_HOOK_URL` repo secret, with no default
+([provisioning](../../docs/guides/repo-secrets.md)). Running the workflow by hand is also the purge
+after an urgent correction, because every deploy empties the CDN cache.
+
 ## 🔑 Environment
 
 A variable a feature can't work without is listed under `requiredEnv` in the `nuxt.config.ts` of
@@ -110,7 +151,9 @@ A matching `NUXT_`-prefixed variable still overrides any literal, which is how t
 the vendors at its fakes. Every variable is read at **startup**, not at build time, so one build
 artifact runs in any environment — the
 [i18n module](../../packages/i18n/src/nuxt/README.md#-usage) has the mechanism and why nothing here
-reads `process.env`.
+reads `process.env`. The exception is a [prerendered page](#-rendering): the build renders it, so
+it keeps the `NUXT_PUBLIC_*` values and the vendor URLs the build had, and Netlify has to expose
+them to builds.
 
 ## 🌍 i18n
 
@@ -189,7 +232,8 @@ because WordPress can filter on neither format nor author slug, and has no count
 reads every page of posts through `useContent` at its ceiling of 50, about 5.7 MB upstream for the
 current archive, and is kept for an hour. That index is the one view model cached on top of
 `useContent`, since remapping every body per request would cost far more than one post's few
-milliseconds, so a new post can take up to two hours to list. In dev, both caches keep five minutes
+milliseconds, so a new post can take up to two hours to list, plus the CDN's day on a listing
+[rendered by Netlify](#-rendering). In dev, both caches keep five minutes
 and refetch an expired entry before answering, set by the `$development` blocks in
 [`nuxt.config.ts`](./nuxt.config.ts) and the [`articles` layer's](./layers/articles/nuxt.config.ts),
 and `pnpm cache:clear` empties them at once. A subject or tag is read whole through
@@ -203,10 +247,13 @@ and the gotchas.
 
 [`app/`](./app) is the front-end shell and stays thin: a layout, an error page and its dev-only debug
 panel, two client plugins (Faro telemetry, and a dev-only console filter for a known Nuxt/Vue
-warning), and one page — the entry page. Its own
-server code is two Nitro plugins (telemetry, and a log line for every handled `5xx`). Beside it,
+warning), a server plugin that fails a prerendered page whose translations didn't load, and one
+page — the entry page. Its own server code is three Nitro plugins (telemetry, a log line for every
+handled `5xx`, and the header that keeps a `5xx` out of the CDN). Beside it,
 [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) checks the
-[required variables](#-environment) once per build.
+[required variables](#-environment) once per build, and
+[`modules/rendering.ts`](./modules/rendering.ts) registers the route rules and lists the
+[prerendered routes](#-rendering) on a Netlify build.
 
 | Piece | What it holds |
 | --- | --- |
@@ -459,4 +506,6 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | *Publicaciones* lit in the header on an article | `useSiteNav` marks sections by route, and `/:slug/` also serves WordPress pages (C6), so it needs to know which one it rendered |
 | The `onServerPrefetch` tree-shake override in `nuxt.config.ts` | Drop it once Nuxt stops stripping that hook from client builds; the article e2e's axe scan fails on `aria-controls` if it goes too early |
 | A check on layer directions | Once there are enough layers that review stops catching a wrong edge. A spec can read `.nuxt/components.d.ts` and `.nuxt/types/*imports.d.ts`, which map every auto-import to its source file, and fail on an edge the table above forbids. Two layers exporting one auto-imported name only warn during `nuxi prepare`, so the same spec would be the place to fail on that too |
+| A shared Nitro cache for `isr` misses | Mount Nitro's `cache` storage on unstorage's `netlify-blobs` driver if misses on cold instances turn out slow. It is Netlify-only, which cuts against the move to Google Cloud |
+| Cache windows as constants again | With pages prerendered or held by the CDN, `content.cache` and `articles.cache` only govern the build and `isr` misses. If nothing in production ends up tuning them, they fold back into constants with an `import.meta.dev` switch |
 | Parity with the `/lab` pages | Still a human check: the lab is stripped from production builds, and Linux substitutes a serif for Georgia |

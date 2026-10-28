@@ -1,7 +1,8 @@
 ---
 issue: 186
 status: wont-implement
-decision: accepted
+decision: superseded
+supersededBy: 0033-huella-legal-hybrid-prerender.md
 ---
 
 # 🧭 Huella Legal's rendering, hosting and cost

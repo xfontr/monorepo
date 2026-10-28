@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import type { Entry } from "@monorepo/content";
+import type { Entry, Term, TermResource } from "@monorepo/content";
 import {
     faker,
     fakeAsset,
@@ -144,13 +144,27 @@ export const PAGE = fakeEntry({
     },
 });
 
-export const PAGES: Entry[] = [LEGAL, PAGE];
+// The shell links both, and Nuxt prefetches a linked page's payload, so each has to resolve
+const SHELL_PAGES = ["sobre", "contacto"].map((slug) =>
+    fakeEntry({ slug, terms: [], authors: [] }),
+);
+
+export const PAGES: Entry[] = [LEGAL, PAGE, ...SHELL_PAGES];
+
+// Every term a post links to, since a prefetched payload that 404s logs to the console
+const termsOf = (resource: TermResource): Term[] => [
+    ...new Map(
+        POSTS.flatMap(({ terms }) => terms)
+            .filter((term) => term.resource === resource)
+            .map((term) => [term.slug, term]),
+    ).values(),
+];
 
 export const CONTENT: WordpressContent = {
     posts: POSTS,
     pages: PAGES,
-    categories: CATEGORIES,
-    tags: [TAG, THESIS],
+    categories: termsOf("categories"),
+    tags: termsOf("tags"),
 };
 
 export const TRANSLATIONS = { "es-ES": locale("es-ES") } as const satisfies Record<
