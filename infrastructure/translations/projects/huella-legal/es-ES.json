@@ -16,7 +16,7 @@
                 "contact": "Contacto",
                 "cookies": "Política de cookies",
                 "legalNotice": "Aviso legal",
-                "newsletter": "Boletín mensual",
+                "newsletter": "Newsletter",
                 "privacy": "Política de privacidad",
                 "publications": "Publicaciones",
                 "publish": "Publicar un artículo",
@@ -37,7 +37,7 @@
                 "close": "Cerrar menú",
                 "description": "Secciones de la revista",
                 "publish": "Publicar un artículo",
-                "subscribe": "Suscribirse al boletín",
+                "subscribe": "Suscribirse a la newsletter",
                 "title": "Menú"
             },
             "nav": {
@@ -318,11 +318,11 @@
         }
     },
     "newsletterBand": {
-        "kicker": "Boletín mensual",
+        "kicker": "Newsletter",
         "title": "Un correo al mes con lo que hemos publicado. Nada más."
     },
     "newsletterCard": {
-        "kicker": "Boletín mensual",
+        "kicker": "Newsletter",
         "lead": "Lo nuevo de la revista, una vez al mes.",
         "subjectLead": "Lo nuevo en {subject} y el resto de áreas, una vez al mes."
     },
@@ -340,11 +340,11 @@
             "description": "Inténtalo de nuevo en unos minutos.",
             "title": "No hemos podido completar la suscripción"
         },
-        "notice": "Huella Legal usa tu correo solo para enviarte el boletín, con tu consentimiento. Kit envía los correos, y Netlify y Cloudflare alojan y protegen este formulario. Puedes darte de baja desde cualquier correo y ejercer tus derechos como explica la {privacy}.",
+        "notice": "También odiamos el spam. Lo demás está en la {privacy}.",
         "privacy": "política de privacidad",
         "submit": "Suscribirme",
         "success": {
-            "description": "Te hemos enviado un correo para confirmar tu dirección. Si ya recibías el boletín, no tienes que hacer nada.",
+            "description": "Te hemos enviado un correo para confirmar tu dirección. Si ya te habías suscrito, no tienes que hacer nada.",
             "title": "Revisa tu bandeja de entrada"
         }
     },
