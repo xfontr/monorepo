@@ -10,6 +10,7 @@ export default defineNuxtConfig({
         "@monorepo/content/nuxt",
         "@nuxt/ui",
         "@nuxt/fonts",
+        "@nuxt/image",
     ],
 
     devtools: false,
@@ -135,11 +136,20 @@ export default defineNuxtConfig({
         theme: {
             colors: ["primary", "secondary", "neutral", "error"],
         },
+        experimental: {
+            componentDetection: true,
+        },
+    },
+
+    image: {
+        // WordPress serves uploads from the www host even though its API answers on the bare one
+        domains: ["www.huellalegal.com"],
     },
 
     fonts: {
         defaults: {
             weights: [400, 500, 600, 700],
+            preload: true,
         },
     },
 

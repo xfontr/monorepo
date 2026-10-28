@@ -24,8 +24,8 @@ pnpm dev                                    # or from this directory
 | `pnpm cache:clear` | Deletes the `articles` and `content` caches under `.nuxt/cache/`, so the next request rereads WordPress. Safe with the dev server running, and only touches local dev — see [Content](#-content) |
 | `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
 
-One module beyond the shared ones is installed here, `@nuxt/fonts`, and the `forms` layer installs
-`@nuxtjs/turnstile`.
+Two modules beyond the shared ones are installed here, `@nuxt/fonts` and `@nuxt/image`, and the
+`forms` layer installs `@nuxtjs/turnstile`.
 
 ## 🚢 Deployment
 
@@ -365,6 +365,7 @@ Nuxt modules would otherwise give it:
 | `autoImport.dirs` | Nuxt's `utils` auto-imports, in scripts and templates | `app/utils/`, `layers/*/app/utils/` |
 | `components.dirs` | Nuxt's component auto-imports, namespaced by directory so `base/Kicker.vue` is `BaseKicker` | `app/components/`, `layers/*/app/components/` |
 | `sb.mock` of `useNewsletter` in [`preview.ts`](./.storybook/preview.ts) | The newsletter controller, with `POST /api/newsletter` behind it. Its [`__mocks__`](./layers/newsletter/app/composables/__mocks__/useNewsletter.ts) copy holds one status and never sends a request. Storybook restores its idle default before every story, and a `NewsletterForm` state story sets its own in `beforeEach` | — |
+| A `NuxtImg` stub in [`preview.ts`](./.storybook/preview.ts) | `@nuxt/image`'s component, as a plain `<img>` with the original URL | — |
 | A `NuxtTurnstile` stub in [`preview.ts`](./.storybook/preview.ts) | The module's widget, which `FormChallenge` mounts when a story's field takes focus, so no story loads Cloudflare's script | — |
 
 Both configs are imported, not copied, so a theme change reaches the stories with no second edit.

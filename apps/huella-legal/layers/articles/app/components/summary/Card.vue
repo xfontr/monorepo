@@ -6,6 +6,7 @@ interface Recipe {
     layout: string;
     media: "always" | "image" | false;
     frame: string;
+    sizes: string;
     body: string;
     title: string;
     excerpt: string | false;
@@ -27,6 +28,7 @@ const VARIANTS = {
         layout: "lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-12",
         media: "image",
         frame: "aspect-[3/2] lg:col-span-7 lg:row-span-4",
+        sizes: "100vw lg:640px",
         body: "lg:col-span-5",
         title: "text-[2rem] leading-[1.12] tracking-[-0.015em] md:text-h1 lg:text-[2.75rem]",
         excerpt: "text-reading max-w-measure",
@@ -39,6 +41,7 @@ const VARIANTS = {
         layout: "",
         media: false,
         frame: "",
+        sizes: "",
         body: "",
         title: "text-card",
         excerpt: "text-base leading-relaxed line-clamp-3",
@@ -51,6 +54,7 @@ const VARIANTS = {
         layout: "",
         media: "always",
         frame: "aspect-[3/2]",
+        sizes: "100vw md:50vw lg:360px",
         body: "",
         title: "text-card",
         excerpt: "text-base leading-relaxed line-clamp-3",
@@ -63,6 +67,7 @@ const VARIANTS = {
         layout: "sm:grid sm:grid-cols-[1fr_9rem] sm:items-start sm:gap-x-6 md:grid-cols-[1fr_11rem] md:gap-x-8",
         media: "always",
         frame: "hidden aspect-[4/3] sm:order-last sm:block",
+        sizes: "144px md:176px",
         body: "",
         title: "text-card md:text-h3",
         excerpt: "max-w-measure text-base leading-relaxed line-clamp-2",
@@ -75,6 +80,7 @@ const VARIANTS = {
         layout: "",
         media: false,
         frame: "",
+        sizes: "",
         body: "",
         title: "text-lg leading-snug",
         excerpt: false,
@@ -96,11 +102,12 @@ const authors = computed(() => bylineAuthors(props.article.authors));
     <article class="group relative flex flex-col" :class="[ui.gap, hasMedia && ui.layout]">
         <div v-if="hasMedia" class="@container overflow-hidden rounded-xs" :class="ui.frame">
             <!-- Decorative: the title beside it already names the article -->
-            <img
+            <NuxtImg
                 v-if="article.image"
                 :src="article.image.url"
                 :width="article.image.width"
                 :height="article.image.height"
+                :sizes="ui.sizes"
                 alt=""
                 :loading="ui.eager ? 'eager' : 'lazy'"
                 class="size-full object-cover"

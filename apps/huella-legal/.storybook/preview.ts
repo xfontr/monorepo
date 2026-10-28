@@ -4,6 +4,7 @@ import UApp from "@nuxt/ui/components/App.vue";
 import ui from "@nuxt/ui/vue-plugin";
 import { setup, type Preview } from "@storybook/vue3-vite";
 import { sb } from "storybook/test";
+import { h } from "vue";
 import { createI18n } from "vue-i18n";
 import { createMemoryHistory, createRouter } from "vue-router";
 
@@ -27,6 +28,8 @@ sb.mock("../layers/newsletter/app/composables/useNewsletter.ts");
 setup((app) => {
     // FormChallenge mounts the module's widget on focus, which would load Cloudflare's script
     app.component("NuxtTurnstile", { render: () => null });
+    // The real one needs Nuxt Image's runtime, so a story loads the original file instead
+    app.component("NuxtImg", (_props, { attrs }) => h("img", attrs));
     app.use(ui);
     app.use(createRouter({ history: createMemoryHistory(), routes }));
     app.use(
