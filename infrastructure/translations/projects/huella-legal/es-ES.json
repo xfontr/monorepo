@@ -426,6 +426,21 @@
         },
         "title": "Tu artículo, leído con la atención que merece."
     },
+    "search": {
+        "empty": "Escribe una o varias palabras del título o del texto para buscar entre las publicaciones.",
+        "title": {
+            "blank": "Buscar",
+            "query": "Resultados para «{query}»"
+        }
+    },
+    "searchForm": {
+        "label": "Buscar",
+        "submit": "Buscar"
+    },
+    "searchResults": {
+        "count": "{total} para «{query}»",
+        "total": "{n} resultado | {n} resultados"
+    },
     "shareBar": {
         "cite": "Citar",
         "linkCopied": "Enlace copiado",

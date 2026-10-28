@@ -69,6 +69,18 @@ export const ARTICLE = fakeEntry({
     },
 });
 
+// No seeded lorem produces it, so a search for it finds these two posts and nothing else
+export const SOUGHT = "culpabilidad";
+
+const SEARCHED = [
+    fakeEntry({ title: `La ${SOUGHT} en el Derecho penal`, terms: [SUBJECT], authors: [AUTHOR] }),
+    fakeEntry({
+        body: { format: "html", value: `<p>${faker.lorem.paragraph()} ${SOUGHT}.</p>` },
+        terms: [SIBLING],
+        authors: [AUTHOR],
+    }),
+];
+
 export const POSTS: Entry[] = [
     LEAD,
     ESCAPED,
@@ -92,6 +104,7 @@ export const POSTS: Entry[] = [
             authors: [fakeAuthor(index % 2 === 0 ? { bio: faker.lorem.sentence() } : {})],
         }),
     ),
+    ...SEARCHED,
 ];
 
 const locale = (code: string): TranslationMap =>

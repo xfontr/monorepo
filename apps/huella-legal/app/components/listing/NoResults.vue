@@ -3,7 +3,7 @@ import type { LinkAction } from "~/types/LinkAction";
 
 interface Props {
     query: string;
-    subjects: LinkAction[];
+    subjects?: LinkAction[];
 }
 
 defineProps<Props>();
@@ -24,7 +24,7 @@ const titleId = useId();
         <template #title>
             <span :id="titleId">{{ $t("noResults.title", { query }) }}</span>
         </template>
-        <template v-if="subjects.length" #body>
+        <template v-if="subjects?.length" #body>
             <p class="mt-2 font-sans text-meta font-semibold text-highlighted">
                 {{ $t("noResults.browse") }}
             </p>
