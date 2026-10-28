@@ -142,7 +142,6 @@ export default defineNuxtConfig({
     },
 
     image: {
-        // WordPress serves uploads from the www host even though its API answers on the bare one
         domains: ["www.huellalegal.com"],
     },
 
