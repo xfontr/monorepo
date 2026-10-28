@@ -16,6 +16,8 @@ export default defineNuxtConfig({
 
     experimental: {
         typedPages: true,
+        // `true` makes every isr page fetch its payload as a second request, `_payload.json`
+        payloadExtraction: "client",
     },
 
     css: ["~/assets/css/main.css"],

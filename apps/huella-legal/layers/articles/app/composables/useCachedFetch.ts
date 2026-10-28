@@ -1,4 +1,4 @@
-// Nuxt's default reuses fetched data only while hydrating or from a prerendered payload
+// Nuxt's default reuses fetched data only while hydrating or from a loaded `_payload.json`
 export const useCachedFetch = createUseFetch({
     getCachedData: (key, nuxtApp, { cause }) =>
         cause === "refresh:manual" || cause === "refresh:hook"

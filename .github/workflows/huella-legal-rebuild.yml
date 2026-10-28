@@ -1,0 +1,18 @@
+name: Huella Legal rebuild
+
+# Prerendered pages only change on a build, and corrections to old posts arrive with no commit.
+on:
+    schedule:
+        - cron: "0 5 * * 1"
+    workflow_dispatch:
+
+permissions: {}
+
+jobs:
+    rebuild:
+        runs-on: ubuntu-latest
+        steps:
+            # A build hook bypasses the `ignore` command, so it builds even with no new commit.
+            - run: curl --fail-with-body --silent --show-error -X POST -d '{}' "$BUILD_HOOK_URL"
+              env:
+                  BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}

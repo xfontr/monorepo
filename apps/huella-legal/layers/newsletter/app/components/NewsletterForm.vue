@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from "@nuxt/ui";
+import type { FormInputEvents, FormSubmitEvent } from "@nuxt/ui";
 import { DESTINATIONS } from "~/composables/useSiteNav";
 import type { Tone } from "~/types/Tone";
 import {
@@ -13,8 +13,6 @@ type Layout = "stacked" | "inline";
 
 interface LayoutRecipe {
     row: string;
-    field: string | undefined;
-    button: string | undefined;
     block: boolean;
 }
 
@@ -36,13 +34,8 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const LAYOUTS = {
-    stacked: { row: "flex flex-col gap-3", field: undefined, button: undefined, block: true },
-    inline: {
-        row: "flex flex-col gap-3 sm:flex-row",
-        field: "flex-1",
-        button: "justify-center sm:self-end",
-        block: false,
-    },
+    stacked: { row: "flex flex-col gap-3", block: true },
+    inline: { row: "flex flex-col gap-3 sm:flex-row", block: false },
 } as const satisfies Record<Layout, LayoutRecipe>;
 
 const TONES = {
@@ -63,10 +56,12 @@ const schema = subscriptionSchema(word);
 
 const state = reactive({ email: "" });
 const website = ref<string>("");
+const attempted = ref<boolean>(false);
 
 const form = useTemplateRef("form");
 
 const onSubmit = async ({ data }: FormSubmitEvent<Subscription>, challenge: Challenge) => {
+    attempted.value = true;
     await subscribe({ email: data.email, website: website.value }, challenge);
 
     form.value?.setErrors(
@@ -75,6 +70,7 @@ const onSubmit = async ({ data }: FormSubmitEvent<Subscription>, challenge: Chal
 };
 
 const pending = computed<boolean>(() => status.value === "submitting");
+const validateOn = computed<FormInputEvents[]>(() => (attempted.value ? ["input"] : []));
 const arrangement = computed<LayoutRecipe>(() => LAYOUTS[props.layout]);
 const colors = computed<ToneRecipe>(() => TONES[props.tone]);
 </script>
@@ -88,19 +84,21 @@ const colors = computed<ToneRecipe>(() => TONES[props.tone]);
             ref="form"
             :schema
             :state
+            :validate-on
             :disabled="pending"
             class="flex flex-col gap-3"
             novalidate
             :aria-busy="pending"
             @submit="onSubmit($event, challenge)"
+            @error="attempted = true"
         >
-            <div :class="arrangement.row">
-                <UFormField
-                    name="email"
-                    :label="$t('newsletterForm.email.label')"
-                    :class="arrangement.field"
-                    :ui="{ label: colors.label, error: colors.error }"
-                >
+            <UFormField
+                name="email"
+                :label="$t('newsletterForm.email.label')"
+                :ui="{ label: colors.label, error: colors.error }"
+                eager-validation
+            >
+                <div :class="arrangement.row">
                     <UInput
                         v-model="state.email"
                         type="email"
@@ -108,16 +106,16 @@ const colors = computed<ToneRecipe>(() => TONES[props.tone]);
                         :placeholder="$t('newsletterForm.email.placeholder')"
                         class="w-full"
                     />
-                </UFormField>
-                <UButton
-                    type="submit"
-                    :block="arrangement.block"
-                    :loading="pending"
-                    :label="$t('newsletterForm.submit')"
-                    :color="colors.button"
-                    :class="arrangement.button"
-                />
-            </div>
+                    <UButton
+                        type="submit"
+                        :block="arrangement.block"
+                        :loading="pending"
+                        :label="$t('newsletterForm.submit')"
+                        :color="colors.button"
+                        class="shrink-0 justify-center"
+                    />
+                </div>
+            </UFormField>
             <FormHoneypot v-model="website" />
             <UAlert
                 v-if="status === 'error'"
