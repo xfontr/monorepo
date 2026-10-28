@@ -65,7 +65,7 @@
         "@monorepo/observability": "workspace:*",
         "@monorepo/ui": "workspace:*",
         "@nuxt/fonts": "catalog:",
-        "@nuxt/image": "~2.1.0",
+        "@nuxt/image": "~2.2.0",
         "@nuxt/scripts": "^1.3.12",
         "@nuxt/ui": "^4.11.0",
         "@nuxtjs/i18n": "catalog:",
