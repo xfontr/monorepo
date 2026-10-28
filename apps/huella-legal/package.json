@@ -34,6 +34,9 @@
                 ]
             },
             "nuxt:build": {
+                "dependsOn": [
+                    "nuxt-prepare"
+                ],
                 "inputs": [
                     "production",
                     "^production",
