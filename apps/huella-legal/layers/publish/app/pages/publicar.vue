@@ -11,10 +11,10 @@ useSeoMeta({
 
 <template>
     <div>
-        <ArchiveIntro :breadcrumbs="[{ label: $t('publish.breadcrumb') }]">
+        <BasePageIntro :breadcrumbs="[{ label: $t('publish.breadcrumb') }]">
             <div class="grid grid-cols-1 gap-x-12 gap-y-6 lg:grid-cols-12">
                 <div class="lg:col-span-7">
-                    <ArchiveHeading
+                    <BasePageHeading
                         :kicker="$t('publish.kicker')"
                         :title="$t('publish.title')"
                         :lead="$t('publish.lead')"
@@ -36,7 +36,7 @@ useSeoMeta({
                 </div>
                 <PublishReasons class="self-end lg:col-span-5" />
             </div>
-        </ArchiveIntro>
+        </BasePageIntro>
         <UContainer class="py-16 lg:py-20">
             <PublishSteps />
         </UContainer>

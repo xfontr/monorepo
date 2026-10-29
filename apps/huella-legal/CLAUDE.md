@@ -27,10 +27,15 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   it; `server/utils/` is only for helpers that know nothing about the domain, so a cached read that
   several routes share goes in `server/services/`. A vendor client that one layer calls goes in
   `server/adapters/`, named for the vendor, so it stays out of Nitro's auto-imports.
+  **`articles` is the core: its routes are the only code that calls `useContent`, and a feature
+  layer is app-side only, reading those routes through `useCachedFetch`.** A new read model is a
+  route in the core, not a `server/` in the feature. A new layer needs its own config, its own
+  domain logic, or to be something you'd switch off whole; a page that only renders a core model
+  joins the feature whose task it serves.
   **Only the shell may use anything:** the kit (`app/components/base`, `app/components/listing`,
-  `app/types`, `app/utils`, `app/composables`) uses only itself, a layer uses itself, the kit and
-  `forms`, and only a feature's `app/pages/` may render another feature's auto-registered
-  components. Nothing checks this but review, since auto-imports hide every edge from the linter.
+  `app/types`, `app/utils`, `app/composables`) uses only itself, the core and `forms` use
+  themselves and the kit, a feature also uses the core and `forms`, and only a feature's
+  `app/pages/` may render another feature's auto-registered components. Nothing checks this but review, since auto-imports hide every edge from the linter.
 - Typechecking runs on build (`typescript.typeCheck: "build"`), so `pnpm build` is slow and already
   covers what `pnpm typecheck` would.
 - [`tsconfig.json`](./tsconfig.json) only references `./.nuxt/tsconfig.*.json`, which `nuxi

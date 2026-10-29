@@ -61,9 +61,6 @@
             "since": "publica desde"
         }
     },
-    "archiveIntro": {
-        "home": "Portada"
-    },
     "archiveResults": {
         "count": "{count} publicación | {count} publicaciones",
         "formats": "Formato"
@@ -357,6 +354,9 @@
             "home": "Portada"
         },
         "toc": "En esta página"
+    },
+    "pageIntro": {
+        "home": "Portada"
     },
     "pagination": {
         "label": "Paginación",
