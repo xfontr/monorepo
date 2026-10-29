@@ -13,8 +13,8 @@ Object.assign(globalThis, {
     defineNuxtConfig: identity,
 });
 
-const { default: appConfig } = await import("../app/app.config.ts");
-const { default: nuxtConfig } = await import("../nuxt.config.ts");
+const { default: appConfig } = await import("../layers/design/app/app.config.ts");
+const { default: nuxtConfig } = await import("../layers/design/nuxt.config.ts");
 const { default: i18nConfig } = await import("../i18n/i18n.config.ts");
 
 // @nuxt/fonts 1.0 types `local` as provider options, which fontless 1.3 still types as an empty record.

@@ -23,8 +23,6 @@ export default defineNuxtConfig({
         payloadExtraction: "client",
     },
 
-    css: ["~/assets/css/main.css"],
-
     // The design lab under `pages/lab/` is a dev-only review surface, so no build ever ships it
     $production: {
         hooks: {
@@ -133,25 +131,8 @@ export default defineNuxtConfig({
         },
     },
 
-    ui: {
-        colorMode: false,
-        theme: {
-            colors: ["primary", "secondary", "neutral", "error"],
-        },
-        experimental: {
-            componentDetection: true,
-        },
-    },
-
     image: {
         domains: ["www.huellalegal.com"],
-    },
-
-    fonts: {
-        defaults: {
-            weights: [400, 500, 600, 700],
-            preload: true,
-        },
     },
 
     nitro: {

@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, NOT_FOUND_DOCUMENT, test } from "@monorepo/configs/playwright/test";
+import type { Page } from "@playwright/test";
 import { MAX_SEARCH_LENGTH } from "@monorepo/content";
 import { SOUGHT } from "./fakes.ts";
 
@@ -58,13 +59,71 @@ test("submitting the form puts the query in the URL, so a search can be shared",
     await expect(page.getByRole("main").getByRole("article")).toHaveCount(2);
 });
 
-test("the header search button goes to the search page", async ({ page }) => {
+// The e2e tsconfig has no DOM lib
+interface Animatable {
+    getAnimations: (options: { subtree: boolean }) => { finished: Promise<unknown> }[];
+}
+
+const openSearch = async (page: Page) => {
     await page.goto("/");
 
-    await page.getByRole("banner").getByRole("link", { name: "Buscar" }).click();
+    const dialog = page.getByRole("dialog", { name: "Buscar en Huella Legal" });
 
-    await expect(page).toHaveURL(/\/buscar\/$/);
-    await expect(page.getByRole("searchbox", { name: "Buscar" })).toBeVisible();
+    // Before hydration the button is still a link to /buscar/, so the runner retries
+    await expect(async () => {
+        await page.getByRole("banner").getByRole("link", { name: "Buscar" }).click();
+        await expect(dialog).toBeVisible({ timeout: 1000 });
+    }).toPass();
+
+    return dialog;
+};
+
+test("the header search opens in place and previews matches while typing", async ({ page }) => {
+    const dialog = await openSearch(page);
+
+    await expect(page).toHaveURL(/\/$/);
+
+    await dialog.getByRole("textbox").fill(SOUGHT);
+
+    await expect(
+        dialog.getByRole("option", { name: `${SOUGHT} en el Derecho penal` }),
+    ).toBeVisible();
+});
+
+test("Enter right after typing opens the results page for the whole query", async ({ page }) => {
+    const dialog = await openSearch(page);
+
+    await dialog.getByRole("textbox").fill(SOUGHT);
+    await dialog.getByRole("textbox").press("Enter");
+
+    await expect(page).toHaveURL(new RegExp(`/buscar/\\?query=${SOUGHT}$`));
+    await expect(dialog).toBeHidden();
+    await expect(page.getByRole("main").getByRole("article")).toHaveCount(2);
+});
+
+test("the open search dialog has no WCAG AA violations", async ({ page }) => {
+    await page.goto("/");
+
+    const dialog = page.getByRole("dialog", { name: "Buscar en Huella Legal" });
+
+    await expect(async () => {
+        await page.keyboard.press("/");
+        await expect(dialog).toBeVisible({ timeout: 1000 });
+    }).toPass();
+    await dialog.getByRole("textbox").fill(SOUGHT);
+    await expect(dialog.getByRole("option").nth(1)).toBeVisible();
+    // Mid fade-in, axe measures text against the page showing through the dialog
+    await dialog.evaluate((element) =>
+        Promise.allSettled(
+            (element as unknown as Animatable)
+                .getAnimations({ subtree: true })
+                .map(({ finished }) => finished),
+        ),
+    );
+
+    const { violations } = await new AxeBuilder({ page }).withTags(WCAG_AA).analyze();
+
+    expect(violations).toEqual([]);
 });
 
 for (const { name, path } of STATES) {

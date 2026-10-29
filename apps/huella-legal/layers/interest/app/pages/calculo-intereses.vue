@@ -11,14 +11,14 @@ useSeoMeta({
 
 <template>
     <div>
-        <ArchiveIntro :breadcrumbs="[{ label: $t('interestCalculator.title') }]">
-            <ArchiveHeading
+        <BasePageIntro :breadcrumbs="[{ label: $t('interestCalculator.title') }]">
+            <BasePageHeading
                 :kicker="$t('interestCalculator.kicker')"
                 :title="$t('interestCalculator.title')"
                 :lead="$t('interestCalculator.lead')"
                 class="lg:w-7/12"
             />
-        </ArchiveIntro>
+        </BasePageIntro>
         <UContainer class="pt-10 pb-16 lg:pb-20">
             <InterestCalculator />
         </UContainer>

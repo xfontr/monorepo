@@ -35,15 +35,15 @@ design review never depends on WordPress being reachable.
 
 Tailwind's incremental scan in the dev server sometimes misses classes in a newly created file under
 `app/lab/` or `app/pages/lab/`. If a fresh page renders with a collapsed grid, touch
-[`main.css`](./app/assets/css/main.css) to force a rescan, or restart the server, before debugging
+[`main.css`](./layers/design/app/assets/main.css) to force a rescan, or restart the server, before debugging
 the markup.
 
 ## 🗂 Structure
 
 | Path | Role |
 | --- | --- |
-| [`app/assets/css/main.css`](./app/assets/css/main.css) | Every token: palettes, type scale, measure, Nuxt UI's semantic roles pointed at them, and the base focus ring any element without its own falls back to |
-| [`app/app.config.ts`](./app/app.config.ts) | Nuxt UI colour aliases and control defaults: 44 px minimum height, paper field surface, and a button theme that darkens on hover, rings outlines in ink and draws the 2 px focus ring the foundations page promises |
+| [`layers/design/app/assets/main.css`](./layers/design/app/assets/main.css) | Every token: palettes, type scale, measure, Nuxt UI's semantic roles pointed at them, and the base focus ring any element without its own falls back to |
+| [`layers/design/app/app.config.ts`](./layers/design/app/app.config.ts) | Nuxt UI colour aliases and control defaults: 44 px minimum height, paper field surface, and a button theme that darkens on hover, rings outlines in ink and draws the 2 px focus ring the foundations page promises |
 | `app/pages/lab/*.vue` | One review page per site archetype: the approved design |
 | `app/pages/lab/attempts/*.vue` | The A, B and C pages the approved set replaced, kept for reference |
 | `app/lab/*.vue` | Lab-only building blocks shared across those pages; loose on purpose |
@@ -83,7 +83,7 @@ The Penpot P5 sheet is deleted, so its deviations are recorded here.
 | Token | P5 value | Lab value | Why |
 | --- | --- | --- | --- |
 | Control / card radius | 8 px / 12 px | 4 px (`--ui-radius`) / 2–4 px | Rounded cards read as an app, not a journal; hairline rules carry the structure instead |
-| Focus offset | 4 px | 2 px (the base `:focus-visible` rule in `main.css`, restated for buttons in `app.config.ts` because Nuxt UI's own is a 3 px ring at 25 % with no offset) | Keeps the ring attached to tight inline links; still a 2 px ring, visible on paper and slate |
+| Focus offset | 4 px | 2 px (the base `:focus-visible` rule in `main.css`, restated for buttons in `theme/button.ts` because Nuxt UI's own is a 3 px ring at 25 % with no offset) | Keeps the ring attached to tight inline links; still a 2 px ring, visible on paper and slate |
 | Heading colour | `slate-800` | `slate-900` | More separation from body copy at regular weight |
 | Kickers | No automatic uppercase | Uppercase, 0.12em tracking | CSS uppercase keeps Spanish accents; approved at Gate A |
 | Canvas | `ivory-100` | `ivory-100` | Unchanged |
@@ -105,6 +105,7 @@ the benchmark's D set where it proposed a page, and the original A page where it
 | `/lab/colaboradores` | About + contributors | Mission, three editorial principles, searchable directory with a no-match state |
 | `/lab/publicar` | Publish an article | Reasons, five-step process, form, FAQ, TFG/TFM track; `?estado=invalid\|submitting\|success\|error` previews each submission state |
 | `/lab/estados` | Utility states | 404, search results, no results, empty subject, server error, loading |
+| `/lab/busqueda` | Header search | What the search button opens, before and while typing (`?texto=1`). `?variante=a` is the approved modal; B (a band under the header), C (full screen) and D (the header row as a field) were the alternatives |
 
 The approved pages keep their benchmark badge, because its "De dónde salen los datos" list is what
 the production components need to wire each element to WordPress. D kept A's structure and took
@@ -153,7 +154,6 @@ and long-string wrapping before it reaches a gate.
 | Comments | Dropped from the design pending a moderation decision |
 | Mid-article newsletter | The current site interrupts articles with repeated sign-up blocks; the redesign keeps one band after the article. Add an inline block only if sign-ups drop |
 | Contributor copy | Roles, bios, counts and years in [`app/lab/fixtures.ts`](./app/lab/fixtures.ts) are placeholders on real names; only Raquel Crespo Ruiz's credentials come from the live site. Never copy them into production content |
-| Search overlay | The header search button has no overlay design; it goes to the results page shown on `/lab/estados` |
 | WordPress block mapping | `.hl-prose` uses `hl-law`, `hl-note` and `hl-num` for quoted legislation, editor notes and section numerals; production maps them to Gutenberg block classes or custom blocks |
 | Real imagery | Lab cards use a `§` tile where an image goes; licensed classical legal imagery is chosen per article in the CMS |
 | Dark theme | `ui.colorMode` is off; adding one means a second set of `--ui-*` roles and a new contrast pass |

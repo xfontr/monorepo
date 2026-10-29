@@ -55,14 +55,7 @@ const homePath = computed(() => router.resolve({ name: "index" }).path);
         />
 
         <template #right>
-            <UButton
-                :to="{ name: 'search' }"
-                square
-                variant="ghost"
-                color="neutral"
-                icon="i-lucide-search"
-                :aria-label="$t('app.header.search')"
-            />
+            <SearchDialog />
             <UButton
                 :to="DESTINATIONS.newsletter"
                 :label="$t('app.header.subscribe')"

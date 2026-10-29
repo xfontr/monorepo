@@ -48,7 +48,6 @@
                 "subjects": "Áreas"
             },
             "newsletter": "Un correo al mes con lo nuevo",
-            "search": "Buscar",
             "strip": "Revista jurídica de acceso libre · ISSN {issn}",
             "subscribe": "Suscribirse"
         },
@@ -61,9 +60,6 @@
             "publications": "publicación | publicaciones",
             "since": "publica desde"
         }
-    },
-    "archiveIntro": {
-        "home": "Portada"
     },
     "archiveResults": {
         "count": "{count} publicación | {count} publicaciones",
@@ -359,6 +355,9 @@
         },
         "toc": "En esta página"
     },
+    "pageIntro": {
+        "home": "Portada"
+    },
     "pagination": {
         "label": "Paginación",
         "next": {
@@ -483,9 +482,29 @@
             "query": "Resultados para «{query}»"
         }
     },
+    "searchDialog": {
+        "description": "Escribe para ver resultados al momento; Intro abre la lista completa.",
+        "open": "Buscar",
+        "title": "Buscar en Huella Legal"
+    },
     "searchForm": {
         "label": "Buscar",
         "submit": "Buscar"
+    },
+    "searchPalette": {
+        "all": "Buscar «{query}»",
+        "articles": "Artículos",
+        "close": "Cancelar",
+        "hints": {
+            "move": "moverse",
+            "open": "abrir",
+            "shortcut": "abre la búsqueda"
+        },
+        "label": "Buscar en Huella Legal",
+        "latest": "Lo último",
+        "placeholder": "Buscar en la revista",
+        "subjects": "Áreas",
+        "total": "{n} resultado | {n} resultados"
     },
     "searchResults": {
         "count": "{total} para «{query}»",

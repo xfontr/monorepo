@@ -1,4 +1,4 @@
-import "../app/assets/css/main.css";
+import "../layers/design/app/assets/main.css";
 
 import UApp from "@nuxt/ui/components/App.vue";
 import ui from "@nuxt/ui/vue-plugin";
