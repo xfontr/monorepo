@@ -4,6 +4,7 @@ import avatar from "./theme/avatar";
 import breadcrumb from "./theme/breadcrumb";
 import button from "./theme/button";
 import checkbox from "./theme/checkbox";
+import commandPalette from "./theme/commandPalette";
 import container from "./theme/container";
 import empty from "./theme/empty";
 import fileUpload from "./theme/fileUpload";
@@ -11,6 +12,7 @@ import footer from "./theme/footer";
 import footerColumns from "./theme/footerColumns";
 import header from "./theme/header";
 import input from "./theme/input";
+import modal from "./theme/modal";
 import navigationMenu from "./theme/navigationMenu";
 import pageCard from "./theme/pageCard";
 import pageSection from "./theme/pageSection";
@@ -56,5 +58,7 @@ export default defineAppConfig({
         textarea,
         alert,
         accordion,
+        modal,
+        commandPalette,
     },
 });
