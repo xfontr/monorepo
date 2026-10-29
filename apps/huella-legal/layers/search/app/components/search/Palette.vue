@@ -12,7 +12,6 @@ const { t, d, locale } = useI18n();
 const term = ref<string>("");
 const { home, search, pending } = useSearchPreview(term);
 
-// Live rather than debounced, so an Enter right after typing searches the whole of it
 const typed = computed<string>(() => term.value.trim());
 
 const toSubject = ({ value, count }: Facet<Category>): CommandPaletteItem => ({
@@ -88,7 +87,6 @@ const searchGroups = computed<CommandPaletteGroup[]>(() => [
     },
 ]);
 
-// Nuxt UI types `input` without ARIA attributes, though UInput forwards them to the <input>
 const input = computed(() => ({
     maxlength: MAX_SEARCH_LENGTH,
     "aria-label": t("searchPalette.label"),
