@@ -3,6 +3,17 @@ import { toArticleSummary } from "../../../mappers/articleSummary";
 
 const RELATED = 3;
 
+defineRouteMeta({
+    openAPI: {
+        tags: ["Articles"],
+        summary: "List the three newest other articles in an article's subject",
+        responses: {
+            200: { description: "OK, empty when the article has no subject" },
+            404: { description: "No article has this slug" },
+        },
+    },
+});
+
 export default defineEventHandler(async (event): Promise<ArticleSummary[]> => {
     const content = useContent(event);
     const entry = await content.getEntry(

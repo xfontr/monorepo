@@ -18,6 +18,36 @@ const listingQuerySchema = v.object({
     author: v.optional(v.string()),
 });
 
+defineRouteMeta({
+    openAPI: {
+        tags: ["Articles"],
+        summary: "List articles, optionally scoped to one subject, tag or author",
+        parameters: [
+            { name: "page", in: "query", schema: { type: "integer", minimum: 1, default: 1 } },
+            {
+                name: "sort",
+                in: "query",
+                schema: { type: "string", enum: ["newest", "oldest"], default: "newest" },
+            },
+            {
+                name: "format",
+                in: "query",
+                // `FORMATS` in `mappers/articleListing.ts`, since route meta only takes literals
+                schema: { type: "string", enum: ["articulo", "comentario", "tfg-tfm"] },
+            },
+            { name: "category", in: "query", schema: { type: "string" } },
+            { name: "tag", in: "query", schema: { type: "string" } },
+            { name: "author", in: "query", schema: { type: "string" } },
+        ],
+        responses: {
+            200: { description: "One page of article summaries, with its scope" },
+            404: {
+                description: "A parameter is invalid, names nothing, or the page is past the end",
+            },
+        },
+    },
+});
+
 const notFound = (message: string) =>
     createError({ statusCode: 404, statusMessage: "Listing not found", message });
 

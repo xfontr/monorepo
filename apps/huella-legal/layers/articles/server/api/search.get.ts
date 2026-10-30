@@ -12,6 +12,28 @@ const searchQuerySchema = v.object({
     page: v.optional(v.pipe(v.string(), v.toNumber(), v.integer(), v.minValue(1)), "1"),
 });
 
+defineRouteMeta({
+    openAPI: {
+        tags: ["Articles"],
+        summary: "Search articles, suggesting subjects when nothing matches",
+        parameters: [
+            {
+                name: "query",
+                in: "query",
+                required: true,
+                // `MAX_SEARCH_LENGTH` from `@monorepo/content`, since route meta only takes literals
+                description: "1 to 100 characters, trimmed",
+                schema: { type: "string" },
+            },
+            { name: "page", in: "query", schema: { type: "integer", minimum: 1, default: 1 } },
+        ],
+        responses: {
+            200: { description: "Twenty results per page" },
+            404: { description: "The query is invalid or the page is past the end" },
+        },
+    },
+});
+
 const notFound = (message: string) =>
     createError({ statusCode: 404, statusMessage: "Search not found", message });
 

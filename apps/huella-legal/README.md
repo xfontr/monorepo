@@ -27,6 +27,23 @@ pnpm dev                                    # or from this directory
 Two modules beyond the shared ones are installed here, `@nuxt/fonts` and `@nuxt/image`, and the
 `forms` layer installs `@nuxtjs/turnstile`.
 
+### 📖 API reference
+
+Nitro's experimental OpenAPI support documents every `/api` route, in dev and on every deploy, and
+the developer portal's Projects page links to it from the live deployment.
+
+| Route | What it serves |
+| --- | --- |
+| `/_openapi.json` | The OpenAPI 3.1 spec, with the requesting origin as its server, so a deploy preview documents itself |
+| `/_scalar` | Scalar's reference UI over that spec. Swagger UI is turned off |
+
+A route documents itself with `defineRouteMeta({ openAPI: { … } })` beside its handler. Nitro reads
+that call from the source rather than running it, so its argument must be literals only: an imported
+constant or a template string is dropped without a warning, which is why `search` and `articles`
+repeat `MAX_SEARCH_LENGTH` and `FORMATS` by hand. The `node` test project stubs `defineRouteMeta`
+for every spec. The spec also lists the handlers Nuxt and its modules register, such as `/_ipx` and
+`/api/translations/{locale}`, with no meta, under Nitro's own `Internal` and `API Routes` tags.
+
 ## 🚢 Deployment
 
 The app ships through Netlify's own git integration, with build settings in the Netlify UI and no
