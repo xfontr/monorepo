@@ -34,6 +34,12 @@ decision: accepted
 > issue. The inbox is public and the same in every environment, so `public.submissionEmail` is a
 > literal in `layers/publish/nuxt.config.ts`, kept out of `requiredEnv`, and its variable only
 > overrides it. The submissions row, rows 8 to 10, the owner decisions and the tripwires say so.
+>
+> **Amended 2026-10-28, when #311 built Contacto's route.** It lives in a `layers/contact/` layer,
+> with the Resend client in its `server/adapters/`, since one layer calls it. Resend's API origin, the
+> sender and the inbox (`info@huellalegal.com` for both) are literals in that layer's config, as Kit's
+> origin is, so only `NUXT_MAIL_API_KEY` is required. Rows 3, 6b, 8 and 9, the tripwires and the
+> Confirmation table say so.
 
 ## Context
 
@@ -80,14 +86,14 @@ promotes the markup from; the wiring goes into the promoted components, not into
 | --- | --- | --- |
 | 1 | `apps/huella-legal/layers/newsletter/shared/schemas/subscription.ts`, and one schema per E2 form in its own layer | `subscriptionSchema` for the newsletter; a contact schema and, *form only*, a submission schema for E2. Email is required in all three. For a submission: name, kind (Artículo, TFG or TFM) and summary required, title optional, file extension one of `.docx .doc .pages .rtf` and at most 4 MB, consent `true`. For contact: name, message and consent `true`. Messages are A2 keys |
 | 2 | `apps/huella-legal/layers/newsletter/server/adapters/kit.ts` | Amended 2026-10-27: the adapter, the two calls above with the state check between them, authenticated with `X-Kit-Api-Key`. A `422` from either is a `422` on `email` and logs no part of Kit's `errors`, which may name the address. Anything else is a `502` |
-| 3 | `apps/huella-legal/server/utils/resend.ts` (new) | The adapter: plain-text body, Reply-To and, *form only*, an optional base64 attachment |
+| 3 | `apps/huella-legal/layers/contact/server/adapters/resend.ts` (amended 2026-10-28) | The adapter: plain-text body, Reply-To and, *form only*, an optional base64 attachment |
 | 4 | `apps/huella-legal/layers/forms/` | `assertChallenge` in `server/utils/turnstile.ts`: one call to the module's `verifyTurnstileToken`, reading only its `success` flag, since mapping Cloudflare's error codes would copy a list it owns. A refusal is 403 with the answer as `cause`, and no answer is 502. `app/components/` holds the client half: `FormHoneypot`, the hidden field a form places among its own, and `FormChallenge`, which wraps the form, mounts the widget on its first `focusin` and hands its slot a `challenge` that waits for a token. The layer's `nuxt.config.ts` installs the module and declares its two keys. `assertForm` in `server/utils/assertForm.ts` re-runs a route's schema and returns its output or throws the 422 with the `FormError[]`. Other layers call both as Nitro auto-imports |
 | 5 | `apps/huella-legal/layers/newsletter/server/api/newsletter.post.ts` | JSON body → an early success on a filled honeypot → `assertChallenge` → 1 through `assertForm` → 2. It answers 422 with the `FormError[]`, 403 on a failed challenge, and 502 when the vendor fails |
 | 6 | `apps/huella-legal/server/api/submissions.post.ts` (new, *form only*) | `readMultipartFormData` → honeypot → 4 → 1 → 3, with the same status mapping |
-| 6b | `apps/huella-legal/server/api/contact.post.ts` (new) | JSON body → honeypot → 4 → 1 → 3 with no attachment, with the same status mapping |
+| 6b | `apps/huella-legal/layers/contact/server/api/contact.post.ts` (amended 2026-10-28) | JSON body → honeypot → 4 → 1 → 3 with no attachment, with the same status mapping |
 | 7 | `apps/huella-legal/layers/newsletter/app/composables/useNewsletter.ts`, with `useContact` and, *form only*, `useSubmission` in their own layers | The lab's states as a machine: idle → submitting → success, invalid or error. A 422 becomes invalid, with the server's errors passed to `setErrors`; anything else becomes error. Each sends its form's honeypot value and posts through `FormChallenge`'s `challenge`, which supplies the token |
-| 8 | Each layer's `nuxt.config.ts`, `runtimeConfig` and `requiredEnv` | `newsletter: { baseURL, apiKey, formId }` in `layers/newsletter/`, `baseURL` being Kit's origin as a literal (amended 2026-10-27), `mail: { baseURL, apiKey, from, to }` in each E2 layer that sends mail, and `public.submissionEmail` in Publicar's for the `mailto:` variant, every value `""` and every name listed under `requiredEnv`. Amended 2026-10-27: `public.submissionEmail` is the exception, a literal in `layers/publish/` and not required. `turnstile: { secretKey }` and `public.turnstile: { siteKey }` live in `layers/forms/nuxt.config.ts`, where the empty values also keep out the module's always-pass dev keys |
-| 9 | `apps/huella-legal/.env.example`, `README.md` "🔑 Environment" | One row each: `NUXT_NEWSLETTER_API_KEY`, `NUXT_NEWSLETTER_FORM_ID` (amended 2026-10-27; `NUXT_NEWSLETTER_BASE_URL` is now an optional override), `NUXT_MAIL_BASE_URL`, `NUXT_MAIL_API_KEY`, `NUXT_MAIL_FROM`, `NUXT_MAIL_TO`, `NUXT_TURNSTILE_SECRET_KEY`, `NUXT_PUBLIC_TURNSTILE_SITE_KEY`, and `NUXT_PUBLIC_SUBMISSION_EMAIL` for the `mailto:` variant, an optional override since 2026-10-27 |
+| 8 | Each layer's `nuxt.config.ts`, `runtimeConfig` and `requiredEnv` | `newsletter: { baseURL, apiKey, formId }` in `layers/newsletter/`, `baseURL` being Kit's origin as a literal (amended 2026-10-27), `mail: { baseURL, apiKey, from, to }` in each E2 layer that sends mail (amended 2026-10-28: in `layers/contact/`, every value but `apiKey` a literal), and `public.submissionEmail` in Publicar's for the `mailto:` variant, every value `""` and every name listed under `requiredEnv`. Amended 2026-10-27: `public.submissionEmail` is the exception, a literal in `layers/publish/` and not required. `turnstile: { secretKey }` and `public.turnstile: { siteKey }` live in `layers/forms/nuxt.config.ts`, where the empty values also keep out the module's always-pass dev keys |
+| 9 | `apps/huella-legal/.env.example`, `README.md` "🔑 Environment" | One row each: `NUXT_NEWSLETTER_API_KEY`, `NUXT_NEWSLETTER_FORM_ID` (amended 2026-10-27; `NUXT_NEWSLETTER_BASE_URL` is now an optional override), `NUXT_MAIL_API_KEY`, `NUXT_MAIL_BASE_URL`, `NUXT_MAIL_FROM` and `NUXT_MAIL_TO` (the last three optional overrides since 2026-10-28), `NUXT_TURNSTILE_SECRET_KEY`, `NUXT_PUBLIC_TURNSTILE_SITE_KEY`, and `NUXT_PUBLIC_SUBMISSION_EMAIL` for the `mailto:` variant, an optional override since 2026-10-27 |
 | 10 | `app/pages/lab/publicar.vue:201` `<form>`, `:318` *Archivo*, `:332` `UCheckbox` | `mailto:` variant, built 2026-10-27 as `PublishProposal` in `layers/publish/`: the form block becomes a `mailto:` from `public.submissionEmail`, with the fields as a checklist of what to include, and the file goes as an ordinary attachment. Form variant: E2 wires the B4 form to `useSubmission`, the file help text states the 4 MB cap and the send-it-later fallback, and the first-layer notice sits by the checkbox |
 | 11 | `app/lab/NewsletterBand.vue:28` `<form>`, `:56` notice; `app/pages/lab/category.vue:230` sidebar form | E1 wires every NewsletterForm variant to `useNewsletter`, and the notice names its recipients |
 | 12 | `apps/huella-legal/app/pages/contacto.vue` (new, C6) | The form, built from B4's field patterns and wired to `useContact`. There is no lab design, so parity is checked against Publicar's form |
@@ -152,7 +158,8 @@ Nothing here needs a new package or a `@monorepo/*` change.
   `@nuxtjs/turnstile`, not the repo, so the e2e fakes match their paths on any host. Specs use
   `.test` hosts. Amended 2026-10-27: Kit's API origin is the exception, a literal in the layer's
   config, because it is public and the same for every account. Publicar's editorial inbox is the
-  second, for the same reason.
+  second, for the same reason. Amended 2026-10-28: Resend's origin and Contacto's sender and inbox
+  are the third, in `layers/contact/`.
 - Resend sends only from a domain verified with DNS records, so the owner adds them before the
   first send, and `NUXT_MAIL_FROM` has to be on that domain.
 - Turnstile tokens are single-use and expire after 300 s, so a retry after a failed send must reset
@@ -191,5 +198,5 @@ newsletter leaves Kit (amended 2026-10-27).
 | A bot gets nothing | A spec per route: a filled honeypot answers success and neither adapter is called |
 | Nobody is resubscribed | A `kit.ts` spec, amended 2026-10-27: a `cancelled`, `bounced` or `complained` subscriber never reaches the form call |
 | Contacto sends through the shared pipe | A spec beside `contact.post.ts`: a valid body calls the Resend stub once, with no attachment and Reply-To set to the sender |
-| No endpoint is committed | `git grep -niE "list-manage\|api\.resend\|challenges\.cloudflare" -- apps/huella-legal` finds nothing, and neither does a `git grep` for the live hostname outside the literals the app README's 🔑 section lists |
+| No endpoint is committed | `git grep -niE "list-manage\|api\.resend\|challenges\.cloudflare" -- apps/huella-legal` finds only Resend's origin in `layers/contact/nuxt.config.ts` (amended 2026-10-28), and neither does a `git grep` for the live hostname outside the literals the app README's 🔑 section lists |
 | Every variable is documented | Each `NUXT_` name from 9 appears in both `apps/huella-legal/.env.example` and the README's 🔑 table |

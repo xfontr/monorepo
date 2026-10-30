@@ -37,6 +37,7 @@ const projectLinks: Record<
         deploys?: string;
         environment?: string;
         website?: () => string | undefined;
+        apiDocs?: string;
     }
 > = {
     "@monorepo/ui": { storybook: embedUrl("/storybook/") },
@@ -44,6 +45,7 @@ const projectLinks: Record<
         storybook: embedUrl("/huella-legal-storybook/"),
         deploys: `${repoUrl}/actions/workflows/netlify-deployment.yml`,
         environment: "huella-legal",
+        apiDocs: "/_scalar",
     },
     "@monorepo/developer-portal": {
         deploys: `${repoUrl}/actions/workflows/developer-portal-deploy.yml`,
@@ -107,6 +109,13 @@ const websiteFor = (project: ProjectNode): string | undefined => {
     if (links?.environment) return deploymentUrlFor(deploymentsFor(project), links.environment);
 
     return links?.website?.();
+};
+
+const apiDocsFor = (project: ProjectNode): string | undefined => {
+    const path = projectLinks[project.name]?.apiDocs;
+    const website = websiteFor(project);
+
+    return path && website ? new URL(path, website).href : undefined;
 };
 </script>
 
@@ -199,6 +208,14 @@ const websiteFor = (project: ProjectNode): string | undefined => {
                                     icon="i-lucide-book-open"
                                     size="xs"
                                     variant="soft"
+                                />
+                                <UButton
+                                    v-if="apiDocsFor(project)"
+                                    :to="apiDocsFor(project)"
+                                    label="API"
+                                    icon="i-lucide-braces"
+                                    size="xs"
+                                    target="_blank"
                                 />
                                 <UButton
                                     v-if="storybookFor(project)"

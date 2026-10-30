@@ -3,6 +3,13 @@ import { toSubjectIndex } from "../mappers/subjectIndex";
 import { getArticleIndex } from "../services/articleIndex";
 import { getCategories } from "../services/categories";
 
+defineRouteMeta({
+    openAPI: {
+        tags: ["Articles"],
+        summary: "List every subject with its description and article count",
+    },
+});
+
 // The index's terms carry no description, so the categories are read once more for theirs
 export default defineEventHandler(async (event): Promise<SubjectIndex> => {
     const [index, categories] = await Promise.all([getArticleIndex(event), getCategories(event)]);

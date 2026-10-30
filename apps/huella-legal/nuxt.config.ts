@@ -138,6 +138,21 @@ export default defineNuxtConfig({
     nitro: {
         compressPublicAssets: {
             brotli: true,
-        }
+        },
+
+        experimental: {
+            openAPI: true,
+        },
+
+        openAPI: {
+            production: "runtime",
+            meta: {
+                title: "Huella Legal API",
+                description: "The BFF routes the Huella Legal site reads and posts its forms to.",
+            },
+            ui: {
+                swagger: false,
+            },
+        },
     },
 });
