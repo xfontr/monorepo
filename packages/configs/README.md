@@ -78,6 +78,9 @@ Nuxt auto-registers, and the layers' sources count towards coverage. The options
 | `coverageExclude` | Paths kept out of the denominator |
 | `thresholds` | Vitest's coverage thresholds. They only bite on a `--coverage` run |
 
+- **The `node` project stubs the Nitro globals no spec controls**, today only `defineRouteMeta`, in
+  [`stubs.ts`](./src/vitest/setup/stubs.ts). A spec still stubs the ones whose behaviour it asserts
+  on, such as `readBody`.
 - **Coverage is set on the root config**, because Vitest ignores a coverage block on a project.
 - **`@nuxt/test-utils` is resolved from the app, not from here**, so the config half runs the same
   copy the app's specs import from `@nuxt/test-utils/runtime`. The app installs it along with

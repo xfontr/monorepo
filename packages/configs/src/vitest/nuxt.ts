@@ -1,9 +1,11 @@
 import { createRequire } from "node:module";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { defineConfig } from "vitest/config";
 import type { CoverageOptions } from "vitest/node";
 import createNodeConfig from "./node.ts";
+
+const stubs = fileURLToPath(new URL("./setup/stubs.ts", import.meta.url));
 
 export interface NuxtConfigOptions {
     /** The app root, usually `import.meta.dirname`. */
@@ -86,6 +88,7 @@ const createNuxtConfig = async ({
                     test: {
                         ...nodeTest,
                         name: "node",
+                        setupFiles: [nodeTest.setupFiles ?? [], stubs].flat(),
                         include: NODE_DIRS.flatMap((dir) => [
                             `${dir}/**/*.spec.ts`,
                             `layers/*/${dir}/**/*.spec.ts`,
