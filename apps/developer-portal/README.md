@@ -229,7 +229,8 @@ checkout.
 Deployments are the exception because they can change after the static site ships. The browser reads
 GitHub's unauthenticated `deployments` endpoint once, then the newest status for each environment;
 the production URL travels in that status. Today those deployments belong to `huella-legal`, so its
-card carries an **Open site** link and a **Deploys** link to its GitHub Actions workflow. This
+card carries an **Open site** link and a **Deploys** link to its GitHub Actions workflow, plus an
+**API** link to the `/_scalar` reference on that same URL, so it disappears with the site link. This
 portal gets the same pair: its Pages URL is derived from the repository name, and its deploy link opens
 the Pages workflow. Neither is an in-app write action.
 
