@@ -8,6 +8,7 @@ import type { ListingScope } from "../../../shared/types/ListingScope";
 import { FORMATS, toArticleListing } from "../../mappers/articleListing";
 import { toCategory } from "../../mappers/articleSummary";
 import { getArticleIndex } from "../../services/articleIndex";
+import { withCommentCounts } from "../../services/commentCounts";
 
 const listingQuerySchema = v.object({
     page: v.optional(v.pipe(v.string(), v.toNumber(), v.integer(), v.minValue(1)), "1"),
@@ -94,7 +95,7 @@ const toScope = async (
 
 export default defineEventHandler(async (event): Promise<ArticleListing> => {
     const query = parseListingQuery(event);
-    const index = await getArticleIndex(event);
+    const index = await withCommentCounts(event, await getArticleIndex(event));
     const listing = toArticleListing(index, query, await toScope(event, query, index));
 
     if (query.page > listing.totalPages)

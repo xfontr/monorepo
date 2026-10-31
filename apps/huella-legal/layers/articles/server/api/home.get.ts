@@ -1,6 +1,7 @@
 import type { Home } from "../../shared/types/Home";
 import { toHome } from "../mappers/home";
 import { getArticleIndex } from "../services/articleIndex";
+import { withCommentCounts } from "../services/commentCounts";
 
 defineRouteMeta({
     openAPI: {
@@ -10,5 +11,5 @@ defineRouteMeta({
 });
 
 export default defineEventHandler(async (event): Promise<Home> =>
-    toHome(await getArticleIndex(event)),
+    toHome(await withCommentCounts(event, await getArticleIndex(event))),
 );

@@ -5,7 +5,8 @@ Every file here is one ESLint concern, exported as a config object that [`node.t
 applies to **every** project the package touches; a rule for one flavour goes in the factory that
 composes it instead — see the [package README](../../../README.md#-what-the-eslint-factories-bundle).
 The exceptions are `constTables.ts` and `propsInterface.ts`, which export selectors for
-[`restrictedSyntax.ts`](./restrictedSyntax.ts) to compose into one config.
+[`restrictedSyntax.ts`](./restrictedSyntax.ts) to compose into one config. `routeMeta.ts` is
+composed by no factory: a project opts in by spreading `eslint.routeMeta` after its factory.
 
 ## 🗂 What's here
 
@@ -28,6 +29,7 @@ The exceptions are `constTables.ts` and `propsInterface.ts`, which export select
 | [`format.ts`](./format.ts) | `format/prettier` with the Prettier options inline: `format` for scripts, `formatVue` for `**/*.vue` (Vue configs only), which also turns off every `vue/*` rule of type `layout` |
 | [`console.ts`](./console.ts) | `noConsole`: `no-console` at `error` for everything but `**/*.spec.ts`, where the Vitest console guard takes over |
 | [`e2eFixture.ts`](./e2eFixture.ts) | `no-restricted-imports` of `test` from `@playwright/test` in `**/e2e/**/*.spec.ts`, so every Playwright spec goes through `@monorepo/configs/playwright/test` and its console guard |
+| [`routeMeta.ts`](./routeMeta.ts) | `monorepo/require-route-meta` under `server/api/` and `server/routes/`, a local rule requiring a top-level `defineRouteMeta` whose `openAPI` object literal has `tags` and `summary`. Opt-in, for a Nitro app with `experimental.openAPI` on |
 | [`vitest.ts`](./vitest.ts) | `@vitest/eslint-plugin`'s `recommended` rules, globals and `typecheck: true`, scoped to `**/*.spec.ts` |
 
 ## 🚫 What doesn't belong here

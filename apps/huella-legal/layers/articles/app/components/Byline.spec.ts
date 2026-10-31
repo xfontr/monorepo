@@ -56,6 +56,26 @@ describe("byline", () => {
         expect(wrapper.text()).toContain('t(byline.readingTime, {"minutes":7})');
     });
 
+    it("links the comment count where it's told to, with the count as the plural", async () => {
+        const wrapper = await mountSuspended(Byline, {
+            props: { authors: [LUIS], comments: { count: 3, to: { hash: "#comentarios" } } },
+            global,
+        });
+
+        const link = wrapper.find('a[href$="#comentarios"]');
+
+        expect(link.text()).toBe('t(byline.comments, {"count":3})');
+    });
+
+    it("prints no comment count at zero", async () => {
+        const wrapper = await mountSuspended(Byline, {
+            props: { authors: [LUIS], comments: { count: 0, to: { hash: "#comentarios" } } },
+            global,
+        });
+
+        expect(wrapper.text()).not.toContain("byline.comments");
+    });
+
     it("hides the avatar stack from assistive tech, since the names follow it", async () => {
         const wrapper = await mountSuspended(Byline, {
             props: { authors: [ANA, LUIS], avatars: true },

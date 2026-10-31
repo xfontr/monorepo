@@ -145,6 +145,7 @@
         "title": "Colaboradores"
     },
     "byline": {
+        "comments": "{count} comentario | {count} comentarios",
         "readingTime": "{minutes} min de lectura"
     },
     "categories": {
@@ -166,6 +167,65 @@
         "copied": "Cita copiada",
         "copy": "Copiar cita",
         "title": "Cómo citar este artículo"
+    },
+    "commentForm": {
+        "cancelReply": "Cancelar",
+        "consent": {
+            "label": "Acepto que Huella Legal guarde mis datos para publicar este comentario",
+            "name": "Consentimiento"
+        },
+        "content": {
+            "label": "Comentario",
+            "name": "Comentario"
+        },
+        "email": {
+            "hint": "No se publica",
+            "label": "Correo electrónico",
+            "name": "Correo electrónico",
+            "placeholder": "nombre{'@'}ejemplo.es"
+        },
+        "error": {
+            "closed": "Este artículo ya no admite comentarios nuevos.",
+            "duplicate": "Ya nos habías enviado este mismo comentario, y está pendiente de revisión.",
+            "flood": "Has enviado varios comentarios seguidos. Espera un minuto y vuelve a intentarlo.",
+            "title": "No hemos podido enviar tu comentario",
+            "unavailable": "El problema es nuestro: todo lo que has escrito sigue aquí. Inténtalo de nuevo en unos minutos."
+        },
+        "errors": {
+            "invalid": "Revisa la dirección: por ejemplo, nombre{'@'}ejemplo.es",
+            "long": "Es demasiado largo",
+            "required": "Es obligatorio"
+        },
+        "name": {
+            "hint": "Se publica",
+            "label": "Nombre",
+            "name": "Nombre"
+        },
+        "notice": "La redacción revisa cada comentario antes de publicarlo. Huella Legal trata tus datos con tu consentimiento, solo para gestionar tu comentario. Los reciben Netlify, que aloja la web, Cloudflare y Akismet, que la protegen del spam, y WordPress, donde se guardan. Puedes acceder a ellos, rectificarlos o pedir que los borremos escribiéndonos. Lo demás está en la {privacy}.",
+        "privacy": "política de privacidad",
+        "replyingTo": "Respondes a {author}",
+        "submit": "Enviar comentario",
+        "success": {
+            "description": "Lo publicaremos en cuanto la redacción lo revise.",
+            "title": "Comentario enviado"
+        }
+    },
+    "commentItem": {
+        "anonymous": "Anónimo",
+        "reply": "Responder",
+        "replyLabel": "Responder a {author}",
+        "replyTo": "En respuesta a {author}"
+    },
+    "commentsSection": {
+        "closed": "Este artículo ya no admite comentarios nuevos.",
+        "empty": "Todavía no hay comentarios. Abre tú la conversación.",
+        "formTitle": "Deja un comentario",
+        "sort": {
+            "label": "Ordenar comentarios",
+            "newest": "Más recientes",
+            "oldest": "Más antiguos"
+        },
+        "title": "Comentarios | {count} comentario | {count} comentarios"
     },
     "common": {
         "loading": "Cargando…"

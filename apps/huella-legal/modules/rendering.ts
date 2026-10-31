@@ -11,6 +11,7 @@ import { readAllPages } from "../layers/articles/server/utils/readAllPages";
 type RouteRule = Parameters<typeof extendRouteRules>[1];
 
 const ONE_DAY = 60 * 60 * 24;
+const TEN_MINUTES = 60 * 10;
 
 const varyOn = (...keys: string[]): RouteRule => ({
     isr: ONE_DAY,
@@ -35,6 +36,7 @@ const ROUTE_RULES: Record<string, RouteRule> = {
     "/api/**": { isr: false },
     "/api/articles": varyOn("page", "sort", "format", "category", "tag", "author"),
     "/api/articles/**": { isr: ONE_DAY },
+    "/api/articles/*/comments": { isr: TEN_MINUTES },
     "/api/pages/**": { isr: ONE_DAY },
     "/api/authors": { isr: ONE_DAY },
     "/api/subjects": { isr: ONE_DAY },

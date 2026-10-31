@@ -3,6 +3,7 @@ import type { BreadcrumbItem } from "@nuxt/ui";
 
 interface Props {
     article: Article;
+    commentCount?: number;
 }
 
 const props = defineProps<Props>();
@@ -26,6 +27,10 @@ const breadcrumb = computed<BreadcrumbItem[]>(() => {
 
 const formatLabel = computed<string>(() =>
     t(`article.formats.${FORMAT_KEYS[props.article.format]}`),
+);
+
+const comments = computed(() =>
+    props.commentCount ? { count: props.commentCount, to: { hash: "#comentarios" } } : undefined,
 );
 
 const bylineAuthors = computed(() =>
@@ -65,6 +70,7 @@ const bylineAuthors = computed(() =>
                 :authors="bylineAuthors"
                 :published-at="article.publishedAt"
                 :reading-minutes="article.readingMinutes"
+                :comments
                 avatars
             />
             <ArticleShareBar

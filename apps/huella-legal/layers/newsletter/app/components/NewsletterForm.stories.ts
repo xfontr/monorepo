@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/vue3-vite";
 import { expect, mocked } from "storybook/test";
 
-import { newsletterIn, type NewsletterStatus } from "../composables/__mocks__/useNewsletter";
+import type { FormPostStatus } from "#layers/forms/app/composables/useFormPost";
+import { newsletterIn } from "../composables/__mocks__/useNewsletter";
 import { useNewsletter } from "../composables/useNewsletter";
 import NewsletterForm from "./NewsletterForm.vue";
 
@@ -13,7 +14,7 @@ export default meta;
 
 type Story = StoryObj<typeof NewsletterForm>;
 
-const holding = (status: NewsletterStatus): Story => ({
+const holding = (status: FormPostStatus): Story => ({
     beforeEach: () => {
         mocked(useNewsletter).mockImplementation(() => newsletterIn(status));
     },

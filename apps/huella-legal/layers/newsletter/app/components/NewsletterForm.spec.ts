@@ -3,7 +3,7 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, ref } from "vue";
-import type { NewsletterStatus } from "../composables/useNewsletter";
+import type { FormPostStatus } from "#layers/forms/app/composables/useFormPost";
 import NewsletterForm from "./NewsletterForm.vue";
 
 const MESSAGES = {
@@ -26,9 +26,9 @@ const MESSAGES = {
 };
 
 const newsletter = vi.hoisted(() => ({
-    status: undefined as unknown as import("vue").Ref<NewsletterStatus>,
+    status: undefined as unknown as import("vue").Ref<FormPostStatus>,
     errors: undefined as unknown as import("vue").Ref<FormError[]>,
-    subscribe: vi.fn(),
+    send: vi.fn(),
 }));
 
 const challenge = vi.hoisted(() => vi.fn());
@@ -68,7 +68,7 @@ describe("newsletter form", () => {
 
         await submit(wrapper, " lucia@ejemplo.es ");
 
-        expect(newsletter.subscribe).toHaveBeenCalledWith(
+        expect(newsletter.send).toHaveBeenCalledWith(
             { email: "lucia@ejemplo.es", website: "" },
             challenge,
         );
@@ -80,7 +80,7 @@ describe("newsletter form", () => {
         await wrapper.find("form input[name=sitio]").setValue("https://spam.test");
         await submit(wrapper, "lucia@ejemplo.es");
 
-        expect(newsletter.subscribe).toHaveBeenCalledWith(
+        expect(newsletter.send).toHaveBeenCalledWith(
             { email: "lucia@ejemplo.es", website: "https://spam.test" },
             challenge,
         );
@@ -95,7 +95,7 @@ describe("newsletter form", () => {
 
         await submit(wrapper, email);
 
-        expect(newsletter.subscribe).not.toHaveBeenCalled();
+        expect(newsletter.send).not.toHaveBeenCalled();
         expect(wrapper.find("[data-slot=error]").text()).toBe(message);
     });
 
@@ -118,7 +118,7 @@ describe("newsletter form", () => {
         ["invalid", "invalid address"],
         ["rejected", "rejected address"],
     ])("words the server's %s code on the input, so it is read with it", async (code, message) => {
-        newsletter.subscribe.mockImplementation(() => {
+        newsletter.send.mockImplementation(() => {
             newsletter.status.value = "invalid";
             newsletter.errors.value = [{ name: "email", message: code }];
         });

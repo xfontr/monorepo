@@ -18,6 +18,10 @@ vi.stubGlobal("createError", (input: { statusCode?: number }) =>
 );
 vi.stubGlobal("useContent", () => ({ listEntries: nitro.listEntries }));
 
+vi.mock("../services/commentCounts", () => ({
+    withCommentCounts: (_event: unknown, summaries: unknown) => Promise.resolve(summaries),
+}));
+
 vi.mock("../services/articleIndex", () => ({
     getArticleIndex: () => Promise.resolve(nitro.index),
 }));

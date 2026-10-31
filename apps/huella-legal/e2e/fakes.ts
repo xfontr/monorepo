@@ -9,6 +9,7 @@ import {
     type WordpressContent,
 } from "@monorepo/content/testing";
 import type { Locale, TranslationMap } from "@monorepo/i18n";
+import type { WordpressComment } from "./vendors.ts";
 
 const LOCALES = new URL(
     "../../../infrastructure/translations/projects/huella-legal/",
@@ -169,3 +170,27 @@ export const TRANSLATIONS = { "es-ES": locale("es-ES") } as const satisfies Reco
     Locale,
     TranslationMap
 >;
+
+// Last, so their faker calls never shift the seeded values above
+export const COMMENTER = faker.person.fullName();
+
+export const REPLIER = faker.person.fullName();
+
+export const COMMENTS: WordpressComment[] = [
+    {
+        id: 1,
+        post: Number(ARTICLE.id),
+        parent: 0,
+        author_name: COMMENTER,
+        date_gmt: "2026-02-01T10:00:00",
+        content: { rendered: `<p>${faker.lorem.sentence()}</p>\n` },
+    },
+    {
+        id: 2,
+        post: Number(ARTICLE.id),
+        parent: 1,
+        author_name: REPLIER,
+        date_gmt: "2026-02-02T10:00:00",
+        content: { rendered: `<p>${faker.lorem.sentence()}</p>\n` },
+    },
+];
