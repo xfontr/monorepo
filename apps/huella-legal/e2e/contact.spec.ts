@@ -121,9 +121,11 @@ test.describe("a refused send", () => {
 
         const alert = page.getByRole("alert");
 
-        await send(page, () => expect(alert).toBeVisible({ timeout: 2000 }));
+        // The summary of an empty, pre-hydration submit is an alert too, so only the text settles it
+        await send(page, () =>
+            expect(alert).toContainText("No hemos podido enviar tu mensaje", { timeout: 2000 }),
+        );
 
-        await expect(alert).toContainText("No hemos podido enviar tu mensaje");
         await expect(page.getByRole("textbox", { name: "Mensaje" })).toHaveValue(
             "Una pregunta sobre un artículo.",
         );
