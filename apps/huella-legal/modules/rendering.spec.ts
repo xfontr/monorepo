@@ -83,6 +83,14 @@ describe("the rendering module", () => {
         });
     });
 
+    it("caches an article's comments for minutes, not the day the rest of its routes get", () => {
+        install();
+
+        expect(kit.extendRouteRules).toHaveBeenCalledWith("/api/articles/*/comments", {
+            isr: 600,
+        });
+    });
+
     // CI and e2e serve the built output with the vendors faked, and a file would shadow the fakes
     it("prerenders nothing outside a Netlify build", () => {
         vi.stubEnv("CONTEXT", "");
