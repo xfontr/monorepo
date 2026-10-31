@@ -45,7 +45,13 @@ const ROUTE_RULES: Record<string, RouteRule> = {
 };
 
 // Each one reads nothing from the query string, which a static file can't vary on
-const STATIC_ROUTES = ["/areas/", "/colaboradores/", "/calculo-intereses/", "/publicar/"];
+const STATIC_ROUTES = [
+    "/areas/",
+    "/colaboradores/",
+    "/calculo-intereses/",
+    "/contacto/",
+    "/publicar/",
+];
 
 const listPostSlugs = async (vendor: VendorConfig): Promise<string[]> => {
     const provider = await createProvider(vendor, new OfetchHttpClient(ofetch));

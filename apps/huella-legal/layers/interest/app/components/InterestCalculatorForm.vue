@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { FormErrorEvent, FormSubmitEvent } from "@nuxt/ui";
+import type { FormSubmitEvent } from "@nuxt/ui";
+import { useErrorSummary } from "#layers/forms/app/composables/useErrorSummary";
 import { type InterestForm, interestFormSchema } from "../schemas/interestForm";
 import type { InterestInput } from "../types/InterestInput";
 import type { InterestRate } from "../types/InterestRate";
@@ -26,7 +27,7 @@ const state = reactive<FormState>({
     to: "",
 });
 
-const errors = ref<{ id: string; label: string; message: string }[]>([]);
+const { errors, list } = useErrorSummary((field) => t(`interestCalculator.${field}.label`));
 
 const rates = computed(() => {
     const percent = new Intl.NumberFormat(locale.value, { maximumFractionDigits: 4 });
@@ -42,14 +43,8 @@ const rates = computed(() => {
     ];
 });
 
-const onError = (event: FormErrorEvent) => {
-    errors.value = event.errors.flatMap(({ id, name, message }) =>
-        id && name ? [{ id, label: t(`interestCalculator.${name}.label`), message }] : [],
-    );
-};
-
 const onSubmit = ({ data }: FormSubmitEvent<InterestForm>) => {
-    errors.value = [];
+    list([]);
     emit("submit", {
         principal: data.principal,
         ratePercent: data.rate === "custom" ? data.customPercent : INTEREST_RATES[data.rate],
@@ -68,7 +63,7 @@ watch(state, () => emit("edit"), { deep: true });
         novalidate
         class="flex flex-col gap-6"
         @submit="onSubmit"
-        @error="onError"
+        @error="list($event.errors)"
     >
         <FormErrorSummary :errors />
         <UFormField

@@ -1,12 +1,8 @@
 <script setup lang="ts">
-interface FieldError {
-    id: string;
-    label: string;
-    message: string;
-}
+import type { FieldError } from "../types/FieldError";
 
 interface Props {
-    errors: FieldError[];
+    errors: readonly FieldError[];
 }
 
 defineProps<Props>();

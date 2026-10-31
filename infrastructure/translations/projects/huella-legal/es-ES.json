@@ -166,6 +166,46 @@
     "common": {
         "loading": "Cargando…"
     },
+    "contact": {
+        "breadcrumb": "Contacto",
+        "kicker": "Contacto",
+        "lead": "¿Una duda sobre un artículo, una corrección o una idea para la revista? Escríbenos y te responderemos en tu correo.",
+        "title": "Escribe a la redacción"
+    },
+    "contactForm": {
+        "consent": {
+            "label": "Acepto que Huella Legal use mis datos para responder a este mensaje",
+            "name": "Consentimiento"
+        },
+        "email": {
+            "label": "Correo electrónico",
+            "name": "Correo electrónico",
+            "placeholder": "nombre{'@'}ejemplo.es"
+        },
+        "error": {
+            "description": "El problema es nuestro: todo lo que has escrito sigue aquí. Inténtalo de nuevo en unos minutos.",
+            "title": "No hemos podido enviar tu mensaje"
+        },
+        "errors": {
+            "invalid": "Revisa la dirección: por ejemplo, nombre{'@'}ejemplo.es",
+            "required": "Es obligatorio"
+        },
+        "message": {
+            "label": "Mensaje",
+            "name": "Mensaje"
+        },
+        "name": {
+            "label": "Nombre y apellidos",
+            "name": "Nombre"
+        },
+        "notice": "Huella Legal trata tus datos con tu consentimiento, solo para responder a tu mensaje. Los reciben Netlify, que aloja la web, Cloudflare, que la protege del spam, y Resend, que nos entrega el correo. Puedes acceder a ellos, rectificarlos o pedir que los borremos escribiéndonos. Lo demás está en la {privacy}.",
+        "privacy": "política de privacidad",
+        "submit": "Enviar mensaje",
+        "success": {
+            "description": "Te responderemos en el correo que nos has dejado.",
+            "title": "Mensaje enviado"
+        }
+    },
     "directoryCard": {
         "count": "{count} publicación | {count} publicaciones"
     },

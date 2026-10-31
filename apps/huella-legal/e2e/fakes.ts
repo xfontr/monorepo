@@ -144,12 +144,10 @@ export const PAGE = fakeEntry({
     },
 });
 
-// The shell links both, and Nuxt prefetches a linked page's payload, so each has to resolve
-const SHELL_PAGES = ["sobre", "contacto"].map((slug) =>
-    fakeEntry({ slug, terms: [], authors: [] }),
-);
+// The shell links it, and Nuxt prefetches a linked page's payload, so it has to resolve
+const ABOUT = fakeEntry({ slug: "sobre", terms: [], authors: [] });
 
-export const PAGES: Entry[] = [LEGAL, PAGE, ...SHELL_PAGES];
+export const PAGES: Entry[] = [LEGAL, PAGE, ABOUT];
 
 // Every term a post links to, since a prefetched payload that 404s logs to the console
 const termsOf = (resource: TermResource): Term[] => [
