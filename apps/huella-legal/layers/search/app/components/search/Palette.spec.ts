@@ -3,7 +3,6 @@ import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ref } from "vue";
-import { normalizeText } from "~/utils/normalizeText";
 import SearchPalette from "./Palette.vue";
 
 const article = (id: string): ArticleSummary => ({

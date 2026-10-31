@@ -1,4 +1,4 @@
-import type { TermResource } from "@monorepo/content";
+import { MAX_SEARCH_LENGTH, type TermResource } from "@monorepo/content";
 import type { H3Event } from "h3";
 import * as v from "valibot";
 import type { ArticleListing } from "../../../shared/types/ArticleListing";
@@ -16,12 +16,13 @@ const listingQuerySchema = v.object({
     category: v.optional(v.string()),
     tag: v.optional(v.string()),
     author: v.optional(v.string()),
+    query: v.optional(v.pipe(v.string(), v.trim(), v.maxLength(MAX_SEARCH_LENGTH))),
 });
 
 defineRouteMeta({
     openAPI: {
         tags: ["Articles"],
-        summary: "List articles, optionally scoped to one subject, tag or author",
+        summary: "List articles, optionally scoped to one subject, tag or author, or searched",
         parameters: [
             { name: "page", in: "query", schema: { type: "integer", minimum: 1, default: 1 } },
             {
@@ -38,6 +39,14 @@ defineRouteMeta({
             { name: "category", in: "query", schema: { type: "string" } },
             { name: "tag", in: "query", schema: { type: "string" } },
             { name: "author", in: "query", schema: { type: "string" } },
+            {
+                name: "query",
+                in: "query",
+                // `MAX_SEARCH_LENGTH` from `@monorepo/content`, since route meta only takes literals
+                description:
+                    "Up to 100 characters, trimmed; matches every word, ignoring accents and case",
+                schema: { type: "string" },
+            },
         ],
         responses: {
             200: { description: "One page of article summaries, with its scope" },

@@ -14,3 +14,7 @@ type Story = StoryObj<typeof SearchForm>;
 export const Empty: Story = {};
 
 export const Filled: Story = { args: { modelValue: "culpabilidad" } };
+
+export const Labelled: Story = {
+    args: { label: "Buscar en el archivo", placeholder: "Título, autor o tema" },
+};

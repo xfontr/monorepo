@@ -7,4 +7,5 @@ export interface ListingQuery {
     category?: string;
     tag?: string;
     author?: string;
+    query?: string;
 }

@@ -9,6 +9,7 @@ interface Props {
     heading?: string;
     pending?: boolean;
     emptySubject?: string;
+    query?: string;
 }
 
 withDefaults(defineProps<Props>(), {
@@ -64,6 +65,7 @@ const headingId = useId();
             class="transition-opacity"
             :class="pending && 'opacity-55'"
         />
+        <ListingNoResults v-else-if="query" :query class="mt-6" />
         <ListingEmptyState
             v-else-if="emptySubject"
             :subject="emptySubject"

@@ -89,4 +89,15 @@ describe("archive results", () => {
 
         expect(wrapper.text()).not.toContain("emptyState");
     });
+
+    it("says nothing matched the query instead of showing an empty list", async () => {
+        const wrapper = await mountSuspended(ArchiveResults, {
+            props: { ...props, listing: EMPTY, query: "kardashov", emptySubject: "Derecho civil" },
+            global,
+        });
+
+        expect(wrapper.find("ol").exists()).toBe(false);
+        expect(wrapper.text()).toContain('t(noResults.title, {"query":"kardashov"})');
+        expect(wrapper.text()).not.toContain("emptyState");
+    });
 });

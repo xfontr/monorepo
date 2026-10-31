@@ -65,6 +65,10 @@
         "count": "{count} publicación | {count} publicaciones",
         "formats": "Formato"
     },
+    "archiveSearch": {
+        "label": "Buscar en el archivo",
+        "placeholder": "Título, autor o tema"
+    },
     "archiveSubjects": {
         "all": "Todo el archivo",
         "count": "{count} publicación | {count} publicaciones",

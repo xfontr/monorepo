@@ -1,3 +1,4 @@
+import { MAX_SEARCH_LENGTH } from "@monorepo/content";
 import { fakeAuthor, fakeEntry, fakeTerm } from "@monorepo/content/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ArticleListing } from "../../../shared/types/ArticleListing";
@@ -58,10 +59,18 @@ describe("GET /api/articles", () => {
         [{ sort: "popular" }],
         [{ format: "podcast" }],
         [{ sort: ["newest", "oldest"] }],
+        [{ query: "a".repeat(MAX_SEARCH_LENGTH + 1) }],
+        [{ query: ["culpa", "dolo"] }],
     ])("answers %j with a 404 instead of quietly answering another listing", async (query) => {
         nitro.query = query;
 
         await expect(handler({})).rejects.toMatchObject({ statusCode: 404 });
+    });
+
+    it("answers a query of only spaces with the whole archive, so an empty submit is no 404", async () => {
+        nitro.query = { query: "   " };
+
+        await expect(handler({})).resolves.toMatchObject({ total: 22 });
     });
 
     // h3 mangles anything else in a status message and logs a warning for every such request
