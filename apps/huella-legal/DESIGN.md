@@ -151,7 +151,7 @@ and long-string wrapping before it reaches a gate.
 | Production components | Rebuild the approved lab pages as components in `app/components/` wired to `@monorepo/content` (issues #28–#35), replace the scoped CSS in `app/pages/articles/*`, then delete `app/pages/lab/`, `app/lab/` and the `$production` hook |
 | Copy in i18n | Lab copy is hard-coded Spanish; production copy goes in [`es-ES.json`](../../infrastructure/translations/projects/huella-legal/es-ES.json), keyed per the [README's convention](./README.md#-copy-keys). The site is `es-ES` only |
 | Interest calculator | A tool, not editorial design; it keeps the current page until it gets its own design pass |
-| Comments | Built from Nuxt UI parts without a lab pass, in the back matter's style; every comment is held for moderation ([0034](../../docs/decisions/0034-huella-legal-comments.md)) |
+| Comments | Built from Nuxt UI parts without a lab pass, in the back matter's style; every comment is held for moderation |
 | Mid-article newsletter | The current site interrupts articles with repeated sign-up blocks; the redesign keeps one band after the article. Add an inline block only if sign-ups drop |
 | Contributor copy | Roles, bios, counts and years in [`app/lab/fixtures.ts`](./app/lab/fixtures.ts) are placeholders on real names; only Raquel Crespo Ruiz's credentials come from the live site. Never copy them into production content |
 | WordPress block mapping | `.hl-prose` uses `hl-law`, `hl-note` and `hl-num` for quoted legislation, editor notes and section numerals; production maps them to Gutenberg block classes or custom blocks |

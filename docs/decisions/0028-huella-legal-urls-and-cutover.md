@@ -117,7 +117,7 @@ the new host, and browsers cache it. Step 4 bypasses Settings → General, becau
 login form posts to `www`, which is Netlify. Step 5 comes last: before step 4 it loops.
 
 Akismet stays active through all of it: reader comments still pass through WordPress, so it is the
-one piece of WordPress's spam wiring the cutover keeps ([0034](./0034-huella-legal-comments.md)).
+one piece of WordPress's spam wiring the cutover keeps.
 
 **Tripwires:**
 - Nitro defaults a `routeRules` redirect to 307, and the Netlify preset writes 307 into
