@@ -23,7 +23,11 @@ export const contactSchema = (message: (issue: ContactIssue) => string) =>
                 v.email(() => message("invalid")),
             ),
             message: text(message),
-            consent: v.literal(true, () => message("required")),
+            // A boolean that must be true, not `literal(true)`, so a checkbox's state fits the input
+            consent: v.pipe(
+                v.boolean(() => message("required")),
+                v.value(true, () => message("required")),
+            ),
         }),
         { abortPipeEarly: true },
     );

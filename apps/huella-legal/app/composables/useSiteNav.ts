@@ -8,7 +8,7 @@ interface Link {
 
 export const DESTINATIONS = {
     newsletter: { name: "index", hash: "#newsletter" },
-    contact: { name: "article", params: { slug: "contacto" } },
+    contact: { name: "contact" },
     legal: { name: "article", params: { slug: "aviso-legal" } },
     privacy: { name: "article", params: { slug: "aviso-legal" }, hash: "#privacidad" },
 } as const satisfies Record<string, RouteLocationRaw>;

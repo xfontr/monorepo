@@ -13,6 +13,7 @@ const routes = [
     { name: "index", path: "/" },
     { name: "publications", path: "/publicaciones/" },
     { name: "publish", path: "/publicar/" },
+    { name: "contact", path: "/contacto/" },
     { name: "search", path: "/buscar/" },
     { name: "authors", path: "/colaboradores/" },
     { name: "categories", path: "/areas/" },
@@ -24,6 +25,7 @@ const routes = [
 // Swapped for its `__mocks__` copy, so a story's form never posts; Storybook restores the copy's
 // idle default before each story
 sb.mock("../layers/newsletter/app/composables/useNewsletter.ts");
+sb.mock("../layers/contact/app/composables/useContact.ts");
 
 setup((app) => {
     // FormChallenge mounts the module's widget on focus, which would load Cloudflare's script

@@ -114,6 +114,7 @@ describe("the rendering module", () => {
                 "/aviso-legal/",
                 "/calculo-intereses/",
                 "/colaboradores/",
+                "/contacto/",
                 "/publicar/",
                 ...POSTS.map(({ slug }) => `/${slug}/`),
             ].sort(),
