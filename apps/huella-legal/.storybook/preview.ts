@@ -26,6 +26,7 @@ const routes = [
 // idle default before each story
 sb.mock("../layers/newsletter/app/composables/useNewsletter.ts");
 sb.mock("../layers/contact/app/composables/useContact.ts");
+sb.mock("../layers/comments/app/composables/usePostComment.ts");
 
 setup((app) => {
     // FormChallenge mounts the module's widget on focus, which would load Cloudflare's script
