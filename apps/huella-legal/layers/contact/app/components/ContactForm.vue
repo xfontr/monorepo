@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { useErrorSummary } from "#layers/forms/app/composables/useErrorSummary";
 import { useFormSubmission } from "#layers/forms/app/composables/useFormSubmission";
-import type { Form, FormErrorWithId } from "@nuxt/ui";
+import type { Form } from "@nuxt/ui";
 import { DESTINATIONS } from "~/composables/useSiteNav";
 import { type Contact, type ContactIssue, contactSchema } from "../../shared/schemas/contact";
 import { useContact } from "../composables/useContact";
@@ -16,26 +15,16 @@ const state = reactive<Contact>({ name: "", email: "", message: "", consent: fal
 
 const form = useTemplateRef<Form<typeof schema>>("form");
 
-const { honeypot, submitting, validateOn, submit, onInvalid } = useFormSubmission(form, {
-    status,
-    errors,
-    send,
-    message: issueMessage,
-});
-
-const { errors: summaryErrors, list: listInSummary } = useErrorSummary((field) =>
-    t(`contactForm.${field}.name`),
+const { honeypot, submitting, validateOn, summaryErrors, submit, onError } = useFormSubmission(
+    form,
+    {
+        status,
+        errors,
+        send,
+        message: issueMessage,
+        label: (field) => t(`contactForm.${field}.name`),
+    },
 );
-
-const onError = (formErrors: readonly FormErrorWithId[]): void => {
-    onInvalid();
-    listInSummary(formErrors);
-};
-
-const onSubmit = async (contact: Contact, challenge: Challenge): Promise<void> => {
-    listInSummary([]);
-    listInSummary(await submit(contact, challenge));
-};
 </script>
 
 <template>
@@ -52,7 +41,7 @@ const onSubmit = async (contact: Contact, challenge: Challenge): Promise<void> =
             :aria-busy="submitting"
             novalidate
             class="flex flex-col gap-6"
-            @submit="onSubmit($event.data, challenge)"
+            @submit="submit($event.data, challenge)"
             @error="onError($event.errors)"
         >
             <FormErrorSummary :errors="summaryErrors" />

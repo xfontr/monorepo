@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { useErrorSummary } from "#layers/forms/app/composables/useErrorSummary";
 import { useFormSubmission } from "#layers/forms/app/composables/useFormSubmission";
-import type { ButtonProps, Form, FormErrorWithId } from "@nuxt/ui";
+import type { ButtonProps, Form } from "@nuxt/ui";
 import { DESTINATIONS } from "~/composables/useSiteNav";
 import {
     type CommentFields,
@@ -43,31 +42,19 @@ const replyActions = computed<ButtonProps[]>(() => [
 const form = useTemplateRef<Form<typeof schema>>("form");
 const content = useTemplateRef<{ textareaRef?: HTMLTextAreaElement | null }>("content");
 
-const { honeypot, submitting, validateOn, submit, onInvalid } = useFormSubmission(form, {
-    status,
-    errors,
-    send,
-    message: issueMessage,
-});
-
-const { errors: summaryErrors, list: listInSummary } = useErrorSummary((field) =>
-    t(`commentForm.${field}.name`),
+const { honeypot, submitting, validateOn, summaryErrors, submit, onError } = useFormSubmission(
+    form,
+    {
+        status,
+        errors,
+        send,
+        message: issueMessage,
+        label: (field) => t(`commentForm.${field}.name`),
+    },
 );
 
-const onError = (formErrors: readonly FormErrorWithId[]): void => {
-    onInvalid();
-    listInSummary(formErrors);
-};
-
-const onSubmit = async (fields: CommentFields, challenge: Challenge): Promise<void> => {
-    listInSummary([]);
-    listInSummary(
-        await submit(
-            { ...fields, post: props.postId, parent: props.replyTo?.id ?? "0" },
-            challenge,
-        ),
-    );
-};
+const onSubmit = (fields: CommentFields, challenge: Challenge): Promise<void> =>
+    submit({ ...fields, post: props.postId, parent: props.replyTo?.id ?? "0" }, challenge);
 
 watch(
     () => props.replyTo,

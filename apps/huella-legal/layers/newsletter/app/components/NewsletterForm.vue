@@ -50,7 +50,7 @@ const TONES = {
 } as const satisfies Record<Tone, ToneRecipe>;
 
 const { t } = useI18n();
-const { status, errors, subscribe } = useNewsletter();
+const { status, errors, send } = useNewsletter();
 
 const issueMessage = (issue: SubscriptionIssue): string =>
     t(`newsletterForm.email.errors.${issue}`);
@@ -60,10 +60,10 @@ const state = reactive<Subscription>({ email: "" });
 
 const form = useTemplateRef<Form<typeof schema>>("form");
 
-const { honeypot, submitting, validateOn, submit, onInvalid } = useFormSubmission(form, {
+const { honeypot, submitting, validateOn, submit, onError } = useFormSubmission(form, {
     status,
     errors,
-    send: subscribe,
+    send,
     message: issueMessage,
 });
 
@@ -86,7 +86,7 @@ const colors = computed<ToneRecipe>(() => TONES[props.tone]);
             novalidate
             :aria-busy="submitting"
             @submit="submit($event.data, challenge)"
-            @error="onInvalid"
+            @error="onError($event.errors)"
         >
             <UFormField
                 name="email"

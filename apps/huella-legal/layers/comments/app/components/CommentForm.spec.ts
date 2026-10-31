@@ -3,7 +3,8 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, ref } from "vue";
-import type { PostCommentFailure, PostCommentStatus } from "../composables/usePostComment";
+import type { FormPostStatus } from "#layers/forms/app/composables/useFormPost";
+import type { PostCommentFailure } from "../composables/usePostComment";
 import CommentForm from "./CommentForm.vue";
 
 const MESSAGES = {
@@ -40,7 +41,7 @@ const REPLY_TO: ReaderComment = {
 };
 
 const comment = vi.hoisted(() => ({
-    status: undefined as unknown as import("vue").Ref<PostCommentStatus>,
+    status: undefined as unknown as import("vue").Ref<FormPostStatus>,
     errors: undefined as unknown as import("vue").Ref<FormError[]>,
     failure: undefined as unknown as import("vue").Ref<PostCommentFailure | undefined>,
     send: vi.fn(),

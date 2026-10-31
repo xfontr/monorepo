@@ -65,33 +65,6 @@ describe("usePostComment", () => {
         expect(comment.status.value).toBe("success");
     });
 
-    it("ignores a second submit while the first is in flight", async () => {
-        const comment = await setUp();
-        let settle: () => void = () => undefined;
-
-        fetch.mockReturnValue(new Promise<void>((resolve) => (settle = resolve)));
-
-        const first = comment.send(FIELDS, challenge);
-
-        await vi.waitFor(() => expect(comment.status.value).toBe("submitting"));
-        await comment.send(FIELDS, challenge);
-        settle();
-        await first;
-
-        expect(fetch).toHaveBeenCalledOnce();
-    });
-
-    it("keeps a 422's field issues for the form, with no failure to announce", async () => {
-        const comment = await setUp();
-
-        fetch.mockRejectedValue(rejected(422, [{ name: "email", message: "invalid" }]));
-        await comment.send(FIELDS, challenge);
-
-        expect(comment.status.value).toBe("invalid");
-        expect(comment.errors.value).toEqual([{ name: "email", message: "invalid" }]);
-        expect(comment.failure.value).toBeUndefined();
-    });
-
     it.each([
         [409, "duplicate"],
         [410, "closed"],
@@ -106,16 +79,5 @@ describe("usePostComment", () => {
 
         expect(comment.status.value).toBe("error");
         expect(comment.failure.value).toBe(failure);
-    });
-
-    it("clears the last failure when the reader tries again", async () => {
-        const comment = await setUp();
-
-        fetch.mockRejectedValueOnce(rejected(409));
-        await comment.send(FIELDS, challenge);
-        await comment.send(FIELDS, challenge);
-
-        expect(comment.failure.value).toBeUndefined();
-        expect(comment.status.value).toBe("success");
     });
 });

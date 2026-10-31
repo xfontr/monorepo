@@ -1,4 +1,5 @@
 import type { FormError, FormErrorWithId, FormInputEvents } from "@nuxt/ui";
+import { useErrorSummary } from "./useErrorSummary";
 
 interface ErrorTarget {
     setErrors(errors: FormError[]): void;
@@ -10,18 +11,19 @@ interface Options<Request extends Pick<FormRequest, "website">, Issue extends st
     errors: Readonly<Ref<readonly { name?: string; message: Issue }[]>>;
     send: (request: Request, challenge: Challenge) => Promise<void>;
     message: (issue: Issue) => string;
+    label?: (field: string) => string;
 }
 
 /**
  * Sends a form's fields with its honeypot through the challenge, puts the server's issues on the
- * fields, and validates on every input once the form has been submitted.
+ * fields and in the error summary, and validates on every input once the form has been submitted.
  */
 export const useFormSubmission = <
     Request extends Pick<FormRequest, "website">,
     Issue extends string,
 >(
     form: Readonly<ShallowRef<ErrorTarget | null>>,
-    { status, errors, send, message }: Options<Request, Issue>,
+    { status, errors, send, message, label = (field) => field }: Options<Request, Issue>,
 ) => {
     const honeypot = ref<string>("");
     const submitted = ref<boolean>(false);
@@ -29,16 +31,19 @@ export const useFormSubmission = <
     const submitting = computed<boolean>(() => status.value === "submitting");
     const validateOn = computed<FormInputEvents[]>(() => (submitted.value ? ["input"] : []));
 
-    const onInvalid = (): void => {
+    const { errors: summaryErrors, list } = useErrorSummary(label);
+
+    const onError = (formErrors: readonly FormErrorWithId[]): void => {
         submitted.value = true;
+        list(formErrors);
     };
 
-    /** Resolves to every error left on the form once the server has answered. */
     const submit = async (
         fields: Omit<Request, "website">,
         challenge: Challenge,
-    ): Promise<FormErrorWithId[]> => {
+    ): Promise<void> => {
         submitted.value = true;
+        list([]);
 
         await send({ ...fields, website: honeypot.value } as Request, challenge);
 
@@ -46,8 +51,8 @@ export const useFormSubmission = <
             errors.value.map(({ name, message: issue }) => ({ name, message: message(issue) })),
         );
 
-        return form.value?.getErrors() ?? [];
+        list(form.value?.getErrors() ?? []);
     };
 
-    return { honeypot, submitting, validateOn, submit, onInvalid };
+    return { honeypot, submitting, validateOn, summaryErrors, submit, onError };
 };

@@ -3,7 +3,7 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, ref } from "vue";
-import type { ContactStatus } from "../composables/useContact";
+import type { FormPostStatus } from "#layers/forms/app/composables/useFormPost";
 import ContactForm from "./ContactForm.vue";
 
 const MESSAGES = {
@@ -29,7 +29,7 @@ const FIELDS = {
 };
 
 const contact = vi.hoisted(() => ({
-    status: undefined as unknown as import("vue").Ref<ContactStatus>,
+    status: undefined as unknown as import("vue").Ref<FormPostStatus>,
     errors: undefined as unknown as import("vue").Ref<FormError[]>,
     send: vi.fn(),
 }));

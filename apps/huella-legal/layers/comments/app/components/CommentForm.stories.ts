@@ -1,11 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/vue3-vite";
 import { expect, mocked } from "storybook/test";
 
-import {
-    postCommentIn,
-    type PostCommentFailure,
-    type PostCommentStatus,
-} from "../composables/__mocks__/usePostComment";
+import type { FormPostStatus } from "#layers/forms/app/composables/useFormPost";
+import { postCommentIn, type PostCommentFailure } from "../composables/__mocks__/usePostComment";
 import { usePostComment } from "../composables/usePostComment";
 import CommentForm from "./CommentForm.vue";
 
@@ -18,7 +15,7 @@ export default meta;
 
 type Story = StoryObj<typeof CommentForm>;
 
-const holding = (status: PostCommentStatus, failure?: PostCommentFailure): Story => ({
+const holding = (status: FormPostStatus, failure?: PostCommentFailure): Story => ({
     beforeEach: () => {
         mocked(usePostComment).mockImplementation(() => postCommentIn(status, failure));
     },
