@@ -124,6 +124,7 @@ describe("the rendering module", () => {
                 "/colaboradores/",
                 "/contacto/",
                 "/publicar/",
+                "/sobre/",
                 ...POSTS.map(({ slug }) => `/${slug}/`),
             ].sort(),
         );
@@ -131,12 +132,12 @@ describe("the rendering module", () => {
 
     // Otherwise a page the override adds renders from the function, and one it drops fails the build
     it("prerenders the pages NUXT_PUBLIC_PAGE_SLUGS lists in place of the layer's", async () => {
-        vi.stubEnv("NUXT_PUBLIC_PAGE_SLUGS", JSON.stringify(["sobre", "contacto"]));
+        vi.stubEnv("NUXT_PUBLIC_PAGE_SLUGS", JSON.stringify(["recursos", "empieza-aqui"]));
 
         const routes = await collectRoutes(install().hooks.get("prerender:routes"));
 
-        expect(routes).toContain("/sobre/");
-        expect(routes).toContain("/contacto/");
+        expect(routes).toContain("/recursos/");
+        expect(routes).toContain("/empieza-aqui/");
         expect(routes).not.toContain("/aviso-legal/");
     });
 
