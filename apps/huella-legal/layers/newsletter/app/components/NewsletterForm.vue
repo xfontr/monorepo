@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { FormInputEvents, FormSubmitEvent } from "@nuxt/ui";
+import { useFormSubmission } from "#layers/forms/app/composables/useFormSubmission";
+import type { Form } from "@nuxt/ui";
 import { DESTINATIONS } from "~/composables/useSiteNav";
 import type { Tone } from "~/types/Tone";
 import {
@@ -51,26 +52,21 @@ const TONES = {
 const { t } = useI18n();
 const { status, errors, subscribe } = useNewsletter();
 
-const word = (issue: SubscriptionIssue): string => t(`newsletterForm.email.errors.${issue}`);
-const schema = subscriptionSchema(word);
+const issueMessage = (issue: SubscriptionIssue): string =>
+    t(`newsletterForm.email.errors.${issue}`);
+const schema = subscriptionSchema(issueMessage);
 
-const state = reactive({ email: "" });
-const website = ref<string>("");
-const attempted = ref<boolean>(false);
+const state = reactive<Subscription>({ email: "" });
 
-const form = useTemplateRef("form");
+const form = useTemplateRef<Form<typeof schema>>("form");
 
-const onSubmit = async ({ data }: FormSubmitEvent<Subscription>, challenge: Challenge) => {
-    attempted.value = true;
-    await subscribe({ email: data.email, website: website.value }, challenge);
+const { honeypot, submitting, validateOn, submit, onInvalid } = useFormSubmission(form, {
+    status,
+    errors,
+    send: subscribe,
+    message: issueMessage,
+});
 
-    form.value?.setErrors(
-        errors.value.map(({ name, message }) => ({ name, message: word(message) })),
-    );
-};
-
-const pending = computed<boolean>(() => status.value === "submitting");
-const validateOn = computed<FormInputEvents[]>(() => (attempted.value ? ["input"] : []));
 const arrangement = computed<LayoutRecipe>(() => LAYOUTS[props.layout]);
 const colors = computed<ToneRecipe>(() => TONES[props.tone]);
 </script>
@@ -85,12 +81,12 @@ const colors = computed<ToneRecipe>(() => TONES[props.tone]);
             :schema
             :state
             :validate-on
-            :disabled="pending"
+            :disabled="submitting"
             class="flex flex-col gap-3"
             novalidate
-            :aria-busy="pending"
-            @submit="onSubmit($event, challenge)"
-            @error="attempted = true"
+            :aria-busy="submitting"
+            @submit="submit($event.data, challenge)"
+            @error="onInvalid"
         >
             <UFormField
                 name="email"
@@ -109,14 +105,14 @@ const colors = computed<ToneRecipe>(() => TONES[props.tone]);
                     <UButton
                         type="submit"
                         :block="arrangement.block"
-                        :loading="pending"
+                        :loading="submitting"
                         :label="$t('newsletterForm.submit')"
                         :color="colors.button"
                         class="shrink-0 justify-center"
                     />
                 </div>
             </UFormField>
-            <FormHoneypot v-model="website" />
+            <FormHoneypot v-model="honeypot" />
             <UAlert
                 v-if="status === 'error'"
                 role="alert"
