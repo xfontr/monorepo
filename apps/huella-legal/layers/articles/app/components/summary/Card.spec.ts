@@ -72,6 +72,25 @@ describe("article card", () => {
         },
     );
 
+    it("links a commented post's count to its thread, above the title's stretched link", async () => {
+        const wrapper = await mount({ article: { ...ARTICLE, commentCount: 4 } });
+
+        const link = wrapper.find('a[href="/la-teoria-juridica-del-delito/#comentarios"]');
+
+        expect(link.text()).toBe("t(byline.comments)");
+    });
+
+    it("prints no count for a post nobody has commented on, nor on the compact card", async () => {
+        const silent = await mount({ article: ARTICLE });
+        const compact = await mount({
+            article: { ...ARTICLE, commentCount: 4 },
+            variant: "compact",
+        });
+
+        expect(silent.text()).not.toContain("byline.comments");
+        expect(compact.text()).not.toContain("byline.comments");
+    });
+
     it("hides the image from assistive tech, since the title beside it already names the article", async () => {
         const wrapper = await mount({ article: WITH_IMAGE, variant: "media" });
 

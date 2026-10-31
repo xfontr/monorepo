@@ -3,10 +3,16 @@ import type { RouteLocationRaw } from "vue-router";
 
 type BylineAuthor = Pick<Author, "id" | "name" | "avatar"> & { to: RouteLocationRaw };
 
+interface BylineComments {
+    count: number;
+    to: RouteLocationRaw;
+}
+
 interface Props {
     authors: BylineAuthor[];
     publishedAt?: string;
     readingMinutes?: number;
+    comments?: BylineComments;
     avatars?: boolean;
 }
 
@@ -60,6 +66,15 @@ const date = computed<string | undefined>(() => props.publishedAt && d(props.pub
                 </li>
                 <li v-if="readingMinutes">
                     {{ $t("byline.readingTime", { minutes: readingMinutes }, readingMinutes) }}
+                </li>
+                <li v-if="comments?.count">
+                    <ULink
+                        :to="comments.to"
+                        raw
+                        class="underline-offset-3 hover:underline focus-visible:rounded-xs"
+                    >
+                        {{ $t("byline.comments", { count: comments.count }, comments.count) }}
+                    </ULink>
                 </li>
             </ul>
         </div>

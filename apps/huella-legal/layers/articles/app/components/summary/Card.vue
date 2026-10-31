@@ -95,6 +95,18 @@ const hasMedia = computed<boolean>(
     () => ui.value.media === "always" || (ui.value.media === "image" && !!props.article.image),
 );
 const authors = computed(() => bylineAuthors(props.article.authors));
+const comments = computed(() =>
+    ui.value.readingTime && props.article.commentCount
+        ? {
+              count: props.article.commentCount,
+              to: {
+                  name: "article" as const,
+                  params: { slug: props.article.slug },
+                  hash: "#comentarios",
+              },
+          }
+        : undefined,
+);
 </script>
 
 <template>
@@ -146,6 +158,7 @@ const authors = computed(() => bylineAuthors(props.article.authors));
                 :authors
                 :published-at="article.publishedAt"
                 :reading-minutes="ui.readingTime ? article.readingMinutes : undefined"
+                :comments
                 class="[&_a]:relative [&_a]:z-10"
                 :class="ui.byline"
             />

@@ -10,6 +10,8 @@ export const useArticle = async () => {
         },
     );
 
+    const { data: comments } = useArticleComments(route.params.slug);
+
     // Keyed apart from the directory's read of the same route, which keeps the whole list
     const { data: authorCounts } = useCachedFetch("/api/authors", {
         key: "author-counts",
@@ -38,5 +40,5 @@ export const useArticle = async () => {
 
     await useFailOnError(request);
 
-    return { article, related, authorCounts };
+    return { article, related, authorCounts, comments };
 };

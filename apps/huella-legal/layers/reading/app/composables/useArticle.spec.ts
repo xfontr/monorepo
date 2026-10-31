@@ -35,7 +35,7 @@ const nuxt = vi.hoisted(() => ({
 mockNuxtImport("useCachedFetch", () => (url: string, options?: Record<string, unknown>) => {
     nuxt.fetches.set(url, options);
 
-    if (url.endsWith("/related") || url === "/api/authors")
+    if (url.endsWith("/related") || url.endsWith("/comments") || url === "/api/authors")
         return { data: ref([]), error: ref(new Error(`${url} failed`)) };
 
     const result = { data: nuxt.article, error: nuxt.error };
@@ -79,14 +79,25 @@ beforeEach(() => {
 });
 
 describe("useArticle", () => {
-    it("reads the article named by the route, its related posts and the author counts", async () => {
+    it("reads the article named by the route, its related posts, its comments and the author counts", async () => {
         await setUp("/la-culpa/");
 
         expect([...nuxt.fetches.keys()].sort()).toEqual([
             "/api/articles/la-culpa",
+            "/api/articles/la-culpa/comments",
             "/api/articles/la-culpa/related",
             "/api/authors",
         ]);
+    });
+
+    // A prerendered article is rebuilt weekly, and a thread baked into it would stay that old
+    it("reads the comments in the browser only, without blocking navigation on them", async () => {
+        await setUp();
+
+        expect(nuxt.fetches.get("/api/articles/la-culpa/comments")).toMatchObject({
+            server: false,
+            lazy: true,
+        });
     });
 
     // Rendered on the server, so crawlers follow the links and the band never shifts the page in
@@ -97,7 +108,7 @@ describe("useArticle", () => {
         expect(nuxt.fetches.get("/api/articles/la-culpa/related")).not.toHaveProperty("server");
     });
 
-    it("still serves the article when the related list or the author counts fail", async () => {
+    it("still serves the article when the related list, the comments or the author counts fail", async () => {
         expect((await setUp()).failure).toBeUndefined();
     });
 

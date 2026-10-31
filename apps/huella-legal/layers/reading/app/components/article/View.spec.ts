@@ -30,17 +30,20 @@ const RELATED: ArticleSummary = {
 const nuxt = vi.hoisted(() => ({
     article: undefined as unknown as Ref<Article | undefined>,
     related: undefined as unknown as Ref<ArticleSummary[]>,
+    comments: undefined as unknown as Ref<ArticleComments | undefined>,
 }));
 
 mockNuxtImport("useArticle", () => async () => ({
     article: nuxt.article,
     related: nuxt.related,
     authorCounts: ref({}),
+    comments: nuxt.comments,
 }));
 
 beforeEach(() => {
     nuxt.article = ref(ARTICLE);
     nuxt.related = ref([RELATED]);
+    nuxt.comments = ref();
 });
 
 describe("article view", () => {
@@ -58,6 +61,14 @@ describe("article view", () => {
         const wrapper = await mountSuspended(ArticleView);
 
         expect(wrapper.find('a[href="/el-dolo/"]').exists()).toBe(false);
+    });
+
+    it("links the header's comment count to the thread once the comments arrive", async () => {
+        nuxt.comments = ref({ open: true, count: 3, threads: [] });
+
+        const wrapper = await mountSuspended(ArticleView);
+
+        expect(wrapper.find('a[href$="#comentarios"]').exists()).toBe(true);
     });
 
     it("renders nothing rather than an empty article while there is no post", async () => {
