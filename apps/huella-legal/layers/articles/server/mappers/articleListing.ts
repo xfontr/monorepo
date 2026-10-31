@@ -4,6 +4,7 @@ import type { Category } from "../../shared/types/Category";
 import type { Facet } from "../../shared/types/Facet";
 import type { ListingQuery } from "../../shared/types/ListingQuery";
 import type { ListingScope } from "../../shared/types/ListingScope";
+import { normalizeText } from "../../shared/utils/normalizeText";
 import { byName, toFacets } from "./facet";
 
 const PER_PAGE = 20;
@@ -32,6 +33,19 @@ const isInScope = (article: ArticleSummary, scope?: ListingScope): boolean => {
     }
 };
 
+const toSearchText = ({ title, excerpt, category, tags, authors }: ArticleSummary): string =>
+    normalizeText(
+        [title, excerpt, category?.name, ...[...tags, ...authors].map(({ name }) => name)].join(
+            " ",
+        ),
+    );
+
+const isMatch = (article: ArticleSummary, words: string[]): boolean => {
+    const text = toSearchText(article);
+
+    return words.every((word) => text.includes(word));
+};
+
 export const toSubjects = (articles: ArticleSummary[]): Facet<Category>[] =>
     toFacets(articles.flatMap(({ category }) => category ?? [])).sort(byName);
 
@@ -46,7 +60,12 @@ export const toArticleListing = (
     query: ListingQuery,
     scope?: ListingScope,
 ): ArticleListing => {
-    const scoped = index.filter((article) => isInScope(article, scope));
+    const words = normalizeText(query.query ?? "")
+        .split(/\s+/)
+        .filter(Boolean);
+    const scoped = index.filter(
+        (article) => isInScope(article, scope) && (!words.length || isMatch(article, words)),
+    );
     const matches = query.format ? scoped.filter(({ format }) => format === query.format) : scoped;
     const sorted = query.sort === "oldest" ? oldestFirst(matches) : matches;
 

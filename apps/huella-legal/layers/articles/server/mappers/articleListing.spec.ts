@@ -106,4 +106,52 @@ describe("toArticleListing", () => {
         ]);
         expect(profile.items).toEqual(theirs);
     });
+
+    it.each<[string, string, Parameters<typeof fakeEntry>[0]]>([
+        ["title", "estafa informatica", { title: "La estafa informática" }],
+        ["excerpt", "COMPRAVENTA", { excerpt: { format: "html", value: "<p>Compraventa</p>" } }],
+        ["subject", "derecho penal", { terms: [PENAL] }],
+        [
+            "tag",
+            "proteccion de datos",
+            { terms: [CIVIL, fakeTerm({ resource: "tags", name: "Protección de datos" })] },
+        ],
+        ["author", "alvaro nunez", { authors: [fakeAuthor({ name: "Álvaro Núñez" })] }],
+    ])(
+        "finds a post by its %s however the query is accented or cased",
+        (_field, search, overrides) => {
+            const [sought] = index(1, overrides);
+
+            const listing = toArticleListing([...index(3), sought!], { ...QUERY, query: search });
+
+            expect(listing.items).toEqual([sought]);
+        },
+    );
+
+    it("matches when every word appears in some field, not only as one phrase", () => {
+        const [both] = index(1, { terms: [PENAL], authors: [fakeAuthor({ name: "Ana Ruiz" })] });
+        const onlyAuthor = index(1, { authors: [fakeAuthor({ name: "Ana Ruiz" })] });
+
+        const listing = toArticleListing([...onlyAuthor, both!], { ...QUERY, query: "ruiz penal" });
+
+        expect(listing.items).toEqual([both]);
+    });
+
+    it("counts the format pills within the search, but keeps every subject in the aside", () => {
+        const sought = index(2, { title: "Culpabilidad", terms: [PENAL, COMMENTS] });
+        const articles = [...index(3), ...sought];
+
+        const listing = toArticleListing(articles, { ...QUERY, query: "culpabilidad" });
+
+        expect(listing.total).toBe(2);
+        expect(listing.formats).toEqual([{ value: "comentario", count: 2 }]);
+        expect(listing.subjects.map(({ value }) => value.name)).toEqual([
+            "Derecho civil",
+            "Derecho penal",
+        ]);
+    });
+
+    it("lists the whole archive for a blank query rather than nothing", () => {
+        expect(toArticleListing(index(3), { ...QUERY, query: "" }).total).toBe(3);
+    });
 });
