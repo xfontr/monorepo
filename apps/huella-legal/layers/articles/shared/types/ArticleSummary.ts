@@ -15,4 +15,5 @@ export interface ArticleSummary {
     tags: Category[];
     format: "articulo" | "comentario" | "tfg-tfm";
     readingMinutes: number;
+    commentCount?: number;
 }

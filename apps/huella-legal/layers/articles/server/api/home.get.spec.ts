@@ -12,6 +12,11 @@ vi.mock("../services/articleIndex", () => ({
     getArticleIndex: () => Promise.resolve(nitro.index),
 }));
 
+vi.mock("../services/commentCounts", () => ({
+    withCommentCounts: (_event: unknown, summaries: ArticleSummary[]) =>
+        Promise.resolve(summaries.map((summary) => ({ ...summary, commentCount: 2 }))),
+}));
+
 const handler = (await import("./home.get")).default as unknown as (
     event: unknown,
 ) => Promise<Home>;
@@ -22,7 +27,15 @@ describe("GET /api/home", () => {
 
         const { lead, latest } = await handler({});
 
-        expect(lead).toEqual(nitro.index[0]);
-        expect(latest).toEqual([nitro.index[1]]);
+        expect(lead?.id).toBe(nitro.index[0]?.id);
+        expect(latest.map(({ id }) => id)).toEqual([nitro.index[1]?.id]);
+    });
+
+    it("puts each card's comment count on the index before choosing from it", async () => {
+        nitro.index = [fakeEntry(), fakeEntry()].map(toArticleSummary);
+
+        const { lead, latest } = await handler({});
+
+        expect([lead, ...latest].map((summary) => summary?.commentCount)).toEqual([2, 2]);
     });
 });

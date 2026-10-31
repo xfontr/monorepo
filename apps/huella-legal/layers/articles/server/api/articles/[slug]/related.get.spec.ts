@@ -16,6 +16,10 @@ vi.stubGlobal("defineEventHandler", (handler: unknown) => handler);
 vi.stubGlobal("getRouterParam", () => "la-culpa");
 vi.stubGlobal("useContent", () => ({ getEntry: nitro.getEntry, listEntries: nitro.listEntries }));
 
+vi.mock("../../../services/commentCounts", () => ({
+    withCommentCounts: (_event: unknown, summaries: unknown) => Promise.resolve(summaries),
+}));
+
 const handler = (await import("./related.get")).default as unknown as (
     event: unknown,
 ) => Promise<ArticleSummary[]>;

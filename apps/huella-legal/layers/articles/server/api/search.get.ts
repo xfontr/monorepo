@@ -4,6 +4,7 @@ import * as v from "valibot";
 import type { ArticleSearch } from "../../shared/types/ArticleSearch";
 import { toArticleSearch, toSuggestedSubjects } from "../mappers/articleSearch";
 import { getArticleIndex } from "../services/articleIndex";
+import { withCommentCounts } from "../services/commentCounts";
 
 const PER_PAGE = 20;
 
@@ -58,7 +59,8 @@ export default defineEventHandler(async (event): Promise<ArticleSearch> => {
             throw isRefused(error) ? notFound(`No page ${page} of results for "${query}"`) : error;
         });
 
-    const search = toArticleSearch(query, results);
+    const found = toArticleSearch(query, results);
+    const search = { ...found, items: await withCommentCounts(event, found.items) };
 
     // WP only refuses a page past the end when something matched
     if (page > search.totalPages) throw notFound(`"page" is past the end for "${query}"`);

@@ -1,5 +1,6 @@
 import type { ArticleSummary } from "../../../../shared/types/ArticleSummary";
 import { toArticleSummary } from "../../../mappers/articleSummary";
+import { withCommentCounts } from "../../../services/commentCounts";
 
 const RELATED = 3;
 
@@ -30,8 +31,11 @@ export default defineEventHandler(async (event): Promise<ArticleSummary[]> => {
         perPage: RELATED + 1,
     });
 
-    return items
-        .filter(({ id }) => id !== entry.id)
-        .slice(0, RELATED)
-        .map(toArticleSummary);
+    return withCommentCounts(
+        event,
+        items
+            .filter(({ id }) => id !== entry.id)
+            .slice(0, RELATED)
+            .map(toArticleSummary),
+    );
 });
