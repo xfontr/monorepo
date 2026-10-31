@@ -30,6 +30,7 @@ composed by no factory: a project opts in by spreading `eslint.routeMeta` after 
 | [`console.ts`](./console.ts) | `noConsole`: `no-console` at `error` for everything but `**/*.spec.ts`, where the Vitest console guard takes over |
 | [`e2eFixture.ts`](./e2eFixture.ts) | `no-restricted-imports` of `test` from `@playwright/test` in `**/e2e/**/*.spec.ts`, so every Playwright spec goes through `@monorepo/configs/playwright/test` and its console guard |
 | [`routeMeta.ts`](./routeMeta.ts) | `monorepo/require-route-meta` under `server/api/` and `server/routes/`, a local rule requiring a top-level `defineRouteMeta` whose `openAPI` object literal has `tags` and `summary`. Opt-in, for a Nitro app with `experimental.openAPI` on |
+| [`tailwind.ts`](./tailwind.ts) | `eslint-plugin-better-tailwindcss`'s `recommended-error` rules under `**/*.vue` and `**/*.ts`, minus `enforce-consistent-line-wrapping`, which fights Prettier. Opt-in: a project with Tailwind spreads `eslint.tailwind(entryPoint)`, naming its CSS entry point |
 | [`vitest.ts`](./vitest.ts) | `@vitest/eslint-plugin`'s `recommended` rules, globals and `typecheck: true`, scoped to `**/*.spec.ts` |
 
 ## 🚫 What doesn't belong here

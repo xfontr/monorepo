@@ -15,6 +15,7 @@ import { useBeforeDefine, useBeforeDefineVue } from "./useBeforeDefine.ts";
 import noConsole from "./console.ts";
 import e2eFixture from "./e2eFixture.ts";
 import routeMeta from "./routeMeta.ts";
+import tailwind from "./tailwind.ts";
 
 const regexp: object = regexpPlugin.configs["flat/recommended"];
 
@@ -38,5 +39,6 @@ export {
     noConsole,
     e2eFixture,
     routeMeta,
+    tailwind,
     regexp,
 };
