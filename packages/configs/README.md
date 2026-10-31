@@ -215,6 +215,11 @@ Node types even in a package that otherwise doesn't.
   as an argument. Only the outermost offending call in an expression is reported. No plugin rule
   covers this, and `vue/no-restricted-syntax` can't express the variable check, so it is a local
   rule under an inline `monorepo` plugin. `apps/huella-legal` turns it off for its `/lab` studies
+- `monorepo/require-route-meta`, from [`lib/routeMeta.ts`](./src/eslint/lib/routeMeta.ts) — in no
+  factory; a project opts in with `[...eslint.createNuxtConfig(), eslint.routeMeta]`. Every file
+  under `server/api/` or `server/routes/` calls `defineRouteMeta` at top level with an `openAPI`
+  object literal holding `tags` and `summary`, since without one the route still appears in
+  Nitro's OpenAPI document, untagged and undescribed. `apps/huella-legal` opts in
 - `vue/v-bind-style` with `sameNameShorthand: "always"`, in [`vue.ts`](./src/eslint/vue.ts) — a binding whose
   name and value match is written `:id`, never `:id="id"`. `--fix` rewrites it
 - `vue/prefer-separate-static-class`, in [`vue.ts`](./src/eslint/vue.ts) — a class that never

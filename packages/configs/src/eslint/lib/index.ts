@@ -14,6 +14,7 @@ import templateCalls from "./templateCalls.ts";
 import { useBeforeDefine, useBeforeDefineVue } from "./useBeforeDefine.ts";
 import noConsole from "./console.ts";
 import e2eFixture from "./e2eFixture.ts";
+import routeMeta from "./routeMeta.ts";
 
 const regexp: object = regexpPlugin.configs["flat/recommended"];
 
@@ -36,5 +37,6 @@ export {
     useBeforeDefineVue,
     noConsole,
     e2eFixture,
+    routeMeta,
     regexp,
 };
