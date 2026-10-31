@@ -39,14 +39,15 @@ const utilDirs = await Array.fromAsync(
 );
 
 const config: StorybookConfig = {
-    framework: "@storybook/vue3-vite",
+    framework: {
+        name: "@storybook/vue3-vite",
+        // No story reads component docs, and docgen ran out of heap on the deploy runner (#330)
+        options: { docgen: false },
+    },
     stories: ["../{app,layers/*/app}/**/*.stories.ts"],
     staticDirs: [{ from: "../public/favicon.ico", to: "/favicon.ico" }],
     core: {
         disableTelemetry: true,
-    },
-    features: {
-        experimentalDocgenServer: true,
     },
     viteFinal: (config) => ({
         ...config,
