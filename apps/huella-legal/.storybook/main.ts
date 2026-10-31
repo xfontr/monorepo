@@ -38,13 +38,25 @@ const utilDirs = await Array.fromAsync(
     (dir) => `${root}${dir}`,
 );
 
+const titlePrefix = (dir: string) => {
+    const layer = /^layers\/([^/]+)/.exec(dir)?.[1];
+    return layer ? layer[0]!.toUpperCase() + layer.slice(1) : "App";
+};
+
 const config: StorybookConfig = {
     framework: {
         name: "@storybook/vue3-vite",
         // No story reads component docs, and docgen ran out of heap on the deploy runner (#330)
         options: { docgen: false },
     },
-    stories: ["../{app,layers/*/app}/**/*.stories.ts"],
+    stories: [
+        ...componentDirs.toSorted().map((dir) => ({
+            directory: `../${dir}`,
+            files: "**/*.stories.ts",
+            titlePrefix: titlePrefix(dir),
+        })),
+        { directory: "../app/lab", files: "**/*.stories.ts", titlePrefix: "Lab" },
+    ],
     staticDirs: [{ from: "../public/favicon.ico", to: "/favicon.ico" }],
     core: {
         disableTelemetry: true,
