@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, NOT_FOUND_DOCUMENT, test } from "@monorepo/configs/playwright/test";
-import { AUTHOR, POSTS, SIBLING, SUBJECT, TAG } from "./fakes.ts";
+import type { Page } from "@playwright/test";
+import { AUTHOR, POSTS, SIBLING, SOUGHT, SUBJECT, TAG } from "./fakes.ts";
 
 const WCAG_AA = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
@@ -96,6 +97,43 @@ test("a format pill narrows the archive and marks itself current", async ({ page
         "aria-current",
         "page",
     );
+});
+
+test.describe("the archive search", () => {
+    const searchbox = (page: Page) => page.getByRole("searchbox", { name: "Buscar en el archivo" });
+    const articles = (page: Page) => page.getByRole("main").getByRole("article");
+
+    // The second post that /buscar/ finds has the word only in its body, which this search skips
+    test("submitting a query narrows the archive and puts it in the URL", async ({ page }) => {
+        await page.goto("/publicaciones/");
+
+        // Hydration empties anything typed before it, so the runner retries
+        await expect(async () => {
+            await searchbox(page).fill(SOUGHT);
+            await searchbox(page).press("Enter");
+            await expect(page).toHaveURL(new RegExp(`/publicaciones/\\?query=${SOUGHT}$`), {
+                timeout: 1000,
+            });
+        }).toPass();
+        await expect(articles(page)).toHaveCount(1);
+        await expect(articles(page).getByRole("heading", { level: 3 })).toContainText(SOUGHT);
+    });
+
+    test("an accented, upper-case query finds the same post", async ({ page }) => {
+        await page.goto("/publicaciones/?query=CULPABIL%C3%8DDAD");
+
+        await expect(searchbox(page)).toHaveValue("CULPABILÍDAD");
+        await expect(articles(page)).toHaveCount(1);
+    });
+
+    test("a query nothing matches says so instead of listing nothing", async ({ page }) => {
+        await page.goto("/publicaciones/?query=kardashov");
+
+        await expect(
+            page.getByRole("heading", { name: "Ningún resultado para «kardashov»" }),
+        ).toBeVisible();
+        await expect(articles(page)).toHaveCount(0);
+    });
 });
 
 test.describe("a 404 listing", () => {

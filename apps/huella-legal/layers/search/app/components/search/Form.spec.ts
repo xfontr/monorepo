@@ -16,6 +16,27 @@ describe("search form", () => {
         expect(wrapper.find("input").attributes("name")).toBe("query");
     });
 
+    it("submits to the action it is given, so a listing can search itself before hydration", async () => {
+        const wrapper = await mountSuspended(SearchForm, {
+            props: { modelValue: "", action: "/publicaciones/" },
+            global,
+        });
+
+        expect(wrapper.find("form").attributes("action")).toBe("/publicaciones/");
+    });
+
+    it("labels the field with the label it is given, since a placeholder alone is no accessible name", async () => {
+        const wrapper = await mountSuspended(SearchForm, {
+            props: { modelValue: "", label: "Buscar en el archivo", placeholder: "Título" },
+            global,
+        });
+
+        expect(wrapper.find("label").text()).toBe("Buscar en el archivo");
+        expect(wrapper.find("label").attributes("for")).toBe(
+            wrapper.find("input").attributes("id"),
+        );
+    });
+
     it("caps the input at the length the route accepts, so the form never asks for a 404", async () => {
         const wrapper = await mountSuspended(SearchForm, { props: { modelValue: "" }, global });
 

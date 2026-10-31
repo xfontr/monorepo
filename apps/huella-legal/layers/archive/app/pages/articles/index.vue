@@ -3,7 +3,8 @@ definePageMeta({ name: "publications", path: "/publicaciones/" });
 
 const { t } = useI18n();
 
-const { listing, status, sort, archiveTotal, formatPills, pageLink } = await useArticleListing();
+const { listing, status, sort, search, archiveTotal, formatPills, pageLink } =
+    await useArticleListing();
 
 const lead = computed<string>(() =>
     t("publications.lead", { subjects: listing.value?.subjects.length ?? 0 }),
@@ -15,12 +16,21 @@ useSeoMeta({ title: () => t("publications.title"), description: lead });
 <template>
     <div v-if="listing">
         <BasePageIntro :breadcrumbs="[{ label: $t('publications.title') }]">
-            <BasePageHeading
-                :kicker="$t('publications.kicker', { count: archiveTotal }, archiveTotal)"
-                :title="$t('publications.title')"
-                :lead
-                class="lg:w-7/12"
-            />
+            <div class="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-12">
+                <BasePageHeading
+                    :kicker="$t('publications.kicker', { count: archiveTotal }, archiveTotal)"
+                    :title="$t('publications.title')"
+                    :lead
+                    class="lg:col-span-7"
+                />
+                <SearchForm
+                    v-model="search"
+                    :action="$router.resolve({ name: 'publications' }).href"
+                    :label="$t('archiveSearch.label')"
+                    :placeholder="$t('archiveSearch.placeholder')"
+                    class="lg:col-span-5"
+                />
+            </div>
         </BasePageIntro>
         <UContainer class="grid grid-cols-1 gap-12 pt-6 pb-16 lg:grid-cols-12 lg:gap-x-12 lg:pb-20">
             <ArchiveResults
@@ -29,6 +39,7 @@ useSeoMeta({ title: () => t("publications.title"), description: lead });
                 :to="pageLink"
                 :format-pills
                 :pending="status === 'pending'"
+                :query="search"
                 class="lg:col-span-8"
             />
             <ArchiveSubjects

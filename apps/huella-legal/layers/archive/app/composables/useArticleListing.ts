@@ -16,6 +16,7 @@ export const useArticleListing = async (
             page: route.query.page,
             sort: route.query.sort,
             format: route.query.format,
+            query: route.query.query,
         })),
     });
     const { data: listing, status } = request;
@@ -23,6 +24,11 @@ export const useArticleListing = async (
     const sort = computed<Sort>({
         get: () => (route.query.sort === "oldest" ? "oldest" : "newest"),
         set: (value) => navigate({ sort: value }),
+    });
+
+    const search = computed<string>({
+        get: () => (typeof route.query.query === "string" ? route.query.query : ""),
+        set: (value) => navigate({ query: value.trim() || undefined }),
     });
 
     const pageLink = (page: number): RouteLocationRaw => link({ page: String(page) });
@@ -54,5 +60,5 @@ export const useArticleListing = async (
 
     await useFailOnError(request, { refetches: true });
 
-    return { listing, status, sort, archiveTotal, formatPills, pageLink };
+    return { listing, status, sort, search, archiveTotal, formatPills, pageLink };
 };

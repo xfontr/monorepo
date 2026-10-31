@@ -84,18 +84,49 @@ beforeEach(() => {
 });
 
 describe("useArticleListing", () => {
-    it("reads page, sort and format from the URL and sends them to the route with the scope", async () => {
-        const listing = await listingAt("/publicaciones/?page=2&sort=oldest&format=comentario", {
-            category: "derecho-civil",
-        });
+    it("reads page, sort, format and query from the URL and sends them to the route with the scope", async () => {
+        const listing = await listingAt(
+            "/publicaciones/?page=2&sort=oldest&format=comentario&query=culpa",
+            { category: "derecho-civil" },
+        );
 
         expect(fetching.query?.value).toEqual({
             category: "derecho-civil",
             page: "2",
             sort: "oldest",
             format: "comentario",
+            query: "culpa",
         });
         expect(listing.sort.value).toBe("oldest");
+        expect(listing.search.value).toBe("culpa");
+    });
+
+    it("keeps the query while paging or switching format, so neither drops the search", async () => {
+        const listing = await listingAt("/publicaciones/?query=culpa&page=2");
+
+        expect(listing.href(listing.pageLink(3))).toBe("/publicaciones/?query=culpa&page=3");
+        expect(listing.formatPills.value.map(({ to }) => listing.href(to))).toEqual([
+            "/publicaciones/?query=culpa",
+            "/publicaciones/?query=culpa&format=articulo",
+            "/publicaciones/?query=culpa&format=comentario",
+        ]);
+    });
+
+    it("writes a new query back to the URL from page one, dropping it again when blank", async () => {
+        const listing = await listingAt("/publicaciones/?page=2&format=comentario");
+        const { router } = listing;
+
+        listing.search.value = "  culpa ";
+        await vi.waitFor(() =>
+            expect(router.currentRoute.value.fullPath).toBe(
+                "/publicaciones/?format=comentario&query=culpa",
+            ),
+        );
+
+        listing.search.value = " ";
+        await vi.waitFor(() =>
+            expect(router.currentRoute.value.fullPath).toBe("/publicaciones/?format=comentario"),
+        );
     });
 
     it("leaves the defaults out of every link, so each listing keeps one canonical address", async () => {
