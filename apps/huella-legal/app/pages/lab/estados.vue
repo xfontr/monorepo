@@ -32,13 +32,11 @@ const found = [articles[0]!, articles[4]!];
                     <div class="lg:col-span-7">
                         <Kicker>Error 404</Kicker>
                         <h1
-                            class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-highlighted text-balance md:text-[3.5rem]"
+                            class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-balance text-highlighted md:text-[3.5rem]"
                         >
                             Esta página no existe o ha cambiado de dirección.
                         </h1>
-                        <p
-                            class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned"
-                        >
+                        <p class="mt-4 max-w-measure font-serif text-standfirst/relaxed text-toned">
                             Puede que el artículo se haya movido al reorganizar las materias.
                             Búscalo por su título o empieza por la portada.
                         </p>
@@ -119,11 +117,11 @@ const found = [articles[0]!, articles[4]!];
                     class="flex flex-col items-start gap-4 rounded-sm border border-default px-5 py-10 md:px-12"
                 >
                     <UIcon name="i-lucide-search-x" class="size-7 text-dimmed" />
-                    <h2 class="font-serif text-h3 text-highlighted text-balance">
+                    <h2 class="font-serif text-h3 text-balance text-highlighted">
                         Ningún resultado para «kardashov»
                     </h2>
                     <ul
-                        class="list-disc pl-5 font-serif text-base leading-relaxed text-toned marker:text-huella-teal-500"
+                        class="list-disc pl-5 font-serif text-base/relaxed text-toned marker:text-huella-teal-500"
                     >
                         <li>
                             Revisa la ortografía: ¿quizá
@@ -156,10 +154,10 @@ const found = [articles[0]!, articles[4]!];
                     class="flex flex-col items-start gap-4 rounded-sm border border-dashed border-(--ui-border-accented) bg-ivory-50 px-5 py-10 md:px-12"
                 >
                     <UIcon name="i-lucide-feather" class="size-7 text-huella-teal-500" />
-                    <h2 class="font-serif text-h3 text-highlighted text-balance">
+                    <h2 class="font-serif text-h3 text-balance text-highlighted">
                         Todavía no hay publicaciones en Derecho administrativo
                     </h2>
-                    <p class="max-w-md font-serif text-base leading-relaxed text-toned">
+                    <p class="max-w-md font-serif text-base/relaxed text-toned">
                         Es una materia nueva en la revista. Si trabajas en ella, tu artículo puede
                         ser el primero.
                     </p>
@@ -185,10 +183,10 @@ const found = [articles[0]!, articles[4]!];
                     class="flex flex-col items-start gap-4 rounded-sm border border-default px-5 py-10 md:px-12"
                 >
                     <Kicker tone="muted"> Error 500 </Kicker>
-                    <h2 class="font-serif text-h3 text-highlighted text-balance">
+                    <h2 class="font-serif text-h3 text-balance text-highlighted">
                         No hemos podido cargar esta página
                     </h2>
-                    <p class="max-w-md font-serif text-base leading-relaxed text-toned">
+                    <p class="max-w-md font-serif text-base/relaxed text-toned">
                         El fallo es nuestro y ya está registrado. Vuelve a intentarlo en unos
                         minutos; si continúa, escríbenos.
                     </p>
@@ -222,7 +220,7 @@ const found = [articles[0]!, articles[4]!];
                                 <USkeleton class="h-6 w-3/5 bg-ivory-200" />
                                 <USkeleton class="h-3 w-48 bg-ivory-200" />
                             </div>
-                            <USkeleton class="hidden aspect-[4/3] w-32 bg-ivory-200 sm:block" />
+                            <USkeleton class="hidden aspect-4/3 w-32 bg-ivory-200 sm:block" />
                         </li>
                     </ul>
                 </section>

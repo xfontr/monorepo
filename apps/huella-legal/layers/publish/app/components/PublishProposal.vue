@@ -25,7 +25,7 @@ const mailto = computed<string>(() => {
             keypath="publish.proposal.lead"
             scope="global"
             tag="p"
-            class="mt-4 font-serif text-base leading-relaxed text-toned"
+            class="mt-4 font-serif text-base/relaxed text-toned"
         >
             <template #email>
                 <ULink

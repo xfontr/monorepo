@@ -90,16 +90,16 @@ const pills = [
         <section class="flex flex-col gap-4">
             <LabKicker>MediaFallback</LabKicker>
             <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-                <div class="aspect-[3/2] @container">
+                <div class="@container aspect-3/2">
                     <LabMediaFallback label="Imagen del artículo" />
                 </div>
-                <div class="aspect-[3/2] @container">
+                <div class="@container aspect-3/2">
                     <LabMediaFallback tone="slate" />
                 </div>
-                <div class="aspect-[3/2] @container">
+                <div class="@container aspect-3/2">
                     <MediaFallback label="Imagen del artículo" />
                 </div>
-                <div class="aspect-[3/2] @container">
+                <div class="@container aspect-3/2">
                     <MediaFallback tone="slate" />
                 </div>
             </div>

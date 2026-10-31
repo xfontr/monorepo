@@ -33,7 +33,7 @@ const id = computed<string>(() => `comentario-${props.comment.id}`);
             <p
                 v-for="(paragraph, index) in comment.paragraphs"
                 :key="index"
-                class="font-serif text-base leading-relaxed wrap-break-word text-toned"
+                class="font-serif text-base/relaxed wrap-break-word text-toned"
             >
                 {{ paragraph }}
             </p>

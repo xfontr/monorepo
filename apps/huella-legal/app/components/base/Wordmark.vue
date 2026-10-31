@@ -48,7 +48,7 @@ const ui = computed<Recipe>(() => TONES[props.tone]);
         >
         <span
             v-if="tagline"
-            class="mt-1.5 font-sans text-[0.6875rem] font-semibold uppercase tracking-[0.16em]"
+            class="mt-1.5 font-sans text-[0.6875rem] font-semibold tracking-[0.16em] uppercase"
             :class="ui.tagline"
             >{{ $t("wordmark.tagline") }}</span
         >

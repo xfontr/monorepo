@@ -63,14 +63,14 @@ const notes = {
                         Materias
                     </h1>
                     <p
-                        class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned text-pretty"
+                        class="mt-4 max-w-measure font-serif text-standfirst/relaxed text-pretty text-toned"
                     >
                         Cada texto pertenece a una materia y tiene un formato. Los temas cruzan
                         todas las materias.
                     </p>
                     <nav
                         aria-label="En esta página"
-                        class="-ml-3 mt-5 flex flex-wrap font-sans text-sm font-semibold"
+                        class="mt-5 -ml-3 flex flex-wrap font-sans text-sm font-semibold"
                     >
                         <a
                             v-for="link in [
@@ -93,7 +93,7 @@ const notes = {
             >
                 <h2
                     id="materias"
-                    class="scroll-mt-6 font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                    class="scroll-mt-6 font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                 >
                     Materias
                 </h2>
@@ -103,15 +103,15 @@ const notes = {
                         :key="item.slug"
                         class="group relative flex flex-col gap-2 border-t border-default pt-5 pb-10"
                     >
-                        <span class="font-sans text-meta tabular-nums text-muted">{{
+                        <span class="font-sans text-meta text-muted tabular-nums">{{
                             publications(countIn(item.slug))
                         }}</span>
                         <a
                             :href="`/lab/publicaciones?materia=${item.slug}`"
-                            class="font-serif text-h3 text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] after:absolute after:inset-0 group-hover:underline focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-primary"
+                            class="font-serif text-h3 text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-primary"
                             >{{ item.name }}</a
                         >
-                        <p class="font-serif text-base leading-relaxed text-toned">
+                        <p class="font-serif text-base/relaxed text-toned">
                             {{ item.description }}
                         </p>
                     </li>
@@ -122,7 +122,7 @@ const notes = {
                 <div class="mx-auto max-w-site px-4 py-16 md:px-8 lg:px-12 lg:py-20">
                     <h2
                         id="formatos"
-                        class="scroll-mt-6 font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                        class="scroll-mt-6 font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                     >
                         Formatos
                     </h2>
@@ -153,7 +153,7 @@ const notes = {
                                     }}
                                 </Kicker>
                                 <span
-                                    class="font-serif text-h3 group-hover:underline decoration-1 underline-offset-[0.2em]"
+                                    class="font-serif text-h3 decoration-1 underline-offset-[0.2em] group-hover:underline"
                                     :class="
                                         item.slug === 'tfg-tfm'
                                             ? 'text-ivory-50'
@@ -162,7 +162,7 @@ const notes = {
                                     >{{ item.plural }}</span
                                 >
                                 <span
-                                    class="font-serif text-base leading-relaxed"
+                                    class="font-serif text-base/relaxed"
                                     :class="
                                         item.slug === 'tfg-tfm'
                                             ? 'text-huella-slate-200'
@@ -173,7 +173,7 @@ const notes = {
                             </a>
                         </li>
                     </ul>
-                    <p class="mt-6 font-serif text-base leading-relaxed text-toned">
+                    <p class="mt-6 font-serif text-base/relaxed text-toned">
                         ¿Tienes un TFG o un TFM con buena nota?
                         <a
                             href="/lab/publicar"
@@ -190,13 +190,11 @@ const notes = {
             >
                 <h2
                     id="temas"
-                    class="scroll-mt-6 font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                    class="scroll-mt-6 font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                 >
                     Temas de la A a la Z
                 </h2>
-                <p
-                    class="mt-2 max-w-measure font-serif text-base leading-relaxed text-toned text-pretty"
-                >
+                <p class="mt-2 max-w-measure font-serif text-base/relaxed text-pretty text-toned">
                     Etiquetas que cruzan varias materias: «Jurisprudencia» reúne comentarios de
                     penal, civil y constitucional.
                 </p>
@@ -223,7 +221,7 @@ const notes = {
                                         class="decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
                                         >{{ name }}</span
                                     >
-                                    <span class="font-sans text-meta tabular-nums text-muted">{{
+                                    <span class="font-sans text-meta text-muted tabular-nums">{{
                                         tagCount(name)
                                     }}</span>
                                 </a>

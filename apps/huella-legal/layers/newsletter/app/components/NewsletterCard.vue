@@ -11,7 +11,7 @@ defineProps<Props>();
 <template>
     <div class="rounded-sm border border-default bg-ivory-50 p-5">
         <BaseKicker>{{ $t("newsletterCard.kicker") }}</BaseKicker>
-        <p class="mt-2 font-serif text-lg leading-snug text-highlighted">
+        <p class="mt-2 font-serif text-lg/snug text-highlighted">
             {{
                 subject ? $t("newsletterCard.subjectLead", { subject }) : $t("newsletterCard.lead")
             }}

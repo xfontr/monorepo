@@ -71,13 +71,11 @@ const notes = {
                         />
                         <Kicker class="mt-6 md:mt-8"> Serie · {{ subject.name }} </Kicker>
                         <h1
-                            class="mt-2 max-w-[16ch] font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-highlighted text-balance md:text-[3.5rem]"
+                            class="mt-2 max-w-[16ch] font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-balance text-highlighted md:text-[3.5rem]"
                         >
                             {{ current.name }}
                         </h1>
-                        <p
-                            class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned"
-                        >
+                        <p class="mt-4 max-w-measure font-serif text-standfirst/relaxed text-toned">
                             {{ current.description }}
                         </p>
                     </div>
@@ -112,9 +110,7 @@ const notes = {
                             >{{ item.series!.position }}</span
                         >
                         <div class="flex flex-col gap-2">
-                            <h2
-                                class="font-serif text-[1.5rem] leading-tight text-highlighted md:text-h2"
-                            >
+                            <h2 class="font-serif text-2xl/tight text-highlighted md:text-h2">
                                 <a
                                     href="/lab/attempts/article-b"
                                     class="decoration-huella-slate-300 decoration-1 underline-offset-[0.2em] group-hover:underline after:absolute after:inset-0 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
@@ -122,7 +118,7 @@ const notes = {
                                 >
                             </h2>
                             <p
-                                class="max-w-measure font-serif text-base leading-relaxed text-toned md:text-lg"
+                                class="max-w-measure font-serif text-base/relaxed text-toned md:text-lg"
                             >
                                 {{ item.excerpt }}
                             </p>
@@ -137,11 +133,11 @@ const notes = {
                     <div class="border-l-2 border-huella-teal-400 pl-5 lg:sticky lg:top-6">
                         <h2
                             id="nota-redaccion"
-                            class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                            class="font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                         >
                             Nota de la redacción
                         </h2>
-                        <p class="mt-3 font-serif text-base leading-relaxed text-toned">
+                        <p class="mt-3 font-serif text-base/relaxed text-toned">
                             Escribimos esta serie para quien empieza Derecho penal o vuelve a él
                             después de años. Cada texto se sostiene solo, pero el orden importa: la
                             teoría del delito se entiende mejor después de saber qué es el Derecho

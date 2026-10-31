@@ -28,9 +28,7 @@ const social = [
         >
             <div class="flex flex-col gap-5 lg:col-span-4">
                 <Wordmark tone="paper" tagline />
-                <p
-                    class="max-w-xs font-serif text-base leading-relaxed text-huella-slate-200 text-balance"
-                >
+                <p class="max-w-xs font-serif text-base/relaxed text-balance text-huella-slate-200">
                     Divulgación jurídica rigurosa y de acceso libre, escrita por profesionales,
                     docentes y estudiantes de todo el ámbito hispanohablante.
                 </p>
@@ -42,7 +40,7 @@ const social = [
             >
                 <div v-for="group in groups" :key="group.title">
                     <p
-                        class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-huella-teal-300"
+                        class="font-sans text-xs font-semibold tracking-[0.12em] text-huella-teal-300 uppercase"
                     >
                         {{ group.title }}
                     </p>
@@ -64,7 +62,7 @@ const social = [
                 class="mx-auto flex max-w-site flex-col-reverse gap-4 px-4 py-6 font-sans text-xs text-huella-slate-300 md:flex-row md:items-center md:justify-between md:px-8 lg:px-12"
             >
                 <p>© 2026 Huella Legal · {{ issn }}</p>
-                <ul class="-ml-3 flex items-center gap-1 md:ml-0 md:-mr-3">
+                <ul class="-ml-3 flex items-center gap-1 md:-mr-3 md:ml-0">
                     <li v-for="item in social" :key="item.label">
                         <a
                             href="#"

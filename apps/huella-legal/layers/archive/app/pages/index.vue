@@ -14,15 +14,13 @@ const recentId = useId();
                     keypath="home.hero.title"
                     tag="h1"
                     scope="global"
-                    class="max-w-3xl font-serif text-[2.125rem] leading-[1.08] tracking-[-0.02em] text-highlighted text-balance md:text-[3rem] lg:text-[3.5rem]"
+                    class="max-w-3xl font-serif text-[2.125rem] leading-[1.08] tracking-[-0.02em] text-balance text-highlighted md:text-[3rem] lg:text-[3.5rem]"
                 >
                     <template #emphasis>
                         <em class="text-primary">{{ $t("home.hero.emphasis") }}</em>
                     </template>
                 </I18nT>
-                <p
-                    class="max-w-sm font-serif text-base leading-relaxed text-muted lg:pb-2 lg:text-right"
-                >
+                <p class="max-w-sm font-serif text-base/relaxed text-muted lg:pb-2 lg:text-right">
                     {{ $t("home.hero.lead") }}
                 </p>
             </div>
@@ -47,7 +45,7 @@ const recentId = useId();
             <div
                 class="flex flex-col gap-4 border-t-2 border-huella-slate-900 pt-5 md:flex-row md:items-center md:justify-between md:gap-10"
             >
-                <p class="max-w-3xl font-serif text-xl leading-snug text-highlighted md:text-h3">
+                <p class="max-w-3xl font-serif text-xl/snug text-highlighted md:text-h3">
                     {{ $t("home.publish.prompt") }}
                 </p>
                 <UButton

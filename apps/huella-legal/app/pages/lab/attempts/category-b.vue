@@ -150,9 +150,7 @@ const notes = {
                         >
                             {{ subject.name }}
                         </h1>
-                        <p
-                            class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned"
-                        >
+                        <p class="mt-4 max-w-measure font-serif text-standfirst/relaxed text-toned">
                             {{ subject.description }}
                         </p>
 
@@ -166,14 +164,14 @@ const notes = {
                                     <a
                                         :href="hrefWith({ subtema: name })"
                                         :aria-current="subtopic === name ? 'true' : undefined"
-                                        class="inline-flex min-h-11 items-center gap-1.5 px-2 font-semibold text-primary underline-offset-4 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary aria-[current=true]:text-highlighted [&[aria-current=true]>span:first-child]:underline [&[aria-current=true]>span:first-child]:decoration-2"
+                                        class="inline-flex min-h-11 items-center gap-1.5 px-2 font-semibold text-primary underline-offset-4 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary aria-current:text-highlighted [&[aria-current=true]>span:first-child]:underline [&[aria-current=true]>span:first-child]:decoration-2"
                                         @click.prevent="
                                             setQuery({
                                                 subtema: subtopic === name ? undefined : name,
                                             })
                                         "
                                         ><span>{{ name }}</span>
-                                        <span class="font-medium tabular-nums text-dimmed">{{
+                                        <span class="font-medium text-dimmed tabular-nums">{{
                                             inSubject.filter((item) => item.subtopic === name)
                                                 .length
                                         }}</span></a
@@ -196,7 +194,7 @@ const notes = {
                             class="font-serif text-h3 text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
                             >{{ item.name }}</span
                         >
-                        <span class="font-serif text-base leading-relaxed text-muted"
+                        <span class="font-serif text-base/relaxed text-muted"
                             >Si llegas nuevo a la materia, empieza aquí.</span
                         >
                         <span
@@ -224,20 +222,20 @@ const notes = {
                     >
                         <nav
                             aria-label="Formato"
-                            class="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0"
+                            class="-mx-4 scrollbar-none overflow-x-auto px-4 sm:mx-0 sm:px-0"
                         >
                             <ul class="-ml-3 flex">
                                 <li v-for="tab in tabs" :key="tab.label">
                                     <a
                                         :href="hrefWith({ formato: tab.slug })"
                                         :aria-current="format === tab.slug ? 'true' : undefined"
-                                        class="relative inline-flex min-h-12 items-center gap-1.5 px-3 font-sans text-sm font-semibold whitespace-nowrap text-muted transition-colors after:absolute after:inset-x-3 after:-bottom-px after:h-0.5 hover:text-highlighted hover:after:bg-ivory-400 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary aria-[current=true]:text-highlighted aria-[current=true]:after:bg-huella-slate-900"
+                                        class="relative inline-flex min-h-12 items-center gap-1.5 px-3 font-sans text-sm font-semibold whitespace-nowrap text-muted transition-colors after:absolute after:inset-x-3 after:-bottom-px after:h-0.5 hover:text-highlighted hover:after:bg-ivory-400 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary aria-current:text-highlighted aria-current:after:bg-huella-slate-900"
                                         :class="tab.count === 0 && 'pointer-events-none opacity-50'"
                                         :aria-disabled="tab.count === 0 || undefined"
                                         @click.prevent="setQuery({ formato: tab.slug })"
                                     >
                                         {{ tab.label }}
-                                        <span class="font-medium tabular-nums text-dimmed">{{
+                                        <span class="font-medium text-dimmed tabular-nums">{{
                                             tab.count
                                         }}</span>
                                     </a>
@@ -352,7 +350,7 @@ const notes = {
                 >
                     <div>
                         <h2
-                            class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                            class="font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                         >
                             Temas frecuentes aquí
                         </h2>
@@ -370,7 +368,7 @@ const notes = {
                                         class="decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
                                         >{{ name }}</span
                                     >
-                                    <span class="font-sans text-meta tabular-nums text-muted">{{
+                                    <span class="font-sans text-meta text-muted tabular-nums">{{
                                         count
                                     }}</span>
                                 </a>
@@ -380,11 +378,11 @@ const notes = {
 
                     <div>
                         <h2
-                            class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                            class="font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                         >
                             Otras materias
                         </h2>
-                        <p class="mt-2 font-serif text-base leading-8 text-toned">
+                        <p class="mt-2 font-serif text-base/8 text-toned">
                             <template
                                 v-for="(item, index) in subjects.filter(
                                     (entry) => entry !== subject,

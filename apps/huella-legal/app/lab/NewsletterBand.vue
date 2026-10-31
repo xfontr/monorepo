@@ -17,14 +17,14 @@ withDefaults(defineProps<Props>(), { tone: "paper" });
         >
             <div class="lg:col-span-6">
                 <p
-                    class="font-sans text-xs font-semibold uppercase tracking-[0.12em]"
+                    class="font-sans text-xs font-semibold tracking-[0.12em] uppercase"
                     :class="tone === 'slate' ? 'text-huella-teal-200' : 'text-secondary'"
                 >
                     Boletín mensual
                 </p>
                 <h2
                     id="newsletter-title"
-                    class="mt-2 font-serif text-[1.75rem] leading-tight text-balance md:text-h2"
+                    class="mt-2 font-serif text-section/tight text-balance md:text-h2"
                     :class="tone === 'slate' ? 'text-ivory-50' : 'text-highlighted'"
                 >
                     Un correo al mes con lo que hemos publicado. Nada más.

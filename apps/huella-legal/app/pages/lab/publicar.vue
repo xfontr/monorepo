@@ -115,12 +115,12 @@ const states = [
                     <div class="lg:col-span-7">
                         <Kicker>Publicar en Huella Legal</Kicker>
                         <h1
-                            class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-highlighted text-balance md:text-[3.5rem]"
+                            class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-balance text-highlighted md:text-[3.5rem]"
                         >
                             Tu artículo, leído con la atención que merece.
                         </h1>
                         <p
-                            class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned text-pretty"
+                            class="mt-4 max-w-measure font-serif text-standfirst/relaxed text-pretty text-toned"
                         >
                             Publicamos trabajos jurídicos rigurosos de cualquier rama del Derecho.
                             Gratis, con revisión editorial y una decisión razonada en cinco días
@@ -142,7 +142,7 @@ const states = [
                         </div>
                     </div>
                     <ul
-                        class="flex flex-col divide-y divide-(--ui-border-muted) mt-6 self-end border-t border-default md:mt-4 lg:col-span-5 lg:mt-0"
+                        class="mt-6 flex flex-col divide-y divide-(--ui-border-muted) self-end border-t border-default md:mt-4 lg:col-span-5 lg:mt-0"
                     >
                         <li
                             v-for="item in reasons"
@@ -158,10 +158,9 @@ const states = [
                                 <span class="block font-serif text-xl text-highlighted">{{
                                     item.title
                                 }}</span>
-                                <span
-                                    class="mt-1 block font-serif text-base leading-relaxed text-toned"
-                                    >{{ item.body }}</span
-                                >
+                                <span class="mt-1 block font-serif text-base/relaxed text-toned">{{
+                                    item.body
+                                }}</span>
                             </span>
                         </li>
                     </ul>
@@ -176,7 +175,7 @@ const states = [
                 <div class="border-t-2 border-huella-slate-900 pt-4">
                     <h2
                         id="proceso"
-                        class="border-t-2 border-huella-slate-900 pt-4 font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
+                        class="border-t-2 border-huella-slate-900 pt-4 font-serif text-section/tight text-highlighted md:text-h2"
                     >
                         Cómo funciona
                     </h2>
@@ -198,17 +197,16 @@ const states = [
                         >
                         <span
                             v-if="index < steps.length - 1"
-                            class="absolute top-[1.375rem] left-11 hidden h-px w-[calc(100%-2.75rem)] bg-(--ui-border-accented) lg:block"
+                            class="absolute top-5.5 left-11 hidden h-px w-[calc(100%-2.75rem)] bg-(--ui-border-accented) lg:block"
                             aria-hidden="true"
                         />
                         <span>
                             <span class="block font-serif text-xl text-highlighted">{{
                                 step.title
                             }}</span>
-                            <span
-                                class="mt-1 block font-serif text-base leading-relaxed text-toned"
-                                >{{ step.body }}</span
-                            >
+                            <span class="mt-1 block font-serif text-base/relaxed text-toned">{{
+                                step.body
+                            }}</span>
                         </span>
                     </li>
                 </ol>
@@ -226,7 +224,7 @@ const states = [
                     <div class="lg:col-span-7">
                         <h2
                             id="formulario-titulo"
-                            class="font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
+                            class="font-serif text-section/tight text-highlighted md:text-h2"
                         >
                             Envía tu propuesta
                         </h2>
@@ -266,9 +264,7 @@ const states = [
                             <h3 class="font-serif text-h3 text-highlighted">
                                 Recibido. Gracias, María-José.
                             </h3>
-                            <p
-                                class="max-w-measure font-serif text-base leading-relaxed text-toned"
-                            >
+                            <p class="max-w-measure font-serif text-base/relaxed text-toned">
                                 Te confirmaremos la recepción en 24–72 horas en
                                 <strong class="text-highlighted">mjfernandez@ucm.es</strong>, y
                                 tendrás una decisión razonada en cinco días como máximo.
@@ -413,7 +409,7 @@ const states = [
                                 class="md:col-span-2"
                             />
                             <div
-                                class="flex flex-col gap-3 md:col-span-2 sm:flex-row sm:items-center"
+                                class="flex flex-col gap-3 sm:flex-row sm:items-center md:col-span-2"
                             >
                                 <UButton
                                     type="submit"
@@ -467,7 +463,7 @@ const states = [
                             <h3 class="mt-4 font-serif text-h3 text-ivory-50">
                                 ¿Es un TFG o un TFM?
                             </h3>
-                            <p class="mt-2 font-serif text-base leading-relaxed">
+                            <p class="mt-2 font-serif text-base/relaxed">
                                 Los trabajos de fin de grado y de máster se publican íntegramente en
                                 su propio archivo. Elige «TFG» o «TFM» en el formulario.
                             </p>

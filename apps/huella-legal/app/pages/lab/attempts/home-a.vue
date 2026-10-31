@@ -52,12 +52,12 @@ const facts = [
                     class="flex flex-col gap-4 border-b border-default pt-10 pb-8 md:pt-14 lg:flex-row lg:items-end lg:justify-between lg:gap-12 lg:pb-10"
                 >
                     <h1
-                        class="max-w-3xl font-serif text-[2.125rem] leading-[1.08] tracking-[-0.02em] text-highlighted text-balance md:text-[3rem] lg:text-[3.5rem]"
+                        class="max-w-3xl font-serif text-[2.125rem] leading-[1.08] tracking-[-0.02em] text-balance text-highlighted md:text-[3rem] lg:text-[3.5rem]"
                     >
                         Derecho riguroso, escrito para ser <em class="text-primary">leído</em>.
                     </h1>
                     <p
-                        class="max-w-sm font-serif text-base leading-relaxed text-muted lg:pb-2 lg:text-right"
+                        class="max-w-sm font-serif text-base/relaxed text-muted lg:pb-2 lg:text-right"
                     >
                         Revista jurídica de acceso libre. Artículos revisados de profesionales,
                         docentes y estudiantes de todo el ámbito hispanohablante.
@@ -70,19 +70,19 @@ const facts = [
                 class="mx-auto grid w-full max-w-site grid-cols-1 gap-12 px-4 pt-8 pb-16 md:px-8 md:pt-10 lg:grid-cols-12 lg:gap-0 lg:px-12"
             >
                 <article class="group flex flex-col gap-5 lg:col-span-8 lg:pr-12">
-                    <div class="@container aspect-[16/10] overflow-hidden rounded-xs">
+                    <div class="@container aspect-16/10 overflow-hidden rounded-xs">
                         <MediaFallback tone="slate" label="Imagen del artículo" />
                     </div>
                     <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
                         <Kicker href="#">
                             {{ lead.category }}
                         </Kicker>
-                        <span class="font-sans text-xs tabular-nums text-dimmed">{{
+                        <span class="font-sans text-xs text-dimmed tabular-nums">{{
                             lead.issue
                         }}</span>
                     </div>
                     <h2
-                        class="font-serif text-[2rem] leading-[1.12] tracking-[-0.02em] text-highlighted text-balance md:text-h1 lg:text-[2.875rem]"
+                        class="font-serif text-[2rem] leading-[1.12] tracking-[-0.02em] text-balance text-highlighted md:text-h1 lg:text-[2.875rem]"
                     >
                         <a
                             href="/lab/attempts/article-a"
@@ -109,7 +109,7 @@ const facts = [
                     <h2 id="fundamentos" class="mt-1 font-serif text-h3 text-highlighted">
                         Fundamentos del Derecho penal
                     </h2>
-                    <p class="mt-2 font-serif text-base leading-relaxed text-muted">
+                    <p class="mt-2 font-serif text-base/relaxed text-muted">
                         Cinco lecturas, en orden, para entender cómo razona un penalista.
                     </p>
                     <ol class="mt-6 flex flex-col divide-y divide-(--ui-border-muted)">
@@ -125,11 +125,11 @@ const facts = [
                             <span>
                                 <a
                                     href="/lab/attempts/article-a"
-                                    class="font-serif text-lg leading-snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                                    class="font-serif text-lg/snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                                     >{{ item.title }}</a
                                 >
                                 <span
-                                    class="mt-1 block font-serif text-[0.9375rem] leading-normal text-muted"
+                                    class="mt-1 block font-serif text-citation/normal text-muted"
                                     >{{ item.excerpt }}</span
                                 >
                             </span>
@@ -153,7 +153,7 @@ const facts = [
                         v-for="article in recent"
                         :key="article.slug"
                         :article
-                        class="border-b border-(--ui-border-muted) py-8 md:[&:nth-last-child(-n+2)]:border-b-0 lg:[&:nth-last-child(-n+3)]:border-b-0"
+                        class="border-b border-(--ui-border-muted) py-8 md:nth-last-[-n+2]:border-b-0 lg:nth-last-[-n+3]:border-b-0"
                     />
                 </div>
             </section>
@@ -166,11 +166,11 @@ const facts = [
                         <Kicker>Índice</Kicker>
                         <h2
                             id="materias"
-                            class="mt-1 font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
+                            class="mt-1 font-serif text-section/tight text-highlighted md:text-h2"
                         >
                             Materias
                         </h2>
-                        <p class="mt-3 max-w-sm font-serif text-base leading-relaxed text-toned">
+                        <p class="mt-3 max-w-sm font-serif text-base/relaxed text-toned">
                             Diez áreas del Derecho, del penal a la teoría jurídica, y un archivo de
                             trabajos académicos publicados íntegramente.
                         </p>
@@ -193,14 +193,14 @@ const facts = [
                                 class="group flex min-h-14 items-baseline gap-3 py-3 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary"
                             >
                                 <span
-                                    class="font-serif text-lg text-highlighted underline-offset-[0.2em] decoration-huella-slate-300 group-hover:underline"
+                                    class="font-serif text-lg text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
                                     >{{ category.name }}</span
                                 >
                                 <span
                                     class="flex-1 translate-y-[-0.2em] border-b border-dotted border-ivory-400"
                                     aria-hidden="true"
                                 />
-                                <span class="font-sans text-meta tabular-nums text-muted"
+                                <span class="font-sans text-meta text-muted tabular-nums"
                                     >{{ category.count
                                     }}<span class="sr-only"> artículos</span></span
                                 >
@@ -218,7 +218,7 @@ const facts = [
                     <Kicker>Criterio editorial</Kicker>
                     <h2
                         id="calidad"
-                        class="mt-2 font-serif text-[2rem] leading-[1.15] tracking-[-0.015em] text-highlighted text-balance md:text-h1"
+                        class="mt-2 font-serif text-[2rem] leading-[1.15] tracking-[-0.015em] text-balance text-highlighted md:text-h1"
                     >
                         Calidad frente a cantidad: centenares de horas de documentación detrás de
                         cada entrada.
@@ -259,7 +259,7 @@ const facts = [
                     <h2 class="font-serif text-h3 text-highlighted">
                         {{ item.title }}
                     </h2>
-                    <p class="max-w-md font-serif text-base leading-relaxed text-toned">
+                    <p class="max-w-md font-serif text-base/relaxed text-toned">
                         {{ item.body }}
                     </p>
                     <UButton

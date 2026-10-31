@@ -36,7 +36,7 @@ const seriesLength = computed(
             <p
                 class="flex flex-wrap items-center gap-x-2 gap-y-0.5 font-sans text-xs [&_a]:relative [&_a]:z-10"
             >
-                <span class="font-semibold uppercase tracking-[0.12em] text-secondary">{{
+                <span class="font-semibold tracking-[0.12em] text-secondary uppercase">{{
                     format.name
                 }}</span>
                 <template v-if="showSubject || entry.subtopic">
@@ -62,10 +62,10 @@ const seriesLength = computed(
             </p>
 
             <h3
-                class="font-serif text-highlighted text-balance"
+                class="font-serif text-balance text-highlighted"
                 :class="
                     density === 'compact'
-                        ? 'text-lg leading-snug'
+                        ? 'text-lg/snug'
                         : 'text-[1.375rem] leading-[1.28] md:text-h3'
                 "
             >
@@ -78,7 +78,7 @@ const seriesLength = computed(
 
             <p
                 v-if="density === 'default' && entry.excerpt"
-                class="max-w-measure font-serif text-base leading-relaxed text-toned line-clamp-2"
+                class="line-clamp-2 max-w-measure font-serif text-base/relaxed text-toned"
             >
                 {{ entry.excerpt }}
             </p>
@@ -93,7 +93,7 @@ const seriesLength = computed(
 
         <div
             v-if="media"
-            class="@container hidden aspect-[4/3] w-36 shrink-0 overflow-hidden rounded-xs sm:block md:w-44"
+            class="@container hidden aspect-4/3 w-36 shrink-0 overflow-hidden rounded-xs sm:block md:w-44"
         >
             <MediaFallback :tone="entry.media === 'image' ? 'slate' : 'paper'" />
         </div>

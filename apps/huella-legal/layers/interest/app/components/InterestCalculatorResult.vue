@@ -49,11 +49,11 @@ const amounts = computed(() => {
                     <dd class="font-serif text-h2 text-highlighted">{{ amounts.total }}</dd>
                 </div>
             </dl>
-            <p v-else class="max-w-measure font-serif text-standfirst text-toned text-pretty">
+            <p v-else class="max-w-measure font-serif text-standfirst text-pretty text-toned">
                 {{ $t("interestCalculator.result.empty") }}
             </p>
         </div>
-        <p class="mt-6 max-w-measure font-sans text-sm text-toned text-pretty">
+        <p class="mt-6 max-w-measure font-sans text-sm text-pretty text-toned">
             {{ $t("interestCalculator.disclaimer") }}
         </p>
     </section>

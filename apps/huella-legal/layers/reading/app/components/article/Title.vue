@@ -16,7 +16,7 @@ defineProps<Props>();
             <slot name="kicker" />
             <h1
                 :class="$slots.kicker ? 'mt-4' : 'mt-6 md:mt-8'"
-                class="max-w-[18ch] font-serif text-display-sm text-highlighted text-balance md:text-display lg:text-display-lg"
+                class="max-w-[18ch] font-serif text-display-sm text-balance text-highlighted md:text-display lg:text-display-lg"
             >
                 {{ title }}
             </h1>

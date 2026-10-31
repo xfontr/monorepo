@@ -56,7 +56,7 @@ const titleId = useId();
                 <ULink
                     raw
                     :to="{ name: 'article', params: { slug: article.slug } }"
-                    class="mt-2 block font-serif text-lg leading-snug text-ivory-50 decoration-huella-slate-500 underline-offset-[0.2em] after:absolute after:inset-0 hover:underline focus-visible:rounded-xs focus-visible:outline-offset-2 focus-visible:outline-ivory-50"
+                    class="mt-2 block font-serif text-lg/snug text-ivory-50 decoration-huella-slate-500 underline-offset-[0.2em] after:absolute after:inset-0 hover:underline focus-visible:rounded-xs focus-visible:outline-offset-2 focus-visible:outline-ivory-50"
                     >{{ article.title }}</ULink
                 >
                 <p class="mt-2 font-sans text-meta text-huella-slate-300">

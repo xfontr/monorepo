@@ -153,7 +153,7 @@ const notes = {
                                 {{ subject?.name ?? "Publicaciones" }}
                             </h1>
                             <p
-                                class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned text-pretty"
+                                class="mt-4 max-w-measure font-serif text-standfirst/relaxed text-pretty text-toned"
                             >
                                 {{
                                     subject?.description ??
@@ -190,18 +190,18 @@ const notes = {
                         <nav
                             v-if="!subject && tabs.length"
                             aria-label="Formato"
-                            class="-mx-4 basis-[calc(100%+2rem)] overflow-x-auto border-b border-default px-4 [scrollbar-width:none] sm:mx-0 sm:basis-full sm:px-0"
+                            class="-mx-4 basis-[calc(100%+2rem)] scrollbar-none overflow-x-auto border-b border-default px-4 sm:mx-0 sm:basis-full sm:px-0"
                         >
                             <ul class="-ml-3 flex">
                                 <li v-for="tab in tabs" :key="tab.label">
                                     <a
                                         :href="tabHref(tab.slug)"
                                         :aria-current="format === tab.slug ? 'true' : undefined"
-                                        class="relative inline-flex min-h-12 items-center gap-1.5 px-3 font-sans text-sm font-semibold whitespace-nowrap text-muted transition-colors after:absolute after:inset-x-3 after:-bottom-px after:h-0.5 hover:text-highlighted hover:after:bg-ivory-400 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary aria-[current=true]:text-highlighted aria-[current=true]:after:bg-huella-slate-900"
+                                        class="relative inline-flex min-h-12 items-center gap-1.5 px-3 font-sans text-sm font-semibold whitespace-nowrap text-muted transition-colors after:absolute after:inset-x-3 after:-bottom-px after:h-0.5 hover:text-highlighted hover:after:bg-ivory-400 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary aria-current:text-highlighted aria-current:after:bg-huella-slate-900"
                                         @click.prevent="setQuery({ formato: tab.slug })"
                                     >
                                         {{ tab.label }}
-                                        <span class="font-medium tabular-nums text-dimmed">{{
+                                        <span class="font-medium text-dimmed tabular-nums">{{
                                             tab.count
                                         }}</span>
                                     </a>
@@ -257,13 +257,11 @@ const notes = {
                                     : "Aún no hay publicaciones aquí."
                             }}
                         </p>
-                        <p
-                            class="mt-2 max-w-measure font-serif text-base leading-relaxed text-toned"
-                        >
+                        <p class="mt-2 max-w-measure font-serif text-base/relaxed text-toned">
                             Prueba con menos palabras o con otro formato. Si echas en falta un tema,
                             quizá sea el artículo que tú puedes escribir.
                         </p>
-                        <div class="-ml-3 mt-3 flex flex-wrap gap-1">
+                        <div class="mt-3 -ml-3 flex flex-wrap gap-1">
                             <UButton
                                 variant="link"
                                 label="Ver todo el archivo"
@@ -305,7 +303,7 @@ const notes = {
 
                 <aside aria-label="Explorar" class="lg:col-span-4">
                     <h2
-                        class="flex min-h-12 items-center font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                        class="flex min-h-12 items-center font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                     >
                         {{ subject ? "Otras materias" : "Materias" }}
                     </h2>
@@ -323,7 +321,7 @@ const notes = {
                                     class="decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
                                     >{{ item.name }}</span
                                 >
-                                <span class="font-sans text-meta tabular-nums text-muted">{{
+                                <span class="font-sans text-meta text-muted tabular-nums">{{
                                     countIn(item.slug)
                                 }}</span>
                             </a>

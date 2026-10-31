@@ -25,7 +25,7 @@ withDefaults(defineProps<Props>(), {
         >
         <span
             v-if="tagline"
-            class="mt-1.5 font-sans text-[0.6875rem] font-semibold uppercase tracking-[0.16em]"
+            class="mt-1.5 font-sans text-[0.6875rem] font-semibold tracking-[0.16em] uppercase"
             :class="tone === 'ink' ? 'text-muted' : 'text-huella-slate-200'"
             >Revista jurídica</span
         >

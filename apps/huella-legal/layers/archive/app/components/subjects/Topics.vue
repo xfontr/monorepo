@@ -13,7 +13,7 @@ const letters = computed(() => groupByLetter(props.topics, ({ value }) => value.
         <h2 id="temas" class="scroll-mt-6 text-kicker text-muted">
             {{ $t("subjectsTopics.title") }}
         </h2>
-        <p class="mt-2 max-w-measure font-serif text-base leading-relaxed text-toned text-pretty">
+        <p class="mt-2 max-w-measure font-serif text-base/relaxed text-pretty text-toned">
             {{ $t("subjectsTopics.lead") }}
         </p>
         <div class="mt-6 gap-x-10 sm:columns-2 lg:columns-4">
@@ -41,7 +41,7 @@ const letters = computed(() => groupByLetter(props.topics, ({ value }) => value.
                                 >{{ value.name }}</span
                             >
                             <span
-                                class="font-sans text-meta tabular-nums text-muted"
+                                class="font-sans text-meta text-muted tabular-nums"
                                 aria-hidden="true"
                                 >{{ count }}</span
                             >

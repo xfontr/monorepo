@@ -69,15 +69,13 @@ const items = computed(() =>
                             :class="classes.title"
                             >{{ $t(`subjectsFormats.formats.${key}.title`) }}</span
                         >
-                        <span
-                            class="font-serif text-base leading-relaxed"
-                            :class="classes.description"
-                            >{{ $t(`subjectsFormats.formats.${key}.description`) }}</span
-                        >
+                        <span class="font-serif text-base/relaxed" :class="classes.description">{{
+                            $t(`subjectsFormats.formats.${key}.description`)
+                        }}</span>
                     </ULink>
                 </li>
             </ul>
-            <p class="mt-6 font-serif text-base leading-relaxed text-toned">
+            <p class="mt-6 font-serif text-base/relaxed text-toned">
                 {{ $t("subjectsFormats.publish.prompt") }}
                 <ULink
                     raw

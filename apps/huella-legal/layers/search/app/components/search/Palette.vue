@@ -134,9 +134,7 @@ const groups = computed<CommandPaletteGroup[]>(() =>
                 <BaseKicker v-if="item.article.category">{{
                     item.article.category.name
                 }}</BaseKicker>
-                <span class="font-serif text-base leading-snug text-highlighted">{{
-                    item.label
-                }}</span>
+                <span class="font-serif text-base/snug text-highlighted">{{ item.label }}</span>
                 <span class="font-sans text-meta text-muted">{{ byline(item.article) }}</span>
             </span>
         </template>
