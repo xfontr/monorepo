@@ -15,6 +15,16 @@ export default defineNuxtConfig({
 
     devtools: false,
 
+    app: {
+        head: {
+            link: [
+                { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+                { rel: "manifest", href: "/site.webmanifest" },
+            ],
+            meta: [{ name: "theme-color", content: "#3e5a6d" }],
+        },
+    },
+
     experimental: {
         typedPages: true,
         // Nuxt 4.6's default `$fetch` typing fails with TS2321 on `/api/newsletter`.

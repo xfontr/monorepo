@@ -1,6 +1,9 @@
 <script setup lang="ts">
 const { t, localeProperties } = useI18n();
 const { sections, columns, social, issn } = useSiteNav();
+const {
+    public: { site },
+} = useRuntimeConfig();
 
 useHead({
     htmlAttrs: { lang: () => localeProperties.value.language },
@@ -11,6 +14,10 @@ useSeoMeta({
     description: t("app.description"),
     ogTitle: t("app.title"),
     ogDescription: t("app.description"),
+    // A page without its own og:image (everything but an article) falls back to this.
+    ogImage: new URL("/og-image.png", site.url).href,
+    ogImageWidth: 1200,
+    ogImageHeight: 630,
 });
 </script>
 
