@@ -96,7 +96,7 @@ useResizeObserver(rail, measure);
                             raw
                             :data-lit="lit.includes(item.id) || undefined"
                             :aria-current="lit[0] === item.id ? 'location' : undefined"
-                            class="flex min-h-11 items-center py-1 pl-4 font-sans text-sm leading-snug text-muted transition-colors hover:text-highlighted focus-visible:outline-offset-0 data-lit:font-semibold data-lit:text-highlighted"
+                            class="flex min-h-11 items-center py-1 pl-4 font-sans text-sm/snug text-muted transition-colors hover:text-highlighted focus-visible:outline-offset-0 data-lit:font-semibold data-lit:text-highlighted"
                         >
                             {{ item.label }}
                         </ULink>

@@ -41,9 +41,7 @@ const areas = categories.filter((item) => item !== academic);
                         >
                             Materias
                         </h1>
-                        <p
-                            class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned"
-                        >
+                        <p class="mt-4 max-w-measure font-serif text-standfirst/relaxed text-toned">
                             Diez áreas del Derecho y un archivo de trabajos académicos publicados
                             íntegramente. Cada materia reúne sus artículos por orden de publicación.
                         </p>
@@ -66,7 +64,7 @@ const areas = categories.filter((item) => item !== academic);
                             class="group flex h-full flex-col gap-3 pt-5 pb-10 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
                         >
                             <span
-                                class="flex items-baseline justify-between gap-4 font-sans text-xs font-semibold tabular-nums text-secondary"
+                                class="flex items-baseline justify-between gap-4 font-sans text-xs font-semibold text-secondary tabular-nums"
                             >
                                 <span>{{ String(index + 1).padStart(2, "0") }}</span>
                                 <span class="font-medium text-muted"
@@ -77,7 +75,7 @@ const areas = categories.filter((item) => item !== academic);
                                 class="font-serif text-h3 text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
                                 >{{ item.name }}</span
                             >
-                            <span class="font-serif text-base leading-relaxed text-toned">{{
+                            <span class="font-serif text-base/relaxed text-toned">{{
                                 item.description
                             }}</span>
                         </a>
@@ -93,11 +91,10 @@ const areas = categories.filter((item) => item !== academic);
                         <Kicker tone="paper"
                             >Archivo académico · {{ academic.count }} trabajos</Kicker
                         >
-                        <span
-                            class="font-serif text-[1.75rem] leading-tight text-ivory-50 md:text-h2"
-                            >{{ academic.name }}</span
-                        >
-                        <span class="max-w-2xl font-serif text-base leading-relaxed">{{
+                        <span class="font-serif text-section/tight text-ivory-50 md:text-h2">{{
+                            academic.name
+                        }}</span>
+                        <span class="max-w-2xl font-serif text-base/relaxed">{{
                             academic.description
                         }}</span>
                     </span>
@@ -118,7 +115,7 @@ const areas = categories.filter((item) => item !== academic);
                         <h2 id="etiquetas" class="font-serif text-h3 text-highlighted">
                             Etiquetas
                         </h2>
-                        <p class="mt-2 font-serif text-base leading-relaxed text-toned">
+                        <p class="mt-2 font-serif text-base/relaxed text-toned">
                             Temas transversales que cruzan varias materias.
                         </p>
                     </div>
@@ -128,7 +125,7 @@ const areas = categories.filter((item) => item !== academic);
                                 href="/lab/category"
                                 class="inline-flex min-h-11 items-center gap-2 rounded-full border border-default bg-ivory-100 px-4 font-sans text-sm font-medium text-toned transition-colors hover:border-(--ui-border-accented) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                                 >{{ name }}
-                                <span class="text-xs tabular-nums text-dimmed">{{ count }}</span></a
+                                <span class="text-xs text-dimmed tabular-nums">{{ count }}</span></a
                             >
                         </li>
                     </ul>

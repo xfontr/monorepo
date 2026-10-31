@@ -51,7 +51,7 @@ const titleId = useId();
                             class="flex-1 translate-y-[-0.2em] border-b border-dotted border-ivory-400"
                             aria-hidden="true"
                         />
-                        <span class="font-sans text-meta tabular-nums text-muted">
+                        <span class="font-sans text-meta text-muted tabular-nums">
                             <span aria-hidden="true">{{ count }}</span>
                             <span class="sr-only">{{
                                 $t("homeSubjects.count", { count }, count)

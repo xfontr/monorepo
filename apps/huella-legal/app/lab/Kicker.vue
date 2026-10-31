@@ -12,7 +12,7 @@ withDefaults(defineProps<Props>(), { tone: "teal" });
         :is="href ? 'a' : 'span'"
         :href
         :data-inline="href ? '' : undefined"
-        class="inline-block font-sans text-xs font-semibold uppercase tracking-[0.12em]"
+        class="inline-block font-sans text-xs font-semibold tracking-[0.12em] uppercase"
         :class="[
             { teal: 'text-secondary', muted: 'text-muted', paper: 'text-huella-teal-200' }[tone],
             href &&

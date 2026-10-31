@@ -4,6 +4,12 @@ import { test as base, expect } from "@playwright/test";
 export const NOT_FOUND_DOCUMENT =
     /^Failed to load resource: the server responded with a status of 404\b/;
 
+// Until then nothing listens, and the router's first navigation puts back the URL it loaded with
+const NUXT_HYDRATED = `(() => {
+    const root = document.querySelector("#__nuxt");
+    return !root || root.__vue_app__?.config.globalProperties.$nuxt?.isHydrating === false;
+})()`;
+
 /** `@playwright/test`'s `test`, failing any test whose page logs or throws. */
 export const test = base.extend<{ allowedConsole: RegExp[] }>({
     allowedConsole: [[], { option: true }],
@@ -21,6 +27,19 @@ export const test = base.extend<{ allowedConsole: RegExp[] }>({
         page.on("pageerror", (error) => {
             if (!isAllowed(error.message)) output.push(`pageerror: ${error.message}`);
         });
+
+        const goto = page.goto.bind(page);
+        const reload = page.reload.bind(page);
+        page.goto = async (...args) => {
+            const response = await goto(...args);
+            await page.waitForFunction(NUXT_HYDRATED);
+            return response;
+        };
+        page.reload = async (...args) => {
+            const response = await reload(...args);
+            await page.waitForFunction(NUXT_HYDRATED);
+            return response;
+        };
 
         await use(page);
 

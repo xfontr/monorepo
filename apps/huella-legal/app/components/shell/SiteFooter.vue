@@ -20,7 +20,7 @@ const year = new Date().getFullYear();
                 <div class="flex flex-col gap-5 lg:col-span-4">
                     <BaseWordmark tone="slate" tagline />
                     <p
-                        class="max-w-xs font-serif text-base leading-relaxed text-balance text-huella-slate-200"
+                        class="max-w-xs font-serif text-base/relaxed text-balance text-huella-slate-200"
                     >
                         {{ $t("app.footer.about") }}
                     </p>

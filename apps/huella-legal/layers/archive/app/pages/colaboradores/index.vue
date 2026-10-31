@@ -64,7 +64,7 @@ useSeoMeta({
                     <h2 class="mt-3 font-serif text-h3 text-highlighted">
                         {{ $t(`authors.principles.${key}.title`) }}
                     </h2>
-                    <p class="mt-2 font-serif text-base leading-relaxed text-toned">
+                    <p class="mt-2 font-serif text-base/relaxed text-toned">
                         {{ $t(`authors.principles.${key}.body`) }}
                     </p>
                 </li>

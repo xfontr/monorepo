@@ -26,14 +26,14 @@ const headingId = useId();
                 </span>
                 <span
                     v-if="index < STEPS.length - 1"
-                    class="absolute top-[1.375rem] left-11 hidden h-px w-[calc(100%-2.75rem)] bg-(--ui-border-accented) lg:block"
+                    class="absolute top-5.5 left-11 hidden h-px w-[calc(100%-2.75rem)] bg-(--ui-border-accented) lg:block"
                     aria-hidden="true"
                 />
                 <span>
                     <span class="block font-serif text-xl text-highlighted">
                         {{ $t(`publish.steps.items.${step}.title`) }}
                     </span>
-                    <span class="mt-1 block font-serif text-base leading-relaxed text-toned">
+                    <span class="mt-1 block font-serif text-base/relaxed text-toned">
                         {{ $t(`publish.steps.items.${step}.body`) }}
                     </span>
                 </span>

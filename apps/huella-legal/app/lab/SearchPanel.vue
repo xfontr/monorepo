@@ -38,7 +38,7 @@ const shownSubjects = subjects.filter((item) => countIn(item.slug) > 0);
                 <Kicker id="sp-subjects" tone="muted">Explorar por materia</Kicker>
                 <ul
                     v-if="size === 'large'"
-                    class="mt-4 grid grid-cols-1 border-t border-default sm:grid-cols-2 lg:grid-cols-3 sm:gap-x-8"
+                    class="mt-4 grid grid-cols-1 border-t border-default sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-3"
                 >
                     <li
                         v-for="item in shownSubjects"
@@ -80,7 +80,7 @@ const shownSubjects = subjects.filter((item) => countIn(item.slug) > 0);
                             <span class="w-5 shrink-0 font-sans text-xs font-semibold text-muted">
                                 {{ String(index + 1).padStart(2, "0") }}
                             </span>
-                            <span class="font-serif text-base leading-snug text-highlighted">
+                            <span class="font-serif text-base/snug text-highlighted">
                                 {{ entry.title }}
                             </span>
                         </a>
@@ -112,11 +112,11 @@ const shownSubjects = subjects.filter((item) => countIn(item.slug) > 0);
                     <li v-for="(entry, index) in matches.slice(0, 5)" :key="entry.slug">
                         <a
                             href="/lab/article"
-                            class="-mx-3 flex flex-col gap-1 rounded-xs px-3 py-3"
+                            class="-mx-3 flex flex-col gap-1 rounded-xs p-3"
                             :class="index === 0 ? 'bg-ivory-200/70' : 'hover:bg-ivory-200/40'"
                         >
                             <span
-                                class="text-xs font-semibold uppercase tracking-[0.12em] text-secondary"
+                                class="text-xs font-semibold tracking-[0.12em] text-secondary uppercase"
                             >
                                 {{ subjectName(entry.subject) }} · {{ formatName(entry.format) }}
                             </span>

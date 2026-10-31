@@ -253,7 +253,7 @@ const notesForVariant = {
                         <p
                             class="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-xs md:mt-8"
                         >
-                            <span class="font-semibold uppercase tracking-[0.12em] text-secondary"
+                            <span class="font-semibold tracking-[0.12em] text-secondary uppercase"
                                 >Artículo</span
                             >
                             <span class="text-dimmed" aria-hidden="true">·</span>
@@ -270,12 +270,12 @@ const notesForVariant = {
                             >
                         </p>
                         <h1
-                            class="mt-4 max-w-[18ch] font-serif text-[2.375rem] leading-[1.08] tracking-[-0.02em] text-highlighted text-balance md:text-[3.25rem] lg:text-[3.75rem]"
+                            class="mt-4 max-w-[18ch] font-serif text-[2.375rem] leading-[1.08] tracking-[-0.02em] text-balance text-highlighted md:text-[3.25rem] lg:text-[3.75rem]"
                         >
                             {{ article.title }}
                         </h1>
                         <p
-                            class="mt-6 max-w-measure border-y border-default py-5 font-serif text-[1.1875rem] leading-relaxed text-toned italic md:text-[1.3125rem]"
+                            class="mt-6 max-w-measure border-y border-default py-5 font-serif text-standfirst/relaxed text-toned italic md:text-[1.3125rem]"
                         >
                             {{ article.excerpt }}
                         </p>
@@ -295,7 +295,7 @@ const notesForVariant = {
                                     lectura</span
                                 >
                             </p>
-                            <div class="-ml-3 flex items-center sm:ml-0 sm:-mr-3">
+                            <div class="-ml-3 flex items-center sm:-mr-3 sm:ml-0">
                                 <UButton
                                     variant="ghost"
                                     color="neutral"
@@ -341,7 +341,7 @@ const notesForVariant = {
                                 class="border-b border-(--ui-border-muted) py-2"
                             >
                                 <dt
-                                    class="text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                                    class="text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                                 >
                                     {{ item.term }}
                                 </dt>
@@ -381,7 +381,7 @@ const notesForVariant = {
                             class="sticky top-16 mt-8 hidden lg:block"
                         >
                             <p
-                                class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                                class="font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                             >
                                 En este artículo
                             </p>
@@ -395,7 +395,7 @@ const notesForVariant = {
                                         :aria-current="
                                             activeSection === item.id ? 'location' : undefined
                                         "
-                                        class="-ml-px flex min-h-9 items-center border-l-2 border-transparent py-1 pl-3 font-sans text-[0.8125rem] leading-snug text-muted transition-colors hover:text-highlighted focus-visible:outline-2 focus-visible:outline-primary aria-[current=location]:border-primary aria-[current=location]:font-semibold aria-[current=location]:text-highlighted"
+                                        class="-ml-px flex min-h-9 items-center border-l-2 border-transparent py-1 pl-3 font-sans text-meta/snug text-muted transition-colors hover:text-highlighted focus-visible:outline-2 focus-visible:outline-primary aria-[current=location]:border-primary aria-[current=location]:font-semibold aria-[current=location]:text-highlighted"
                                         >{{ item.label }}</a
                                     >
                                 </li>
@@ -416,7 +416,7 @@ const notesForVariant = {
                     >
                         <h2
                             id="notas"
-                            class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted xl:sr-only"
+                            class="font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase xl:sr-only"
                         >
                             Notas
                         </h2>
@@ -425,7 +425,7 @@ const notesForVariant = {
                                 v-for="note in notes"
                                 :id="`nota-${note.id}`"
                                 :key="note.id"
-                                class="grid grid-cols-[1.75rem_1fr] font-serif text-citation text-toned xl:absolute xl:inset-x-0 xl:grid-cols-[1.25rem_1fr] xl:text-[0.8125rem] xl:leading-[1.5] xl:text-muted xl:transition-[top]"
+                                class="grid grid-cols-[1.75rem_1fr] font-serif text-citation text-toned xl:absolute xl:inset-x-0 xl:grid-cols-[1.25rem_1fr] xl:text-meta/normal xl:text-muted xl:transition-[top]"
                                 :style="
                                     wide && noteTops[note.id] !== undefined
                                         ? { top: `${noteTops[note.id]}px` }
@@ -435,7 +435,7 @@ const notesForVariant = {
                                 <a
                                     :href="`#ref-${note.id}`"
                                     :aria-label="`Nota ${note.id}, volver al texto`"
-                                    class="-mt-2.5 flex min-h-11 items-start pt-2.5 font-sans text-xs font-semibold leading-5 text-secondary hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary xl:-mt-3 xl:pt-3"
+                                    class="-mt-2.5 flex min-h-11 items-start pt-2.5 font-sans text-xs/5 font-semibold text-secondary hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary xl:-mt-3 xl:pt-3"
                                     >{{ note.id }}</a
                                 >
                                 <span>{{ note.text }}</span>
@@ -450,7 +450,7 @@ const notesForVariant = {
                         >
                             <h2
                                 id="bibliografia"
-                                class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                                class="font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                             >
                                 Bibliografía
                             </h2>
@@ -468,7 +468,7 @@ const notesForVariant = {
                         <section aria-labelledby="citadas" class="border-t border-default pt-6">
                             <h2
                                 id="citadas"
-                                class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                                class="font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                             >
                                 Normas y resoluciones citadas
                             </h2>
@@ -479,7 +479,7 @@ const notesForVariant = {
                                         class="group grid min-h-12 grid-cols-[5.5rem_1fr_auto] items-baseline gap-x-3 py-2.5 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary"
                                     >
                                         <span
-                                            class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary"
+                                            class="font-sans text-xs font-semibold tracking-[0.12em] text-secondary uppercase"
                                             >{{ item.kind }}</span
                                         >
                                         <span class="font-serif text-base text-highlighted">
@@ -545,10 +545,10 @@ const notesForVariant = {
                                 }"
                             />
                             <pre
-                                class="mt-4 font-serif text-citation break-words whitespace-pre-wrap text-toned"
+                                class="mt-4 font-serif text-citation wrap-break-word whitespace-pre-wrap text-toned"
                                 :class="citationTab === '2' && 'font-mono text-[0.8125rem]'"
                                 >{{ citations[Number(citationTab)]!.value }}</pre>
-                            <div class="-ml-3 mt-3 flex flex-wrap items-center gap-1">
+                            <div class="mt-3 -ml-3 flex flex-wrap items-center gap-1">
                                 <UButton variant="link" icon="i-lucide-copy" label="Copiar cita" />
                                 <UButton
                                     variant="link"
@@ -589,7 +589,7 @@ const notesForVariant = {
                             >
                             <div>
                                 <p
-                                    class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                                    class="font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                                 >
                                     Sobre el autor
                                 </p>
@@ -603,8 +603,8 @@ const notesForVariant = {
                                     {{ author.role }}
                                 </p>
                             </div>
-                            <div class="col-span-2 md:col-start-2 md:col-span-1">
-                                <p class="font-serif text-base leading-relaxed text-toned">
+                            <div class="col-span-2 md:col-span-1 md:col-start-2">
+                                <p class="font-serif text-base/relaxed text-toned">
                                     {{ author.bio }}
                                 </p>
                                 <UButton
@@ -624,7 +624,7 @@ const notesForVariant = {
                             <h2 id="replica" class="font-serif text-xl text-highlighted">
                                 ¿Discrepas?
                             </h2>
-                            <p class="mt-1 font-serif text-base leading-relaxed text-toned">
+                            <p class="mt-1 font-serif text-base/relaxed text-toned">
                                 Publicamos réplicas razonadas a nuestros artículos, enlazadas desde
                                 el original. Pasan la misma revisión que cualquier otro texto.
                             </p>
@@ -649,7 +649,7 @@ const notesForVariant = {
                     <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
                         <p
                             id="serie-titulo"
-                            class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary"
+                            class="font-sans text-xs font-semibold tracking-[0.12em] text-secondary uppercase"
                         >
                             {{ series[0]!.name }} · {{ position }} de {{ inSeries.length }}
                         </p>
@@ -674,7 +674,7 @@ const notesForVariant = {
                                 {{ previous.series!.position }}</span
                             >
                             <span
-                                class="font-serif text-xl leading-snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
+                                class="font-serif text-xl/snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
                                 >{{ previous.title }}</span
                             >
                         </a>
@@ -689,7 +689,7 @@ const notesForVariant = {
                                 <UIcon name="i-lucide-arrow-right" class="size-4"
                             /></span>
                             <span
-                                class="font-serif text-xl leading-snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
+                                class="font-serif text-xl/snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
                                 >{{ next.title }}</span
                             >
                         </a>
@@ -708,7 +708,7 @@ const notesForVariant = {
                         <Kicker>{{ article.category }}</Kicker>
                         <h2
                             id="mas-materia"
-                            class="mt-1 font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
+                            class="mt-1 font-serif text-section/tight text-highlighted md:text-h2"
                         >
                             También en la materia
                         </h2>

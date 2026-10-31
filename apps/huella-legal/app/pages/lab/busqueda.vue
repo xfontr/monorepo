@@ -126,7 +126,7 @@ const notes = {
                         }"
                     />
                     <div
-                        class="fixed inset-x-0 top-16 bottom-0 md:absolute md:top-full md:bottom-auto md:mt-3 md:max-h-[calc(100dvh-8rem)] overflow-y-auto border-y border-default bg-ivory-50 p-5 shadow-xl md:inset-x-0 md:rounded-sm md:border-x"
+                        class="fixed inset-x-0 top-16 bottom-0 overflow-y-auto border-y border-default bg-ivory-50 p-5 shadow-xl md:absolute md:inset-x-0 md:top-full md:bottom-auto md:mt-3 md:max-h-[calc(100dvh-8rem)] md:rounded-sm md:border-x"
                     >
                         <SearchPanel :query />
                     </div>
@@ -149,7 +149,7 @@ const notes = {
             v-if="variant === 'b'"
             class="relative z-20 border-b border-default bg-ivory-50 shadow-lg"
         >
-            <div class="mx-auto max-w-site px-4 py-6 md:px-8 md:py-8 lg:px-12">
+            <div class="mx-auto max-w-site px-4 py-6 md:p-8 lg:px-12">
                 <form
                     role="search"
                     class="flex items-center gap-3 border-b-2 border-huella-slate-900 pb-2"
@@ -162,7 +162,7 @@ const notes = {
                         autofocus
                         aria-label="Buscar en Huella Legal"
                         placeholder="¿Qué quieres leer?"
-                        class="min-h-12 w-full bg-transparent font-serif text-2xl text-highlighted outline-none placeholder:text-dimmed [&::-webkit-search-cancel-button]:hidden md:text-3xl"
+                        class="min-h-12 w-full bg-transparent font-serif text-2xl text-highlighted outline-none placeholder:text-dimmed md:text-3xl [&::-webkit-search-cancel-button]:hidden"
                     />
                     <UButton
                         square
@@ -187,7 +187,7 @@ const notes = {
             <main class="mx-auto flex min-h-dvh max-w-site flex-col px-4 md:px-8 lg:px-12">
                 <div class="border-b border-default pt-10 pb-8 md:pt-14">
                     <h1
-                        class="max-w-3xl font-serif text-[2.125rem] leading-[1.08] tracking-[-0.02em] text-highlighted text-balance md:text-[3rem] lg:text-[3.5rem]"
+                        class="max-w-3xl font-serif text-[2.125rem] leading-[1.08] tracking-[-0.02em] text-balance text-highlighted md:text-[3rem] lg:text-[3.5rem]"
                     >
                         Derecho riguroso, escrito para ser <em class="text-primary">leído</em>.
                     </h1>
@@ -258,7 +258,7 @@ const notes = {
                 <form role="search" @submit.prevent>
                     <label
                         for="c-search"
-                        class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary"
+                        class="font-sans text-xs font-semibold tracking-[0.12em] text-secondary uppercase"
                     >
                         Buscar en Huella Legal
                     </label>
@@ -271,7 +271,7 @@ const notes = {
                             type="search"
                             autofocus
                             placeholder="¿Qué quieres leer?"
-                            class="w-full bg-transparent font-serif text-[2.25rem] leading-tight tracking-[-0.02em] text-highlighted outline-none placeholder:text-dimmed [&::-webkit-search-cancel-button]:hidden md:text-[3.5rem]"
+                            class="w-full bg-transparent font-serif text-4xl/tight tracking-[-0.02em] text-highlighted outline-none placeholder:text-dimmed md:text-[3.5rem] [&::-webkit-search-cancel-button]:hidden"
                         />
                         <UButton
                             type="submit"
@@ -291,7 +291,7 @@ const notes = {
         <!-- Review aid: switch variant and state -->
         <nav
             aria-label="Variantes de búsqueda"
-            class="fixed bottom-16 left-3 z-50 sm:bottom-3 flex max-w-[calc(100vw-1.5rem)] flex-wrap items-center gap-1 rounded-sm bg-huella-slate-900 p-1.5 font-sans text-xs text-ivory-50 shadow-xl"
+            class="fixed bottom-16 left-3 z-50 flex max-w-[calc(100vw-1.5rem)] flex-wrap items-center gap-1 rounded-sm bg-huella-slate-900 p-1.5 font-sans text-xs text-ivory-50 shadow-xl sm:bottom-3"
         >
             <a
                 v-for="item in variants"

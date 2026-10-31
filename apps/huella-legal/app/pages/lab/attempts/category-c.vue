@@ -218,7 +218,7 @@ const notes = {
                                 Publicaciones
                             </h1>
                             <p
-                                class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned"
+                                class="mt-4 max-w-measure font-serif text-standfirst/relaxed text-toned"
                             >
                                 Todo lo publicado en Huella Legal: {{ archive.length }} textos en
                                 {{ subjects.length }} materias, de artículos doctrinales a trabajos
@@ -329,13 +329,11 @@ const notes = {
                         <p class="font-serif text-xl text-highlighted">
                             Nada coincide con esta combinación.
                         </p>
-                        <p
-                            class="mt-2 max-w-measure font-serif text-base leading-relaxed text-toned"
-                        >
+                        <p class="mt-2 max-w-measure font-serif text-base/relaxed text-toned">
                             Prueba a quitar un filtro o a buscar con menos palabras. Si echas en
                             falta un tema, quizá sea el artículo que tú puedes escribir.
                         </p>
-                        <div class="-ml-3 mt-3 flex flex-wrap gap-1">
+                        <div class="mt-3 -ml-3 flex flex-wrap gap-1">
                             <UButton variant="link" label="Borrar filtros" @click="clear" />
                             <UButton
                                 variant="link"

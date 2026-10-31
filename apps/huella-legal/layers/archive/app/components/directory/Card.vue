@@ -27,7 +27,7 @@ const authorInitials = computed<string>(() => initials(props.author.name));
                     class="size-14 shrink-0"
                 />
                 <h3
-                    class="min-w-0 font-serif text-xl leading-snug font-normal text-balance decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
+                    class="min-w-0 font-serif text-xl/snug font-normal text-balance decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
                 >
                     {{ author.name }}
                 </h3>

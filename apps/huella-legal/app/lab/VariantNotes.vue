@@ -22,7 +22,7 @@ const open = ref(route.query.notas === "1");
             v-if="open"
             class="w-full overflow-y-auto rounded-sm border border-huella-slate-700 bg-huella-slate-900 p-5 text-sm text-huella-slate-200 shadow-xl"
         >
-            <p class="text-xs font-semibold uppercase tracking-[0.12em] text-huella-teal-300">
+            <p class="text-xs font-semibold tracking-[0.12em] text-huella-teal-300 uppercase">
                 {{ label }}
             </p>
             <a
@@ -32,7 +32,7 @@ const open = ref(route.query.notas === "1");
                 >Comparar con la versión aprobada <UIcon name="i-lucide-arrow-right" class="size-4"
             /></a>
 
-            <p class="mt-4 text-xs font-semibold uppercase tracking-[0.12em] text-huella-slate-300">
+            <p class="mt-4 text-xs font-semibold tracking-[0.12em] text-huella-slate-300 uppercase">
                 Qué cambia
             </p>
             <ul class="mt-2 flex list-disc flex-col gap-1.5 pl-4 marker:text-huella-teal-400">
@@ -41,7 +41,7 @@ const open = ref(route.query.notas === "1");
                 </li>
             </ul>
 
-            <p class="mt-5 text-xs font-semibold uppercase tracking-[0.12em] text-huella-slate-300">
+            <p class="mt-5 text-xs font-semibold tracking-[0.12em] text-huella-slate-300 uppercase">
                 De dónde salen los datos
             </p>
             <dl class="mt-2 flex flex-col divide-y divide-huella-slate-700">

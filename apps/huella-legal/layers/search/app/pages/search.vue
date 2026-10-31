@@ -18,7 +18,7 @@ useSeoMeta({ title, robots: "noindex" });
             <h1 class="sr-only">{{ title }}</h1>
             <SearchForm v-model="term" />
             <SearchResults v-if="term" :search :to="pageLink" :pending="status === 'pending'" />
-            <p v-else class="font-serif text-base leading-relaxed text-toned">
+            <p v-else class="font-serif text-base/relaxed text-toned">
                 {{ $t("search.empty") }}
             </p>
         </div>

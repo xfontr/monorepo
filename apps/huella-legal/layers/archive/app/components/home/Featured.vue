@@ -24,7 +24,7 @@ const authors = computed(() => bylineAuthors(props.lead.authors));
         class="grid grid-cols-1 gap-12 pt-8 pb-16 lg:grid-cols-12 lg:gap-0 lg:pt-10 lg:pb-20"
     >
         <article class="group relative flex flex-col gap-5 lg:col-span-8 lg:pr-12">
-            <div class="@container aspect-[16/10] overflow-hidden rounded-xs">
+            <div class="@container aspect-16/10 overflow-hidden rounded-xs">
                 <!-- Decorative: the title below it already names the article -->
                 <NuxtImg
                     v-if="lead.image"
@@ -53,12 +53,12 @@ const authors = computed(() => bylineAuthors(props.lead.authors));
                 </template>
             </p>
             <h2
-                class="font-serif text-[2rem] leading-[1.12] tracking-[-0.02em] text-highlighted text-balance md:text-h1 lg:text-[2.875rem]"
+                class="font-serif text-[2rem] leading-[1.12] tracking-[-0.02em] text-balance text-highlighted md:text-h1 lg:text-[2.875rem]"
             >
                 <ULink
                     raw
                     :to="leadLink"
-                    class="decoration-huella-slate-300 decoration-2 underline-offset-[0.14em] after:absolute after:inset-0 group-hover:underline focus-visible:rounded-xs focus-visible:outline-offset-4"
+                    class="decoration-huella-slate-300 decoration-2 underline-offset-[0.14em] group-hover:underline after:absolute after:inset-0 focus-visible:rounded-xs focus-visible:outline-offset-4"
                     >{{ lead.title }}</ULink
                 >
             </h2>
@@ -88,7 +88,7 @@ const authors = computed(() => bylineAuthors(props.lead.authors));
                     class="relative grid grid-cols-[2rem_1fr] py-4"
                 >
                     <span
-                        class="font-serif text-xl leading-snug text-huella-teal-600 tabular-nums"
+                        class="font-serif text-xl/snug text-huella-teal-600 tabular-nums"
                         aria-hidden="true"
                         >{{ index + 1 }}</span
                     >
@@ -99,7 +99,7 @@ const authors = computed(() => bylineAuthors(props.lead.authors));
                         <ULink
                             raw
                             :to="articleLink(article.slug)"
-                            class="font-serif text-lg leading-snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] after:absolute after:inset-0 hover:underline focus-visible:rounded-xs focus-visible:outline-offset-2"
+                            class="font-serif text-lg/snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] after:absolute after:inset-0 hover:underline focus-visible:rounded-xs focus-visible:outline-offset-2"
                             >{{ article.title }}</ULink
                         >
                         <span class="font-sans text-meta text-muted">{{

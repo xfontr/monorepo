@@ -76,7 +76,7 @@ const notes = {
             >
                 <article class="group flex flex-col lg:col-span-8 lg:pr-12">
                     <p class="flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-xs">
-                        <span class="font-semibold uppercase tracking-[0.12em] text-secondary"
+                        <span class="font-semibold tracking-[0.12em] text-secondary uppercase"
                             >Destacado</span
                         >
                         <span class="text-dimmed" aria-hidden="true">·</span>
@@ -90,7 +90,7 @@ const notes = {
                         <span class="text-dimmed tabular-nums">{{ lead.issue }}</span>
                     </p>
                     <h1
-                        class="mt-4 max-w-[16ch] font-serif text-[2.625rem] leading-[1.04] tracking-[-0.025em] text-highlighted text-balance md:text-[4rem] lg:text-[4.5rem]"
+                        class="mt-4 max-w-[16ch] font-serif text-[2.625rem] leading-[1.04] tracking-tight text-balance text-highlighted md:text-[4rem] lg:text-[4.5rem]"
                     >
                         <a
                             href="/lab/attempts/article-b"
@@ -99,7 +99,7 @@ const notes = {
                         >
                     </h1>
                     <p
-                        class="mt-6 max-w-measure border-y border-default py-5 font-serif text-[1.1875rem] leading-relaxed text-toned italic md:text-[1.3125rem]"
+                        class="mt-6 max-w-measure border-y border-default py-5 font-serif text-standfirst/relaxed text-toned italic md:text-[1.3125rem]"
                     >
                         {{ lead.excerpt }}
                     </p>
@@ -118,7 +118,7 @@ const notes = {
                 >
                     <h2
                         id="lo-ultimo"
-                        class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                        class="font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                     >
                         Lo último
                     </h2>
@@ -129,17 +129,17 @@ const notes = {
                             class="grid grid-cols-[2rem_1fr] py-4"
                         >
                             <span
-                                class="font-serif text-xl leading-snug text-huella-teal-600 tabular-nums"
+                                class="font-serif text-xl/snug text-huella-teal-600 tabular-nums"
                                 >{{ index + 1 }}</span
                             >
                             <span class="flex flex-col gap-1">
                                 <span
-                                    class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary"
+                                    class="font-sans text-xs font-semibold tracking-[0.12em] text-secondary uppercase"
                                     >{{ formatName(item.format) }}</span
                                 >
                                 <a
                                     href="/lab/attempts/article-b"
-                                    class="font-serif text-lg leading-snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                                    class="font-serif text-lg/snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                                     >{{ item.title }}</a
                                 >
                                 <span class="font-sans text-meta text-muted">{{
@@ -171,7 +171,7 @@ const notes = {
                                 >{{ series[0]!.name }}</a
                             >
                         </h2>
-                        <p class="mt-2 font-serif text-base leading-relaxed text-muted">
+                        <p class="mt-2 font-serif text-base/relaxed text-muted">
                             Para leer en orden. Empieza por la primera aunque sepas Derecho.
                         </p>
                     </div>
@@ -183,17 +183,17 @@ const notes = {
                         >
                             <a
                                 href="/lab/attempts/article-b"
-                                class="group grid h-full grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-2 py-3 focus-visible:rounded-xs sm:flex sm:flex-col sm:gap-2 sm:pb-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                                class="group grid h-full grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-2 py-3 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:flex sm:flex-col sm:gap-2 sm:pb-6"
                             >
                                 <span
                                     class="font-serif text-2xl leading-none text-huella-teal-600 tabular-nums sm:text-[2rem]"
                                     >{{ item.series!.position }}</span
                                 >
                                 <span
-                                    class="font-serif text-lg leading-snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
+                                    class="font-serif text-lg/snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
                                     >{{ item.title }}</span
                                 >
-                                <span class="font-sans text-meta tabular-nums text-muted sm:mt-auto"
+                                <span class="font-sans text-meta text-muted tabular-nums sm:mt-auto"
                                     >{{ item.readingMinutes }} min</span
                                 >
                             </a>
@@ -209,7 +209,7 @@ const notes = {
                 <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                     <h2
                         id="por-materia"
-                        class="font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
+                        class="font-serif text-section/tight text-highlighted md:text-h2"
                     >
                         Por materia
                     </h2>
@@ -234,10 +234,10 @@ const notes = {
                         >
                             <a
                                 :href="`/lab/attempts/category-b?materia=${shelf.subject.slug}`"
-                                class="inline-flex min-h-11 items-center font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary underline-offset-4 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary"
+                                class="inline-flex min-h-11 items-center font-sans text-xs font-semibold tracking-[0.12em] text-secondary uppercase underline-offset-4 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary"
                                 >{{ shelf.subject.name }}</a
                             >
-                            <span class="font-sans text-meta tabular-nums text-muted">{{
+                            <span class="font-sans text-meta text-muted tabular-nums">{{
                                 shelf.total
                             }}</span>
                         </h3>
@@ -262,15 +262,15 @@ const notes = {
                         <Kicker tone="paper"> Archivo académico </Kicker>
                         <h2
                             id="academicos"
-                            class="mt-2 font-serif text-[1.75rem] leading-tight text-ivory-50 md:text-h2"
+                            class="mt-2 font-serif text-section/tight text-ivory-50 md:text-h2"
                         >
                             Trabajos de fin de grado y de máster
                         </h2>
-                        <p class="mt-3 font-serif text-base leading-relaxed">
+                        <p class="mt-3 font-serif text-base/relaxed">
                             Publicados íntegramente y enlazados desde su materia, para que un buen
                             trabajo no acabe en un cajón.
                         </p>
-                        <div class="-ml-3 mt-4 flex flex-wrap gap-1">
+                        <div class="mt-4 -ml-3 flex flex-wrap gap-1">
                             <UButton
                                 variant="link"
                                 label="Ver los trabajos"
@@ -293,13 +293,13 @@ const notes = {
                             class="border-t border-huella-slate-700 py-5"
                         >
                             <p
-                                class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-huella-teal-300"
+                                class="font-sans text-xs font-semibold tracking-[0.12em] text-huella-teal-300 uppercase"
                             >
                                 {{ item.category }}
                             </p>
                             <a
                                 href="/lab/attempts/article-b"
-                                class="mt-2 block font-serif text-lg leading-snug text-ivory-50 decoration-huella-slate-500 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ivory-50"
+                                class="mt-2 block font-serif text-lg/snug text-ivory-50 decoration-huella-slate-500 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ivory-50"
                                 >{{ item.title }}</a
                             >
                             <p class="mt-2 font-sans text-meta text-huella-slate-300">
@@ -319,7 +319,7 @@ const notes = {
                         <Kicker>Del archivo</Kicker>
                         <h2
                             id="archivo"
-                            class="mt-1 font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
+                            class="mt-1 font-serif text-section/tight text-highlighted md:text-h2"
                         >
                             Escritos hace años, vigentes hoy
                         </h2>
@@ -333,7 +333,7 @@ const notes = {
                             class="grid gap-x-6 py-5 sm:grid-cols-[4.5rem_1fr]"
                         >
                             <span
-                                class="font-serif text-2xl leading-tight text-huella-teal-600 tabular-nums"
+                                class="font-serif text-2xl/tight text-huella-teal-600 tabular-nums"
                                 >{{ item.year }}</span
                             >
                             <ArchiveRow :entry="item" show-subject density="compact" />
@@ -349,9 +349,7 @@ const notes = {
                 <div
                     class="flex flex-col gap-4 border-t-2 border-huella-slate-900 pt-5 md:flex-row md:items-center md:justify-between md:gap-10"
                 >
-                    <p
-                        class="max-w-3xl font-serif text-xl leading-snug text-highlighted md:text-h3"
-                    >
+                    <p class="max-w-3xl font-serif text-xl/snug text-highlighted md:text-h3">
                         ¿Escribes sobre Derecho? Publicamos artículos, comentarios, ensayos y
                         trabajos académicos, con revisión editorial y respuesta en cinco días.
                     </p>

@@ -117,7 +117,7 @@ The preset also owns the console half of [`0032`](../../docs/decisions/0032-cons
 
 | Piece | The app's side |
 | --- | --- |
-| [`test.ts`](./src/playwright/test.ts) | Specs import `test`, `expect` and `NOT_FOUND_DOCUMENT` from `@monorepo/configs/playwright/test`. A test fails on any browser console message or page error its `allowedConsole` patterns don't match |
+| [`test.ts`](./src/playwright/test.ts) | Specs import `test`, `expect` and `NOT_FOUND_DOCUMENT` from `@monorepo/configs/playwright/test`. A test fails on any browser console message or page error its `allowedConsole` patterns don't match. `page.goto` and `page.reload` return only once Nuxt has hydrated the page, so a spec never clicks or types into server-rendered markup nothing listens to yet |
 | [`server.ts`](./src/playwright/server.ts) | The `node --import` preload calls `recordServerConsole()` from `@monorepo/configs/playwright/server`, a subpath so the Nitro process never loads the ESLint and Vitest halves of the barrel |
 | [`teardown.ts`](./src/playwright/teardown.ts) | Nothing: `createConfig` sets it as `globalTeardown` and passes the log path in `E2E_SERVER_CONSOLE`. It fails the run on anything the server logged, and on a missing log, which means the preload never called the recorder |
 | [`e2eFixture.ts`](./src/eslint/lib/e2eFixture.ts) | Nothing: both ESLint presets forbid importing `test` from `@playwright/test` in `e2e/**/*.spec.ts` |

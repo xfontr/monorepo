@@ -217,7 +217,7 @@ const attemptPages = [
                     >
                 </li>
             </ul>
-            <p class="mt-5 font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+            <p class="mt-5 font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase">
                 Intentos anteriores
             </p>
             <ul class="mt-2 flex flex-wrap gap-2">
@@ -238,7 +238,7 @@ const attemptPages = [
             <div>
                 <Kicker>01</Kicker>
                 <h2 class="mt-2 font-serif text-h2 text-highlighted">Color</h2>
-                <p class="mt-3 font-serif text-base leading-relaxed text-toned">
+                <p class="mt-3 font-serif text-base/relaxed text-toned">
                     Los cuatro colores de la marca actual, extendidos a escalas completas. El verde
                     agua de marca es decorativo; como texto se usa el paso 600.
                 </p>
@@ -297,7 +297,7 @@ const attemptPages = [
             <div>
                 <Kicker>02</Kicker>
                 <h2 class="mt-2 font-serif text-h2 text-highlighted">Tipografía</h2>
-                <p class="mt-3 font-serif text-base leading-relaxed text-toned">
+                <p class="mt-3 font-serif text-base/relaxed text-toned">
                     Georgia para leer, Montserrat para orientarse. Los títulos van en redonda
                     regular: el peso lo da el tamaño, no la negrita.
                 </p>
@@ -327,7 +327,7 @@ const attemptPages = [
             <div>
                 <Kicker>03</Kicker>
                 <h2 class="mt-2 font-serif text-h2 text-highlighted">Lectura</h2>
-                <p class="mt-3 font-serif text-base leading-relaxed text-toned">
+                <p class="mt-3 font-serif text-base/relaxed text-toned">
                     Columna de 680&nbsp;px: unos 70 caracteres por línea. Enlaces subrayados, notas
                     al pie numeradas y citas legales en cuerpo menor.
                 </p>
@@ -352,7 +352,7 @@ const attemptPages = [
                 </p>
 
                 <blockquote class="my-10 border-l-[3px] border-huella-teal-400 pl-6">
-                    <p class="font-serif text-quote italic text-highlighted">
+                    <p class="font-serif text-quote text-highlighted italic">
                         «La pena no puede imponerse a quien no pudo obrar de otro modo; ese límite
                         no se negocia.»
                     </p>
@@ -385,7 +385,7 @@ const attemptPages = [
             <div>
                 <Kicker>04</Kicker>
                 <h2 class="mt-2 font-serif text-h2 text-highlighted">Controles</h2>
-                <p class="mt-3 font-serif text-base leading-relaxed text-toned">
+                <p class="mt-3 font-serif text-base/relaxed text-toned">
                     Componentes de Nuxt UI con los tokens de Huella. Todo objetivo táctil mide al
                     menos 44&nbsp;px; el foco de teclado es un anillo de 2&nbsp;px separado
                     2&nbsp;px.
@@ -517,7 +517,7 @@ const attemptPages = [
             <div>
                 <Kicker>05</Kicker>
                 <h2 class="mt-2 font-serif text-h2 text-highlighted">Tarjetas</h2>
-                <p class="mt-3 font-serif text-base leading-relaxed text-toned">
+                <p class="mt-3 font-serif text-base/relaxed text-toned">
                     Separadas por filetes, no por cajas. El título es el único enlace al artículo;
                     materia y autor enlazan por su cuenta.
                 </p>
@@ -525,13 +525,11 @@ const attemptPages = [
 
             <div class="flex flex-col gap-12">
                 <ArticleCard :article="articles[0]!" variant="lead" split />
-                <div class="grid gap-x-10 gap-y-10 border-t border-default pt-8 md:grid-cols-2">
+                <div class="grid gap-10 border-t border-default pt-8 md:grid-cols-2">
                     <ArticleCard :article="articles[1]!" />
                     <ArticleCard :article="articles[6]!" />
                 </div>
-                <div
-                    class="grid gap-x-10 gap-y-10 border-t border-default pt-8 md:grid-cols-2 lg:grid-cols-3"
-                >
+                <div class="grid gap-10 border-t border-default pt-8 md:grid-cols-2 lg:grid-cols-3">
                     <ArticleCard :article="articles[3]!" variant="media" />
                     <ArticleCard :article="articles[4]!" variant="media" />
                     <div

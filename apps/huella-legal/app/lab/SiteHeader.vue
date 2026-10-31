@@ -54,7 +54,7 @@ const open = ref(props.menuOpen);
                         <a
                             :href="href(item.to)"
                             :aria-current="item.label === current ? 'page' : undefined"
-                            class="relative inline-flex min-h-11 items-center px-3 font-sans text-sm font-semibold text-toned transition-colors hover:text-highlighted focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary aria-[current=page]:text-highlighted aria-[current=page]:after:absolute aria-[current=page]:after:inset-x-3 aria-[current=page]:after:-bottom-[1.1875rem] aria-[current=page]:after:h-0.5 aria-[current=page]:after:bg-primary"
+                            class="relative inline-flex min-h-11 items-center px-3 font-sans text-sm font-semibold text-toned transition-colors hover:text-highlighted focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary aria-[current=page]:text-highlighted aria-[current=page]:after:absolute aria-[current=page]:after:inset-x-3 aria-[current=page]:after:-bottom-4.75 aria-[current=page]:after:h-0.5 aria-[current=page]:after:bg-primary"
                             >{{ item.label }}</a
                         >
                     </li>

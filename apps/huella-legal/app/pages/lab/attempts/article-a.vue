@@ -79,7 +79,7 @@ onMounted(() => {
                             <Kicker href="/lab/category">
                                 {{ article.category }}
                             </Kicker>
-                            <span class="font-sans text-xs tabular-nums text-dimmed">{{
+                            <span class="font-sans text-xs text-dimmed tabular-nums">{{
                                 article.issue
                             }}</span>
                             <a
@@ -90,12 +90,12 @@ onMounted(() => {
                             >
                         </div>
                         <h1
-                            class="mt-4 max-w-[18ch] font-serif text-[2.375rem] leading-[1.08] tracking-[-0.02em] text-highlighted text-balance md:text-[3.25rem] lg:text-[3.75rem]"
+                            class="mt-4 max-w-[18ch] font-serif text-[2.375rem] leading-[1.08] tracking-[-0.02em] text-balance text-highlighted md:text-[3.25rem] lg:text-[3.75rem]"
                         >
                             {{ article.title }}
                         </h1>
                         <p
-                            class="mt-5 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned md:text-[1.3125rem]"
+                            class="mt-5 max-w-measure font-serif text-standfirst/relaxed text-toned md:text-[1.3125rem]"
                         >
                             {{ article.excerpt }}
                         </p>
@@ -109,7 +109,7 @@ onMounted(() => {
                                     aria-hidden="true"
                                     >{{ author.initials }}</span
                                 >
-                                <div class="font-sans text-meta leading-snug">
+                                <div class="font-sans text-meta/snug">
                                     <a
                                         href="#autor"
                                         class="inline-flex min-h-6 items-center font-semibold text-highlighted hover:underline"
@@ -122,7 +122,7 @@ onMounted(() => {
                                     </p>
                                 </div>
                             </div>
-                            <div class="-ml-3 flex items-center gap-1 sm:ml-0 sm:-mr-3">
+                            <div class="-ml-3 flex items-center gap-1 sm:-mr-3 sm:ml-0">
                                 <UButton
                                     variant="ghost"
                                     color="neutral"
@@ -145,9 +145,7 @@ onMounted(() => {
                 </header>
 
                 <figure class="mx-auto mt-8 max-w-site px-4 md:mt-10 md:px-8 lg:px-12">
-                    <div
-                        class="@container aspect-[16/9] overflow-hidden rounded-xs lg:aspect-[21/9]"
-                    >
+                    <div class="@container aspect-video overflow-hidden rounded-xs lg:aspect-21/9">
                         <MediaFallback tone="slate" label="Imagen del artículo" />
                     </div>
                     <figcaption
@@ -190,7 +188,7 @@ onMounted(() => {
 
                         <div class="sticky top-8 hidden lg:block">
                             <p
-                                class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                                class="font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                             >
                                 En este artículo
                             </p>
@@ -221,7 +219,7 @@ onMounted(() => {
                             <section aria-labelledby="notas" class="border-t border-default pt-6">
                                 <h2
                                     id="notas"
-                                    class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                                    class="font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                                 >
                                     Notas
                                 </h2>
@@ -233,7 +231,7 @@ onMounted(() => {
                                         class="grid grid-cols-[1.75rem_1fr] font-serif text-citation text-toned"
                                     >
                                         <span
-                                            class="font-sans text-xs font-semibold leading-6 text-secondary"
+                                            class="font-sans text-xs/6 font-semibold text-secondary"
                                             >{{ note.id }}</span
                                         >
                                         <span>
@@ -255,7 +253,7 @@ onMounted(() => {
                             >
                                 <h2
                                     id="bibliografia"
-                                    class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                                    class="font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                                 >
                                     Bibliografía
                                 </h2>
@@ -290,7 +288,7 @@ onMounted(() => {
                                         class="shrink-0"
                                     />
                                 </div>
-                                <p class="mt-3 font-serif text-citation break-words text-toned">
+                                <p class="mt-3 font-serif text-citation wrap-break-word text-toned">
                                     {{ citation }}
                                 </p>
                             </section>
@@ -325,7 +323,7 @@ onMounted(() => {
                                 >
                                 <div>
                                     <p
-                                        class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                                        class="font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                                     >
                                         Sobre el autor
                                     </p>
@@ -339,8 +337,8 @@ onMounted(() => {
                                         {{ author.role }}
                                     </p>
                                 </div>
-                                <div class="col-span-2 md:col-start-2 md:col-span-1">
-                                    <p class="font-serif text-base leading-relaxed text-toned">
+                                <div class="col-span-2 md:col-span-1 md:col-start-2">
+                                    <p class="font-serif text-base/relaxed text-toned">
                                         {{ author.bio }}
                                     </p>
                                     <UButton
@@ -399,7 +397,7 @@ onMounted(() => {
                                     }}</span
                                 >
                                 <span
-                                    class="font-serif text-base leading-snug"
+                                    class="font-serif text-base/snug"
                                     :class="
                                         index === seriesIndex ? 'text-ivory-50' : 'text-highlighted'
                                     "
@@ -418,12 +416,12 @@ onMounted(() => {
                 <div class="border-t-2 border-huella-slate-900 pt-4">
                     <h2
                         id="sigue-leyendo"
-                        class="font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
+                        class="font-serif text-section/tight text-highlighted md:text-h2"
                     >
                         Sigue leyendo
                     </h2>
                 </div>
-                <div class="mt-8 grid gap-x-10 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
+                <div class="mt-8 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
                     <ArticleCard
                         v-for="(item, index) in related"
                         :key="item.slug"

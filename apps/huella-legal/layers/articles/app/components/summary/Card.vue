@@ -136,11 +136,11 @@ const comments = computed(() =>
                 {{ article.category.name }}
             </BaseKicker>
 
-            <h3 class="font-serif text-highlighted text-balance" :class="ui.title">
+            <h3 class="font-serif text-balance text-highlighted" :class="ui.title">
                 <ULink
                     :to="{ name: 'article', params: { slug: article.slug } }"
                     raw
-                    class="decoration-huella-slate-300 decoration-1 underline-offset-[0.2em] after:absolute after:inset-0 group-hover:underline focus-visible:rounded-xs focus-visible:outline-offset-4"
+                    class="decoration-huella-slate-300 decoration-1 underline-offset-[0.2em] group-hover:underline after:absolute after:inset-0 focus-visible:rounded-xs focus-visible:outline-offset-4"
                 >
                     {{ article.title }}
                 </ULink>
@@ -148,7 +148,7 @@ const comments = computed(() =>
 
             <p
                 v-if="ui.excerpt && article.excerpt"
-                class="font-serif text-toned text-pretty"
+                class="font-serif text-pretty text-toned"
                 :class="ui.excerpt"
             >
                 {{ article.excerpt }}

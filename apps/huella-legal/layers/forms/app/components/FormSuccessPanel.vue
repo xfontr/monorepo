@@ -25,10 +25,7 @@ onMounted(() => heading.value?.focus());
         <h3 ref="heading" tabindex="-1" class="font-serif text-h3 text-highlighted outline-none">
             {{ title }}
         </h3>
-        <p
-            v-if="$slots.default"
-            class="max-w-measure font-serif text-base leading-relaxed text-toned"
-        >
+        <p v-if="$slots.default" class="max-w-measure font-serif text-base/relaxed text-toned">
             <slot />
         </p>
         <UButton v-if="action" variant="link" :label="action.label" :to="action.to" class="-ml-3" />

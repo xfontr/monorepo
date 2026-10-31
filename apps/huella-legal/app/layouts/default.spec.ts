@@ -79,6 +79,9 @@ describe("default layout", () => {
             description: "t(app.description)",
             ogTitle: "t(app.title)",
             ogDescription: "t(app.description)",
+            ogImage: "https://www.huellalegal.com/og-image.png",
+            ogImageWidth: 1200,
+            ogImageHeight: 630,
         });
     });
 });

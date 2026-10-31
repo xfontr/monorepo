@@ -34,7 +34,7 @@ const authorInitials = computed<string>(() => initials(props.author.name));
             </h2>
         </div>
         <div class="col-span-2 md:col-span-1 md:col-start-2">
-            <p v-if="author.bio" class="font-serif text-base leading-relaxed text-toned">
+            <p v-if="author.bio" class="font-serif text-base/relaxed text-toned">
                 {{ author.bio }}
             </p>
             <UButton

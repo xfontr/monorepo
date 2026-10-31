@@ -15,7 +15,7 @@ const headingId = useId();
         <h2 :id="headingId" class="mt-4 font-serif text-h3 text-ivory-50">
             {{ $t("publish.thesis.title") }}
         </h2>
-        <p class="mt-2 font-serif text-base leading-relaxed">{{ $t("publish.thesis.body") }}</p>
+        <p class="mt-2 font-serif text-base/relaxed">{{ $t("publish.thesis.body") }}</p>
         <UButton
             variant="link"
             color="neutral"

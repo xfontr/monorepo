@@ -54,14 +54,14 @@ const principles = [
                     <div class="lg:col-span-7">
                         <Kicker>Sobre Huella Legal</Kicker>
                         <h1
-                            class="mt-2 font-serif text-[2.5rem] leading-[1.06] tracking-[-0.02em] text-highlighted text-balance md:text-[3.5rem]"
+                            class="mt-2 font-serif text-[2.5rem] leading-[1.06] tracking-[-0.02em] text-balance text-highlighted md:text-[3.5rem]"
                         >
                             Una revista escrita por quienes practican, enseñan y estudian el
                             Derecho.
                         </h1>
                     </div>
                     <div
-                        class="flex max-w-measure flex-col gap-5 font-serif text-[1.125rem] leading-relaxed text-toned lg:col-span-5 lg:pt-10"
+                        class="flex max-w-measure flex-col gap-5 font-serif text-lg/relaxed text-toned lg:col-span-5 lg:pt-10"
                     >
                         <p>
                             Huella Legal nació para acercar el Derecho a cualquier lector sin
@@ -108,7 +108,7 @@ const principles = [
                         <h2 class="mt-3 font-serif text-h3 text-highlighted">
                             {{ item.title }}
                         </h2>
-                        <p class="mt-2 font-serif text-base leading-relaxed text-toned">
+                        <p class="mt-2 font-serif text-base/relaxed text-toned">
                             {{ item.body }}
                         </p>
                     </li>
@@ -121,7 +121,7 @@ const principles = [
                         <div>
                             <h2
                                 id="directorio"
-                                class="font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
+                                class="font-serif text-section/tight text-highlighted md:text-h2"
                             >
                                 Colaboradores
                             </h2>
@@ -152,11 +152,11 @@ const principles = [
                                     >
                                     <div class="min-w-0">
                                         <h3
-                                            class="font-serif text-xl leading-snug text-highlighted text-balance"
+                                            class="font-serif text-xl/snug text-balance text-highlighted"
                                         >
                                             <a
                                                 href="/lab/category?autor=1"
-                                                class="decoration-huella-slate-300 underline-offset-[0.2em] after:absolute after:inset-0 group-hover:underline focus-visible:outline-none after:rounded-sm focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-primary"
+                                                class="decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline after:absolute after:inset-0 after:rounded-sm focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-primary"
                                                 >{{ person.name }}</a
                                             >
                                         </h3>
@@ -170,7 +170,7 @@ const principles = [
                                 </div>
                                 <p
                                     v-if="person.bio"
-                                    class="line-clamp-3 font-serif text-[0.9375rem] leading-relaxed text-toned"
+                                    class="line-clamp-3 font-serif text-citation/relaxed text-toned"
                                 >
                                     {{ person.bio }}
                                 </p>

@@ -19,13 +19,13 @@ withDefaults(defineProps<Props>(), {
         <div>
             <p
                 v-if="kicker"
-                class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary"
+                class="font-sans text-xs font-semibold tracking-[0.12em] text-secondary uppercase"
             >
                 {{ kicker }}
             </p>
             <h2
                 :id
-                class="font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
+                class="font-serif text-section/tight text-highlighted md:text-h2"
                 :class="kicker && 'mt-1'"
             >
                 {{ title }}

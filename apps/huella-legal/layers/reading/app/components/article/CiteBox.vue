@@ -49,12 +49,12 @@ const copy = async (text: string): Promise<void> => {
             class="mt-3"
         >
             <template #content="{ item }">
-                <p class="mt-4 font-serif text-citation break-words text-toned">
+                <p class="mt-4 font-serif text-citation wrap-break-word text-toned">
                     {{ item.text }}
                 </p>
             </template>
         </UTabs>
-        <p v-else class="mt-4 font-serif text-citation break-words text-toned">
+        <p v-else class="mt-4 font-serif text-citation wrap-break-word text-toned">
             {{ citation.text }}
         </p>
         <ClientOnly>

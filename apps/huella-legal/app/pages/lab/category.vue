@@ -57,9 +57,7 @@ const sort = ref("Más recientes");
                         >
                             {{ category.name }}
                         </h1>
-                        <p
-                            class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned"
-                        >
+                        <p class="mt-4 max-w-measure font-serif text-standfirst/relaxed text-toned">
                             {{ category.description }}
                         </p>
                     </div>
@@ -76,7 +74,7 @@ const sort = ref("Más recientes");
                         <div>
                             <Kicker>Colaboradora</Kicker>
                             <h1
-                                class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-highlighted text-balance md:text-[3.5rem]"
+                                class="mt-2 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-balance text-highlighted md:text-[3.5rem]"
                             >
                                 {{ author.name }}
                             </h1>
@@ -84,11 +82,11 @@ const sort = ref("Más recientes");
                                 {{ author.role }}
                             </p>
                             <p
-                                class="mt-4 max-w-measure font-serif text-[1.1875rem] leading-relaxed text-toned text-pretty"
+                                class="mt-4 max-w-measure font-serif text-standfirst/relaxed text-pretty text-toned"
                             >
                                 {{ author.bio }}
                             </p>
-                            <div class="-ml-3 mt-3 flex flex-wrap gap-1">
+                            <div class="mt-3 -ml-3 flex flex-wrap gap-1">
                                 <UButton
                                     variant="ghost"
                                     color="neutral"
@@ -245,7 +243,7 @@ const sort = ref("Más recientes");
                 <aside aria-label="Explorar" class="flex flex-col gap-10 lg:col-span-4">
                     <div>
                         <h2
-                            class="flex min-h-12 items-center font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                            class="flex min-h-12 items-center font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                         >
                             {{ isAuthor ? "Escribe sobre" : "Otras materias" }}
                         </h2>
@@ -265,7 +263,7 @@ const sort = ref("Más recientes");
                                         class="decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
                                         >{{ item.name }}</span
                                     >
-                                    <span class="font-sans text-meta tabular-nums text-muted">{{
+                                    <span class="font-sans text-meta text-muted tabular-nums">{{
                                         item.count
                                     }}</span>
                                 </a>
@@ -275,11 +273,11 @@ const sort = ref("Más recientes");
 
                     <div v-if="!isAuthor" class="rounded-sm border border-default bg-ivory-50 p-5">
                         <p
-                            class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary"
+                            class="font-sans text-xs font-semibold tracking-[0.12em] text-secondary uppercase"
                         >
                             Boletín mensual
                         </p>
-                        <p class="mt-2 font-serif text-lg leading-snug text-highlighted">
+                        <p class="mt-2 font-serif text-lg/snug text-highlighted">
                             {{
                                 isAuthor
                                     ? `Recibe sus próximos artículos, y los del resto de colaboradores, una vez al mes.`

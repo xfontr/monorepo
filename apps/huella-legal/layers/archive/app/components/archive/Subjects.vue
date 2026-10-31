@@ -33,7 +33,7 @@ const shown = computed(() =>
                         class="decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
                         >{{ value.name }}</span
                     >
-                    <span class="font-sans text-meta tabular-nums text-muted" aria-hidden="true">{{
+                    <span class="font-sans text-meta text-muted tabular-nums" aria-hidden="true">{{
                         count
                     }}</span>
                     <span class="sr-only">{{ $t("archiveSubjects.count", { count }, count) }}</span>

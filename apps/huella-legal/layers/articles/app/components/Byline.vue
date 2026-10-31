@@ -44,7 +44,7 @@ const date = computed<string | undefined>(() => props.publishedAt && d(props.pub
         </UAvatarGroup>
         <div class="overflow-hidden">
             <ul
-                class="-ml-5 flex flex-wrap gap-y-1 [&>li]:flex [&>li]:before:shrink-0 [&>li]:before:w-5 [&>li]:before:text-center [&>li]:before:text-dimmed [&>li]:before:content-['·'_/_'']"
+                class="-ml-5 flex flex-wrap gap-y-1 [&>li]:flex [&>li]:before:w-5 [&>li]:before:shrink-0 [&>li]:before:text-center [&>li]:before:text-dimmed [&>li]:before:content-['·'/'']"
             >
                 <li class="text-toned">
                     <!-- One inline box: as flex items, the separators would lose the spaces around "y" -->

@@ -26,7 +26,7 @@ const expanded = ref<string[]>([]);
             class="border-t border-default py-4 first:border-t-0 first:pt-0"
         >
             <legend
-                class="float-left mb-1 w-full font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                class="float-left mb-1 w-full font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
             >
                 {{ group.label }}
             </legend>
@@ -56,10 +56,10 @@ const expanded = ref<string[]>([]);
                             />
                         </span>
                         <span
-                            class="min-w-0 flex-1 leading-snug group-hover:underline group-has-disabled:no-underline decoration-huella-slate-300 underline-offset-[0.2em]"
+                            class="min-w-0 flex-1 leading-snug decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline group-has-disabled:no-underline"
                             >{{ option.label }}</span
                         >
-                        <span class="font-sans text-meta tabular-nums text-muted">{{
+                        <span class="font-sans text-meta text-muted tabular-nums">{{
                             option.count
                         }}</span>
                     </label>

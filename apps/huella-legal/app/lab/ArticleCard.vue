@@ -50,7 +50,7 @@ const gap = computed(
             v-if="hasMedia"
             class="@container overflow-hidden rounded-xs"
             :class="[
-                variant === 'row' ? 'hidden aspect-[4/3] sm:order-last sm:block' : 'aspect-[3/2]',
+                variant === 'row' ? 'hidden aspect-4/3 sm:order-last sm:block' : 'aspect-3/2',
                 split && 'lg:col-span-7 lg:row-span-4',
             ]"
         >
@@ -71,13 +71,13 @@ const gap = computed(
                 </Kicker>
                 <span
                     v-if="article.issue && variant !== 'compact'"
-                    class="font-sans text-xs tabular-nums text-dimmed"
+                    class="font-sans text-xs text-dimmed tabular-nums"
                     >{{ article.issue }}</span
                 >
             </div>
 
             <h3
-                class="font-serif text-highlighted text-balance"
+                class="font-serif text-balance text-highlighted"
                 :class="{
                     'text-[2rem] leading-[1.15] tracking-[-0.015em] md:text-h1':
                         variant === 'lead' && !split,
@@ -85,26 +85,26 @@ const gap = computed(
                         variant === 'lead' && split,
                     'text-[1.375rem] leading-[1.28]': variant === 'standard' || variant === 'media',
                     'text-[1.375rem] leading-[1.28] md:text-h3': variant === 'row',
-                    'text-lg leading-snug': variant === 'compact',
+                    'text-lg/snug': variant === 'compact',
                 }"
             >
                 <a
                     :href="href('/lab/article')"
-                    class="decoration-huella-slate-300 decoration-1 underline-offset-[0.2em] after:absolute after:inset-0 group-hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                    class="decoration-huella-slate-300 decoration-1 underline-offset-[0.2em] group-hover:underline after:absolute after:inset-0 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
                     >{{ article.title }}</a
                 >
             </h3>
 
             <p
                 v-if="showExcerpt && article.excerpt && variant !== 'compact'"
-                class="font-serif text-toned text-pretty"
+                class="font-serif text-pretty text-toned"
                 :class="
                     (
                         {
                             lead: 'text-reading max-w-measure',
                             row: 'max-w-measure text-base leading-relaxed line-clamp-2',
                         } as Partial<Record<typeof variant, string>>
-                    )[variant] ?? 'text-base leading-relaxed line-clamp-3'
+                    )[variant] ?? 'line-clamp-3 text-base/relaxed'
                 "
             >
                 {{ article.excerpt }}

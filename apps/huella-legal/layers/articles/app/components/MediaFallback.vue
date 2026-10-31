@@ -32,7 +32,7 @@ const ui = computed<Recipe>(() => TONES[props.tone]);
         <span class="font-serif text-[min(9rem,40cqw)] leading-none select-none">§</span>
         <span
             v-if="label"
-            class="absolute bottom-3 left-4 font-sans text-[0.6875rem] font-semibold uppercase tracking-[0.14em]"
+            class="absolute bottom-3 left-4 font-sans text-[0.6875rem] font-semibold tracking-[0.14em] uppercase"
             :class="ui.label"
             >{{ label }}</span
         >

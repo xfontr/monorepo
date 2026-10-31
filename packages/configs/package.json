@@ -32,6 +32,7 @@
     "@types/node": "catalog:",
     "@vitest/eslint-plugin": "^1.6.18",
     "eslint": "catalog:",
+    "eslint-plugin-better-tailwindcss": "^4.10.0",
     "eslint-plugin-format": "^2.0.1",
     "eslint-plugin-jsonc": "^3.2.0",
     "eslint-plugin-prefer-arrow-functions": "^3.10.2",

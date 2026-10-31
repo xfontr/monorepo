@@ -2,6 +2,7 @@ import { eslint } from "@monorepo/configs";
 
 export default [
     ...eslint.createNuxtConfig(),
+    eslint.tailwind("app/assets/css/main.css"),
 
     // `pnpm exec nx collect @monorepo/developer-portal` vendors Nx's graph client and Istanbul's HTML
     // report in here to be served as-is. Minified third-party output, not source — and the shared

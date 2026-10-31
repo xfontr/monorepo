@@ -61,12 +61,12 @@ const notes = {
                     class="flex flex-col gap-4 border-b border-default pt-10 pb-8 md:pt-14 lg:flex-row lg:items-end lg:justify-between lg:gap-12 lg:pb-10"
                 >
                     <h1
-                        class="max-w-3xl font-serif text-[2.125rem] leading-[1.08] tracking-[-0.02em] text-highlighted text-balance md:text-[3rem] lg:text-[3.5rem]"
+                        class="max-w-3xl font-serif text-[2.125rem] leading-[1.08] tracking-[-0.02em] text-balance text-highlighted md:text-[3rem] lg:text-[3.5rem]"
                     >
                         Derecho riguroso, escrito para ser <em class="text-primary">leído</em>.
                     </h1>
                     <p
-                        class="max-w-sm font-serif text-base leading-relaxed text-muted lg:pb-2 lg:text-right"
+                        class="max-w-sm font-serif text-base/relaxed text-muted lg:pb-2 lg:text-right"
                     >
                         Revista jurídica de acceso libre. Artículos revisados de profesionales,
                         docentes y estudiantes de todo el ámbito hispanohablante.
@@ -76,14 +76,14 @@ const notes = {
 
             <section
                 aria-label="Destacado y últimas publicaciones"
-                class="mx-auto grid w-full max-w-site grid-cols-1 gap-12 px-4 pt-8 pb-16 md:px-8 lg:grid-cols-12 lg:pt-10 lg:gap-0 lg:px-12 lg:pb-20"
+                class="mx-auto grid w-full max-w-site grid-cols-1 gap-12 px-4 pt-8 pb-16 md:px-8 lg:grid-cols-12 lg:gap-0 lg:px-12 lg:pt-10 lg:pb-20"
             >
                 <article class="group flex flex-col gap-5 lg:col-span-8 lg:pr-12">
-                    <div class="@container aspect-[16/10] overflow-hidden rounded-xs">
+                    <div class="@container aspect-16/10 overflow-hidden rounded-xs">
                         <MediaFallback tone="slate" label="Imagen del artículo" />
                     </div>
                     <p class="flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-xs">
-                        <span class="font-semibold uppercase tracking-[0.12em] text-secondary">{{
+                        <span class="font-semibold tracking-[0.12em] text-secondary uppercase">{{
                             formatName(lead.format)
                         }}</span>
                         <span class="text-dimmed" aria-hidden="true">·</span>
@@ -95,7 +95,7 @@ const notes = {
                         >
                     </p>
                     <h2
-                        class="font-serif text-[2rem] leading-[1.12] tracking-[-0.02em] text-highlighted text-balance md:text-h1 lg:text-[2.875rem]"
+                        class="font-serif text-[2rem] leading-[1.12] tracking-[-0.02em] text-balance text-highlighted md:text-h1 lg:text-[2.875rem]"
                     >
                         <a
                             href="/lab/article"
@@ -120,7 +120,7 @@ const notes = {
                 >
                     <h2
                         id="lo-ultimo"
-                        class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+                        class="font-sans text-xs font-semibold tracking-[0.12em] text-muted uppercase"
                     >
                         Lo último
                     </h2>
@@ -131,17 +131,17 @@ const notes = {
                             class="relative grid grid-cols-[2rem_1fr] py-4"
                         >
                             <span
-                                class="font-serif text-xl leading-snug text-huella-teal-600 tabular-nums"
+                                class="font-serif text-xl/snug text-huella-teal-600 tabular-nums"
                                 >{{ index + 1 }}</span
                             >
                             <span class="flex flex-col gap-1">
                                 <span
-                                    class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-secondary"
+                                    class="font-sans text-xs font-semibold tracking-[0.12em] text-secondary uppercase"
                                     >{{ formatName(item.format) }}</span
                                 >
                                 <a
                                     href="/lab/article"
-                                    class="font-serif text-lg leading-snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] after:absolute after:inset-0 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                                    class="font-serif text-lg/snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] after:absolute after:inset-0 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                                     >{{ item.title }}</a
                                 >
                                 <span class="font-sans text-meta text-muted">{{
@@ -169,7 +169,7 @@ const notes = {
                 >
                     <h2
                         id="recientes"
-                        class="font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
+                        class="font-serif text-section/tight text-highlighted md:text-h2"
                     >
                         Publicaciones recientes
                     </h2>
@@ -200,12 +200,12 @@ const notes = {
                         <Kicker>Índice</Kicker>
                         <h2
                             id="materias"
-                            class="mt-2 font-serif text-[1.75rem] leading-tight text-highlighted md:text-h2"
+                            class="mt-2 font-serif text-section/tight text-highlighted md:text-h2"
                         >
                             Materias
                         </h2>
                         <p
-                            class="mt-3 max-w-sm font-serif text-base leading-relaxed text-toned text-pretty"
+                            class="mt-3 max-w-sm font-serif text-base/relaxed text-pretty text-toned"
                         >
                             {{ subjects.length }} áreas del Derecho, del penal a la teoría jurídica.
                             Cada texto pertenece a una y tiene un formato.
@@ -227,17 +227,17 @@ const notes = {
                             >
                                 <a
                                     :href="`/lab/publicaciones?materia=${subject.slug}`"
-                                    class="group flex min-h-14 items-baseline gap-3 py-3 xl:gap-2 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary"
+                                    class="group flex min-h-14 items-baseline gap-3 py-3 focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-primary xl:gap-2"
                                 >
                                     <span
-                                        class="font-serif text-lg text-highlighted xl:text-base underline-offset-[0.2em] decoration-huella-slate-300 group-hover:underline"
+                                        class="font-serif text-lg text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline xl:text-base"
                                         >{{ subject.name }}</span
                                     >
                                     <span
                                         class="flex-1 translate-y-[-0.2em] border-b border-dotted border-ivory-400"
                                         aria-hidden="true"
                                     />
-                                    <span class="font-sans text-meta tabular-nums text-muted"
+                                    <span class="font-sans text-meta text-muted tabular-nums"
                                         >{{ countIn(subject.slug)
                                         }}<span class="sr-only"> publicaciones</span></span
                                     >
@@ -269,15 +269,15 @@ const notes = {
                         <Kicker tone="paper"> Archivo académico </Kicker>
                         <h2
                             id="academicos"
-                            class="mt-2 font-serif text-[1.75rem] leading-tight text-ivory-50 text-balance md:text-h2"
+                            class="mt-2 font-serif text-section/tight text-balance text-ivory-50 md:text-h2"
                         >
                             Trabajos de fin de grado y de máster
                         </h2>
-                        <p class="mt-3 font-serif text-base leading-relaxed text-pretty">
+                        <p class="mt-3 font-serif text-base/relaxed text-pretty">
                             Publicados íntegramente y enlazados desde su materia, para que un buen
                             trabajo no acabe en un cajón.
                         </p>
-                        <div class="-ml-3 mt-4 flex flex-wrap gap-1">
+                        <div class="mt-4 -ml-3 flex flex-wrap gap-1">
                             <UButton
                                 variant="link"
                                 label="Ver los trabajos"
@@ -300,13 +300,13 @@ const notes = {
                             class="relative border-t border-huella-slate-700 py-5"
                         >
                             <p
-                                class="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-huella-teal-300"
+                                class="font-sans text-xs font-semibold tracking-[0.12em] text-huella-teal-300 uppercase"
                             >
                                 {{ item.category }}
                             </p>
                             <a
                                 href="/lab/article"
-                                class="mt-2 block font-serif text-lg leading-snug text-ivory-50 decoration-huella-slate-500 underline-offset-[0.2em] after:absolute after:inset-0 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ivory-50"
+                                class="mt-2 block font-serif text-lg/snug text-ivory-50 decoration-huella-slate-500 underline-offset-[0.2em] after:absolute after:inset-0 hover:underline focus-visible:rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ivory-50"
                                 >{{ item.title }}</a
                             >
                             <p class="mt-2 font-sans text-meta text-huella-slate-300">
@@ -324,9 +324,7 @@ const notes = {
                 <div
                     class="flex flex-col gap-4 border-t-2 border-huella-slate-900 pt-5 md:flex-row md:items-center md:justify-between md:gap-10"
                 >
-                    <p
-                        class="max-w-3xl font-serif text-xl leading-snug text-highlighted md:text-h3"
-                    >
+                    <p class="max-w-3xl font-serif text-xl/snug text-highlighted md:text-h3">
                         ¿Escribes sobre Derecho? Publicamos artículos, comentarios, ensayos y
                         trabajos académicos, con revisión editorial y respuesta en cinco días.
                     </p>

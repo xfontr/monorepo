@@ -73,7 +73,7 @@ useHead(
                     <h1 class="font-serif text-h3 text-balance text-highlighted">
                         {{ $t("error.server.title") }}
                     </h1>
-                    <p class="max-w-md font-serif text-base leading-relaxed text-toned">
+                    <p class="max-w-md font-serif text-base/relaxed text-toned">
                         {{ $t("error.server.lead") }}
                     </p>
                     <div class="flex flex-col gap-3 self-stretch sm:flex-row sm:self-start">

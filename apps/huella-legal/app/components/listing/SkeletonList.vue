@@ -21,7 +21,7 @@ withDefaults(defineProps<Props>(), {
                     <USkeleton class="h-6 w-3/5" />
                     <USkeleton class="h-3 w-48" />
                 </div>
-                <USkeleton class="hidden aspect-[4/3] w-32 sm:block" />
+                <USkeleton class="hidden aspect-4/3 w-32 sm:block" />
             </li>
         </ul>
     </div>
