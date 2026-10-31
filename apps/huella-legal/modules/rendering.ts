@@ -53,6 +53,7 @@ const STATIC_ROUTES = [
     "/calculo-intereses/",
     "/contacto/",
     "/publicar/",
+    "/sobre/",
 ];
 
 const listPostSlugs = async (vendor: VendorConfig): Promise<string[]> => {

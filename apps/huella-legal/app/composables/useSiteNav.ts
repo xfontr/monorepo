@@ -27,7 +27,7 @@ const COLUMNS = [
             { key: "publications", to: { name: "publications" } },
             { key: "subjects", to: { name: "categories" } },
             { key: "collaborators", to: { name: "authors" } },
-            { key: "about", to: { name: "article", params: { slug: "sobre" } } },
+            { key: "about", to: { name: "about" } },
         ],
     },
     {

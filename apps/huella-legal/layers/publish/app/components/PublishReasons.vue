@@ -19,8 +19,6 @@ const REASONS = [
                 root: 'gap-4 py-5',
                 leading: 'size-11 shrink-0 rounded-full bg-huella-teal-100 p-0',
                 leadingIcon: 'text-huella-teal-700',
-                title: 'font-serif text-xl font-normal',
-                description: 'mt-1 font-serif text-base leading-relaxed text-toned',
             }"
         />
     </ul>

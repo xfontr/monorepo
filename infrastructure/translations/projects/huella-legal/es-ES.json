@@ -1,4 +1,89 @@
 {
+    "about": {
+        "description": "Revista jurídica abierta y gratuita, escrita por su comunidad desde 2020.",
+        "title": "Sobre Huella Legal"
+    },
+    "aboutCallToAction": {
+        "contact": "Escríbenos",
+        "lead": "¿Escribes sobre Derecho? Tu texto puede ser justo lo que alguien necesita para entenderlo.",
+        "publish": "Publicar un artículo",
+        "title": "Deja tu huella."
+    },
+    "aboutFigures": {
+        "articles": "artículos",
+        "authors": "colaboradores"
+    },
+    "aboutIntro": {
+        "breadcrumb": "Sobre Huella Legal",
+        "kicker": "Quiénes somos",
+        "lead": "Huella Legal es una revista jurídica abierta y gratuita, hecha por su comunidad. Nació a finales de 2020 con una idea sencilla: publicar Derecho riguroso que cualquier persona curiosa pueda entender.",
+        "mark": "huella",
+        "title": "Dejamos {mark} para que cualquiera pueda seguirla."
+    },
+    "aboutModel": {
+        "freeToRead": {
+            "body": "Todos los artículos se leen gratis, sin registro y sin suscripción. Entender el Derecho no debería tener peaje.",
+            "title": "Libre para quien lee"
+        },
+        "independent": {
+            "body": "Sin inversores externos: los costes se cubren de forma privada, así que nadie de fuera decide qué se publica.",
+            "title": "Independiente"
+        },
+        "kicker": "Cómo funciona",
+        "openToWriters": {
+            "body": "Cualquiera puede publicar. La única condición es que el texto cumpla nuestros criterios de calidad.",
+            "title": "Abierto a quien escribe"
+        },
+        "title": "Un proyecto abierto, sin ánimo de lucro"
+    },
+    "aboutQuote": {
+        "author": "Bernd Schünemann",
+        "label": "Por qué existimos",
+        "text": "Las construcciones de la ciencia penal son extrañas al profano, ininteligibles al estudiante y superfluas al práctico."
+    },
+    "aboutTeam": {
+        "action": "Conocer a los colaboradores",
+        "kicker": "Quién escribe",
+        "lead": "Detrás de cada artículo hay alguien que ha querido compartir lo que sabe: estudiantes, abogados, fiscales, jueces y profesores. Escribir aquí es también una manera de aprender, ordenar las ideas y dejar huella.",
+        "title": "Una revista escrita por su comunidad."
+    },
+    "aboutTopics": {
+        "action": "Explorar las áreas",
+        "caseLaw": {
+            "body": "Sentencias analizadas y las cuestiones técnicas que plantean.",
+            "title": "Jurisprudencia"
+        },
+        "criminal": {
+            "body": "La ciencia penal, de la teoría del delito a la política criminal.",
+            "title": "Derecho penal"
+        },
+        "fundamentalRights": {
+            "body": "Lo que la Constitución garantiza y cómo se defiende.",
+            "title": "Derechos fundamentales"
+        },
+        "kicker": "Qué publicamos",
+        "more": {
+            "body": "Otras ramas del Derecho, siempre con el mismo tenor jurídico.",
+            "title": "Y mucho más"
+        },
+        "title": "Derecho técnico, contado con claridad"
+    },
+    "aboutValues": {
+        "clarity": {
+            "body": "Escribimos para que cualquiera pueda seguir el razonamiento, sin renunciar a la profundidad.",
+            "title": "Claridad"
+        },
+        "kicker": "Lo que nos mueve",
+        "rigour": {
+            "body": "Cada texto se apoya en legislación, jurisprudencia y doctrina citadas con precisión.",
+            "title": "Rigor"
+        },
+        "title": "Tres principios",
+        "usefulness": {
+            "body": "Pensado para quien necesita entender un tema de verdad: para un examen, un caso o por pura curiosidad.",
+            "title": "Utilidad"
+        }
+    },
     "app": {
         "description": "Un blog jurídico, rediseñado",
         "footer": {
