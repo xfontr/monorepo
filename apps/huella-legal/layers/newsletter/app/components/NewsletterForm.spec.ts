@@ -59,6 +59,7 @@ describe("newsletter form", () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.unstubAllGlobals();
         newsletter.status = ref("idle");
         newsletter.errors = ref([]);
     });
@@ -86,17 +87,51 @@ describe("newsletter form", () => {
         );
     });
 
-    it.each([
-        ["an empty field", "", "required address"],
-        ["a blank field", "   ", "required address"],
-        ["an address with no domain", "lucia@", "invalid address"],
-    ])("withholds the request and shows the field error on %s", async (_, email, message) => {
+    it("withholds the request and shows the field error on an address with no domain", async () => {
         const wrapper = await mount();
 
-        await submit(wrapper, email);
+        await submit(wrapper, "lucia@");
 
         expect(newsletter.send).not.toHaveBeenCalled();
-        expect(wrapper.find("[data-slot=error]").text()).toBe(message);
+        expect(wrapper.find("[data-slot=error]").text()).toBe("invalid address");
+    });
+
+    it.each([
+        ["an empty", ""],
+        ["a blank", "   "],
+    ])(
+        "shakes %s field instead of marking it, and tells only a screen reader why",
+        async (_, email) => {
+            const wrapper = await mount();
+
+            await submit(wrapper, email);
+
+            expect(newsletter.send).not.toHaveBeenCalled();
+            expect(wrapper.find("[data-slot=error]").exists()).toBe(false);
+            expect(wrapper.find("input[type=email]").attributes("aria-invalid")).not.toBe("true");
+            expect(wrapper.find("[aria-live=polite]").text()).toBe("required address");
+        },
+    );
+
+    it("stops checking as the reader types after a shake, even if an earlier attempt started it", async () => {
+        const wrapper = await mount();
+
+        await submit(wrapper, "lucia@");
+        await submit(wrapper, "");
+        await wrapper.find("input[type=email]").setValue("l");
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        await flushPromises();
+
+        expect(wrapper.find("[data-slot=error]").exists()).toBe(false);
+    });
+
+    it("marks an empty field the usual way for a reader who asked for reduced motion", async () => {
+        vi.stubGlobal("matchMedia", () => ({ matches: true }));
+        const wrapper = await mount();
+
+        await submit(wrapper, "");
+
+        expect(wrapper.find("[data-slot=error]").text()).toBe("required address");
     });
 
     it("marks the form busy and locks the field while submitting, keeping what was typed", async () => {

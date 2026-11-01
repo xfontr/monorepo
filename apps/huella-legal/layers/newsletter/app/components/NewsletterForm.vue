@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useFormSubmission } from "#layers/forms/app/composables/useFormSubmission";
-import type { Form } from "@nuxt/ui";
+import type { Form, FormErrorWithId } from "@nuxt/ui";
 import { DESTINATIONS } from "~/composables/useSiteNav";
 import type { Tone } from "~/types/Tone";
 import {
@@ -39,6 +39,8 @@ const LAYOUTS = {
     inline: { row: "flex flex-col gap-3 sm:flex-row", block: false },
 } as const satisfies Record<Layout, LayoutRecipe>;
 
+const SHAKE: Keyframe[] = [0, -6, 6, -4, 4, 0].map((x) => ({ transform: `translateX(${x}px)` }));
+
 const TONES = {
     paper: { label: undefined, error: undefined, notice: "text-muted", button: "primary" },
     slate: {
@@ -59,13 +61,36 @@ const schema = subscriptionSchema(issueMessage);
 const state = reactive<Subscription>({ email: "" });
 
 const form = useTemplateRef<Form<typeof schema>>("form");
+const email = useTemplateRef<{ inputRef?: HTMLInputElement | null }>("email");
 
-const { honeypot, submitting, validateOn, submit, onError } = useFormSubmission(form, {
+const { honeypot, submitted, submitting, validateOn, submit, onError } = useFormSubmission(form, {
     status,
     errors,
     send,
     message: issueMessage,
 });
+
+const announcement = ref<string>("");
+
+const onInvalid = async (formErrors: readonly FormErrorWithId[]): Promise<void> => {
+    const required = issueMessage("required");
+    const empty = formErrors.length > 0 && formErrors.every(({ message }) => message === required);
+    const input = empty ? email.value?.inputRef : null;
+
+    if (!input || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        onError(formErrors);
+        return;
+    }
+
+    submitted.value = false;
+    form.value?.clear();
+    input.focus();
+    input.animate(SHAKE, { duration: 320, easing: "ease-in-out" });
+
+    announcement.value = "";
+    await nextTick();
+    announcement.value = required;
+};
 
 const arrangement = computed<LayoutRecipe>(() => LAYOUTS[props.layout]);
 const colors = computed<ToneRecipe>(() => TONES[props.tone]);
@@ -86,7 +111,7 @@ const colors = computed<ToneRecipe>(() => TONES[props.tone]);
             novalidate
             :aria-busy="submitting"
             @submit="submit($event.data, challenge)"
-            @error="onError($event.errors)"
+            @error="onInvalid($event.errors)"
         >
             <UFormField
                 name="email"
@@ -96,6 +121,7 @@ const colors = computed<ToneRecipe>(() => TONES[props.tone]);
             >
                 <div :class="arrangement.row">
                     <UInput
+                        ref="email"
                         v-model="state.email"
                         type="email"
                         autocomplete="email"
@@ -140,6 +166,7 @@ const colors = computed<ToneRecipe>(() => TONES[props.tone]);
                     </ULink>
                 </template>
             </I18nT>
+            <p class="sr-only" aria-live="polite">{{ announcement }}</p>
         </UForm>
     </FormChallenge>
 </template>
