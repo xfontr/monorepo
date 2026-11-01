@@ -17,6 +17,7 @@ const nuxt = vi.hoisted(() => ({
     page: undefined as unknown as Ref<Page | undefined>,
     error: undefined as unknown as Ref<NuxtError | undefined>,
     seo: {} as Record<string, unknown>,
+    signedTitle: undefined as unknown as () => string | undefined,
 }));
 
 mockNuxtImport("useCachedFetch", () => (url: string) => {
@@ -29,6 +30,10 @@ mockNuxtImport("useCachedFetch", () => (url: string) => {
 
 mockNuxtImport("useSeoMeta", () => (input: Record<string, unknown>) => {
     nuxt.seo = input;
+});
+
+mockNuxtImport("useSeoTitleTemplate", () => (seoTitle: () => string | undefined) => {
+    nuxt.signedTitle = seoTitle;
 });
 
 const setUp = async (route = "/aviso-legal/") => {
@@ -86,11 +91,15 @@ describe("usePage", () => {
 
         await setUp();
 
-        expect([seo("title"), seo("description"), seo("ogUrl")]).toEqual([
-            "Aviso | Huella",
-            "Resumen",
-            PAGE.permalink,
-        ]);
+        expect([seo("title"), seo("description")]).toEqual(["Aviso | Huella", "Resumen"]);
+    });
+
+    it("tells the title template which title the CMS wrote", async () => {
+        nuxt.page.value = { ...PAGE, seo: { title: "Aviso | Huella" } };
+
+        await setUp();
+
+        expect(nuxt.signedTitle()).toBe("Aviso | Huella");
     });
 
     it("falls back to the title, and indexes the page unless the CMS says noindex", async () => {

@@ -9,7 +9,7 @@ const title = computed<string>(() =>
     term.value ? t("search.title.query", { query: term.value }) : t("search.title.blank"),
 );
 
-useSeoMeta({ title, robots: "noindex" });
+useSeoMeta({ title });
 </script>
 
 <template>

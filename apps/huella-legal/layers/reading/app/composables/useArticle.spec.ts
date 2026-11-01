@@ -30,6 +30,7 @@ const nuxt = vi.hoisted(() => ({
     article: undefined as unknown as Ref<Article | undefined>,
     error: undefined as unknown as Ref<NuxtError | undefined>,
     seo: {} as Record<string, unknown>,
+    signedTitle: undefined as unknown as () => string | undefined,
 }));
 
 mockNuxtImport("useCachedFetch", () => (url: string, options?: Record<string, unknown>) => {
@@ -45,6 +46,10 @@ mockNuxtImport("useCachedFetch", () => (url: string, options?: Record<string, un
 
 mockNuxtImport("useSeoMeta", () => (input: Record<string, unknown>) => {
     nuxt.seo = input;
+});
+
+mockNuxtImport("useSeoTitleTemplate", () => (seoTitle: () => string | undefined) => {
+    nuxt.signedTitle = seoTitle;
 });
 
 const setUp = async (route = "/la-culpa/") => {
@@ -164,23 +169,28 @@ describe("useArticle", () => {
 
             await setUp();
 
-            expect([
-                seo("title"),
-                seo("ogTitle"),
-                seo("description"),
-                seo("ogDescription"),
-            ]).toEqual(["La culpa | Huella", "La culpa | Huella", "Resumen SEO", "Resumen SEO"]);
+            expect([seo("title"), seo("description")]).toEqual([
+                "La culpa | Huella",
+                "Resumen SEO",
+            ]);
         });
 
-        it("falls back to the title and excerpt, and points og:url at the permalink", async () => {
+        it("falls back to the title and excerpt", async () => {
             await setUp();
 
-            expect([seo("title"), seo("description"), seo("ogUrl")]).toEqual([
+            expect([seo("title"), seo("description")]).toEqual([
                 "La culpa",
                 "El deber de cuidado.",
-                "https://revista.test/la-culpa/",
             ]);
             expect(seo("robots")).toBeUndefined();
+        });
+
+        it("tells the title template which title the CMS wrote", async () => {
+            nuxt.article.value = { ...ARTICLE, seo: { title: "La culpa | Huella" } };
+
+            await setUp();
+
+            expect(nuxt.signedTitle()).toBe("La culpa | Huella");
         });
 
         it("keeps a post the CMS marks noindex out of search", async () => {

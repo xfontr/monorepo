@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const { article, related, authorCounts, comments } = await useArticle();
+
+useScholarlyMeta(article);
 </script>
 
 <template>

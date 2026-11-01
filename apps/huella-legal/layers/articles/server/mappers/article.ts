@@ -1,7 +1,8 @@
 import type { Entry } from "@monorepo/content";
 import type { Article } from "../../shared/types/Article";
+import type { Journal } from "../../shared/types/Journal";
 import { toArticleSummary } from "./articleSummary";
-import { type Journal, toCitations } from "./citation";
+import { toCitations } from "./citation";
 import { toPage } from "./page";
 
 export interface Publication {

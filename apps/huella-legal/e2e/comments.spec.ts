@@ -97,12 +97,19 @@ test("the contents rail stays behind with the article once the thread scrolls in
     test.skip((page.viewportSize()?.width ?? 0) < 1024, "The rail is an accordion below lg");
 
     await page.goto(PATH);
-    await page.getByRole("button", { name: "Enviar comentario" }).scrollIntoViewIfNeeded();
 
-    const rail = await page.getByRole("navigation", { name: "En este artículo" }).boundingBox();
-    const thread = await section(page).boundingBox();
+    await expect
+        .poll(async () => {
+            await page.getByRole("button", { name: "Enviar comentario" }).scrollIntoViewIfNeeded();
 
-    expect(rail!.y + rail!.height).toBeLessThanOrEqual(thread!.y);
+            const rail = await page
+                .getByRole("navigation", { name: "En este artículo" })
+                .boundingBox();
+            const thread = await section(page).boundingBox();
+
+            return rail!.y + rail!.height <= thread!.y;
+        })
+        .toBe(true);
 });
 
 test("the comments section has no WCAG AA violations", async ({ page }) => {

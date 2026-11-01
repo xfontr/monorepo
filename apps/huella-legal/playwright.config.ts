@@ -17,6 +17,8 @@ export default playwright.createConfig({
         NUXT_TURNSTILE_SECRET_KEY: "e2e",
         NUXT_PUBLIC_TURNSTILE_SITE_KEY: "e2e",
         NUXT_PUBLIC_SITE_URL: "http://localhost:4310",
+        // The build defaults to a preview, which robots.txt and every page keep out of search
+        NUXT_SITE_ENV: "production",
         NUXT_PUBLIC_PAGE_SLUGS: JSON.stringify(PAGES.map(({ slug }) => slug)),
         NUXT_PUBLIC_OBSERVABILITY_URL: "",
         NUXT_OBSERVABILITY_URL: "",

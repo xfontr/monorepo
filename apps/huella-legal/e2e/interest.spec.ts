@@ -33,7 +33,7 @@ test("the calculator page answers 200 with its heading inside the shell", async 
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Cálculo de intereses");
     await expect(page.getByRole("banner")).toBeVisible();
     await expect(page.getByRole("contentinfo")).toBeVisible();
-    await expect(page).toHaveTitle("Cálculo de intereses");
+    await expect(page).toHaveTitle("Cálculo de intereses - Huella Legal");
 });
 
 test("calculates the legal, judicial and custom rates and announces each result", async ({

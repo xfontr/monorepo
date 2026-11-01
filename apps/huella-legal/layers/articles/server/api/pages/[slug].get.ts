@@ -17,7 +17,7 @@ export default defineEventHandler(async (event): Promise<Page> => {
         public: { site, pageSlugs },
     } = useRuntimeConfig(event);
 
-    const slug = getRouterParam(event, "slug", { decode: true }) ?? "";
+    const slug = (getRouterParam(event, "slug", { decode: true }) ?? "").toLowerCase();
 
     if (!pageSlugs.includes(slug))
         throw createError({ statusCode: 404, statusMessage: "Page not found" });
