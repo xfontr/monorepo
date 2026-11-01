@@ -12,7 +12,8 @@ pnpm dev                                    # or from this directory
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev` | Start the dev server |
+| `pnpm dev` | Start the dev server against the [fake WordPress](#-dev-mocks), never huellalegal.com |
+| `pnpm dev:api` | Start the dev server against the live WordPress. Only when the fakes can't show what you need |
 | `pnpm build` | Production build (output in `.output/`) |
 | `pnpm preview` | Preview the production build |
 | `pnpm lint` | ESLint — the nuxt flavour, deliberately not type-checked |
@@ -26,6 +27,25 @@ pnpm dev                                    # or from this directory
 
 Two modules beyond the shared ones are installed here, `@nuxt/fonts` and `@nuxt/image`, and the
 `forms` layer installs `@nuxtjs/turnstile`.
+
+### 🧪 Dev mocks
+
+The `serve` target preloads [`mocks/server.ts`](./mocks/server.ts) into `nuxt dev` and points
+`NUXT_CONTENT_VENDOR_BASE_URL` at a `localhost` path nothing listens on. The live host blacklists a
+machine that reads it too often, and every cold cache reads the whole archive.
+
+| Request | Dev answers with |
+| --- | --- |
+| A known post, page, category or tag | [`mocks/content.json`](./mocks/content.json): ten posts over five categories, three of them theses, three authors and `aviso-legal`, edited by hand |
+| Any other slug | A `404`, as WordPress would |
+| A search | The posts whose title, excerpt or body hold every word |
+| Comments | None, and a posted one is accepted |
+| Anything else on a huellalegal.com host | An MSW error in the dev log, never the network |
+
+Translations still come from the local translations server, and Kit, Turnstile and Resend stay as
+they are, inert without their keys. Both `dev` scripts clear the content caches first, so a switch
+between them never serves the other's data. Images are the factories' inline pixel, so nothing loads
+from the live media library either.
 
 ### 📖 API reference
 

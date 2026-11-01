@@ -7,7 +7,8 @@
         "build": "nuxi prepare && nx nuxt:build",
         "build:storybook": "nuxi prepare && storybook build",
         "storybook": "nuxi prepare && storybook dev -p 6007",
-        "dev": "nx serve",
+        "dev": "pnpm cache:clear && nx serve",
+        "dev:api": "pnpm cache:clear && nuxt dev",
         "cache:clear": "node -e \"for (const group of ['articles', 'content']) require('node:fs').rmSync('.nuxt/cache/' + group, { recursive: true, force: true })\"",
         "preview": "nuxt preview",
         "lint": "nx eslint:lint",
@@ -46,6 +47,14 @@
                         "env": "CONTEXT"
                     }
                 ]
+            },
+            "serve": {
+                "options": {
+                    "env": {
+                        "NODE_OPTIONS": "--import ./mocks/server.ts",
+                        "NUXT_CONTENT_VENDOR_BASE_URL": "http://localhost/wordpress"
+                    }
+                }
             },
             "test:e2e": {
                 "inputs": [
