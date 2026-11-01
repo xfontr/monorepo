@@ -11,6 +11,10 @@ export default defineNuxtConfig({
         "@nuxt/ui",
         "@nuxt/fonts",
         "@nuxt/image",
+        "@nuxtjs/robots",
+        "@nuxtjs/sitemap",
+        "nuxt-schema-org",
+        "nuxt-seo-utils",
     ],
 
     devtools: false,
@@ -45,6 +49,7 @@ export default defineNuxtConfig({
 
         requiredEnv: {
             translations: ["NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN"],
+            seo: ["NUXT_SITE_ENV"],
         },
     },
 
@@ -72,6 +77,11 @@ export default defineNuxtConfig({
                 token: "",
             },
         },
+    },
+
+    // Unhead rewrites `useSeoMeta` calls at build time, which specs that mock it never see
+    $test: {
+        unhead: { vite: false },
     },
 
     $development: {
@@ -102,6 +112,40 @@ export default defineNuxtConfig({
                 list: { maxAge: 60 * 5, swr: false },
                 item: { maxAge: 60 * 5, swr: false },
             },
+        },
+    },
+
+    // The URL comes from `runtimeConfig.public.site`, which nuxt-site-config reads too
+    site: {
+        name: "Huella Legal",
+        trailingSlash: true,
+        // Unset, a preview stays out of search; production sets `NUXT_SITE_ENV=production`
+        env: "preview",
+        // Yoast's own titles end in " - Huella Legal"
+        separator: "-",
+    },
+
+    seo: {
+        // Listings paginate with `?page=`, and sort and format are the same list
+        canonicalQueryWhitelist: ["page"],
+    },
+
+    // The header would say "index" on a post whose meta says "noindex", since only the meta reads
+    // the post
+    robots: {
+        header: false,
+    },
+
+    sitemap: {
+        // A source that times out is served empty, which would publish a short sitemap
+        sources: [["/api/__sitemap__/urls", { timeout: 15_000 }]],
+    },
+
+    schemaOrg: {
+        identity: {
+            type: "Organization",
+            name: "Huella Legal",
+            logo: "/android-chrome-512x512.png",
         },
     },
 

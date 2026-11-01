@@ -33,6 +33,7 @@ const ROUTE_RULES: Record<string, RouteRule> = {
     "/colaboradores/*/_payload.json": LISTING,
     "/buscar/_payload.json": varyOn("query", "page"),
     "/robots.txt": { isr: false },
+    "/sitemap.xml": { isr: false },
     "/api/**": { isr: false },
     "/api/articles": varyOn("page", "sort", "format", "category", "tag", "author"),
     "/api/articles/**": { isr: ONE_DAY },
