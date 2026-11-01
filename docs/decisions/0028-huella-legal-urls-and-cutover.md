@@ -51,12 +51,12 @@ only adds or strips the slash loops.
 
 | Concern | Live today | Decided |
 | --- | --- | --- |
-| Canonical, `og:url` | Yoast, on the WP host | `NUXT_PUBLIC_SITE_URL` + the entry's own path, never the request's, ending in `/` |
-| Sitemap, `noindex` | Yoast's index; every term archive `noindex` | Hand-rolled: posts, kept pages, áreas, colaboradores. A post or page with `seo.noindex` is left out and gets a robots `noindex` meta. Áreas and colaboradores are indexed and ignore `Term.seo.noindex`, which Yoast set for WP's theme archives; etiquetas stay `noindex` |
-| Robots | Yoast block, allow all | Allow all plus the sitemap on the canonical host; `Disallow: /` on any other host, so previews stay out |
-| JSON-LD | Yoast's `ScholarlyArticle` graph | Generated: `ScholarlyArticle` with authors and dates, `isPartOf` a `Periodical` carrying the ISSN |
+| Canonical, `og:url` | Yoast, on the WP host | `nuxt-seo-utils`: `NUXT_PUBLIC_SITE_URL` + the route's path, never the request's host, lowercased and ending in `/`. Only `?page=` is kept, so sort and format variants point at the list itself. Posts and pages are titled by Yoast, so they skip the module's `- Huella Legal` template |
+| Sitemap, `noindex` | Yoast's index; every term archive `noindex` | `@nuxtjs/sitemap`, fed posts, kept pages, áreas and colaboradores by one source route. A post or page with `seo.noindex` is left out and gets a robots `noindex` meta. Áreas and colaboradores are indexed and ignore `Term.seo.noindex`, which Yoast set for WP's theme archives; etiquetas stay `noindex` |
+| Robots | Yoast block, allow all | `@nuxtjs/robots`: allow all plus the sitemap in production; `Disallow: /` and `noindex` everywhere unless `NUXT_SITE_ENV` is `production`. `nuxt.config.ts` defaults it to `preview`, so a context that forgets it stays out of search, and the production deploy fails without it |
+| JSON-LD | Yoast's `ScholarlyArticle` graph | `nuxt-schema-org`: `ScholarlyArticle` with authors and dates, `isPartOf` a `Periodical` carrying the ISSN |
 | Scholar tags | None | `citation_title`, `citation_author`, `citation_publication_date` (Google Scholar's three required), `citation_journal_title`, `citation_issn` |
-| RSS | Site, comment, per-post and per-term feeds | `/feed/` only, hand-rolled |
+| RSS | Site, comment, per-post and per-term feeds | `/feed/` only, a server route over the `feed` library |
 | Analytics | GA4 through Site Kit, loaded in `<head>` before any consent | The same GA4 property, ID from `NUXT_PUBLIC_ANALYTICS_ID`, injected only after consent. Unset means no GA and no banner |
 | Cookie banner | CookieLawInfo, five categories, GA not gated | In-app banner, consent kept in a first-party cookie. No lab design exists |
 | Legal pages | Cookies and privacy are sections of `/aviso-legal/`; privacy cites the repealed LOPD 15/1999 | The footer's three legal links target that page's heading ids. The text is content, rewritten in WP under S3 |
@@ -72,7 +72,7 @@ Line numbers are as of this report, in `apps/huella-legal/`:
 | 4 | `app/pages/[slug].vue`, `app/pages/recursos/conecta.vue` (new) | `getEntry("posts")`, then `"pages"`, else 404. Canonical from the entry's slug |
 | 5 | `server/middleware/legacy.ts` (new) | 301s: `/?s=` → `/buscar/?q=`, and the four WP prefixes → `content.vendor.baseURL` + the same path |
 | 6 | 0027's change 10, `server/utils/` | Absolute URLs on either host: `/wp-content/uploads/` goes to the WP host, anything else becomes root-relative |
-| 7 | `server/routes/sitemap.xml.get.ts`, `robots.txt.get.ts`, `feed.get.ts` (new) | As in the second table |
+| 7 | `@nuxtjs/sitemap` and `@nuxtjs/robots`, a sitemap source route, `feed.get.ts` (new) | As in the second table |
 | 8 | `shared/` beside A3's mappers | JSON-LD and `citation_*` from `Article`, set from the article page's controller |
 | 9 | `app/components/shell/` (B3) | Consent banner and the GA loader |
 | 10 | `app/pages/calculo-intereses.vue`, `shared/interest.ts` (new) | The calculator, arithmetic in the pure function |
@@ -89,7 +89,7 @@ Line numbers are as of this report, in `apps/huella-legal/`:
 | WP's "Discourage search engines" for the old front end | It changes robots output on the install whose Yoast robots 0027 maps to `Entry.seo.noindex`. The Cloudflare rule leaves that untouched |
 | Cookieless analytics, no banner | A new vendor, and GA4's history starts over |
 | Consent Mode with GA always loaded | Sends pings to Google before consent, for modelled data this site doesn't use |
-| `@nuxt/scripts`, `@nuxtjs/sitemap`, an RSS library | One script, about 150 URLs and one feed. Each is a dependency check-in for a short server route. Core's `useScript` is a stub without the module |
+| `@nuxt/scripts` | One script, and core's `useScript` is a stub without the module |
 | Leaving the calculator on WP | Step 5 below sends the WP front end to `www` |
 | Mapping `/?p=<id>` | Only `rel="shortlink"` emits it, and it would need a 105-row query map |
 
@@ -107,7 +107,7 @@ hostname move runs in this sequence:
 | Step | Role | Action |
 | --- | --- | --- |
 | 1 | DNS and hosting owner | A new WP hostname on the current origin, with TLS. WP answers on both hosts |
-| 2 | Netlify owner | Production and preview env: `NUXT_CONTENT_VENDOR_BASE_URL` → the new host, `NUXT_PUBLIC_SITE_URL` → `www`. The Confirmation walk passes on a preview |
+| 2 | Netlify owner | Production and preview env: `NUXT_CONTENT_VENDOR_BASE_URL` → the new host, `NUXT_PUBLIC_SITE_URL` → `www`; production also gets `NUXT_SITE_ENV=production`. The Confirmation walk passes on a preview |
 | 3 | DNS owner | `www` and the apex to Netlify, per Netlify's external-DNS page |
 | 4 | Hosting owner | `WP_HOME` and `WP_SITEURL` → the new host in `wp-config.php`, or `wp option update` over WP-CLI. Purge LiteSpeed's cache |
 | 5 | DNS owner | A Cloudflare redirect rule on the WP host: anything outside `/wp-json/`, `/wp-admin/`, `/wp-login.php`, `/wp-content/` and `/wp-includes/` 301s to the same path on `www`. Purge Cloudflare's cache |
