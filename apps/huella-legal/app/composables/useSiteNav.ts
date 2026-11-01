@@ -11,6 +11,7 @@ export const DESTINATIONS = {
     contact: { name: "contact" },
     legal: { name: "article", params: { slug: "aviso-legal" } },
     privacy: { name: "article", params: { slug: "aviso-legal" }, hash: "#privacidad" },
+    cookies: { name: "article", params: { slug: "aviso-legal" }, hash: "#cookies" },
 } as const satisfies Record<string, RouteLocationRaw>;
 
 const SECTIONS = [
@@ -28,6 +29,7 @@ const COLUMNS = [
             { key: "subjects", to: { name: "categories" } },
             { key: "collaborators", to: { name: "authors" } },
             { key: "about", to: { name: "about" } },
+            { key: "interestCalculator", to: { name: "interestCalculator" } },
         ],
     },
     {
@@ -44,7 +46,7 @@ const COLUMNS = [
         links: [
             { key: "legalNotice", to: DESTINATIONS.legal },
             { key: "privacy", to: DESTINATIONS.privacy },
-            { key: "cookies", to: { ...DESTINATIONS.legal, hash: "#cookies" } },
+            { key: "cookies", to: DESTINATIONS.cookies },
         ],
     },
 ] as const satisfies readonly { key: string; links: readonly Link[] }[];
@@ -72,6 +74,7 @@ export const useSiteNav = () => {
     const {
         public: { social: profiles },
     } = useRuntimeConfig();
+    const cookiePreferences = useCookiePreferences();
 
     const sections = computed<NavigationMenuItem[]>(() => {
         const here = withTrailingSlash(route.path);
@@ -92,10 +95,20 @@ export const useSiteNav = () => {
     const columns = computed<FooterColumn[]>(() =>
         COLUMNS.map(({ key, links }) => ({
             label: t(`app.footer.columns.${key}`),
-            children: links.map((link) => ({
-                label: t(`app.footer.links.${link.key}`),
-                to: link.to,
-            })),
+            children: [
+                ...links.map((link) => ({
+                    label: t(`app.footer.links.${link.key}`),
+                    to: link.to,
+                })),
+                ...(key === "legal" && cookiePreferences.enabled
+                    ? [
+                          {
+                              label: t("app.footer.links.cookieSettings"),
+                              onClick: cookiePreferences.open,
+                          },
+                      ]
+                    : []),
+            ],
         })),
     );
 
