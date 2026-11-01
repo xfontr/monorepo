@@ -40,6 +40,8 @@ mockNuxtImport("useArticle", () => async () => ({
     comments: nuxt.comments,
 }));
 
+mockNuxtImport("useScholarlyMeta", () => () => {});
+
 beforeEach(() => {
     nuxt.article = ref(ARTICLE);
     nuxt.related = ref([RELATED]);

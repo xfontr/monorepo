@@ -7,12 +7,10 @@ export const usePage = async () => {
     useSeoMeta({
         title: () => page.value?.seo?.title ?? page.value?.title,
         description: () => page.value?.seo?.description,
-        ogTitle: () => page.value?.seo?.title ?? page.value?.title,
-        ogDescription: () => page.value?.seo?.description,
-        ogType: "website",
-        ogUrl: () => page.value?.permalink,
         robots: () => (page.value?.seo?.noindex ? "noindex" : undefined),
     });
+
+    useSeoTitleTemplate(() => page.value?.seo?.title);
 
     await useFailOnError(request);
 

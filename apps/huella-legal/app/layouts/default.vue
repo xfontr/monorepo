@@ -4,16 +4,23 @@ const { sections, columns, social, issn } = useSiteNav();
 const {
     public: { site },
 } = useRuntimeConfig();
+const { journal } = useAppConfig();
 
 useHead({
     htmlAttrs: { lang: () => localeProperties.value.language },
+    link: [
+        {
+            rel: "alternate",
+            type: "application/rss+xml",
+            title: journal.name,
+            href: new URL("/feed/", site.url).href,
+        },
+    ],
 });
 
 useSeoMeta({
     title: t("app.title"),
     description: t("app.description"),
-    ogTitle: t("app.title"),
-    ogDescription: t("app.description"),
     // A page without its own og:image (everything but an article) falls back to this.
     ogImage: new URL("/og-image.png", site.url).href,
     ogImageWidth: 1200,

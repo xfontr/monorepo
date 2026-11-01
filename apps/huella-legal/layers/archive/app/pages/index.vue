@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const { home } = await useHome();
 
+useHead({ titleTemplate: "%s" });
+
 const recentId = useId();
 </script>
 

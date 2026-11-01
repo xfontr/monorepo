@@ -4,7 +4,10 @@ import { ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Layout from "./default.vue";
 
-const head = vi.hoisted(() => ({ useHead: vi.fn(), useSeoMeta: vi.fn() }));
+const head = vi.hoisted(() => ({
+    useHead: vi.fn(),
+    useSeoMeta: vi.fn(),
+}));
 
 mockNuxtImport("useI18n", () => () => ({
     t: (key: string) => `t(${key})`,
@@ -77,11 +80,24 @@ describe("default layout", () => {
         expect(head.useSeoMeta).toHaveBeenCalledWith({
             title: "t(app.title)",
             description: "t(app.description)",
-            ogTitle: "t(app.title)",
-            ogDescription: "t(app.description)",
             ogImage: "https://www.huellalegal.com/og-image.png",
             ogImageWidth: 1200,
             ogImageHeight: 630,
         });
+    });
+
+    it("points feed readers at the RSS feed from every page", () => {
+        mountLayout();
+
+        const [{ link }] = head.useHead.mock.calls[0] as [{ link: object[] }];
+
+        expect(link).toContainEqual(
+            expect.objectContaining({
+                rel: "alternate",
+                type: "application/rss+xml",
+                title: "Huella Legal",
+                href: "https://www.huellalegal.com/feed/",
+            }),
+        );
     });
 });

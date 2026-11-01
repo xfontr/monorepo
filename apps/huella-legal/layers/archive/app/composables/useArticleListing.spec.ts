@@ -25,7 +25,8 @@ const fetching = vi.hoisted(() => ({
 }));
 
 const routing = vi.hoisted(() => ({
-    route: undefined as unknown as { query: Record<string, string> },
+    // Nuxt's plugins read the route as the app starts, before any test sets one
+    route: { path: "/publicaciones/", query: {} } as { query: Record<string, string> },
     useListingQuery: vi.fn(),
     link: vi.fn((patch: LocationQueryRaw) => ({ query: patch })),
     navigate: vi.fn(),
