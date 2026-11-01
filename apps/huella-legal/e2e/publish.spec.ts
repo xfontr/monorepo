@@ -14,7 +14,7 @@ test("the publish page answers 200 with its heading inside the shell", async ({ 
     );
     await expect(page.getByRole("banner")).toBeVisible();
     await expect(page.getByRole("contentinfo")).toBeVisible();
-    await expect(page).toHaveTitle("Publicar");
+    await expect(page).toHaveTitle("Publicar - Huella Legal");
 });
 
 test("the call to action opens a message to the editors with the subject filled in", async ({

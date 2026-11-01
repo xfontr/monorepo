@@ -103,10 +103,13 @@ export const POSTS: Entry[] = [
         fakeEntry({
             terms: [SIBLING],
             authors: [fakeAuthor(index % 2 === 0 ? { bio: faker.lorem.sentence() } : {})],
+            seo: index === 0 ? { noindex: true } : undefined,
         }),
     ),
     ...SEARCHED,
 ];
+
+export const HIDDEN = POSTS.find(({ seo }) => seo?.noindex)!;
 
 const locale = (code: string): TranslationMap =>
     JSON.parse(readFileSync(new URL(`${code}.json`, LOCALES), "utf8")) as TranslationMap;

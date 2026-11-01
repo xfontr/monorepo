@@ -40,7 +40,7 @@ test("the contact page answers 200 with its heading inside the shell", async ({ 
     expect(response?.status()).toBe(200);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Escribe a la redacción");
     await expect(page.getByRole("contentinfo")).toBeVisible();
-    await expect(page).toHaveTitle("Contacto");
+    await expect(page).toHaveTitle("Contacto - Huella Legal");
 });
 
 test("the footer's contact link lands on the form", async ({ page }) => {
