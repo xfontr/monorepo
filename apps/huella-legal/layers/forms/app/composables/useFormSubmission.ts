@@ -54,5 +54,5 @@ export const useFormSubmission = <
         list(form.value?.getErrors() ?? []);
     };
 
-    return { honeypot, submitting, validateOn, summaryErrors, submit, onError };
+    return { honeypot, submitted, submitting, validateOn, summaryErrors, submit, onError };
 };

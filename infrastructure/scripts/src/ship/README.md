@@ -26,9 +26,9 @@ domain/checks.ts     recognizes gh's "no checks reported yet" message
 
 Merging outright the moment `issue:ship` runs would merge broken code the instant CI happens to be
 slow to notice it — the whole point is to gate on green, not skip the gate. `gh pr merge --auto`
-queues the merge with GitHub itself rather than merging here: it fires the moment the PR's required
-checks (there are none configured on this repo today — see the root README's git conventions) and
-any required reviews (also none) are satisfied, which today reduces to "the moment checks pass."
+queues the merge with GitHub itself rather than merging here: it fires the moment the `master`
+ruleset's required checks pass, since it requires no review (the
+[change lifecycle](../../../../docs/guides/change-lifecycle.md) lists them).
 `gh pr checks --watch` is a second, unrelated call that blocks *this* process so the terminal has
 something to report — arming auto-merge and watching checks would both work if only one of them ran,
 but only doing both gets you an unattended merge *and* a "here's what happened" line instead of
@@ -87,7 +87,6 @@ fails outright and the run stops with the branch pushed and a PR open but nothin
 
 | Later need | What changes |
 | --- | --- |
-| Gating on required status checks instead of "all checks, if any" | Needs a branch protection rule naming the required job(s) on `master`; today there's none, so `gh pr merge --auto` fires the instant the PR is mergeable at all |
 | Running from a dirty working tree | Not guarded — a push only sends committed commits, so uncommitted changes are silently left out, same as a plain `git push` |
 | Choosing the merge method per run | `MERGE_METHOD` in `main.ts` is a constant; a `--squash`/`--rebase` flag would read it through `flag()` from [`shared/cli.ts`](../shared/cli.ts) instead |
 | A PR that needs a review before merging | `gh pr merge --auto` would just queue behind that too — this script doesn't request one or wait on it specially, it only watches checks |

@@ -10,6 +10,12 @@ interface Props {
 defineProps<Props>();
 
 const router = useRouter();
+const jumpToNewsletter = useNewsletterJump();
+
+const jumpFromMenu = (event: MouseEvent, close?: () => void): void => {
+    close?.();
+    jumpToNewsletter(event);
+};
 const homePath = computed(() => router.resolve({ name: "index" }).path);
 </script>
 
@@ -32,6 +38,7 @@ const homePath = computed(() => router.resolve({ name: "index" }).path);
                     <ULink
                         :to="DESTINATIONS.newsletter"
                         raw
+                        @click="jumpToNewsletter"
                         class="relative inline-flex h-9 items-center gap-1.5 font-semibold text-primary after:absolute after:inset-x-0 after:top-0 after:-bottom-2 hover:underline focus-visible:rounded-xs"
                     >
                         <UIcon name="i-lucide-mail" class="size-3.5" />
@@ -59,6 +66,7 @@ const homePath = computed(() => router.resolve({ name: "index" }).path);
             <UButton
                 :to="DESTINATIONS.newsletter"
                 :label="$t('app.header.subscribe')"
+                @click="jumpToNewsletter"
                 class="hidden md:inline-flex"
             />
         </template>
@@ -95,6 +103,7 @@ const homePath = computed(() => router.resolve({ name: "index" }).path);
                         block
                         :to="DESTINATIONS.newsletter"
                         :label="$t('app.header.menu.subscribe')"
+                        @click="jumpFromMenu($event, close)"
                     />
                     <UButton
                         block

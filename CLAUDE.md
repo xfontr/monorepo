@@ -3,7 +3,8 @@
 Architecture, boundaries, commands and release rules live in [README.md](./README.md), and every
 project has its own README — read those first. This file only holds what they don't say, or what
 gets got wrong anyway. Shared checks live in scripts and CI; Claude additionally uses
-[`.claude/settings.json`](./.claude/settings.json) and two `PostToolUse` hooks for earlier feedback.
+[`.claude/settings.json`](./.claude/settings.json), two `PostToolUse` hooks for earlier feedback
+and a `PreToolUse` guard that keeps agents off live systems.
 
 ## ✍️ Style
 
@@ -83,6 +84,12 @@ far outside that is worth opening. The `comment-cleanup` skill runs the pass.
   the code and stop there — an unprompted "want me to branch off and apply this?" is noise, not
   helpfulness. Act on any of it only when asked in those words; the branch and commit rules under
   [⌨️ Commands](#️-commands) are reference for when that happens, not a prompt to bring it up.
+  A `/ship-issue` run is that ask, and only its ship step acts on it.
+- **Never invent structure the repo already solves.** A new file or folder copies the closest
+  existing precedent — a huella-legal layer, a developer-portal folder, a scripts
+  `domain/`/`adapters/` split — and keeps its naming. A folder shape found nowhere in the repo
+  needs a decision report first.
+
 ## 📦 Dependencies
 
 - **Adding a validation or utility library is a check-in, not a ban.** Say what it buys you and lay
@@ -182,3 +189,4 @@ the symptom is `lint` failing to parse every file rather than anything mentionin
 | `i18n-new-vendor` | Adding a TMS vendor to `@monorepo/i18n` |
 | `scripts-new-script` | Adding a repo-local CLI under `infrastructure/scripts` |
 | `ui-new-component` | Adding a component to `@monorepo/ui` |
+| `ship-issue` | Taking issues to merged PRs unattended, as `/ship-issue <numbers>`. A saved workflow in [`.claude/workflows/`](./.claude/workflows/ship-issue.js), not a skill; see [agent setup](./docs/concepts/agent-setup.md#-the-ship-issue-pipeline) |

@@ -1,5 +1,6 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeAll, describe, expect, it } from "vitest";
+import { NEWSLETTER_ID } from "../composables/useNewsletterJump";
 import NewsletterBand from "./NewsletterBand.vue";
 
 // `<i18n-t>` reads the real i18n instance rather than a `$t` mock, so the spec feeds it messages
@@ -33,12 +34,10 @@ describe("newsletter band", () => {
         },
     );
 
-    it("leaves the anchor to the page that places it, so only the linked band carries one", async () => {
-        const bare = await mountSuspended(NewsletterBand);
-        const anchored = await mountSuspended(NewsletterBand, { attrs: { id: "newsletter" } });
+    it("carries the anchor the subscribe links jump to, so any page with a band keeps the reader", async () => {
+        const wrapper = await mountSuspended(NewsletterBand);
 
-        expect(bare.find("section").attributes("id")).toBeUndefined();
-        expect(anchored.find("section").attributes("id")).toBe("newsletter");
+        expect(wrapper.find("section").attributes("id")).toBe(NEWSLETTER_ID);
     });
 
     it("hands its tone to an inline form, so the slate band gets the slate field", async () => {

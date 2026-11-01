@@ -90,10 +90,11 @@ Every PR, and every push to `master`, runs [`ci.yml`](../../.github/workflows/ci
 `build` is the asymmetry worth knowing before trusting a green push: `apps/huella-legal` typechecks
 as part of its build, which is where a local pass and a red CI run most often diverge.
 
-The `master` ruleset requires one approving review, but repo admins are a standing bypass actor, so
-a self-opened PR only waits on CI. Dependabot isn't a bypass actor: its non-major PRs get
-auto-merge armed by [`dependabot-auto-merge.yml`](../../.github/workflows/dependabot-auto-merge.yml)
-and still wait on both CI and the approval, which [`CODEOWNERS`](../../.github/CODEOWNERS) routes.
+The `master` ruleset requires a PR but no approving review. Its required checks are `checks`, `e2e`
+and `dependency-review` from CI, plus the Netlify deploy preview, and SonarCloud code scanning gates
+on top. So an armed auto-merge, whether from `pnpm issue:ship` or from
+[`dependabot-auto-merge.yml`](../../.github/workflows/dependabot-auto-merge.yml) on Dependabot's
+non-major PRs, lands the moment those pass.
 
 ## 7. Merge, then release — separately
 
