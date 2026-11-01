@@ -27,7 +27,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@nuxt/test-utils": "^4.3.2",
-    "@nx/eslint-plugin": "23.3.1",
+    "@nx/eslint-plugin": "24.0.2",
     "@playwright/test": "catalog:",
     "@types/node": "catalog:",
     "@vitest/eslint-plugin": "^1.6.18",
