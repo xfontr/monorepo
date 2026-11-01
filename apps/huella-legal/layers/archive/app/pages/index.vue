@@ -61,6 +61,6 @@ const recentId = useId();
             </div>
         </UContainer>
 
-        <NewsletterBand id="newsletter" />
+        <NewsletterBand />
     </div>
 </template>
