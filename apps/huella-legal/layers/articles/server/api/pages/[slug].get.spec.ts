@@ -35,6 +35,14 @@ describe("GET /api/pages/:slug", () => {
         expect(nitro.getEntry).toHaveBeenCalledWith("pages", "aviso-legal");
     });
 
+    it("finds a configured page however the request cased it", async () => {
+        nitro.param.mockReturnValue("AVISO-Legal");
+
+        await handler({});
+
+        expect(nitro.getEntry).toHaveBeenCalledWith("pages", "aviso-legal");
+    });
+
     it("returns the entry mapped into a page, addressed on the site", async () => {
         expect(await handler({})).toMatchObject({
             slug: "aviso-legal",

@@ -1,11 +1,7 @@
 import { JOURNAL_LOCALE, LONG_DATE } from "../../../../i18n/dateFormats";
 import type { ArticleSummary } from "../../shared/types/ArticleSummary";
 import type { Citation } from "../../shared/types/Citation";
-
-export interface Journal {
-    name: string;
-    issn: string;
-}
+import type { Journal } from "../../shared/types/Journal";
 
 interface Source {
     authors: string[];

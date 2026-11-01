@@ -71,5 +71,6 @@ export const toArticleSummary = (entry: Entry): ArticleSummary => {
         tags,
         format: toFormat(tags.map(({ slug }) => slug)),
         readingMinutes: toReadingMinutes(entry.body),
+        noindex: entry.seo?.noindex || undefined,
     };
 };

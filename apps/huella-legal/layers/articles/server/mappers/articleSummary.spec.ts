@@ -50,6 +50,11 @@ describe("toArticleSummary", () => {
         expect(result.authors[0]?.name).toBe("Ana & Bruno");
     });
 
+    it("carries Yoast's noindex, so the sitemap and the feed can leave the post out", () => {
+        expect(summarise({ seo: { noindex: true } }).noindex).toBe(true);
+        expect(summarise({ seo: { noindex: false } }).noindex).toBeUndefined();
+    });
+
     it("leaves an unset avatar unset, so UAvatar falls back to initials", () => {
         expect(
             summarise({ authors: [fakeAuthor({ avatar: undefined })] }).authors[0]?.avatar,
