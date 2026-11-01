@@ -8,8 +8,10 @@ const translate = (key: string, params?: Record<string, unknown>) =>
     params ? `t(${key}, ${JSON.stringify(params)})` : `t(${key})`;
 
 const social = vi.hoisted(() => ({ profiles: {} as Record<string, string> }));
+const cookies = vi.hoisted(() => ({ enabled: false, open: vi.fn() }));
 
 mockNuxtImport("useI18n", () => () => ({ t: translate }));
+mockNuxtImport("useCookiePreferences", () => () => cookies);
 mockNuxtImport("useRuntimeConfig", (original) => () => {
     const config = original();
 
@@ -40,6 +42,7 @@ const currentOf = (nav: ReturnType<typeof useSiteNav>) =>
 
 beforeEach(() => {
     social.profiles = { instagram: "", linkedin: "", x: "" };
+    cookies.enabled = false;
 });
 
 describe("useSiteNav", () => {
@@ -77,6 +80,7 @@ describe("useSiteNav", () => {
             "/areas/",
             "/colaboradores/",
             "/sobre/",
+            "/calculo-intereses/",
             "/publicar/",
             "/publicar/#tesis",
             "/#newsletter",
@@ -85,6 +89,25 @@ describe("useSiteNav", () => {
             "/aviso-legal/#privacidad",
             "/aviso-legal/#cookies",
         ]);
+    });
+
+    it("offers no cookie settings when no tracker is configured, since there is nothing to consent to", async () => {
+        const nav = await navAt("/");
+
+        expect(nav.columns.value.at(-1)?.children?.map(({ label }) => label)).not.toContain(
+            "t(app.footer.links.cookieSettings)",
+        );
+    });
+
+    it("reopens the cookie preferences from the legal column once a tracker needs consent", async () => {
+        cookies.enabled = true;
+
+        const nav = await navAt("/");
+        const settings = nav.columns.value
+            .at(-1)
+            ?.children?.find(({ label }) => label === "t(app.footer.links.cookieSettings)");
+
+        expect(settings).toMatchObject({ onClick: cookies.open });
     });
 
     it("takes the ISSN from app config, so the header and footer print the same one", async () => {

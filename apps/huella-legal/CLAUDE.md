@@ -68,5 +68,7 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   `vendors.ts` (handlers for the vendors with no package), the workspace's exception to "beside its
   subject" and "no fixtures". A packaged vendor's wire format belongs in that package's `testing`
   entry, never here. Test-only code never goes under `layers/`, `app/` or `server/`.
+- `mocks/` is dev's MSW preload and its fake WordPress, never read by a spec. `pnpm dev` must
+  not reach huellalegal.com, so a new WordPress route needs a handler before dev can show it.
 - **No `toHaveScreenshot`.** Baselines failed every page PR while the design still moves; the
   [README](./README.md#-e2e) says when they come back. Assert on roles, text and status instead.

@@ -1,6 +1,6 @@
 ---
 name: decision-report
-description: Investigate an architectural question against this repo and write the answer up as a decision report under docs/decisions/. Use on "do a spike on this", "spike this", "write a decision report" or "add a decision report" — and when a spike issue gets resolved and the outcome needs to survive after the issue closes. Filing a GitHub spike issue is the `github-issue` skill, not this one.
+description: Investigate an architectural question against this repo and write the answer up as a decision report under docs/decisions/. Use on "do a spike on this", "spike this", "write a decision report" or "add a decision report". Only when the user asks; never on your own judgement. Filing a GitHub spike issue is the `github-issue` skill, not this one.
 ---
 
 # Writing a decision report

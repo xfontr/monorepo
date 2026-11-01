@@ -1,0 +1,77 @@
+#cc-main {
+    --cc-font-family: var(--font-sans);
+    --cc-modal-border-radius: var(--ui-radius);
+    --cc-btn-border-radius: var(--ui-radius);
+    --cc-z-index: 60;
+
+    --cc-bg: var(--color-ivory-50);
+    --cc-primary-color: var(--color-huella-slate-900);
+    --cc-secondary-color: var(--color-huella-ink-700);
+    --cc-link-color: var(--color-huella-slate-500);
+    --cc-overlay-bg: rgb(36 36 36 / 50%);
+    --cc-separator-border-color: var(--color-ivory-300);
+
+    --cc-btn-primary-bg: var(--color-huella-slate-500);
+    --cc-btn-primary-color: var(--color-ivory-50);
+    --cc-btn-primary-border-color: var(--color-huella-slate-500);
+    --cc-btn-primary-hover-bg: var(--color-huella-slate-700);
+    --cc-btn-primary-hover-color: var(--color-ivory-50);
+    --cc-btn-primary-hover-border-color: var(--color-huella-slate-700);
+
+    --cc-btn-secondary-bg: transparent;
+    --cc-btn-secondary-color: var(--color-huella-slate-900);
+    --cc-btn-secondary-border-color: var(--color-huella-slate-900);
+    --cc-btn-secondary-hover-bg: var(--color-huella-slate-900);
+    --cc-btn-secondary-hover-color: var(--color-ivory-50);
+    --cc-btn-secondary-hover-border-color: var(--color-huella-slate-900);
+
+    --cc-toggle-on-bg: var(--color-huella-slate-500);
+    --cc-toggle-off-bg: var(--color-huella-ink-400);
+    --cc-toggle-on-knob-bg: var(--color-ivory-50);
+    --cc-toggle-off-knob-bg: var(--color-ivory-50);
+    --cc-toggle-enabled-icon-color: var(--color-huella-slate-500);
+    --cc-toggle-disabled-icon-color: var(--color-huella-ink-400);
+    --cc-toggle-readonly-bg: var(--color-huella-slate-200);
+    --cc-toggle-readonly-knob-bg: var(--color-ivory-50);
+    --cc-toggle-readonly-knob-icon-color: var(--color-huella-slate-300);
+
+    --cc-section-category-border: var(--color-ivory-200);
+    --cc-cookie-category-block-bg: var(--color-ivory-100);
+    --cc-cookie-category-block-border: var(--color-ivory-200);
+    --cc-cookie-category-block-hover-bg: var(--color-ivory-200);
+    --cc-cookie-category-block-hover-border: var(--color-ivory-300);
+    --cc-cookie-category-expanded-block-bg: var(--color-ivory-100);
+    --cc-cookie-category-expanded-block-hover-bg: var(--color-ivory-200);
+
+    --cc-footer-bg: var(--color-ivory-100);
+    --cc-footer-color: var(--color-huella-ink-700);
+    --cc-footer-border-color: var(--color-ivory-300);
+}
+
+#cc-main .cm__title,
+#cc-main .pm__title {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 1.375rem;
+    line-height: 1.28;
+}
+
+#cc-main .cm__desc,
+#cc-main .pm__section-desc {
+    line-height: 1.55;
+}
+
+#cc-main .cm__btn,
+#cc-main .pm__btn {
+    min-height: 2.75rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: 0.01em;
+}
+
+#cc-main .cm__btn:focus-visible,
+#cc-main .pm__btn:focus-visible,
+#cc-main a:focus-visible {
+    outline: 2px solid var(--color-huella-slate-500);
+    outline-offset: 2px;
+}

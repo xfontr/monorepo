@@ -12,7 +12,8 @@ pnpm dev                                    # or from this directory
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev` | Start the dev server |
+| `pnpm dev` | Start the dev server against the [fake WordPress](#-dev-mocks), never huellalegal.com |
+| `pnpm dev:api` | Start the dev server against the live WordPress. Only when the fakes can't show what you need |
 | `pnpm build` | Production build (output in `.output/`) |
 | `pnpm preview` | Preview the production build |
 | `pnpm lint` | ESLint — the nuxt flavour, deliberately not type-checked |
@@ -26,6 +27,25 @@ pnpm dev                                    # or from this directory
 
 Two modules beyond the shared ones are installed here, `@nuxt/fonts` and `@nuxt/image`, and the
 `forms` layer installs `@nuxtjs/turnstile`.
+
+### 🧪 Dev mocks
+
+The `serve` target preloads [`mocks/server.ts`](./mocks/server.ts) into `nuxt dev` and points
+`NUXT_CONTENT_VENDOR_BASE_URL` at a `localhost` path nothing listens on. The live host blacklists a
+machine that reads it too often, and every cold cache reads the whole archive.
+
+| Request | Dev answers with |
+| --- | --- |
+| A known post, page, category or tag | [`mocks/content.json`](./mocks/content.json): ten posts over five categories, three of them theses, three authors and `aviso-legal`, edited by hand |
+| Any other slug | A `404`, as WordPress would |
+| A search | The posts whose title, excerpt or body hold every word |
+| Comments | None, and a posted one is accepted |
+| Anything else on a huellalegal.com host | An MSW error in the dev log, never the network |
+
+Translations still come from the local translations server, and Kit, Turnstile and Resend stay as
+they are, inert without their keys. Both `dev` scripts clear the content caches first, so a switch
+between them never serves the other's data. Images are the factories' inline pixel, so nothing loads
+from the live media library either.
 
 ### 📖 API reference
 
@@ -156,6 +176,7 @@ turns their feature off.
 | `NUXT_OBSERVABILITY_URL` | Grafana OTLP gateway URL. Leave unset and server telemetry stays off |
 | `NUXT_OBSERVABILITY_INSTANCE_ID` | Grafana Cloud instance ID, the user half of the OTLP credentials |
 | `NUXT_OBSERVABILITY_TOKEN` | Grafana Cloud access token, the password half |
+| `NUXT_PUBLIC_TRACKERS_GOOGLE_ANALYTICS_ID` | The GA4 measurement ID. Unset, GA never loads; with no tracker set at all there is no cookie banner either |
 | `NUXT_PUBLIC_SOCIAL_INSTAGRAM`, `_LINKEDIN`, `_X` | Profile URLs for the footer's icons. Each one left unset drops its icon, and with none set the list is gone |
 
 Only secrets and values that change per environment are env vars. A public value that is the same
@@ -330,6 +351,7 @@ resolves to nothing, so deleting a layer can't leave its components named on ano
 | [`publish`](./layers/publish) | — | The Publicar page's sections, each placing its own copy: `PublishReasons`, `PublishSteps`, `PublishProposal`, `PublishFaq` and `PublishThesis`, the card behind the footer's `#tesis` link. There is no form yet: `PublishProposal` lists what a proposal must include and opens a `mailto:` to `public.submissionEmail`, a literal in the layer's `nuxt.config.ts`, with the subject and a body template filled in. Its page, `publicar.vue`, places them under `BasePageIntro` | — the author's own mail client sends it |
 | [`reading`](./layers/reading) | — | `article/` is the article page, one component per section (`ArticleHeader`, `ArticleToc`, `ArticleProse`, `ArticleBackMatter`, `ArticleRelated`) plus their parts: `ArticleTitle` (the breadcrumb and `h1`, with slots for a kicker above and the rest below), `ArticleShareBar`, `ArticleNotes`, `ArticleBibliography`, `ArticleCiteBox` and `ArticleAuthorCard`. `ArticleView` and `page/View.vue` (`PageView`) are what `[slug].vue` chooses between, each awaiting its own controller. `ArticleView` renders the `comments` feature's `CommentsSection` below the article. `PageView` is a WordPress page: `ArticleTitle`, then `ArticleToc`, `ArticleProse`, `ArticleNotes` and `ArticleBibliography` on the article's grid. Aviso legal, with privacy and cookies as sections whose heading ids the footer links target, is one of these pages. `ArticleToc` is a rail or an accordion, lit by Nuxt UI's `useScrollspy`, and takes an optional `title` in place of "En este artículo". `useArticle` in `app/composables/` is the article page's controller: the fetches, the error, the breadcrumb and the SEO meta. `useScholarlyMeta` is what `ArticleView` calls once the article has loaded, for its `citation_*` tags and the `ScholarlyArticle` it hands `nuxt-schema-org`, which renders on the server only. `usePage` is a WordPress page's: the fetch, the error and the SEO meta. `.hl-prose` in [`app/assets/prose.css`](./layers/reading/app/assets/prose.css) styles the sanitised body | — reads the core's routes: `GET /api/articles/:slug` and its `related` and `comments`, `GET /api/pages/:slug`, and `GET /api/authors` for the author counts |
 | [`search`](./layers/search) | — | `search/` is search: `SearchDialog`, the header's button, which stays a link to `/buscar/` until hydration and then opens `SearchPalette` in place (also on `/` and ⌘K), and the search page's `SearchForm` and `SearchResults`, whose count lives in a status region that stays mounted, so each new result is announced. Before typing, the palette offers the biggest subjects and the latest posts from `/api/home`; once typing pauses, the first five `/api/search` matches. Its first row is the full results page, because Enter takes the highlighted row and the palette highlights the first. `useArticleSearch` is the search page's controller: the query in the URL and the draft in the input, kept in step with it. `useSearchPreview` is the palette's: a debounced query and both fetches, which fail quietly, since Enter still reaches the results page | — reads the core's routes: `GET /api/search`, and `GET /api/home` for the palette |
+| [`tracking`](./layers/tracking) | — | None: `TRACKERS` in `app/trackers.ts` is the one list of third-party scripts: each names its consent category, the cookies to clear on withdrawal and how `@nuxt/scripts` loads it, and its ID comes from `public.trackers.<key>.id`, so a tracker with no ID never loads. Consent is how they load: `vanilla-cookieconsent` draws the banner and the preferences modal, themed onto the Huella tokens by [`consent.css`](./layers/tracking/app/assets/consent.css), and [`consent.client.ts`](./layers/tracking/app/plugins/consent.client.ts) offers only the categories some configured tracker needs and runs nothing when none is. [`trackers.client.ts`](./layers/tracking/app/plugins/trackers.client.ts) holds each script behind `useScriptTriggerConsent` until the banner's `cc:onConsent` or `cc:onChange` window event lists its category, so it never imports the banner. Withdrawing a category clears its cookies and reloads the page, since a loaded script can't be unloaded. `useCookiePreferences` is the footer's "Configurar cookies" link | — |
 
 ### 🔗 Links
 
