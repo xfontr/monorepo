@@ -1,9 +1,12 @@
 <script setup lang="ts">
 const router = useRouter();
 const open = ref<boolean>(false);
+// A modal mounted from the start puts Reka's dialog code in the layout chunk every page loads
+const used = ref<boolean>(false);
 
 const show = (event?: Event) => {
     event?.preventDefault();
+    used.value = true;
     open.value = true;
 };
 
@@ -27,7 +30,8 @@ onUnmounted(cleanUp);
         aria-haspopup="dialog"
         @click="show"
     />
-    <UModal
+    <LazyUModal
+        v-if="used"
         v-model:open="open"
         :title="$t('searchDialog.title')"
         :description="$t('searchDialog.description')"
@@ -39,5 +43,5 @@ onUnmounted(cleanUp);
         <template #content>
             <LazySearchPalette @close="open = false" />
         </template>
-    </UModal>
+    </LazyUModal>
 </template>
