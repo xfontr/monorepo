@@ -1,0 +1,60 @@
+{
+  "name": "@monorepo/wp-editor",
+  "description": "Local bulk editor for WordPress posts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "pnpm mocks:reset && nx serve",
+    "dev:api": "nuxt dev",
+    "mocks:reset": "node -e \"require('node:fs').rmSync('.data/mocks', { recursive: true, force: true })\"",
+    "lint": "nx eslint:lint",
+    "nuxt-prepare": "nuxi prepare",
+    "typecheck": "nuxt typecheck",
+    "test": "vitest . --watch=false",
+    "test:dev": "vitest .",
+    "test:coverage": "vitest . --watch=false --coverage",
+    "editor": "node --disable-warning=ExperimentalWarning --env-file-if-exists=.env tools/cli/index.ts",
+    "editor:dev": "node --disable-warning=ExperimentalWarning --import ./mocks/server.ts tools/cli/index.ts"
+  },
+  "nx": {
+    "tags": [
+      "type:app",
+      "scope:internal"
+    ],
+    "targets": {
+      "serve": {
+        "options": {
+          "env": {
+            "NODE_OPTIONS": "--import ./mocks/server.ts"
+          }
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@codemirror/lang-html": "^6.4.12",
+    "@codemirror/merge": "^6.12.3",
+    "@iconify-json/lucide": "^1.2.128",
+    "@nuxt/ui": "^4.11.0",
+    "codemirror": "^6.0.2",
+    "diff": "^9.0.0",
+    "nuxt": "catalog:",
+    "ofetch": "^1.5.1",
+    "tailwindcss": "^4.3.3",
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "@monorepo/configs": "workspace:*",
+    "@nuxt/test-utils": "^4.3.2",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "@vue/test-utils": "^2.4.11",
+    "eslint": "catalog:",
+    "happy-dom": "^21.0.1",
+    "msw": "^3.0.1",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vue-tsc": "catalog:"
+  }
+}
