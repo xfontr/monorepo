@@ -9,6 +9,7 @@ export default defineNuxtConfig({
         "/areas/*": { isr: 60 * 60 * 24, varyOn: ["page", "sort", "format"] },
         "/etiquetas/*": { isr: 60 * 60 * 24, varyOn: ["page", "sort", "format"] },
         "/colaboradores/*": { isr: 60 * 60 * 24, varyOn: ["page", "sort", "format"] },
+        "/": { prerender: true },
         "/areas/": { prerender: true },
         "/colaboradores/": { prerender: true },
         "/sobre/": { prerender: true },

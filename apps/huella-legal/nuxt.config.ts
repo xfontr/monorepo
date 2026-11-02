@@ -35,6 +35,10 @@ export default defineNuxtConfig({
         routeTypedFetch: true,
         // `true` makes every isr page fetch its payload as a second request, `_payload.json`
         payloadExtraction: "client",
+        defaults: {
+            // On visibility, the home page's links fetch payloads and chunks while it still hydrates
+            nuxtLink: { prefetchOn: { visibility: false, interaction: true } },
+        },
     },
 
     // The design lab under `pages/lab/` is a dev-only review surface, so no build ever ships it
@@ -44,6 +48,11 @@ export default defineNuxtConfig({
                 for (let index = pages.length - 1; index >= 0; index--) {
                     if (pages[index]?.path.startsWith("/lab")) pages.splice(index, 1);
                 }
+            },
+
+            // A prefetch hint per lazy chunk downloads Faro, search and Turnstile before the LCP
+            "build:manifest"(manifest) {
+                for (const chunk of Object.values(manifest)) chunk.prefetch = false;
             },
         },
 

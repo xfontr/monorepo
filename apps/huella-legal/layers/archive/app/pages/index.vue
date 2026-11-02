@@ -36,12 +36,12 @@ const recentId = useId();
                 :title="$t('home.recent.title')"
                 :action="{ label: $t('home.recent.all'), to: { name: 'publications' } }"
             />
-            <SummaryGrid :articles="home.recent" hide-orphan class="mt-8" />
+            <LazySummaryGrid hydrate-on-visible :articles="home.recent" hide-orphan class="mt-8" />
         </UContainer>
 
-        <HomeSubjects :subjects="home.subjects" :formats="home.formats" />
+        <LazyHomeSubjects hydrate-on-visible :subjects="home.subjects" :formats="home.formats" />
 
-        <HomeTheses :articles="home.theses" />
+        <LazyHomeTheses hydrate-on-visible :articles="home.theses" />
 
         <UContainer as="section" :aria-label="$t('home.publish.label')" class="py-16 lg:py-20">
             <div
@@ -61,6 +61,6 @@ const recentId = useId();
             </div>
         </UContainer>
 
-        <NewsletterBand />
+        <LazyNewsletterBand hydrate-on-visible />
     </div>
 </template>

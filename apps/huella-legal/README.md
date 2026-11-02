@@ -82,15 +82,26 @@ tripwires.
 
 | Route | Served as |
 | --- | --- |
-| `/:slug/` for every post and every slug in `pageSlugs`, `/areas/`, `/colaboradores/`, `/calculo-intereses/`, `/contacto/`, `/publicar/`, `/sobre/` | A prerendered file. A slug added since the last build falls through to the function, which renders it once under `/**`'s `isr` |
-| `/`, `/feed/`, and the `GET /api/*` routes | `isr` 86400 |
+| `/:slug/` for every post and every slug in `pageSlugs`, `/`, `/areas/`, `/colaboradores/`, `/calculo-intereses/`, `/contacto/`, `/publicar/`, `/sobre/` | A prerendered file. A slug added since the last build falls through to the function, which renders it once under `/**`'s `isr` |
+| `/feed/` and the `GET /api/*` routes | `isr` 86400 |
 | `/publicaciones/`, `/areas/:slug/`, `/etiquetas/:slug/`, `/colaboradores/:slug/`, `/buscar/`, their `_payload.json`, `/api/articles`, `/api/search` | `isr` 86400, with a `Netlify-Vary` naming the query keys each one reads |
 | `/api/articles/:slug/comments` | `isr` 600. New comments are held for moderation, so the window only delays an approval |
 | `/api/newsletter`, `/api/contact`, `/api/comments`, `/robots.txt`, `/sitemap.xml` | The function, uncached. `@nuxtjs/sitemap` caches the sitemap itself for ten minutes |
 
 Nuxt turns every `isr` rule into a client-side payload rule, so client navigation and link prefetch
 read `<route>/_payload.json` rather than the API. `experimental.payloadExtraction` is `"client"`, so
-a first view still gets its payload inlined instead of fetching it as a second request.
+a first view still gets its payload inlined instead of fetching it as a second request. A link
+prefetches on hover or touch rather than when it scrolls into view, so a page's own links don't fetch
+payloads while it hydrates.
+
+The JS that hydrates a page starts loading only on the window's `load` event.
+[`server/plugins/deferHydration.ts`](./server/plugins/deferHydration.ts) drops the module preloads
+and injects the entry from a `load` listener. A `build:manifest` hook in `nuxt.config.ts` drops the
+prefetch hint Nuxt writes for every lazy chunk. Lighthouse's mobile LCP counts every request that
+starts before the LCP, whatever its priority, so 255 kB of hydration JS in `<head>` was what kept it
+above 3 s. The page is server-rendered and readable without it, links and the search form work as
+plain HTML, and the menu, the search dialog and the forms wake up once it lands. Below the fold, the
+home page's sections and the footer hydrate only when they scroll into view (`hydrate-on-visible`).
 
 Each layer declares the rules for its own routes under `rendering` in its `nuxt.config.ts`: an
 `isr`, the query keys it varies on, or `prerender: true`.
@@ -426,6 +437,9 @@ each skipped entirely when its URL is unset — which is why local dev ships not
 | Browser | [`app/plugins/observability.client.ts`](./app/plugins/observability.client.ts) | `NUXT_PUBLIC_OBSERVABILITY_URL` |
 | Nitro | [`server/plugins/observability.ts`](./server/plugins/observability.ts) | `NUXT_OBSERVABILITY_URL` |
 
+The browser half imports Faro only once the page is idle, through `onNuxtReady`, and holds any Vue
+error thrown before then until it starts, so Faro and its tracing never run during hydration.
+
 The server plugin opens the request span itself, by wrapping `nitroApp.h3App.handler`, because
 `@monorepo/observability` ships no inbound HTTP instrumentation — [its
 Gotchas](../../packages/observability/README.md#️-gotchas) say why. Wrapping the handler also means
@@ -543,6 +557,7 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | *Publicaciones* lit in the header on an article | `useSiteNav` marks sections by route, and `/:slug/` also serves WordPress pages (C6), so it needs to know which one it rendered |
 | The `onServerPrefetch` tree-shake override in `nuxt.config.ts` | Drop it once Nuxt stops stripping that hook from client builds; the article e2e's axe scan fails on `aria-controls` if it goes too early |
 | A check on layer directions | Once there are enough layers that review stops catching a wrong edge. A spec can read `.nuxt/components.d.ts` and `.nuxt/types/*imports.d.ts`, which map every auto-import to its source file, and fail on an edge the table above forbids. Two layers exporting one auto-imported name only warn during `nuxi prepare`, so the same spec would be the place to fail on that too |
+| A rebuild when a post is published | `/` is prerendered, so a new post reaches the home page only on the next build: Monday's, or a manual run of the rebuild workflow. WordPress has no webhooks ([0030](../../docs/decisions/0030-huella-legal-rendering-hosting-and-cost.md)), so either one is added on the WordPress side, posting to the build hook, or a scheduled workflow asks WordPress for its newest post and posts to `NETLIFY_BUILD_HOOK_URL` when it changed |
 | A shared Nitro cache for `isr` misses | Mount Nitro's `cache` storage on unstorage's `netlify-blobs` driver if misses on cold instances turn out slow. It is Netlify-only, which cuts against the move to Google Cloud |
 | Cache windows as constants again | With pages prerendered or held by the CDN, `content.cache` and `articles.cache` only govern the build and `isr` misses. If nothing in production ends up tuning them, they fold back into constants with an `import.meta.dev` switch |
 | Parity with the `/lab` pages | Still a human check: the lab is stripped from production builds, and Linux substitutes a serif for Georgia |

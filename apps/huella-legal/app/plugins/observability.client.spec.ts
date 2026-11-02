@@ -5,6 +5,7 @@ import plugin from "./observability.client";
 const telemetry = vi.hoisted(() => ({
     faro: { api: { pushError: vi.fn() } },
     startWebTelemetry: vi.fn(),
+    ready: undefined as (() => Promise<void>) | undefined,
     config: {
         url: "",
         app: { name: "@monorepo/huella-legal", version: "1.4.0", environment: "production" },
@@ -18,6 +19,10 @@ mockNuxtImport("useRuntimeConfig", (original) => () => {
     const config = original();
 
     return { ...config, public: { ...config.public, observability: telemetry.config } };
+});
+
+mockNuxtImport("onNuxtReady", () => (callback: () => Promise<void>) => {
+    telemetry.ready = callback;
 });
 
 const COLLECTOR = "https://faro-collector.test/collect";
@@ -35,6 +40,7 @@ beforeEach(() => {
     vi.clearAllMocks();
 
     telemetry.config.url = "";
+    telemetry.ready = undefined;
     telemetry.startWebTelemetry.mockReturnValue(telemetry.faro);
 });
 
@@ -46,20 +52,36 @@ describe("the browser observability plugin", () => {
         expect(hooks.size).toBe(0);
     });
 
-    it("hands the public observability config to Faro", () => {
+    it("hands the public observability config to Faro once the page is idle", async () => {
         telemetry.config.url = COLLECTOR;
 
         run();
 
+        expect(telemetry.startWebTelemetry).not.toHaveBeenCalled();
+
+        await telemetry.ready?.();
+
         expect(telemetry.startWebTelemetry).toHaveBeenCalledWith(telemetry.config);
     });
 
-    it("forwards every Vue error to Faro, so a render crash is not lost in the console", () => {
+    it("forwards every Vue error to Faro, so a render crash is not lost in the console", async () => {
         telemetry.config.url = COLLECTOR;
         const error = new Error("render failed");
+        const hooks = run();
 
-        run().get("vue:error")?.(error);
+        await telemetry.ready?.();
+        hooks.get("vue:error")?.(error);
 
         expect(telemetry.faro.api.pushError).toHaveBeenCalledWith(error);
+    });
+
+    it("keeps a Vue error thrown during hydration until Faro starts, rather than dropping it", async () => {
+        telemetry.config.url = COLLECTOR;
+        const error = new Error("hydration failed");
+
+        run().get("vue:error")?.(error);
+        await telemetry.ready?.();
+
+        expect(telemetry.faro.api.pushError).toHaveBeenCalledExactlyOnceWith(error);
     });
 });

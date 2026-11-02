@@ -31,7 +31,7 @@ const authors = computed(() => bylineAuthors(props.lead.authors));
                     :src="lead.image.url"
                     :width="lead.image.width"
                     :height="lead.image.height"
-                    sizes="100vw lg:720px"
+                    sizes="sm:100vw md:100vw lg:720px"
                     alt=""
                     fetchpriority="high"
                     class="size-full object-cover"

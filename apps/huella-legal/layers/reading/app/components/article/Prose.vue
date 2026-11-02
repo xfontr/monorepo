@@ -20,7 +20,7 @@ defineProps<Props>();
                 :alt="image.alt"
                 :width="image.width"
                 :height="image.height"
-                sizes="100vw md:680px"
+                sizes="sm:100vw md:100vw lg:680px"
                 class="aspect-video w-full rounded-xs object-cover"
             />
         </figure>
