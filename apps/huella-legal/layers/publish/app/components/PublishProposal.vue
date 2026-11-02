@@ -3,6 +3,7 @@ const CHECKLIST = ["name", "kind", "title", "summary", "file"] as const;
 
 const { t } = useI18n();
 const { submissionEmail } = useRuntimeConfig().public;
+const { nav } = useAppConfig();
 
 const headingId = useId();
 
@@ -63,7 +64,7 @@ const mailto = computed<string>(() => {
             class="mt-6 font-sans text-meta text-muted"
         >
             <template #policy>
-                <ULink raw :to="DESTINATIONS.privacy" class="underline underline-offset-2">
+                <ULink raw :to="nav.privacy" class="underline underline-offset-2">
                     {{ $t("publish.proposal.policy") }}
                 </ULink>
             </template>

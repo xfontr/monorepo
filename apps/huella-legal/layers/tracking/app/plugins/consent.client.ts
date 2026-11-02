@@ -1,5 +1,4 @@
 import * as CookieConsent from "vanilla-cookieconsent";
-import { DESTINATIONS } from "~/composables/useSiteNav";
 import { TRACKERS, type TrackerKey } from "../trackers";
 
 export default defineNuxtPlugin(({ $i18n }) => {
@@ -9,7 +8,7 @@ export default defineNuxtPlugin(({ $i18n }) => {
     if (!active.length) return;
 
     const categories = [...new Set(active.map((key) => TRACKERS[key].category))];
-    const policyHref = useRouter().resolve(DESTINATIONS.cookies).href;
+    const policyHref = useRouter().resolve(useAppConfig().nav.cookies).href;
 
     onNuxtReady(() =>
         CookieConsent.run({

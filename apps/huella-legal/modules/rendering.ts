@@ -4,58 +4,44 @@ import {
     OfetchHttpClient,
     type VendorConfig,
 } from "@monorepo/content";
+import type { Nuxt } from "nuxt/schema";
 import { defineNuxtModule, extendRouteRules } from "nuxt/kit";
 import { ofetch } from "ofetch";
 import { readAllPages } from "../layers/articles/server/utils/readAllPages";
 
 type RouteRule = Parameters<typeof extendRouteRules>[1];
 
-const ONE_DAY = 60 * 60 * 24;
-const TEN_MINUTES = 60 * 10;
+interface CachedRule {
+    isr: number | false;
+    queryKeys?: string[];
+}
 
-const varyOn = (...keys: string[]): RouteRule => ({
-    isr: ONE_DAY,
-    headers: { "Netlify-Vary": `query=${keys.join("|")}` },
-});
+export interface Rendering {
+    cache: Record<string, CachedRule>;
+    prerender: string[];
+}
 
-const LISTING = varyOn("page", "sort", "format");
+// Nuxt copies only `isr` onto a payload path and skips wildcards, so the vary is repeated here
+const hasPayload = (route: string, { queryKeys }: CachedRule): boolean =>
+    !!queryKeys && !route.startsWith("/api/");
 
-const ROUTE_RULES: Record<string, RouteRule> = {
-    "/**": { isr: ONE_DAY },
-    "/publicaciones/": LISTING,
-    "/areas/*": LISTING,
-    "/etiquetas/*": LISTING,
-    "/colaboradores/*": LISTING,
-    "/buscar/": varyOn("query", "page"),
-    "/publicaciones/_payload.json": LISTING,
-    "/areas/*/_payload.json": LISTING,
-    "/etiquetas/*/_payload.json": LISTING,
-    "/colaboradores/*/_payload.json": LISTING,
-    "/buscar/_payload.json": varyOn("query", "page"),
-    "/robots.txt": { isr: false },
-    "/sitemap.xml": { isr: false },
-    "/api/**": { isr: false },
-    "/api/articles": varyOn("page", "sort", "format", "category", "tag", "author"),
-    "/api/articles/**": { isr: ONE_DAY },
-    "/api/articles/*/comments": { isr: TEN_MINUTES },
-    "/api/pages/**": { isr: ONE_DAY },
-    "/api/authors": { isr: ONE_DAY },
-    "/api/subjects": { isr: ONE_DAY },
-    "/api/home": { isr: ONE_DAY },
-    "/api/search": varyOn("query", "page"),
-    "/api/translations/**": { isr: ONE_DAY },
-    "/_i18n/**": { isr: ONE_DAY },
-};
+const payloadPath = (route: string): string =>
+    `${route.endsWith("/") ? route : `${route}/`}_payload.json`;
 
-// Each one reads nothing from the query string, which a static file can't vary on
-const STATIC_ROUTES = [
-    "/areas/",
-    "/colaboradores/",
-    "/calculo-intereses/",
-    "/contacto/",
-    "/publicar/",
-    "/sobre/",
-];
+const toRouteRule = ({ isr, queryKeys }: CachedRule): RouteRule =>
+    queryKeys ? { isr, headers: { "Netlify-Vary": `query=${queryKeys.join("|")}` } } : { isr };
+
+const toRouteRules = (cache: Rendering["cache"]): [string, RouteRule][] =>
+    Object.entries(cache).flatMap(([route, rule]) => {
+        const routeRule = toRouteRule(rule);
+
+        return hasPayload(route, rule)
+            ? [
+                  [route, routeRule],
+                  [payloadPath(route), routeRule],
+              ]
+            : [[route, routeRule]];
+    });
 
 const listPostSlugs = async (vendor: VendorConfig): Promise<string[]> => {
     const provider = await createProvider(vendor, new OfetchHttpClient(ofetch));
@@ -66,27 +52,32 @@ const listPostSlugs = async (vendor: VendorConfig): Promise<string[]> => {
     return posts.map(({ slug }) => slug);
 };
 
-export default defineNuxtModule({
-    meta: { name: "rendering" },
+const listSlugRoutes = async ({ runtimeConfig }: Nuxt["options"]): Promise<string[]> => {
+    const { content, public: config } = runtimeConfig;
+    // The prerendered pages read the override at runtime, so the route list has to as well
+    const override = process.env.NUXT_PUBLIC_PAGE_SLUGS;
+    const pageSlugs: string[] = override ? JSON.parse(override) : config.pageSlugs;
+    const slugs = [...pageSlugs, ...(await listPostSlugs(content.vendor))];
 
-    setup: (_, nuxt) => {
-        for (const [route, rule] of Object.entries(ROUTE_RULES)) extendRouteRules(route, rule);
+    return slugs.map((slug) => `/${slug}/`);
+};
 
-        // Netlify sets it on every build; CI and e2e build without it, so their pages read the fakes
-        if (!process.env.CONTEXT || nuxt.options._prepare || nuxt.options.dev) return;
+export default defineNuxtModule<Rendering>({
+    meta: { name: "rendering", configKey: "rendering" },
 
-        nuxt.options.nitro.prerender = { ...nuxt.options.nitro.prerender, failOnError: true };
+    defaults: { cache: {}, prerender: [] },
 
-        nuxt.hook("prerender:routes", async ({ routes }) => {
-            const { content, public: config } = nuxt.options.runtimeConfig;
-            // The prerendered pages read the override at runtime, so the route list has to as well
-            const override = process.env.NUXT_PUBLIC_PAGE_SLUGS;
-            const pageSlugs: string[] = override ? JSON.parse(override) : config.pageSlugs;
-            const slugs = [...pageSlugs, ...(await listPostSlugs(content.vendor))];
+    setup: ({ cache, prerender }, { options, hook }) => {
+        for (const [route, rule] of toRouteRules(cache)) extendRouteRules(route, rule);
 
-            for (const route of [...STATIC_ROUTES, ...slugs.map((slug) => `/${slug}/`)]) {
+        // Every deploy sets it; CI and e2e build without it, so their pages read the fakes
+        if (!process.env.NUXT_SITE_ENV || options._prepare || options.dev) return;
+
+        options.nitro.prerender = { ...options.nitro.prerender, failOnError: true };
+
+        hook("prerender:routes", async ({ routes }) => {
+            for (const route of [...prerender, ...(await listSlugRoutes(options))])
                 routes.add(route);
-            }
         });
     },
 });

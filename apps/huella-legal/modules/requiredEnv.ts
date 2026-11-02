@@ -18,7 +18,7 @@ export default defineNuxtModule<RequiredEnv>({
 
         const message = `Required env vars are unset: ${unset.join(", ")}`;
 
-        if (process.env.CONTEXT === "production") throw new Error(message);
+        if (process.env.NUXT_SITE_ENV === "production") throw new Error(message);
         if (options.dev) useLogger("required-env").warn(message);
     },
 });

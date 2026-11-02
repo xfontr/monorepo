@@ -31,13 +31,13 @@ export default defineNuxtConfig({
 
     experimental: {
         typedPages: true,
-        // Nuxt 4.6's default `$fetch` typing fails with TS2321 on `/api/newsletter`.
         routeTypedFetch: true,
-        // `true` makes every isr page fetch its payload as a second request, `_payload.json`
         payloadExtraction: "client",
+        defaults: {
+            nuxtLink: { prefetchOn: { visibility: false, interaction: true } },
+        },
     },
 
-    // The design lab under `pages/lab/` is a dev-only review surface, so no build ever ships it
     $production: {
         hooks: {
             "pages:extend"(pages) {
@@ -45,11 +45,14 @@ export default defineNuxtConfig({
                     if (pages[index]?.path.startsWith("/lab")) pages.splice(index, 1);
                 }
             },
+
+            "build:manifest"(manifest) {
+                for (const chunk of Object.values(manifest)) chunk.prefetch = false;
+            },
         },
 
         requiredEnv: {
             translations: ["NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN"],
-            seo: ["NUXT_SITE_ENV"],
         },
     },
 
@@ -112,6 +115,17 @@ export default defineNuxtConfig({
                 list: { maxAge: 60 * 5, swr: false },
                 item: { maxAge: 60 * 5, swr: false },
             },
+        },
+    },
+
+    rendering: {
+        cache: {
+            "/**": { isr: 60 * 60 * 24 },
+            "/api/**": { isr: false },
+            "/robots.txt": { isr: false },
+            "/sitemap.xml": { isr: false },
+            "/api/translations/**": { isr: 60 * 60 * 24 },
+            "/_i18n/**": { isr: 60 * 60 * 24 },
         },
     },
 

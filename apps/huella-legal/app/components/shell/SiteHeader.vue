@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from "@nuxt/ui";
-import { DESTINATIONS } from "~/composables/useSiteNav";
 
 interface Props {
     sections: NavigationMenuItem[];
@@ -11,6 +10,7 @@ defineProps<Props>();
 
 const router = useRouter();
 const jumpToNewsletter = useNewsletterJump();
+const { nav } = useAppConfig();
 
 const jumpFromMenu = (event: MouseEvent, close?: () => void): void => {
     close?.();
@@ -36,7 +36,7 @@ const homePath = computed(() => router.resolve({ name: "index" }).path);
                 >
                     <span>{{ $t("app.header.strip", { issn }) }}</span>
                     <ULink
-                        :to="DESTINATIONS.newsletter"
+                        :to="nav.newsletter"
                         raw
                         @click="jumpToNewsletter"
                         class="relative inline-flex h-9 items-center gap-1.5 font-semibold text-primary after:absolute after:inset-x-0 after:top-0 after:-bottom-2 hover:underline focus-visible:rounded-xs"
@@ -64,7 +64,7 @@ const homePath = computed(() => router.resolve({ name: "index" }).path);
         <template #right>
             <SearchDialog />
             <UButton
-                :to="DESTINATIONS.newsletter"
+                :to="nav.newsletter"
                 :label="$t('app.header.subscribe')"
                 @click="jumpToNewsletter"
                 class="hidden md:inline-flex"
@@ -101,7 +101,7 @@ const homePath = computed(() => router.resolve({ name: "index" }).path);
                 <div class="flex flex-col gap-3 p-4">
                     <UButton
                         block
-                        :to="DESTINATIONS.newsletter"
+                        :to="nav.newsletter"
                         :label="$t('app.header.menu.subscribe')"
                         @click="jumpFromMenu($event, close)"
                     />

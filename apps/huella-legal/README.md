@@ -102,23 +102,37 @@ tripwires.
 
 | Route | Served as |
 | --- | --- |
-| `/:slug/` for every post and every slug in `pageSlugs`, `/areas/`, `/colaboradores/`, `/calculo-intereses/`, `/contacto/`, `/publicar/`, `/sobre/` | A prerendered file. A slug added since the last build falls through to the function, which renders it once under `/**`'s `isr` |
-| `/`, `/feed/`, and the `GET /api/*` routes | `isr` 86400 |
+| `/:slug/` for every post and every slug in `pageSlugs`, `/`, `/areas/`, `/colaboradores/`, `/calculo-intereses/`, `/contacto/`, `/publicar/`, `/sobre/` | A prerendered file. A slug added since the last build falls through to the function, which renders it once under `/**`'s `isr` |
+| `/feed/` and the `GET /api/*` routes | `isr` 86400 |
 | `/publicaciones/`, `/areas/:slug/`, `/etiquetas/:slug/`, `/colaboradores/:slug/`, `/buscar/`, their `_payload.json`, `/api/articles`, `/api/search` | `isr` 86400, with a `Netlify-Vary` naming the query keys each one reads |
 | `/api/articles/:slug/comments` | `isr` 600. New comments are held for moderation, so the window only delays an approval |
 | `/api/newsletter`, `/api/contact`, `/api/comments`, `/robots.txt`, `/sitemap.xml` | The function, uncached. `@nuxtjs/sitemap` caches the sitemap itself for ten minutes |
 
 Nuxt turns every `isr` rule into a client-side payload rule, so client navigation and link prefetch
 read `<route>/_payload.json` rather than the API. `experimental.payloadExtraction` is `"client"`, so
-a first view still gets its payload inlined instead of fetching it as a second request.
+a first view still gets its payload inlined instead of fetching it as a second request. A link
+prefetches on hover or touch rather than when it scrolls into view, so a page's own links don't fetch
+payloads while it hydrates.
 
-[`modules/rendering.ts`](./modules/rendering.ts) holds the route rules, and only switches
-prerendering on when `CONTEXT` is set, which Netlify does on every build. CI and e2e build without
-it, since a prerendered file would shadow e2e's fakes. `CONTEXT` is a cache input of `build` and `nuxt:build`, so Nx never restores one
-kind of build for the other. To reproduce a Netlify build locally:
+The JS that hydrates a page starts loading only on the window's `load` event.
+[`server/plugins/deferHydration.ts`](./server/plugins/deferHydration.ts) drops the module preloads
+and injects the entry from a `load` listener. A `build:manifest` hook in `nuxt.config.ts` drops the
+prefetch hint Nuxt writes for every lazy chunk. Lighthouse's mobile LCP counts every request that
+starts before the LCP, whatever its priority, so 255 kB of hydration JS in `<head>` was what kept it
+above 3 s. The page is server-rendered and readable without it, links and the search form work as
+plain HTML, and the menu, the search dialog and the forms wake up once it lands. Below the fold, the
+home page's sections and the footer hydrate only when they scroll into view (`hydrate-on-visible`).
+
+Each layer declares the rules for its own routes under `rendering` in its `nuxt.config.ts`: `cache`
+maps a route to its `isr` and the query keys it varies on, and `prerender` lists the routes to
+prerender. [`modules/rendering.ts`](./modules/rendering.ts) turns them into route rules, adds each
+listing's `_payload.json` twin with the same `Netlify-Vary`, and only switches prerendering on when
+`NUXT_SITE_ENV` is set, which every deploy does. CI and e2e build without it, since a prerendered
+file would shadow e2e's fakes. `NUXT_SITE_ENV` is a cache input of `build` and `nuxt:build`, so Nx
+never restores one kind of build for the other. To reproduce a deploy build locally:
 
 ```sh
-CONTEXT=deploy-preview pnpm exec nx build @monorepo/huella-legal --skip-nx-cache
+NUXT_SITE_ENV=preview pnpm exec nx build @monorepo/huella-legal --skip-nx-cache
 ```
 
 That build reads the live WordPress and Tolgee, and it needs `NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN`.
@@ -143,7 +157,7 @@ once, so no route re-checks its config per request:
 
 | Where | An unset required variable |
 | --- | --- |
-| Netlify production build (`CONTEXT=production`) | Fails the build naming each one, so the live deploy keeps serving. Netlify has to expose them to builds as well as functions, which is its default |
+| Production build (`NUXT_SITE_ENV=production`) | Fails the build naming each one, so the live deploy keeps serving. The host has to expose them to builds as well as functions |
 | `nuxt dev` | One warning at startup naming each one |
 | Any other build, CI's included | Nothing: CI builds with none of them set |
 
@@ -159,7 +173,7 @@ turns their feature off.
 | `NUXT_TRANSLATIONS_VENDOR_PROJECT` | Optional. Overrides the Tolgee project ID set in `nuxt.config.ts` |
 | `NUXT_CONTENT_VENDOR_BASE_URL` | Optional. Overrides the WordPress site root set in `nuxt.config.ts` |
 | `NUXT_PUBLIC_SITE_URL` | Optional. Overrides the public origin set in `nuxt.config.ts`, with scheme. Article permalinks, the share link, both citations, canonicals and the SEO modules' absolute URLs are built on it rather than on the request's host |
-| `NUXT_SITE_ENV` | `production` on the production Netlify context, for builds as well as functions, and unset everywhere else. `nuxt.config.ts` defaults `site.env` to `preview`, so robots.txt disallows everything and every page says `noindex` unless it is set, and a production deploy fails without it. Prerendered pages bake the value in, which is why builds need it |
+| `NUXT_SITE_ENV` | `production` on the production deploy and `preview` on every other deploy, for builds as well as functions, and unset in dev, CI and e2e builds. A build prerenders only when it is set, and only `production` fails on an unset required variable. Unset or `preview`, robots.txt disallows everything and every page says `noindex`. Prerendered pages bake the value in, which is why builds need it |
 | `NUXT_PUBLIC_PAGE_SLUGS` | A JSON array of the WordPress page slugs served at `/:slug/`, such as `["aviso-legal"]`. Every other slug there is read as a post. The `articles` layer defaults it to `["aviso-legal"]`; set but empty, it replaces the list with `""`, so leave it unset instead |
 | `NUXT_NEWSLETTER_API_KEY` | The Kit v4 API key, sent as `X-Kit-Api-Key` |
 | `NUXT_NEWSLETTER_FORM_ID` | The Kit form new readers join. Its incentive email must be on, since that is the confirmation Kit sends |
@@ -296,13 +310,13 @@ page — the entry page. Its own server code is three Nitro plugins (telemetry, 
 handled `5xx`, and the header that keeps a `5xx` out of the CDN). Beside it,
 [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) checks the
 [required variables](#-environment) once per build, and
-[`modules/rendering.ts`](./modules/rendering.ts) registers the route rules and lists the
-[prerendered routes](#-rendering) on a Netlify build.
+[`modules/rendering.ts`](./modules/rendering.ts) turns each layer's `rendering` entries into route
+rules and lists the [prerendered routes](#-rendering) on a Netlify build.
 
 | Piece | What it holds |
 | --- | --- |
 | [`layouts/default.vue`](./app/layouts/default.vue) | The skip link, `SiteHeader`, the one `<main id="contenido">` and `SiteFooter`, fed by `useSiteNav`. A page never renders its own `<main>` |
-| [`composables/useSiteNav.ts`](./app/composables/useSiteNav.ts) | The shell's links: the header sections with their `aria-current`, the footer columns, the configured social profiles and the ISSN. The layout calls it and hands the results to the shell |
+| [`composables/useSiteNav.ts`](./app/composables/useSiteNav.ts) | The shell's arrangement of links: which `nav` keys the header and each footer column show and in what order, with `aria-current`, plus the configured social profiles and the ISSN. Each layer declares where its own keys go under `nav` in its `app/app.config.ts`, so the shell never names a route. The layout calls it and hands the results to the shell |
 | [`components/shell/`](./app/components/shell) | `SiteHeader` (`UHeader` with a slideover menu below `lg`) and `SiteFooter` (`UFooter` + `UFooterColumns`), both props-in. Every link is a [route name](#-links). WordPress pages such as `sobre` and `aviso-legal` are `article` slugs, and the privacy and cookies links are anchors on `aviso-legal`, per [0028](../../docs/decisions/0028-huella-legal-urls-and-cutover.md) |
 | [`types/`](./app/types) | The vocabulary kits share across layers: `LinkAction`, the `{ label, to }` every link and action prop takes, and `Tone`, the `paper` or `slate` surface a component renders on |
 | [`error.vue`](./app/error.vue) | The 404 design for a 404 and the server design for anything else, inside the same layout. It wraps itself in `UApp`, since Nuxt renders it in place of `app.vue` |
@@ -446,6 +460,9 @@ each skipped entirely when its URL is unset — which is why local dev ships not
 | Browser | [`app/plugins/observability.client.ts`](./app/plugins/observability.client.ts) | `NUXT_PUBLIC_OBSERVABILITY_URL` |
 | Nitro | [`server/plugins/observability.ts`](./server/plugins/observability.ts) | `NUXT_OBSERVABILITY_URL` |
 
+The browser half imports Faro only once the page is idle, through `onNuxtReady`, and holds any Vue
+error thrown before then until it starts, so Faro and its tracing never run during hydration.
+
 The server plugin opens the request span itself, by wrapping `nitroApp.h3App.handler`, because
 `@monorepo/observability` ships no inbound HTTP instrumentation — [its
 Gotchas](../../packages/observability/README.md#️-gotchas) say why. Wrapping the handler also means
@@ -563,6 +580,7 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | *Publicaciones* lit in the header on an article | `useSiteNav` marks sections by route, and `/:slug/` also serves WordPress pages (C6), so it needs to know which one it rendered |
 | The `onServerPrefetch` tree-shake override in `nuxt.config.ts` | Drop it once Nuxt stops stripping that hook from client builds; the article e2e's axe scan fails on `aria-controls` if it goes too early |
 | A check on layer directions | Once there are enough layers that review stops catching a wrong edge. A spec can read `.nuxt/components.d.ts` and `.nuxt/types/*imports.d.ts`, which map every auto-import to its source file, and fail on an edge the table above forbids. Two layers exporting one auto-imported name only warn during `nuxi prepare`, so the same spec would be the place to fail on that too |
+| A rebuild when a post is published | `/` is prerendered, so a new post reaches the home page only on the next build: Monday's, or a manual run of the rebuild workflow. WordPress has no webhooks ([0030](../../docs/decisions/0030-huella-legal-rendering-hosting-and-cost.md)), so either one is added on the WordPress side, posting to the build hook, or a scheduled workflow asks WordPress for its newest post and posts to `NETLIFY_BUILD_HOOK_URL` when it changed |
 | A shared Nitro cache for `isr` misses | Mount Nitro's `cache` storage on unstorage's `netlify-blobs` driver if misses on cold instances turn out slow. It is Netlify-only, which cuts against the move to Google Cloud |
 | Cache windows as constants again | With pages prerendered or held by the CDN, `content.cache` and `articles.cache` only govern the build and `isr` misses. If nothing in production ends up tuning them, they fold back into constants with an `import.meta.dev` switch |
 | Parity with the `/lab` pages | Still a human check: the lab is stripped from production builds, and Linux substitutes a serif for Georgia |

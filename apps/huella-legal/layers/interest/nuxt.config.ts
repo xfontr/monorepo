@@ -5,4 +5,8 @@ export default defineNuxtConfig({
             ignore: ["InterestCalculatorForm.vue", "InterestCalculatorResult.vue"],
         },
     ],
+
+    rendering: {
+        prerender: ["/calculo-intereses/"],
+    },
 });

@@ -3,6 +3,7 @@ import { fakeEntry, wordpressHandlers } from "@monorepo/content/testing";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Rendering } from "./rendering";
 
 const kit = vi.hoisted(() => ({ extendRouteRules: vi.fn() }));
 
@@ -12,7 +13,7 @@ vi.mock("nuxt/kit", () => ({
 }));
 
 const { setup } = (await import("./rendering")).default as unknown as {
-    setup: (options: object, nuxt: Nuxt) => void;
+    setup: (options: Rendering, nuxt: Nuxt) => void;
 };
 
 type RoutesHook = (context: { routes: Set<string> }) => Promise<void>;
@@ -20,6 +21,17 @@ type RoutesHook = (context: { routes: Set<string> }) => Promise<void>;
 const BASE_URL = "http://wordpress.test";
 // One past WordPress's ceiling of 50 a page, so the slugs span two pages
 const POSTS = Array.from({ length: 51 }, (_, index) => fakeEntry({ slug: `entrada-${index}` }));
+
+const RENDERING = {
+    cache: {
+        "/**": { isr: 86400 },
+        "/api/**": { isr: false },
+        "/publicaciones/": { isr: 86400, queryKeys: ["page", "sort", "format"] },
+        "/areas/*": { isr: 86400, queryKeys: ["page", "sort", "format"] },
+        "/api/search": { isr: 86400, queryKeys: ["query", "page"] },
+    },
+    prerender: ["/contacto/"],
+} satisfies Rendering;
 
 const server = setupServer(...wordpressHandlers(BASE_URL, { posts: POSTS }));
 
@@ -38,7 +50,7 @@ const install = (options: Record<string, unknown> = {}) => {
         hook: (name: string, fn: RoutesHook) => hooks.set(name, fn),
     };
 
-    setup({}, nuxt as unknown as Nuxt);
+    setup(RENDERING, nuxt as unknown as Nuxt);
 
     return { nitro: nuxt.options.nitro, hooks };
 };
@@ -57,7 +69,7 @@ beforeAll(() => {
 
 beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubEnv("CONTEXT", "deploy-preview");
+    vi.stubEnv("NUXT_SITE_ENV", "preview");
 });
 
 afterEach(() => {
@@ -71,29 +83,54 @@ afterAll(() => {
 
 describe("the rendering module", () => {
     // Every build needs them: Nuxt compiles `isr` into the client's payload rules either way
-    it("registers the route rules outside a Netlify build too", () => {
-        vi.stubEnv("CONTEXT", "");
+    it("registers the route rules outside a deploy build too", () => {
+        vi.stubEnv("NUXT_SITE_ENV", "");
 
         install();
 
         expect(kit.extendRouteRules).toHaveBeenCalledWith("/**", { isr: 86400 });
-        expect(kit.extendRouteRules).toHaveBeenCalledWith("/publicaciones/", {
+        expect(kit.extendRouteRules).toHaveBeenCalledWith("/api/**", { isr: false });
+    });
+
+    it("varies the CDN copy on exactly the query keys a route reads", () => {
+        install();
+
+        expect(kit.extendRouteRules).toHaveBeenCalledWith("/api/search", {
             isr: 86400,
-            headers: { "Netlify-Vary": "query=page|sort|format" },
+            headers: { "Netlify-Vary": "query=query|page" },
         });
     });
 
-    it("caches an article's comments for minutes, not the day the rest of its routes get", () => {
+    it.each([
+        ["/publicaciones/", "/publicaciones/_payload.json"],
+        ["/areas/*", "/areas/*/_payload.json"],
+    ])("gives %s's payload the page's vary, which Nuxt doesn't copy", (route, payload) => {
         install();
 
-        expect(kit.extendRouteRules).toHaveBeenCalledWith("/api/articles/*/comments", {
-            isr: 600,
-        });
+        const rule = { isr: 86400, headers: { "Netlify-Vary": "query=page|sort|format" } };
+
+        expect(kit.extendRouteRules).toHaveBeenCalledWith(route, rule);
+        expect(kit.extendRouteRules).toHaveBeenCalledWith(payload, rule);
+    });
+
+    it("gives an API route no payload rule, since it has no page", () => {
+        install();
+
+        expect(kit.extendRouteRules).not.toHaveBeenCalledWith(
+            "/api/search/_payload.json",
+            expect.anything(),
+        );
+    });
+
+    it("registers no route rule for a prerendered route", () => {
+        install();
+
+        expect(kit.extendRouteRules).not.toHaveBeenCalledWith("/contacto/", expect.anything());
     });
 
     // CI and e2e serve the built output with the vendors faked, and a file would shadow the fakes
-    it("prerenders nothing outside a Netlify build", () => {
-        vi.stubEnv("CONTEXT", "");
+    it("prerenders nothing outside a deploy build", () => {
+        vi.stubEnv("NUXT_SITE_ENV", "");
 
         const { nitro, hooks } = install();
 
@@ -113,20 +150,11 @@ describe("the rendering module", () => {
         expect(install().nitro.prerender).toEqual({ crawlLinks: false, failOnError: true });
     });
 
-    it("lists every post across pages, every listed WordPress page and the query-free routes", async () => {
+    it("lists every post across pages, every listed WordPress page and the declared routes", async () => {
         const routes = await collectRoutes(install().hooks.get("prerender:routes"));
 
         expect([...routes].sort()).toEqual(
-            [
-                "/areas/",
-                "/aviso-legal/",
-                "/calculo-intereses/",
-                "/colaboradores/",
-                "/contacto/",
-                "/publicar/",
-                "/sobre/",
-                ...POSTS.map(({ slug }) => `/${slug}/`),
-            ].sort(),
+            ["/aviso-legal/", "/contacto/", ...POSTS.map(({ slug }) => `/${slug}/`)].sort(),
         );
     });
 

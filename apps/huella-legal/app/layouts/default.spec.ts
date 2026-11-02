@@ -37,8 +37,9 @@ beforeEach(() => {
 });
 
 describe("default layout", () => {
-    it("puts the page inside the one main landmark, between the header and the footer", () => {
+    it("puts the page inside the one main landmark, between the header and the footer", async () => {
         const wrapper = mountLayout();
+        await vi.dynamicImportSettled();
 
         const order = wrapper
             .findAll("[data-shell], main")

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FooterColumn } from "@nuxt/ui";
-import { DESTINATIONS, type SocialLink } from "~/composables/useSiteNav";
+import type { SocialLink } from "~/composables/useSiteNav";
 
 interface Props {
     columns: FooterColumn[];
@@ -11,12 +11,13 @@ interface Props {
 const props = defineProps<Props>();
 
 const jumpToNewsletter = useNewsletterJump();
+const { nav } = useAppConfig();
 
 const linked = computed<FooterColumn[]>(() =>
     props.columns.map((column) => ({
         ...column,
         children: column.children?.map((link) =>
-            link.to === DESTINATIONS.newsletter ? { ...link, onClick: jumpToNewsletter } : link,
+            link.to === nav.newsletter ? { ...link, onClick: jumpToNewsletter } : link,
         ),
     })),
 );

@@ -25,7 +25,7 @@ are served from Netlify's CDN under a one-day `isr`.** A prerendered file can't 
 | --- | --- |
 | `/:slug/`, every post and every slug in `public.pageSlugs` | Prerendered. A slug not on disk falls through to `/**` |
 | `/areas/`, `/colaboradores/`, `/calculo-intereses/`, `/publicar/` | Prerendered |
-| `/` | `isr` 86400. It changes weekly, so it shouldn't wait for a rebuild |
+| `/` | Prerendered, for its TTFB on mobile, so a new post reaches it only on the next build until a publish triggers one |
 | `/publicaciones/`, `/areas/*`, `/etiquetas/*`, `/colaboradores/*` | `isr` 86400, `Netlify-Vary: query=page\|sort\|format` |
 | `/buscar/`, `/api/search` | `isr` 86400, `Netlify-Vary: query=query\|page` |
 | `/api/articles` | `isr` 86400, `Netlify-Vary` on all six keys of `listingQuerySchema` |

@@ -42,6 +42,6 @@ useSeoMeta({
             <slot />
         </UMain>
 
-        <ShellSiteFooter :columns :social :issn />
+        <LazyShellSiteFooter hydrate-on-visible :columns :social :issn />
     </div>
 </template>

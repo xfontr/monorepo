@@ -37,7 +37,7 @@ onUnmounted(cleanUp);
         }"
     >
         <template #content>
-            <SearchPalette @close="open = false" />
+            <LazySearchPalette @close="open = false" />
         </template>
     </UModal>
 </template>

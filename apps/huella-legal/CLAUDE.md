@@ -27,6 +27,10 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   it; `server/utils/` is only for helpers that know nothing about the domain, so a cached read that
   several routes share goes in `server/services/`. A vendor client that one layer calls goes in
   `server/adapters/`, named for the vendor, so it stays out of Nitro's auto-imports.
+  A layer declares caching for its own routes under `rendering` in its `nuxt.config.ts`, never in
+  [`modules/rendering.ts`](./modules/rendering.ts).
+  Its links go under `nav` in its `app/app.config.ts`; the shell's `useSiteNav` only arranges those
+  keys, and every other link reads `useAppConfig().nav`.
   **`articles` is the core: its routes are the only code that calls `useContent`, and a feature
   layer is app-side only, reading those routes through `useCachedFetch`.** A new read model is a
   route in the core, not a `server/` in the feature. A new layer needs its own config, its own

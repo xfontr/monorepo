@@ -4,4 +4,8 @@ export default defineNuxtConfig({
             submissionEmail: "colaboraciones@huellalegal.com",
         },
     },
+
+    rendering: {
+        prerender: ["/publicar/"],
+    },
 });

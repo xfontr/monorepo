@@ -26,7 +26,7 @@ beforeEach(() => {
     vi.stubEnv("NUXT_NEWSLETTER_API_KEY", "key");
     vi.stubEnv("NUXT_NEWSLETTER_AUDIENCE_ID", "");
     vi.stubEnv("NUXT_TURNSTILE_SECRET_KEY", "");
-    vi.stubEnv("CONTEXT", "");
+    vi.stubEnv("NUXT_SITE_ENV", "");
 });
 
 afterEach(() => {
@@ -34,8 +34,8 @@ afterEach(() => {
 });
 
 describe("requiredEnv module", () => {
-    it("fails a Netlify production build naming every unset var, across features", () => {
-        vi.stubEnv("CONTEXT", "production");
+    it("fails a production build naming every unset var, across features", () => {
+        vi.stubEnv("NUXT_SITE_ENV", "production");
 
         expect(() => install()).toThrow(
             "Required env vars are unset: NUXT_NEWSLETTER_AUDIENCE_ID, NUXT_TURNSTILE_SECRET_KEY",
@@ -43,17 +43,17 @@ describe("requiredEnv module", () => {
     });
 
     it("lets a production build through once every var is set", () => {
-        vi.stubEnv("CONTEXT", "production");
+        vi.stubEnv("NUXT_SITE_ENV", "production");
         vi.stubEnv("NUXT_NEWSLETTER_AUDIENCE_ID", "aud");
         vi.stubEnv("NUXT_TURNSTILE_SECRET_KEY", "secret");
 
         expect(() => install()).not.toThrow();
     });
 
-    it.each(["deploy-preview", ""])(
+    it.each(["preview", ""])(
         "never fails a %j build, since CI and previews build without the secrets",
-        (context) => {
-            vi.stubEnv("CONTEXT", context);
+        (siteEnv) => {
+            vi.stubEnv("NUXT_SITE_ENV", siteEnv);
 
             expect(() => install()).not.toThrow();
             expect(kit.warn).not.toHaveBeenCalled();
@@ -71,7 +71,7 @@ describe("requiredEnv module", () => {
     it.each([{ _prepare: true }, { test: true }])(
         "stays silent under %o, which never serve a request",
         (options) => {
-            vi.stubEnv("CONTEXT", "production");
+            vi.stubEnv("NUXT_SITE_ENV", "production");
 
             expect(() => install({ dev: true, ...options })).not.toThrow();
             expect(kit.warn).not.toHaveBeenCalled();
