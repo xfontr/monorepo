@@ -1,8 +1,11 @@
 import type { CookieValue } from "vanilla-cookieconsent";
-import { TRACKERS, type TrackerKey } from "../trackers";
+import type { TrackerKey } from "../trackers";
 
-export default defineNuxtPlugin(() => {
+export default defineNuxtPlugin(async () => {
     const { trackers } = useRuntimeConfig().public;
+    const active = (Object.keys(trackers) as TrackerKey[]).filter((key) => trackers[key].id);
+
+    if (!active.length) return;
 
     const accepted = ref<string[]>([]);
 
@@ -13,12 +16,10 @@ export default defineNuxtPlugin(() => {
     window.addEventListener("cc:onConsent", sync);
     window.addEventListener("cc:onChange", sync);
 
-    for (const key of Object.keys(trackers) as TrackerKey[]) {
-        const { id } = trackers[key];
+    const { TRACKERS } = await import("../trackers");
 
-        if (!id) continue;
-
+    for (const key of active) {
         const consent = computed(() => accepted.value.includes(TRACKERS[key].category));
-        TRACKERS[key].load(id, useScriptTriggerConsent({ consent }));
+        TRACKERS[key].load(trackers[key].id, useScriptTriggerConsent({ consent }));
     }
 });

@@ -5,6 +5,7 @@ import plugin from "./consent.client";
 
 const consent = vi.hoisted(() => ({
     run: vi.fn(),
+    ready: undefined as Promise<void> | undefined,
     trackers: { googleAnalytics: { id: "" } },
 }));
 
@@ -15,30 +16,35 @@ mockNuxtImport("useRuntimeConfig", (original) => () => {
 
     return { ...config, public: { ...config.public, trackers: consent.trackers } };
 });
-mockNuxtImport("onNuxtReady", () => (callback: () => void) => callback());
+mockNuxtImport("onNuxtReady", () => (callback: () => Promise<void>) => {
+    consent.ready = callback();
+});
 
-const run = () =>
+const run = async () => {
     (plugin as unknown as (app: object) => void)({ $i18n: { t: (key: string) => key } });
+    await consent.ready;
+};
 
 const config = () => consent.run.mock.calls[0]![0] as CookieConsentConfig;
 
 beforeEach(() => {
     vi.clearAllMocks();
 
+    consent.ready = undefined;
     consent.trackers.googleAnalytics.id = "";
 });
 
 describe("the cookie consent plugin", () => {
-    it("shows no banner when no tracker is configured", () => {
-        run();
+    it("shows no banner when no tracker is configured", async () => {
+        await run();
 
         expect(consent.run).not.toHaveBeenCalled();
     });
 
-    it("clears a tracker's cookies and reloads when its category is withdrawn", () => {
+    it("clears a tracker's cookies and reloads when its category is withdrawn", async () => {
         consent.trackers.googleAnalytics.id = "G-TEST";
 
-        run();
+        await run();
 
         expect(config().categories.analytics?.autoClear).toEqual({
             cookies: [{ name: /^_ga/ }],

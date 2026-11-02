@@ -1,5 +1,4 @@
-import * as CookieConsent from "vanilla-cookieconsent";
-import { TRACKERS, type TrackerKey } from "../trackers";
+import type { TrackerKey } from "../trackers";
 
 export default defineNuxtPlugin(({ $i18n }) => {
     const { trackers } = useRuntimeConfig().public;
@@ -7,11 +6,17 @@ export default defineNuxtPlugin(({ $i18n }) => {
 
     if (!active.length) return;
 
-    const categories = [...new Set(active.map((key) => TRACKERS[key].category))];
     const policyHref = useRouter().resolve(useAppConfig().nav.cookies).href;
 
-    onNuxtReady(() =>
-        CookieConsent.run({
+    onNuxtReady(async () => {
+        const [CookieConsent, { TRACKERS }] = await Promise.all([
+            import("vanilla-cookieconsent"),
+            import("../trackers"),
+            import("../assets/consent.css"),
+        ]);
+        const categories = [...new Set(active.map((key) => TRACKERS[key].category))];
+
+        await CookieConsent.run({
             guiOptions: {
                 consentModal: { layout: "box", position: "bottom left", equalWeightButtons: true },
                 preferencesModal: { layout: "box", equalWeightButtons: true },
@@ -39,6 +44,6 @@ export default defineNuxtPlugin(({ $i18n }) => {
                     es: consentTranslation($i18n.t, categories, policyHref),
                 },
             },
-        }),
-    );
+        });
+    });
 });
