@@ -543,6 +543,22 @@
             "label": "Fecha final"
         }
     },
+    "navPublicationsPanel": {
+        "all": "Todas las publicaciones",
+        "browse": "Explorar",
+        "formats": {
+            "article": "Artículos",
+            "comment": "Comentarios",
+            "thesis": "TFG y TFM"
+        },
+        "latest": "Destacado y lo último",
+        "search": "Buscar en la revista"
+    },
+    "navSubjectsPanel": {
+        "all": "Todas las áreas",
+        "count": "{count} publicación | {count} publicaciones",
+        "title": "Las áreas con más publicaciones"
+    },
     "newsletterBand": {
         "kicker": "Newsletter",
         "title": "Un correo al mes con lo que hemos publicado. Nada más."
