@@ -16,6 +16,7 @@ export default defineNuxtConfig({
     fonts: {
         defaults: {
             weights: [400, 500, 600, 700],
+            subsets: ["latin", "latin-ext"],
             preload: true,
         },
     },
