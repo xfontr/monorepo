@@ -1,14 +1,27 @@
 import type { FooterColumn, NavigationMenuItem } from "@nuxt/ui";
 import type { AppConfig } from "nuxt/schema";
+import type { RouteLocationRaw } from "vue-router";
 
 type NavKey = keyof AppConfig["nav"];
+type Current = "page" | "true" | undefined;
 
-const HEADER_LINKS = [
-    "publications",
-    "subjects",
-    "collaborators",
-    "publish",
-] as const satisfies readonly NavKey[];
+interface HeaderSection {
+    key: string;
+    to: NavKey;
+    slot?: string;
+    children?: readonly NavKey[];
+}
+
+const HEADER: readonly HeaderSection[] = [
+    { key: "publications", to: "publications", slot: "publications" },
+    { key: "subjects", to: "subjects", slot: "subjects" },
+    {
+        key: "journal",
+        to: "about",
+        children: ["about", "collaborators", "newsletter", "contact"],
+    },
+    { key: "publish", to: "publish" },
+];
 
 const COLUMNS = [
     {
@@ -47,14 +60,31 @@ export const useSiteNav = () => {
     const sections = computed<NavigationMenuItem[]>(() => {
         const here = withTrailingSlash(route.path);
 
-        return HEADER_LINKS.map((key) => {
-            const to = nav[key];
-            const { path } = router.resolve(to);
-            const current = here === path ? "page" : here.startsWith(path) ? "true" : undefined;
+        // A link to an anchor names a place on a page, never the page being read.
+        const currentOf = (to: RouteLocationRaw): Current => {
+            const { path, hash } = router.resolve(to);
+
+            if (hash) return undefined;
+
+            return here === path ? "page" : here.startsWith(path) ? "true" : undefined;
+        };
+
+        return HEADER.map(({ key, to, slot, children }) => {
+            const links = children?.map((child) => ({
+                label: t(`app.header.nav.${child}`),
+                description: t(`app.header.nav.descriptions.${child}`),
+                to: nav[child],
+                "aria-current": currentOf(nav[child]),
+            }));
+            const current: Current =
+                currentOf(nav[to]) ??
+                (links?.some((link) => link["aria-current"]) ? "true" : undefined);
 
             return {
                 label: t(`app.header.nav.${key}`),
-                to,
+                to: nav[to],
+                slot,
+                children: links,
                 active: !!current,
                 "aria-current": current,
             };

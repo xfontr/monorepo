@@ -70,6 +70,46 @@ describe("useSiteNav", () => {
         expect(currentOf(nav)).toEqual([undefined, undefined, undefined, undefined]);
     });
 
+    it("keeps the about page one step from every header, behind the journal entry", async () => {
+        const nav = await navAt("/");
+        const journal = nav.sections.value[2]!;
+
+        expect(
+            [journal.to, ...(journal.children ?? []).map(({ to }) => to)].map((to) =>
+                nav.href(to!),
+            ),
+        ).toEqual(["/sobre/", "/sobre/", "/colaboradores/", "/#newsletter", "/contacto/"]);
+    });
+
+    it("marks the journal current on the about page itself", async () => {
+        const nav = await navAt("/sobre/");
+
+        expect(currentOf(nav)).toEqual([undefined, undefined, "page", undefined]);
+    });
+
+    it("keeps the journal current on a collaborator's page, since the header reaches it through there", async () => {
+        const nav = await navAt("/colaboradores/ana-perez/");
+
+        expect(currentOf(nav)).toEqual([undefined, undefined, "true", undefined]);
+        expect(nav.sections.value[2]?.children?.map((link) => link["aria-current"])).toEqual([
+            undefined,
+            "true",
+            undefined,
+            undefined,
+        ]);
+    });
+
+    it("never takes the newsletter's anchor for the page being read, which would mark the home page current", async () => {
+        const nav = await navAt("/");
+
+        expect(nav.sections.value[2]?.children?.map((link) => link["aria-current"])).toEqual([
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+        ]);
+    });
+
     it("sends every footer link to a route the URL decision settled, never to a placeholder", async () => {
         const nav = await navAt("/");
 
