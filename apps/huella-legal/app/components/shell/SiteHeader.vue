@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from "@nuxt/ui";
+import { useMediaQuery } from "@vueuse/core";
 
 interface Props {
     sections: NavigationMenuItem[];
     issn: string;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+const WIDE = "(min-width: 64rem)";
 
 const router = useRouter();
+const route = useRoute();
 const jumpToNewsletter = useNewsletterJump();
 const { nav } = useAppConfig();
 
@@ -17,6 +21,40 @@ const jumpFromMenu = (event: MouseEvent, close?: () => void): void => {
     jumpToNewsletter(event);
 };
 const homePath = computed(() => router.resolve({ name: "index" }).path);
+
+const withJump = (close?: () => void): NavigationMenuItem[] =>
+    props.sections.map((section) => ({
+        ...section,
+        children: section.children?.map((link) =>
+            link.to === nav.newsletter
+                ? { ...link, onClick: (event: MouseEvent) => jumpFromMenu(event, close) }
+                : link,
+        ),
+    }));
+
+const menuSections = (close?: () => void): NavigationMenuItem[] =>
+    withJump(close).map((section) =>
+        section.children ? { ...section, type: "trigger" as const } : section,
+    );
+
+// A lazy component hydrates, and fetches its chunk, as soon as its props change, so below `lg`
+// the hidden inline menu keeps its server-rendered items.
+const wide = useMediaQuery(WIDE);
+const inlineSections = shallowRef<NavigationMenuItem[]>(withJump());
+
+watchEffect(() => {
+    if (wide.value) inlineSections.value = withJump();
+});
+
+// A panel's links are plain links, which Reka doesn't close the dropdown for.
+const openSection = ref<string>("");
+
+watch(
+    () => route.fullPath,
+    () => {
+        openSection.value = "";
+    },
+);
 </script>
 
 <template>
@@ -52,14 +90,24 @@ const homePath = computed(() => router.resolve({ name: "index" }).path);
             <BaseWordmark />
         </template>
 
-        <UNavigationMenu
-            :items="sections"
+        <LazyUNavigationMenu
+            v-model="openSection"
+            :hydrate-on-media-query="WIDE"
+            :items="inlineSections"
+            content-orientation="vertical"
             variant="link"
             color="neutral"
             highlight
             highlight-color="primary"
             :aria-label="$t('app.header.nav.label')"
-        />
+        >
+            <template #publications-content>
+                <LazyNavPublicationsPanel />
+            </template>
+            <template #subjects-content>
+                <LazyNavSubjectsPanel />
+            </template>
+        </LazyUNavigationMenu>
 
         <template #right>
             <SearchDialog />
@@ -86,17 +134,22 @@ const homePath = computed(() => router.resolve({ name: "index" }).path);
             </div>
 
             <div class="overflow-y-auto">
-                <UNavigationMenu
-                    :items="sections"
+                <LazyUNavigationMenu
+                    :items="menuSections(close)"
                     orientation="vertical"
                     variant="link"
                     color="primary"
                     :aria-label="$t('app.header.nav.label')"
                 >
-                    <template #item-trailing>
-                        <UIcon name="i-lucide-chevron-right" class="size-5 text-dimmed" />
+                    <template #item-trailing="{ item }">
+                        <UIcon
+                            v-if="item.children"
+                            name="i-lucide-chevron-down"
+                            class="size-5 text-dimmed transition-transform group-data-[state=open]:rotate-180 motion-reduce:transition-none"
+                        />
+                        <UIcon v-else name="i-lucide-chevron-right" class="size-5 text-dimmed" />
                     </template>
-                </UNavigationMenu>
+                </LazyUNavigationMenu>
 
                 <div class="flex flex-col gap-3 p-4">
                     <UButton

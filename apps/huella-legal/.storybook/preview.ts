@@ -11,6 +11,7 @@ import { createMemoryHistory, createRouter } from "vue-router";
 // Mirrors the `definePageMeta` names and paths of the pages that components link to by name
 const routes = [
     { name: "index", path: "/" },
+    { name: "about", path: "/sobre/" },
     { name: "publications", path: "/publicaciones/" },
     { name: "publish", path: "/publicar/" },
     { name: "contact", path: "/contacto/" },
