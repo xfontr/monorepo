@@ -1,0 +1,472 @@
+import { markersDiffer } from "../../shared/blockMarkers.ts";
+import {
+    afterEdit,
+    bulkApplyBlocker,
+    confirm,
+    derivedStatus,
+    driftRefusal,
+    expectedModified,
+    gateBlocker,
+    isApplied,
+    itemFingerprint,
+    isPending,
+    markSeen,
+    nextChangesetId,
+    openBlocker,
+    reject,
+    restoreBlocker,
+    unconfirm,
+    unreject,
+} from "../../shared/rules.ts";
+import type {
+    Changeset,
+    Item,
+    ItemKey,
+    ItemState,
+    Proposal,
+    RunReport,
+} from "../../shared/types.ts";
+import { parseKey, POST_TYPES } from "../../shared/types.ts";
+import { Refusal } from "../../shared/refusal.ts";
+import type { Store } from "../adapters/store.ts";
+import type { WordPress } from "../adapters/wordpress.ts";
+import { toSnapshot } from "../adapters/wordpress.ts";
+
+const WRITE_DELAY_MS = 500;
+const READ_DELAY_MS = 100;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const keyOf = (key: string) => {
+    const parsed = parseKey(key);
+
+    if (!parsed) throw new Refusal(`"${key}" is not a <posts|pages>-<id> key.`);
+
+    return parsed;
+};
+
+const now = () => new Date().toISOString();
+
+const requireChangeset = async (store: Store, id: string): Promise<Changeset> => {
+    const changeset = await store.readChangeset(id);
+
+    if (!changeset) throw new Refusal(`No changeset ${id}.`);
+
+    return changeset;
+};
+
+const requireItem = async (store: Store, id: string, key: ItemKey): Promise<Item> => {
+    const item = await store.readItem(id, key);
+
+    if (!item) throw new Refusal(`${key} is not in changeset ${id}.`);
+
+    return item;
+};
+
+const refreshStatus = async (store: Store, id: string): Promise<Changeset> => {
+    const changeset = await requireChangeset(store, id);
+    const status = derivedStatus(changeset, await store.readItems(id));
+
+    if (status === changeset.status) return changeset;
+
+    const next = { ...changeset, status };
+
+    await store.writeChangeset(next);
+
+    return next;
+};
+
+export const openChangeset = async (
+    store: Store,
+    wp: WordPress,
+    options: { title: string; instructions?: string; override?: boolean; ids?: string[] },
+): Promise<Changeset> => {
+    const existing = await store.listChangesets();
+    const blocker = openBlocker(existing, !!options.override);
+
+    if (blocker) {
+        throw new Refusal(`Changeset ${blocker.id} is still open; pass --override to abandon it.`);
+    }
+
+    const posts = options.ids
+        ? await Promise.all(
+              [...new Set(options.ids)]
+                  .map((key) => keyOf(key))
+                  .map(({ type, id }) => wp.get(type, id)),
+          )
+        : (await Promise.all(POST_TYPES.map((type) => wp.list(type)))).flat();
+
+    const changeset: Changeset = {
+        id: nextChangesetId(existing, options.title),
+        title: options.title,
+        instructions: options.instructions ?? "",
+        createdAt: now(),
+        status: "open",
+        keys: posts.map(
+            ({ type, id }) => `${type === "page" ? "pages" : "posts"}-${id}` as ItemKey,
+        ),
+        scanned: [],
+    };
+
+    for (const [index, post] of posts.entries()) {
+        await store.writeBase(changeset.id, changeset.keys[index]!, toSnapshot(post));
+    }
+
+    // Last, so a failed pull leaves the previous changeset open and no half-written one listed.
+    for (const open of existing.filter(({ status }) => status === "open")) {
+        await store.writeChangeset({ ...open, status: "abandoned" });
+    }
+
+    await store.writeChangeset(changeset);
+
+    return changeset;
+};
+
+export const markScanned = async (store: Store, id: string, keys: string[]): Promise<Changeset> => {
+    const changeset = await requireChangeset(store, id);
+    const unknown = keys.filter((key) => !changeset.keys.includes(key as ItemKey));
+
+    if (unknown.length > 0) throw new Refusal(`Not in ${id}: ${unknown.join(", ")}.`);
+
+    await store.writeChangeset({
+        ...changeset,
+        scanned: [...new Set([...changeset.scanned, ...(keys as ItemKey[])])],
+    });
+
+    return refreshStatus(store, id);
+};
+
+export interface ValidateReport {
+    removed: ItemKey[];
+    markerWarnings: ItemKey[];
+}
+
+/** Deletes no-op proposals and lists the ones whose block markers drifted from base. */
+export const validate = async (store: Store, id: string): Promise<ValidateReport> => {
+    const report: ValidateReport = { removed: [], markerWarnings: [] };
+
+    for (const item of await store.readItems(id)) {
+        const { proposal, base, key } = item;
+
+        if (!proposal) continue;
+
+        const same =
+            proposal.content === base.content &&
+            (proposal.title ?? base.title) === base.title &&
+            (proposal.excerpt ?? base.excerpt) === base.excerpt;
+
+        if (same) {
+            await store.writeProposal(id, key, null);
+            report.removed.push(key);
+        } else if (markersDiffer(base.content, proposal.content)) {
+            report.markerWarnings.push(key);
+        }
+    }
+
+    await refreshStatus(store, id);
+
+    return report;
+};
+
+const updateState = async (
+    store: Store,
+    id: string,
+    key: ItemKey,
+    change: (state: ItemState) => ItemState,
+): Promise<ItemState> => {
+    const state = change((await requireItem(store, id, key)).state);
+
+    await store.writeState(id, key, state);
+
+    return state;
+};
+
+const requirePending = async (store: Store, id: string, key: ItemKey): Promise<Item> => {
+    const item = await requireItem(store, id, key);
+
+    if (!isPending(item)) throw new Refusal(`${key} has nothing pending to review.`);
+
+    return item;
+};
+
+const isOptionalString = (value: unknown) => value === undefined || typeof value === "string";
+
+export const review = {
+    seen: (store: Store, id: string, key: ItemKey) => updateState(store, id, key, markSeen),
+    confirm: async (store: Store, id: string, key: ItemKey) => {
+        await requirePending(store, id, key);
+
+        return updateState(store, id, key, confirm);
+    },
+    unconfirm: async (store: Store, id: string, key: ItemKey) => {
+        const { state } = await requirePending(store, id, key);
+
+        if (state.level !== "confirmed") throw new Refusal(`${key} is not confirmed.`);
+
+        return updateState(store, id, key, unconfirm);
+    },
+    reject: async (store: Store, id: string, key: ItemKey) => {
+        await requirePending(store, id, key);
+
+        const state = await updateState(store, id, key, reject);
+
+        await refreshStatus(store, id);
+
+        return state;
+    },
+    unreject: async (store: Store, id: string, key: ItemKey) => {
+        const { state, proposal } = await requireItem(store, id, key);
+
+        if (!state.rejected || !proposal) throw new Refusal(`${key} is not rejected.`);
+
+        const changesets = await store.listChangesets();
+        const other = changesets.find(
+            (changeset) => changeset.status === "open" && changeset.id !== id,
+        );
+
+        // Rejecting the last pending item may have closed this changeset; undoing it reopens it.
+        const reopens = !state.applied && changesets.find((c) => c.id === id)?.status === "closed";
+
+        if (other && reopens) {
+            throw new Refusal(
+                `Undoing this reopens ${id}, but ${other.id} is open; finish it first.`,
+            );
+        }
+
+        const next = await updateState(store, id, key, unreject);
+
+        await refreshStatus(store, id);
+
+        return next;
+    },
+    edit: async (store: Store, id: string, key: ItemKey, body: Partial<Proposal> | null) => {
+        const item = await requireItem(store, id, key);
+
+        if (!item.proposal || isApplied(item)) {
+            throw new Refusal(`${key} has no editable proposal.`);
+        }
+
+        const { content, title, excerpt } = body ?? {};
+
+        if (typeof content !== "string" || !isOptionalString(title) || !isOptionalString(excerpt)) {
+            throw new Refusal("A proposal is { content, title?, excerpt? }, all strings.");
+        }
+
+        await store.writeProposal(id, key, {
+            content,
+            title,
+            excerpt,
+            reviewRequested: item.proposal.reviewRequested,
+        });
+
+        const state = await updateState(store, id, key, (current) =>
+            afterEdit({ ...current, rejected: undefined }),
+        );
+
+        await refreshStatus(store, id);
+
+        return state;
+    },
+};
+
+/** Refreshes base from live WordPress and sends the item back to unreviewed. */
+export const repull = async (store: Store, wp: WordPress, id: string, key: ItemKey) => {
+    const { type, id: postId } = keyOf(key);
+    const item = await requireItem(store, id, key);
+
+    // A restore record is what an earlier changeset's restore checks drift against.
+    if (item.state.applied) throw new Refusal("Applied items can't be re-pulled.");
+
+    await store.writeBase(id, key, toSnapshot(await wp.get(type, postId)));
+    await store.writeState(id, key, { level: "unreviewed" });
+    await refreshStatus(store, id);
+};
+
+const requireWritable = async (store: Store): Promise<void> => {
+    if ((await store.readSettings()).dryRun) {
+        throw new Refusal("Dry-run mode is on, so nothing is written to WordPress.");
+    }
+};
+
+/** Everything an apply checks before it writes, and the item it would write. */
+const checkApply = async (store: Store, wp: WordPress, id: string, key: ItemKey) => {
+    const { type, id: postId } = keyOf(key);
+    const item = await requireItem(store, id, key);
+
+    if (!isPending(item)) throw new Refusal(`${key} has nothing to apply.`);
+
+    const live = await wp.get(type, postId);
+    const drift = driftRefusal(expectedModified(item), live.modified_gmt);
+
+    if (drift) {
+        await store.writeState(id, key, { ...item.state, drift: true });
+        throw new Refusal(drift);
+    }
+
+    return item as Item & { proposal: Proposal };
+};
+
+const markerWarning = ({ base, proposal }: Item) =>
+    proposal && markersDiffer(base.content, proposal.content)
+        ? "Block markers differ from base."
+        : null;
+
+/** Runs every check an apply would and writes nothing to WordPress. */
+export const dryRunItem = async (store: Store, wp: WordPress, id: string, key: ItemKey) => {
+    const item = await checkApply(store, wp, id, key);
+
+    return { key, warning: markerWarning(item), fingerprint: itemFingerprint(item) };
+};
+
+export const applyItem = async (store: Store, wp: WordPress, id: string, key: ItemKey) => {
+    await requireWritable(store);
+
+    const { type, id: postId } = keyOf(key);
+    const item = await checkApply(store, wp, id, key);
+    const written = await wp.update(type, postId, item.proposal);
+    const state: ItemState = {
+        ...item.state,
+        drift: undefined,
+        restored: undefined,
+        applied: { at: now(), modifiedGmt: written.modified_gmt },
+    };
+
+    await store.writeState(id, key, state);
+    await refreshStatus(store, id);
+
+    return state;
+};
+
+/** One article at a time, recording each outcome instead of stopping at the first failure. */
+const runEach = async (
+    kind: RunReport["kind"],
+    items: Item[],
+    step: (item: Item) => Promise<string | null>,
+    delayMs: number,
+): Promise<RunReport> => {
+    const report: RunReport = { kind, at: now(), ok: [], refused: [], failed: [], warnings: [] };
+
+    for (const [index, item] of items.entries()) {
+        if (index > 0) await sleep(delayMs);
+
+        try {
+            const warning = await step(item);
+
+            report.ok.push(item.key);
+            if (warning) report.warnings.push({ key: item.key, reason: warning });
+        } catch (error) {
+            const entry = { key: item.key, reason: (error as Error).message };
+
+            if (error instanceof Refusal) report.refused.push(entry);
+            else report.failed.push(entry);
+        }
+    }
+
+    return report;
+};
+
+export const latestDryRun = async (store: Store, id: string): Promise<RunReport | null> =>
+    (await store.listRuns(id)).find(({ kind }) => kind === "dry-run") ?? null;
+
+/** Checks every pending article against live WordPress and saves the report bulk apply reads. */
+export const bulkDryRun = async (
+    store: Store,
+    wp: WordPress,
+    id: string,
+    delayMs = READ_DELAY_MS,
+): Promise<RunReport> => {
+    await requireChangeset(store, id);
+
+    const items = await store.readItems(id);
+    const fingerprints: Partial<Record<ItemKey, string>> = {};
+    const report = await runEach(
+        "dry-run",
+        items.filter(isPending),
+        async ({ key }) => {
+            const { warning, fingerprint } = await dryRunItem(store, wp, id, key);
+
+            fingerprints[key] = fingerprint;
+
+            return warning;
+        },
+        delayMs,
+    );
+    const settings = await store.readSettings();
+    const done: RunReport = {
+        ...report,
+        fingerprints,
+        blocker: gateBlocker(await store.readItems(id), settings),
+    };
+
+    await store.writeRun(id, done);
+
+    return done;
+};
+
+/** One write at a time with state saved after each, so a stopped run picks up where it left off. */
+export const bulkApply = async (
+    store: Store,
+    wp: WordPress,
+    id: string,
+    delayMs = WRITE_DELAY_MS,
+): Promise<RunReport> => {
+    await requireChangeset(store, id);
+
+    const items = await store.readItems(id);
+    const blocker = bulkApplyBlocker(
+        items,
+        await store.readSettings(),
+        await latestDryRun(store, id),
+    );
+
+    if (blocker) throw new Refusal(blocker);
+
+    const report = await runEach(
+        "apply",
+        items.filter(isPending),
+        async (item) => {
+            await applyItem(store, wp, id, item.key);
+
+            return markerWarning(item);
+        },
+        delayMs,
+    );
+
+    await store.writeRun(id, report);
+
+    return report;
+};
+
+/** Writes this changeset's base back, which is the article as the previous changeset left it. */
+export const restoreItem = async (store: Store, wp: WordPress, id: string, key: ItemKey) => {
+    const { type, id: postId } = keyOf(key);
+
+    await requireChangeset(store, id);
+    await requireWritable(store);
+
+    const changesets = await store.listChangesets();
+    const stack = await Promise.all(
+        changesets.map(async (changeset) => ({
+            changeset,
+            item: await store.readItem(changeset.id, key),
+        })),
+    );
+    const index = stack.findIndex(({ changeset }) => changeset.id === id);
+    const live = await wp.get(type, postId);
+    const blocker = restoreBlocker(stack, index, live.modified_gmt);
+
+    if (blocker) throw new Refusal(blocker);
+
+    const { base, state } = stack[index]!.item!;
+    const written = await wp.update(type, postId, base);
+    // Back in review, so sending it out again takes a fresh confirm.
+    const next: ItemState = {
+        ...state,
+        level: "seen",
+        restored: { at: now(), modifiedGmt: written.modified_gmt },
+    };
+
+    await store.writeState(id, key, next);
+
+    return next;
+};
