@@ -37,9 +37,9 @@ const toRouteRules = (cache: Rendering["cache"]): [string, RouteRule][] =>
 
         return hasPayload(route, rule)
             ? [
-                [route, routeRule],
-                [payloadPath(route), routeRule],
-            ]
+                  [route, routeRule],
+                  [payloadPath(route), routeRule],
+              ]
             : [[route, routeRule]];
     });
 
