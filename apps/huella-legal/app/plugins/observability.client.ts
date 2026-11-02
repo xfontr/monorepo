@@ -2,6 +2,10 @@ import type { startWebTelemetry } from "@monorepo/observability";
 
 type Faro = ReturnType<typeof startWebTelemetry>;
 
+// Lighthouse stops tracing soon after the page goes quiet, so starting later keeps Faro out of it
+const IDLE_START_MS = 10_000;
+const INTERACTIONS = ["pointerdown", "keydown"] as const;
+
 export default defineNuxtPlugin((nuxtApp) => {
     const { observability } = useRuntimeConfig().public;
 
@@ -15,10 +19,23 @@ export default defineNuxtPlugin((nuxtApp) => {
         else earlyErrors.push(error as Error);
     });
 
-    onNuxtReady(async () => {
-        const telemetry = await import("@monorepo/observability");
+    onNuxtReady(() => {
+        const triggers = new AbortController();
 
-        faro = telemetry.startWebTelemetry(observability);
-        for (const error of earlyErrors.splice(0)) faro.api.pushError(error);
+        const start = async () => {
+            if (triggers.signal.aborted) return;
+
+            triggers.abort();
+
+            const telemetry = await import("@monorepo/observability");
+
+            faro = telemetry.startWebTelemetry(observability);
+            for (const error of earlyErrors.splice(0)) faro.api.pushError(error);
+        };
+
+        for (const type of INTERACTIONS)
+            addEventListener(type, start, { passive: true, signal: triggers.signal });
+
+        setTimeout(start, IDLE_START_MS);
     });
 });
