@@ -11,7 +11,10 @@ const HEADER_LINKS = [
 ] as const satisfies readonly NavKey[];
 
 const COLUMNS = [
-    { key: "journal", links: ["publications", "subjects", "collaborators", "about"] },
+    {
+        key: "journal",
+        links: ["publications", "subjects", "collaborators", "about", "interestCalculator"],
+    },
     { key: "participate", links: ["publish", "publishThesis", "newsletter", "contact"] },
     { key: "legal", links: ["legalNotice", "privacy", "cookies"] },
 ] as const satisfies readonly { key: string; links: readonly NavKey[] }[];
@@ -39,6 +42,7 @@ export const useSiteNav = () => {
     const {
         public: { social: profiles },
     } = useRuntimeConfig();
+    const cookiePreferences = useCookiePreferences();
 
     const sections = computed<NavigationMenuItem[]>(() => {
         const here = withTrailingSlash(route.path);
@@ -60,10 +64,20 @@ export const useSiteNav = () => {
     const columns = computed<FooterColumn[]>(() =>
         COLUMNS.map(({ key, links }) => ({
             label: t(`app.footer.columns.${key}`),
-            children: links.map((link) => ({
-                label: t(`app.footer.links.${link}`),
-                to: nav[link],
-            })),
+            children: [
+                ...links.map((link) => ({
+                    label: t(`app.footer.links.${link}`),
+                    to: nav[link],
+                })),
+                ...(key === "legal" && cookiePreferences.enabled
+                    ? [
+                          {
+                              label: t("app.footer.links.cookieSettings"),
+                              onClick: cookiePreferences.open,
+                          },
+                      ]
+                    : []),
+            ],
         })),
     );
 

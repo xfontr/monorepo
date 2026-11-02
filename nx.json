@@ -13,6 +13,7 @@
             "!{projectRoot}/vitest.config.ts",
             "!{projectRoot}/**/*.md",
             "!{projectRoot}/e2e/**/*",
+            "!{projectRoot}/mocks/**/*",
             "!{projectRoot}/playwright.config.ts"
         ],
         "sharedGlobals": [

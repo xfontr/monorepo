@@ -99,7 +99,9 @@
                 "about": "Sobre Huella Legal",
                 "collaborators": "Colaboradores",
                 "contact": "Contacto",
+                "cookieSettings": "Configurar cookies",
                 "cookies": "Política de cookies",
+                "interestCalculator": "Calculadora de intereses",
                 "legalNotice": "Aviso legal",
                 "newsletter": "Newsletter",
                 "privacy": "Política de privacidad",
@@ -353,6 +355,35 @@
         "success": {
             "description": "Te responderemos en el correo que nos has dejado.",
             "title": "Mensaje enviado"
+        }
+    },
+    "cookieConsent": {
+        "actions": {
+            "acceptAll": "Aceptar",
+            "close": "Cerrar",
+            "configure": "Configurar",
+            "reject": "Rechazar",
+            "save": "Guardar"
+        },
+        "banner": {
+            "description": "Solo para saber cómo se usa la web. Ni publicidad ni venta de datos.",
+            "title": "Usamos cookies"
+        },
+        "policy": "Política de cookies",
+        "preferences": {
+            "categories": {
+                "analytics": {
+                    "description": "Nos dicen qué artículos se leen y cómo se llega a ellos. No las usamos para publicidad.",
+                    "title": "Analíticas"
+                },
+                "necessary": {
+                    "description": "Hacen que la web funcione y recuerdan tu elección. No se pueden desactivar.",
+                    "title": "Necesarias"
+                }
+            },
+            "intro": "Elige qué cookies aceptas. Puedes cambiarlo cuando quieras desde el pie de página.",
+            "more": "Más información en la",
+            "title": "Configuración de cookies"
         }
     },
     "directoryCard": {

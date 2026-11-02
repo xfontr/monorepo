@@ -88,7 +88,9 @@ far outside that is worth opening. The `comment-cleanup` skill runs the pass.
 - **Never invent structure the repo already solves.** A new file or folder copies the closest
   existing precedent — a huella-legal layer, a developer-portal folder, a scripts
   `domain/`/`adapters/` split — and keeps its naming. A folder shape found nowhere in the repo
-  needs a decision report first.
+  needs the user's agreement first.
+- **Never write a decision report unprompted.** Only when the user asks for one; you may ask whether
+  they want one, but never write it on your own judgement.
 
 ## 📦 Dependencies
 
