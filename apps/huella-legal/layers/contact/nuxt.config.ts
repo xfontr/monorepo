@@ -11,4 +11,8 @@ export default defineNuxtConfig({
     requiredEnv: {
         contact: ["NUXT_MAIL_API_KEY"],
     },
+
+    rendering: {
+        "/contacto/": { prerender: true },
+    },
 });

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { NuxtError } from "#app";
 import { es } from "@nuxt/ui/locale";
-import { DESTINATIONS } from "~/composables/useSiteNav";
 
 interface Props {
     error: NuxtError<{ message?: string }>;
@@ -11,6 +10,7 @@ const { error } = defineProps<Props>();
 
 const { t } = useI18n();
 const searchAction = useRouter().resolve({ name: "search" }).href;
+const { nav } = useAppConfig();
 
 const isDev = import.meta.dev;
 
@@ -84,7 +84,7 @@ useHead(
                             @click="reloadNuxtApp({ force: true })"
                         />
                         <UButton
-                            :to="DESTINATIONS.contact"
+                            :to="nav.contact"
                             variant="outline"
                             color="neutral"
                             :label="$t('error.server.contact')"

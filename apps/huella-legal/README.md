@@ -92,8 +92,10 @@ Nuxt turns every `isr` rule into a client-side payload rule, so client navigatio
 read `<route>/_payload.json` rather than the API. `experimental.payloadExtraction` is `"client"`, so
 a first view still gets its payload inlined instead of fetching it as a second request.
 
-[`modules/rendering.ts`](./modules/rendering.ts) holds the route rules, and only switches
-prerendering on when `CONTEXT` is set, which Netlify does on every build. CI and e2e build without
+Each layer declares the rules for its own routes under `rendering` in its `nuxt.config.ts`: an
+`isr`, the query keys it varies on, or `prerender: true`.
+[`modules/rendering.ts`](./modules/rendering.ts) turns them into route rules, adds each listing's
+`_payload.json` twin with the same `Netlify-Vary`, and only switches prerendering on when `CONTEXT` is set, which Netlify does on every build. CI and e2e build without
 it, since a prerendered file would shadow e2e's fakes. `CONTEXT` is a cache input of `build` and `nuxt:build`, so Nx never restores one
 kind of build for the other. To reproduce a Netlify build locally:
 
@@ -275,13 +277,13 @@ page — the entry page. Its own server code is three Nitro plugins (telemetry, 
 handled `5xx`, and the header that keeps a `5xx` out of the CDN). Beside it,
 [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) checks the
 [required variables](#-environment) once per build, and
-[`modules/rendering.ts`](./modules/rendering.ts) registers the route rules and lists the
-[prerendered routes](#-rendering) on a Netlify build.
+[`modules/rendering.ts`](./modules/rendering.ts) turns each layer's `rendering` entries into route
+rules and lists the [prerendered routes](#-rendering) on a Netlify build.
 
 | Piece | What it holds |
 | --- | --- |
 | [`layouts/default.vue`](./app/layouts/default.vue) | The skip link, `SiteHeader`, the one `<main id="contenido">` and `SiteFooter`, fed by `useSiteNav`. A page never renders its own `<main>` |
-| [`composables/useSiteNav.ts`](./app/composables/useSiteNav.ts) | The shell's links: the header sections with their `aria-current`, the footer columns, the configured social profiles and the ISSN. The layout calls it and hands the results to the shell |
+| [`composables/useSiteNav.ts`](./app/composables/useSiteNav.ts) | The shell's arrangement of links: which `nav` keys the header and each footer column show and in what order, with `aria-current`, plus the configured social profiles and the ISSN. Each layer declares where its own keys go under `nav` in its `app/app.config.ts`, so the shell never names a route. The layout calls it and hands the results to the shell |
 | [`components/shell/`](./app/components/shell) | `SiteHeader` (`UHeader` with a slideover menu below `lg`) and `SiteFooter` (`UFooter` + `UFooterColumns`), both props-in. Every link is a [route name](#-links). WordPress pages such as `sobre` and `aviso-legal` are `article` slugs, and the privacy and cookies links are anchors on `aviso-legal`, per [0028](../../docs/decisions/0028-huella-legal-urls-and-cutover.md) |
 | [`types/`](./app/types) | The vocabulary kits share across layers: `LinkAction`, the `{ label, to }` every link and action prop takes, and `Tone`, the `paper` or `slate` surface a component renders on |
 | [`error.vue`](./app/error.vue) | The 404 design for a 404 and the server design for anything else, inside the same layout. It wraps itself in `UApp`, since Nuxt renders it in place of `app.vue` |

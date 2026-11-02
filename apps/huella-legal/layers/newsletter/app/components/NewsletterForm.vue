@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useFormSubmission } from "#layers/forms/app/composables/useFormSubmission";
 import type { Form, FormErrorWithId } from "@nuxt/ui";
-import { DESTINATIONS } from "~/composables/useSiteNav";
 import type { Tone } from "~/types/Tone";
 import {
     type Subscription,
@@ -52,6 +51,7 @@ const TONES = {
 } as const satisfies Record<Tone, ToneRecipe>;
 
 const { t } = useI18n();
+const { nav } = useAppConfig();
 const { status, errors, send } = useNewsletter();
 
 const issueMessage = (issue: SubscriptionIssue): string =>
@@ -156,12 +156,7 @@ const colors = computed<ToneRecipe>(() => TONES[props.tone]);
                 :class="colors.notice"
             >
                 <template #privacy>
-                    <ULink
-                        raw
-                        :to="DESTINATIONS.privacy"
-                        data-inline
-                        class="underline underline-offset-2"
-                    >
+                    <ULink raw :to="nav.privacy" data-inline class="underline underline-offset-2">
                         {{ $t("newsletterForm.privacy") }}
                     </ULink>
                 </template>

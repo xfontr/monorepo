@@ -1,53 +1,20 @@
 import type { FooterColumn, NavigationMenuItem } from "@nuxt/ui";
-import type { RouteLocationRaw } from "vue-router";
+import type { AppConfig } from "nuxt/schema";
 
-interface Link {
-    key: string;
-    to: RouteLocationRaw;
-}
-
-export const DESTINATIONS = {
-    newsletter: { name: "index", hash: "#newsletter" },
-    contact: { name: "contact" },
-    legal: { name: "article", params: { slug: "aviso-legal" } },
-    privacy: { name: "article", params: { slug: "aviso-legal" }, hash: "#privacidad" },
-} as const satisfies Record<string, RouteLocationRaw>;
+type NavKey = keyof AppConfig["nav"];
 
 const SECTIONS = [
-    { key: "publications", to: { name: "publications" } },
-    { key: "subjects", to: { name: "categories" } },
-    { key: "collaborators", to: { name: "authors" } },
-    { key: "publish", to: { name: "publish" } },
-] as const satisfies readonly Link[];
+    "publications",
+    "subjects",
+    "collaborators",
+    "publish",
+] as const satisfies readonly NavKey[];
 
 const COLUMNS = [
-    {
-        key: "journal",
-        links: [
-            { key: "publications", to: { name: "publications" } },
-            { key: "subjects", to: { name: "categories" } },
-            { key: "collaborators", to: { name: "authors" } },
-            { key: "about", to: { name: "about" } },
-        ],
-    },
-    {
-        key: "participate",
-        links: [
-            { key: "publish", to: { name: "publish" } },
-            { key: "publishThesis", to: { name: "publish", hash: "#tesis" } },
-            { key: "newsletter", to: DESTINATIONS.newsletter },
-            { key: "contact", to: DESTINATIONS.contact },
-        ],
-    },
-    {
-        key: "legal",
-        links: [
-            { key: "legalNotice", to: DESTINATIONS.legal },
-            { key: "privacy", to: DESTINATIONS.privacy },
-            { key: "cookies", to: { ...DESTINATIONS.legal, hash: "#cookies" } },
-        ],
-    },
-] as const satisfies readonly { key: string; links: readonly Link[] }[];
+    { key: "journal", links: ["publications", "subjects", "collaborators", "about"] },
+    { key: "participate", links: ["publish", "publishThesis", "newsletter", "contact"] },
+    { key: "legal", links: ["legalNotice", "privacy", "cookies"] },
+] as const satisfies readonly { key: string; links: readonly NavKey[] }[];
 
 const SOCIAL = [
     { key: "instagram", icon: "i-lucide-instagram" },
@@ -68,7 +35,7 @@ export const useSiteNav = () => {
     const { t } = useI18n();
     const route = useRoute();
     const router = useRouter();
-    const { journal } = useAppConfig();
+    const { journal, nav } = useAppConfig();
     const {
         public: { social: profiles },
     } = useRuntimeConfig();
@@ -76,7 +43,8 @@ export const useSiteNav = () => {
     const sections = computed<NavigationMenuItem[]>(() => {
         const here = withTrailingSlash(route.path);
 
-        return SECTIONS.map(({ key, to }) => {
+        return SECTIONS.map((key) => {
+            const to = nav[key];
             const { path } = router.resolve(to);
             const current = here === path ? "page" : here.startsWith(path) ? "true" : undefined;
 
@@ -93,8 +61,8 @@ export const useSiteNav = () => {
         COLUMNS.map(({ key, links }) => ({
             label: t(`app.footer.columns.${key}`),
             children: links.map((link) => ({
-                label: t(`app.footer.links.${link.key}`),
-                to: link.to,
+                label: t(`app.footer.links.${link}`),
+                to: nav[link],
             })),
         })),
     );

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useFormSubmission } from "#layers/forms/app/composables/useFormSubmission";
 import type { ButtonProps, Form } from "@nuxt/ui";
-import { DESTINATIONS } from "~/composables/useSiteNav";
 import {
     type CommentFields,
     type CommentIssue,
@@ -20,6 +19,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<{ cancelReply: [] }>();
 
 const { t } = useI18n();
+const { nav } = useAppConfig();
 const { status, errors, failure, send } = usePostComment();
 
 const issueMessage = (issue: CommentIssue): string => t(`commentForm.errors.${issue}`);
@@ -149,12 +149,7 @@ watch(
                 class="font-sans text-meta text-muted"
             >
                 <template #privacy>
-                    <ULink
-                        raw
-                        :to="DESTINATIONS.privacy"
-                        data-inline
-                        class="underline underline-offset-2"
-                    >
+                    <ULink raw :to="nav.privacy" data-inline class="underline underline-offset-2">
                         {{ $t("commentForm.privacy") }}
                     </ULink>
                 </template>

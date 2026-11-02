@@ -115,6 +115,15 @@ export default defineNuxtConfig({
         },
     },
 
+    rendering: {
+        "/**": { isr: 60 * 60 * 24 },
+        "/api/**": { isr: false },
+        "/robots.txt": { isr: false },
+        "/sitemap.xml": { isr: false },
+        "/api/translations/**": { isr: 60 * 60 * 24 },
+        "/_i18n/**": { isr: 60 * 60 * 24 },
+    },
+
     // The URL comes from `runtimeConfig.public.site`, which nuxt-site-config reads too
     site: {
         name: "Huella Legal",

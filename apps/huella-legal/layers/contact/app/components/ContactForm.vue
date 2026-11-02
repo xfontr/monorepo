@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useFormSubmission } from "#layers/forms/app/composables/useFormSubmission";
 import type { Form } from "@nuxt/ui";
-import { DESTINATIONS } from "~/composables/useSiteNav";
 import { type Contact, type ContactIssue, contactSchema } from "../../shared/schemas/contact";
 import { useContact } from "../composables/useContact";
 
 const { t } = useI18n();
+const { nav } = useAppConfig();
 const { status, errors, send } = useContact();
 
 const issueMessage = (issue: ContactIssue): string => t(`contactForm.errors.${issue}`);
@@ -86,12 +86,7 @@ const { honeypot, submitting, validateOn, summaryErrors, submit, onError } = use
                 class="font-sans text-meta text-muted"
             >
                 <template #privacy>
-                    <ULink
-                        raw
-                        :to="DESTINATIONS.privacy"
-                        data-inline
-                        class="underline underline-offset-2"
-                    >
+                    <ULink raw :to="nav.privacy" data-inline class="underline underline-offset-2">
                         {{ $t("contactForm.privacy") }}
                     </ULink>
                 </template>

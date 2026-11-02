@@ -2,6 +2,7 @@
 definePageMeta({ name: "authors", path: "/colaboradores/" });
 
 const { t } = useI18n();
+const { nav } = useAppConfig();
 
 const { authors } = await useAuthorDirectory();
 
@@ -37,7 +38,7 @@ useSeoMeta({
                             variant="outline"
                             color="neutral"
                             :label="$t('authors.about.contact')"
-                            :to="DESTINATIONS.contact"
+                            :to="nav.contact"
                             class="justify-center"
                         />
                     </div>
