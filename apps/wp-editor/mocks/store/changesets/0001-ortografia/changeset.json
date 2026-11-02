@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-10-10T10:00:00Z",
+  "id": "0001-ortografia",
+  "instructions": "Revisa la ortografía de todos los artículos: acentos y erratas.",
+  "keys": [
+    "posts-101",
+    "posts-102",
+    "posts-103",
+    "posts-104",
+    "posts-105",
+    "posts-106",
+    "pages-7"
+  ],
+  "scanned": [
+    "posts-101",
+    "posts-102",
+    "posts-103",
+    "posts-104",
+    "posts-105",
+    "posts-106",
+    "pages-7"
+  ],
+  "status": "closed",
+  "title": "Ortografía"
+}
