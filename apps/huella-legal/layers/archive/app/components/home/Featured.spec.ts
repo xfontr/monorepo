@@ -55,6 +55,13 @@ describe("home featured", () => {
         expect(wrapper.find("img").attributes("loading")).toBeUndefined();
     });
 
+    it("asks for the lead image at its frame's 16:10, so the CDN crops what the frame would hide", async () => {
+        const lead = { ...LEAD, image: fakeAsset({ width: 1280, height: 1276 }) };
+        const wrapper = await mount({ lead, latest: LATEST });
+
+        expect(wrapper.find("img").attributes()).toMatchObject({ width: "1280", height: "800" });
+    });
+
     it("names the lead's format and links its subject", async () => {
         const wrapper = await mount({ lead: LEAD, latest: LATEST });
 

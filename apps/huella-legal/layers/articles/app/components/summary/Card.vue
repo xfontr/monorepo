@@ -6,6 +6,7 @@ interface Recipe {
     layout: string;
     media: "always" | "image" | false;
     frame: string;
+    ratio: number;
     sizes: string;
     body: string;
     title: string;
@@ -28,6 +29,7 @@ const VARIANTS = {
         layout: "lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-12",
         media: "image",
         frame: "aspect-[3/2] lg:col-span-7 lg:row-span-4",
+        ratio: 3 / 2,
         sizes: "sm:100vw md:100vw lg:640px",
         body: "lg:col-span-5",
         title: "text-[2rem] leading-[1.12] tracking-[-0.015em] md:text-h1 lg:text-[2.75rem]",
@@ -41,6 +43,7 @@ const VARIANTS = {
         layout: "",
         media: false,
         frame: "",
+        ratio: 0,
         sizes: "",
         body: "",
         title: "text-card",
@@ -54,6 +57,7 @@ const VARIANTS = {
         layout: "",
         media: "always",
         frame: "aspect-[3/2]",
+        ratio: 3 / 2,
         sizes: "sm:100vw md:50vw lg:360px",
         body: "",
         title: "text-card",
@@ -67,6 +71,7 @@ const VARIANTS = {
         layout: "sm:grid sm:grid-cols-[1fr_9rem] sm:items-start sm:gap-x-6 md:grid-cols-[1fr_11rem] md:gap-x-8",
         media: "always",
         frame: "hidden aspect-[4/3] sm:order-last sm:block",
+        ratio: 4 / 3,
         sizes: "144px md:176px",
         body: "",
         title: "text-card md:text-h3",
@@ -80,6 +85,7 @@ const VARIANTS = {
         layout: "",
         media: false,
         frame: "",
+        ratio: 0,
         sizes: "",
         body: "",
         title: "text-lg leading-snug",
@@ -95,6 +101,7 @@ const hasMedia = computed<boolean>(
     () => ui.value.media === "always" || (ui.value.media === "image" && !!props.article.image),
 );
 const authors = computed(() => bylineAuthors(props.article.authors));
+const imageHeight = computed(() => coverHeight(props.article.image?.width, ui.value.ratio));
 const comments = computed(() =>
     ui.value.readingTime && props.article.commentCount
         ? {
@@ -118,7 +125,8 @@ const comments = computed(() =>
                 v-if="article.image"
                 :src="article.image.url"
                 :width="article.image.width"
-                :height="article.image.height"
+                :height="imageHeight"
+                fit="cover"
                 :sizes="ui.sizes"
                 alt=""
                 :loading="ui.eager ? 'eager' : 'lazy'"

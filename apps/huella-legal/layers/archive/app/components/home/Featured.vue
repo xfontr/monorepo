@@ -15,6 +15,8 @@ const articleLink = (slug: string): RouteLocationRaw => ({ name: "article", para
 const leadLink = computed<RouteLocationRaw>(() => articleLink(props.lead.slug));
 
 const authors = computed(() => bylineAuthors(props.lead.authors));
+
+const leadHeight = computed(() => coverHeight(props.lead.image?.width, 16 / 10));
 </script>
 
 <template>
@@ -30,7 +32,8 @@ const authors = computed(() => bylineAuthors(props.lead.authors));
                     v-if="lead.image"
                     :src="lead.image.url"
                     :width="lead.image.width"
-                    :height="lead.image.height"
+                    :height="leadHeight"
+                    fit="cover"
                     sizes="sm:100vw md:100vw lg:720px"
                     alt=""
                     fetchpriority="high"

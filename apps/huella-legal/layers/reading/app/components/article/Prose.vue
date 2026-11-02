@@ -7,7 +7,9 @@ interface Props {
     image?: Asset;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+const imageHeight = computed(() => coverHeight(props.image?.width, 16 / 9));
 </script>
 
 <template>
@@ -19,7 +21,8 @@ defineProps<Props>();
                 :src="image.url"
                 :alt="image.alt"
                 :width="image.width"
-                :height="image.height"
+                :height="imageHeight"
+                fit="cover"
                 sizes="sm:100vw md:100vw lg:680px"
                 class="aspect-video w-full rounded-xs object-cover"
             />
