@@ -63,7 +63,7 @@ const listSlugRoutes = async ({ runtimeConfig }: Nuxt["options"]): Promise<strin
 };
 
 export default defineNuxtModule<Rendering>({
-    meta: { configKey: "rendering" },
+    meta: { name: "rendering", configKey: "rendering" },
 
     defaults: { cache: {}, prerender: [] },
 
