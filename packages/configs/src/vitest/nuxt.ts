@@ -65,9 +65,13 @@ const createNuxtConfig = async ({
             nuxt: {
                 rootDir: root,
                 domEnvironment: "happy-dom",
-                // Nx loads this config to build its graph, and a boot into `.nuxt` leaves it without
-                // the tsconfigs `nuxt build`'s typecheck reads through the app's tsconfig.json
-                overrides: { buildDir: join(root, "node_modules/.cache/nuxt-vitest") },
+                overrides: {
+                    // Nx loads this config to build its graph, and a boot into `.nuxt` leaves it
+                    // without the tsconfigs `nuxt build`'s typecheck reads through tsconfig.json
+                    buildDir: join(root, "node_modules/.cache/nuxt-vitest"),
+                    // nuxt-seo-utils warns on that boot about test-utils' `ssr: false` otherwise
+                    site: { indexable: false },
+                },
             },
         },
     });

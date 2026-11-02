@@ -1,11 +1,11 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import plugin from "./observability.client";
 
 const telemetry = vi.hoisted(() => ({
     faro: { api: { pushError: vi.fn() } },
     startWebTelemetry: vi.fn(),
-    ready: undefined as (() => Promise<void>) | undefined,
+    ready: undefined as (() => void) | undefined,
     config: {
         url: "",
         app: { name: "@monorepo/huella-legal", version: "1.4.0", environment: "production" },
@@ -21,11 +21,12 @@ mockNuxtImport("useRuntimeConfig", (original) => () => {
     return { ...config, public: { ...config.public, observability: telemetry.config } };
 });
 
-mockNuxtImport("onNuxtReady", () => (callback: () => Promise<void>) => {
+mockNuxtImport("onNuxtReady", () => (callback: () => void) => {
     telemetry.ready = callback;
 });
 
 const COLLECTOR = "https://faro-collector.test/collect";
+const IDLE_START_MS = 10_000;
 
 const run = () => {
     const hooks = new Map<string, (error: unknown) => void>();
@@ -36,12 +37,25 @@ const run = () => {
     return hooks;
 };
 
+const started = () => vi.waitFor(() => expect(telemetry.startWebTelemetry).toHaveBeenCalled());
+
+const startByWaiting = async () => {
+    telemetry.ready?.();
+    await vi.advanceTimersByTimeAsync(IDLE_START_MS);
+    await started();
+};
+
 beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
 
     telemetry.config.url = "";
     telemetry.ready = undefined;
     telemetry.startWebTelemetry.mockReturnValue(telemetry.faro);
+});
+
+afterEach(() => {
+    vi.useRealTimers();
 });
 
 describe("the browser observability plugin", () => {
@@ -52,16 +66,47 @@ describe("the browser observability plugin", () => {
         expect(hooks.size).toBe(0);
     });
 
-    it("hands the public observability config to Faro once the page is idle", async () => {
+    it("holds Faro back while the page sits untouched, so a lab trace never loads it", async () => {
         telemetry.config.url = COLLECTOR;
 
         run();
+        telemetry.ready?.();
+        await vi.advanceTimersByTimeAsync(IDLE_START_MS - 1);
 
         expect(telemetry.startWebTelemetry).not.toHaveBeenCalled();
+    });
 
-        await telemetry.ready?.();
+    it("hands the public observability config to Faro on the reader's first interaction", async () => {
+        telemetry.config.url = COLLECTOR;
+
+        run();
+        telemetry.ready?.();
+        window.dispatchEvent(new PointerEvent("pointerdown"));
+        await started();
 
         expect(telemetry.startWebTelemetry).toHaveBeenCalledWith(telemetry.config);
+    });
+
+    it("starts Faro anyway once the page has sat idle, so a reader who only reads is counted", async () => {
+        telemetry.config.url = COLLECTOR;
+
+        run();
+        await startByWaiting();
+
+        expect(telemetry.startWebTelemetry).toHaveBeenCalledWith(telemetry.config);
+    });
+
+    it("starts Faro once however many triggers fire, so no session is reported twice", async () => {
+        telemetry.config.url = COLLECTOR;
+
+        run();
+        telemetry.ready?.();
+        window.dispatchEvent(new KeyboardEvent("keydown"));
+        window.dispatchEvent(new PointerEvent("pointerdown"));
+        await vi.advanceTimersByTimeAsync(IDLE_START_MS);
+        await started();
+
+        expect(telemetry.startWebTelemetry).toHaveBeenCalledOnce();
     });
 
     it("forwards every Vue error to Faro, so a render crash is not lost in the console", async () => {
@@ -69,7 +114,7 @@ describe("the browser observability plugin", () => {
         const error = new Error("render failed");
         const hooks = run();
 
-        await telemetry.ready?.();
+        await startByWaiting();
         hooks.get("vue:error")?.(error);
 
         expect(telemetry.faro.api.pushError).toHaveBeenCalledWith(error);
@@ -80,7 +125,7 @@ describe("the browser observability plugin", () => {
         const error = new Error("hydration failed");
 
         run().get("vue:error")?.(error);
-        await telemetry.ready?.();
+        await startByWaiting();
 
         expect(telemetry.faro.api.pushError).toHaveBeenCalledExactlyOnceWith(error);
     });

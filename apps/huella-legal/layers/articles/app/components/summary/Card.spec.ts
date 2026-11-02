@@ -108,6 +108,15 @@ describe("article card", () => {
         expect(media.find("img").attributes("loading")).toBe("lazy");
     });
 
+    it("asks for each card's image at its frame's ratio, so the CDN crops what the frame would hide", async () => {
+        const article = { ...ARTICLE, image: fakeAsset({ width: 1200, height: 1200 }) };
+        const media = await mount({ article, variant: "media" });
+        const row = await mount({ article, variant: "row" });
+
+        expect(media.find("img").attributes("height")).toBe("800");
+        expect(row.find("img").attributes("height")).toBe("900");
+    });
+
     it("keeps the media slot for an imageless post on the media and row cards, so the grid stays aligned", async () => {
         const media = await mount({ article: ARTICLE, variant: "media" });
         const row = await mount({ article: ARTICLE, variant: "row" });

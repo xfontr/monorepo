@@ -19,6 +19,10 @@ export default defineNuxtConfig({
 
     devtools: false,
 
+    features: {
+        inlineStyles: true,
+    },
+
     app: {
         head: {
             link: [

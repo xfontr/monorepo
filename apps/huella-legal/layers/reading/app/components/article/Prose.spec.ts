@@ -27,6 +27,13 @@ describe("article prose", () => {
         expect(wrapper.find("img").attributes()).toMatchObject({ src: image.url, alt: image.alt });
     });
 
+    it("asks for the image at its 16:9 frame, so the CDN crops what the frame would hide", async () => {
+        const image = fakeAsset({ width: 1600, height: 1200 });
+        const wrapper = await mountSuspended(ArticleProse, { props: { ...PROPS, image } });
+
+        expect(wrapper.find("img").attributes()).toMatchObject({ width: "1600", height: "900" });
+    });
+
     it("leaves out the figure for an article without an image", async () => {
         const wrapper = await mountSuspended(ArticleProse, { props: PROPS });
 

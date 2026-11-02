@@ -17,7 +17,7 @@ mockNuxtImport("useRuntimeConfig", (original) => () => {
 mockNuxtImport("useScriptGoogleAnalytics", () => trackers.loadAnalytics);
 mockNuxtImport("useScriptTriggerConsent", () => trackers.trigger);
 
-const run = () => (plugin as unknown as () => void)();
+const run = () => (plugin as unknown as () => Promise<void>)();
 
 const gate = () => (trackers.trigger.mock.calls[0]![0] as { consent: Ref<boolean> }).consent;
 
@@ -31,16 +31,16 @@ beforeEach(() => {
 });
 
 describe("the trackers plugin", () => {
-    it("loads nothing for a tracker with no ID, so an unset env var never loads its script", () => {
-        run();
+    it("loads nothing for a tracker with no ID, so an unset env var never loads its script", async () => {
+        await run();
 
         expect(trackers.loadAnalytics).not.toHaveBeenCalled();
     });
 
-    it("holds a tracker's script until the reader accepts its category", () => {
+    it("holds a tracker's script until the reader accepts its category", async () => {
         trackers.config.googleAnalytics.id = "G-TEST";
 
-        run();
+        await run();
 
         expect(trackers.loadAnalytics).toHaveBeenCalledWith(
             expect.objectContaining({ id: "G-TEST" }),
@@ -52,10 +52,10 @@ describe("the trackers plugin", () => {
         expect(gate().value).toBe(true);
     });
 
-    it("holds a tracker again once the reader withdraws its category", () => {
+    it("holds a tracker again once the reader withdraws its category", async () => {
         trackers.config.googleAnalytics.id = "G-TEST";
 
-        run();
+        await run();
         consentTo("cc:onConsent", ["necessary", "analytics"]);
         consentTo("cc:onChange", ["necessary"]);
 
