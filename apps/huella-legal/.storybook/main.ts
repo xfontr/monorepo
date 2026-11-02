@@ -85,7 +85,20 @@ const config: StorybookConfig = {
                 ui: appConfig.ui,
                 router: true,
                 dts: false,
-                components: { dirs: componentDirs, directoryAsNamespace: true },
+                components: {
+                    dirs: componentDirs,
+                    directoryAsNamespace: true,
+                    // Nuxt gives every component a lazily loaded `Lazy` twin, which a story loads eagerly
+                    resolvers: [
+                        (name: string) =>
+                            name.startsWith("LazyU")
+                                ? {
+                                      name: "default",
+                                      from: `@nuxt/ui/components/${name.slice(5)}.vue`,
+                                  }
+                                : undefined,
+                    ],
+                },
                 autoImport: {
                     imports: [
                         "vue",
