@@ -3,7 +3,7 @@ import type { AppConfig } from "nuxt/schema";
 
 type NavKey = keyof AppConfig["nav"];
 
-const SECTIONS = [
+const HEADER_LINKS = [
     "publications",
     "subjects",
     "collaborators",
@@ -43,7 +43,7 @@ export const useSiteNav = () => {
     const sections = computed<NavigationMenuItem[]>(() => {
         const here = withTrailingSlash(route.path);
 
-        return SECTIONS.map((key) => {
+        return HEADER_LINKS.map((key) => {
             const to = nav[key];
             const { path } = router.resolve(to);
             const current = here === path ? "page" : here.startsWith(path) ? "true" : undefined;

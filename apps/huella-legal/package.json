@@ -29,7 +29,7 @@
                     "production",
                     "^production",
                     {
-                        "env": "CONTEXT"
+                        "env": "NUXT_SITE_ENV"
                     }
                 ]
             },
@@ -43,7 +43,7 @@
                         ]
                     },
                     {
-                        "env": "CONTEXT"
+                        "env": "NUXT_SITE_ENV"
                     }
                 ]
             },

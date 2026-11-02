@@ -23,12 +23,14 @@ const BASE_URL = "http://wordpress.test";
 const POSTS = Array.from({ length: 51 }, (_, index) => fakeEntry({ slug: `entrada-${index}` }));
 
 const RENDERING = {
-    "/**": { isr: 86400 },
-    "/api/**": { isr: false },
-    "/publicaciones/": { isr: 86400, varyOn: ["page", "sort", "format"] },
-    "/areas/*": { isr: 86400, varyOn: ["page", "sort", "format"] },
-    "/api/search": { isr: 86400, varyOn: ["query", "page"] },
-    "/contacto/": { prerender: true },
+    cache: {
+        "/**": { isr: 86400 },
+        "/api/**": { isr: false },
+        "/publicaciones/": { isr: 86400, queryKeys: ["page", "sort", "format"] },
+        "/areas/*": { isr: 86400, queryKeys: ["page", "sort", "format"] },
+        "/api/search": { isr: 86400, queryKeys: ["query", "page"] },
+    },
+    prerender: ["/contacto/"],
 } satisfies Rendering;
 
 const server = setupServer(...wordpressHandlers(BASE_URL, { posts: POSTS }));
@@ -67,7 +69,7 @@ beforeAll(() => {
 
 beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubEnv("CONTEXT", "deploy-preview");
+    vi.stubEnv("NUXT_SITE_ENV", "preview");
 });
 
 afterEach(() => {
@@ -81,8 +83,8 @@ afterAll(() => {
 
 describe("the rendering module", () => {
     // Every build needs them: Nuxt compiles `isr` into the client's payload rules either way
-    it("registers the route rules outside a Netlify build too", () => {
-        vi.stubEnv("CONTEXT", "");
+    it("registers the route rules outside a deploy build too", () => {
+        vi.stubEnv("NUXT_SITE_ENV", "");
 
         install();
 
@@ -127,8 +129,8 @@ describe("the rendering module", () => {
     });
 
     // CI and e2e serve the built output with the vendors faked, and a file would shadow the fakes
-    it("prerenders nothing outside a Netlify build", () => {
-        vi.stubEnv("CONTEXT", "");
+    it("prerenders nothing outside a deploy build", () => {
+        vi.stubEnv("NUXT_SITE_ENV", "");
 
         const { nitro, hooks } = install();
 

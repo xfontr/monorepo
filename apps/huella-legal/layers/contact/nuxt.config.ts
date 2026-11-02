@@ -13,6 +13,6 @@ export default defineNuxtConfig({
     },
 
     rendering: {
-        "/contacto/": { prerender: true },
+        prerender: ["/contacto/"],
     },
 });

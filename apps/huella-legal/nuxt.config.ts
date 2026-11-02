@@ -31,17 +31,13 @@ export default defineNuxtConfig({
 
     experimental: {
         typedPages: true,
-        // Nuxt 4.6's default `$fetch` typing fails with TS2321 on `/api/newsletter`.
         routeTypedFetch: true,
-        // `true` makes every isr page fetch its payload as a second request, `_payload.json`
         payloadExtraction: "client",
         defaults: {
-            // On visibility, the home page's links fetch payloads and chunks while it still hydrates
             nuxtLink: { prefetchOn: { visibility: false, interaction: true } },
         },
     },
 
-    // The design lab under `pages/lab/` is a dev-only review surface, so no build ever ships it
     $production: {
         hooks: {
             "pages:extend"(pages) {
@@ -50,7 +46,6 @@ export default defineNuxtConfig({
                 }
             },
 
-            // A prefetch hint per lazy chunk downloads Faro, search and Turnstile before the LCP
             "build:manifest"(manifest) {
                 for (const chunk of Object.values(manifest)) chunk.prefetch = false;
             },
@@ -58,7 +53,6 @@ export default defineNuxtConfig({
 
         requiredEnv: {
             translations: ["NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN"],
-            seo: ["NUXT_SITE_ENV"],
         },
     },
 
@@ -125,12 +119,14 @@ export default defineNuxtConfig({
     },
 
     rendering: {
-        "/**": { isr: 60 * 60 * 24 },
-        "/api/**": { isr: false },
-        "/robots.txt": { isr: false },
-        "/sitemap.xml": { isr: false },
-        "/api/translations/**": { isr: 60 * 60 * 24 },
-        "/_i18n/**": { isr: 60 * 60 * 24 },
+        cache: {
+            "/**": { isr: 60 * 60 * 24 },
+            "/api/**": { isr: false },
+            "/robots.txt": { isr: false },
+            "/sitemap.xml": { isr: false },
+            "/api/translations/**": { isr: 60 * 60 * 24 },
+            "/_i18n/**": { isr: 60 * 60 * 24 },
+        },
     },
 
     // The URL comes from `runtimeConfig.public.site`, which nuxt-site-config reads too

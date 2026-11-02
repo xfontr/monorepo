@@ -103,15 +103,16 @@ above 3 s. The page is server-rendered and readable without it, links and the se
 plain HTML, and the menu, the search dialog and the forms wake up once it lands. Below the fold, the
 home page's sections and the footer hydrate only when they scroll into view (`hydrate-on-visible`).
 
-Each layer declares the rules for its own routes under `rendering` in its `nuxt.config.ts`: an
-`isr`, the query keys it varies on, or `prerender: true`.
-[`modules/rendering.ts`](./modules/rendering.ts) turns them into route rules, adds each listing's
-`_payload.json` twin with the same `Netlify-Vary`, and only switches prerendering on when `CONTEXT` is set, which Netlify does on every build. CI and e2e build without
-it, since a prerendered file would shadow e2e's fakes. `CONTEXT` is a cache input of `build` and `nuxt:build`, so Nx never restores one
-kind of build for the other. To reproduce a Netlify build locally:
+Each layer declares the rules for its own routes under `rendering` in its `nuxt.config.ts`: `cache`
+maps a route to its `isr` and the query keys it varies on, and `prerender` lists the routes to
+prerender. [`modules/rendering.ts`](./modules/rendering.ts) turns them into route rules, adds each
+listing's `_payload.json` twin with the same `Netlify-Vary`, and only switches prerendering on when
+`NUXT_SITE_ENV` is set, which every deploy does. CI and e2e build without it, since a prerendered
+file would shadow e2e's fakes. `NUXT_SITE_ENV` is a cache input of `build` and `nuxt:build`, so Nx
+never restores one kind of build for the other. To reproduce a deploy build locally:
 
 ```sh
-CONTEXT=deploy-preview pnpm exec nx build @monorepo/huella-legal --skip-nx-cache
+NUXT_SITE_ENV=preview pnpm exec nx build @monorepo/huella-legal --skip-nx-cache
 ```
 
 That build reads the live WordPress and Tolgee, and it needs `NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN`.
@@ -136,7 +137,7 @@ once, so no route re-checks its config per request:
 
 | Where | An unset required variable |
 | --- | --- |
-| Netlify production build (`CONTEXT=production`) | Fails the build naming each one, so the live deploy keeps serving. Netlify has to expose them to builds as well as functions, which is its default |
+| Production build (`NUXT_SITE_ENV=production`) | Fails the build naming each one, so the live deploy keeps serving. The host has to expose them to builds as well as functions |
 | `nuxt dev` | One warning at startup naming each one |
 | Any other build, CI's included | Nothing: CI builds with none of them set |
 
@@ -152,7 +153,7 @@ turns their feature off.
 | `NUXT_TRANSLATIONS_VENDOR_PROJECT` | Optional. Overrides the Tolgee project ID set in `nuxt.config.ts` |
 | `NUXT_CONTENT_VENDOR_BASE_URL` | Optional. Overrides the WordPress site root set in `nuxt.config.ts` |
 | `NUXT_PUBLIC_SITE_URL` | Optional. Overrides the public origin set in `nuxt.config.ts`, with scheme. Article permalinks, the share link, both citations, canonicals and the SEO modules' absolute URLs are built on it rather than on the request's host |
-| `NUXT_SITE_ENV` | `production` on the production Netlify context, for builds as well as functions, and unset everywhere else. `nuxt.config.ts` defaults `site.env` to `preview`, so robots.txt disallows everything and every page says `noindex` unless it is set, and a production deploy fails without it. Prerendered pages bake the value in, which is why builds need it |
+| `NUXT_SITE_ENV` | `production` on the production deploy and `preview` on every other deploy, for builds as well as functions, and unset in dev, CI and e2e builds. A build prerenders only when it is set, and only `production` fails on an unset required variable. Unset or `preview`, robots.txt disallows everything and every page says `noindex`. Prerendered pages bake the value in, which is why builds need it |
 | `NUXT_PUBLIC_PAGE_SLUGS` | A JSON array of the WordPress page slugs served at `/:slug/`, such as `["aviso-legal"]`. Every other slug there is read as a post. The `articles` layer defaults it to `["aviso-legal"]`; set but empty, it replaces the list with `""`, so leave it unset instead |
 | `NUXT_NEWSLETTER_API_KEY` | The Kit v4 API key, sent as `X-Kit-Api-Key` |
 | `NUXT_NEWSLETTER_FORM_ID` | The Kit form new readers join. Its incentive email must be on, since that is the confirmation Kit sends |

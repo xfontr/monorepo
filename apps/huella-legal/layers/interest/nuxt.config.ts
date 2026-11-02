@@ -7,6 +7,6 @@ export default defineNuxtConfig({
     ],
 
     rendering: {
-        "/calculo-intereses/": { prerender: true },
+        prerender: ["/calculo-intereses/"],
     },
 });

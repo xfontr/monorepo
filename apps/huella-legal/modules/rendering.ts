@@ -4,6 +4,7 @@ import {
     OfetchHttpClient,
     type VendorConfig,
 } from "@monorepo/content";
+import type { Nuxt } from "nuxt/schema";
 import { defineNuxtModule, extendRouteRules } from "nuxt/kit";
 import { ofetch } from "ofetch";
 import { readAllPages } from "../layers/articles/server/utils/readAllPages";
@@ -12,25 +13,35 @@ type RouteRule = Parameters<typeof extendRouteRules>[1];
 
 interface CachedRule {
     isr: number | false;
-    // The query keys the route reads, so the CDN keeps one copy per combination of them
-    varyOn?: string[];
+    queryKeys?: string[];
 }
 
-// Only for a route that reads nothing from the query string, which a static file can't vary on
-interface PrerenderedRule {
-    prerender: true;
+export interface Rendering {
+    cache: Record<string, CachedRule>;
+    prerender: string[];
 }
-
-export type RenderingRule = CachedRule | PrerenderedRule;
-
-export type Rendering = Record<string, RenderingRule>;
-
-const toRouteRule = ({ isr, varyOn }: CachedRule): RouteRule =>
-    varyOn ? { isr, headers: { "Netlify-Vary": `query=${varyOn.join("|")}` } } : { isr };
 
 // Nuxt copies only `isr` onto a payload path and skips wildcards, so the vary is repeated here
+const hasPayload = (route: string, { queryKeys }: CachedRule): boolean =>
+    !!queryKeys && !route.startsWith("/api/");
+
 const payloadPath = (route: string): string =>
     `${route.endsWith("/") ? route : `${route}/`}_payload.json`;
+
+const toRouteRule = ({ isr, queryKeys }: CachedRule): RouteRule =>
+    queryKeys ? { isr, headers: { "Netlify-Vary": `query=${queryKeys.join("|")}` } } : { isr };
+
+const toRouteRules = (cache: Rendering["cache"]): [string, RouteRule][] =>
+    Object.entries(cache).flatMap(([route, rule]) => {
+        const routeRule = toRouteRule(rule);
+
+        return hasPayload(route, rule)
+            ? [
+                [route, routeRule],
+                [payloadPath(route), routeRule],
+            ]
+            : [[route, routeRule]];
+    });
 
 const listPostSlugs = async (vendor: VendorConfig): Promise<string[]> => {
     const provider = await createProvider(vendor, new OfetchHttpClient(ofetch));
@@ -41,41 +52,32 @@ const listPostSlugs = async (vendor: VendorConfig): Promise<string[]> => {
     return posts.map(({ slug }) => slug);
 };
 
+const listSlugRoutes = async ({ runtimeConfig }: Nuxt["options"]): Promise<string[]> => {
+    const { content, public: config } = runtimeConfig;
+    // The prerendered pages read the override at runtime, so the route list has to as well
+    const override = process.env.NUXT_PUBLIC_PAGE_SLUGS;
+    const pageSlugs: string[] = override ? JSON.parse(override) : config.pageSlugs;
+    const slugs = [...pageSlugs, ...(await listPostSlugs(content.vendor))];
+
+    return slugs.map((slug) => `/${slug}/`);
+};
+
 export default defineNuxtModule<Rendering>({
-    meta: { name: "rendering", configKey: "rendering" },
+    meta: { configKey: "rendering" },
 
-    defaults: {},
+    defaults: { cache: {}, prerender: [] },
 
-    setup: (rendering, nuxt) => {
-        for (const [route, rule] of Object.entries(rendering)) {
-            if ("prerender" in rule) continue;
+    setup: ({ cache, prerender }, { options, hook }) => {
+        for (const [route, rule] of toRouteRules(cache)) extendRouteRules(route, rule);
 
-            extendRouteRules(route, toRouteRule(rule));
+        // Every deploy sets it; CI and e2e build without it, so their pages read the fakes
+        if (!process.env.NUXT_SITE_ENV || options._prepare || options.dev) return;
 
-            if (rule.varyOn && !route.startsWith("/api/")) {
-                extendRouteRules(payloadPath(route), toRouteRule(rule));
-            }
-        }
+        options.nitro.prerender = { ...options.nitro.prerender, failOnError: true };
 
-        // Netlify sets it on every build; CI and e2e build without it, so their pages read the fakes
-        if (!process.env.CONTEXT || nuxt.options._prepare || nuxt.options.dev) return;
-
-        nuxt.options.nitro.prerender = { ...nuxt.options.nitro.prerender, failOnError: true };
-
-        const prerendered = Object.entries(rendering)
-            .filter(([, rule]) => "prerender" in rule)
-            .map(([route]) => route);
-
-        nuxt.hook("prerender:routes", async ({ routes }) => {
-            const { content, public: config } = nuxt.options.runtimeConfig;
-            // The prerendered pages read the override at runtime, so the route list has to as well
-            const override = process.env.NUXT_PUBLIC_PAGE_SLUGS;
-            const pageSlugs: string[] = override ? JSON.parse(override) : config.pageSlugs;
-            const slugs = [...pageSlugs, ...(await listPostSlugs(content.vendor))];
-
-            for (const route of [...prerendered, ...slugs.map((slug) => `/${slug}/`)]) {
+        hook("prerender:routes", async ({ routes }) => {
+            for (const route of [...prerender, ...(await listSlugRoutes(options))])
                 routes.add(route);
-            }
         });
     },
 });

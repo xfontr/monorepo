@@ -6,6 +6,6 @@ export default defineNuxtConfig({
     },
 
     rendering: {
-        "/publicar/": { prerender: true },
+        prerender: ["/publicar/"],
     },
 });

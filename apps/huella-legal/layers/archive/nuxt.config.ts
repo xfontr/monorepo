@@ -5,13 +5,12 @@ export default defineNuxtConfig({
     },
 
     rendering: {
-        "/publicaciones/": { isr: 60 * 60 * 24, varyOn: ["page", "sort", "format"] },
-        "/areas/*": { isr: 60 * 60 * 24, varyOn: ["page", "sort", "format"] },
-        "/etiquetas/*": { isr: 60 * 60 * 24, varyOn: ["page", "sort", "format"] },
-        "/colaboradores/*": { isr: 60 * 60 * 24, varyOn: ["page", "sort", "format"] },
-        "/": { prerender: true },
-        "/areas/": { prerender: true },
-        "/colaboradores/": { prerender: true },
-        "/sobre/": { prerender: true },
+        cache: {
+            "/publicaciones/": { isr: 60 * 60 * 24, queryKeys: ["page", "sort", "format"] },
+            "/areas/*": { isr: 60 * 60 * 24, queryKeys: ["page", "sort", "format"] },
+            "/etiquetas/*": { isr: 60 * 60 * 24, queryKeys: ["page", "sort", "format"] },
+            "/colaboradores/*": { isr: 60 * 60 * 24, queryKeys: ["page", "sort", "format"] },
+        },
+        prerender: ["/", "/areas/", "/colaboradores/", "/sobre/"],
     },
 });
