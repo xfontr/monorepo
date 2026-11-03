@@ -131,6 +131,15 @@ describe("useSiteNav", () => {
         ]);
     });
 
+    it("never prefetches the interest calculator, so a pointer crossing the footer can't load it", async () => {
+        const nav = await navAt("/");
+        const links = nav.columns.value.flatMap(({ children }) => children ?? []);
+
+        expect(
+            links.filter(({ prefetch }) => prefetch === false).map(({ to }) => nav.href(to!)),
+        ).toEqual(["/calculo-intereses/"]);
+    });
+
     it("offers no cookie settings when no tracker is configured, since there is nothing to consent to", async () => {
         const nav = await navAt("/");
 

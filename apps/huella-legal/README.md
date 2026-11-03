@@ -112,7 +112,8 @@ Nuxt turns every `isr` rule into a client-side payload rule, so client navigatio
 read `<route>/_payload.json` rather than the API. `experimental.payloadExtraction` is `"client"`, so
 a first view still gets its payload inlined instead of fetching it as a second request. A link
 prefetches on hover or touch rather than when it scrolls into view, so a page's own links don't fetch
-payloads while it hydrates.
+payloads while it hydrates. The footer's calculator link never prefetches at all, so the
+[`interest`](./layers/interest/README.md) layer stays off every other page's network.
 
 The JS that hydrates a page starts loading only on the window's `load` event.
 [`server/plugins/deferHydration.ts`](./server/plugins/deferHydration.ts) drops the module preloads

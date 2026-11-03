@@ -32,6 +32,9 @@ const COLUMNS = [
     { key: "legal", links: ["legalNotice", "privacy", "cookies"] },
 ] as const satisfies readonly { key: string; links: readonly NavKey[] }[];
 
+// The calculator stays off every other page's network, even when a pointer crosses its footer link
+const UNPREFETCHED: ReadonlySet<NavKey> = new Set(["interestCalculator"]);
+
 const SOCIAL = [
     { key: "instagram", icon: "i-lucide-instagram" },
     { key: "linkedin", icon: "i-lucide-linkedin" },
@@ -98,6 +101,7 @@ export const useSiteNav = () => {
                 ...links.map((link) => ({
                     label: t(`app.footer.links.${link}`),
                     to: nav[link],
+                    ...(UNPREFETCHED.has(link) && { prefetch: false }),
                 })),
                 ...(key === "legal" && cookiePreferences.enabled
                     ? [

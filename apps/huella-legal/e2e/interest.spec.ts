@@ -234,3 +234,32 @@ test("records the page with a result at this width for review", async ({ page },
         contentType: "image/png",
     });
 });
+
+// The footer hydrates as it scrolls into view, so a pointer crossing it on the way down hovers links
+test("hovering the footer's calculator link fetches nothing, unlike its neighbours", async ({
+    page,
+}) => {
+    await page.goto("/");
+
+    const footer = page.getByRole("contentinfo");
+    const link = (name: string) => footer.getByRole("link", { name, exact: true });
+    const requested: string[] = [];
+
+    page.on("request", (request) => requested.push(new URL(request.url()).pathname));
+    await footer.scrollIntoViewIfNeeded();
+
+    // A neighbour's prefetch proves the footer has hydrated and is listening
+    await expect(async () => {
+        await page.mouse.move(0, 0);
+        await link("Contacto").hover();
+        expect(requested).toContain("/contacto/_payload.json");
+    }).toPass();
+
+    await link("Calculadora de intereses").hover();
+
+    // Prefetches start in hover order, so once this one lands the calculator's would have too
+    await link("Colaboradores").hover();
+    await expect.poll(() => requested).toContain("/colaboradores/_payload.json");
+
+    expect(requested.filter((path) => path.startsWith(PATH))).toEqual([]);
+});
