@@ -147,7 +147,6 @@ watch(
                             name="i-lucide-chevron-down"
                             class="size-5 text-dimmed transition-transform group-data-[state=open]:rotate-180 motion-reduce:transition-none"
                         />
-                        <UIcon v-else name="i-lucide-chevron-right" class="size-5 text-dimmed" />
                     </template>
                 </LazyUNavigationMenu>
 
