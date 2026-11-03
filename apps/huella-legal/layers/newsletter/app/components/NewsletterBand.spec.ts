@@ -1,5 +1,5 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { NEWSLETTER_ID } from "../composables/useNewsletterJump";
 import NewsletterBand from "./NewsletterBand.vue";
 
@@ -18,7 +18,7 @@ const MESSAGES = {
 };
 
 describe("newsletter band", () => {
-    beforeAll(() => {
+    beforeEach(() => {
         useNuxtApp().$i18n.mergeLocaleMessage("es-ES", MESSAGES);
     });
 

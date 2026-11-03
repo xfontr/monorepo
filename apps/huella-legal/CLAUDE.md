@@ -4,19 +4,17 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
 
 - **A public value that is the same in every environment is a literal in
   [`nuxt.config.ts`](./nuxt.config.ts); a secret or a per-environment value is an env var with no
-  default, and nothing there reads `process.env`.** The WordPress root and the Tolgee base URL and
-  project are literals; tokens, keys and the telemetry URLs are not. An unset env var must fail
-  loudly, not fall back to something plausible: list one the feature can't work without under
-  `requiredEnv` in the `nuxt.config.ts` of the layer that uses it, and
-  [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) fails a production deploy naming it. Never
-  re-check it per request. Declare the key empty and let the `NUXT_`-prefixed var fill it at
-  startup; the [i18n module](../../packages/i18n/src/nuxt/README.md#-usage) says why. A new env var
+  default, and nothing there reads `process.env`.** The WordPress root is a literal; tokens, keys
+  and the telemetry URLs are not. An unset env var must fail loudly, not fall back to something
+  plausible: list one the feature can't work without under `requiredEnv` in the `nuxt.config.ts` of
+  the layer that uses it, and [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) fails a
+  production deploy naming it. Never re-check it per request. Declare the key empty and let the
+  `NUXT_`-prefixed var fill it at startup, so one build runs in every environment. A new env var
   goes in `.env.example` with a row in the README table, and nowhere else.
 - **No UI copy is hard-coded.** It goes in
-  [`infrastructure/translations/projects/huella-legal/es-ES.json`](../../infrastructure/translations/projects/huella-legal/es-ES.json)
-  under a key that follows the [naming convention](./README.md#-copy-keys), and the component calls
-  `t()`. Dev reads that file and builds read Tolgee, which is deliberately left behind for now.
-  Don't update Tolgee; the owner brings it up to date.
+  [`i18n/locales/es-ES.json`](./i18n/locales/es-ES.json) under a key that follows the
+  [naming convention](./README.md#-copy-keys), and the component calls `t()`. Every mode reads that
+  file; there is no TMS, so never wire `@monorepo/i18n` or the translations server back in.
 - **Domain logic lives in a Nuxt layer under `layers/`**, one directory per domain, beside `app/`
   rather than inside it: Nuxt auto-registers only `<rootDir>/layers/*`, so never add an `extends`
   array. A concern several domains share, such as `forms` (the honeypot and Turnstile), gets a layer

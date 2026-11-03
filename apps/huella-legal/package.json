@@ -60,7 +60,6 @@
                 "inputs": [
                     "default",
                     "^production",
-                    "{workspaceRoot}/infrastructure/translations/projects/huella-legal/*.json",
                     {
                         "env": "CI"
                     }
@@ -70,8 +69,7 @@
     },
     "dependencies": {
         "@monorepo/content": "workspace:*",
-        "@monorepo/i18n": "workspace:*",
-        "@monorepo/observability": "workspace:*",
+            "@monorepo/observability": "workspace:*",
         "@monorepo/ui": "workspace:*",
         "@nuxt/fonts": "catalog:",
         "@nuxt/image": "~2.2.0",

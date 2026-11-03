@@ -1,7 +1,7 @@
 import type { FormError } from "@nuxt/ui";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, ref } from "vue";
 import type { FormPostStatus } from "#layers/forms/app/composables/useFormPost";
 import NewsletterForm from "./NewsletterForm.vue";
@@ -53,7 +53,7 @@ const submit = async (wrapper: Awaited<ReturnType<typeof mountSuspended>>, email
 };
 
 describe("newsletter form", () => {
-    beforeAll(() => {
+    beforeEach(() => {
         useNuxtApp().$i18n.mergeLocaleMessage("es-ES", MESSAGES);
     });
 

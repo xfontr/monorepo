@@ -1,5 +1,5 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import PublishProposal from "./PublishProposal.vue";
 
 const MESSAGES = {
@@ -9,7 +9,7 @@ const MESSAGES = {
 const ADDRESS = "colaboraciones@huellalegal.com";
 
 describe("publish proposal", () => {
-    beforeAll(() => {
+    beforeEach(() => {
         useNuxtApp().$i18n.mergeLocaleMessage("es-ES", MESSAGES);
     });
 

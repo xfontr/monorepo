@@ -314,9 +314,6 @@ importers:
       '@monorepo/content':
         specifier: workspace:*
         version: link:../../packages/content
-      '@monorepo/i18n':
-        specifier: workspace:*
-        version: link:../../packages/i18n
       '@monorepo/observability':
         specifier: workspace:*
         version: link:../../packages/observability

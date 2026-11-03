@@ -1,12 +1,16 @@
+import { installModule } from "nuxt/kit";
+
+
 export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
 
-    // Loaded first because `typedPages` importing it while `@nuxtjs/i18n` loads trips a Node ESM-loader assert
+    // `@nuxtjs/i18n` imports `vue-router/unplugin` too, and loading both at once trips a Node
+    // ESM-loader assert, so it installs only once the preload has finished
     modules: [
         async () => {
             await import("vue-router/unplugin");
+            await installModule("@nuxtjs/i18n");
         },
-        "@monorepo/i18n/nuxt",
         "@monorepo/content/nuxt",
         "@nuxt/ui",
         "@nuxt/fonts",
@@ -48,10 +52,6 @@ export default defineNuxtConfig({
                 for (const chunk of Object.values(manifest)) chunk.prefetch = false;
             },
         },
-
-        requiredEnv: {
-            translations: ["NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN"],
-        },
     },
 
     typescript: {
@@ -63,21 +63,10 @@ export default defineNuxtConfig({
     },
 
     i18n: {
-        locales: [{ code: "es-ES", language: "es" }],
+        locales: [{ code: "es-ES", language: "es", file: "es-ES.json" }],
         defaultLocale: "es-ES",
         strategy: "no_prefix",
         detectBrowserLanguage: false,
-    },
-
-    translations: {
-        vendor: {
-            name: "tolgee",
-            project: "34150",
-            baseURL: "https://app.tolgee.io/",
-            options: {
-                token: "",
-            },
-        },
     },
 
     // Unhead rewrites `useSeoMeta` calls at build time, which specs that mock it never see
@@ -86,18 +75,6 @@ export default defineNuxtConfig({
     },
 
     $development: {
-        translations: {
-            vendor: {
-                name: "internal",
-                project: "huella-legal",
-                baseURL: "",
-            },
-        },
-
-        requiredEnv: {
-            translations: ["NUXT_TRANSLATIONS_VENDOR_BASE_URL"],
-        },
-
         content: {
             cache: {
                 list: { maxAge: 60 * 5, swr: false },
@@ -111,7 +88,6 @@ export default defineNuxtConfig({
             "/**": { isr: 60 * 60 * 24 },
             "/api/**": { isr: false },
             "/sitemap.xml": { isr: false },
-            "/api/translations/**": { isr: 60 * 60 * 24 },
             "/_i18n/**": { isr: 60 * 60 * 24 },
         },
 

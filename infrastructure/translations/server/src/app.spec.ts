@@ -13,17 +13,17 @@ describe("GET /health", () => {
 
 describe("GET /:locale/:project", () => {
     it("serves the locale tree", async () => {
-        const res = await get("/es-ES/huella-legal");
+        const res = await get("/es-ES/example");
         expect(res.status).toBe(200);
         const body = (await res.json()) as Record<string, unknown>;
         expect(Object.keys(body)).toEqual(expect.arrayContaining(["app", "common"]));
     });
 
     it("404s an unknown locale", async () => {
-        expect((await get("/zz/huella-legal")).status).toBe(404);
+        expect((await get("/zz/example")).status).toBe(404);
     });
 
     it("400s an unsafe path segment", async () => {
-        expect((await get("/..%2Fetc/huella-legal")).status).toBe(400);
+        expect((await get("/..%2Fetc/example")).status).toBe(400);
     });
 });

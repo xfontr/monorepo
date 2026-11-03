@@ -1,9 +1,9 @@
-import { registerEndpoint } from "@nuxt/test-utils/runtime";
 import { beforeEach } from "vitest";
 
-registerEndpoint("/api/translations/es-ES", () => ({}));
-
-// The bundle above is empty, so every `t()` misses, and specs assert on the key it falls back to
+// Every `t()` misses unless a spec merges its own messages in a later `beforeEach`, so specs assert
+// on keys rather than on copy
 beforeEach(() => {
-    useNuxtApp().$i18n.missingWarn = false;
+    const { $i18n } = useNuxtApp();
+    $i18n.setLocaleMessage($i18n.locale.value, {});
+    $i18n.missingWarn = false;
 });

@@ -1,7 +1,7 @@
 # 📦 @monorepo/huella-legal
 
-A Nuxt 4 redesign of the Huella Legal law blog, composed from the workspace's shared UI, content,
-translations and observability packages.
+A Nuxt 4 redesign of the Huella Legal law blog, composed from the workspace's shared UI, content
+and observability packages.
 
 ## 🚀 Development
 
@@ -42,8 +42,7 @@ machine that reads it too often, and every cold cache reads the whole archive.
 | Comments | None, and a posted one is accepted |
 | Anything else on a huellalegal.com host | An MSW error in the dev log, never the network |
 
-Translations still come from the local translations server, and Kit, Turnstile and Resend stay as
-they are, inert without their keys. Both `dev` scripts clear the content caches first, so a switch
+Kit, Turnstile and Resend stay as they are, inert without their keys. Both `dev` scripts clear the content caches first, so a switch
 between them never serves the other's data. Images are the factories' inline pixel, so nothing loads
 from the live media library either.
 
@@ -62,7 +61,7 @@ that call from the source rather than running it, so its argument must be litera
 constant or a template string is dropped without a warning, which is why `search` and `articles`
 repeat `MAX_SEARCH_LENGTH` and `FORMATS` by hand. The `node` test project stubs `defineRouteMeta`
 for every spec. The spec also lists the handlers Nuxt and its modules register, such as `/_ipx` and
-`/api/translations/{locale}`, with no meta, under Nitro's own `Internal` and `API Routes` tags.
+`/_i18n/{hash}/{locale}/messages.json`, with no meta, under Nitro's own `Internal` and `API Routes` tags.
 
 ## 🚢 Deployment
 
@@ -150,10 +149,8 @@ never restores one kind of build for the other. To reproduce a deploy build loca
 NUXT_SITE_ENV=preview pnpm exec nx build @monorepo/huella-legal --skip-nx-cache
 ```
 
-That build reads the live WordPress and Tolgee, and it needs `NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN`.
-It fails on any page that fails, so a WordPress or Tolgee outage fails the build, and Netlify keeps
-the previous deploy live. Tolgee answering with stale copy doesn't fail it; only messages that never
-loaded do, through [`prerenderTranslations.server.ts`](./app/plugins/prerenderTranslations.server.ts).
+That build reads the live WordPress. It fails on any page that fails, so a WordPress outage fails
+the build, and Netlify keeps the previous deploy live.
 A 5xx answers `netlify-cdn-cache-control: no-store` from
 [`server/plugins/cdn.ts`](./server/plugins/cdn.ts), so an outage never sits in the CDN for a day.
 
@@ -183,9 +180,6 @@ turns their feature off.
 
 | Variable | What it is |
 | --- | --- |
-| `NUXT_TRANSLATIONS_VENDOR_BASE_URL` | The translations server's URL in development. A build uses Tolgee's, set in `nuxt.config.ts` |
-| `NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN` | The Tolgee API key. Unset in development |
-| `NUXT_TRANSLATIONS_VENDOR_PROJECT` | Optional. Overrides the Tolgee project ID set in `nuxt.config.ts` |
 | `NUXT_CONTENT_VENDOR_BASE_URL` | Optional. Overrides the WordPress site root set in `nuxt.config.ts` |
 | `NUXT_PUBLIC_SITE_URL` | Optional. Overrides the public origin set in `nuxt.config.ts`, with scheme. Article permalinks, the share link, both citations, canonicals and the SEO modules' absolute URLs are built on it rather than on the request's host |
 | `NUXT_SITE_ENV` | `production` on the production deploy and `preview` on every other deploy, for builds as well as functions, and unset in dev, CI and e2e builds. A build prerenders only when it is set, and only `production` fails on an unset required variable. Unset or `preview`, robots.txt disallows everything and every page says `noindex`. Prerendered pages bake the value in, which is why builds need it |
@@ -219,48 +213,35 @@ everywhere is a literal in [`nuxt.config.ts`](./nuxt.config.ts), so changing it 
 | `mail.baseURL`, `.from` | Resend's API origin and the sender every form's email comes from, set in [`layers/forms/nuxt.config.ts`](./layers/forms/nuxt.config.ts) |
 | `mail.to` | The inbox Contacto sends to, set in [`layers/contact/nuxt.config.ts`](./layers/contact/nuxt.config.ts) |
 | `public.submissionEmail` | The editorial inbox Publicar's form sends to and its `mailto:` writes to, set in [`layers/publish/nuxt.config.ts`](./layers/publish/nuxt.config.ts) |
-| `translations.vendor.baseURL`, `.project` | Tolgee's API root and the project ID, for builds. Development overrides both |
-| `translations.vendor.name`, `content.vendor.name` | Each selects its vendor's config type |
+| `content.vendor.name` | Selects the vendor's config type |
 
 A matching `NUXT_`-prefixed variable still overrides any literal, which is how the e2e suite points
 the vendors at its fakes. Every variable is read at **startup**, not at build time, so one build
-artifact runs in any environment — the
-[i18n module](../../packages/i18n/src/nuxt/README.md#-usage) has the mechanism and why nothing here
-reads `process.env`. The exception is a [prerendered page](#-rendering): the build renders it, so
+artifact runs in any environment, which is why nothing here reads `process.env`. The exception is a [prerendered page](#-rendering): the build renders it, so
 it keeps the `NUXT_PUBLIC_*` values and the vendor URLs the build had, and Netlify has to expose
 them to builds.
 
 ## 🌍 i18n
 
-The site is Spanish-only. Two blocks in [`nuxt.config.ts`](./nuxt.config.ts) drive it: `i18n`
-declares the one locale, and `translations.vendor` picks where the messages come from. The
-`@monorepo/i18n/nuxt` module does the rest — installs `@nuxtjs/i18n`, registers a loader, and
-mounts a cached `/api/translations/:locale` route so the TMS base URL and token never reach the
-browser.
+The site is Spanish-only, and its copy lives in the app:
+[`i18n/locales/es-ES.json`](./i18n/locales/es-ES.json). The `i18n` block in
+[`nuxt.config.ts`](./nuxt.config.ts) hands that file to `@nuxtjs/i18n` directly, with no vendor and
+no TMS, so a copy change is a reviewed edit that ships with the next build.
+[`i18n/i18n.config.ts`](./i18n/i18n.config.ts) adds the date formats.
 
 | Setting | Value | Why |
 | --- | --- | --- |
-| `locales` | `es-ES`, `language: "es"` | `language` is what `<html lang>` gets, so it reads `es`, not the locale code |
+| `locales` | `es-ES`, `language: "es"`, `file: "es-ES.json"` | `language` is what `<html lang>` gets, so it reads `es`, not the locale code |
 | `strategy` | `no_prefix` | Pages live at `/…`. `/es-ES/…` is a 404, not a redirect |
 | `detectBrowserLanguage` | `false` | With one locale there is nothing to detect, and detection makes the server set an `i18n_redirected` cookie on pages the CDN caches |
 
-### 🏷 Which vendor
+Tolgee caps a project at 500 keys, which the app outgrew, so it left the shared
+[`@monorepo/i18n`](../../packages/i18n) module and the
+[translations server](../../infrastructure/translations) behind. Both still exist for anything else
+that wants a TMS.
 
-| Mode | Vendor | Messages live in |
-| --- | --- | --- |
-| `nuxt dev` (the `$development` block) | `internal` | [`infrastructure/translations/projects/huella-legal/es-ES.json`](../../infrastructure/translations/projects/huella-legal/es-ES.json) |
-| Any build, previews and production included | `tolgee` | The Tolgee project |
-
-**This split is provisional, for early development.** Copy changes daily while the app is built,
-and editing a JSON file in the repo is faster than keeping Tolgee current. Once that phase ends the
-app moves to Tolgee everywhere and the `$development` block goes. Until then, Tolgee is **not** kept
-in sync: a build shows raw keys for anything added since its last update, and that is expected.
-
-To run it locally, start the translations server with `pnpm docker:up` in
-[`infrastructure/translations`](../../infrastructure/translations) and set
-`NUXT_TRANSLATIONS_VENDOR_BASE_URL=http://localhost:4000/`. The project is fixed to `huella-legal`,
-and `internal` takes no token. The vendor `name` differs per mode rather than per env var because it
-selects the vendor's config type.
+Specs never see the copy: [`vitest.setup.ts`](./vitest.setup.ts) empties the locale's messages
+before each one, so `t()` returns the key and specs assert on keys.
 
 ### 🔤 Copy keys
 
@@ -276,9 +257,6 @@ UI copy is never hard-coded. It goes in `es-ES.json` under a key:
 | Keys are sorted alphabetically at every level | — |
 
 A key used in two places with two meanings is two keys, even while the Spanish happens to match.
-Tolgee gets the same keys when it is next brought up to date.
-
-See the [module README](../../packages/i18n/src/nuxt/README.md) for the options and the gotchas.
 
 ## 📄 Content
 
@@ -322,8 +300,7 @@ and the gotchas.
 
 [`app/`](./app) is the front-end shell and stays thin: a layout, an error page and its dev-only debug
 panel, two client plugins (Faro telemetry, and a dev-only console filter for a known Nuxt/Vue
-warning), a server plugin that fails a prerendered page whose translations didn't load, and one
-page — the entry page. Its own server code is three Nitro plugins (telemetry, a log line for every
+warning), and one page — the entry page. Its own server code is three Nitro plugins (telemetry, a log line for every
 handled `5xx`, and the header that keeps a `5xx` out of the CDN). Beside it,
 [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) checks the
 [required variables](#-environment) once per build, and
@@ -537,17 +514,15 @@ what only this app knows: the thresholds (lines and statements 90, functions 85,
 
 Playwright runs the built `.output/` server with [`e2e/server.ts`](./e2e/server.ts) preloaded through
 `node --import`. That file starts MSW inside the server process with the fake WordPress from
-`@monorepo/content/testing` and the fake Tolgee from `@monorepo/i18n/testing`, so there is no second
+`@monorepo/content/testing`, so there is no second
 server and no upstream port. The vendor base URLs in `playwright.config.ts` point at `localhost`
 paths nothing listens on, and a request no handler matches is logged by MSW and rejected, so none
 reaches the network.
 
 The data lives apart from the server, in [`e2e/fakes.ts`](./e2e/fakes.ts): domain entries built by
 the seeded factories in `@monorepo/content/testing`, two of them pinned to the values the smoke spec
-asserts on, plus the committed locale JSON in
-[`infrastructure/translations`](../../infrastructure/translations/projects/huella-legal). The
-packages turn those into each vendor's wire format, so the app never writes a WordPress or Tolgee
-shape itself. There are no fixture files. Kit and Turnstile have no package, so their MSW
+asserts on. The package turns those into WordPress's wire format, so the app never writes a
+WordPress shape itself. The copy is the app's own, bundled into the build. There are no fixture files. Kit and Turnstile have no package, so their MSW
 handlers live in [`e2e/vendors.ts`](./e2e/vendors.ts), along with the stand-in Turnstile `api.js`
 that a spec serves with `page.route`, since the browser fetches that script itself. Both match Turnstile's
 paths on any host, because `@nuxtjs/turnstile` fixes Cloudflare's URLs rather than reading them from
@@ -602,4 +577,4 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | Cache windows as constants again | With pages prerendered or held by the CDN, `content.cache` and `articles.cache` only govern the build and `isr` misses. If nothing in production ends up tuning them, they fold back into constants with an `import.meta.dev` switch |
 | Stories for the header's panels | `NavPublicationsPanel` and `NavSubjectsPanel` fetch `/api/home` through `useCachedFetch`, which Storybook doesn't have, so the header's story leaves their items as plain links. An `sb.mock` of `useCachedFetch` in [`preview.ts`](./.storybook/preview.ts) would give them stories |
 | Long browser caching on images | Netlify Image CDN copies the source's `Cache-Control` and a site can't override it for a remote origin, so `/.netlify/images` answers `max-age=0` until WordPress sends one. LiteSpeed Cache's *Browser Cache* setting is the fix on that side, at ≥ 30 days rather than a year `immutable`, since an upload's URL isn't content-hashed |
-| A browser cache on `/_i18n/*/messages.json` | `@nuxtjs/i18n` disables its message cache when no locale file is cacheable, and its cached handler then answers `max-age=-1`. `experimental.cacheLifetime` turns it on, but also caches the messages server-side alongside `@monorepo/i18n`'s own route cache |
+| A browser cache on `/_i18n/*/messages.json` | `@nuxtjs/i18n` disables its message cache when no locale file is cacheable, and its cached handler then answers `max-age=-1`. `experimental.cacheLifetime` turns it on |

@@ -1,5 +1,5 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import SortSelect from "./SortSelect.vue";
 
 const global = { mocks: { $t: (key: string) => `t(${key})` } };
@@ -9,7 +9,7 @@ const MESSAGES = {
 };
 
 describe("sort select", () => {
-    beforeAll(() => {
+    beforeEach(() => {
         useNuxtApp().$i18n.mergeLocaleMessage("es-ES", MESSAGES);
     });
 

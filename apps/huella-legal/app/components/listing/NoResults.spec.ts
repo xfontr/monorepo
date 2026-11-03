@@ -1,5 +1,5 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import NoResults from "./NoResults.vue";
 
 // `<i18n-t>` reads the real i18n instance rather than a `$t` mock, so the spec feeds it messages
@@ -17,7 +17,7 @@ const SUBJECTS = [
 ];
 
 describe("no results", () => {
-    beforeAll(() => {
+    beforeEach(() => {
         useNuxtApp().$i18n.mergeLocaleMessage("es-ES", MESSAGES);
     });
 

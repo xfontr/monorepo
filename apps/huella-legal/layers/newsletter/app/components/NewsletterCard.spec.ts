@@ -1,5 +1,5 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import NewsletterCard from "./NewsletterCard.vue";
 
 const MESSAGES = {
@@ -17,7 +17,7 @@ const MESSAGES = {
 };
 
 describe("newsletter card", () => {
-    beforeAll(() => {
+    beforeEach(() => {
         useNuxtApp().$i18n.mergeLocaleMessage("es-ES", MESSAGES);
     });
 
