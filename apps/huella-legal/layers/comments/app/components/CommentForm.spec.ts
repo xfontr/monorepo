@@ -101,7 +101,7 @@ describe("comment form", () => {
         await submit(wrapper);
 
         expect(comment.send).toHaveBeenCalledWith(
-            { ...FIELDS, consent: true, post: "42", parent: "0", website: "" },
+            { ...FIELDS, consent: true, post: "42", parent: "0", honeypot: "" },
             challenge,
         );
     });

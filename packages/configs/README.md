@@ -219,7 +219,8 @@ Node types even in a package that otherwise doesn't.
   factory; a project opts in with `[...eslint.createNuxtConfig(), eslint.routeMeta]`. Every file
   under `server/api/` or `server/routes/` calls `defineRouteMeta` at top level with an `openAPI`
   object literal holding `tags` and `summary`, since without one the route still appears in
-  Nitro's OpenAPI document, untagged and undescribed. `apps/huella-legal` opts in
+  Nitro's OpenAPI document, untagged and undescribed. The call sits after the `export default`
+  handler, so a route reads handler first. `apps/huella-legal` opts in
 - `vue/v-bind-style` with `sameNameShorthand: "always"`, in [`vue.ts`](./src/eslint/vue.ts) — a binding whose
   name and value match is written `:id`, never `:id="id"`. `--fix` rewrites it
 - `vue/prefer-separate-static-class`, in [`vue.ts`](./src/eslint/vue.ts) — a class that never

@@ -1,0 +1,242 @@
+[
+  {
+    "_embedded": {
+      "author": [
+        {
+          "name": "Irene Valdés"
+        }
+      ],
+      "wp:featuredmedia": [
+        {
+          "media_details": {
+            "sizes": {
+              "thumbnail": {
+                "source_url": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%204%203%22%3E%3Crect%20width%3D%224%22%20height%3D%223%22%20fill%3D%22%237c9cbf%22%2F%3E%3C%2Fsvg%3E"
+              }
+            }
+          },
+          "source_url": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%204%203%22%3E%3Crect%20width%3D%224%22%20height%3D%223%22%20fill%3D%22%237c9cbf%22%2F%3E%3C%2Fsvg%3E"
+        }
+      ]
+    },
+    "content": {
+      "raw": "<!-- wp:heading -->\n<h2 class=\"wp-block-heading has-custom-titulo\">Qué es la herencia yacente</h2>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph -->\n<p>La herencia yacente es la situación en la que queda el patrimonio de una persona fallecida mientras los herederos no la aceptan.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Durante ese tiempo el patrimonio no tiene titular, pero sí tiene obligaciones fiscales.</p>\n<!-- /wp:paragraph -->"
+    },
+    "date": "2025-03-04T09:00:00",
+    "excerpt": {
+      "raw": ""
+    },
+    "id": 101,
+    "link": "http://localhost/wordpress/?p=101",
+    "modified_gmt": "2026-10-10T12:00:01",
+    "status": "publish",
+    "title": {
+      "raw": "Qué es la herencia yacente"
+    },
+    "type": "post"
+  },
+  {
+    "_embedded": {
+      "author": [
+        {
+          "name": "Marc Puig"
+        }
+      ],
+      "wp:featuredmedia": [
+        {
+          "media_details": {
+            "sizes": {
+              "thumbnail": {
+                "source_url": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%204%203%22%3E%3Crect%20width%3D%224%22%20height%3D%223%22%20fill%3D%22%23c08457%22%2F%3E%3C%2Fsvg%3E"
+              }
+            }
+          },
+          "source_url": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%204%203%22%3E%3Crect%20width%3D%224%22%20height%3D%223%22%20fill%3D%22%23c08457%22%2F%3E%3C%2Fsvg%3E"
+        }
+      ]
+    },
+    "content": {
+      "raw": "<!-- wp:heading -->\n<h2 class=\"wp-block-heading has-custom-titulo\">Cuanto tiempo tengo</h2>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph -->\n<p>El trabajador dispone de veinte dias habiles para presentar la papeleta de conciliacion.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Si el plazo vence, el despido se considera aceptado.</p>\n<!-- /wp:paragraph -->"
+    },
+    "date": "2025-04-12T09:00:00",
+    "excerpt": {
+      "raw": ""
+    },
+    "id": 102,
+    "link": "http://localhost/wordpress/?p=102",
+    "modified_gmt": "2025-04-12T09:00:00",
+    "status": "publish",
+    "title": {
+      "raw": "Despido improcedente: plazos para reclamar"
+    },
+    "type": "post"
+  },
+  {
+    "_embedded": {
+      "author": [
+        {
+          "name": "Irene Valdés"
+        }
+      ],
+      "wp:featuredmedia": [
+        {
+          "media_details": {
+            "sizes": {
+              "thumbnail": {
+                "source_url": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%204%203%22%3E%3Crect%20width%3D%224%22%20height%3D%223%22%20fill%3D%22%236aa37f%22%2F%3E%3C%2Fsvg%3E"
+              }
+            }
+          },
+          "source_url": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%204%203%22%3E%3Crect%20width%3D%224%22%20height%3D%223%22%20fill%3D%22%236aa37f%22%2F%3E%3C%2Fsvg%3E"
+        }
+      ]
+    },
+    "content": {
+      "raw": "<!-- wp:heading -->\n<h2 class=\"wp-block-heading has-custom-titulo\">Ventajas</h2>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph -->\n<p>El divorcio de mutuo acuerdo es más rápido y más económico que el contencioso.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Basta con un convenio regulador firmado por ambos cónyuges.</p>\n<!-- /wp:paragraph -->"
+    },
+    "date": "2025-05-20T09:00:00",
+    "excerpt": {
+      "raw": ""
+    },
+    "id": 103,
+    "link": "http://localhost/wordpress/?p=103",
+    "modified_gmt": "2026-10-10T12:00:03",
+    "status": "publish",
+    "title": {
+      "raw": "Divorcio de mutuo acuerdo"
+    },
+    "type": "post"
+  },
+  {
+    "_embedded": {
+      "author": [
+        {
+          "name": "Lucía Ortega"
+        }
+      ],
+      "wp:featuredmedia": [
+        {
+          "media_details": {
+            "sizes": {
+              "thumbnail": {
+                "source_url": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%204%203%22%3E%3Crect%20width%3D%224%22%20height%3D%223%22%20fill%3D%22%23a77cc0%22%2F%3E%3C%2Fsvg%3E"
+              }
+            }
+          },
+          "source_url": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%204%203%22%3E%3Crect%20width%3D%224%22%20height%3D%223%22%20fill%3D%22%23a77cc0%22%2F%3E%3C%2Fsvg%3E"
+        }
+      ]
+    },
+    "content": {
+      "raw": "<!-- wp:heading -->\n<h2 class=\"wp-block-heading has-custom-titulo\">Criterios del juez</h2>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph -->\n<p>El juez valora la relacion de cada progenitor con los hijos.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Tambien pesa la cercania entre los domicilios.</p>\n<!-- /wp:paragraph -->"
+    },
+    "date": "2025-06-02T09:00:00",
+    "excerpt": {
+      "raw": ""
+    },
+    "id": 104,
+    "link": "http://localhost/wordpress/?p=104",
+    "modified_gmt": "2025-06-02T09:00:00",
+    "status": "publish",
+    "title": {
+      "raw": "La custodia compartida"
+    },
+    "type": "post"
+  },
+  {
+    "_embedded": {
+      "author": [
+        {
+          "name": "Marc Puig"
+        }
+      ],
+      "wp:featuredmedia": [
+        {
+          "media_details": {
+            "sizes": {
+              "thumbnail": {
+                "source_url": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%204%203%22%3E%3Crect%20width%3D%224%22%20height%3D%223%22%20fill%3D%22%23d0a84a%22%2F%3E%3C%2Fsvg%3E"
+              }
+            }
+          },
+          "source_url": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%204%203%22%3E%3Crect%20width%3D%224%22%20height%3D%223%22%20fill%3D%22%23d0a84a%22%2F%3E%3C%2Fsvg%3E"
+        }
+      ]
+    },
+    "content": {
+      "raw": "<!-- wp:heading -->\n<h2 class=\"wp-block-heading has-custom-titulo\">El monitorio</h2>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph -->\n<p>El procedimiento monitorio sirve para deudas dinerarias, vencidas y exigibles.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>No hace falta abogado si la deuda es menor de dos mil euros, aunque conviene tenerlo.</p>\n<!-- /wp:paragraph -->"
+    },
+    "date": "2025-07-15T09:00:00",
+    "excerpt": {
+      "raw": ""
+    },
+    "id": 105,
+    "link": "http://localhost/wordpress/?p=105",
+    "modified_gmt": "2026-10-25T08:30:00",
+    "status": "publish",
+    "title": {
+      "raw": "Cómo reclamar una deuda"
+    },
+    "type": "post"
+  },
+  {
+    "_embedded": {
+      "author": [
+        {
+          "name": "Lucía Ortega"
+        }
+      ],
+      "wp:featuredmedia": [
+        {
+          "media_details": {
+            "sizes": {
+              "thumbnail": {
+                "source_url": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%204%203%22%3E%3Crect%20width%3D%224%22%20height%3D%223%22%20fill%3D%22%235f8f9a%22%2F%3E%3C%2Fsvg%3E"
+              }
+            }
+          },
+          "source_url": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%204%203%22%3E%3Crect%20width%3D%224%22%20height%3D%223%22%20fill%3D%22%235f8f9a%22%2F%3E%3C%2Fsvg%3E"
+        }
+      ]
+    },
+    "content": {
+      "raw": "<!-- wp:heading -->\n<h2 class=\"wp-block-heading has-custom-titulo\">Requisitos</h2>\n<!-- /wp:heading -->\n\n<!-- wp:paragraph -->\n<p>Debe estar escrito y firmado de puño y letra por el testador, con fecha.</p>\n<!-- /wp:paragraph -->"
+    },
+    "date": "2025-09-01T09:00:00",
+    "excerpt": {
+      "raw": ""
+    },
+    "id": 106,
+    "link": "http://localhost/wordpress/?p=106",
+    "modified_gmt": "2025-09-01T09:00:00",
+    "status": "publish",
+    "title": {
+      "raw": "El testamento ológrafo"
+    },
+    "type": "post"
+  },
+  {
+    "_embedded": {
+      "author": [
+        {
+          "name": "Irene Valdés"
+        }
+      ]
+    },
+    "content": {
+      "raw": "<!-- wp:paragraph -->\n<p>Somos un despacho con mas de veinte años de experiencia en derecho civil y laboral.</p>\n<!-- /wp:paragraph -->"
+    },
+    "date": "2024-11-01T09:00:00",
+    "excerpt": {
+      "raw": ""
+    },
+    "id": 7,
+    "link": "http://localhost/wordpress/?p=7",
+    "modified_gmt": "2024-11-01T09:00:00",
+    "status": "publish",
+    "title": {
+      "raw": "Sobre nosotros"
+    },
+    "type": "page"
+  }
+]

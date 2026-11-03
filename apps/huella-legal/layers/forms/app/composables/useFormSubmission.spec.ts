@@ -44,7 +44,7 @@ describe("useFormSubmission", () => {
         submission.honeypot.value = "https://spam.test";
         await submission.submit(FIELDS, challenge);
 
-        expect(send).toHaveBeenCalledWith({ ...FIELDS, website: "https://spam.test" }, challenge);
+        expect(send).toHaveBeenCalledWith({ ...FIELDS, honeypot: "https://spam.test" }, challenge);
     });
 
     it("words the server's issues onto their fields and lists what the form holds in the summary", async () => {

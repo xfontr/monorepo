@@ -16,6 +16,7 @@ on, and the supporting services they depend on.
 apps/
     huella-legal/     @monorepo/huella-legal — Huella Legal, a WIP law blog redesign (Nuxt 4)
     developer-portal/ @monorepo/developer-portal — the repository's public portal/front door over its docs, projects, architecture and engineering health
+    wp-editor/        @monorepo/wp-editor — local-only review-and-apply tool for bulk edits to WordPress posts and pages
 packages/
     configs/          @monorepo/configs — shared ESLint, Vitest, Playwright and tsconfig presets
     content/          @monorepo/content — CMS entries and taxonomies + a Nuxt module

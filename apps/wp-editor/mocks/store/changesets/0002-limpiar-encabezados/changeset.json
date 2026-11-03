@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-10-20T10:00:00Z",
+  "id": "0002-limpiar-encabezados",
+  "instructions": "Quita las clases personalizadas de todos los encabezados.",
+  "keys": [
+    "posts-101",
+    "posts-102",
+    "posts-103",
+    "posts-104",
+    "posts-105",
+    "posts-106",
+    "pages-7"
+  ],
+  "scanned": [
+    "posts-101",
+    "posts-102",
+    "posts-103",
+    "posts-104",
+    "posts-105",
+    "pages-7"
+  ],
+  "status": "open",
+  "title": "Limpiar encabezados"
+}

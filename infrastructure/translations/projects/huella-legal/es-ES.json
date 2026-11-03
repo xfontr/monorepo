@@ -688,7 +688,7 @@
                     "question": "¿Puedo modificar o retirar el artículo después?"
                 },
                 "format": {
-                    "answer": "Preferimos .docx, .doc, .pages o .rtf, adjunto al correo.",
+                    "answer": "Preferimos .docx o .pages, y también aceptamos .txt y .pdf, de hasta 4 MB, adjuntos al formulario.",
                     "question": "¿En qué formato lo envío?"
                 },
                 "length": {
@@ -705,22 +705,7 @@
         "kicker": "Publicar en Huella Legal",
         "lead": "Publicamos trabajos jurídicos rigurosos de cualquier rama del Derecho. Gratis, con revisión editorial y una decisión razonada en cinco días como máximo.",
         "proposal": {
-            "checklist": {
-                "file": "El trabajo completo como archivo adjunto: .docx, .doc, .pages o .rtf",
-                "kind": "El tipo de trabajo: artículo, TFG o TFM",
-                "name": "Tu nombre y apellidos",
-                "summary": "Un resumen de dos o tres frases: tema, tesis y fuentes principales",
-                "title": "Un título provisional, si ya lo tienes"
-            },
-            "lead": "Escríbenos a {email} e incluye:",
-            "mail": {
-                "body": "Nombre y apellidos:\nTipo de trabajo (artículo, TFG o TFM):\nTítulo provisional:\nResumen:\n\nAdjunto el trabajo completo.",
-                "subject": "Propuesta de publicación"
-            },
-            "policy": "política de privacidad",
-            "privacy": "Usamos tus datos solo para valorar la propuesta. Más información en la {policy}.",
-            "reply": "Respondemos en 24–72 horas.",
-            "send": "Escribir un correo",
+            "lead": "Cuéntanos de qué trata. Si ya tienes el texto, adjúntalo y te ahorras un paso. ¿Prefieres el correo? Escríbenos a {email}.",
             "title": "Envía tu propuesta"
         },
         "reasons": {
@@ -756,7 +741,7 @@
                     "title": "Primera lectura"
                 },
                 "summary": {
-                    "body": "Escríbenos con el tema, la tesis y tu archivo adjunto.",
+                    "body": "Cuéntanos el tema y la tesis y, si ya lo tienes, adjunta el texto.",
                     "title": "Envía un resumen"
                 }
             },
@@ -764,10 +749,67 @@
         },
         "thesis": {
             "action": "Ver trabajos publicados",
-            "body": "Los trabajos de fin de grado y de máster se publican íntegramente en su propio archivo. Indica «TFG» o «TFM» en tu correo.",
+            "body": "Los trabajos de fin de grado y de máster se publican íntegramente en su propio archivo. Elige «TFG» o «TFM» en el formulario.",
             "title": "¿Es un TFG o un TFM?"
         },
         "title": "Tu artículo, leído con la atención que merece."
+    },
+    "publishForm": {
+        "consent": {
+            "label": "Acepto que Huella Legal use mis datos para valorar mi propuesta",
+            "name": "Consentimiento"
+        },
+        "email": {
+            "label": "Correo electrónico",
+            "name": "Correo electrónico",
+            "placeholder": "nombre{'@'}ejemplo.es"
+        },
+        "error": {
+            "description": "El problema es nuestro: todo lo que has escrito sigue aquí. Inténtalo de nuevo en unos minutos.",
+            "title": "No hemos podido enviar tu propuesta"
+        },
+        "errors": {
+            "fileSize": "Pesa más de 4 MB: envía la propuesta sin él y adjúntalo al responder a nuestro correo",
+            "fileType": "Adjunta un .docx, .pages, .txt o .pdf",
+            "invalid": "Revisa la dirección: por ejemplo, nombre{'@'}ejemplo.es",
+            "required": "Es obligatorio"
+        },
+        "file": {
+            "description": "El texto completo, si ya lo tienes",
+            "help": "Opcional. .docx, .pages, .txt o .pdf, hasta 4 MB; si pesa más, adjúntalo al responder a nuestro correo. Preferimos que el documento no lleve tu nombre.",
+            "label": "Borrador",
+            "name": "Borrador",
+            "upload": "Arrastra tu archivo o selecciónalo"
+        },
+        "kind": {
+            "items": {
+                "article": "Artículo",
+                "tfg": "TFG",
+                "tfm": "TFM"
+            },
+            "label": "Tipo de trabajo",
+            "name": "Tipo de trabajo"
+        },
+        "name": {
+            "label": "Nombre y apellidos",
+            "name": "Nombre"
+        },
+        "notice": "Huella Legal trata tus datos con tu consentimiento, solo para valorar tu propuesta. Los reciben Netlify, que aloja la web, Cloudflare, que la protege del spam, y Resend, que nos entrega el correo y el archivo. Puedes acceder a ellos, rectificarlos o pedir que los borremos escribiéndonos. Lo demás está en la {privacy}.",
+        "privacy": "política de privacidad",
+        "submit": "Enviar propuesta",
+        "success": {
+            "description": "Confirmaremos la recepción en 24–72 horas en el correo que nos has dejado, y tendrás una decisión razonada en cinco días como máximo.",
+            "title": "Propuesta enviada"
+        },
+        "summary": {
+            "help": "Dos o tres frases: tema, tesis y fuentes principales.",
+            "label": "Resumen",
+            "name": "Resumen"
+        },
+        "title": {
+            "label": "Título provisional",
+            "name": "Título"
+        }
     },
     "search": {
         "empty": "Escribe una o varias palabras del título o del texto para buscar entre las publicaciones.",

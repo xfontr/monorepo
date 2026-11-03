@@ -9,11 +9,24 @@ interface Rejection<Issue extends FormError> {
 
 interface Options<Failure extends string> {
     failures?: Partial<Record<number, Failure>>;
+    multipart?: boolean;
 }
+
+const toFormData = (fields: Record<string, unknown>): FormData => {
+    const data = new FormData();
+
+    for (const [name, value] of Object.entries(fields)) {
+        if (value instanceof Blob) data.append(name, value);
+        else if (value !== null && value !== undefined) data.append(name, String(value));
+    }
+
+    return data;
+};
 
 /**
  * One form's state machine: idle → submitting → success, invalid or error. A `422` leaves the
  * server's issue codes in `errors`; any other refusal leaves its `failures` entry in `failure`.
+ * `multipart` posts the fields as `FormData`, which a file needs.
  */
 export const useFormPost = <
     Request extends FormRequest,
@@ -21,7 +34,7 @@ export const useFormPost = <
     Failure extends string = never,
 >(
     endpoint: string,
-    { failures = {} }: Options<Failure> = {},
+    { failures = {}, multipart = false }: Options<Failure> = {},
 ) => {
     const status = ref<FormPostStatus>("idle");
     const errors = ref<Issue[]>([]);
@@ -50,9 +63,14 @@ export const useFormPost = <
         failure.value = undefined;
 
         try {
-            await challenge((token) =>
-                $fetch(endpoint, { method: "POST", body: { ...fields, token } }),
-            );
+            await challenge((token) => {
+                const body = { ...fields, token };
+
+                return $fetch(endpoint, {
+                    method: "POST",
+                    body: multipart ? toFormData(body) : body,
+                });
+            });
             status.value = "success";
         } catch (error) {
             fail(error);

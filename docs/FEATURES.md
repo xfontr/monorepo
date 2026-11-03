@@ -46,6 +46,11 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm exec nx preview @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `pnpm exec nx test:e2e @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
+| `pnpm exec nx dev:api @monorepo/wp-editor` | [`apps/wp-editor/package.json`](../apps/wp-editor/package.json) | [`apps/wp-editor/README.md`](../apps/wp-editor/README.md) |
+| `pnpm exec nx mocks:reset @monorepo/wp-editor` | [`apps/wp-editor/package.json`](../apps/wp-editor/package.json) | [`apps/wp-editor/README.md`](../apps/wp-editor/README.md) |
+| `pnpm exec nx nuxt-prepare @monorepo/wp-editor` | [`apps/wp-editor/package.json`](../apps/wp-editor/package.json) | [`apps/wp-editor/README.md`](../apps/wp-editor/README.md) |
+| `pnpm exec nx editor @monorepo/wp-editor` | [`apps/wp-editor/package.json`](../apps/wp-editor/package.json) | [`apps/wp-editor/README.md`](../apps/wp-editor/README.md) |
+| `pnpm exec nx editor:dev @monorepo/wp-editor` | [`apps/wp-editor/package.json`](../apps/wp-editor/package.json) | [`apps/wp-editor/README.md`](../apps/wp-editor/README.md) |
 | `pnpm exec nx coverage @monorepo/scripts` | [`infrastructure/scripts/package.json`](../infrastructure/scripts/package.json) | [`infrastructure/scripts/README.md`](../infrastructure/scripts/README.md) |
 | `pnpm exec nx serve @monorepo/translations` | [`infrastructure/translations/package.json`](../infrastructure/translations/package.json) | [`infrastructure/translations/README.md`](../infrastructure/translations/README.md) |
 | `pnpm exec nx docker:up @monorepo/translations` | [`infrastructure/translations/package.json`](../infrastructure/translations/package.json) | [`infrastructure/translations/README.md`](../infrastructure/translations/README.md) |
@@ -102,4 +107,5 @@ shortest statement of how a task is meant to go here.
 | `/scripts-new-script` | [`.claude/skills/scripts-new-script/SKILL.md`](../.claude/skills/scripts-new-script/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/start-issue` | [`.claude/skills/start-issue/SKILL.md`](../.claude/skills/start-issue/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/ui-new-component` | [`.claude/skills/ui-new-component/SKILL.md`](../.claude/skills/ui-new-component/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
+| `/wp-bulk-edit` | [`.claude/skills/wp-bulk-edit/SKILL.md`](../.claude/skills/wp-bulk-edit/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/writing-tests` | [`.claude/skills/writing-tests/SKILL.md`](../.claude/skills/writing-tests/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |

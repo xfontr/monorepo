@@ -20,44 +20,6 @@ const listingQuerySchema = v.object({
     query: v.optional(v.pipe(v.string(), v.trim(), v.maxLength(MAX_SEARCH_LENGTH))),
 });
 
-defineRouteMeta({
-    openAPI: {
-        tags: ["Articles"],
-        summary: "List articles, optionally scoped to one subject, tag or author, or searched",
-        parameters: [
-            { name: "page", in: "query", schema: { type: "integer", minimum: 1, default: 1 } },
-            {
-                name: "sort",
-                in: "query",
-                schema: { type: "string", enum: ["newest", "oldest"], default: "newest" },
-            },
-            {
-                name: "format",
-                in: "query",
-                // `FORMATS` in `mappers/articleListing.ts`, since route meta only takes literals
-                schema: { type: "string", enum: ["articulo", "comentario", "tfg-tfm"] },
-            },
-            { name: "category", in: "query", schema: { type: "string" } },
-            { name: "tag", in: "query", schema: { type: "string" } },
-            { name: "author", in: "query", schema: { type: "string" } },
-            {
-                name: "query",
-                in: "query",
-                // `MAX_SEARCH_LENGTH` from `@monorepo/content`, since route meta only takes literals
-                description:
-                    "Up to 100 characters, trimmed; matches every word, ignoring accents and case",
-                schema: { type: "string" },
-            },
-        ],
-        responses: {
-            200: { description: "One page of article summaries, with its scope" },
-            404: {
-                description: "A parameter is invalid, names nothing, or the page is past the end",
-            },
-        },
-    },
-});
-
 const notFound = (message: string) =>
     createError({ statusCode: 404, statusMessage: "Listing not found", message });
 
@@ -102,4 +64,42 @@ export default defineEventHandler(async (event): Promise<ArticleListing> => {
         throw notFound(`"page" must be between 1 and ${listing.totalPages}`);
 
     return listing;
+});
+
+defineRouteMeta({
+    openAPI: {
+        tags: ["Articles"],
+        summary: "List articles, optionally scoped to one subject, tag or author, or searched",
+        parameters: [
+            { name: "page", in: "query", schema: { type: "integer", minimum: 1, default: 1 } },
+            {
+                name: "sort",
+                in: "query",
+                schema: { type: "string", enum: ["newest", "oldest"], default: "newest" },
+            },
+            {
+                name: "format",
+                in: "query",
+                // `FORMATS` in `mappers/articleListing.ts`, since route meta only takes literals
+                schema: { type: "string", enum: ["articulo", "comentario", "tfg-tfm"] },
+            },
+            { name: "category", in: "query", schema: { type: "string" } },
+            { name: "tag", in: "query", schema: { type: "string" } },
+            { name: "author", in: "query", schema: { type: "string" } },
+            {
+                name: "query",
+                in: "query",
+                // `MAX_SEARCH_LENGTH` from `@monorepo/content`, since route meta only takes literals
+                description:
+                    "Up to 100 characters, trimmed; matches every word, ignoring accents and case",
+                schema: { type: "string" },
+            },
+        ],
+        responses: {
+            200: { description: "One page of article summaries, with its scope" },
+            404: {
+                description: "A parameter is invalid, names nothing, or the page is past the end",
+            },
+        },
+    },
 });

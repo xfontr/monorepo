@@ -1,0 +1,5 @@
+{
+    // The CLI runs under plain Node type stripping, outside every tsconfig Nuxt generates.
+    "extends": "@monorepo/configs/tsconfig/node.json",
+    "include": ["tools/**/*.ts", "shared/**/*.ts", "mocks/**/*.ts"]
+}
