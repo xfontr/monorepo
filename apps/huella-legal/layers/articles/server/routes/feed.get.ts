@@ -4,13 +4,6 @@ import { getArticleIndex } from "../services/articleIndex";
 
 const FEED_LENGTH = 20;
 
-defineRouteMeta({
-    openAPI: {
-        tags: ["SEO"],
-        summary: "The newest articles as an RSS 2.0 feed",
-    },
-});
-
 export default defineEventHandler(async (event): Promise<string> => {
     const {
         public: { site },
@@ -43,4 +36,11 @@ export default defineEventHandler(async (event): Promise<string> => {
     setResponseHeader(event, "content-type", "application/rss+xml; charset=utf-8");
 
     return feed.rss2();
+});
+
+defineRouteMeta({
+    openAPI: {
+        tags: ["SEO"],
+        summary: "The newest articles as an RSS 2.0 feed",
+    },
 });

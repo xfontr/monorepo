@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent } from "vue";
 import { useNewsletter } from "./useNewsletter";
 
-const FIELDS = { email: "lucia@ejemplo.es", website: "" };
+const FIELDS = { email: "lucia@ejemplo.es", honeypot: "" };
 
 const fetch = vi.hoisted(() => vi.fn());
 

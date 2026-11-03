@@ -1,13 +1,6 @@
 import { getArticleIndex } from "../../services/articleIndex";
 import { getCategories } from "../../services/categories";
 
-defineRouteMeta({
-    openAPI: {
-        tags: ["SEO"],
-        summary: "The content URLs the sitemap lists beside the app's own pages",
-    },
-});
-
 export default defineSitemapEventHandler(async (event) => {
     const {
         public: { pageSlugs },
@@ -38,4 +31,11 @@ export default defineSitemapEventHandler(async (event) => {
         ...categories.map(({ slug }) => ({ loc: `/areas/${slug}/` })),
         ...[...authorSlugs].map((slug) => ({ loc: `/colaboradores/${slug}/` })),
     ];
+});
+
+defineRouteMeta({
+    openAPI: {
+        tags: ["SEO"],
+        summary: "The content URLs the sitemap lists beside the app's own pages",
+    },
 });

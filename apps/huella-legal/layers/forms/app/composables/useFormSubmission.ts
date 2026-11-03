@@ -6,7 +6,7 @@ interface ErrorTarget {
     getErrors(): FormErrorWithId[];
 }
 
-interface Options<Request extends Pick<FormRequest, "website">, Issue extends string> {
+interface Options<Request extends Pick<FormRequest, "honeypot">, Issue extends string> {
     status: Readonly<Ref<string>>;
     errors: Readonly<Ref<readonly { name?: string; message: Issue }[]>>;
     send: (request: Request, challenge: Challenge) => Promise<void>;
@@ -19,7 +19,7 @@ interface Options<Request extends Pick<FormRequest, "website">, Issue extends st
  * fields and in the error summary, and validates on every input once the form has been submitted.
  */
 export const useFormSubmission = <
-    Request extends Pick<FormRequest, "website">,
+    Request extends Pick<FormRequest, "honeypot">,
     Issue extends string,
 >(
     form: Readonly<ShallowRef<ErrorTarget | null>>,
@@ -39,13 +39,13 @@ export const useFormSubmission = <
     };
 
     const submit = async (
-        fields: Omit<Request, "website">,
+        fields: Omit<Request, "honeypot">,
         challenge: Challenge,
     ): Promise<void> => {
         submitted.value = true;
         list([]);
 
-        await send({ ...fields, website: honeypot.value } as Request, challenge);
+        await send({ ...fields, honeypot: honeypot.value } as Request, challenge);
 
         form.value?.setErrors(
             errors.value.map(({ name, message: issue }) => ({ name, message: message(issue) })),

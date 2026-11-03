@@ -27,6 +27,7 @@ const routes = [
 // idle default before each story
 sb.mock("../layers/newsletter/app/composables/useNewsletter.ts");
 sb.mock("../layers/contact/app/composables/useContact.ts");
+sb.mock("../layers/publish/app/composables/useSubmission.ts");
 sb.mock("../layers/comments/app/composables/usePostComment.ts");
 
 setup((app) => {

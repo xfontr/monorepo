@@ -70,7 +70,7 @@ describe("newsletter form", () => {
         await submit(wrapper, " lucia@ejemplo.es ");
 
         expect(newsletter.send).toHaveBeenCalledWith(
-            { email: "lucia@ejemplo.es", website: "" },
+            { email: "lucia@ejemplo.es", honeypot: "" },
             challenge,
         );
     });
@@ -82,7 +82,7 @@ describe("newsletter form", () => {
         await submit(wrapper, "lucia@ejemplo.es");
 
         expect(newsletter.send).toHaveBeenCalledWith(
-            { email: "lucia@ejemplo.es", website: "https://spam.test" },
+            { email: "lucia@ejemplo.es", honeypot: "https://spam.test" },
             challenge,
         );
     });
