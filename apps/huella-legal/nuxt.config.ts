@@ -44,12 +44,6 @@ export default defineNuxtConfig({
 
     $production: {
         hooks: {
-            "pages:extend"(pages) {
-                for (let index = pages.length - 1; index >= 0; index--) {
-                    if (pages[index]?.path.startsWith("/lab")) pages.splice(index, 1);
-                }
-            },
-
             "build:manifest"(manifest) {
                 for (const chunk of Object.values(manifest)) chunk.prefetch = false;
             },
@@ -92,15 +86,6 @@ export default defineNuxtConfig({
     },
 
     $development: {
-
-        hooks: {
-            "pages:extend"(pages) {
-                for (const page of pages) {
-                    if (page.path.startsWith("/lab")) page.meta = { ...page.meta, layout: false };
-                }
-            },
-        },
-
         translations: {
             vendor: {
                 name: "internal",

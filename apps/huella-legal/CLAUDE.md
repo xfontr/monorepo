@@ -12,7 +12,7 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   re-check it per request. Declare the key empty and let the `NUXT_`-prefixed var fill it at
   startup; the [i18n module](../../packages/i18n/src/nuxt/README.md#-usage) says why. A new env var
   goes in `.env.example` with a row in the README table, and nowhere else.
-- **No UI copy is hard-coded outside `/lab`.** It goes in
+- **No UI copy is hard-coded.** It goes in
   [`infrastructure/translations/projects/huella-legal/es-ES.json`](../../infrastructure/translations/projects/huella-legal/es-ES.json)
   under a key that follows the [naming convention](./README.md#-copy-keys), and the component calls
   `t()`. Dev reads that file and builds read Tolgee, which is deliberately left behind for now.

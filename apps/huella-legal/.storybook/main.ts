@@ -55,7 +55,6 @@ const config: StorybookConfig = {
             files: "**/*.stories.ts",
             titlePrefix: titlePrefix(dir),
         })),
-        { directory: "../app/lab", files: "**/*.stories.ts", titlePrefix: "Lab" },
     ],
     staticDirs: [{ from: "../public/favicon.ico", to: "/favicon.ico" }],
     core: {

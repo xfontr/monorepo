@@ -264,7 +264,7 @@ selects the vendor's config type.
 
 ### 🔤 Copy keys
 
-UI copy is never hard-coded outside [`/lab`](./app/pages/lab). It goes in `es-ES.json` under a key:
+UI copy is never hard-coded. It goes in `es-ES.json` under a key:
 
 | Rule | Example |
 | --- | --- |
@@ -340,9 +340,6 @@ rules and lists the [prerendered routes](#-rendering) on a Netlify build.
 | [`utils/createPageError.ts`](./app/utils/createPageError.ts) | A failed page fetch as the fatal error `error.vue` renders: the status the route answered with, or `502` when no response came back, with data and stack kept. Every page controller raises through it, and client code reads and writes `status`/`statusText`, since Nuxt deprecates `statusCode`/`statusMessage` |
 | [`app.config.ts`](./app/app.config.ts) | The journal's name and ISSN under `journal`, read by the citation mapper on the server too. The Nuxt UI theme is the [`design`](./layers/design) layer's |
 
-`/lab` pages draw their own lab header and footer, so a `$development` hook in `nuxt.config.ts` sets
-`layout: false` on them.
-
 Domain logic lives in Nuxt layers under [`layers/`](./layers): one directory per task a reader
 comes for, such as reading, browsing the archive or searching, a **feature**, plus one per concern that several features share, a **capability**, today
 `forms` and `design`, and the **core**, `articles`, which owns the content. The core's routes are the only
@@ -357,7 +354,7 @@ something the tree enforces:
 
 | Owner | Paths | May use |
 | --- | --- | --- |
-| Shell | Everything else under `app/` and `server/`, the lab aside | Anything |
+| Shell | Everything else under `app/` and `server/` | Anything |
 | Kit | `app/components/base/`, `app/components/listing/`, `app/types/`, `app/utils/`, `app/composables/` | The kit |
 | Core | `layers/articles/` | Itself and the kit |
 | Capability | `layers/forms/`, `layers/design/` | Itself and the kit |
@@ -421,7 +418,7 @@ counts behind each rule.
 | Bibliography | Split from the last top-level *Bibliografía*, *Fuentes* or *Referencias (bibliográficas)* heading, one fragment per paragraph or list item, because the design sets it apart below the body |
 | TOC | Every `h2` and `h3` gets an ASCII id unless it has one, never repeated |
 | Images | Every one gets `loading="lazy"` and `decoding="async"` |
-| Lead | Everything up to and including the first top-level paragraph goes in `lead`, and the page sets the featured image after it, as the lab design does |
+| Lead | Everything up to and including the first top-level paragraph goes in `lead`, and the page sets the featured image after it |
 
 The article routes read posts through the content module's `useContent(event)`, so the provider,
 its cache and its error statuses stay the module's: a failed read reaches the page with the status
@@ -525,8 +522,7 @@ Three layers, each proving something the others can't see.
 wrappers over the shared presets in [`@monorepo/configs`](../../packages/configs/README.md), which
 own the project split, where coverage lives and the widths. What stays here is
 what only this app knows: the thresholds (lines and statements 90, functions 85, branches 80), and
-`app/lab/**` and `app/pages/**` kept out of the denominator, because the lab never ships and pages
-are Playwright's. `test` runs without coverage, so the thresholds only bite on `pnpm test:coverage`.
+`app/pages/**` kept out of the denominator, because pages are Playwright's. `test` runs without coverage, so the thresholds only bite on `pnpm test:coverage`.
 [Decision 0028](../../docs/decisions/0028-huella-legal-e2e-and-visual-tooling.md) has the numbers.
 
 - **Nitro auto-imports don't exist under the node project.** A spec for anything in `server/` stubs
@@ -592,7 +588,7 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | A per-glob threshold on view models | A3 adds `shared/**` and `layers/*/app/utils/**` at 95 alongside the mappers it creates |
 | Shared client state | `@pinia/nuxt`, with `pinia.storesDirs` widened to `./layers/*/app/stores/**`: without it a layer's store isn't picked up, and the failure looks like a missing composable. Stories then need Pinia in the `setup` in `.storybook/preview.ts` |
 | A submission form on Publicar | #301 decides between it and the `mailto:`. The form variant's route, mail adapter, 4 MB cap and GDPR notice are the *form only* rows of [0029](../../docs/decisions/0029-huella-legal-forms-and-integrations.md) |
-| A role on each contributor | [0027](../../docs/decisions/0027-huella-legal-content-model.md) found no source for it, so the directory cards drop the lab's role line until WordPress carries one |
+| A role on each contributor | [0027](../../docs/decisions/0027-huella-legal-content-model.md) found no source for it, so the directory cards drop the design's role line until WordPress carries one |
 | Quote and callout styles | `hl-quote`, `hl-quote-short`, `hl-callout` and `hl-highlight` reach the page unstyled. B6 moved `.hl-prose` into the articles layer without rules for them, because no D design covers them |
 | Tag links on the article | The *Temas* line is still plain text, though `/etiquetas/<slug>/` now exists to link it to |
 | The newsletter band on the home page | C3 places it with `id="newsletter"`, the anchor the header's links already target |
@@ -607,4 +603,3 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | Stories for the header's panels | `NavPublicationsPanel` and `NavSubjectsPanel` fetch `/api/home` through `useCachedFetch`, which Storybook doesn't have, so the header's story leaves their items as plain links. An `sb.mock` of `useCachedFetch` in [`preview.ts`](./.storybook/preview.ts) would give them stories |
 | Long browser caching on images | Netlify Image CDN copies the source's `Cache-Control` and a site can't override it for a remote origin, so `/.netlify/images` answers `max-age=0` until WordPress sends one. LiteSpeed Cache's *Browser Cache* setting is the fix on that side, at ≥ 30 days rather than a year `immutable`, since an upload's URL isn't content-hashed |
 | A browser cache on `/_i18n/*/messages.json` | `@nuxtjs/i18n` disables its message cache when no locale file is cacheable, and its cached handler then answers `max-age=-1`. `experimental.cacheLifetime` turns it on, but also caches the messages server-side alongside `@monorepo/i18n`'s own route cache |
-| Parity with the `/lab` pages | Still a human check: the lab is stripped from production builds, and Linux substitutes a serif for Georgia |

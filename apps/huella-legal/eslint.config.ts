@@ -13,5 +13,4 @@ export default [
             ],
         },
     },
-    { files: ["app/lab/**", "app/pages/lab/**"], rules: { "monorepo/no-template-call": "off" } },
 ];
