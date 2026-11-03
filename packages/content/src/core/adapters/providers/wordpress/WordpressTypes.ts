@@ -47,6 +47,8 @@ export interface WordpressEntry {
     date_gmt?: string | null;
     modified_gmt?: string | null;
     yoast_head_json?: WordpressYoast;
+    // ACF sends a PHP empty array, so `[]`, for a post with no fields exposed
+    acf?: Record<string, unknown> | unknown[];
     _embedded?: {
         "wp:featuredmedia"?: WordpressMedia[];
         "wp:term"?: WordpressTerm[][];

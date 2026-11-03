@@ -131,6 +131,9 @@ const toIsoDate = (date?: string | null): string | undefined => {
     return date.endsWith("Z") ? date : `${date}Z`;
 };
 
+const toFields = (acf: WordpressEntry["acf"]): Entry["fields"] =>
+    acf && !Array.isArray(acf) && Object.keys(acf).length > 0 ? acf : undefined;
+
 export const toEntry = (entry: WordpressEntry): Entry => ({
     id: String(entry.id),
     slug: entry.slug,
@@ -143,4 +146,5 @@ export const toEntry = (entry: WordpressEntry): Entry => ({
     terms: (entry._embedded?.["wp:term"] ?? []).flat().flatMap(toEmbeddedTerm),
     authors: (entry._embedded?.author ?? []).flatMap(toAuthor),
     seo: toSEO(entry.yoast_head_json),
+    fields: toFields(entry.acf),
 });

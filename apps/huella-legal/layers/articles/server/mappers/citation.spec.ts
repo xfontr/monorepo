@@ -32,6 +32,15 @@ describe("toCitations", () => {
         });
     });
 
+    it("numbers the journal's style and leaves APA 7 without it", () => {
+        const citations = cite({ fields: { num: "02/24" } });
+
+        expect(citations["Huella Legal"]).toContain(
+            "«La culpa», Huella Legal, n.º 02/2024, 12 de marzo",
+        );
+        expect(citations["APA 7"]).not.toContain("02/2024");
+    });
+
     // 23:30 UTC on the 11th is already the 12th in Madrid, which is the day the journal published it
     it("dates the citation in the journal's time zone, not the server's", () => {
         expect(cite({ publishedAt: "2024-03-11T23:30:00Z" })["APA 7"]).toContain(

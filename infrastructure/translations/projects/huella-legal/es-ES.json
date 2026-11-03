@@ -181,6 +181,7 @@
             "comment": "Comentario",
             "thesis": "TFG o TFM"
         },
+        "number": "Publicación n.º {number}",
         "related": {
             "all": "Ver el área completa",
             "title": "También en {subject}"

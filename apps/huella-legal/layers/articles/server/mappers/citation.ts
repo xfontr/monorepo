@@ -6,6 +6,7 @@ import type { Journal } from "../../shared/types/Journal";
 interface Source {
     authors: string[];
     title: string;
+    number?: string;
     date?: Date;
     journal: Journal;
     permalink: string;
@@ -25,10 +26,11 @@ const apaDate = (date: Date): string => {
 const apa7 = ({ authors, title, date, journal, permalink }: Source): string =>
     `${LIST.format(authors)} (${date ? apaDate(date) : "s. f."}). ${title}. ${journal.name}. ${permalink}`;
 
-const journalStyle = ({ authors, title, date, journal, permalink }: Source): string => {
+const journalStyle = ({ authors, title, number, date, journal, permalink }: Source): string => {
+    const numbered = number ? `, n.º ${number}` : "";
     const published = date ? `, ${DATE.format(date)}` : "";
 
-    return `${authors.join("; ").toLocaleUpperCase(JOURNAL_LOCALE)}, «${title}», ${journal.name}${published}. ISSN ${journal.issn}. Disponible en: ${permalink}`;
+    return `${authors.join("; ").toLocaleUpperCase(JOURNAL_LOCALE)}, «${title}», ${journal.name}${numbered}${published}. ISSN ${journal.issn}. Disponible en: ${permalink}`;
 };
 
 // WordPress keeps one display name, so the first word is read as the given name and the rest as surnames
@@ -39,13 +41,14 @@ const invertName = (name: string): string => {
 };
 
 export const toCitations = (
-    { authors, title, publishedAt }: ArticleSummary,
+    { authors, title, number, publishedAt }: ArticleSummary,
     journal: Journal,
     permalink: string,
 ): Citation[] => {
     const source: Source = {
         authors: authors.map(({ name }) => invertName(name)),
         title,
+        number,
         date: publishedAt ? new Date(publishedAt) : undefined,
         journal,
         permalink,

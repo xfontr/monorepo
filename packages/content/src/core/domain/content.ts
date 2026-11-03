@@ -62,6 +62,8 @@ export interface Entry {
     terms: Term[];
     authors: Author[];
     seo?: SEO;
+    // The CMS's custom fields by key, as it sent them
+    fields?: Record<string, unknown>;
 }
 
 export interface Page<T> {

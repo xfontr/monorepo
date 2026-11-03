@@ -320,6 +320,16 @@ describe("toEntry seo", () => {
     });
 });
 
+describe("toEntry fields", () => {
+    it("hands on ACF's fields by key", () => {
+        expect(toEntry({ ...entry, acf: { num: "02/21" } }).fields).toStrictEqual({ num: "02/21" });
+    });
+
+    it.each([undefined, [], {}])("has no fields when ACF sends %o", (acf) => {
+        expect(toEntry({ ...entry, acf }).fields).toBeUndefined();
+    });
+});
+
 describe("toTerm", () => {
     const term: WordpressTerm = {
         id: 3,

@@ -87,6 +87,7 @@ const toWordpressEntry = (entry: Entry): WordpressEntry => ({
     date_gmt: entry.publishedAt?.replace(/Z$/, ""),
     modified_gmt: entry.updatedAt?.replace(/Z$/, ""),
     yoast_head_json: toYoast(entry.seo),
+    acf: entry.fields ?? [],
     _embedded: {
         "wp:featuredmedia": entry.image
             ? [
