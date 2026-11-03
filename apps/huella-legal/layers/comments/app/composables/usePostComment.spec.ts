@@ -10,7 +10,7 @@ const FIELDS = {
     email: "lucia@ejemplo.es",
     content: "Muy buen artículo.",
     consent: true,
-    website: "",
+    honeypot: "",
 };
 
 const fetch = vi.hoisted(() => vi.fn());

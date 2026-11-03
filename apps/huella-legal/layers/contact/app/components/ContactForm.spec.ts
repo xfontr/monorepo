@@ -82,7 +82,7 @@ describe("contact form", () => {
         await submit(wrapper);
 
         expect(contact.send).toHaveBeenCalledWith(
-            { ...FIELDS, consent: true, website: "" },
+            { ...FIELDS, consent: true, honeypot: "" },
             challenge,
         );
     });
@@ -95,7 +95,7 @@ describe("contact form", () => {
         await submit(wrapper);
 
         expect(contact.send).toHaveBeenCalledWith(
-            expect.objectContaining({ website: "https://spam.test" }),
+            expect.objectContaining({ honeypot: "https://spam.test" }),
             challenge,
         );
     });

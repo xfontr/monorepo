@@ -121,7 +121,7 @@ const onSubmit = (data: Submission, challenge: Challenge) =>
                     :ui="{ base: 'min-h-32 bg-ivory-100' }"
                 />
             </UFormField>
-            <FormHoneypot v-model="website" />
+            <FormHoneypot v-model="honeypot" />
             <UFormField name="consent">
                 <UCheckbox
                     v-model="state.consent"

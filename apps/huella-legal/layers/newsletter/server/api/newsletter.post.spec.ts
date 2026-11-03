@@ -21,7 +21,7 @@ const handler = (await import("./newsletter.post")).default as unknown as (
 
 beforeEach(() => {
     vi.clearAllMocks();
-    nitro.body.mockResolvedValue({ email: " lucia@ejemplo.es ", website: "", token: "tok" });
+    nitro.body.mockResolvedValue({ email: " lucia@ejemplo.es ", honeypot: "", token: "tok" });
     nitro.assertChallenge.mockResolvedValue(undefined);
     nitro.assertForm.mockImplementation((schema: v.GenericSchema, input: unknown) =>
         v.parse(schema, input),
@@ -39,7 +39,7 @@ describe("POST /api/newsletter", () => {
 
     // A bot told it failed would retry; one told it succeeded moves on
     it("answers a filled honeypot like a reader, spending no verification and subscribing nobody", async () => {
-        nitro.body.mockResolvedValue({ email: "lucia@ejemplo.es", website: "https://spam.test" });
+        nitro.body.mockResolvedValue({ email: "lucia@ejemplo.es", honeypot: "https://spam.test" });
 
         await expect(handler({})).resolves.toBeUndefined();
         expect(nitro.assertChallenge).not.toHaveBeenCalled();
@@ -51,7 +51,7 @@ describe("POST /api/newsletter", () => {
         ["a blank address", "   ", "required"],
         ["no address at all", undefined, "required"],
     ])("leaves %s as the bare issue code for the client to word", async (_, email, issue) => {
-        nitro.body.mockResolvedValue({ email, website: "", token: "tok" });
+        nitro.body.mockResolvedValue({ email, honeypot: "", token: "tok" });
 
         await expect(handler({})).rejects.toMatchObject({ issues: [{ message: issue }] });
         expect(nitro.addSubscriber).not.toHaveBeenCalled();

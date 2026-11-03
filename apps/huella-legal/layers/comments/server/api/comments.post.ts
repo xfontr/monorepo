@@ -8,7 +8,7 @@ const schema = newCommentSchema((issue) => issue);
 export default defineEventHandler(async (event): Promise<void> => {
     const body = (await readBody<Partial<CommentRequest> | null>(event)) ?? {};
 
-    if (body.website) return;
+    if (body.honeypot) return;
 
     await assertChallenge(event, body.token);
 
@@ -51,7 +51,7 @@ defineRouteMeta({
                             content: { type: "string", description: "Up to 5,000 characters" },
                             consent: { type: "boolean", const: true },
                             token: { type: "string", description: "A Turnstile token" },
-                            website: { type: "string", description: "The honeypot, left empty" },
+                            honeypot: { type: "string", description: "Left empty" },
                         },
                     },
                 },

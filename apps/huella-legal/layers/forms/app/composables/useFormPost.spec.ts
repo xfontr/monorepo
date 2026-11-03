@@ -12,7 +12,7 @@ interface Request extends FormRequest {
 
 const ENDPOINT = "/api/form";
 
-const FIELDS = { email: "lucia@ejemplo.es", website: "" };
+const FIELDS = { email: "lucia@ejemplo.es", honeypot: "" };
 
 const FAILURES = { 409: "duplicate" } as const satisfies Partial<Record<number, Failure>>;
 

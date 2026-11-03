@@ -8,7 +8,7 @@ const schema = subscriptionSchema((issue) => issue);
 export default defineEventHandler(async (event): Promise<void> => {
     const body = (await readBody<Partial<NewsletterRequest> | null>(event)) ?? {};
 
-    if (body.website) return;
+    if (body.honeypot) return;
 
     await assertChallenge(event, body.token);
 
@@ -31,7 +31,7 @@ defineRouteMeta({
                         properties: {
                             email: { type: "string", format: "email" },
                             token: { type: "string", description: "A Turnstile token" },
-                            website: { type: "string", description: "The honeypot, left empty" },
+                            honeypot: { type: "string", description: "Left empty" },
                         },
                     },
                 },

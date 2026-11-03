@@ -39,7 +39,7 @@ const VALID = {
     email: " lucia@ejemplo.es ",
     message: "Una pregunta sobre el último número.",
     consent: true,
-    website: "",
+    honeypot: "",
     token: "tok",
 };
 
@@ -68,7 +68,7 @@ describe("POST /api/contact", () => {
 
     // A bot told it failed would retry; one told it succeeded moves on
     it("answers a filled honeypot like a reader, spending no verification and sending nothing", async () => {
-        nitro.body.mockResolvedValue({ ...VALID, website: "https://spam.test" });
+        nitro.body.mockResolvedValue({ ...VALID, honeypot: "https://spam.test" });
 
         await expect(handler({})).resolves.toBeUndefined();
         expect(nitro.assertChallenge).not.toHaveBeenCalled();

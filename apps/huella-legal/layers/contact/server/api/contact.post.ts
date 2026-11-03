@@ -6,7 +6,7 @@ const schema = contactSchema((issue) => issue);
 export default defineEventHandler(async (event): Promise<void> => {
     const body = (await readBody<Partial<ContactRequest> | null>(event)) ?? {};
 
-    if (body.website) return;
+    if (body.honeypot) return;
 
     await assertChallenge(event, body.token);
 
@@ -37,7 +37,7 @@ defineRouteMeta({
                             message: { type: "string" },
                             consent: { type: "boolean", const: true },
                             token: { type: "string", description: "A Turnstile token" },
-                            website: { type: "string", description: "The honeypot, left empty" },
+                            honeypot: { type: "string", description: "Left empty" },
                         },
                     },
                 },

@@ -111,7 +111,7 @@ describe("publish form", () => {
         await submit(wrapper);
 
         expect(submission.send).toHaveBeenCalledWith(
-            { ...FIELDS, kind: "article", title: "", file: null, consent: true, website: "" },
+            { ...FIELDS, kind: "article", title: "", file: null, consent: true, honeypot: "" },
             challenge,
         );
     });

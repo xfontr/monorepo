@@ -14,7 +14,7 @@ export default defineEventHandler(async (event): Promise<void> => {
     const upload = form.get("file");
     const file = upload instanceof File ? upload : undefined;
 
-    if (form.get("website")) return;
+    if (form.get("honeypot")) return;
 
     await assertChallenge(event, form.get("token")?.toString());
 
@@ -70,7 +70,7 @@ defineRouteMeta({
                             },
                             consent: { type: "string", const: "true" },
                             token: { type: "string", description: "A Turnstile token" },
-                            website: { type: "string", description: "The honeypot, left empty" },
+                            honeypot: { type: "string", description: "Left empty" },
                         },
                     },
                 },

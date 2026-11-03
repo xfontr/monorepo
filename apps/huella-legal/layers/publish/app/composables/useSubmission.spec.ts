@@ -11,7 +11,7 @@ const FIELDS = {
     summary: "La admisibilidad de los mensajes de WhatsApp como prueba.",
     file: new File(["PK"], "borrador.docx"),
     consent: true,
-    website: "",
+    honeypot: "",
 } as const;
 
 const fetch = vi.hoisted(() => vi.fn());

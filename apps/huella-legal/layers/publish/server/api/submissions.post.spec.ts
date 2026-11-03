@@ -44,7 +44,7 @@ const FIELDS = {
     title: "",
     summary: "La admisibilidad de los mensajes de WhatsApp como prueba.",
     consent: "true",
-    website: "",
+    honeypot: "",
     token: "tok",
 };
 
@@ -96,7 +96,7 @@ describe("POST /api/submissions", () => {
 
     // A bot told it failed would retry; one told it succeeded moves on
     it("answers a filled honeypot like an author, spending no verification and sending nothing", async () => {
-        nitro.form.mockResolvedValue(multipart({ ...FIELDS, website: "https://spam.test" }));
+        nitro.form.mockResolvedValue(multipart({ ...FIELDS, honeypot: "https://spam.test" }));
 
         await expect(handler({})).resolves.toBeUndefined();
         expect(nitro.assertChallenge).not.toHaveBeenCalled();
