@@ -28,7 +28,6 @@ fi
 git diff --quiet "$from" "$to" -- \
     apps/huella-legal \
     packages/content \
-    packages/i18n \
     packages/observability \
     package.json \
     pnpm-lock.yaml \

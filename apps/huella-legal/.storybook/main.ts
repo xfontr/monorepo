@@ -20,14 +20,7 @@ const { default: i18nConfig } = await import("../i18n/i18n.config.ts");
 // @nuxt/fonts 1.0 types `local` as provider options, which fontless 1.3 still types as an empty record.
 const fonts = { ...nuxtConfig.fonts, local: undefined };
 
-// Read here because a relative import of another project's file fails the Nx boundary rule
-const messages = await readFile(
-    new URL(
-        "../../../infrastructure/translations/projects/huella-legal/es-ES.json",
-        import.meta.url,
-    ),
-    "utf8",
-);
+const messages = await readFile(new URL("../i18n/locales/es-ES.json", import.meta.url), "utf8");
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const componentDirs = await Array.fromAsync(
@@ -55,7 +48,6 @@ const config: StorybookConfig = {
             files: "**/*.stories.ts",
             titlePrefix: titlePrefix(dir),
         })),
-        { directory: "../app/lab", files: "**/*.stories.ts", titlePrefix: "Lab" },
     ],
     staticDirs: [{ from: "../public/favicon.ico", to: "/favicon.ico" }],
     core: {

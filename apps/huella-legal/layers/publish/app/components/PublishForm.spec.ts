@@ -1,7 +1,7 @@
 import type { FormError } from "@nuxt/ui";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, ref } from "vue";
 import type { FormPostStatus } from "#layers/forms/app/composables/useFormPost";
 import { MANUSCRIPT_MAX_BYTES } from "../../shared/schemas/submission";
@@ -99,7 +99,7 @@ const submit = async (wrapper: Wrapper) => {
 };
 
 describe("publish form", () => {
-    beforeAll(() => {
+    beforeEach(() => {
         useNuxtApp().$i18n.mergeLocaleMessage("es-ES", MESSAGES);
     });
 

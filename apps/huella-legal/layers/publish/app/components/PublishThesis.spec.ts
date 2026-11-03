@@ -1,11 +1,11 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import PublishThesis from "./PublishThesis.vue";
 
 const MESSAGES = { publish: { thesis: { action: "action", body: "body", title: "thesis" } } };
 
 describe("publish thesis", () => {
-    beforeAll(() => {
+    beforeEach(() => {
         useNuxtApp().$i18n.mergeLocaleMessage("es-ES", MESSAGES);
     });
 

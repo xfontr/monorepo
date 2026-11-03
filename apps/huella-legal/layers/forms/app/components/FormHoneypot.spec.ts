@@ -1,5 +1,5 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import FormHoneypot from "./FormHoneypot.vue";
 
 const MESSAGES = { formHoneypot: { label: "honeypot" } };
@@ -10,7 +10,7 @@ const mount = () =>
     });
 
 describe("FormHoneypot", () => {
-    beforeAll(() => {
+    beforeEach(() => {
         useNuxtApp().$i18n.mergeLocaleMessage("es-ES", MESSAGES);
     });
 

@@ -7,10 +7,6 @@ export default playwright.createConfig({
     // Nothing listens on these: the preloaded fakes answer them inside the server process
     env: {
         NUXT_CONTENT_VENDOR_BASE_URL: "http://localhost/wordpress",
-        NUXT_TRANSLATIONS_VENDOR_BASE_URL: "http://localhost/tolgee",
-        NUXT_TRANSLATIONS_VENDOR_PROJECT: "huella-legal",
-        // TolgeeProvider refuses an empty token
-        NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN: "e2e",
         NUXT_NEWSLETTER_BASE_URL: "http://localhost/kit",
         NUXT_NEWSLETTER_API_KEY: "e2e",
         NUXT_NEWSLETTER_FORM_ID: "e2e",

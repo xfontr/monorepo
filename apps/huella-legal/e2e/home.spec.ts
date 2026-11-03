@@ -20,7 +20,7 @@ test.beforeEach(async ({ page }) => {
     expect(response?.status()).toBe(200);
 });
 
-test("opens with the journal's statement, from the translations upstream", async ({ page }) => {
+test("opens with the journal's statement", async ({ page }) => {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
         "Derecho riguroso, escrito para ser leído.",
     );

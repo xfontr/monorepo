@@ -114,10 +114,8 @@ every workflow that installs uses `--ignore-scripts` — so a hook hung off one 
 silently does nothing where it matters. Skip setup and the [commit and push gates](#-git-conventions) below
 simply never fire, while the portal has no current coverage or derived docs to show.
 
-`huella-legal` fetches both its translations and its articles over the network at runtime, so it
-needs `NUXT_TRANSLATIONS_VENDOR_*` set before any page renders. See
-[`apps/huella-legal`](./apps/huella-legal/README.md) for which vars, and for the local translations
-server `nuxt dev` reads from.
+`huella-legal` fetches its articles over the network at runtime and bundles its own copy. See
+[`apps/huella-legal`](./apps/huella-legal/README.md) for the env vars it reads.
 
 The everyday commands. [`docs/FEATURES.md`](./docs/FEATURES.md) lists every other one — the
 `issue:*` scripts, `docs:drift`, `review:version`, `package:check` — with the doc that explains it.

@@ -1,5 +1,5 @@
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { InterestEntry } from "../types/InterestEntry";
 import InterestCalculatorHistory from "./InterestCalculatorHistory.vue";
 
@@ -81,7 +81,7 @@ const mountHistory = (entries: InterestEntry[] = ENTRIES) =>
     mountSuspended(InterestCalculatorHistory, { props: { entries } });
 
 describe("interest calculator history", () => {
-    beforeAll(() => {
+    beforeEach(() => {
         useNuxtApp().$i18n.mergeLocaleMessage("es-ES", MESSAGES);
     });
 

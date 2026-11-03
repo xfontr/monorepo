@@ -1,6 +1,6 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { nextTick } from "vue";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import InterestCalculatorResult from "./InterestCalculatorResult.vue";
 
 const RESULT = { days: 365, interestCents: 3250, totalCents: 103_250 };
@@ -21,7 +21,7 @@ const MESSAGES = {
 };
 
 describe("interest calculator result", () => {
-    beforeAll(() => {
+    beforeEach(() => {
         useNuxtApp().$i18n.mergeLocaleMessage("es-ES", MESSAGES);
     });
 

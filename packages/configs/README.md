@@ -214,7 +214,7 @@ Node types even in a package that otherwise doesn't.
   handler, or reading a `v-for` or slot variable are allowed, since a `computed` cannot take the row
   as an argument. Only the outermost offending call in an expression is reported. No plugin rule
   covers this, and `vue/no-restricted-syntax` can't express the variable check, so it is a local
-  rule under an inline `monorepo` plugin. `apps/huella-legal` turns it off for its `/lab` studies
+  rule under an inline `monorepo` plugin.
 - `monorepo/require-route-meta`, from [`lib/routeMeta.ts`](./src/eslint/lib/routeMeta.ts) — in no
   factory; a project opts in with `[...eslint.createNuxtConfig(), eslint.routeMeta]`. Every file
   under `server/api/` or `server/routes/` calls `defineRouteMeta` at top level with an `openAPI`

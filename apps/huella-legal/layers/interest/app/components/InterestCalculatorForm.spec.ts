@@ -1,6 +1,6 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import InterestCalculatorForm from "./InterestCalculatorForm.vue";
 
 const MESSAGES = {
@@ -43,7 +43,7 @@ const mountForm = async () => {
 };
 
 describe("interest calculator form", () => {
-    beforeAll(() => {
+    beforeEach(() => {
         useNuxtApp().$i18n.mergeLocaleMessage("es-ES", MESSAGES);
     });
 

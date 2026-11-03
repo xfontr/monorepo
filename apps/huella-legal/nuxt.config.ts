@@ -1,18 +1,20 @@
+// `@nuxtjs/i18n` imports this too, and loading both at once trips a Node ESM-loader assert
+await import("vue-router/unplugin");
+
+const SITE_URL = "https://www.huellalegal.com";
+
 export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
 
-    // Loaded first because `typedPages` importing it while `@nuxtjs/i18n` loads trips a Node ESM-loader assert
     modules: [
-        async () => {
-            await import("vue-router/unplugin");
-        },
-        "@monorepo/i18n/nuxt",
+        "@nuxtjs/i18n",
         "@monorepo/content/nuxt",
         "@nuxt/ui",
         "@nuxt/fonts",
         "@nuxt/image",
         "@nuxtjs/robots",
         "@nuxtjs/sitemap",
+        "nuxt-llms",
         "nuxt-schema-org",
         "nuxt-seo-utils",
     ],
@@ -44,19 +46,9 @@ export default defineNuxtConfig({
 
     $production: {
         hooks: {
-            "pages:extend"(pages) {
-                for (let index = pages.length - 1; index >= 0; index--) {
-                    if (pages[index]?.path.startsWith("/lab")) pages.splice(index, 1);
-                }
-            },
-
             "build:manifest"(manifest) {
                 for (const chunk of Object.values(manifest)) chunk.prefetch = false;
             },
-        },
-
-        requiredEnv: {
-            translations: ["NUXT_TRANSLATIONS_VENDOR_OPTIONS_TOKEN"],
         },
     },
 
@@ -69,21 +61,10 @@ export default defineNuxtConfig({
     },
 
     i18n: {
-        locales: [{ code: "es-ES", language: "es" }],
+        locales: [{ code: "es-ES", language: "es", file: "es-ES.json" }],
         defaultLocale: "es-ES",
         strategy: "no_prefix",
         detectBrowserLanguage: false,
-    },
-
-    translations: {
-        vendor: {
-            name: "tolgee",
-            project: "34150",
-            baseURL: "https://app.tolgee.io/",
-            options: {
-                token: "",
-            },
-        },
     },
 
     // Unhead rewrites `useSeoMeta` calls at build time, which specs that mock it never see
@@ -92,27 +73,6 @@ export default defineNuxtConfig({
     },
 
     $development: {
-
-        hooks: {
-            "pages:extend"(pages) {
-                for (const page of pages) {
-                    if (page.path.startsWith("/lab")) page.meta = { ...page.meta, layout: false };
-                }
-            },
-        },
-
-        translations: {
-            vendor: {
-                name: "internal",
-                project: "huella-legal",
-                baseURL: "",
-            },
-        },
-
-        requiredEnv: {
-            translations: ["NUXT_TRANSLATIONS_VENDOR_BASE_URL"],
-        },
-
         content: {
             cache: {
                 list: { maxAge: 60 * 5, swr: false },
@@ -126,7 +86,6 @@ export default defineNuxtConfig({
             "/**": { isr: 60 * 60 * 24 },
             "/api/**": { isr: false },
             "/sitemap.xml": { isr: false },
-            "/api/translations/**": { isr: 60 * 60 * 24 },
             "/_i18n/**": { isr: 60 * 60 * 24 },
         },
 
@@ -152,6 +111,64 @@ export default defineNuxtConfig({
         sources: [["/api/__sitemap__/urls", { timeout: 15_000 }]],
     },
 
+    llms: {
+        domain: SITE_URL,
+        title: "Huella Legal",
+        description: "Revista jurídica abierta y gratuita, escrita por su comunidad desde 2020.",
+        sections: [
+            {
+                title: "Secciones",
+                links: [
+                    {
+                        title: "Publicaciones",
+                        description: "Todos los artículos",
+                        href: `${SITE_URL}/publicaciones/`,
+                    },
+                    {
+                        title: "Áreas",
+                        description: "Artículos por área del derecho",
+                        href: `${SITE_URL}/areas/`,
+                    },
+                    {
+                        title: "Colaboradores",
+                        description: "Quién escribe en la revista",
+                        href: `${SITE_URL}/colaboradores/`,
+                    },
+                    {
+                        title: "Buscar",
+                        description: "Buscador de artículos",
+                        href: `${SITE_URL}/buscar/`,
+                    },
+                ],
+            },
+            {
+                title: "Más",
+                links: [
+                    {
+                        title: "Sobre Huella Legal",
+                        description: "Qué es la revista y quién la hace",
+                        href: `${SITE_URL}/sobre/`,
+                    },
+                    {
+                        title: "Cálculo de intereses",
+                        description: "Calculadora de intereses",
+                        href: `${SITE_URL}/calculo-intereses/`,
+                    },
+                    {
+                        title: "Publicar",
+                        description: "Cómo proponer un artículo",
+                        href: `${SITE_URL}/publicar/`,
+                    },
+                    {
+                        title: "Contacto",
+                        description: "Escribir a la revista",
+                        href: `${SITE_URL}/contacto/`,
+                    },
+                ],
+            },
+        ],
+    },
+
     schemaOrg: {
         identity: {
             type: "Organization",
@@ -163,7 +180,7 @@ export default defineNuxtConfig({
     content: {
         vendor: {
             name: "wordpress",
-            baseURL: "https://huellalegal.com",
+            baseURL: SITE_URL,
         },
     },
 
@@ -176,7 +193,7 @@ export default defineNuxtConfig({
 
         public: {
             site: {
-                url: "https://www.huellalegal.com",
+                url: SITE_URL,
             },
 
             observability: {

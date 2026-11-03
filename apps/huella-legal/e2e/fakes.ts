@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import type { Entry, Term, TermResource } from "@monorepo/content";
 import {
     faker,
@@ -8,13 +7,7 @@ import {
     fakeTerm,
     type WordpressContent,
 } from "@monorepo/content/testing";
-import type { Locale, TranslationMap } from "@monorepo/i18n";
 import type { WordpressComment } from "./vendors.ts";
-
-const LOCALES = new URL(
-    "../../../infrastructure/translations/projects/huella-legal/",
-    import.meta.url,
-);
 
 export const SUBJECT = fakeTerm({ description: faker.lorem.sentence() });
 
@@ -111,9 +104,6 @@ export const POSTS: Entry[] = [
 
 export const HIDDEN = POSTS.find(({ seo }) => seo?.noindex)!;
 
-const locale = (code: string): TranslationMap =>
-    JSON.parse(readFileSync(new URL(`${code}.json`, LOCALES), "utf8")) as TranslationMap;
-
 // The footer's privacy and cookies links target these headings' ids
 export const PRIVACY = "Privacidad";
 export const COOKIES = "Cookies";
@@ -183,11 +173,6 @@ export const CONTENT: WordpressContent = {
     categories: termsOf("categories"),
     tags: termsOf("tags"),
 };
-
-export const TRANSLATIONS = { "es-ES": locale("es-ES") } as const satisfies Record<
-    Locale,
-    TranslationMap
->;
 
 // Last, so their faker calls never shift the seeded values above
 export const COMMENTER = faker.person.fullName();

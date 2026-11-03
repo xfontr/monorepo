@@ -1,5 +1,5 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import PublishSteps from "./PublishSteps.vue";
 
 const STEPS = ["summary", "reading", "evaluation", "decision", "publication"];
@@ -16,7 +16,7 @@ const MESSAGES = {
 };
 
 describe("publish steps", () => {
-    beforeAll(() => {
+    beforeEach(() => {
         useNuxtApp().$i18n.mergeLocaleMessage("es-ES", MESSAGES);
     });
 
