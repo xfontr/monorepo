@@ -35,7 +35,7 @@ const rejected = (statusCode: number, data?: unknown) =>
         data: { error: true, statusCode, statusMessage: "Refused", data },
     });
 
-const setUp = async () => {
+const setUp = async (multipart = false) => {
     let controller: ReturnType<typeof useFormPost<Request, FormError, Failure>> | undefined;
 
     await mountSuspended(
@@ -43,6 +43,7 @@ const setUp = async () => {
             setup: () => {
                 controller = useFormPost<Request, FormError, Failure>(ENDPOINT, {
                     failures: FAILURES,
+                    multipart,
                 });
 
                 return () => null;
@@ -69,6 +70,24 @@ describe("useFormPost", () => {
             body: { ...FIELDS, token: "tok" },
         });
         expect(post.status.value).toBe("success");
+    });
+
+    it("posts multipart fields as FormData, keeping a file as a file and dropping an empty one", async () => {
+        const post = await setUp(true);
+        const file = new File(["PK"], "borrador.docx");
+
+        await post.send({ ...FIELDS, consent: true, file, none: null } as never, challenge);
+
+        const body = fetch.mock.calls[0]?.[1].body as FormData;
+
+        expect(body).toBeInstanceOf(FormData);
+        expect(Object.fromEntries(body)).toEqual({
+            ...FIELDS,
+            consent: "true",
+            file,
+            token: "tok",
+        });
+        expect((body.get("file") as File).name).toBe("borrador.docx");
     });
 
     it("is submitting while the request is in flight, and ignores a second submit", async () => {
