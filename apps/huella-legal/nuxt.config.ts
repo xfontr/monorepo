@@ -92,7 +92,7 @@ export default defineNuxtConfig({
     },
 
     $development: {
-        // Lab pages draw their own lab header and footer, so the site shell would render twice
+
         hooks: {
             "pages:extend"(pages) {
                 for (const page of pages) {
@@ -101,7 +101,6 @@ export default defineNuxtConfig({
             },
         },
 
-        // Provisional until early development ends, then Tolgee everywhere (README.md § i18n)
         translations: {
             vendor: {
                 name: "internal",
@@ -126,36 +125,30 @@ export default defineNuxtConfig({
         cache: {
             "/**": { isr: 60 * 60 * 24 },
             "/api/**": { isr: false },
-            "/robots.txt": { isr: false },
             "/sitemap.xml": { isr: false },
             "/api/translations/**": { isr: 60 * 60 * 24 },
             "/_i18n/**": { isr: 60 * 60 * 24 },
         },
+
+        prerender: ["/robots.txt"],
     },
 
-    // The URL comes from `runtimeConfig.public.site`, which nuxt-site-config reads too
     site: {
         name: "Huella Legal",
         trailingSlash: true,
-        // Unset, a preview stays out of search; production sets `NUXT_SITE_ENV=production`
         env: "preview",
-        // Yoast's own titles end in " - Huella Legal"
         separator: "-",
     },
 
     seo: {
-        // Listings paginate with `?page=`, and sort and format are the same list
         canonicalQueryWhitelist: ["page"],
     },
 
-    // The header would say "index" on a post whose meta says "noindex", since only the meta reads
-    // the post
     robots: {
         header: false,
     },
 
     sitemap: {
-        // A source that times out is served empty, which would publish a short sitemap
         sources: [["/api/__sitemap__/urls", { timeout: 15_000 }]],
     },
 
