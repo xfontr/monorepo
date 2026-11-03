@@ -1,7 +1,7 @@
 import type { FormError } from "@nuxt/ui";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, ref } from "vue";
 import type { FormPostStatus } from "#layers/forms/app/composables/useFormPost";
 import { MANUSCRIPT_MAX_BYTES } from "../../shared/schemas/submission";
@@ -67,7 +67,15 @@ vi.mock("../composables/useSubmission", () => ({ useSubmission: () => submission
 
 type Wrapper = Awaited<ReturnType<typeof mountSuspended>>;
 
-const mount = () => mountSuspended(PublishForm, { global: { stubs: { FormChallenge } } });
+const mounted: Wrapper[] = [];
+
+const mount = async () => {
+    const wrapper = await mountSuspended(PublishForm, { global: { stubs: { FormChallenge } } });
+
+    mounted.push(wrapper);
+
+    return wrapper;
+};
 
 const fill = async (wrapper: Wrapper, fields: Partial<typeof FIELDS>, consent = true) => {
     const { name = "", email = "", summary = "" } = fields;
@@ -79,9 +87,6 @@ const fill = async (wrapper: Wrapper, fields: Partial<typeof FIELDS>, consent = 
 };
 
 const attach = async (wrapper: Wrapper, file: File) => {
-    // UFileUpload previews through Node's URL, which refuses the test DOM's File
-    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:borrador");
-
     const input = wrapper.find("input[type=file]");
 
     Object.defineProperty(input.element, "files", { value: [file], configurable: true });
@@ -100,8 +105,14 @@ describe("publish form", () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        // UFileUpload previews through Node's URL, which refuses the test DOM's File
+        vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:borrador");
         submission.status = ref("idle");
         submission.errors = ref([]);
+    });
+
+    afterEach(() => {
+        mounted.splice(0).forEach((wrapper) => wrapper.unmount());
     });
 
     it("sends a proposal with no file, defaulting the kind to an article", async () => {
