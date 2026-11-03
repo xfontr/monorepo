@@ -502,26 +502,69 @@
         "title": "Trabajos de fin de grado y de máster"
     },
     "interestCalculator": {
+        "advanced": {
+            "from": {
+                "legend": "Fecha inicial"
+            },
+            "to": {
+                "legend": "Fecha final"
+            }
+        },
+        "breadcrumb": "Cálculo de intereses",
+        "concept": {
+            "hint": "Opcional",
+            "label": "Concepto"
+        },
         "customPercent": {
-            "hint": "Porcentaje anual",
+            "hint": "Porcentaje anual, por ejemplo 4,5",
             "label": "Tipo personalizado"
         },
-        "disclaimer": "Interés simple: capital × tipo anual × días transcurridos ÷ 365. El resultado es orientativo y no sustituye el asesoramiento jurídico.",
+        "date": {
+            "day": "Día",
+            "month": "Mes",
+            "year": "Año"
+        },
+        "disclaimer": "El resultado es orientativo y no sustituye el asesoramiento jurídico.",
         "errors": {
-            "customPercent": "Escribe un tipo mayor que cero y no superior al 100 %",
-            "from": "Indica la fecha de inicio",
-            "order": "La fecha final no puede ser anterior a la de inicio",
-            "principal": "Escribe un capital mayor que cero",
-            "to": "Indica la fecha final"
+            "customPercent": "Escribe un tipo mayor que cero y no superior al 100 %, por ejemplo 4,5",
+            "from": "Completa la fecha inicial: día, mes y año",
+            "fromInvalid": "La fecha inicial no existe. Revisa el día y el mes, y escribe el año con cuatro cifras",
+            "order": "La fecha final no puede ser anterior a la inicial",
+            "principal": "Escribe un importe mayor que cero, por ejemplo 1.250,50",
+            "to": "Completa la fecha final: día, mes y año",
+            "toInvalid": "La fecha final no existe. Revisa el día y el mes, y escribe el año con cuatro cifras"
         },
         "from": {
-            "label": "Fecha de inicio"
+            "label": "Fecha inicial"
+        },
+        "history": {
+            "clear": "Vaciar la tabla",
+            "cleared": "Tabla vaciada",
+            "columns": {
+                "actions": "Acciones",
+                "concept": "Concepto",
+                "from": "Fecha inicial",
+                "interest": "Intereses",
+                "principal": "Importe",
+                "rate": "%",
+                "to": "Fecha final",
+                "total": "Total"
+            },
+            "conceptLabel": "Concepto de la fila {row}",
+            "confirmClear": "Pulsa otra vez para vaciarla",
+            "copied": "Tabla copiada. Pégala en una hoja de cálculo o en un documento",
+            "copy": "Copiar la tabla",
+            "empty": "Aún no hay cálculos. Pulsa «Añadir a la tabla» bajo un resultado para guardarlo aquí.",
+            "lead": "Los cálculos que añadas se suman aquí y se guardan en este navegador. Puedes ponerle concepto a cada fila.",
+            "remove": "Quitar la fila {row}",
+            "title": "Tabla de cálculos",
+            "totals": "Total"
         },
         "kicker": "Herramienta",
-        "lead": "Calcula el interés de una cantidad entre dos fechas.",
+        "lead": "Utiliza esta calculadora de intereses gratuita para calcular intereses devengados desde la fecha en que se tuvo que resarcir la deuda.",
         "principal": {
-            "hint": "En euros",
-            "label": "Capital"
+            "hint": "En euros, por ejemplo 1.250,50",
+            "label": "Importe"
         },
         "rate": {
             "label": "Tipo de interés",
@@ -532,14 +575,20 @@
             }
         },
         "result": {
+            "add": "Añadir a la tabla",
+            "added": "Añadido a la tabla de cálculos.",
             "days": "Día transcurrido | Días transcurridos",
             "empty": "Rellena el formulario para ver el resultado.",
-            "interest": "Intereses",
+            "interest": "Intereses devengados",
             "label": "Resultado",
-            "total": "Capital más intereses"
+            "total": "Importe más intereses"
         },
         "submit": "Calcular",
-        "title": "Cálculo de intereses",
+        "tabs": {
+            "advanced": "Avanzada",
+            "simple": "Sencilla"
+        },
+        "title": "Cálculo de intereses legales o judiciales devengados",
         "to": {
             "label": "Fecha final"
         }

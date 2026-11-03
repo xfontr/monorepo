@@ -21,11 +21,17 @@ export const Invalid: Story = {
 
 export const Result: Story = {
     play: async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
+        const panel = within(within(canvasElement).getByRole("tabpanel"));
 
-        await userEvent.type(canvas.getByLabelText("Capital"), "1000");
-        await userEvent.type(canvas.getByLabelText("Fecha de inicio"), "2026-01-01");
-        await userEvent.type(canvas.getByLabelText("Fecha final"), "2027-01-01");
-        await userEvent.click(canvas.getByRole("button", { name: "Calcular" }));
+        await userEvent.type(panel.getByLabelText("Fecha inicial"), "2026-01-01");
+        await userEvent.type(panel.getByLabelText("Fecha final"), "2027-01-01");
+        await userEvent.type(panel.getByLabelText("Importe"), "1000");
+        await userEvent.click(panel.getByRole("button", { name: "Calcular" }));
+    },
+};
+
+export const Advanced: Story = {
+    play: async ({ canvasElement }) => {
+        await userEvent.click(within(canvasElement).getByRole("tab", { name: "Avanzada" }));
     },
 };

@@ -1,11 +1,16 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
+import { nextTick } from "vue";
 import { beforeAll, describe, expect, it } from "vitest";
 import InterestCalculatorResult from "./InterestCalculatorResult.vue";
+
+const RESULT = { days: 365, interestCents: 3250, totalCents: 103_250 };
 
 const MESSAGES = {
     interestCalculator: {
         disclaimer: "disclaimer",
         result: {
+            add: "add",
+            added: "added",
             days: "day | days",
             empty: "empty",
             interest: "interest",
@@ -35,5 +40,33 @@ describe("interest calculator result", () => {
         const wrapper = await mountSuspended(InterestCalculatorResult);
 
         expect(wrapper.find("[role=status]").text()).toBe("empty");
+    });
+
+    it("offers to add a result to the table, and nothing to add while empty", async () => {
+        const empty = await mountSuspended(InterestCalculatorResult);
+        const filled = await mountSuspended(InterestCalculatorResult, {
+            props: { result: RESULT },
+        });
+
+        expect(empty.find("button").exists()).toBe(false);
+
+        await filled.get("button").trigger("click");
+
+        expect(filled.emitted("add")).toHaveLength(1);
+    });
+
+    it("swaps the button for a focused confirmation once added, so focus never drops", async () => {
+        const wrapper = await mountSuspended(InterestCalculatorResult, {
+            props: { result: RESULT },
+            attachTo: document.body,
+        });
+
+        await wrapper.setProps({ added: true });
+        await nextTick();
+
+        expect(wrapper.find("button").exists()).toBe(false);
+        expect(document.activeElement?.textContent?.trim()).toBe("added");
+
+        wrapper.unmount();
     });
 });
