@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const nitro = vi.hoisted(() => ({
     body: vi.fn(),
     assertChallenge: vi.fn(),
-    fetch: vi.fn(),
+    sendMail: vi.fn(),
 }));
 
 const httpError = (input: Record<string, unknown>) => Object.assign(new Error("http"), input);
@@ -27,15 +27,8 @@ vi.stubGlobal("assertChallenge", nitro.assertChallenge);
 vi.stubGlobal("createError", httpError);
 vi.stubGlobal("defineEventHandler", (handler: unknown) => handler);
 vi.stubGlobal("readBody", nitro.body);
-vi.stubGlobal("useRuntimeConfig", () => ({
-    mail: {
-        baseURL: "https://mail.test",
-        apiKey: "resend-key",
-        from: "web@revista.test",
-        to: "redaccion@revista.test",
-    },
-}));
-vi.stubGlobal("$fetch", nitro.fetch);
+vi.stubGlobal("useRuntimeConfig", () => ({ mail: { to: "redaccion@revista.test" } }));
+vi.stubGlobal("sendMail", nitro.sendMail);
 
 const handler = (await import("./contact.post")).default as unknown as (
     event: unknown,
@@ -54,20 +47,23 @@ beforeEach(() => {
     vi.clearAllMocks();
     nitro.body.mockResolvedValue(VALID);
     nitro.assertChallenge.mockResolvedValue(undefined);
-    nitro.fetch.mockResolvedValue({ id: "email1" });
+    nitro.sendMail.mockResolvedValue(undefined);
 });
 
 describe("POST /api/contact", () => {
-    it("sends a valid message to Resend once, with Reply-To set to the trimmed sender and no attachment", async () => {
+    it("sends a valid message once to Contacto's inbox, answering the trimmed sender, with no attachment", async () => {
         await handler({});
 
         expect(nitro.assertChallenge).toHaveBeenCalledWith({}, "tok");
-        expect(nitro.fetch).toHaveBeenCalledOnce();
-
-        const { body } = nitro.fetch.mock.calls[0]?.[1] as { body: Record<string, unknown> };
-
-        expect(body).toMatchObject({ to: "redaccion@revista.test", reply_to: "lucia@ejemplo.es" });
-        expect(body).not.toHaveProperty("attachments");
+        expect(nitro.sendMail).toHaveBeenCalledExactlyOnceWith(
+            {},
+            {
+                to: "redaccion@revista.test",
+                replyTo: "lucia@ejemplo.es",
+                subject: "Contacto: Lucía Pérez",
+                text: "Una pregunta sobre el último número.\n\n— Lucía Pérez <lucia@ejemplo.es>",
+            },
+        );
     });
 
     // A bot told it failed would retry; one told it succeeded moves on
@@ -76,7 +72,7 @@ describe("POST /api/contact", () => {
 
         await expect(handler({})).resolves.toBeUndefined();
         expect(nitro.assertChallenge).not.toHaveBeenCalled();
-        expect(nitro.fetch).not.toHaveBeenCalled();
+        expect(nitro.sendMail).not.toHaveBeenCalled();
     });
 
     it("answers an invalid body 422 with each field's issue code and never calls Resend", async () => {
@@ -90,25 +86,25 @@ describe("POST /api/contact", () => {
                 { name: "consent", message: "required" },
             ],
         });
-        expect(nitro.fetch).not.toHaveBeenCalled();
+        expect(nitro.sendMail).not.toHaveBeenCalled();
     });
 
     it("treats an empty body as missing fields, not a crash", async () => {
         nitro.body.mockResolvedValue(undefined);
 
         await expect(handler({})).rejects.toMatchObject({ statusCode: 422 });
-        expect(nitro.fetch).not.toHaveBeenCalled();
+        expect(nitro.sendMail).not.toHaveBeenCalled();
     });
 
     it("keeps the challenge's status, so a failed token is a 403 and nothing is sent", async () => {
         nitro.assertChallenge.mockRejectedValue(httpError({ statusCode: 403 }));
 
         await expect(handler({})).rejects.toMatchObject({ statusCode: 403 });
-        expect(nitro.fetch).not.toHaveBeenCalled();
+        expect(nitro.sendMail).not.toHaveBeenCalled();
     });
 
-    it("answers 502 when Resend refuses the send", async () => {
-        nitro.fetch.mockRejectedValue(httpError({ statusCode: 403 }));
+    it("keeps the mail's status, so a failed send is a 502", async () => {
+        nitro.sendMail.mockRejectedValue(httpError({ statusCode: 502 }));
 
         await expect(handler({})).rejects.toMatchObject({ statusCode: 502 });
     });

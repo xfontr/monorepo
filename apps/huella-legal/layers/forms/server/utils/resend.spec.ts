@@ -6,7 +6,6 @@ const nitro = vi.hoisted(() => ({
         baseURL: "https://mail.test",
         apiKey: "resend-key",
         from: "web@revista.test",
-        to: "redaccion@revista.test",
     },
 }));
 
@@ -16,24 +15,27 @@ vi.stubGlobal("createError", (input: Record<string, unknown>) =>
     Object.assign(new Error("http"), input),
 );
 
-const { sendContactMessage } = await import("./resend");
+const { sendMail } = await import("./resend");
 
-const CONTACT = {
-    name: "Lucía Pérez",
-    email: "lucia@ejemplo.es",
-    message: "Una pregunta sobre el último número.",
+const MAIL = {
+    to: "redaccion@revista.test",
+    replyTo: "lucia@ejemplo.es",
+    subject: "Contacto: Lucía Pérez",
+    text: "Una pregunta sobre el último número.",
 };
 
 const call = () => nitro.fetch.mock.calls[0] as [string, Record<string, unknown>] | undefined;
+
+const body = () => call()?.[1].body as Record<string, unknown>;
 
 beforeEach(() => {
     vi.clearAllMocks();
     nitro.fetch.mockResolvedValue({ id: "email1" });
 });
 
-describe("sendContactMessage", () => {
-    it("sends one email from the configured sender to the inbox, authenticated with the API key", async () => {
-        await sendContactMessage({} as never, CONTACT);
+describe("sendMail", () => {
+    it("sends one email from the configured sender to the given inbox, authenticated with the API key", async () => {
+        await sendMail({} as never, MAIL);
 
         expect(nitro.fetch).toHaveBeenCalledOnce();
         expect(call()?.[0]).toBe("/emails");
@@ -46,28 +48,31 @@ describe("sendContactMessage", () => {
     });
 
     it("sets Reply-To to the reader, so answering the email reaches them and not the sender", async () => {
-        await sendContactMessage({} as never, CONTACT);
+        await sendMail({} as never, MAIL);
 
-        expect(call()?.[1]).toMatchObject({ body: { reply_to: "lucia@ejemplo.es" } });
+        expect(body()).toMatchObject({ reply_to: "lucia@ejemplo.es" });
     });
 
-    it("sends the message as plain text with no HTML and no attachment", async () => {
-        await sendContactMessage({} as never, CONTACT);
+    it("sends plain text with no HTML, and no attachments key when there is nothing to attach", async () => {
+        await sendMail({} as never, { ...MAIL, attachments: [] });
 
-        const body = call()?.[1].body as Record<string, unknown>;
-
-        expect(body.text).toContain("Una pregunta sobre el último número.");
-        expect(body.text).toContain("Lucía Pérez <lucia@ejemplo.es>");
-        expect(body).not.toHaveProperty("html");
-        expect(body).not.toHaveProperty("attachments");
+        expect(body().text).toBe("Una pregunta sobre el último número.");
+        expect(body()).not.toHaveProperty("html");
+        expect(body()).not.toHaveProperty("attachments");
     });
 
-    it("folds a pasted line break in the name, so it never splits the subject header", async () => {
-        await sendContactMessage({} as never, { ...CONTACT, name: "Lucía\r\nBcc: x@spam.test" });
+    it("passes an attachment through as Resend's filename and base64 content", async () => {
+        const attachments = [{ filename: "borrador.docx", content: "UEsDBA==" }];
 
-        expect(call()?.[1]).toMatchObject({
-            body: { subject: "Contacto: Lucía Bcc: x@spam.test" },
-        });
+        await sendMail({} as never, { ...MAIL, attachments });
+
+        expect(body().attachments).toEqual(attachments);
+    });
+
+    it("folds a pasted line break in the subject, so it never splits the header", async () => {
+        await sendMail({} as never, { ...MAIL, subject: "Contacto: Lucía\r\nBcc: x@spam.test" });
+
+        expect(body().subject).toBe("Contacto: Lucía Bcc: x@spam.test");
     });
 
     it.each([
@@ -78,7 +83,7 @@ describe("sendContactMessage", () => {
     ])("answers 502 on %s, keeping the cause", async (_, cause) => {
         nitro.fetch.mockRejectedValue(cause);
 
-        await expect(sendContactMessage({} as never, CONTACT)).rejects.toMatchObject({
+        await expect(sendMail({} as never, MAIL)).rejects.toMatchObject({
             statusCode: 502,
             cause,
         });
