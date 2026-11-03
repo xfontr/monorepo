@@ -3,6 +3,9 @@ definePageMeta({ name: "interestCalculator", path: "/calculo-intereses/" });
 
 const { t } = useI18n();
 
+// The guide is the WordPress page's copy, so the calculator still renders when WordPress fails
+const { data: guide } = await useCachedFetch<Page>("/api/pages/calculo-intereses");
+
 useSeoMeta({
     title: () => t("interestCalculator.title"),
     description: () => t("interestCalculator.lead"),
@@ -22,5 +25,10 @@ useSeoMeta({
         <UContainer class="pt-8 pb-16 lg:pb-20">
             <InterestCalculator />
         </UContainer>
+        <div v-if="guide" class="border-t border-default bg-ivory-50/60">
+            <UContainer class="py-16 lg:py-20">
+                <ArticleProse :lead="guide.body.lead" :html="guide.body.html" />
+            </UContainer>
+        </div>
     </div>
 </template>

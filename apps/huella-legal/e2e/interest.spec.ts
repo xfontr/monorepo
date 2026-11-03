@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import { expect, test } from "@monorepo/configs/playwright/test";
+import { FORMULA, GUIDE_HEADING } from "./fakes.ts";
 
 const WCAG_AA = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
@@ -54,6 +55,16 @@ test("the calculator page answers 200 with its heading inside the shell", async 
     await expect(page.getByRole("banner")).toBeVisible();
     await expect(page.getByRole("contentinfo")).toBeVisible();
     await expect(page).toHaveTitle(`${TITLE} - Huella Legal`);
+});
+
+test("renders the WordPress page's copy as the guide below the calculator", async ({ page }) => {
+    await open(page);
+
+    await expect(page.getByRole("heading", { level: 2, name: GUIDE_HEADING })).toBeVisible();
+    await expect(
+        page.getByRole("heading", { level: 3, name: "Cálculo de intereses avanzado" }),
+    ).toBeVisible();
+    await expect(page.getByText(FORMULA)).toBeVisible();
 });
 
 test("calculates the legal and judicial rates and announces each result", async ({ page }) => {
