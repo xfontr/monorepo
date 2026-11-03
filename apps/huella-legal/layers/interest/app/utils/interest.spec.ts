@@ -1,5 +1,65 @@
 import { describe, expect, it } from "vitest";
-import { calculateInterest, daysBetween, INTEREST_RATES } from "./interest";
+import {
+    calculateInterest,
+    calendarDate,
+    daysBetween,
+    INTEREST_RATES,
+    parseDecimal,
+} from "./interest";
+
+describe("calendarDate", () => {
+    it("pads the day and month, so the result compares as a string", () => {
+        expect(calendarDate(7, 3, 2017)).toBe("2017-03-07");
+    });
+
+    it("accepts 29 February in a leap year", () => {
+        expect(calendarDate(29, 2, 2024)).toBe("2024-02-29");
+    });
+
+    it.each([
+        ["31 February, which Date would roll into March", 31, 2, 2026],
+        ["29 February outside a leap year", 29, 2, 2026],
+        ["a thirteenth month", 1, 13, 2026],
+        ["day zero", 0, 1, 2026],
+        ["a negative day", -1, 1, 2026],
+        ["a fractional day", 1.5, 1, 2026],
+        ["an empty field", Number.NaN, 1, 2026],
+        ["a two-digit year", 1, 1, 26],
+        ["a year past 2100", 1, 1, 2101],
+    ])("refuses %s", (_, day, month, year) => {
+        expect(calendarDate(day, month, year)).toBeUndefined();
+    });
+});
+
+describe("parseDecimal", () => {
+    it.each([
+        ["1.000", 1000],
+        ["1.000,50", 1000.5],
+        ["12.345.678", 12_345_678],
+        ["1000,50", 1000.5],
+        ["1000.50", 1000.5],
+        ["1.5", 1.5],
+        ["1 000,50 €", 1000.5],
+        ["1\u00a0000", 1000],
+    ])("reads %s as a Spanish amount, never as a smaller number", (text, amount) => {
+        expect(parseDecimal(text, { grouping: true })).toBe(amount);
+    });
+
+    it.each([
+        ["4,5", 4.5],
+        ["4.125", 4.125],
+        ["3,25 %", 3.25],
+    ])("reads %s as a rate, where a dot is always a decimal point", (text, rate) => {
+        expect(parseDecimal(text, { grouping: false })).toBe(rate);
+    });
+
+    it.each(["", "abc", "1,000.50", "1.00,5", "1,2,3", "-5", "1e3", "12.34.5"])(
+        "refuses %j instead of guessing which number was meant",
+        (text) => {
+            expect(parseDecimal(text, { grouping: true })).toBeUndefined();
+        },
+    );
+});
 
 describe("daysBetween", () => {
     it("counts a leap day, so a year across 29 February is 366 days", () => {

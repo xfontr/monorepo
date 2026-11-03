@@ -78,7 +78,7 @@ describe("useSiteNav", () => {
             [journal.to, ...(journal.children ?? []).map(({ to }) => to)].map((to) =>
                 nav.href(to!),
             ),
-        ).toEqual(["/sobre/", "/sobre/", "/colaboradores/", "/#newsletter", "/contacto/"]);
+        ).toEqual(["/sobre/", "/sobre/", "/colaboradores/", "/contacto/"]);
     });
 
     it("marks the journal current on the about page itself", async () => {
@@ -94,18 +94,6 @@ describe("useSiteNav", () => {
         expect(nav.sections.value[2]?.children?.map((link) => link["aria-current"])).toEqual([
             undefined,
             "true",
-            undefined,
-            undefined,
-        ]);
-    });
-
-    it("never takes the newsletter's anchor for the page being read, which would mark the home page current", async () => {
-        const nav = await navAt("/");
-
-        expect(nav.sections.value[2]?.children?.map((link) => link["aria-current"])).toEqual([
-            undefined,
-            undefined,
-            undefined,
             undefined,
         ]);
     });
@@ -129,6 +117,15 @@ describe("useSiteNav", () => {
             "/aviso-legal/#privacidad",
             "/aviso-legal/#cookies",
         ]);
+    });
+
+    it("never prefetches the interest calculator, so a pointer crossing the footer can't load it", async () => {
+        const nav = await navAt("/");
+        const links = nav.columns.value.flatMap(({ children }) => children ?? []);
+
+        expect(
+            links.filter(({ prefetch }) => prefetch === false).map(({ to }) => nav.href(to!)),
+        ).toEqual(["/calculo-intereses/"]);
     });
 
     it("offers no cookie settings when no tracker is configured, since there is nothing to consent to", async () => {

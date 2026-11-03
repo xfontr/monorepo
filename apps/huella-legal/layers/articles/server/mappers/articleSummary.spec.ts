@@ -118,6 +118,20 @@ describe("the reading time", () => {
     });
 });
 
+describe("the publication number", () => {
+    it.each([
+        ["02/21", "02/2021"],
+        ["2/2026", "02/2026"],
+        [" 14/2026 ", "14/2026"],
+    ])("reads %o as %o", (num, expected) => {
+        expect(summarise({ fields: { num } }).number).toBe(expected);
+    });
+
+    it.each([undefined, "", "02-21", "abc", 221])("has no number when ACF holds %o", (num) => {
+        expect(summarise({ fields: { num } }).number).toBeUndefined();
+    });
+});
+
 describe("the format", () => {
     const formatOf = (...terms: Term[]) => summarise({ terms }).format;
 

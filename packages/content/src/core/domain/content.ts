@@ -62,6 +62,7 @@ export interface Entry {
     terms: Term[];
     authors: Author[];
     seo?: SEO;
+    fields?: Record<string, unknown>;
 }
 
 export interface Page<T> {

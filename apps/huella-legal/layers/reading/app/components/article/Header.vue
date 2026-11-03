@@ -43,15 +43,11 @@ const bylineAuthors = computed(() =>
         <template #kicker>
             <p class="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-xs md:mt-8">
                 <BaseKicker>{{ formatLabel }}</BaseKicker>
-                <template v-if="article.category">
+                <template v-if="article.number">
                     <span class="text-dimmed" aria-hidden="true">·</span>
-                    <ULink
-                        :to="{ name: 'category', params: { slug: article.category.slug } }"
-                        raw
-                        class="font-medium text-muted underline-offset-4 hover:underline"
-                    >
-                        {{ article.category.name }}
-                    </ULink>
+                    <span class="text-muted tabular-nums">
+                        {{ $t("article.number", { number: article.number }) }}
+                    </span>
                 </template>
             </p>
         </template>

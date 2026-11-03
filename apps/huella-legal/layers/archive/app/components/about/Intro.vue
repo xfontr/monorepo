@@ -78,17 +78,20 @@ const figures = computed(() => [
 }
 
 @media (prefers-reduced-motion: no-preference) {
-    /* The digits stay in the DOM for screen readers and hold the width while the count runs */
-    .hl-about-count > span {
-        color: transparent;
-    }
+    /* WebKit animates --about-n but never repaints the counter, leaving it stuck over the digits */
+    @supports not (font: -apple-system-body) {
+        /* The digits stay in the DOM for screen readers and hold the width while the count runs */
+        .hl-about-count > span {
+            color: transparent;
+        }
 
-    .hl-about-count::after {
-        content: counter(about-n) / "";
-        counter-reset: about-n var(--about-n);
-        justify-self: end;
-        animation: hl-about-count 2s cubic-bezier(0.16, 1, 0.3, 1) both;
-        animation-delay: calc(var(--step) * 150ms + 300ms);
+        .hl-about-count::after {
+            content: counter(about-n) / "";
+            counter-reset: about-n var(--about-n);
+            justify-self: end;
+            animation: hl-about-count 2s cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation-delay: calc(var(--step) * 150ms + 300ms);
+        }
     }
 
     /* WCAG 2.2.2 allows unstoppable motion only under five seconds */

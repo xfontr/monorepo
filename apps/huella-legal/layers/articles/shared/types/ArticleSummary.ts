@@ -15,6 +15,8 @@ export interface ArticleSummary {
     tags: Category[];
     format: "articulo" | "comentario" | "tfg-tfm";
     readingMinutes: number;
+    // The publication number, NN/YYYY
+    number?: string;
     commentCount?: number;
     noindex?: boolean;
 }

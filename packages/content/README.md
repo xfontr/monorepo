@@ -56,7 +56,7 @@ portable and the ports stop being worth their indirection.
 A vendor's shapes never leave its adapter. What consumers see is:
 
 ```ts
-type Entry  = { id, slug, title, excerpt?, body, publishedAt?, updatedAt?, image?, terms, authors, seo? }
+type Entry  = { id, slug, title, excerpt?, body, publishedAt?, updatedAt?, image?, terms, authors, seo?, fields? }
 type Term   = { id, resource, slug, name, description?, seo? }
 type Author = { id, slug, name, bio?, avatar? }
 type SEO    = { title?, description?, noindex? }
@@ -83,6 +83,9 @@ for WordPress that is entity-escaped HTML, so a consumer has to render it as HTM
 the CMS host, so the consuming app builds canonicals against its own routes. For WordPress, `seo`
 comes from Yoast and an author's `avatar` from Simple Local Avatars. Each is left unset when its
 plugin isn't installed. `listEntries` also filters by `author`, an author id.
+
+`fields` holds the vendor's custom fields by key, unvalidated, so the consumer narrows each value it
+reads. For WordPress they come from ACF, for a field group with *Show in REST API* on.
 
 Ids are strings, always, even where the vendor numbers them.
 

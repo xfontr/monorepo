@@ -18,7 +18,7 @@ const HEADER: readonly HeaderSection[] = [
     {
         key: "journal",
         to: "about",
-        children: ["about", "collaborators", "newsletter", "contact"],
+        children: ["about", "collaborators", "contact"],
     },
     { key: "publish", to: "publish" },
 ];
@@ -31,6 +31,9 @@ const COLUMNS = [
     { key: "participate", links: ["publish", "publishThesis", "newsletter", "contact"] },
     { key: "legal", links: ["legalNotice", "privacy", "cookies"] },
 ] as const satisfies readonly { key: string; links: readonly NavKey[] }[];
+
+// The calculator stays off every other page's network, even when a pointer crosses its footer link
+const UNPREFETCHED: ReadonlySet<NavKey> = new Set(["interestCalculator"]);
 
 const SOCIAL = [
     { key: "instagram", icon: "i-lucide-instagram" },
@@ -98,6 +101,7 @@ export const useSiteNav = () => {
                 ...links.map((link) => ({
                     label: t(`app.footer.links.${link}`),
                     to: nav[link],
+                    ...(UNPREFETCHED.has(link) && { prefetch: false }),
                 })),
                 ...(key === "legal" && cookiePreferences.enabled
                     ? [

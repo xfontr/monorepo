@@ -15,3 +15,7 @@ export const Empty: Story = {};
 export const Result: Story = {
     args: { result: { days: 365, interestCents: 3250, totalCents: 103_250 } },
 };
+
+export const Added: Story = {
+    args: { ...Result.args, added: true },
+};

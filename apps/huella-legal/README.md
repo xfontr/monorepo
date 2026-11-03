@@ -36,7 +36,7 @@ machine that reads it too often, and every cold cache reads the whole archive.
 
 | Request | Dev answers with |
 | --- | --- |
-| A known post, page, category or tag | [`mocks/content.json`](./mocks/content.json): ten posts over five categories, three of them theses, three authors and `aviso-legal`, edited by hand |
+| A known post, page, category or tag | [`mocks/content.json`](./mocks/content.json): ten posts over five categories, three of them theses, three authors, `aviso-legal` and the calculator's guide, `calculo-intereses`, edited by hand |
 | Any other slug | A `404`, as WordPress would |
 | A search | The posts whose title, excerpt or body hold every word |
 | Comments | None, and a posted one is accepted |
@@ -102,17 +102,18 @@ tripwires.
 
 | Route | Served as |
 | --- | --- |
-| `/:slug/` for every post and every slug in `pageSlugs`, `/`, `/areas/`, `/colaboradores/`, `/calculo-intereses/`, `/contacto/`, `/publicar/`, `/sobre/` | A prerendered file. A slug added since the last build falls through to the function, which renders it once under `/**`'s `isr` |
+| `/:slug/` for every post and every slug in `pageSlugs`, `/`, `/areas/`, `/colaboradores/`, `/calculo-intereses/`, `/contacto/`, `/publicar/`, `/sobre/`, `/robots.txt` | A prerendered file. A slug added since the last build falls through to the function, which renders it once under `/**`'s `isr` |
 | `/feed/` and the `GET /api/*` routes | `isr` 86400 |
 | `/publicaciones/`, `/areas/:slug/`, `/etiquetas/:slug/`, `/colaboradores/:slug/`, `/buscar/`, their `_payload.json`, `/api/articles`, `/api/search` | `isr` 86400, with a `Netlify-Vary` naming the query keys each one reads |
 | `/api/articles/:slug/comments` | `isr` 600. New comments are held for moderation, so the window only delays an approval |
-| `/api/newsletter`, `/api/contact`, `/api/comments`, `/robots.txt`, `/sitemap.xml` | The function, uncached. `@nuxtjs/sitemap` caches the sitemap itself for ten minutes |
+| `/api/newsletter`, `/api/contact`, `/api/comments`, `/sitemap.xml` | The function, uncached. `@nuxtjs/sitemap` caches the sitemap itself for ten minutes |
 
 Nuxt turns every `isr` rule into a client-side payload rule, so client navigation and link prefetch
 read `<route>/_payload.json` rather than the API. `experimental.payloadExtraction` is `"client"`, so
 a first view still gets its payload inlined instead of fetching it as a second request. A link
 prefetches on hover or touch rather than when it scrolls into view, so a page's own links don't fetch
-payloads while it hydrates.
+payloads while it hydrates. The footer's calculator link never prefetches at all, so the
+[`interest`](./layers/interest/README.md) layer stays off every other page's network.
 
 The JS that hydrates a page starts loading only on the window's `load` event.
 [`server/plugins/deferHydration.ts`](./server/plugins/deferHydration.ts) drops the module preloads
@@ -188,7 +189,7 @@ turns their feature off.
 | `NUXT_CONTENT_VENDOR_BASE_URL` | Optional. Overrides the WordPress site root set in `nuxt.config.ts` |
 | `NUXT_PUBLIC_SITE_URL` | Optional. Overrides the public origin set in `nuxt.config.ts`, with scheme. Article permalinks, the share link, both citations, canonicals and the SEO modules' absolute URLs are built on it rather than on the request's host |
 | `NUXT_SITE_ENV` | `production` on the production deploy and `preview` on every other deploy, for builds as well as functions, and unset in dev, CI and e2e builds. A build prerenders only when it is set, and only `production` fails on an unset required variable. Unset or `preview`, robots.txt disallows everything and every page says `noindex`. Prerendered pages bake the value in, which is why builds need it |
-| `NUXT_PUBLIC_PAGE_SLUGS` | A JSON array of the WordPress page slugs served at `/:slug/`, such as `["aviso-legal"]`. Every other slug there is read as a post. The `articles` layer defaults it to `["aviso-legal"]`; set but empty, it replaces the list with `""`, so leave it unset instead |
+| `NUXT_PUBLIC_PAGE_SLUGS` | A JSON array of the WordPress page slugs served at `/:slug/`, such as `["aviso-legal"]`. Every other slug there is read as a post. The `articles` layer defaults it to `["aviso-legal", "calculo-intereses"]`, the second read only as the calculator's guide; set but empty, it replaces the list with `""`, so leave it unset instead |
 | `NUXT_NEWSLETTER_API_KEY` | The Kit v4 API key, sent as `X-Kit-Api-Key` |
 | `NUXT_NEWSLETTER_FORM_ID` | The Kit form new readers join. Its incentive email must be on, since that is the confirmation Kit sends |
 | `NUXT_NEWSLETTER_BASE_URL` | Optional. Overrides the Kit API origin set in the `newsletter` layer, **without** `/v4` — the adapter owns that path |

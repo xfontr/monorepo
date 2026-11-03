@@ -6,9 +6,7 @@ import InterestCalculatorForm from "./InterestCalculatorForm.vue";
 const MESSAGES = {
     formErrorSummary: { item: "{field}: {message}", title: "one | {count} errors" },
     interestCalculator: {
-        customPercent: { hint: "custom-hint", label: "custom" },
         errors: {
-            customPercent: "custom-error",
             from: "from-error",
             order: "order-error",
             principal: "principal-error",
@@ -27,7 +25,7 @@ const MESSAGES = {
 
 const mountForm = async () => {
     const wrapper = await mountSuspended(InterestCalculatorForm);
-    const principal = wrapper.find("input[type=number]");
+    const principal = wrapper.find("input[name=principal]");
     const [from, to] = wrapper.findAll("input[type=date]");
 
     const fillYear = async () => {
@@ -67,16 +65,21 @@ describe("interest calculator form", () => {
         expect(wrapper.text()).toContain("judicial 5,25");
     });
 
-    it("emits the rate typed in once the custom option is chosen", async () => {
+    it("emits the judicial preset's rate once it is chosen", async () => {
         const { wrapper, fillYear, submit } = await mountForm();
 
         await fillYear();
-        await wrapper.findAll("[role=radio]").at(-1)?.trigger("click");
+        await wrapper.findAll("[role=radio]").at(1)?.trigger("click");
         await flushPromises();
-        await wrapper.findAll("input[type=number]").at(1)?.setValue("4");
         await submit();
 
-        expect(wrapper.emitted("submit")?.[0]?.[0]).toMatchObject({ ratePercent: 4 });
+        expect(wrapper.emitted("submit")?.[0]?.[0]).toMatchObject({ ratePercent: 5.25 });
+    });
+
+    it("offers only the two presets, leaving a custom rate to the advanced calculator", async () => {
+        const { wrapper } = await mountForm();
+
+        expect(wrapper.findAll("[role=radio]")).toHaveLength(2);
     });
 
     it("withholds the submit and names the empty principal", async () => {
@@ -94,7 +97,7 @@ describe("interest calculator form", () => {
         await submit();
 
         const alert = wrapper.find("[role=alert]");
-        const principalId = wrapper.find("input[type=number]").attributes("id");
+        const principalId = wrapper.find("input[name=principal]").attributes("id");
 
         expect(alert.text()).toContain("3 errors");
         expect(alert.text()).toContain("principal: principal-error");
@@ -108,6 +111,53 @@ describe("interest calculator form", () => {
         await fillYear();
         await submit();
 
+        expect(wrapper.find("[role=alert]").exists()).toBe(false);
+    });
+
+    it("reads 1.000 as a thousand euros, the way a Spanish reader writes it", async () => {
+        const { wrapper, principal, fillYear, submit } = await mountForm();
+
+        await fillYear();
+        await principal.setValue("1.000");
+        await submit();
+
+        expect(wrapper.emitted("submit")?.[0]?.[0]).toMatchObject({ principal: 1000 });
+    });
+
+    it("shows no error on blur before a submit, so the button never moves under the pointer", async () => {
+        const { wrapper, principal } = await mountForm();
+
+        await principal.setValue("-5");
+        await principal.trigger("blur");
+        await flushPromises();
+
+        expect(wrapper.text()).not.toContain("principal-error");
+    });
+
+    it("strikes a fixed field off the alert without waiting for the next submit", async () => {
+        const { wrapper, principal, submit } = await mountForm();
+
+        await submit();
+        await principal.setValue("1000");
+        await flushPromises();
+
+        const alert = wrapper.get("[role=alert]");
+
+        expect(alert.text()).toContain("2 errors");
+        expect(alert.text()).not.toContain("principal-error");
+    });
+
+    it("clears the order error when the start date moves back, not only when the end does", async () => {
+        const { wrapper, principal, from, to, submit } = await mountForm();
+
+        await principal.setValue("1000");
+        await from?.setValue("2026-02-01");
+        await to?.setValue("2026-01-01");
+        await submit();
+        await from?.setValue("2025-12-01");
+        await flushPromises();
+
+        expect(wrapper.text()).not.toContain("order-error");
         expect(wrapper.find("[role=alert]").exists()).toBe(false);
     });
 

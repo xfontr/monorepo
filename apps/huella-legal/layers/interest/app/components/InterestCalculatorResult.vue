@@ -3,9 +3,17 @@ import type { InterestResult } from "../types/InterestResult";
 
 interface Props {
     result?: InterestResult;
+    added?: boolean;
 }
 
 const props = defineProps<Props>();
+
+defineEmits<{ add: [] }>();
+
+// The button that was focused unmounts once the row is added, so focus lands on what replaced it
+const confirmation = useTemplateRef("confirmation");
+
+watch(confirmation, (element) => element?.focus());
 
 const { locale } = useI18n();
 
@@ -53,6 +61,24 @@ const amounts = computed(() => {
                 {{ $t("interestCalculator.result.empty") }}
             </p>
         </div>
+        <p
+            v-if="result && added"
+            ref="confirmation"
+            tabindex="-1"
+            class="mt-6 flex min-h-11 items-center gap-2 font-sans text-sm text-highlighted outline-none"
+        >
+            <UIcon name="i-lucide-check" class="size-4 text-primary" aria-hidden="true" />
+            {{ $t("interestCalculator.result.added") }}
+        </p>
+        <UButton
+            v-if="result && !added"
+            variant="outline"
+            color="neutral"
+            icon="i-lucide-plus"
+            :label="$t('interestCalculator.result.add')"
+            class="mt-6"
+            @click="$emit('add')"
+        />
         <p class="mt-6 max-w-measure font-sans text-sm text-pretty text-toned">
             {{ $t("interestCalculator.disclaimer") }}
         </p>

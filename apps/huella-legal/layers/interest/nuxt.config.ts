@@ -2,7 +2,12 @@ export default defineNuxtConfig({
     components: [
         {
             path: "components",
-            ignore: ["InterestCalculatorForm.vue", "InterestCalculatorResult.vue"],
+            ignore: [
+                "InterestCalculatorAdvancedForm.vue",
+                "InterestCalculatorForm.vue",
+                "InterestCalculatorHistory.vue",
+                "InterestCalculatorResult.vue",
+            ],
         },
     ],
 

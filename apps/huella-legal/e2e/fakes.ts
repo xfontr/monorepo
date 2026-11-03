@@ -148,7 +148,25 @@ export const PAGE = fakeEntry({
     },
 });
 
-export const PAGES: Entry[] = [LEGAL, PAGE];
+// The calculator page renders this page's body as its guide, under the app's own heading
+export const GUIDE_HEADING = "Cómo utilizar esta calculadora de intereses";
+export const FORMULA =
+    "[(Tipo de interés × Importe) ÷ 365] × Días entre las fechas de inicio y fin";
+
+export const GUIDE = fakeEntry({
+    slug: "calculo-intereses",
+    terms: [],
+    authors: [],
+    body: {
+        format: "html",
+        value:
+            `<h2>${GUIDE_HEADING}</h2><p>${faker.lorem.paragraph()}</p>` +
+            `<h3>Cálculo de intereses avanzado</h3><p>${faker.lorem.paragraph()}</p>` +
+            `<p><strong>${FORMULA}</strong></p>`,
+    },
+});
+
+export const PAGES: Entry[] = [LEGAL, PAGE, GUIDE];
 
 // Every term a post links to, since a prefetched payload that 404s logs to the console
 const termsOf = (resource: TermResource): Term[] => [

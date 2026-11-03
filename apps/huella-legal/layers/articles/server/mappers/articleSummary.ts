@@ -54,6 +54,17 @@ const toExcerpt = (excerpt?: RichText): string | undefined => {
     return toText(excerpt.value).replace(/\s*\[…\]$/, "") || undefined;
 };
 
+// ACF's `num`, entered by hand as NN/YY on the posts numbered before the year was written in full
+const toNumber = (value: unknown): string | undefined => {
+    const match =
+        typeof value === "string" ? /^(\d{1,3})\/(\d{2}|\d{4})$/.exec(value.trim()) : null;
+    if (!match) return undefined;
+
+    const [, index = "", year = ""] = match;
+
+    return `${index.padStart(2, "0")}/${year.length === 2 ? `20${year}` : year}`;
+};
+
 export const toArticleSummary = (entry: Entry): ArticleSummary => {
     const categories = entry.terms.filter((term) => term.resource === "categories").map(toCategory);
     const tags = entry.terms.filter((term) => term.resource === "tags").map(toCategory);
@@ -71,6 +82,7 @@ export const toArticleSummary = (entry: Entry): ArticleSummary => {
         tags,
         format: toFormat(tags.map(({ slug }) => slug)),
         readingMinutes: toReadingMinutes(entry.body),
+        number: toNumber(entry.fields?.num),
         noindex: entry.seo?.noindex || undefined,
     };
 };
