@@ -50,7 +50,7 @@ What the header is now:
 
 | Where | What it does |
 | --- | --- |
-| `apps/huella-legal/app/composables/useSiteNav.ts`, `HEADER` | *Publicaciones* and *Áreas* carry a panel `slot`. *Revista* links to `/sobre/` and groups *Sobre Huella Legal*, *Colaboradores*, *Newsletter* and *Contacto*, each with a description. Publicar stays a link. A child whose link has a hash never counts as current, since `/#newsletter` would otherwise mark the home page |
+| `apps/huella-legal/app/composables/useSiteNav.ts`, `HEADER` | *Publicaciones* and *Áreas* carry a panel `slot`. *Revista* links to `/sobre/` and groups *Sobre Huella Legal*, *Colaboradores* and *Contacto*, each with a description. Publicar stays a link. A child whose link has a hash never counts as current |
 | `layers/archive/app/components/nav/PublicationsPanel.vue` | Browse links (all, by format, search), then the lead and two latest from `/api/home` |
 | `layers/archive/app/components/nav/SubjectsPanel.vue` | The eight largest areas, then *Todas las áreas* |
 | `apps/huella-legal/app/components/shell/SiteHeader.vue` | `LazyUNavigationMenu hydrate-on-media-query` inline, a `LazyUNavigationMenu` in the slideover, and the panels as `LazyNav*` in the slots. *Revista* opens as an accordion in the slideover |
@@ -101,6 +101,5 @@ is the answer only if the dropdowns go.
 | A phone never loads the desktop menu | `SiteHeader.spec.ts`: *holds the inline menu below lg* |
 | The active marker follows a client-side navigation | `e2e/shell.spec.ts`: *the header follows a client-side navigation before anyone has touched it* |
 | `/sobre/` is one step from every header | `e2e/shell.spec.ts`: *the about page is one step from the header*, on all three viewports |
-| The newsletter anchor never marks a page current | `useSiteNav.spec.ts`: *never takes the newsletter's anchor for the page being read* |
 | A resting pointer opens a dropdown on its first entry | `e2e/shell.spec.ts`: `openDropdown` hovers once, after hydration, and never re-enters |
 | An open dropdown stays accessible | `e2e/shell.spec.ts`: *an open header dropdown has no WCAG AA violations* |

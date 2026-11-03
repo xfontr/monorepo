@@ -20,33 +20,22 @@ const jumpFromMenu = (event: MouseEvent, close?: () => void): void => {
     close?.();
     jumpToNewsletter(event);
 };
+
 const homePath = computed(() => router.resolve({ name: "index" }).path);
 
-const withJump = (close?: () => void): NavigationMenuItem[] =>
-    props.sections.map((section) => ({
-        ...section,
-        children: section.children?.map((link) =>
-            link.to === nav.newsletter
-                ? { ...link, onClick: (event: MouseEvent) => jumpFromMenu(event, close) }
-                : link,
-        ),
-    }));
-
-const menuSections = (close?: () => void): NavigationMenuItem[] =>
-    withJump(close).map((section) =>
+const menuSections = computed<NavigationMenuItem[]>(() =>
+    props.sections.map((section) =>
         section.children ? { ...section, type: "trigger" as const } : section,
-    );
+    ),
+);
 
-// A lazy component hydrates, and fetches its chunk, as soon as its props change, so below `lg`
-// the hidden inline menu keeps its server-rendered items.
 const wide = useMediaQuery(WIDE);
-const inlineSections = shallowRef<NavigationMenuItem[]>(withJump());
+const inlineSections = shallowRef<NavigationMenuItem[]>(props.sections);
 
 watchEffect(() => {
-    if (wide.value) inlineSections.value = withJump();
+    if (wide.value) inlineSections.value = props.sections;
 });
 
-// A panel's links are plain links, which Reka doesn't close the dropdown for.
 const openSection = ref<string>("");
 
 watch(
@@ -135,7 +124,7 @@ watch(
 
             <div class="overflow-y-auto">
                 <LazyUNavigationMenu
-                    :items="menuSections(close)"
+                    :items="menuSections"
                     orientation="vertical"
                     variant="link"
                     color="primary"

@@ -18,7 +18,7 @@ const HEADER: readonly HeaderSection[] = [
     {
         key: "journal",
         to: "about",
-        children: ["about", "collaborators", "newsletter", "contact"],
+        children: ["about", "collaborators", "contact"],
     },
     { key: "publish", to: "publish" },
 ];

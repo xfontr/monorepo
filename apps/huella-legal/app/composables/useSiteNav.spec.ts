@@ -78,7 +78,7 @@ describe("useSiteNav", () => {
             [journal.to, ...(journal.children ?? []).map(({ to }) => to)].map((to) =>
                 nav.href(to!),
             ),
-        ).toEqual(["/sobre/", "/sobre/", "/colaboradores/", "/#newsletter", "/contacto/"]);
+        ).toEqual(["/sobre/", "/sobre/", "/colaboradores/", "/contacto/"]);
     });
 
     it("marks the journal current on the about page itself", async () => {
@@ -94,18 +94,6 @@ describe("useSiteNav", () => {
         expect(nav.sections.value[2]?.children?.map((link) => link["aria-current"])).toEqual([
             undefined,
             "true",
-            undefined,
-            undefined,
-        ]);
-    });
-
-    it("never takes the newsletter's anchor for the page being read, which would mark the home page current", async () => {
-        const nav = await navAt("/");
-
-        expect(nav.sections.value[2]?.children?.map((link) => link["aria-current"])).toEqual([
-            undefined,
-            undefined,
-            undefined,
             undefined,
         ]);
     });

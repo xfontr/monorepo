@@ -134,12 +134,10 @@
                 "descriptions": {
                     "about": "Quiénes somos, qué publicamos y cómo",
                     "collaborators": "Quienes escriben la revista y su trayectoria",
-                    "contact": "Dudas, correcciones o ideas para la redacción",
-                    "newsletter": "Un correo al mes con lo que hemos publicado"
+                    "contact": "Dudas, correcciones o ideas para la redacción"
                 },
                 "journal": "Revista",
                 "label": "Principal",
-                "newsletter": "Newsletter",
                 "publications": "Publicaciones",
                 "publish": "Publicar",
                 "subjects": "Áreas"
