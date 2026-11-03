@@ -5,6 +5,18 @@ import { sendContactMessage } from "../adapters/resend";
 // The client words each issue code, since the server has no locale
 const schema = contactSchema((issue) => issue);
 
+export default defineEventHandler(async (event): Promise<void> => {
+    const body = (await readBody<Partial<ContactRequest> | null>(event)) ?? {};
+
+    if (body.website) return;
+
+    await assertChallenge(event, body.token);
+
+    const contact = assertForm(schema, body);
+
+    await sendContactMessage(event, contact);
+});
+
 defineRouteMeta({
     openAPI: {
         tags: ["Forms"],
@@ -35,16 +47,4 @@ defineRouteMeta({
             502: { description: "Resend or Turnstile is unavailable" },
         },
     },
-});
-
-export default defineEventHandler(async (event): Promise<void> => {
-    const body = (await readBody<Partial<ContactRequest> | null>(event)) ?? {};
-
-    if (body.website) return;
-
-    await assertChallenge(event, body.token);
-
-    const contact = assertForm(schema, body);
-
-    await sendContactMessage(event, contact);
 });

@@ -5,6 +5,18 @@ import { createComment } from "../adapters/wordpress";
 // The client words each issue code, since the server has no locale
 const schema = newCommentSchema((issue) => issue);
 
+export default defineEventHandler(async (event): Promise<void> => {
+    const body = (await readBody<Partial<CommentRequest> | null>(event)) ?? {};
+
+    if (body.website) return;
+
+    await assertChallenge(event, body.token);
+
+    const comment = assertForm(schema, body);
+
+    await createComment(event, comment);
+});
+
 defineRouteMeta({
     openAPI: {
         tags: ["Forms"],
@@ -57,16 +69,4 @@ defineRouteMeta({
             502: { description: "WordPress or Turnstile is unavailable" },
         },
     },
-});
-
-export default defineEventHandler(async (event): Promise<void> => {
-    const body = (await readBody<Partial<CommentRequest> | null>(event)) ?? {};
-
-    if (body.website) return;
-
-    await assertChallenge(event, body.token);
-
-    const comment = assertForm(schema, body);
-
-    await createComment(event, comment);
 });
