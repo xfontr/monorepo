@@ -101,7 +101,7 @@ tripwires.
 
 | Route | Served as |
 | --- | --- |
-| `/:slug/` for every post and every slug in `pageSlugs`, `/`, `/areas/`, `/colaboradores/`, `/calculo-intereses/`, `/contacto/`, `/publicar/`, `/sobre/`, `/robots.txt` | A prerendered file. A slug added since the last build falls through to the function, which renders it once under `/**`'s `isr` |
+| `/:slug/` for every post and every slug in `pageSlugs`, `/`, `/areas/`, `/colaboradores/`, `/calculo-intereses/`, `/contacto/`, `/publicar/`, `/sobre/`, `/robots.txt`, `/llms.txt` | A prerendered file. A slug added since the last build falls through to the function, which renders it once under `/**`'s `isr` |
 | `/feed/` and the `GET /api/*` routes | `isr` 86400 |
 | `/publicaciones/`, `/areas/:slug/`, `/etiquetas/:slug/`, `/colaboradores/:slug/`, `/buscar/`, their `_payload.json`, `/api/articles`, `/api/search` | `isr` 86400, with a `Netlify-Vary` naming the query keys each one reads |
 | `/api/articles/:slug/comments` | `isr` 600. New comments are held for moderation, so the window only delays an approval |

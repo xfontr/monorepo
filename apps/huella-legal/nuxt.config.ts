@@ -1,22 +1,20 @@
-import { installModule } from "nuxt/kit";
+// `@nuxtjs/i18n` imports this too, and loading both at once trips a Node ESM-loader assert
+await import("vue-router/unplugin");
 
+const SITE_URL = "https://www.huellalegal.com";
 
 export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
 
-    // `@nuxtjs/i18n` imports `vue-router/unplugin` too, and loading both at once trips a Node
-    // ESM-loader assert, so it installs only once the preload has finished
     modules: [
-        async () => {
-            await import("vue-router/unplugin");
-            await installModule("@nuxtjs/i18n");
-        },
+        "@nuxtjs/i18n",
         "@monorepo/content/nuxt",
         "@nuxt/ui",
         "@nuxt/fonts",
         "@nuxt/image",
         "@nuxtjs/robots",
         "@nuxtjs/sitemap",
+        "nuxt-llms",
         "nuxt-schema-org",
         "nuxt-seo-utils",
     ],
@@ -113,6 +111,64 @@ export default defineNuxtConfig({
         sources: [["/api/__sitemap__/urls", { timeout: 15_000 }]],
     },
 
+    llms: {
+        domain: SITE_URL,
+        title: "Huella Legal",
+        description: "Revista jurídica abierta y gratuita, escrita por su comunidad desde 2020.",
+        sections: [
+            {
+                title: "Secciones",
+                links: [
+                    {
+                        title: "Publicaciones",
+                        description: "Todos los artículos",
+                        href: `${SITE_URL}/publicaciones/`,
+                    },
+                    {
+                        title: "Áreas",
+                        description: "Artículos por área del derecho",
+                        href: `${SITE_URL}/areas/`,
+                    },
+                    {
+                        title: "Colaboradores",
+                        description: "Quién escribe en la revista",
+                        href: `${SITE_URL}/colaboradores/`,
+                    },
+                    {
+                        title: "Buscar",
+                        description: "Buscador de artículos",
+                        href: `${SITE_URL}/buscar/`,
+                    },
+                ],
+            },
+            {
+                title: "Más",
+                links: [
+                    {
+                        title: "Sobre Huella Legal",
+                        description: "Qué es la revista y quién la hace",
+                        href: `${SITE_URL}/sobre/`,
+                    },
+                    {
+                        title: "Cálculo de intereses",
+                        description: "Calculadora de intereses",
+                        href: `${SITE_URL}/calculo-intereses/`,
+                    },
+                    {
+                        title: "Publicar",
+                        description: "Cómo proponer un artículo",
+                        href: `${SITE_URL}/publicar/`,
+                    },
+                    {
+                        title: "Contacto",
+                        description: "Escribir a la revista",
+                        href: `${SITE_URL}/contacto/`,
+                    },
+                ],
+            },
+        ],
+    },
+
     schemaOrg: {
         identity: {
             type: "Organization",
@@ -124,7 +180,7 @@ export default defineNuxtConfig({
     content: {
         vendor: {
             name: "wordpress",
-            baseURL: "https://huellalegal.com",
+            baseURL: SITE_URL,
         },
     },
 
@@ -137,7 +193,7 @@ export default defineNuxtConfig({
 
         public: {
             site: {
-                url: "https://www.huellalegal.com",
+                url: SITE_URL,
             },
 
             observability: {
