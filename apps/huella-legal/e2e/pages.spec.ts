@@ -67,7 +67,10 @@ test("the footer's privacy and cookies links land on their sections", async ({ p
 test("the footer's publishing guide link lands on the guide's WordPress page", async ({ page }) => {
     await page.goto("/");
 
-    await page.getByRole("contentinfo").getByRole("link", { name: "Guía de publicaciones" }).click();
+    await page
+        .getByRole("contentinfo")
+        .getByRole("link", { name: "Guía de publicaciones" })
+        .click();
 
     await expect(page).toHaveURL(new RegExp(`/${PUBLISHING_GUIDE.slug}/$`));
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(PUBLISHING_GUIDE.title);
