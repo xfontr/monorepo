@@ -28,7 +28,10 @@ const COLUMNS = [
         key: "journal",
         links: ["publications", "subjects", "collaborators", "about", "interestCalculator"],
     },
-    { key: "participate", links: ["publish", "publishThesis", "newsletter", "contact"] },
+    {
+        key: "participate",
+        links: ["publish", "publishThesis", "publishGuide", "newsletter", "contact"],
+    },
     { key: "legal", links: ["legalNotice", "privacy", "cookies"] },
 ] as const satisfies readonly { key: string; links: readonly NavKey[] }[];
 

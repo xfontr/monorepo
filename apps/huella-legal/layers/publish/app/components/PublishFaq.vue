@@ -4,6 +4,7 @@ import type { AccordionItem } from "@nuxt/ui";
 const QUESTIONS = ["length", "topics", "format", "changes", "advertising"] as const;
 
 const { t } = useI18n();
+const { nav } = useAppConfig();
 
 const headingId = useId();
 
@@ -22,5 +23,14 @@ const items = computed<AccordionItem[]>(() =>
             {{ $t("publish.faq.title") }}
         </h2>
         <UAccordion :items :default-value="QUESTIONS[0]" :unmount-on-hide="false" class="mt-2" />
+        <UButton
+            variant="link"
+            color="neutral"
+            :label="$t('publish.faq.guide')"
+            icon="i-lucide-file-text"
+            trailing-icon="i-lucide-arrow-right"
+            :to="nav.publishGuide"
+            class="mt-2 -ml-3"
+        />
     </section>
 </template>

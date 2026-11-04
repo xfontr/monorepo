@@ -107,6 +107,7 @@
                 "privacy": "Política de privacidad",
                 "publications": "Publicaciones",
                 "publish": "Publicar un artículo",
+                "publishGuide": "Guía de publicaciones",
                 "publishThesis": "Publicar un TFG o TFM",
                 "subjects": "Áreas"
             },
@@ -685,15 +686,15 @@
                     "question": "¿Puedo incluir publicidad en mi biografía?"
                 },
                 "changes": {
-                    "answer": "Sí. Escríbenos y lo actualizamos o lo retiramos; el artículo sigue siendo tuyo.",
-                    "question": "¿Puedo modificar o retirar el artículo después?"
+                    "answer": "Solo para corregir erratas y unificar el formato con el resto de la revista. Cualquier otro cambio se consulta con el autor.",
+                    "question": "¿Se puede modificar el artículo una vez aceptado?"
                 },
                 "format": {
                     "answer": "Preferimos .docx o .pages, y también aceptamos .txt y .pdf, de hasta 4 MB, adjuntos al formulario.",
                     "question": "¿En qué formato lo envío?"
                 },
                 "length": {
-                    "answer": "Un mínimo de 5.000 caracteres, unas 1.000 palabras. No hay extensión máxima.",
+                    "answer": "Se recomienda un mínimo de unas 1.000 palabras (5.000 caracteres), aunque lo aconsejable es superar las 2.000. No hay extensión máxima.",
                     "question": "¿Qué extensión debe tener el artículo?"
                 },
                 "topics": {
@@ -701,6 +702,7 @@
                     "question": "¿Sobre qué temas puedo escribir?"
                 }
             },
+            "guide": "Todos los criterios, en la guía de publicaciones",
             "title": "Preguntas frecuentes"
         },
         "kicker": "Publicar en Huella Legal",

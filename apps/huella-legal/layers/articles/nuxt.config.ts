@@ -5,7 +5,7 @@ export default defineNuxtConfig({
         },
 
         public: {
-            pageSlugs: ["aviso-legal", "calculo-intereses"],
+            pageSlugs: ["aviso-legal", "calculo-intereses", "guia-de-publicaciones"],
         },
     },
 
