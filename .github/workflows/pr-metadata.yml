@@ -41,9 +41,11 @@ jobs:
                       exit 0
                   fi
 
-                  echo "found=true" >> "$GITHUB_OUTPUT"
-                  echo "type=${match%%/*}" >> "$GITHUB_OUTPUT"
-                  echo "number=${match##*/}" >> "$GITHUB_OUTPUT"
+                  {
+                      echo "found=true"
+                      echo "type=${match%%/*}"
+                      echo "number=${match##*/}"
+                  } >> "$GITHUB_OUTPUT"
 
             - name: Read the linked issue
               if: steps.issue.outputs.found == 'true'
