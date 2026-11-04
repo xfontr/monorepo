@@ -71,7 +71,7 @@ describe("site footer", () => {
         const link = wrapper.find("a[aria-label='t(app.footer.repository)']");
 
         expect([link.attributes("href"), link.attributes("target")]).toEqual([
-            "https://github.com/xfontr/monorepo",
+            "https://github.com/xfontr/monorepo/tree/master/apps/huella-legal",
             "_blank",
         ]);
     });
