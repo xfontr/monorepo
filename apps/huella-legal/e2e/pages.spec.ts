@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@monorepo/configs/playwright/test";
 import type { Page } from "@playwright/test";
-import { ARTICLE, COOKIES, LEGAL, PAGE, PRIVACY, SOURCE } from "./fakes.ts";
+import { ARTICLE, COOKIES, LEGAL, PAGE, PRIVACY, PUBLISHING_GUIDE, SOURCE } from "./fakes.ts";
 
 const WCAG_AA = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
@@ -62,6 +62,15 @@ test("the footer's privacy and cookies links land on their sections", async ({ p
 
         await page.goto("/");
     }
+});
+
+test("the footer's publishing guide link lands on the guide's WordPress page", async ({ page }) => {
+    await page.goto("/");
+
+    await page.getByRole("contentinfo").getByRole("link", { name: "Guía de publicaciones" }).click();
+
+    await expect(page).toHaveURL(new RegExp(`/${PUBLISHING_GUIDE.slug}/$`));
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(PUBLISHING_GUIDE.title);
 });
 
 test("renders any other page on the same template, its notes and sources included", async ({

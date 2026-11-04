@@ -111,6 +111,7 @@ describe("useSiteNav", () => {
             "/calculo-intereses/",
             "/publicar/",
             "/publicar/#tesis",
+            "/guia-de-publicaciones/",
             "/#newsletter",
             "/contacto/",
             "/aviso-legal/",
