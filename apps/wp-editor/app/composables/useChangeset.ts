@@ -23,9 +23,13 @@ export type ItemAction =
 export const messageOf = (error: unknown): string =>
     (error as { data?: { message?: string } }).data?.message ?? (error as Error).message;
 
+const PROGRESS_POLL_MS = 1000;
+
 export const useChangeset = (id: string) => {
     const toast = useToast();
     const busy = ref<string | null>(null);
+    const running = ref<RunReport["kind"] | null>(null);
+    const progress = ref<RunReport | null>(null);
     const request = useFetch<ChangesetView>(`/api/changesets/${id}`, { key: `changeset-${id}` });
     const base = `/api/changesets/${id}`;
     // A plain string path: Nitro's typed-route inference over these templates exceeds tsc's depth.
@@ -56,9 +60,34 @@ export const useChangeset = (id: string) => {
         }
     };
 
+    /** Polls the run's own progress saves while `bulk` waits for the whole run to come back. */
+    const watchProgress = async <T>(kind: RunReport["kind"], start: () => Promise<T>) => {
+        running.value = kind;
+
+        const startedAt = new Date().toISOString();
+        let finished = false;
+        const poll = setInterval(async () => {
+            const latest = await $fetch<RunReport | null>(`${base}/progress`).catch(() => null);
+
+            // An older run that was interrupted is still incomplete on disk; it isn't this one.
+            if (!finished) progress.value = latest && latest.at >= startedAt ? latest : null;
+        }, PROGRESS_POLL_MS);
+
+        try {
+            return await start();
+        } finally {
+            finished = true;
+            clearInterval(poll);
+            running.value = null;
+            progress.value = null;
+        }
+    };
+
     return {
         ...request,
         busy,
+        running,
+        progress,
         act: (key: ItemKey, action: ItemAction, quiet = false) =>
             run(
                 `${action[0]!.toUpperCase()}${action.slice(1)} ${key}`,
@@ -71,7 +100,12 @@ export const useChangeset = (id: string) => {
         bulk: (kind: RunReport["kind"]) =>
             run(
                 kind === "apply" ? "Bulk apply" : "Dry run",
-                () => call<RunReport>(kind === "apply" ? "/apply" : "/dry-run", { method: "POST" }),
+                () =>
+                    watchProgress(kind, () =>
+                        call<RunReport>(kind === "apply" ? "/apply" : "/dry-run", {
+                            method: "POST",
+                        }),
+                    ),
                 true,
             ),
     };
