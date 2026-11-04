@@ -32,8 +32,8 @@ import type { Store } from "../adapters/store.ts";
 import type { WordPress } from "../adapters/wordpress.ts";
 import { toSnapshot } from "../adapters/wordpress.ts";
 
-const WRITE_DELAY_MS = 500;
-const READ_DELAY_MS = 100;
+// WordPress erroring this many articles in a row usually means the host is blocking us.
+const MAX_FAILURES_IN_A_ROW = 3;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -342,24 +342,47 @@ const runEach = async (
     kind: RunReport["kind"],
     items: Item[],
     step: (item: Item) => Promise<string | null>,
-    delayMs: number,
+    save: (report: RunReport) => Promise<void>,
+    pauseMs: number,
 ): Promise<RunReport> => {
     const report: RunReport = { kind, at: now(), ok: [], refused: [], failed: [], warnings: [] };
+    const progress = (current?: ItemKey) =>
+        save({ ...report, incomplete: true, total: items.length, current });
+    let failuresInARow = 0;
+
+    await progress();
 
     for (const [index, item] of items.entries()) {
-        if (index > 0) await sleep(delayMs);
+        if (index > 0) await sleep(pauseMs);
+
+        await progress(item.key);
 
         try {
             const warning = await step(item);
 
             report.ok.push(item.key);
             if (warning) report.warnings.push({ key: item.key, reason: warning });
+            failuresInARow = 0;
         } catch (error) {
             const entry = { key: item.key, reason: (error as Error).message };
 
-            if (error instanceof Refusal) report.refused.push(entry);
-            else report.failed.push(entry);
+            if (error instanceof Refusal) {
+                report.refused.push(entry);
+                failuresInARow = 0;
+            } else {
+                report.failed.push(entry);
+                failuresInARow++;
+            }
         }
+
+        if (failuresInARow === MAX_FAILURES_IN_A_ROW && index < items.length - 1) {
+            report.stopped =
+                `WordPress failed ${MAX_FAILURES_IN_A_ROW} articles in a row, so the ` +
+                `${items.length - index - 1} after them weren't tried.`;
+            break;
+        }
+
+        await progress();
     }
 
     return report;
@@ -373,11 +396,12 @@ export const bulkDryRun = async (
     store: Store,
     wp: WordPress,
     id: string,
-    delayMs = READ_DELAY_MS,
+    pauseMs?: number,
 ): Promise<RunReport> => {
     await requireChangeset(store, id);
 
     const items = await store.readItems(id);
+    const settings = await store.readSettings();
     const fingerprints: Partial<Record<ItemKey, string>> = {};
     const report = await runEach(
         "dry-run",
@@ -389,9 +413,9 @@ export const bulkDryRun = async (
 
             return warning;
         },
-        delayMs,
+        (partial) => store.writeRun(id, { ...partial, fingerprints }),
+        pauseMs ?? settings.pauseMs,
     );
-    const settings = await store.readSettings();
     const done: RunReport = {
         ...report,
         fingerprints,
@@ -408,16 +432,13 @@ export const bulkApply = async (
     store: Store,
     wp: WordPress,
     id: string,
-    delayMs = WRITE_DELAY_MS,
+    pauseMs?: number,
 ): Promise<RunReport> => {
     await requireChangeset(store, id);
 
     const items = await store.readItems(id);
-    const blocker = bulkApplyBlocker(
-        items,
-        await store.readSettings(),
-        await latestDryRun(store, id),
-    );
+    const settings = await store.readSettings();
+    const blocker = bulkApplyBlocker(items, settings, await latestDryRun(store, id));
 
     if (blocker) throw new Refusal(blocker);
 
@@ -429,7 +450,8 @@ export const bulkApply = async (
 
             return markerWarning(item);
         },
-        delayMs,
+        (partial) => store.writeRun(id, partial),
+        pauseMs ?? settings.pauseMs,
     );
 
     await store.writeRun(id, report);

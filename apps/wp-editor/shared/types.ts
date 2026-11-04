@@ -78,6 +78,14 @@ export interface RunReport {
     failed: RunEntry[];
     /** Went through, but the block markers differ from base. */
     warnings: RunEntry[];
+    /** Saved with every article until the last, so a report that still has it was stopped partway. */
+    incomplete?: true;
+    /** Progress saves only: how many articles the run will go through. */
+    total?: number;
+    /** Progress saves only: the article being checked or written right now. */
+    current?: ItemKey;
+    /** Why the run gave up before the last article; the rest are still pending. */
+    stopped?: string;
     /** Dry run only: what would still keep bulk apply shut, besides the dry run itself. */
     blocker?: string | null;
     /** Dry run only: what each `ok` article looked like, so a later edit invalidates the run. */
@@ -95,13 +103,18 @@ export interface Settings {
     requireDryRun: boolean;
     /** Every WordPress write is refused; Apply and Bulk apply only check. */
     dryRun: boolean;
+    /** Between articles in a bulk run, so a shared host's per-IP rate limit doesn't block us. */
+    pauseMs: number;
 }
+
+export const MAX_PAUSE_MS = 2000;
 
 export const DEFAULT_SETTINGS: Settings = {
     reviewGate: "all",
     bulkApplyMinLevel: "confirmed",
     requireDryRun: false,
     dryRun: false,
+    pauseMs: 500,
 };
 
 export const parseKey = (key: string): { type: PostType; id: number } | null => {

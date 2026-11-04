@@ -6,7 +6,7 @@ const route = useRoute();
 const router = useRouter();
 const id = route.params.id as string;
 
-const { data, error, busy, act, save, bulk } = useChangeset(id);
+const { data, error, busy, running, progress, act, save, bulk } = useChangeset(id);
 
 const filter = ref<ItemFilter>("all");
 const mode = ref<"preview" | "html">("preview");
@@ -76,8 +76,8 @@ const runIndex = ref(0);
 const runs = computed(() => data.value?.runs ?? []);
 const shownRun = computed(() => runs.value[runIndex.value]);
 const runItems = computed(() =>
-    runs.value.map(({ kind, at }, index) => ({
-        label: `${kind === "apply" ? "Bulk apply" : "Dry run"} · ${new Date(at).toLocaleString()}`,
+    runs.value.map((run, index) => ({
+        label: `${runLabel(run)} · ${new Date(run.at).toLocaleString()}`,
         value: index,
     })),
 );
@@ -86,6 +86,10 @@ const openReports = () => {
     runIndex.value = 0;
     reportsOpen.value = true;
 };
+
+const currentTitle = computed(
+    () => items.value.find(({ key }) => key === progress.value?.current)?.base.title,
+);
 
 const runBulk = async (kind: RunReport["kind"]) => {
     if (await bulk(kind)) openReports();
@@ -243,6 +247,8 @@ const MODES = [
                 :description="`${data.bulkBlocker} The workflow is set in Settings.`"
                 class="shrink-0"
             />
+
+            <RunProgress v-if="running" :kind="running" :report="progress" :current-title />
 
             <UEmpty
                 v-if="!item"

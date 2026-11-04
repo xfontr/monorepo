@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { SelectItem } from "@nuxt/ui";
 import type { Settings } from "#shared/types.ts";
+import { DEFAULT_SETTINGS, MAX_PAUSE_MS } from "#shared/types.ts";
 
 const toast = useToast();
 const { data: settings, error } = await useFetch<Settings>("/api/settings");
@@ -69,13 +70,32 @@ const save = async () => {
             <div v-else-if="draft" class="flex w-full max-w-2xl flex-col gap-8">
                 <section class="flex flex-col gap-3">
                     <h2 class="font-semibold">WordPress</h2>
-                    <UPageCard variant="subtle">
+                    <UPageCard
+                        variant="subtle"
+                        :ui="{ container: 'gap-y-0 divide-y divide-default' }"
+                    >
                         <UFormField
                             label="Dry-run mode"
                             description="Check every write against WordPress without saving it."
                             orientation="horizontal"
+                            class="pb-4"
                         >
                             <USwitch v-model="draft.dryRun" />
+                        </UFormField>
+
+                        <UFormField
+                            label="Pause between articles"
+                            :description="`Milliseconds a bulk run waits before the next article, so the host doesn't block us. ${DEFAULT_SETTINGS.pauseMs} is the recommended value; raise it after a block.`"
+                            orientation="horizontal"
+                            class="pt-4"
+                        >
+                            <UInputNumber
+                                v-model="draft.pauseMs"
+                                :min="0"
+                                :max="MAX_PAUSE_MS"
+                                :step="100"
+                                class="w-48"
+                            />
                         </UFormField>
                     </UPageCard>
                 </section>

@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { derivedStatus } from "../../shared/rules.ts";
-import type { ItemKey, Settings } from "../../shared/types.ts";
+import type { ItemKey, RunReport, Settings } from "../../shared/types.ts";
 import { DEFAULT_SETTINGS } from "../../shared/types.ts";
 import {
     applyItem,
@@ -256,6 +256,13 @@ describe("dry runs and reports", () => {
     const useSettings = (overrides: Partial<Settings>) =>
         store.writeSettings({ ...DEFAULT_SETTINGS, ...overrides });
 
+    /** A process killed after the last article, before the final, complete report is written. */
+    const killedBeforeFinalReport = (): Store => ({
+        ...store,
+        writeRun: (id, report) =>
+            report.incomplete ? store.writeRun(id, report) : Promise.reject(new Error("killed")),
+    });
+
     it("writes nothing to WordPress in dry-run mode, while a dry run still checks", async () => {
         const fake = fakeWordPress("a");
         const id = await propose(fake.wp, "one", "b");
@@ -294,6 +301,79 @@ describe("dry runs and reports", () => {
 
         expect(report.failed).toEqual([{ key: KEY, reason: "502 Bad Gateway" }]);
         expect(await store.listRuns(id)).toEqual([report]);
+    });
+
+    it("leaves an incomplete report of the articles a run reached when it dies before the end", async () => {
+        const fake = fakeWordPress("a");
+        const id = await propose(fake.wp, "one", "b");
+        const dying = killedBeforeFinalReport();
+
+        await expect(bulkApply(dying, fake.wp, id, 0)).rejects.toThrow("killed");
+
+        expect(await store.listRuns(id)).toMatchObject([
+            { kind: "apply", incomplete: true, ok: [KEY] },
+        ]);
+    });
+
+    it("keeps bulk apply shut after a dry run that died before saving its final report", async () => {
+        const fake = fakeWordPress("a");
+        const id = await propose(fake.wp, "one", "b");
+        const dying = killedBeforeFinalReport();
+
+        await useSettings({ requireDryRun: true });
+        await expect(bulkDryRun(dying, fake.wp, id, 0)).rejects.toThrow("killed");
+
+        await expect(bulkApply(store, fake.wp, id, 0)).rejects.toThrow(/didn't finish/);
+        expect(fake.post.content.raw).toBe("a");
+    });
+
+    it("saves a finished run's report once, with no trace of the progress saves", async () => {
+        const fake = fakeWordPress("a");
+        const id = await propose(fake.wp, "one", "b");
+
+        const report = await bulkDryRun(store, fake.wp, id, 0);
+
+        expect(report).not.toHaveProperty("incomplete");
+        expect(await store.listRuns(id)).toEqual([report]);
+    });
+
+    it("stops after three WordPress failures in a row instead of hammering a host that blocks us", async () => {
+        const { post, wp } = fakeWordPress("a");
+        const keys: ItemKey[] = ["posts-1", "posts-2", "posts-3", "posts-4", "posts-5"];
+        const many = {
+            ...wp,
+            get: (_type: string, id: number) => Promise.resolve({ ...post, id }),
+        };
+        const { id } = await openChangeset(store, many as WordPress, { title: "many", ids: keys });
+
+        for (const key of keys) await store.writeProposal(id, key, { content: "b" });
+
+        const blocked = { ...wp, get: () => Promise.reject(new Error("403 Forbidden")) };
+        const report = await bulkDryRun(store, blocked, id, 0);
+
+        expect(report.failed.map(({ key }) => key)).toEqual(keys.slice(0, 3));
+        expect(report.stopped).toMatch(/the 2 after them/);
+    });
+
+    it("saves which article it is on and how many there are while the run is going", async () => {
+        const fake = fakeWordPress("a");
+        const id = await propose(fake.wp, "one", "b");
+        const saved: RunReport[] = [];
+        const recording: Store = {
+            ...store,
+            writeRun: (runId, report) => {
+                saved.push(structuredClone(report));
+
+                return store.writeRun(runId, report);
+            },
+        };
+
+        await bulkApply(recording, fake.wp, id, 0);
+
+        expect(saved).toContainEqual(
+            expect.objectContaining({ incomplete: true, total: 1, current: KEY, ok: [] }),
+        );
+        expect(saved.at(-1)).not.toHaveProperty("total");
     });
 
     it("reports drift found by a dry run as refused, with nothing cleared", async () => {

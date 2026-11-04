@@ -196,6 +196,13 @@ describe("mandatory dry run", () => {
         expect(bulkApplyBlocker([restored], required, dryRun([before]))).toMatch(/run it again/);
     });
 
+    it("never opens on a dry run that stopped partway, even one that cleared every article", () => {
+        const pending = item();
+        const stopped = { ...dryRun([pending]), incomplete: true as const };
+
+        expect(bulkApplyBlocker([pending], required, stopped)).toMatch(/didn't finish/);
+    });
+
     it("does not count an article the dry run refused as cleared", () => {
         const report = { ...dryRun([]), refused: [{ key: KEY, reason: "drift" }] };
 
@@ -216,6 +223,10 @@ describe("settings", () => {
         { bulkApplyMinLevel: "unreviewed" },
         { requireDryRun: "yes" },
         { dryRun: 1 },
+        { pauseMs: -1 },
+        { pauseMs: 2001 },
+        { pauseMs: 250.5 },
+        { pauseMs: "500" },
     ])("refuses %o instead of saving it", (patch) => {
         expect(() => parseSettings(patch)).toThrow(Refusal);
     });

@@ -10,8 +10,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<{ select: [key: ItemKey] }>();
 
 const heading = computed(
-    () =>
-        `${props.report.kind === "apply" ? "Bulk apply" : "Dry run"} · ${new Date(props.report.at).toLocaleString()}`,
+    () => `${runLabel(props.report)} · ${new Date(props.report.at).toLocaleString()}`,
 );
 
 const sections = computed(() => {
@@ -40,6 +39,24 @@ const sections = computed(() => {
                 :label="`${section.label} ${section.entries.length}`"
             />
         </div>
+
+        <UAlert
+            v-if="report.stopped"
+            color="error"
+            variant="subtle"
+            icon="i-lucide-octagon-x"
+            title="Stopped early"
+            :description="`${report.stopped} Run it again once WordPress answers; only pending articles are retried.`"
+        />
+
+        <UAlert
+            v-if="report.incomplete"
+            color="warning"
+            variant="subtle"
+            icon="i-lucide-circle-pause"
+            title="This run didn't finish"
+            description="It stopped partway, or is still going, so it lists only the articles it reached."
+        />
 
         <UAlert
             v-if="report.blocker"

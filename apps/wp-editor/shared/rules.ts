@@ -1,6 +1,6 @@
 import { Refusal } from "./refusal.ts";
 import type { Changeset, Item, ItemState, ReviewLevel, RunReport, Settings } from "./types.ts";
-import { DEFAULT_SETTINGS, REVIEW_GATES } from "./types.ts";
+import { DEFAULT_SETTINGS, MAX_PAUSE_MS, REVIEW_GATES } from "./types.ts";
 
 const RANK = { unreviewed: 0, seen: 1, confirmed: 2 } as const satisfies Record<
     ReviewLevel,
@@ -114,6 +114,7 @@ export const itemFingerprint = (item: Pick<Item, "base" | "state" | "proposal">)
 /** Why the last dry run doesn't cover the pending articles, or null when it does. */
 export const dryRunBlocker = (items: Item[], lastDryRun: RunReport | null): string | null => {
     if (!lastDryRun) return "Run a dry run first.";
+    if (lastDryRun.incomplete) return "The last dry run didn't finish; run it again.";
 
     const unchecked = items
         .filter(isPending)
@@ -145,18 +146,21 @@ export const parseSettings = (patch: unknown, current: Settings = DEFAULT_SETTIN
         REVIEW_GATES.includes(next.reviewGate) &&
         (next.bulkApplyMinLevel === "seen" || next.bulkApplyMinLevel === "confirmed") &&
         typeof next.requireDryRun === "boolean" &&
-        typeof next.dryRun === "boolean";
+        typeof next.dryRun === "boolean" &&
+        Number.isInteger(next.pauseMs) &&
+        next.pauseMs >= 0 &&
+        next.pauseMs <= MAX_PAUSE_MS;
 
     if (!valid) {
         throw new Refusal(
             `Settings are reviewGate ${REVIEW_GATES.join("|")}, bulkApplyMinLevel seen|confirmed, ` +
-                "requireDryRun and dryRun booleans.",
+                `requireDryRun and dryRun booleans, pauseMs a whole number from 0 to ${MAX_PAUSE_MS}.`,
         );
     }
 
-    const { reviewGate, bulkApplyMinLevel, requireDryRun, dryRun } = next;
+    const { reviewGate, bulkApplyMinLevel, requireDryRun, dryRun, pauseMs } = next;
 
-    return { reviewGate, bulkApplyMinLevel, requireDryRun, dryRun };
+    return { reviewGate, bulkApplyMinLevel, requireDryRun, dryRun, pauseMs };
 };
 
 /** Why a write is refused because WordPress moved since `expected`, or null when it may go ahead. */

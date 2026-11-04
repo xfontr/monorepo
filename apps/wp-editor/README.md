@@ -77,7 +77,7 @@ read/write access to the store, granted through `additionalDirectories` in the g
 ## 💾 The store
 
 ```
-settings.json                   reviewGate, bulkApplyMinLevel, requireDryRun, dryRun
+settings.json                   reviewGate, bulkApplyMinLevel, requireDryRun, dryRun, pauseMs
 changesets/0001-ortografia/
     changeset.json              id, title, instructions, createdAt, status, keys, scanned
     base/posts-123.html         content.raw at pull time
@@ -85,7 +85,7 @@ changesets/0001-ortografia/
     proposed/posts-123.html     absent means no change
     proposed/posts-123.json     optional { title?, excerpt?, reviewRequested? }
     state/posts-123.json        level, rejected, drift, applied { at, modifiedGmt }, restored
-    runs/<at>-apply.json        one per bulk run: ok, refused, failed, warnings
+    runs/<at>-apply.json        one per bulk run: ok, refused, failed, warnings, stopped, incomplete
     runs/<at>-dry-run.json      the same, plus the fingerprint of every article it cleared
 ```
 
@@ -107,8 +107,10 @@ All of them live in [`shared/rules.ts`](./shared/rules.ts) and are pinned by its
 | Bulk apply gate | `reviewGate` picks who must reach `bulkApplyMinLevel` first: `all` pending articles, only the `requested` ones, or `none`. The screen says how many fall short |
 | Review requested | The change-maker sets `reviewRequested` in `proposed/<key>.json` with the reason; the UI flags it and can't remove it |
 | Dry-run mode | `dryRun` refuses every WordPress write; Apply checks drift and block markers instead, and Restore is disabled |
-| Mandatory dry run | `requireDryRun` keeps bulk apply shut until the last dry run cleared every pending article; an edit, re-pull or restore after it invalidates that article |
-| Bulk reports | Every bulk run saves a report and opens it; a WordPress error marks that article `failed` and the run carries on |
+| Mandatory dry run | `requireDryRun` keeps bulk apply shut until the last dry run finished and cleared every pending article; an edit, re-pull or restore after it invalidates that article |
+| Bulk reports | Every bulk run saves its report as it goes, shows its progress and opens the report at the end; a WordPress error marks that article `failed` and the run carries on, and a run that stops partway leaves its report marked `incomplete` |
+| Repeated failures | Three WordPress failures in a row stop the run and say so in the report; the articles after them stay pending for the next run |
+| Pause | `pauseMs`, 0–2000 and 500 by default, is the wait between articles in a bulk run; raise it if the host rate-limits us |
 | Drift | Every write compares live `modified_gmt` with `base`; a mismatch refuses the item and flags it for re-pull |
 | Restore | Writes N's `base` back; blocked while a later changeset still has the article applied, naming it. The article goes back to `seen`, so it can be edited, confirmed, rejected and applied again; a restore never reopens a closed changeset |
 
