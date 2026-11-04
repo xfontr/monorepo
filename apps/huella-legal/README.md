@@ -315,7 +315,7 @@ rules and lists the [prerendered routes](#-rendering) on a Netlify build.
 | [`types/`](./app/types) | The vocabulary kits share across layers: `LinkAction`, the `{ label, to }` every link and action prop takes, and `Tone`, the `paper` or `slate` surface a component renders on |
 | [`error.vue`](./app/error.vue) | The 404 design for a 404 and the server design for anything else, inside the same layout. It wraps itself in `UApp`, since Nuxt renders it in place of `app.vue` |
 | [`utils/createPageError.ts`](./app/utils/createPageError.ts) | A failed page fetch as the fatal error `error.vue` renders: the status the route answered with, or `502` when no response came back, with data and stack kept. Every page controller raises through it, and client code reads and writes `status`/`statusText`, since Nuxt deprecates `statusCode`/`statusMessage` |
-| [`app.config.ts`](./app/app.config.ts) | The journal's name and ISSN under `journal`, read by the citation mapper on the server too. The Nuxt UI theme is the [`design`](./layers/design) layer's |
+| [`app.config.ts`](./app/app.config.ts) | The journal's name and ISSN under `journal`, read by the citation mapper on the server too. The source repository's URL under `repository`, which the footer links. The Nuxt UI theme is the [`design`](./layers/design) layer's |
 
 Domain logic lives in Nuxt layers under [`layers/`](./layers): one directory per task a reader
 comes for, such as reading, browsing the archive or searching, a **feature**, plus one per concern that several features share, a **capability**, today

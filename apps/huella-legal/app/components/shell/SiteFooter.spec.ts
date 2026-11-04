@@ -64,4 +64,27 @@ describe("site footer", () => {
 
         expect(links).toEqual([["https://x.test/huella", "X (se abre en una pestaña nueva)"]]);
     });
+
+    it("links the source repository in a new tab even while no profile is configured", async () => {
+        const wrapper = await mountFooter([]);
+
+        const link = wrapper.find("a[aria-label='t(app.footer.repository)']");
+
+        expect([link.attributes("href"), link.attributes("target")]).toEqual([
+            "https://github.com/xfontr/monorepo",
+            "_blank",
+        ]);
+    });
+
+    it("keeps the repository out of the social list, which it isn't", async () => {
+        const wrapper = await mountFooter();
+
+        expect(
+            wrapper
+                .find(
+                    "[aria-label='t(app.footer.social.label)'] [aria-label='t(app.footer.repository)']",
+                )
+                .exists(),
+        ).toBe(false);
+    });
 });

@@ -110,6 +110,7 @@
                 "publishThesis": "Publicar un TFG o TFM",
                 "subjects": "Áreas"
             },
+            "repository": "Código fuente en GitHub (se abre en una pestaña nueva)",
             "social": {
                 "external": "{network} (se abre en una pestaña nueva)",
                 "instagram": "Instagram",
@@ -496,7 +497,7 @@
         "kicker": "Archivo académico",
         "lead": "Publicados íntegramente y enlazados desde su área, para que un buen trabajo no acabe en un cajón.",
         "publish": "Publicar el tuyo",
-        "readingTime": "{minutes}\u00a0min",
+        "readingTime": "{minutes} min",
         "title": "Trabajos de fin de grado y de máster"
     },
     "interestCalculator": {
