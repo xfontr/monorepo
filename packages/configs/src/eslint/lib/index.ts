@@ -13,6 +13,7 @@ import templateI18n from "./templateI18n.ts";
 import templateCalls from "./templateCalls.ts";
 import { useBeforeDefine, useBeforeDefineVue } from "./useBeforeDefine.ts";
 import noConsole from "./console.ts";
+import { unsafeCode, unsafeCodeVue } from "./unsafeCode.ts";
 import e2eFixture from "./e2eFixture.ts";
 import routeMeta from "./routeMeta.ts";
 import tailwind from "./tailwind.ts";
@@ -37,6 +38,8 @@ export {
     useBeforeDefine,
     useBeforeDefineVue,
     noConsole,
+    unsafeCode,
+    unsafeCodeVue,
     e2eFixture,
     routeMeta,
     tailwind,

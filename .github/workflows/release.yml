@@ -24,7 +24,8 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-              with:
+              # nx release pushes its commit and tag with these credentials
+              with: # zizmor: ignore[artipacked]
                   fetch-depth: 0
                   # GITHUB_TOKEN pushes as github-actions[bot], which the master ruleset's
                   # pull_request/required_status_checks rules don't exempt. RELEASE_TOKEN is a

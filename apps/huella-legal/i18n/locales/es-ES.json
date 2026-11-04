@@ -350,6 +350,7 @@
         },
         "errors": {
             "invalid": "Revisa la dirección: por ejemplo, nombre{'@'}ejemplo.es",
+            "long": "Es demasiado largo",
             "required": "Es obligatorio"
         },
         "message": {
@@ -775,6 +776,7 @@
             "fileSize": "Pesa más de 4 MB: envía la propuesta sin él y adjúntalo al responder a nuestro correo",
             "fileType": "Adjunta un .docx, .pages, .txt o .pdf",
             "invalid": "Revisa la dirección: por ejemplo, nombre{'@'}ejemplo.es",
+            "long": "Es demasiado largo",
             "required": "Es obligatorio"
         },
         "file": {

@@ -85,6 +85,7 @@ GitHub Actions, named as the Actions tab shows them rather than by filename.
 | `PR labeler` | [`.github/workflows/pr-labeler.yml`](../.github/workflows/pr-labeler.yml) | [`README.md`](../README.md) |
 | `PR metadata` | [`.github/workflows/pr-metadata.yml`](../.github/workflows/pr-metadata.yml) | [`README.md`](../README.md) |
 | `Release` | [`.github/workflows/release.yml`](../.github/workflows/release.yml) | [`README.md`](../README.md) |
+| `Security` | [`.github/workflows/security.yml`](../.github/workflows/security.yml) | — |
 
 ## 🛠 Agent skills
 

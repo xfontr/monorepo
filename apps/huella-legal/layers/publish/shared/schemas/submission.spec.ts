@@ -45,6 +45,9 @@ describe("submission schema", () => {
         ["an address with no domain", { email: "lucia@" }, "email", "invalid"],
         ["a kind the form never offers", { kind: "novela" }, "kind", "required"],
         ["a blank summary", { summary: "   " }, "summary", "required"],
+        ["a name past 245 characters", { name: "a".repeat(246) }, "name", "long"],
+        ["a title past 300 characters", { title: "a".repeat(301) }, "title", "long"],
+        ["a summary past 3,000 characters", { summary: "a".repeat(3001) }, "summary", "long"],
         [
             "a .doc, which can carry macros",
             { file: { ...FILE, name: "a.doc" } },

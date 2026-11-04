@@ -14,6 +14,7 @@ import {
     useBeforeDefine,
     regexp,
     noConsole,
+    unsafeCode,
     e2eFixture,
 } from "./lib/index.ts";
 
@@ -63,6 +64,7 @@ const createNodeConfig = (): object[] => {
         useBeforeDefine,
         regexp,
         noConsole,
+        unsafeCode,
         e2eFixture,
     ];
 };

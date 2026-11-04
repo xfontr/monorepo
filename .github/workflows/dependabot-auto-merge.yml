@@ -4,7 +4,7 @@ name: Dependabot auto-merge
 # pull_request-triggered run opened by Dependabot, no matter what `permissions` below says.
 # Nothing here checks out the PR's own code, so running in the base repo's context is safe.
 on:
-    pull_request_target:
+    pull_request_target: # zizmor: ignore[dangerous-triggers]
         types: [opened, reopened, synchronize]
 
 permissions:

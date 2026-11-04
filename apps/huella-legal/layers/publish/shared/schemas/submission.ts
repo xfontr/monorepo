@@ -1,7 +1,7 @@
 import type { FormError } from "@nuxt/ui";
 import * as v from "valibot";
 
-export type SubmissionIssue = "invalid" | "required" | "fileType" | "fileSize";
+export type SubmissionIssue = "invalid" | "long" | "required" | "fileType" | "fileSize";
 
 export type SubmissionError = FormError & { message: SubmissionIssue };
 
@@ -9,6 +9,10 @@ export const SUBMISSION_KINDS = ["article", "tfg", "tfm"] as const;
 
 // Netlify buffers 6 MB of request, which is 4.5 MB of binary once base64-encoded
 export const MANUSCRIPT_MAX_BYTES = 4 * 1024 * 1024;
+
+const MAX_NAME_LENGTH = 245;
+const MAX_TITLE_LENGTH = 300;
+const MAX_SUMMARY_LENGTH = 3000;
 
 const startsWith = (bytes: Uint8Array, signature: number[]): boolean =>
     signature.every((byte, index) => bytes[index] === byte);
@@ -45,17 +49,18 @@ export const isManuscript = (filename: string, bytes: Uint8Array): boolean => {
     return type !== undefined && MANUSCRIPT_SIGNATURES[type](bytes);
 };
 
-const text = (message: (issue: SubmissionIssue) => string) =>
+const text = (message: (issue: SubmissionIssue) => string, maxLength: number) =>
     v.pipe(
         v.string(() => message("required")),
         v.trim(),
         v.nonEmpty(() => message("required")),
+        v.maxLength(maxLength, () => message("long")),
     );
 
 export const submissionSchema = (message: (issue: SubmissionIssue) => string) =>
     v.config(
         v.object({
-            name: text(message),
+            name: text(message, MAX_NAME_LENGTH),
             email: v.pipe(
                 v.string(() => message("required")),
                 v.trim(),
@@ -63,8 +68,15 @@ export const submissionSchema = (message: (issue: SubmissionIssue) => string) =>
                 v.email(() => message("invalid")),
             ),
             kind: v.picklist(SUBMISSION_KINDS, () => message("required")),
-            title: v.optional(v.pipe(v.string(), v.trim()), ""),
-            summary: text(message),
+            title: v.optional(
+                v.pipe(
+                    v.string(),
+                    v.trim(),
+                    v.maxLength(MAX_TITLE_LENGTH, () => message("long")),
+                ),
+                "",
+            ),
+            summary: text(message, MAX_SUMMARY_LENGTH),
             // A `File` in the browser, the multipart part's name and length on the server
             file: v.nullish(
                 v.pipe(

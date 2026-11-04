@@ -22,6 +22,8 @@ import {
     useBeforeDefineVue,
     regexp,
     noConsole,
+    unsafeCode,
+    unsafeCodeVue,
     e2eFixture,
 } from "./lib/index.ts";
 
@@ -116,6 +118,8 @@ const createBaseVueConfig = (typeChecked?: boolean): object[] => {
         useBeforeDefineVue,
         regexp,
         noConsole,
+        unsafeCode,
+        unsafeCodeVue,
         e2eFixture,
     ];
 };

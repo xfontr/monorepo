@@ -14,6 +14,7 @@ jobs:
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:
+                  persist-credentials: false
                   fetch-depth: 0
 
             - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
@@ -52,6 +53,7 @@ jobs:
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:
+                  persist-credentials: false
                   fetch-depth: 0
 
             - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
@@ -88,9 +90,11 @@ jobs:
             pull-requests: write
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
 
-            # Nudge, not a gate: warn-only always succeeds, findings land as a PR comment instead.
+            # Fails only on what the PR adds, so an advisory already on master never blocks it
             - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
               with:
-                  warn-only: true
+                  fail-on-severity: high
                   comment-summary-in-pr: always

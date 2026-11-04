@@ -175,6 +175,11 @@ Node types even in a package that otherwise doesn't.
   is that no log lands by mistake, so a deliberate one opts out on its own line,
   `// eslint-disable-next-line no-console -- <reason>`, and never per file or folder: that would wave
   the next accidental log through too. The rule flags every `console.x` reference, not only calls
+- core `no-eval`, `no-implied-eval`, `no-new-func`, `no-script-url` and a `no-restricted-properties`
+  ban on `innerHTML`, `outerHTML`, `insertAdjacentHTML` and `document.write`, everywhere but specs,
+  plus `vue/no-v-html` for the Vue configs, from [`lib/unsafeCode.ts`](./src/eslint/lib/unsafeCode.ts).
+  Raw HTML reaches the page only through a `v-html` that opts out on its own lines with the reason
+  its input is safe
 - `eslint-plugin-regexp` (`flat/recommended`) — ESLint core does not read inside a regex literal, and
   this repo parses markdown, commit subjects and command output with them. It catches super-linear
   backtracking, dead alternatives and unread capturing groups; [`0013`](../../docs/decisions/0013-linter-coverage.md)

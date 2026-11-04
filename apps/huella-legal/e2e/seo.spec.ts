@@ -135,8 +135,15 @@ test("allows crawlers on the canonical host and points them at the sitemap", asy
 }) => {
     const robots = await (await request.get("/robots.txt")).text();
 
-    expect(robots).not.toMatch(/^Disallow: \/$/m);
+    expect(robots).toMatch(/^User-agent: \*\nDisallow: $/m);
     expect(robots).toContain(`Sitemap: ${new URL("/sitemap.xml", baseURL).href}`);
+});
+
+test("turns away the crawlers that train models, and only them", async ({ request }) => {
+    const robots = await (await request.get("/robots.txt")).text();
+
+    expect(robots).toMatch(/^User-agent: GPTBot\n(?:User-agent: .+\n)*Disallow: \/$/m);
+    expect(robots).not.toMatch(/^User-agent: Googlebot$/m);
 });
 
 test("serves the RSS feed at /feed/, the address WordPress's readers subscribed to", async ({
