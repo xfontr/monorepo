@@ -11,6 +11,7 @@ const { t } = useI18n();
 const toast = useToast();
 const headingId = useId();
 const { copy: copyText, isSupported: canCopy } = useClipboard();
+const track = useTrack();
 const tab = ref<string>("0");
 
 const tabs = computed(() =>
@@ -20,8 +21,9 @@ const citation = computed<Citation | undefined>(
     () => props.citations[Number(tab.value)] ?? props.citations[0],
 );
 
-const copy = async (text: string): Promise<void> => {
+const copy = async ({ style, text }: Citation): Promise<void> => {
     await copyText(text);
+    track("citation_copy", { style });
     toast.add({ title: t("citeBox.copied"), icon: "i-lucide-check" });
 };
 </script>
@@ -65,7 +67,7 @@ const copy = async (text: string): Promise<void> => {
                 icon="i-lucide-copy"
                 :label="$t('citeBox.copy')"
                 class="mt-4 print:hidden"
-                @click="copy(citation.text)"
+                @click="copy(citation)"
             />
         </ClientOnly>
     </section>

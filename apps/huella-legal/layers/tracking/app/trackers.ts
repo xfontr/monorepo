@@ -3,7 +3,9 @@ export const TRACKERS = {
         category: "analytics",
         cookies: [/^_ga/],
         load: (id, trigger) => {
-            useScriptGoogleAnalytics({ id, scriptOptions: { trigger } });
+            const { proxy } = useScriptGoogleAnalytics({ id, scriptOptions: { trigger } });
+
+            return ({ name, params }) => proxy.gtag("event", name, params);
         },
     },
 } as const satisfies Record<string, Tracker>;
