@@ -7,6 +7,10 @@ const toast = vi.hoisted(() => ({ add: vi.fn() }));
 
 mockNuxtImport("useToast", () => () => toast);
 
+const track = vi.hoisted(() => vi.fn());
+
+mockNuxtImport("useTrack", () => () => track);
+
 const global = { mocks: { $t: (key: string) => `t(${key})` } };
 
 const PROPS = { title: "La acción", url: "https://huella.test/la-accion" };
@@ -72,6 +76,7 @@ describe("share bar", () => {
 
         expect(browser.write).not.toHaveBeenCalled();
         expect(toast.add).not.toHaveBeenCalled();
+        expect(track).not.toHaveBeenCalled();
     });
 
     it("copies the URL instead when the browser refuses the share sheet", async () => {
@@ -85,6 +90,7 @@ describe("share bar", () => {
         expect(toast.add).toHaveBeenCalledWith(
             expect.objectContaining({ title: "shareBar.linkCopied" }),
         );
+        expect(track).toHaveBeenCalledWith("share", { method: "copy_link" });
     });
 
     it("claims no copy when the share sheet fails and there is no clipboard to fall back on", async () => {

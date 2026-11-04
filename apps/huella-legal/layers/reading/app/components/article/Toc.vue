@@ -9,6 +9,8 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const track = useTrack();
+
 const sections = computed(() => props.items.filter(({ level }) => level === 2));
 const { activeHeadings, updateHeadings } = useScrollspy();
 
@@ -69,6 +71,7 @@ useResizeObserver(rail, measure);
                         <ULink
                             :to="`#${item.id}`"
                             raw
+                            @click="track('toc_click', {})"
                             class="-ml-px flex min-h-11 items-center border-l-2 border-transparent pl-4 font-sans text-sm text-toned focus-visible:outline-offset-0"
                         >
                             {{ item.label }}
@@ -94,6 +97,7 @@ useResizeObserver(rail, measure);
                         <ULink
                             :to="`#${item.id}`"
                             raw
+                            @click="track('toc_click', {})"
                             :data-lit="lit.includes(item.id) || undefined"
                             :aria-current="lit[0] === item.id ? 'location' : undefined"
                             class="flex min-h-11 items-center py-1 pl-4 font-sans text-sm/snug text-muted transition-colors hover:text-highlighted focus-visible:outline-offset-0 data-lit:font-semibold data-lit:text-highlighted"

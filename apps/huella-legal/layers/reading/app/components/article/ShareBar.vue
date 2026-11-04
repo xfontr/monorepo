@@ -14,11 +14,13 @@ const { t } = useI18n();
 const toast = useToast();
 const { share: nativeShare, isSupported: canNativeShare } = useShare();
 const { copy, isSupported: canCopy } = useClipboard();
+const track = useTrack();
 
 const share = async (): Promise<void> => {
     if (canNativeShare.value) {
         try {
             await nativeShare({ title: props.title, url: props.url });
+            track("share", { method: "native" });
             return;
         } catch (error) {
             // Dismissing the sheet is the reader's choice
@@ -29,10 +31,12 @@ const share = async (): Promise<void> => {
     if (!canCopy.value) return;
 
     await copy(props.url);
+    track("share", { method: "copy_link" });
     toast.add({ title: t("shareBar.linkCopied"), icon: "i-lucide-check" });
 };
 
 const print = (): void => {
+    track("share", { method: "print" });
     window.print();
 };
 </script>
