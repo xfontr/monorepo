@@ -1,7 +1,8 @@
 name: PR labeler
 
+# Labels from the changed paths alone and never checks out the PR's code
 on:
-    pull_request_target:
+    pull_request_target: # zizmor: ignore[dangerous-triggers]
         types: [opened, reopened, synchronize]
 
 permissions:
