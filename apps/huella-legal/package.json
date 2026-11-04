@@ -68,6 +68,7 @@
         }
     },
     "dependencies": {
+        "@iconify-json/lucide": "^1.2.147",
         "@monorepo/content": "workspace:*",
         "@monorepo/observability": "workspace:*",
         "@monorepo/ui": "workspace:*",

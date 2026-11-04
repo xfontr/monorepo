@@ -172,6 +172,28 @@ test.describe("the not-found page", () => {
     });
 });
 
+test("a tap on the menu before the page hydrates still opens it once the app wakes", async ({
+    page,
+    baseURL,
+}) => {
+    test.skip((page.viewportSize()?.width ?? 0) >= DESKTOP, "The menu only exists below lg");
+
+    let release = () => {};
+    const held = new Promise<void>((resolve) => (release = resolve));
+
+    await page.route("**/_nuxt/*.js", async (route) => {
+        await held;
+        await route.continue();
+    });
+
+    // The frame's goto, since the fixture's `page.goto` waits for a hydration the held JS blocks
+    await page.mainFrame().goto(`${baseURL}/`, { waitUntil: "domcontentloaded" });
+    await page.getByRole("button", { name: "Abrir menú" }).click();
+    release();
+
+    await expect(page.getByRole("dialog", { name: "Menú" })).toBeVisible();
+});
+
 test("the open mobile menu has no WCAG AA violations", async ({ page }) => {
     test.skip((page.viewportSize()?.width ?? 0) >= DESKTOP, "The menu only exists below lg");
 

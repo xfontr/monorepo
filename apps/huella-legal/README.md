@@ -114,13 +114,19 @@ prefetches on hover or touch rather than when it scrolls into view, so a page's 
 payloads while it hydrates. The footer's calculator link never prefetches at all, so the
 [`interest`](./layers/interest/README.md) layer stays off every other page's network.
 
-The JS that hydrates a page starts loading only on the window's `load` event.
-[`server/plugins/deferHydration.ts`](./server/plugins/deferHydration.ts) drops the module preloads
-and injects the entry from a `load` listener. A `build:manifest` hook in `nuxt.config.ts` drops the
-prefetch hint Nuxt writes for every lazy chunk. Lighthouse's mobile LCP counts every request that
-starts before the LCP, whatever its priority, so 255 kB of hydration JS in `<head>` was what kept it
-above 3 s. The page is server-rendered and readable without it, links and the search form work as
-plain HTML, and the menu, the search dialog and the forms wake up once it lands. Below the fold, the
+The JS that hydrates a page starts loading on the window's `load` event or the reader's first
+`pointerdown`, `keydown` or `touchstart`, whichever comes first. A background tab hydrates on `load`
+like any other, so an article opened in a new tab is ready by the time the reader switches to it.
+A `build:manifest` hook in `nuxt.config.ts` drops the
+module preload and the prefetch hint Nuxt writes for every chunk, and
+[`server/plugins/deferHydration.ts`](./server/plugins/deferHydration.ts) swaps the entry `<script>`
+for an inline loader that injects it on those triggers. Lighthouse's mobile LCP counts every request
+that starts before the LCP, whatever its priority, so 255 kB of hydration JS in `<head>` was what
+kept it above 3 s. The page is server-rendered and readable without it, links and the search form
+work as plain HTML, and the menu, the search dialog and the forms wake up once it lands. The loader
+keeps the first button pressed before then, and
+[`replayClick.client.ts`](./app/plugins/replayClick.client.ts) clicks it again once hydration
+resolves, so a tap on the menu isn't lost. Below the fold, the
 home page's sections and the footer hydrate only when they scroll into view (`hydrate-on-visible`).
 The header's inline menu hydrates only where `(min-width: 64rem)` matches
 (`hydrate-on-media-query`), so its chunk and the floating-ui one behind it load after `load` on
@@ -136,6 +142,14 @@ once a tracker is configured, and the search modal's chunk on its first open. `@
 `@font-face` rules for the `latin` and `latin-ext` subsets only. Each `NuxtImg` in a fixed-ratio frame
 asks for that ratio with `fit="cover"`, through [`coverHeight`](./app/utils/coverHeight.ts), so
 Netlify crops at the CDN instead of sending the pixels `object-cover` would hide.
+
+`@iconify-json/lucide` is a dependency so `@nuxt/icon` can bundle icons at all: without it the
+server asked Iconify's API for every icon it rendered, and the browser fetched `/api/_nuxt_icon`
+for each one that first renders client-side. The design layer's `icon.clientBundle.icons` lists
+exactly those, the share bar's and the calculator history's, so a new icon inside a `ClientOnly`
+or a lazily opened component belongs there too. Bundling every icon with `scan` instead tripled the
+article's blocking time on hydration. `/_i18n/*/messages.json` is browser-cached for a year,
+which is safe because its path carries a hash of the locale file.
 
 Each layer declares the rules for its own routes under `rendering` in its `nuxt.config.ts`: `cache`
 maps a route to its `isr` and the query keys it varies on, and `prerender` lists the routes to
@@ -578,4 +592,5 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | Cache windows as constants again | With pages prerendered or held by the CDN, `content.cache` and `articles.cache` only govern the build and `isr` misses. If nothing in production ends up tuning them, they fold back into constants with an `import.meta.dev` switch |
 | Stories for the header's panels | `NavPublicationsPanel` and `NavSubjectsPanel` fetch `/api/home` through `useCachedFetch`, which Storybook doesn't have, so the header's story leaves their items as plain links. An `sb.mock` of `useCachedFetch` in [`preview.ts`](./.storybook/preview.ts) would give them stories |
 | Long browser caching on images | Netlify Image CDN copies the source's `Cache-Control` and a site can't override it for a remote origin, so `/.netlify/images` answers `max-age=0` until WordPress sends one. LiteSpeed Cache's *Browser Cache* setting is the fix on that side, at ≥ 30 days rather than a year `immutable`, since an upload's URL isn't content-hashed |
-| A browser cache on `/_i18n/*/messages.json` | `@nuxtjs/i18n` disables its message cache when no locale file is cacheable, and its cached handler then answers `max-age=-1`. `experimental.cacheLifetime` turns it on |
+| Replaying a form submitted before hydration | The loader keeps only a button's click. A submit button inside a `@submit.prevent` form still submits natively before the app wakes, so a form that must never do that would need the loader to hold the `submit` event too |
+| A shared performance module | The manifest hook, the loader and the click replay are generic. They move into a `packages/` Nuxt module when a second public Nuxt site starts, rather than for one consumer |

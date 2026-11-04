@@ -13,6 +13,12 @@ export default defineNuxtConfig({
         },
     },
 
+    icon: {
+        clientBundle: {
+            icons: ["lucide:share", "lucide:printer", "lucide:eraser", "lucide:trash-2"],
+        },
+    },
+
     fonts: {
         defaults: {
             weights: [400, 500, 600, 700],
