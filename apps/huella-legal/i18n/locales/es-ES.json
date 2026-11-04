@@ -172,7 +172,7 @@
     },
     "article": {
         "breadcrumb": {
-            "home": "Portada",
+            "home": "Huella Legal",
             "publications": "Publicaciones"
         },
         "formats": {
@@ -646,12 +646,12 @@
     },
     "page": {
         "breadcrumb": {
-            "home": "Portada"
+            "home": "Huella Legal"
         },
         "toc": "En esta página"
     },
     "pageIntro": {
-        "home": "Portada"
+        "home": "Huella Legal"
     },
     "pagination": {
         "label": "Paginación",
