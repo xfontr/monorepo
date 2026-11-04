@@ -47,7 +47,10 @@ export default defineNuxtConfig({
     $production: {
         hooks: {
             "build:manifest"(manifest) {
-                for (const chunk of Object.values(manifest)) chunk.prefetch = false;
+                for (const chunk of Object.values(manifest)) {
+                    chunk.prefetch = false;
+                    if (chunk.resourceType === "script") chunk.preload = false;
+                }
             },
         },
     },
@@ -65,6 +68,7 @@ export default defineNuxtConfig({
         defaultLocale: "es-ES",
         strategy: "no_prefix",
         detectBrowserLanguage: false,
+        experimental: { httpCacheDuration: 60 * 60 * 24 * 365 },
     },
 
     // Unhead rewrites `useSeoMeta` calls at build time, which specs that mock it never see
