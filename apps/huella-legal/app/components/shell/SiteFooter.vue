@@ -11,7 +11,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const jumpToNewsletter = useNewsletterJump();
-const { nav } = useAppConfig();
+const { nav, repository } = useAppConfig();
 
 const linked = computed<FooterColumn[]>(() =>
     props.columns.map((column) => ({
@@ -23,6 +23,9 @@ const linked = computed<FooterColumn[]>(() =>
 );
 
 const year = new Date().getFullYear();
+
+const ICON_LINK =
+    "rounded-full text-huella-slate-200 hover:bg-huella-slate-800 hover:text-ivory-50 focus-visible:outline-ivory-50";
 </script>
 
 <template>
@@ -52,24 +55,37 @@ const year = new Date().getFullYear();
         </template>
 
         <template #right>
-            <ul
-                v-if="social.length"
-                :aria-label="$t('app.footer.social.label')"
-                class="-ml-3 flex items-center gap-1 md:-mr-3 md:ml-0"
-            >
-                <li v-for="{ key, to, icon, label } in social" :key>
-                    <UButton
-                        :to
-                        target="_blank"
-                        square
-                        variant="ghost"
-                        color="neutral"
-                        :icon
-                        :aria-label="label"
-                        class="rounded-full text-huella-slate-200 hover:bg-huella-slate-800 hover:text-ivory-50 focus-visible:outline-ivory-50"
-                    />
-                </li>
-            </ul>
+            <div class="-ml-3 flex items-center gap-1 md:-mr-3 md:ml-0">
+                <ul
+                    v-if="social.length"
+                    :aria-label="$t('app.footer.social.label')"
+                    class="flex items-center gap-1"
+                >
+                    <li v-for="{ key, to, icon, label } in social" :key>
+                        <UButton
+                            :to
+                            target="_blank"
+                            square
+                            variant="ghost"
+                            color="neutral"
+                            :icon
+                            :aria-label="label"
+                            :class="ICON_LINK"
+                        />
+                    </li>
+                </ul>
+
+                <UButton
+                    :to="repository"
+                    target="_blank"
+                    square
+                    variant="ghost"
+                    color="neutral"
+                    icon="i-lucide-github"
+                    :aria-label="$t('app.footer.repository')"
+                    :class="ICON_LINK"
+                />
+            </div>
         </template>
     </UFooter>
 </template>
