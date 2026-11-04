@@ -13,6 +13,7 @@ const MESSAGES = {
                     { answer: `${key}-answer`, question: `${key}-question` },
                 ]),
             ),
+            guide: "guide",
             title: "faq",
         },
     },
@@ -38,5 +39,13 @@ describe("publish faq", () => {
             "false",
         ]);
         expect(wrapper.text()).toContain("length-answer");
+    });
+
+    it("links the publishing guide, so the criteria behind a decision stay one click away", async () => {
+        const wrapper = await mountSuspended(PublishFaq);
+        const link = wrapper.find("a");
+
+        expect(link.text()).toBe("guide");
+        expect(link.attributes("href")).toBe("/guia-de-publicaciones/");
     });
 });

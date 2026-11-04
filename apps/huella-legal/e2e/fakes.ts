@@ -156,7 +156,14 @@ export const GUIDE = fakeEntry({
     },
 });
 
-export const PAGES: Entry[] = [LEGAL, PAGE, GUIDE];
+export const PUBLISHING_GUIDE = fakeEntry({
+    slug: "guia-de-publicaciones",
+    title: "Guía de publicaciones",
+    terms: [],
+    authors: [],
+});
+
+export const PAGES: Entry[] = [LEGAL, PAGE, GUIDE, PUBLISHING_GUIDE];
 
 // Every term a post links to, since a prefetched payload that 404s logs to the console
 const termsOf = (resource: TermResource): Term[] => [
