@@ -31,12 +31,21 @@ export const LEAD = fakeEntry({ image: fakeAsset(), authors: AUTHORS });
 
 export const HEADING = faker.lorem.words(2);
 
+export const HOSTILE_LINK = "Enlace hostil";
+
+// What a compromised editor account could save: each one would set `window.pwned` if it ran
+const HOSTILE =
+    `<p><a href="javascript:window.pwned=1" onmouseover="window.pwned=1">${HOSTILE_LINK}</a></p>` +
+    "<script>window.pwned=1</script>" +
+    '<iframe src="javascript:window.pwned=1"></iframe>' +
+    '<svg onload="window.pwned=1"></svg>';
+
 // WordPress escapes the ampersand, so this one proves the page decodes entities
 export const ESCAPED = fakeEntry({
     title: `${faker.lorem.words(3)} &amp; ${faker.lorem.words(2)}`,
     body: {
         format: "html",
-        value: `<p>${faker.lorem.paragraph()}</p><h2>${HEADING}</h2><p>${faker.lorem.paragraph()}</p>`,
+        value: `<p>${faker.lorem.paragraph()}</p><h2>${HEADING}</h2><p>${faker.lorem.paragraph()}</p>${HOSTILE}`,
     },
 });
 
