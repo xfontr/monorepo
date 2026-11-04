@@ -175,6 +175,23 @@ old posts. The hook URL is the `NETLIFY_BUILD_HOOK_URL` repo secret, with no def
 ([provisioning](../../docs/guides/repo-secrets.md)). Running the workflow by hand is also the purge
 after an urgent correction, because every deploy empties the CDN cache.
 
+### 🔐 Abuse and hardening
+
+Every BFF route is public, because the browser calls it, so what reaches one is capped and checked
+before it costs anything.
+
+| Layer | What it does | Where |
+| --- | --- | --- |
+| Input caps | Every free-text form field has a maximum length, checked in the browser and again by the route | the layers' `shared/schemas/` |
+| Headers | HSTS, `nosniff`, `X-Frame-Options: DENY`, a referrer and permissions policy, and an enforced CSP of `frame-ancestors`, `object-src`, `base-uri` and `form-action`, on every route and, through the preset's `_headers`, every prerendered file | `routeRules` in [`nuxt.config.ts`](./nuxt.config.ts) |
+| Crawlers | `robots.txt` turns away the crawlers that train models and keeps search engines and `llms.txt` | `robots` in [`nuxt.config.ts`](./nuxt.config.ts) |
+
+A Turnstile token only proves a human if it was minted on our pages, and siteverify doesn't check
+that here: the site key's hostname list in Cloudflare's dashboard does, so it names only our
+domains. An abusive address is blocked by hand under **Project configuration → Security → Firewall
+traffic rules**, by a Team Owner, and never listed in the repo. WordPress sits outside all of this
+on its own hostname, so its REST API needs its own protection there.
+
 ## 🔑 Environment
 
 A variable a feature can't work without is listed under `requiredEnv` in the `nuxt.config.ts` of
@@ -314,8 +331,8 @@ and the gotchas.
 
 [`app/`](./app) is the front-end shell and stays thin: a layout, an error page and its dev-only debug
 panel, two client plugins (Faro telemetry, and a dev-only console filter for a known Nuxt/Vue
-warning), and one page — the entry page. Its own server code is three Nitro plugins (telemetry, a log line for every
-handled `5xx`, and the header that keeps a `5xx` out of the CDN). Beside it,
+warning), and one page — the entry page. Its own server code is four Nitro plugins (telemetry, a log line for every
+handled `5xx`, the header that keeps a `5xx` out of the CDN, and the hydration loader). Beside it,
 [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) checks the
 [required variables](#-environment) once per build, and
 [`modules/rendering.ts`](./modules/rendering.ts) turns each layer's `rendering` entries into route
@@ -594,3 +611,5 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | Long browser caching on images | Netlify Image CDN copies the source's `Cache-Control` and a site can't override it for a remote origin, so `/.netlify/images` answers `max-age=0` until WordPress sends one. LiteSpeed Cache's *Browser Cache* setting is the fix on that side, at ≥ 30 days rather than a year `immutable`, since an upload's URL isn't content-hashed |
 | Replaying a form submitted before hydration | The loader keeps only a button's click. A submit button inside a `@submit.prevent` form still submits natively before the app wakes, so a form that must never do that would need the loader to hold the `submit` event too |
 | A shared performance module | The manifest hook, the loader and the click replay are generic. They move into a `packages/` Nuxt module when a second public Nuxt site starts, rather than for one consumer |
+| A `script-src` CSP | `isr` caches the HTML, which rules out a per-request nonce, and Nuxt's inline scripts change per page, so a policy means hashing every response as it leaves. Post bodies already go through `rehype-sanitize`; a script policy comes back if something renders HTML that isn't sanitized |
+| A per-form Turnstile `action` | Set `action` on each `FormChallenge` and assert it in `assertChallenge`, so a newsletter token can't post a comment. Tokens are single-use already, which makes this a small gain |

@@ -30,6 +30,8 @@ describe("contact schema", () => {
         ["an address with no domain", { email: "lucia@" }, "email", "invalid"],
         ["a blank address", { email: "   " }, "email", "required"],
         ["a blank message", { message: "   " }, "message", "required"],
+        ["a name past WordPress's column", { name: "a".repeat(246) }, "name", "long"],
+        ["a message past 5,000 characters", { message: "a".repeat(5001) }, "message", "long"],
         ["consent left unticked", { consent: false }, "consent", "required"],
         ["consent sent as a string", { consent: "true" }, "consent", "required"],
     ])("rejects %s with the issue the caller words", (_, change, field, issue) => {

@@ -85,6 +85,20 @@ export default defineNuxtConfig({
         },
     },
 
+    routeRules: {
+        "/**": {
+            headers: {
+                "Strict-Transport-Security": "max-age=31536000",
+                "X-Content-Type-Options": "nosniff",
+                "X-Frame-Options": "DENY",
+                "Referrer-Policy": "strict-origin-when-cross-origin",
+                "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+                "Content-Security-Policy":
+                    "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'",
+            },
+        },
+    },
+
     rendering: {
         cache: {
             "/**": { isr: 60 * 60 * 24 },
@@ -109,6 +123,21 @@ export default defineNuxtConfig({
 
     robots: {
         header: false,
+        // Crawlers that train models rather than send readers; search engines and `llms.txt` stay open
+        groups: [
+            {
+                userAgent: [
+                    "GPTBot",
+                    "CCBot",
+                    "Google-Extended",
+                    "ClaudeBot",
+                    "Bytespider",
+                    "meta-externalagent",
+                    "Applebot-Extended",
+                ],
+                disallow: ["/"],
+            },
+        ],
     },
 
     sitemap: {
