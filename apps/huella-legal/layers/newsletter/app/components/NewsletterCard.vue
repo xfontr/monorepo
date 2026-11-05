@@ -1,5 +1,5 @@
 <template>
-    <div class="rounded-sm border border-default bg-ivory-50 p-5">
+    <div class="rounded-sm border border-default bg-muted p-5">
         <BaseKicker>{{ $t("newsletterCard.kicker") }}</BaseKicker>
         <p class="mt-2 font-serif text-lg/snug text-highlighted">
             {{

@@ -247,6 +247,8 @@ export default defineNuxtConfig({
     },
 
     image: {
+        provider: "cloudflare",
+        cloudflare: { baseURL: SITE_URL },
         domains: ["www.huellalegal.com"],
     },
 

@@ -14,10 +14,10 @@
                 class: 'justify-center',
             },
         ]"
-        class="border border-dashed border-(--ui-border-accented) bg-ivory-50"
+        class="border border-dashed border-accented bg-muted"
     >
         <template #leading>
-            <UIcon name="i-lucide-feather" class="size-7 text-huella-teal-500" />
+            <UIcon name="i-lucide-feather" class="size-7 text-secondary-500" />
         </template>
         <template #title>
             <span :id="titleId">{{ $t("emptyState.title", { subject }) }}</span>

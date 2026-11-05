@@ -1,6 +1,6 @@
 export default {
     slots: {
-        base: "group/btn min-h-11 font-sans font-semibold tracking-[0.01em] disabled:opacity-40 aria-disabled:opacity-40",
+        base: "group/btn min-h-11 font-sans font-semibold tracking-control disabled:opacity-40 aria-disabled:opacity-40",
         trailingIcon:
             "transition-transform group-hover/btn:translate-x-0.5 group-disabled/btn:translate-x-0",
     },
@@ -18,26 +18,26 @@ export default {
             // Nuxt UI hovers by fading to 75 %, which washes slate out towards the paper
             color: "primary",
             variant: "solid",
-            class: "hover:bg-huella-slate-700 active:bg-huella-slate-800",
+            class: "hover:bg-primary-700 active:bg-primary-800",
         },
         {
             color: "secondary",
             variant: "solid",
-            class: "hover:bg-huella-teal-700 active:bg-huella-teal-800",
+            class: "hover:bg-secondary-700 active:bg-secondary-800",
         },
         {
             color: "neutral",
             variant: "outline",
-            class: "bg-transparent text-highlighted ring-huella-slate-900 hover:bg-huella-slate-900 hover:text-ivory-50 active:bg-huella-slate-800 disabled:bg-transparent disabled:text-highlighted",
+            class: "bg-transparent text-highlighted ring-inverted hover:bg-inverted hover:text-inverted active:bg-huella-slate-800 disabled:bg-transparent disabled:text-highlighted",
         },
         {
             color: "neutral",
             variant: "ghost",
-            class: "text-toned hover:bg-huella-slate-900/6 hover:text-highlighted",
+            class: "text-toned hover:bg-inverted/6 hover:text-highlighted",
         },
         {
             variant: "link",
-            class: "decoration-1 underline-offset-4 hover:underline hover:text-huella-slate-700 active:text-huella-slate-800 disabled:no-underline",
+            class: "decoration-1 underline-offset-4 hover:underline hover:text-primary-700 active:text-primary-800 disabled:no-underline",
         },
         {
             variant: ["solid", "outline", "soft", "subtle", "ghost", "link"],

@@ -3,9 +3,7 @@
         <ArticleNotes :notes="article.body.notes" />
         <ArticleBibliography :entries="article.body.bibliography" />
 
-        <div id="citar">
-            <ArticleCiteBox :citations="article.citations" />
-        </div>
+        <ArticleCiteBox id="citar" :citations="article.citations" />
 
         <p v-if="article.tags.length" class="font-sans text-sm text-muted print:hidden">
             <span class="mr-1 font-semibold text-highlighted">{{ $t("article.tags") }}</span>

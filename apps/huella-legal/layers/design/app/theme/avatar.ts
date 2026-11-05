@@ -1,9 +1,9 @@
 export default {
     slots: { fallback: "font-sans font-semibold" },
     variants: {
-        color: { primary: { root: "bg-huella-slate-100", fallback: "text-primary" } },
+        color: { primary: { root: "bg-primary-100", fallback: "text-primary" } },
         size: {
-            lg: { root: "text-[0.6875rem]" },
+            lg: { root: "text-label" },
             "2xl": { root: "text-xs" },
             "3xl": { root: "text-sm" },
         },

@@ -4,7 +4,7 @@
         :aria-labelledby="titleId"
         :description="$t('homeSubjects.lead', { count: subjects.length }, subjects.length)"
         :ui="{ description: 'max-w-sm' }"
-        class="border-y border-default bg-ivory-50"
+        class="border-y border-default bg-muted"
     >
         <template #headline>
             <BaseKicker>{{ $t("homeSubjects.kicker") }}</BaseKicker>
@@ -25,7 +25,7 @@
                 <li
                     v-for="{ value, count } in subjects"
                     :key="value.id"
-                    class="border-b border-(--ui-border-muted)"
+                    class="border-b border-muted"
                 >
                     <ULink
                         raw
@@ -33,7 +33,7 @@
                         class="group flex min-h-14 items-baseline gap-3 py-3 focus-visible:rounded-xs xl:gap-2"
                     >
                         <span
-                            class="font-serif text-lg text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline xl:text-base"
+                            class="font-serif text-lg text-highlighted underline-title group-hover:underline xl:text-base"
                             >{{ value.name }}</span
                         >
                         <span

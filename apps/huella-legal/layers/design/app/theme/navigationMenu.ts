@@ -28,7 +28,7 @@ export default {
             variant: "link",
             orientation: "vertical",
             class: {
-                list: "divide-y divide-(--ui-border-muted) border-b border-default",
+                list: "divide-y divide-muted border-b border-default",
                 link: "min-h-14 px-4 font-serif text-xl text-highlighted aria-[current]:text-primary focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary",
                 childList: "ms-4 mb-3 border-s border-default",
             },

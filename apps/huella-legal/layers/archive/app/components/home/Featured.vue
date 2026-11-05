@@ -35,12 +35,12 @@
                 </template>
             </p>
             <h2
-                class="font-serif text-[2rem] leading-[1.12] tracking-[-0.02em] text-balance text-highlighted md:text-h1 lg:text-[2.875rem]"
+                class="font-serif text-feature text-balance text-highlighted md:text-feature-lg lg:text-feature-xl"
             >
                 <ULink
                     raw
                     :to="leadLink"
-                    class="decoration-huella-slate-300 decoration-2 underline-offset-[0.14em] group-hover:underline after:absolute after:inset-0 focus-visible:rounded-xs focus-visible:outline-offset-4"
+                    class="underline-title decoration-2 group-hover:underline after:absolute after:inset-0 focus-visible:rounded-xs focus-visible:outline-offset-4"
                     >{{ lead.title }}</ULink
                 >
             </h2>
@@ -58,19 +58,19 @@
 
         <aside
             :aria-labelledby="latestId"
-            class="border-t-2 border-huella-slate-900 pt-4 lg:col-span-4 lg:border-t-0 lg:border-l lg:border-default lg:pt-0 lg:pl-10"
+            class="border-t-2 border-inverted pt-4 lg:col-span-4 lg:border-t-0 lg:border-l lg:border-default lg:pt-0 lg:pl-10"
         >
-            <h2 :id="latestId" class="text-kicker text-muted">
+            <h2 :id="latestId" class="text-kicker">
                 {{ $t("homeFeatured.latest.title") }}
             </h2>
-            <ol class="mt-2 flex flex-col divide-y divide-(--ui-border-muted)">
+            <ol class="mt-2 flex flex-col divide-y divide-muted">
                 <li
                     v-for="(article, index) in latest"
                     :key="article.id"
                     class="relative grid grid-cols-[2rem_1fr] py-4"
                 >
                     <span
-                        class="font-serif text-xl/snug text-huella-teal-600 tabular-nums"
+                        class="font-serif text-xl/snug text-secondary tabular-nums"
                         aria-hidden="true"
                         >{{ index + 1 }}</span
                     >
@@ -81,7 +81,7 @@
                         <ULink
                             raw
                             :to="articleLink(article.slug)"
-                            class="font-serif text-lg/snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] after:absolute after:inset-0 hover:underline focus-visible:rounded-xs focus-visible:outline-offset-2"
+                            class="font-serif text-lg/snug text-highlighted underline-title after:absolute after:inset-0 hover:underline focus-visible:rounded-xs focus-visible:outline-offset-2"
                             >{{ article.title }}</ULink
                         >
                         <span class="font-sans text-meta text-muted">{{

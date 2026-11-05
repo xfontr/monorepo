@@ -1,44 +1,46 @@
 /* Reading typography for the sanitised WordPress body. Only plain elements and the classes the
    articles layer's pipeline emits are styled; anything else never survives the sanitiser. */
+@reference "../../../design/app/assets/main.css";
+
 .hl-prose {
     font-family: var(--font-serif);
-    font-size: 1.0625rem;
-    line-height: 1.7;
+    font-size: var(--text-reading-sm);
+    line-height: var(--text-reading--line-height);
     color: var(--ui-text);
     text-wrap: pretty;
 }
 
-@media (min-width: 768px) {
-    .hl-prose { font-size: 1.125rem; }
+.hl-prose {
+    @variant md { font-size: var(--text-reading); }
 }
 
 .hl-prose > * + * { margin-top: 1.25em; }
 
 .hl-prose h2 {
     margin-top: 2.4em;
-    font-size: 1.625rem;
-    line-height: 1.25;
+    font-size: var(--text-h2-sm);
+    line-height: var(--text-h2--line-height);
     color: var(--ui-text-highlighted);
     scroll-margin-top: 2rem;
     text-wrap: balance;
 }
 
-@media (min-width: 768px) {
-    .hl-prose h2 { font-size: 1.875rem; }
+.hl-prose h2 {
+    @variant md { font-size: var(--text-h2); }
 }
 
 .hl-prose h2:first-child { margin-top: 0; }
 
 .hl-prose h3 {
     margin-top: 1.9em;
-    font-size: 1.3125rem;
-    line-height: 1.3;
+    font-size: var(--text-h3-sm);
+    line-height: var(--text-h3--line-height);
     color: var(--ui-text-highlighted);
     scroll-margin-top: 2rem;
 }
 
-@media (min-width: 768px) {
-    .hl-prose h3 { font-size: 1.5rem; }
+.hl-prose h3 {
+    @variant md { font-size: var(--text-h3); }
 }
 
 .hl-prose h2 + *, .hl-prose h3 + * { margin-top: 0.75em; }
@@ -56,15 +58,15 @@
 .hl-links a {
     color: var(--ui-primary);
     text-decoration: underline;
-    text-decoration-color: var(--color-huella-slate-300);
-    text-underline-offset: 0.18em;
+    text-decoration-color: var(--ui-border-accented);
+    text-underline-offset: 0.2em;
 }
 
 .hl-prose a:hover,
 .hl-links a:hover { text-decoration-color: currentColor; }
 
 .hl-prose a:focus-visible,
-.hl-links a:focus-visible { border-radius: 2px; }
+.hl-links a:focus-visible { border-radius: var(--radius-xs); }
 
 .hl-prose sup { line-height: 0; }
 
@@ -73,7 +75,7 @@
     font-family: var(--font-sans);
     font-size: 0.7em;
     font-weight: 600;
-    color: var(--color-huella-teal-600);
+    color: var(--ui-secondary);
     text-decoration: none;
 }
 
@@ -83,31 +85,31 @@
 .hl-prose ul { list-style: disc; }
 .hl-prose ol { list-style: decimal; }
 .hl-prose li + li { margin-top: 0.5em; }
-.hl-prose li::marker { color: var(--color-huella-teal-500); }
-.hl-prose ol li::marker { font-family: var(--font-sans); font-size: 0.85em; font-weight: 600; color: var(--color-huella-teal-600); }
+.hl-prose li::marker { color: var(--ui-color-secondary-500); }
+.hl-prose ol li::marker { font-family: var(--font-sans); font-size: 0.85em; font-weight: 600; color: var(--ui-secondary); }
 
 .hl-prose blockquote {
     margin-block: 2.25em;
     padding-left: 1.5rem;
-    border-left: 3px solid var(--color-huella-teal-400);
+    border-left: 3px solid var(--ui-color-secondary-400);
 }
 
 .hl-prose blockquote p {
-    font-size: 1.3125rem;
+    font-size: var(--text-quote-sm);
     font-style: italic;
-    line-height: 1.45;
+    line-height: var(--text-quote--line-height);
     color: var(--ui-text-highlighted);
 }
 
-@media (min-width: 768px) {
-    .hl-prose blockquote p { font-size: 1.5rem; }
+.hl-prose blockquote p {
+    @variant md { font-size: var(--text-quote); }
 }
 
 .hl-prose blockquote cite {
     display: block;
     margin-top: 0.9rem;
     font-family: var(--font-sans);
-    font-size: 0.8125rem;
+    font-size: var(--text-meta);
     font-style: normal;
     color: var(--ui-text-muted);
 }
@@ -116,10 +118,10 @@
 
 .hl-prose .hl-note {
     padding: 1.1rem 1.25rem;
-    border-radius: 2px;
-    background: var(--color-huella-teal-50);
-    box-shadow: inset 0 0 0 1px var(--color-huella-teal-200);
-    font-size: 1rem;
+    border-radius: var(--radius-xs);
+    background: var(--ui-color-secondary-50);
+    box-shadow: inset 0 0 0 1px var(--ui-color-secondary-200);
+    font-size: var(--text-base);
     line-height: 1.6;
 }
 
@@ -132,8 +134,8 @@
     background:
         linear-gradient(to right, var(--ui-bg) 30%, transparent) left / 2.5rem 100% no-repeat local,
         linear-gradient(to left, var(--ui-bg) 30%, transparent) right / 2.5rem 100% no-repeat local,
-        radial-gradient(farthest-side at 0 50%, color-mix(in srgb, var(--color-huella-slate-900) 16%, transparent), transparent) left / 0.875rem 100% no-repeat scroll,
-        radial-gradient(farthest-side at 100% 50%, color-mix(in srgb, var(--color-huella-slate-900) 16%, transparent), transparent) right / 0.875rem 100% no-repeat scroll;
+        radial-gradient(farthest-side at 0 50%, color-mix(in srgb, var(--ui-bg-inverted) 16%, transparent), transparent) left / 0.875rem 100% no-repeat scroll,
+        radial-gradient(farthest-side at 100% 50%, color-mix(in srgb, var(--ui-bg-inverted) 16%, transparent), transparent) right / 0.875rem 100% no-repeat scroll;
 }
 
 .hl-prose table {
@@ -141,7 +143,7 @@
     min-width: 36rem;
     border-collapse: collapse;
     font-family: var(--font-sans);
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     line-height: 1.5;
 }
 
@@ -152,7 +154,7 @@
 
 .hl-prose th {
     padding: 0 1rem 0.6rem 0;
-    border-bottom: 2px solid var(--color-huella-slate-900);
+    border-bottom: 2px solid var(--ui-border-inverted);
     font-weight: 600;
     text-align: left;
     color: var(--ui-text-highlighted);
@@ -173,15 +175,15 @@
 .hl-prose figure img {
     width: 100%;
     aspect-ratio: 3 / 2;
-    border-radius: 2px;
-    background: var(--color-ivory-200);
+    border-radius: var(--radius-xs);
+    background: var(--ui-bg-accented);
     object-fit: cover;
 }
 
 .hl-prose figcaption {
     margin-top: 0.75rem;
     font-family: var(--font-sans);
-    font-size: 0.8125rem;
+    font-size: var(--text-meta);
     line-height: 1.5;
     color: var(--ui-text-muted);
 }

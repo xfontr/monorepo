@@ -9,7 +9,7 @@
         }"
     >
         <template #top>
-            <div class="hidden border-b border-(--ui-border-muted) md:block">
+            <div class="hidden border-b border-muted md:block">
                 <UContainer
                     class="flex h-9 items-center justify-between font-sans text-xs text-muted"
                 >

@@ -11,7 +11,7 @@
         <UContainer class="pt-8 pb-16 lg:pb-20">
             <InterestCalculator />
         </UContainer>
-        <div v-if="guide" class="border-t border-default bg-ivory-50/60">
+        <div v-if="guide" class="border-t border-default bg-muted">
             <UContainer class="py-16 lg:py-20">
                 <ArticleProse :lead="guide.body.lead" :html="guide.body.html" />
             </UContainer>

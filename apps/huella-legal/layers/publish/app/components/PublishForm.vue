@@ -65,7 +65,6 @@
                     icon="i-lucide-file-text"
                     :accept="ACCEPT"
                     class="w-full"
-                    :ui="{ base: 'min-h-32 bg-ivory-100' }"
                 />
             </UFormField>
             <FormHoneypot v-model="honeypot" />
@@ -83,7 +82,7 @@
                 class="font-sans text-meta text-muted"
             >
                 <template #privacy>
-                    <ULink raw :to="nav.privacy" data-inline class="underline underline-offset-2">
+                    <ULink raw :to="nav.privacy" class="underline underline-offset-2">
                         {{ $t("publishForm.privacy") }}
                     </ULink>
                 </template>

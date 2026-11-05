@@ -36,13 +36,9 @@
             class="py-16 lg:py-20"
         >
             <ol class="grid gap-x-10 gap-y-8 lg:grid-cols-3">
-                <li
-                    v-for="(key, index) in PRINCIPLES"
-                    :key
-                    class="border-t-2 border-huella-slate-900 pt-4"
-                >
+                <li v-for="(key, index) in PRINCIPLES" :key class="border-t-2 border-inverted pt-4">
                     <span
-                        class="font-serif text-2xl leading-none text-huella-teal-600 tabular-nums"
+                        class="font-serif text-2xl leading-none text-secondary tabular-nums"
                         aria-hidden="true"
                         >{{ index + 1 }}</span
                     >
@@ -56,7 +52,7 @@
             </ol>
         </UContainer>
 
-        <div class="border-t border-default bg-ivory-50">
+        <div class="border-t border-default bg-muted">
             <UContainer class="py-16 lg:py-20">
                 <DirectoryListing :authors />
             </UContainer>

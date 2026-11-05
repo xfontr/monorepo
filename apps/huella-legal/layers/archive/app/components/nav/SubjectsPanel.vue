@@ -1,10 +1,6 @@
 <template>
     <div class="w-120 p-5">
-        <p
-            v-if="status === 'pending' || subjects.length"
-            :id="titleId"
-            class="text-kicker text-muted"
-        >
+        <p v-if="status === 'pending' || subjects.length" :id="titleId" class="text-kicker">
             {{ $t("navSubjectsPanel.title") }}
         </p>
         <template v-if="status === 'pending'">
@@ -24,7 +20,7 @@
                 <ULink
                     raw
                     :to="{ name: 'category', params: { slug: value.slug } }"
-                    class="flex min-h-10 items-baseline justify-between gap-3 py-2 font-serif text-base text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] hover:underline focus-visible:rounded-xs"
+                    class="flex min-h-10 items-baseline justify-between gap-3 py-2 font-serif text-base text-highlighted underline-title hover:underline focus-visible:rounded-xs"
                 >
                     <span class="truncate">{{ value.name }}</span>
                     <span class="font-sans text-meta text-muted tabular-nums">

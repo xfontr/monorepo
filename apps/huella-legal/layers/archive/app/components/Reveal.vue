@@ -34,7 +34,7 @@ const visibleItems = computed<T[]>(() =>
 const showAll = async (): Promise<void> => {
     expanded.value = true;
     await nextTick();
-    // Terrible practice, but for now it's adjusted to our needs
+    // Assumes every revealed item renders exactly one link
     root.value?.querySelectorAll("a")[props.limit]?.focus();
 };
 </script>

@@ -1,14 +1,14 @@
 <template>
     <section aria-labelledby="formatos" class="border-y border-default bg-muted">
         <UContainer class="py-16 lg:py-20">
-            <h2 id="formatos" class="scroll-mt-6 text-kicker text-muted">
+            <h2 id="formatos" class="scroll-mt-6 text-kicker">
                 {{ $t("subjectsFormats.title") }}
             </h2>
             <ul
                 class="mt-4 grid gap-px overflow-hidden rounded-xs border border-default bg-(--ui-border) sm:grid-cols-2 lg:grid-cols-3"
             >
                 <li
-                    v-for="{ value, count, tone, key, classes, to } in items"
+                    v-for="{ value, count, key, classes, to } in items"
                     :key="value"
                     :class="classes.item"
                 >
@@ -18,15 +18,14 @@
                         class="group flex h-full flex-col gap-2 p-5 transition-colors focus-visible:-outline-offset-2 md:p-6"
                         :class="classes.link"
                     >
-                        <BaseKicker :tone>
+                        <BaseKicker>
                             {{ $t(classes.kicker, { count }) }}
                         </BaseKicker>
                         <span
-                            class="font-serif text-h3 decoration-1 underline-offset-[0.2em] group-hover:underline"
-                            :class="classes.title"
+                            class="font-serif text-h3 text-highlighted underline-title decoration-1 group-hover:underline"
                             >{{ $t(`subjectsFormats.formats.${key}.title`) }}</span
                         >
-                        <span class="font-serif text-base/relaxed" :class="classes.description">{{
+                        <span class="font-serif text-base/relaxed text-toned">{{
                             $t(`subjectsFormats.formats.${key}.description`)
                         }}</span>
                     </ULink>
@@ -56,18 +55,10 @@ interface Props {
 const props = defineProps<Props>();
 
 const TONES = {
-    paper: {
-        item: "bg-muted",
-        link: "hover:bg-default",
-        title: "text-highlighted decoration-huella-slate-300",
-        description: "text-toned",
-        kicker: "subjectsFormats.format",
-    },
+    paper: { item: "bg-muted", link: "hover:bg-default", kicker: "subjectsFormats.format" },
     slate: {
-        item: "bg-inverted",
-        link: "hover:bg-huella-slate-800",
-        title: "text-inverted",
-        description: "text-huella-slate-200",
+        item: "surface-inverted bg-inverted",
+        link: "hover:bg-elevated",
         kicker: "subjectsFormats.academic",
     },
 } as const satisfies Record<Tone, Record<string, string>>;
@@ -79,7 +70,6 @@ const items = computed(() =>
         return {
             value,
             count,
-            tone,
             key: FORMAT_KEYS[value],
             classes: TONES[tone],
             to: { name: "publications", query: { format: value } } satisfies RouteLocationRaw,

@@ -7,10 +7,10 @@
                     keypath="aboutIntro.title"
                     tag="h1"
                     scope="global"
-                    class="mt-3 font-serif text-[2.625rem] leading-[1.06] tracking-[-0.02em] text-balance text-highlighted md:text-[4rem]"
+                    class="mt-3 font-serif text-title text-balance text-highlighted md:text-title-xl"
                 >
                     <template #mark>
-                        <em class="text-huella-teal-600">{{ $t("aboutIntro.mark") }}</em>
+                        <em class="text-secondary">{{ $t("aboutIntro.mark") }}</em>
                     </template>
                 </I18nT>
                 <p class="mt-6 max-w-measure font-serif text-standfirst text-pretty text-toned">
@@ -27,7 +27,7 @@
                             {{ $t(`aboutFigures.${figure.key}`) }}
                         </dt>
                         <dd
-                            class="font-serif text-[2.75rem] leading-none text-highlighted tabular-nums md:text-[3.5rem]"
+                            class="font-serif text-figure-lg text-highlighted tabular-nums md:text-figure-xl"
                         >
                             <span class="hl-about-count" :style="{ '--about-to': figure.value }"
                                 ><span>{{ figure.value }}</span></span
@@ -36,12 +36,10 @@
                     </div>
                 </dl>
             </div>
-            <div class="order-first flex lg:order-0 lg:col-span-5 lg:justify-end">
-                <div
-                    class="hl-about-seal relative grid size-28 place-items-center rounded-full bg-ivory-50 ring-1 ring-ivory-300 md:size-40 lg:size-80"
-                >
-                    <AboutFingerprint class="size-16 text-huella-teal-600 md:size-24 lg:size-48" />
-                </div>
+            <div
+                class="hl-about-seal relative order-first grid size-28 place-items-center rounded-full bg-muted ring-1 ring-default md:size-40 lg:order-0 lg:col-span-5 lg:size-80 lg:justify-self-end"
+            >
+                <AboutFingerprint class="size-16 text-secondary md:size-24 lg:size-48" />
             </div>
         </div>
     </BasePageIntro>

@@ -20,8 +20,9 @@ export const Paper: Story = {};
 export const Muted: Story = { args: { muted: true } };
 
 export const Slate: Story = {
-    args: { tone: "slate" },
-    decorators: [() => ({ template: '<div class="bg-huella-slate-900 p-4"><story /></div>' })],
+    decorators: [
+        () => ({ template: '<div class="surface-inverted bg-inverted p-4"><story /></div>' }),
+    ],
 };
 
 export const Link: Story = { args: { to: "#" } };

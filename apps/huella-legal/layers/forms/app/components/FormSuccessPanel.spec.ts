@@ -14,6 +14,15 @@ describe("success panel", () => {
         wrapper.unmount();
     });
 
+    it("ranks its heading under the one it sits beneath, so a page's outline never skips a level", async () => {
+        const wrapper = await mountSuspended(FormSuccessPanel, {
+            props: { title: "Recibido.", level: 2 },
+        });
+
+        expect(wrapper.find("h2").text()).toBe("Recibido.");
+        expect(wrapper.find("h3").exists()).toBe(false);
+    });
+
     it("renders the slot as the body, and drops the paragraph without one", async () => {
         const withBody = await mountSuspended(FormSuccessPanel, {
             props: { title: "Recibido." },

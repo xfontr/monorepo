@@ -1,5 +1,5 @@
 <template>
-    <div class="grid gap-6 md:grid-cols-[6rem_1fr] md:gap-8 lg:grid-cols-[7rem_1fr_16rem]">
+    <div class="grid gap-6 md:grid-cols-[auto_1fr] md:gap-8 lg:grid-cols-[auto_1fr_16rem]">
         <UAvatar
             :src="author.avatar?.url"
             :text="authorInitials"
@@ -23,7 +23,7 @@
                 <dt class="font-sans text-meta text-muted">
                     {{ label }}
                 </dt>
-                <dd class="font-serif text-[2rem] leading-none text-highlighted tabular-nums">
+                <dd class="font-serif text-figure text-highlighted tabular-nums">
                     {{ value }}
                 </dd>
             </div>

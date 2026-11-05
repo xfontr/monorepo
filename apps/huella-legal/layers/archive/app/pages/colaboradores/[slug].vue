@@ -8,7 +8,7 @@
         >
             <ArchiveAuthor :author="profile.author" :total="archiveTotal" :since="profile.since" />
         </BasePageIntro>
-        <UContainer class="grid grid-cols-1 gap-12 pt-6 pb-16 lg:grid-cols-12 lg:gap-x-12 lg:pb-20">
+        <ArchiveLayout>
             <ArchiveResults
                 v-model:sort="sort"
                 :listing
@@ -22,7 +22,7 @@
                 :subjects="listing.subjects"
                 class="lg:col-span-4"
             />
-        </UContainer>
+        </ArchiveLayout>
         <NewsletterBand />
     </div>
 </template>

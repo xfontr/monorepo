@@ -5,13 +5,7 @@
             :items="tabs"
             :unmount-on-hide="false"
             variant="link"
-            :ui="{
-                list: 'gap-6 border-b border-default px-0',
-                trigger:
-                    'min-h-11 min-w-11 px-0 font-sans text-base font-semibold data-[state=active]:text-highlighted',
-                indicator: 'h-0.5 bg-huella-slate-900',
-                content: 'pt-8',
-            }"
+            :ui="{ trigger: 'text-base', content: 'pt-8' }"
         >
             <template v-for="tab in tabs" :key="tab.value" #[tab.slot]>
                 <div class="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-x-12">

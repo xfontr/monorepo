@@ -13,7 +13,7 @@
         </p>
 
         <template v-else>
-            <div class="relative mt-6 overflow-x-auto rounded-sm border border-default bg-ivory-50">
+            <div class="relative mt-6 overflow-x-auto rounded-sm border border-default bg-muted">
                 <table :aria-labelledby="headingId" class="w-full min-w-3xl font-sans text-sm">
                     <thead class="border-b border-default text-left text-toned">
                         <tr>
@@ -33,7 +33,7 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-(--ui-border) tabular-nums">
+                    <tbody class="divide-y divide-default tabular-nums">
                         <tr v-for="(row, index) in displayed.rows" :key="row.id">
                             <td class="px-3 py-1.5">
                                 <UInput
@@ -79,7 +79,7 @@
                         </tr>
                     </tbody>
                     <tfoot
-                        class="border-t-2 border-huella-slate-900 font-semibold text-highlighted tabular-nums"
+                        class="border-t-2 border-inverted font-semibold text-highlighted tabular-nums"
                     >
                         <tr>
                             <th scope="row" class="px-3 py-2 text-left">

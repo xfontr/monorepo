@@ -1,9 +1,9 @@
 <template>
     <section :aria-label="$t('interestCalculator.result.label')">
-        <div role="status" aria-live="polite">
+        <div role="status">
             <dl
                 v-if="result && amounts"
-                class="flex flex-col gap-4 border-t-2 border-huella-slate-900 pt-4"
+                class="flex flex-col gap-4 border-t-2 border-inverted pt-4"
             >
                 <div>
                     <dt class="font-sans text-sm text-toned">

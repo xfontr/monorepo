@@ -6,7 +6,7 @@
                 trigger: 'min-h-12 font-sans text-sm font-semibold text-highlighted',
                 body: 'pb-4',
             }"
-            class="max-w-measure rounded-xs border border-default bg-ivory-50 px-4 lg:hidden"
+            class="max-w-measure rounded-xs border border-default bg-muted px-4 lg:hidden"
         >
             <template #toc-body>
                 <ol class="flex flex-col border-l border-default">

@@ -4,7 +4,7 @@
         :class="hasFeatured ? 'w-152 grid-cols-[11rem_1fr]' : 'w-56 grid-cols-1'"
     >
         <div>
-            <p :id="browseId" class="text-kicker text-muted">
+            <p :id="browseId" class="text-kicker">
                 {{ $t("navPublicationsPanel.browse") }}
             </p>
             <ul :aria-labelledby="browseId" class="mt-2 flex flex-col">
@@ -20,15 +20,12 @@
         </div>
 
         <div v-if="hasFeatured" class="border-l border-default pl-6">
-            <p :id="latestId" class="text-kicker text-muted">
+            <p :id="latestId" class="text-kicker">
                 {{ $t("navPublicationsPanel.latest") }}
             </p>
             <template v-if="status === 'pending'">
                 <p class="sr-only">{{ $t("common.loading") }}</p>
-                <ul
-                    aria-hidden="true"
-                    class="mt-2 flex flex-col divide-y divide-(--ui-border-muted)"
-                >
+                <ul aria-hidden="true" class="mt-2 flex flex-col divide-y divide-muted">
                     <li v-for="row in FEATURED" :key="row" class="flex flex-col gap-2 py-3">
                         <USkeleton class="h-3 w-24" />
                         <USkeleton class="h-5 w-11/12" />
@@ -36,11 +33,7 @@
                     </li>
                 </ul>
             </template>
-            <ul
-                v-else
-                :aria-labelledby="latestId"
-                class="mt-2 flex flex-col divide-y divide-(--ui-border-muted)"
-            >
+            <ul v-else :aria-labelledby="latestId" class="mt-2 flex flex-col divide-y divide-muted">
                 <li
                     v-for="article in featured"
                     :key="article.id"
@@ -50,7 +43,7 @@
                     <ULink
                         raw
                         :to="{ name: 'article', params: { slug: article.slug } }"
-                        class="line-clamp-2 font-serif text-base/snug text-highlighted decoration-huella-slate-300 underline-offset-[0.2em] after:absolute after:inset-0 hover:underline focus-visible:rounded-xs"
+                        class="line-clamp-2 font-serif text-base/snug text-highlighted underline-title after:absolute after:inset-0 hover:underline focus-visible:rounded-xs"
                         >{{ article.title }}</ULink
                     >
                     <span class="font-sans text-meta text-muted">{{

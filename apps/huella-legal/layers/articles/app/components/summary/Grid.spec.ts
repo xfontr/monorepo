@@ -54,27 +54,12 @@ describe("article grid", () => {
         expect(wrapper.find(".md\\:hidden").exists()).toBe(false);
     });
 
-    it("hides nothing in a two-column grid, which never changes column count", async () => {
+    it("draws media cards, so an imageless post still holds its image slot in the grid", async () => {
         const wrapper = await mountSuspended(SummaryGrid, {
-            props: { articles: THREE, columns: 2, hideOrphan: true },
-            global,
-        });
-
-        expect(wrapper.find(".md\\:hidden").exists()).toBe(false);
-        expect(wrapper.classes()).not.toContain("lg:grid-cols-3");
-    });
-
-    it("draws media cards unless told otherwise, since every grid in the design leads with an image", async () => {
-        const media = await mountSuspended(SummaryGrid, {
             props: { articles: THREE.slice(0, 1) },
             global,
         });
-        const standard = await mountSuspended(SummaryGrid, {
-            props: { articles: THREE.slice(0, 1), variant: "standard" },
-            global,
-        });
 
-        expect(media.text()).toContain("§");
-        expect(standard.text()).not.toContain("§");
+        expect(wrapper.text()).toContain("§");
     });
 });

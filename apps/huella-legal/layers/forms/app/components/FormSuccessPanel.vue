@@ -1,15 +1,20 @@
 <template>
     <div
-        class="flex flex-col items-start gap-4 rounded-sm border border-huella-teal-200 bg-huella-teal-50 p-6 md:p-8"
+        class="flex flex-col items-start gap-4 rounded-sm border border-secondary-200 bg-secondary-50 p-6 md:p-8"
     >
         <span
-            class="flex size-11 items-center justify-center rounded-full bg-huella-teal-600 text-white"
+            class="flex size-11 items-center justify-center rounded-full bg-secondary-600 text-inverted"
         >
             <UIcon name="i-lucide-check" class="size-5" />
         </span>
-        <h3 ref="heading" tabindex="-1" class="font-serif text-h3 text-highlighted outline-none">
+        <component
+            :is="`h${level}`"
+            ref="heading"
+            tabindex="-1"
+            class="font-serif text-h3 text-highlighted outline-none"
+        >
             {{ title }}
-        </h3>
+        </component>
         <p v-if="$slots.default" class="max-w-measure font-serif text-base/relaxed text-toned">
             <slot />
         </p>
@@ -23,11 +28,12 @@ import type { LinkAction } from "~/types/LinkAction";
 interface Props {
     title: string;
     action?: LinkAction;
+    level?: 2 | 3 | 4;
 }
 
-defineProps<Props>();
+withDefaults(defineProps<Props>(), { level: 3 });
 
-const heading = useTemplateRef("heading");
+const heading = useTemplateRef<HTMLHeadingElement>("heading");
 
 onMounted(() => heading.value?.focus());
 </script>

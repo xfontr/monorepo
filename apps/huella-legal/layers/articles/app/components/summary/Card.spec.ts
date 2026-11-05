@@ -55,14 +55,7 @@ describe("article card", () => {
         expect(wrapper.find("a[href^='/areas/']").exists()).toBe(false);
     });
 
-    it("keeps the compact card to title and names, without excerpt or reading time", async () => {
-        const wrapper = await mount({ article: ARTICLE, variant: "compact" });
-
-        expect(wrapper.text()).not.toContain(ARTICLE.excerpt);
-        expect(wrapper.text()).not.toContain("byline.readingTime");
-    });
-
-    it.each(["standard", "lead", "row"] as const)(
+    it.each(["standard", "media", "row"] as const)(
         "shows the excerpt and reading time on the %s card",
         async (variant) => {
             const wrapper = await mount({ article: ARTICLE, variant });
@@ -80,15 +73,10 @@ describe("article card", () => {
         expect(link.text()).toBe("t(byline.comments)");
     });
 
-    it("prints no count for a post nobody has commented on, nor on the compact card", async () => {
-        const silent = await mount({ article: ARTICLE });
-        const compact = await mount({
-            article: { ...ARTICLE, commentCount: 4 },
-            variant: "compact",
-        });
+    it("prints no count for a post nobody has commented on", async () => {
+        const wrapper = await mount({ article: ARTICLE });
 
-        expect(silent.text()).not.toContain("byline.comments");
-        expect(compact.text()).not.toContain("byline.comments");
+        expect(wrapper.text()).not.toContain("byline.comments");
     });
 
     it("hides the image from assistive tech, since the title beside it already names the article", async () => {
@@ -100,12 +88,10 @@ describe("article card", () => {
         expect(image.attributes("alt")).toBe("");
     });
 
-    it("loads the lead image eagerly and the rest lazily, since the lead is the one above the fold", async () => {
-        const lead = await mount({ article: WITH_IMAGE, variant: "lead" });
-        const media = await mount({ article: WITH_IMAGE, variant: "media" });
+    it("loads its image lazily, since no card is the page's LCP", async () => {
+        const wrapper = await mount({ article: WITH_IMAGE, variant: "media" });
 
-        expect(lead.find("img").attributes("loading")).toBe("eager");
-        expect(media.find("img").attributes("loading")).toBe("lazy");
+        expect(wrapper.find("img").attributes("loading")).toBe("lazy");
     });
 
     it("asks for each card's image at its frame's ratio, so the CDN crops what the frame would hide", async () => {
@@ -125,18 +111,10 @@ describe("article card", () => {
         expect(row.find("[aria-hidden=true]").text()).toContain("§");
     });
 
-    it("gives an imageless lead no media at all rather than a placeholder above the fold", async () => {
-        const wrapper = await mount({ article: ARTICLE, variant: "lead" });
+    it("draws no media slot on the standard card, even for a post with an image", async () => {
+        const wrapper = await mount({ article: WITH_IMAGE });
 
         expect(wrapper.find("img").exists()).toBe(false);
         expect(wrapper.text()).not.toContain("§");
-    });
-
-    it("sets the lead beside its image from lg up, but keeps an imageless lead full width", async () => {
-        const withImage = await mount({ article: WITH_IMAGE, variant: "lead" });
-        const without = await mount({ article: ARTICLE, variant: "lead" });
-
-        expect(withImage.find("article").classes()).toContain("lg:grid-cols-12");
-        expect(without.find("article").classes()).not.toContain("lg:grid-cols-12");
     });
 });

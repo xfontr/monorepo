@@ -36,5 +36,3 @@ export default meta;
 type Story = StoryObj<typeof SummaryList>;
 
 export const Rows: Story = {};
-
-export const Compact: Story = { args: { variant: "compact" } };

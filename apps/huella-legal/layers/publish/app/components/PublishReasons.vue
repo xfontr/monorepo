@@ -1,5 +1,5 @@
 <template>
-    <ul class="flex flex-col divide-y divide-(--ui-border-muted) border-t border-default">
+    <ul class="flex flex-col divide-y divide-muted border-t border-default">
         <UPageFeature
             v-for="reason in REASONS"
             :key="reason.key"
@@ -9,8 +9,8 @@
             :description="$t(`publish.reasons.${reason.key}.body`)"
             :ui="{
                 root: 'gap-4 py-5',
-                leading: 'size-11 shrink-0 rounded-full bg-huella-teal-100 p-0',
-                leadingIcon: 'text-huella-teal-700',
+                leading: 'size-11 shrink-0 rounded-full bg-secondary-100 p-0',
+                leadingIcon: 'text-secondary-700',
             }"
         />
     </ul>

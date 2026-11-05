@@ -177,7 +177,7 @@ describe("comment form", () => {
         const wrapper = await mount();
 
         expect(wrapper.find("form").exists()).toBe(false);
-        expect(wrapper.find("h3").text()).toBe("success title");
+        expect(wrapper.find("h4").text()).toBe("success title");
     });
 
     it("links the privacy section from the notice", async () => {

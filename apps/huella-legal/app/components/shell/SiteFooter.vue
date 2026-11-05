@@ -4,9 +4,7 @@
             <UContainer class="grid gap-12 lg:grid-cols-12 lg:gap-8">
                 <div class="flex flex-col gap-5 lg:col-span-4">
                     <BaseWordmark tone="slate" tagline />
-                    <p
-                        class="max-w-xs font-serif text-base/relaxed text-balance text-huella-slate-200"
-                    >
+                    <p class="max-w-xs font-serif text-base/relaxed text-balance">
                         {{ $t("app.footer.about") }}
                     </p>
                 </div>
@@ -86,6 +84,5 @@ const linked = computed<FooterColumn[]>(() =>
 
 const year = new Date().getFullYear();
 
-const ICON_LINK =
-    "rounded-full text-huella-slate-200 hover:bg-huella-slate-800 hover:text-ivory-50 focus-visible:outline-ivory-50";
+const ICON_LINK = "rounded-full hover:bg-elevated focus-visible:outline-ivory-50";
 </script>

@@ -2,7 +2,7 @@
     <section
         v-if="articles.length"
         aria-labelledby="mas-area"
-        class="border-t border-default bg-ivory-50 print:hidden"
+        class="border-t border-default bg-muted print:hidden"
     >
         <UContainer class="grid grid-cols-1 py-16 lg:grid-cols-12 lg:gap-x-8 lg:py-20">
             <div class="lg:col-span-9 lg:col-start-4">

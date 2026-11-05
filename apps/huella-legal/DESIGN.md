@@ -57,13 +57,33 @@ for every alias. Contrast ratios are measured on the canvas, so a token change n
 
 | Type step | Spec | Use |
 | --- | --- | --- |
-| `text-display` | Georgia 52/1.08, −0.02em | Homepage statement; 36 px on mobile |
-| Page title | Georgia 42/1.06, −0.02em; 56 from `md` | The h1 of every listing, index and utility page. Not a token yet: it is `text-[2.625rem] leading-[1.06] md:text-[3.5rem]` wherever it appears |
+| `text-display-sm` / `display` / `display-lg` | Georgia 38 / 52 / 60, 1.08, −0.02em | Homepage statement and article titles, one step per breakpoint |
+| `text-title` / `title-lg` / `title-xl` | Georgia 42 / 56 / 64, 1.06, −0.02em | The h1 of every listing, index and utility page; `title-xl` only on the about page |
+| `text-feature` / `feature-lg` / `feature-xl` | Georgia 32 / 40 / 46, 1.12, −0.02em | The homepage's lead article title |
+| `text-figure` / `figure-lg` / `figure-xl` | Georgia 32 / 44 / 56, leading 1 | Stand-alone numbers: author and archive counts |
 | `text-h1` / `h2` / `h3` | Georgia 40 / 30 / 24 | Lead-article titles, section titles and subsection titles, always regular weight |
 | `text-reading` | Georgia 18/1.7 | Article body inside `max-w-measure` (680 px, about 70 characters) |
 | `text-quote` / `text-citation` | Georgia italic 24 / Georgia 15 | Pull quotes / legal citations and footnotes |
 | `text-meta` | Montserrat 400 13 | Date and reading time; author names set it at 600 |
-| Kicker | Montserrat 600 12, uppercase, 0.12em | Category labels, section numbers |
+| Kicker | Montserrat 600 12, uppercase, `tracking-kicker` (0.12em) | Category labels, section numbers |
+| `text-label` | Montserrat 600 11, uppercase, `tracking-label` (0.14em) | The wordmark's tagline and the `§` tile's label |
+| `text-reading-sm`, `h2-sm`, `h3-sm`, `quote-sm` | Georgia 17 / 26 / 21 / 21 | `.hl-prose` below `md`, where it switches to `reading`, `h2`, `h3` and `quote` |
+
+### Surfaces and links
+
+Colour reaches a component through Nuxt UI's roles (`bg-muted`, `text-secondary`,
+`border-inverted`…), never a palette step the role already names; ESLint's
+`no-restricted-classes` in [`eslint.config.ts`](./eslint.config.ts) rejects those steps and any
+arbitrary `text-`, `leading-` or `tracking-` value.
+
+| Utility | What it does | Why |
+| --- | --- | --- |
+| `surface-inverted` | Re-points the text, border, elevated and secondary roles for content on a slate-900 fill, so the footer, the theses band, the about quote and the TFG tile use the same classes as paper | Without it every slate component picked its own steps, and the kickers had drifted to two different teals. It sets no colour itself, since Tailwind's order between a custom utility and `bg-*`/`text-*` isn't something a class list controls |
+| `underline-title` | A serif title link's hover underline: `--ui-border-accented`, 0.2em below | Slate-300 on paper and slate-500 on slate, through `surface-inverted` |
+
+`text-kicker` is a typography utility that also sets the muted colour. Inside a Nuxt UI slot that
+has a size variant, such as the command palette's `label`, tailwind-merge drops it in favour of
+the variant's `text-xs`, so those slots spell the kicker out with `tracking-kicker`.
 
 ### Where the design departs from the Penpot tokens
 

@@ -10,9 +10,9 @@ export default {
             color: "error",
             variant: "subtle",
             class: {
-                root: "bg-huella-danger-50 ring-huella-danger-500",
-                title: "text-huella-danger-800",
-                description: "text-huella-danger-800",
+                root: "bg-error-50 ring-error-500",
+                title: "text-error-800",
+                description: "text-error-800",
             },
         },
     ],
