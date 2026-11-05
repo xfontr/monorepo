@@ -11,6 +11,7 @@
             icon="i-lucide-file-text"
             trailing-icon="i-lucide-arrow-right"
             :to="nav.publishGuide"
+            :ui="{ label: 'overflow-visible whitespace-normal' }"
             class="mt-2 -ml-3"
         />
     </section>
