@@ -2,7 +2,7 @@
     <section
         v-if="citation"
         :aria-labelledby="headingId"
-        class="rounded-sm border border-default bg-ivory-50 p-5 md:p-6"
+        class="rounded-sm border border-default bg-muted p-5 md:p-6"
     >
         <h2 :id="headingId" class="font-serif text-xl text-highlighted">
             {{ $t("citeBox.title") }}
@@ -12,12 +12,7 @@
             v-model="tab"
             :items="tabs"
             variant="link"
-            :ui="{
-                list: 'gap-6 border-b border-default px-0 print:hidden',
-                trigger:
-                    'min-h-11 min-w-11 px-0 font-sans text-sm font-semibold data-[state=active]:text-highlighted',
-                indicator: 'bg-huella-slate-900 h-0.5',
-            }"
+            :ui="{ list: 'print:hidden', trigger: 'text-sm' }"
             class="mt-3"
         >
             <template #content="{ item }">

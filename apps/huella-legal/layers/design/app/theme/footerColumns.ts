@@ -2,7 +2,7 @@ export default {
     slots: {
         root: "xl:block",
         center: "grid grid-flow-row grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3",
-        label: "text-kicker text-huella-teal-300",
+        label: "text-kicker text-secondary",
         list: "mt-3 flex flex-col space-y-0",
         // The default truncates, which clips "Publicar un TFG o TFM" in the two-column grid at 390px
         linkLabel: "overflow-visible whitespace-normal",
@@ -12,7 +12,7 @@ export default {
     // primary defaults fail contrast on slate
     variants: {
         active: {
-            true: { link: "font-normal text-ivory-50" },
+            true: { link: "font-normal text-highlighted" },
             false: { link: "text-ivory-100 hover:text-ivory-100" },
         },
     },

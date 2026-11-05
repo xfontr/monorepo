@@ -1,5 +1,5 @@
 <template>
-    <section class="bg-huella-teal-800 text-ivory-50">
+    <section class="bg-huella-teal-800 text-inverted">
         <UContainer
             class="relative flex flex-col gap-8 overflow-hidden py-16 md:flex-row md:items-center md:justify-between lg:py-20"
         >
@@ -8,7 +8,7 @@
                 class="pointer-events-none absolute -right-16 -bottom-24 size-96 text-huella-teal-700"
             />
             <div class="relative">
-                <h2 class="font-serif text-4xl/tight md:text-[3rem]">
+                <h2 class="font-serif text-4xl/tight md:text-5xl/tight">
                     {{ $t("aboutCallToAction.title") }}
                 </h2>
                 <p class="mt-3 max-w-xl font-serif text-standfirst text-huella-teal-100">
@@ -20,14 +20,14 @@
                     :label="$t('aboutCallToAction.publish')"
                     icon="i-lucide-pen-line"
                     :to="{ name: 'publish' }"
-                    class="justify-center bg-ivory-50 text-huella-teal-900 hover:bg-ivory-100 focus-visible:outline-ivory-50"
+                    class="justify-center bg-muted text-huella-teal-900 hover:bg-default focus-visible:outline-ivory-50"
                 />
                 <UButton
                     :label="$t('aboutCallToAction.contact')"
                     icon="i-lucide-mail"
                     variant="outline"
                     :to="{ name: 'contact' }"
-                    class="justify-center text-ivory-50 ring-ivory-50/60 hover:bg-huella-teal-700 focus-visible:outline-ivory-50"
+                    class="justify-center text-inverted ring-ivory-50/60 hover:bg-huella-teal-700 focus-visible:outline-ivory-50"
                 />
             </div>
         </UContainer>

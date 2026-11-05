@@ -2,7 +2,7 @@
     <section
         id="comentarios"
         aria-labelledby="comentarios-titulo"
-        class="flex max-w-measure flex-col gap-8 border-t-2 border-huella-slate-900 pt-6 print:hidden"
+        class="flex max-w-measure flex-col gap-8 border-t-2 border-inverted pt-6 print:hidden"
     >
         <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <h2 id="comentarios-titulo" class="font-serif text-h3 text-highlighted">

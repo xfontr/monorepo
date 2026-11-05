@@ -1,8 +1,8 @@
 <template>
     <div
-        class="flex flex-col gap-2 border-t-2 border-huella-slate-900 pt-4 sm:flex-row sm:items-end sm:justify-between"
+        class="flex flex-col gap-2 border-t-2 border-inverted pt-4 sm:flex-row sm:items-end sm:justify-between"
     >
-        <div>
+        <hgroup>
             <p v-if="kicker" class="flex">
                 <BaseKicker>{{ kicker }}</BaseKicker>
             </p>
@@ -13,7 +13,7 @@
             >
                 {{ title }}
             </h2>
-        </div>
+        </hgroup>
         <UButton
             v-if="action"
             variant="link"

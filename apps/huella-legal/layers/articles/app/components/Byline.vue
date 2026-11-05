@@ -16,7 +16,7 @@
                 <li class="text-toned">
                     <!-- One inline box: as flex items, the separators would lose the spaces around "y" -->
                     <span>
-                        <span v-for="({ literal, author }, key) in names" :key>
+                        <template v-for="({ literal, author }, key) in names" :key>
                             <template v-if="literal">{{ literal }}</template>
                             <ULink
                                 v-else-if="author"
@@ -25,7 +25,7 @@
                                 class="font-semibold text-highlighted underline-offset-3 hover:underline focus-visible:rounded-xs"
                                 >{{ author.name }}</ULink
                             >
-                        </span>
+                        </template>
                     </span>
                 </li>
                 <li v-if="date">

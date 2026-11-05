@@ -29,7 +29,7 @@
         <UContainer class="py-16 lg:py-20">
             <PublishSteps />
         </UContainer>
-        <div class="border-y border-default bg-ivory-50">
+        <div class="border-y border-default bg-muted">
             <UContainer class="grid grid-cols-1 gap-12 py-16 lg:grid-cols-12 lg:py-20">
                 <PublishProposal id="propuesta" class="lg:col-span-7" />
                 <div class="flex flex-col gap-12 lg:col-span-5 lg:gap-16">

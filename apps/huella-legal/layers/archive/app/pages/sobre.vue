@@ -2,24 +2,24 @@
     <div>
         <AboutIntro :articles="articleCount" :authors="authors.length" />
 
-        <section aria-labelledby="por-que-existimos" class="bg-huella-slate-900 text-ivory-50">
+        <section
+            aria-labelledby="por-que-existimos"
+            class="bg-inverted text-highlighted surface-inverted"
+        >
             <UContainer class="py-20 lg:py-28">
                 <figure class="hl-about-reveal mx-auto max-w-4xl">
                     <p id="por-que-existimos" class="flex">
-                        <BaseKicker tone="slate">{{ $t("aboutQuote.label") }}</BaseKicker>
+                        <BaseKicker>{{ $t("aboutQuote.label") }}</BaseKicker>
                     </p>
-                    <UIcon
-                        name="i-lucide-quote"
-                        class="mt-6 size-10 text-huella-teal-300 md:size-12"
-                    />
+                    <UIcon name="i-lucide-quote" class="mt-6 size-10 text-secondary md:size-12" />
                     <blockquote class="mt-6">
                         <p
-                            class="font-serif text-section/snug text-balance italic md:text-[2.75rem]"
+                            class="font-serif text-section/snug text-balance italic md:text-pull-quote"
                         >
                             {{ $t("aboutQuote.text") }}
                         </p>
                     </blockquote>
-                    <figcaption class="mt-6 font-sans text-meta text-huella-slate-200">
+                    <figcaption class="mt-6 font-sans text-meta text-default">
                         — {{ $t("aboutQuote.author") }}
                     </figcaption>
                 </figure>
@@ -40,9 +40,9 @@
                     :description="$t(`aboutValues.${value.key}.body`)"
                     :style="{ '--step': index }"
                     :ui="{
-                        root: 'hl-about-reveal flex flex-col gap-4 bg-ivory-50 p-6 ring-1 ring-ivory-200',
+                        root: 'hl-about-reveal flex flex-col gap-4 bg-muted p-6 ring-1 ring-muted',
                         leading:
-                            'mb-0 size-12 rounded-full bg-huella-teal-50 ring-1 ring-huella-teal-100',
+                            'mb-0 size-12 rounded-full bg-secondary-50 ring-1 ring-secondary-100',
                         leadingIcon: 'size-6',
                         description: 'mt-4',
                     }"
@@ -56,8 +56,8 @@
             </ul>
         </UContainer>
 
-        <div class="border-y border-default bg-ivory-50">
-            <UContainer as="section" class="py-16 lg:py-24">
+        <section class="border-y border-default bg-muted">
+            <UContainer class="py-16 lg:py-24">
                 <BaseSectionHeading
                     :kicker="$t('aboutTopics.kicker')"
                     :title="$t('aboutTopics.title')"
@@ -89,7 +89,7 @@
                     </UPageFeature>
                 </ul>
             </UContainer>
-        </div>
+        </section>
 
         <UPageSection
             orientation="horizontal"
@@ -114,8 +114,8 @@
             </div>
         </UPageSection>
 
-        <div class="border-t border-default bg-ivory-50">
-            <UContainer as="section" class="py-16 lg:py-24">
+        <section class="border-t border-default bg-muted">
+            <UContainer class="py-16 lg:py-24">
                 <BaseSectionHeading
                     :kicker="$t('aboutModel.kicker')"
                     :title="$t('aboutModel.title')"
@@ -135,11 +135,11 @@
                     >
                         <template #leading>
                             <span
-                                class="grid size-14 shrink-0 place-items-center rounded-full bg-huella-teal-600 text-ivory-50"
+                                class="grid size-14 shrink-0 place-items-center rounded-full bg-secondary-600 text-inverted"
                             >
                                 <UIcon :name="item.icon" class="size-7" />
                             </span>
-                            <span class="h-px flex-1 bg-huella-teal-200" aria-hidden="true" />
+                            <span class="h-px flex-1 bg-secondary-200" aria-hidden="true" />
                         </template>
                         <template #title>
                             <h3 class="text-card">
@@ -149,7 +149,7 @@
                     </UPageFeature>
                 </ul>
             </UContainer>
-        </div>
+        </section>
 
         <AboutCallToAction />
         <NewsletterBand />

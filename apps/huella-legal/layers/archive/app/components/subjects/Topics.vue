@@ -1,6 +1,6 @@
 <template>
     <section aria-labelledby="temas">
-        <h2 id="temas" class="scroll-mt-6 text-kicker text-muted">
+        <h2 id="temas" class="scroll-mt-6 text-kicker">
             {{ $t("subjectsTopics.title") }}
         </h2>
         <p class="mt-2 max-w-measure font-serif text-base/relaxed text-pretty text-toned">
@@ -14,7 +14,7 @@
                 class="mb-6 break-inside-avoid last:mb-0"
             >
                 <p
-                    class="border-b border-default pb-1 font-serif text-2xl text-huella-teal-600"
+                    class="border-b border-default pb-1 font-serif text-2xl text-secondary"
                     aria-hidden="true"
                 >
                     {{ letter }}
@@ -26,10 +26,9 @@
                             :to="{ name: 'tag', params: { slug: value.slug } }"
                             class="group flex min-h-11 items-center justify-between gap-3 font-serif text-base text-highlighted focus-visible:rounded-xs"
                         >
-                            <span
-                                class="decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
-                                >{{ value.name }}</span
-                            >
+                            <span class="underline-title group-hover:underline">{{
+                                value.name
+                            }}</span>
                             <span
                                 class="font-sans text-meta text-muted tabular-nums"
                                 aria-hidden="true"

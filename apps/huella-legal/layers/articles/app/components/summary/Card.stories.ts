@@ -36,16 +36,10 @@ type Story = StoryObj<typeof SummaryCard>;
 
 export const Standard: Story = {};
 
-export const Lead: Story = { args: { variant: "lead", article: { ...ARTICLE, image: IMAGE } } };
-
-export const LeadWithoutImage: Story = { args: { variant: "lead" } };
-
 export const Media: Story = { args: { variant: "media", article: { ...ARTICLE, image: IMAGE } } };
 
 export const MediaWithoutImage: Story = { args: { variant: "media" } };
 
 export const Row: Story = { args: { variant: "row" } };
-
-export const Compact: Story = { args: { variant: "compact" } };
 
 export const Uncategorised: Story = { args: { article: { ...ARTICLE, category: undefined } } };

@@ -1,7 +1,7 @@
 <template>
     <section
         :aria-labelledby="id"
-        class="grid grid-cols-[3.5rem_1fr] gap-x-5 gap-y-3 border-t-2 border-huella-slate-900 pt-6 md:grid-cols-[4.5rem_1fr]"
+        class="grid grid-cols-[auto_1fr] gap-x-5 gap-y-3 border-t-2 border-inverted pt-6"
     >
         <UAvatar
             :src="author.avatar?.url"

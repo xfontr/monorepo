@@ -1,5 +1,5 @@
 <template>
-    <div v-if="home" class="flex flex-col">
+    <div v-if="home">
         <UContainer>
             <div
                 class="flex flex-col gap-4 border-b border-default pt-10 pb-8 md:pt-14 lg:flex-row lg:items-end lg:justify-between lg:gap-12 lg:pb-10"
@@ -8,7 +8,7 @@
                     keypath="home.hero.title"
                     tag="h1"
                     scope="global"
-                    class="max-w-3xl font-serif text-[2.125rem] leading-[1.08] tracking-[-0.02em] text-balance text-highlighted md:text-[3rem] lg:text-[3.5rem]"
+                    class="max-w-3xl font-serif text-display-sm text-balance text-highlighted md:text-display lg:text-display-lg"
                 >
                     <template #emphasis>
                         <em class="text-primary">{{ $t("home.hero.emphasis") }}</em>
@@ -37,7 +37,7 @@
 
         <UContainer as="section" :aria-label="$t('home.publish.label')" class="py-16 lg:py-20">
             <div
-                class="flex flex-col gap-4 border-t-2 border-huella-slate-900 pt-5 md:flex-row md:items-center md:justify-between md:gap-10"
+                class="flex flex-col gap-4 border-t-2 border-inverted pt-5 md:flex-row md:items-center md:justify-between md:gap-10"
             >
                 <p class="max-w-3xl font-serif text-xl/snug text-highlighted md:text-h3">
                     {{ $t("home.publish.prompt") }}

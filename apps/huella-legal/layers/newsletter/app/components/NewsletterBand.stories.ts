@@ -11,5 +11,3 @@ export default meta;
 type Story = StoryObj<typeof NewsletterBand>;
 
 export const Paper: Story = {};
-
-export const Slate: Story = { args: { tone: "slate" } };

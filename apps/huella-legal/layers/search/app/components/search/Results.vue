@@ -6,7 +6,7 @@
         <template v-else-if="search.total">
             <h2
                 :id="headingId"
-                class="border-b-2 border-huella-slate-900 pb-3 font-sans text-sm text-muted"
+                class="border-b-2 border-inverted pb-3 font-sans text-sm text-muted"
             >
                 <I18nT keypath="searchResults.count" tag="span" scope="global">
                     <template #total>

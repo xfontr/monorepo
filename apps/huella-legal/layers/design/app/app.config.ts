@@ -20,6 +20,7 @@ import pageSection from "./theme/pageSection";
 import pagination from "./theme/pagination";
 import select from "./theme/select";
 import skeleton from "./theme/skeleton";
+import tabs from "./theme/tabs";
 import textarea from "./theme/textarea";
 import tv from "./theme/tv";
 
@@ -54,6 +55,7 @@ export default defineAppConfig({
         select,
         textarea,
         alert,
+        tabs,
         accordion,
         modal,
         commandPalette,

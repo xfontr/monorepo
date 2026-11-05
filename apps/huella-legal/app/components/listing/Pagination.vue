@@ -32,7 +32,7 @@
                     :to="to(item.value)"
                     :aria-label="$t('pagination.page', { page: item.value })"
                     :aria-current="item.value === page ? 'page' : undefined"
-                    class="relative inline-flex min-h-12 min-w-11 items-center justify-center font-sans text-sm font-semibold text-muted tabular-nums transition-colors before:absolute before:inset-x-1.5 before:-top-px before:h-0.5 before:transition-colors hover:text-highlighted hover:before:bg-ivory-400 focus-visible:rounded-xs aria-[current=page]:text-highlighted aria-[current=page]:before:bg-huella-slate-900 max-sm:hidden"
+                    class="relative inline-flex min-h-12 min-w-11 items-center justify-center font-sans text-sm font-semibold text-muted tabular-nums transition-colors before:absolute before:inset-x-1.5 before:-top-px before:h-0.5 before:transition-colors hover:text-highlighted hover:before:bg-ivory-400 focus-visible:rounded-xs aria-[current=page]:text-highlighted aria-[current=page]:before:bg-inverted max-sm:hidden"
                 >
                     {{ item.value }}
                 </ULink>

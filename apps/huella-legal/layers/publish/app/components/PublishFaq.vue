@@ -1,5 +1,5 @@
 <template>
-    <section :aria-labelledby="headingId" class="border-t-2 border-huella-slate-900 pt-4">
+    <section :aria-labelledby="headingId" class="border-t-2 border-inverted pt-4">
         <h2 :id="headingId" class="font-serif text-h3 text-highlighted">
             {{ $t("publish.faq.title") }}
         </h2>

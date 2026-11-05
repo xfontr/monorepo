@@ -1,4 +1,4 @@
 export default {
-    slots: { base: "bg-ivory-50" },
+    slots: { base: "bg-elevated" },
     defaultVariants: { size: "xl" },
 };

@@ -33,12 +33,12 @@ describe("article list", () => {
         ]);
     });
 
-    it("passes its variant to every card, so a compact list loses the excerpts", async () => {
+    it("passes its variant to every card, so a standard list drops the rows' image slot", async () => {
         const wrapper = await mountSuspended(SummaryList, {
-            props: { articles: ARTICLES, variant: "compact" },
+            props: { articles: ARTICLES, variant: "standard" },
             global,
         });
 
-        expect(wrapper.text()).not.toContain(ARTICLES[0]!.excerpt);
+        expect(wrapper.text()).not.toContain("§");
     });
 });

@@ -12,15 +12,15 @@
         class="gap-1.5 rounded-full px-4 text-sm font-medium tracking-normal"
         :class="
             active
-                ? 'text-ivory-50'
-                : 'bg-transparent text-toned ring-default hover:bg-ivory-50 hover:text-toned hover:ring-(--ui-border-accented) active:bg-ivory-50'
+                ? 'text-inverted'
+                : 'bg-transparent text-toned ring-default hover:bg-muted hover:text-toned hover:ring-accented active:bg-muted'
         "
     >
         {{ label }}
         <template v-if="count !== undefined">
             <span
                 class="tabular-nums"
-                :class="active ? 'text-huella-slate-100' : 'text-muted'"
+                :class="active ? 'text-primary-100' : 'text-muted'"
                 aria-hidden="true"
                 >{{ count }}</span
             >

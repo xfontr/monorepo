@@ -15,12 +15,7 @@
             @submit="submit($event.data, challenge)"
             @error="onInvalid($event.errors)"
         >
-            <UFormField
-                name="email"
-                :label="$t('newsletterForm.email.label')"
-                :ui="{ label: colors.label, error: colors.error }"
-                eager-validation
-            >
+            <UFormField name="email" :label="$t('newsletterForm.email.label')" eager-validation>
                 <div :class="arrangement.row">
                     <UInput
                         ref="email"
@@ -35,7 +30,6 @@
                         :block="arrangement.block"
                         :loading="submitting"
                         :label="$t('newsletterForm.submit')"
-                        :color="colors.button"
                         class="shrink-0 justify-center"
                     />
                 </div>
@@ -54,11 +48,10 @@
                 keypath="newsletterForm.notice"
                 scope="global"
                 tag="p"
-                class="font-sans text-meta"
-                :class="colors.notice"
+                class="font-sans text-meta text-muted"
             >
                 <template #privacy>
-                    <ULink raw :to="nav.privacy" data-inline class="underline underline-offset-2">
+                    <ULink raw :to="nav.privacy" class="underline underline-offset-2">
                         {{ $t("newsletterForm.privacy") }}
                     </ULink>
                 </template>
@@ -71,7 +64,6 @@
 <script setup lang="ts">
 import { useFormSubmission } from "#layers/forms/app/composables/useFormSubmission";
 import type { Form, FormErrorWithId } from "@nuxt/ui";
-import type { Tone } from "~/types/Tone";
 import {
     type Subscription,
     type SubscriptionIssue,
@@ -86,21 +78,12 @@ interface LayoutRecipe {
     block: boolean;
 }
 
-interface ToneRecipe {
-    label: string | undefined;
-    error: string | undefined;
-    notice: string;
-    button: "primary" | "secondary";
-}
-
 interface Props {
     layout?: Layout;
-    tone?: Tone;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     layout: "stacked",
-    tone: "paper",
 });
 
 const LAYOUTS = {
@@ -109,16 +92,6 @@ const LAYOUTS = {
 } as const satisfies Record<Layout, LayoutRecipe>;
 
 const SHAKE: Keyframe[] = [0, -6, 6, -4, 4, 0].map((x) => ({ transform: `translateX(${x}px)` }));
-
-const TONES = {
-    paper: { label: undefined, error: undefined, notice: "text-muted", button: "primary" },
-    slate: {
-        label: "text-huella-slate-200",
-        error: "text-huella-danger-200",
-        notice: "text-huella-slate-300",
-        button: "secondary",
-    },
-} as const satisfies Record<Tone, ToneRecipe>;
 
 const { t } = useI18n();
 const { nav } = useAppConfig();
@@ -163,5 +136,4 @@ const onInvalid = async (formErrors: readonly FormErrorWithId[]): Promise<void> 
 };
 
 const arrangement = computed<LayoutRecipe>(() => LAYOUTS[props.layout]);
-const colors = computed<ToneRecipe>(() => TONES[props.tone]);
 </script>

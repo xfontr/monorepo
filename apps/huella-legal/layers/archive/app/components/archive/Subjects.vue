@@ -1,23 +1,16 @@
 <template>
     <aside :aria-label="$t('archiveSubjects.label')">
-        <h2 class="flex min-h-12 items-center text-kicker text-muted">
+        <h2 class="flex min-h-12 items-center text-kicker">
             {{ title }}
         </h2>
-        <ul class="flex flex-col border-t border-(--ui-border-muted)">
-            <li
-                v-for="{ value, count } in shown"
-                :key="value.id"
-                class="border-b border-(--ui-border-muted)"
-            >
+        <ul class="flex flex-col border-t border-muted">
+            <li v-for="{ value, count } in shown" :key="value.id" class="border-b border-muted">
                 <ULink
                     raw
                     :to="{ name: 'category', params: { slug: value.slug } }"
                     class="group flex min-h-11 items-center justify-between gap-3 py-1 font-serif text-base text-highlighted focus-visible:rounded-xs"
                 >
-                    <span
-                        class="decoration-huella-slate-300 underline-offset-[0.2em] group-hover:underline"
-                        >{{ value.name }}</span
-                    >
+                    <span class="underline-title group-hover:underline">{{ value.name }}</span>
                     <span class="font-sans text-meta text-muted tabular-nums" aria-hidden="true">{{
                         count
                     }}</span>

@@ -9,10 +9,9 @@
                     },
                     ...breadcrumbs,
                 ]"
+                class="mb-6 md:mb-8"
             />
-            <div class="mt-6 md:mt-8">
-                <slot />
-            </div>
+            <slot />
         </UContainer>
     </section>
 </template>

@@ -13,23 +13,13 @@
 
 <script setup lang="ts">
 import type { RouteLocationRaw } from "vue-router";
-import type { Tone } from "~/types/Tone";
 
 interface Props {
     to?: RouteLocationRaw;
-    tone?: Tone;
     muted?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-    tone: "paper",
-    muted: false,
-});
+const props = withDefaults(defineProps<Props>(), { muted: false });
 
-const TONES = {
-    paper: "text-secondary",
-    slate: "text-huella-teal-200",
-} as const satisfies Record<Tone, string>;
-
-const toneClass = computed<string>(() => (props.muted ? "text-muted" : TONES[props.tone]));
+const toneClass = computed<string>(() => (props.muted ? "text-muted" : "text-secondary"));
 </script>

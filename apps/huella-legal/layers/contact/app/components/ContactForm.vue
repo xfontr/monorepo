@@ -1,5 +1,9 @@
 <template>
-    <FormSuccessPanel v-if="status === 'success'" :title="$t('contactForm.success.title')">
+    <FormSuccessPanel
+        v-if="status === 'success'"
+        :title="$t('contactForm.success.title')"
+        :level="2"
+    >
         {{ $t("contactForm.success.description") }}
     </FormSuccessPanel>
     <FormChallenge v-else v-slot="{ challenge }">
@@ -57,7 +61,7 @@
                 class="font-sans text-meta text-muted"
             >
                 <template #privacy>
-                    <ULink raw :to="nav.privacy" data-inline class="underline underline-offset-2">
+                    <ULink raw :to="nav.privacy" class="underline underline-offset-2">
                         {{ $t("contactForm.privacy") }}
                     </ULink>
                 </template>

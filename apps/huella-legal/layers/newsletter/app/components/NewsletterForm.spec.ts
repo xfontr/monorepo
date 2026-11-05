@@ -199,16 +199,4 @@ describe("newsletter form", () => {
 
         expect(wrapper.findComponent({ name: "UButton" }).props("block")).toBe(block);
     });
-
-    it.each([
-        ["paper", "primary"],
-        ["slate", "secondary"],
-    ] as const)(
-        "gives the %s tone a %s button, so it keeps contrast on its background",
-        async (tone, color) => {
-            const wrapper = await mount({ tone });
-
-            expect(wrapper.findComponent({ name: "UButton" }).props("color")).toBe(color);
-        },
-    );
 });

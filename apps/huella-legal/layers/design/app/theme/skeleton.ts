@@ -1,3 +1,3 @@
 export default {
-    base: "bg-ivory-200",
+    base: "bg-accented",
 };

@@ -104,6 +104,55 @@
     --text-citation--line-height: 1.55;
     --text-meta: 0.8125rem;
     --text-meta--line-height: 1.45;
+    --text-label: 0.6875rem;
+
+    /* The h1 of every listing, index and utility page */
+    --text-title: 2.625rem;
+    --text-title--line-height: 1.06;
+    --text-title--letter-spacing: -0.02em;
+    --text-title-lg: 3.5rem;
+    --text-title-lg--line-height: 1.06;
+    --text-title-lg--letter-spacing: -0.02em;
+    --text-title-xl: 4rem;
+    --text-title-xl--line-height: 1.06;
+    --text-title-xl--letter-spacing: -0.02em;
+
+    /* The homepage's lead article title */
+    --text-feature: 2rem;
+    --text-feature--line-height: 1.12;
+    --text-feature--letter-spacing: -0.02em;
+    --text-feature-lg: 2.5rem;
+    --text-feature-lg--line-height: 1.12;
+    --text-feature-lg--letter-spacing: -0.02em;
+    --text-feature-xl: 2.875rem;
+    --text-feature-xl--line-height: 1.12;
+    --text-feature-xl--letter-spacing: -0.02em;
+
+    /* Stand-alone numbers: counts, totals */
+    --text-figure: 2rem;
+    --text-figure--line-height: 1;
+    --text-figure-lg: 2.75rem;
+    --text-figure-lg--line-height: 1;
+    --text-figure-xl: 3.5rem;
+    --text-figure-xl--line-height: 1;
+
+    --text-pull-quote: 2.75rem;
+    --text-pull-quote--line-height: 1.375;
+    --text-glyph: min(9rem, 40cqw);
+    --text-wordmark: 1.625rem;
+    --text-wordmark--line-height: 1;
+
+    /* The article body's steps below `md` */
+    --text-reading-sm: 1.0625rem;
+    --text-h2-sm: 1.625rem;
+    --text-h3-sm: 1.3125rem;
+    --text-quote-sm: 1.3125rem;
+
+    --tracking-display: -0.02em;
+    --tracking-wordmark: -0.01em;
+    --tracking-control: 0.01em;
+    --tracking-kicker: 0.12em;
+    --tracking-label: 0.14em;
 
     /* About 70 characters of Georgia at the reading size */
     --container-measure: 42.5rem;
@@ -152,8 +201,26 @@ html {
     line-height: var(--text-xs--line-height);
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
+    letter-spacing: var(--tracking-kicker);
     color: var(--ui-text-muted);
+}
+
+/* Re-points the roles for content on a slate-900 fill; it sets no colour itself, so pair it with `bg-inverted` */
+@utility surface-inverted {
+    --ui-bg-elevated: var(--color-huella-slate-800);
+    --ui-text: var(--color-huella-slate-200);
+    --ui-text-toned: var(--color-huella-slate-200);
+    --ui-text-muted: var(--color-huella-slate-300);
+    --ui-text-highlighted: var(--color-ivory-50);
+    --ui-border: var(--color-huella-slate-700);
+    --ui-border-accented: var(--color-huella-slate-500);
+    --ui-secondary: var(--color-huella-teal-300);
+}
+
+/* The hover underline on a serif title link */
+@utility underline-title {
+    text-decoration-color: var(--ui-border-accented);
+    text-underline-offset: 0.2em;
 }
 
 @layer base {
