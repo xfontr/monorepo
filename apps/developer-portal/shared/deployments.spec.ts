@@ -13,13 +13,13 @@ describe("deploymentUrlFor", () => {
             {
                 environment: "huella-legal",
                 state: "success" as const,
-                url: "https://huella-legal.netlify.app/",
+                url: "https://huella-legal.example.workers.dev/",
                 updatedAt: "2026-09-19T13:00:00Z",
             },
         ];
 
         expect(deploymentUrlFor(deployments, "huella-legal")).toBe(
-            "https://huella-legal.netlify.app/",
+            "https://huella-legal.example.workers.dev/",
         );
     });
 });

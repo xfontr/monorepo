@@ -91,7 +91,7 @@ Every PR, and every push to `master`, runs [`ci.yml`](../../.github/workflows/ci
 as part of its build, which is where a local pass and a red CI run most often diverge.
 
 The `master` ruleset requires a PR but no approving review. Its required checks are `checks`, `e2e`
-and `dependency-review` from CI, plus the Netlify deploy preview, and SonarCloud code scanning gates
+and `dependency-review` from CI, plus Cloudflare's Workers Builds check on huella-legal, and SonarCloud code scanning gates
 on top. So an armed auto-merge, whether from `pnpm issue:ship` or from
 [`dependabot-auto-merge.yml`](../../.github/workflows/dependabot-auto-merge.yml) on Dependabot's
 non-major PRs, lands the moment those pass.

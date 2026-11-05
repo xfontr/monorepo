@@ -299,7 +299,7 @@
             "label": "Nombre",
             "name": "Nombre"
         },
-        "notice": "La redacción revisa cada comentario antes de publicarlo. Huella Legal trata tus datos con tu consentimiento, solo para gestionar tu comentario. Los reciben Netlify, que aloja la web, Cloudflare y Akismet, que la protegen del spam, y WordPress, donde se guardan. Puedes acceder a ellos, rectificarlos o pedir que los borremos escribiéndonos. Lo demás está en la {privacy}.",
+        "notice": "La redacción revisa cada comentario antes de publicarlo. Huella Legal trata tus datos con tu consentimiento, solo para gestionar tu comentario. Los reciben Cloudflare, que aloja la web y, con Akismet, la protege del spam, y WordPress, donde se guardan. Puedes acceder a ellos, rectificarlos o pedir que los borremos escribiéndonos. Lo demás está en la {privacy}.",
         "privacy": "política de privacidad",
         "replyingTo": "Respondes a {author}",
         "submit": "Enviar comentario",
@@ -361,7 +361,7 @@
             "label": "Nombre y apellidos",
             "name": "Nombre"
         },
-        "notice": "Huella Legal trata tus datos con tu consentimiento, solo para responder a tu mensaje. Los reciben Netlify, que aloja la web, Cloudflare, que la protege del spam, y Resend, que nos entrega el correo. Puedes acceder a ellos, rectificarlos o pedir que los borremos escribiéndonos. Lo demás está en la {privacy}.",
+        "notice": "Huella Legal trata tus datos con tu consentimiento, solo para responder a tu mensaje. Los reciben Cloudflare, que aloja la web y la protege del spam, y Resend, que nos entrega el correo. Puedes acceder a ellos, rectificarlos o pedir que los borremos escribiéndonos. Lo demás está en la {privacy}.",
         "privacy": "política de privacidad",
         "submit": "Enviar mensaje",
         "success": {
@@ -799,7 +799,7 @@
             "label": "Nombre y apellidos",
             "name": "Nombre"
         },
-        "notice": "Huella Legal trata tus datos con tu consentimiento, solo para valorar tu propuesta. Los reciben Netlify, que aloja la web, Cloudflare, que la protege del spam, y Resend, que nos entrega el correo y el archivo. Puedes acceder a ellos, rectificarlos o pedir que los borremos escribiéndonos. Lo demás está en la {privacy}.",
+        "notice": "Huella Legal trata tus datos con tu consentimiento, solo para valorar tu propuesta. Los reciben Cloudflare, que aloja la web y la protege del spam, y Resend, que nos entrega el correo y el archivo. Puedes acceder a ellos, rectificarlos o pedir que los borremos escribiéndonos. Lo demás está en la {privacy}.",
         "privacy": "política de privacidad",
         "submit": "Enviar propuesta",
         "success": {

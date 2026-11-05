@@ -18,12 +18,11 @@ The ask has since grown past that list: developer-portal should become something
 developer platform, and the question raised with it is which dependency that means installing,
 Backstage being the obvious candidate.
 
-Three facts about the repo decide the answer, and all three are newer than the original framing:
+Two facts about the repo decide the answer, and both are newer than the original framing:
 
 | Fact | Where |
 | --- | --- |
 | developer-portal is built and deployed — a prerender published to GitHub Pages, no host and no secret | [`developer-portal-deploy.yml`](../../.github/workflows/developer-portal-deploy.yml), [`0014`](./0014-developer-portal-deployment.md) |
-| `huella-legal` has a production pipeline, and every deploy is recorded as a GitHub Deployment | [`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml) |
 | developer-portal requires exactly one env var, `NUXT_PUBLIC_REPO_URL` — the observability URLs belong to `huella-legal` | [`apps/developer-portal/.env.example`](../../apps/developer-portal/.env.example) |
 
 ## Result

@@ -1,0 +1,84 @@
+name: Huella Legal deployment
+
+on:
+    push:
+        branches: [master]
+    workflow_dispatch:
+
+permissions: {}
+
+# Queued rather than cancelled: a cancelled run would abandon its commit's poll without recording it.
+concurrency:
+    group: huella-legal-deployment
+    cancel-in-progress: false
+
+jobs:
+    record:
+        runs-on: ubuntu-latest
+        permissions:
+            checks: read
+            deployments: write
+        steps:
+            # Workers Builds reports to GitHub only as a check run, so this turns a passing one into
+            # the Deployment the developer portal reads; it builds and deploys nothing itself.
+            - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+              env:
+                  PRODUCTION_URL: ${{ vars.HUELLA_LEGAL_PRODUCTION_URL }}
+              with:
+                  script: |
+                      const { owner, repo } = context.repo;
+                      const sha = context.sha;
+                      const environment = "huella-legal";
+
+                      const pollIntervalMs = 15_000;
+                      const pollTimeoutMs = 15 * 60 * 1000;
+                      // Build watch paths skip a push that touches nothing the app reads, and then no
+                      // check run ever appears.
+                      const appearTimeoutMs = 5 * 60 * 1000;
+                      const started = Date.now();
+
+                      const isWorkerBuild = (run) =>
+                          run.app?.slug?.includes("cloudflare") && run.name.includes(environment);
+
+                      let run;
+                      while (Date.now() - started < pollTimeoutMs) {
+                          const { data } = await github.rest.checks.listForRef({ owner, repo, ref: sha });
+                          run = data.check_runs.find(isWorkerBuild);
+
+                          if (run?.status === "completed") break;
+                          if (!run && Date.now() - started > appearTimeoutMs) {
+                              core.info(`No Workers Builds check run for ${sha}, so nothing deployed`);
+                              return;
+                          }
+
+                          await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+                      }
+
+                      if (run?.status !== "completed") {
+                          core.setFailed(`Workers Builds did not finish ${sha} within ${pollTimeoutMs / 1000}s`);
+                          return;
+                      }
+                      if (run.conclusion !== "success") {
+                          core.setFailed(`Workers Builds ended ${sha} as ${run.conclusion}: ${run.html_url}`);
+                          return;
+                      }
+
+                      const { data: deployment } = await github.rest.repos.createDeployment({
+                          owner,
+                          repo,
+                          ref: sha,
+                          environment,
+                          auto_merge: false,
+                          required_contexts: [],
+                          production_environment: true,
+                      });
+
+                      await github.rest.repos.createDeploymentStatus({
+                          owner,
+                          repo,
+                          deployment_id: deployment.id,
+                          state: "success",
+                          environment,
+                          environment_url: process.env.PRODUCTION_URL,
+                          log_url: run.html_url,
+                      });

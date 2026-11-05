@@ -12,7 +12,7 @@ jobs:
     rebuild:
         runs-on: ubuntu-latest
         steps:
-            # A build hook bypasses the `ignore` command, so it builds even with no new commit.
-            - run: curl --fail-with-body --silent --show-error -X POST -d '{}' "$BUILD_HOOK_URL"
+            # A deploy hook starts a manual build of its branch, so it builds even with no new commit.
+            - run: curl --fail-with-body --silent --show-error -X POST "$DEPLOY_HOOK_URL"
               env:
-                  BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
+                  DEPLOY_HOOK_URL: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK_URL }}

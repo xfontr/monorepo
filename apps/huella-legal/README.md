@@ -65,63 +65,44 @@ for every spec. The spec also lists the handlers Nuxt and its modules register, 
 
 ## 🚢 Deployment
 
-The app ships through Netlify's own git integration, with build settings in the Netlify UI and no
-build or deploy step in this repo. [`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml)
-builds and deploys nothing itself: once Netlify's own pipeline publishes a commit, it polls
-Netlify's Deploys API for that commit and records a GitHub Deployment against the
-`huella-legal` environment, so the live URL shows up on the repo's Deployments page
-alongside `developer-portal` instead of only in Netlify's own dashboard.
-
-The root [`netlify.toml`](../../netlify.toml) holds only an `ignore` command, which runs
-[`netlify-ignore.sh`](./netlify-ignore.sh). It cancels the build unless the diff touches this app,
-`content`, `i18n`, `observability` or the pnpm and Node pins. Docs, specs, stories, e2e and lint
-config don't count.
-
-| Build | Diffed from |
-| --- | --- |
-| Production | Netlify's last build |
-| Deploy preview | The PR's merge base with `master` |
-| `netlify-deployment.yml` | The push's `before`, and it skips recording when the script says so |
-
-The ignore command runs before dependencies are installed, so it can't ask Nx and the list is kept
-by hand. A new runtime `@monorepo/*` import needs a line there. Any `pnpm-lock.yaml` change still
-builds, even one that only touches another project.
-
-The site ID and auth token never enter this repo: `NETLIFY_SITE_ID` is a GitHub Actions repo
-variable and `NETLIFY_AUTH_TOKEN` a secret, both read at workflow runtime with no default. Netlify
-deploys asynchronously after the push that triggers the workflow, so it polls for up to 10 minutes
-rather than reading the API once.
-
-### ☁️ Cloudflare Workers
-
-The same build also deploys as a Worker through Workers Builds, Cloudflare's git integration, with
-nothing in this repo selecting the host. Workers Builds sets `WORKERS_CI`, from which Nitro picks the
-`cloudflare-module` preset, enables Node compatibility and writes `.output/server/wrangler.json`,
-merging in [`wrangler.jsonc`](./wrangler.jsonc). That file holds only what is the same on every
-deploy: the Worker's name, `keep_vars` so a deploy never wipes the dashboard's variables, and
-Workers Logs. A Netlify build ignores it, so both hosts build from one `master`.
+The app ships as a Cloudflare Worker through Workers Builds, Cloudflare's git integration, with
+build settings in the dashboard and no build or deploy step in this repo. Workers Builds sets
+`WORKERS_CI`, from which Nitro picks the `cloudflare-module` preset, enables Node compatibility and
+writes `.output/server/wrangler.json`, merging in [`wrangler.jsonc`](./wrangler.jsonc). That file
+holds only what is the same on every deploy: the Worker's name, which must match the dashboard's
+since Nitro would otherwise derive one from the git remote, `keep_vars` so a deploy never wipes the
+dashboard's variables, and Workers Logs.
 
 | Workers Builds setting | Value |
 | --- | --- |
-| Root directory | `apps/huella-legal` |
+| Root directory | `apps/huella-legal`, so `wrangler deploy` finds the `.wrangler/deploy/config.json` the build writes there |
 | Build command | `NUXT_SITE_ENV=$([ "$WORKERS_CI_BRANCH" = master ] && echo production \|\| echo preview) pnpm exec nx build @monorepo/huella-legal` |
-| Deploy command | `npx wrangler deploy`, which follows `.wrangler/deploy/config.json` to the generated config |
-| Build watch paths | The list in [`netlify-ignore.sh`](./netlify-ignore.sh), which the dashboard has to repeat |
+| Deploy command | `npx wrangler deploy` |
+| Build watch paths | Include `apps/huella-legal/*`, `packages/content/*`, `packages/observability/*`, `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `.nvmrc`; exclude `*.md`, `*.spec.ts`, `*.stories.ts`, `apps/huella-legal/e2e/*`, `apps/huella-legal/.storybook/*` |
 | Build variables | Every `NUXT_PUBLIC_*` and vendor URL a [prerendered page](#-rendering) bakes in, plus the required ones a production build checks |
 | Variables and secrets | Everything in [🔑 Environment](#-environment), `NUXT_SITE_ENV` included, since a Worker reads none of the build's |
-| Plan | Workers Paid: an SSR page needs more than the free plan's 10 ms of CPU |
+| Deploy hook | One on `master`, for [the weekly rebuild](#-rendering) |
 
-What behaves differently from Netlify:
+The watch paths run before dependencies are installed, so they can't ask Nx and the list is kept by
+hand. A new runtime `@monorepo/*` import needs a line there. Any `pnpm-lock.yaml` change still
+builds, even one that only touches another project.
+
+Workers Builds reports a build to GitHub only as a check run.
+[`huella-legal-deployment.yml`](../../.github/workflows/huella-legal-deployment.yml) builds and
+deploys nothing itself: on every push to `master` it waits for that check run and, once it passes,
+records a GitHub Deployment against the `huella-legal` environment, so the live URL shows up on the
+repo's Deployments page alongside `developer-portal`. The URL is the `HUELLA_LEGAL_PRODUCTION_URL`
+Actions variable. A push the watch paths skip never gets a check run, so the workflow gives up after
+five minutes without recording anything.
 
 | Concern | On Workers |
 | --- | --- |
-| `isr` rules | Nitro ignores them, so a page outside the prerender list renders per request, with only the content cache in front of WordPress, per isolate. `Netlify-Vary` and `netlify-cdn-cache-control` are sent and mean nothing |
-| Images | `@nuxt/image` resolves to `none` on a non-Node preset, so `NuxtImg` serves WordPress's original file and `fit="cover"` crops nothing |
-| Headers | Prerendered files get the security headers from the generated `_headers`, rendered responses from `routeRules`, since `_headers` never applies to a Worker's own response |
+| Static files | Served from Workers static assets, free and before the Worker runs |
+| Headers | Prerendered files get the security headers from the `_headers` Nitro generates, rendered responses from `routeRules`, since `_headers` never applies to a Worker's own response |
 | Redirects | The [`legacy`](./layers/legacy/README.md) rules run in the Worker: Nitro writes no `_redirects` for this preset |
-| Reader IP | The comments route reads `cf-connecting-ip` there, because Cloudflare documents no `X-Forwarded-For` for a Worker |
+| Reader IP | The comments route reads `cf-connecting-ip`, because Cloudflare documents no `X-Forwarded-For` for a Worker |
 | Server telemetry | Keep `NUXT_OBSERVABILITY_URL` unset: the Node tracer was never run under workerd, and nothing flushes its batch through `waitUntil` |
-| Request body | 100 MB on the free zone plan against Netlify's 6 MB, which [#351](https://github.com/xfontr/monorepo/issues/351) raises the manuscript limit for |
+| CPU | The free plan allows 10 ms a request. An SSR page that needs more fails with error 1102 in Workers Logs, which is the sign to move to Workers Paid |
 
 A local run of the Worker, with variables in a gitignored `.dev.vars` beside the generated config:
 
@@ -130,35 +111,25 @@ WORKERS_CI=1 pnpm exec nx build @monorepo/huella-legal --skip-nx-cache
 npx wrangler dev
 ```
 
-| Later need | What changes |
-| --- | --- |
-| Cache SSR at the edge | `isr` becomes `swr` with Nitro's `cache` storage mounted on a KV or R2 binding, which is ADR [0030](../../docs/decisions/0030-huella-legal-rendering-hosting-and-cost.md)'s cost question: KV's free tier allows 1,000 writes a day |
-| Crop images at the CDN | `image.provider: "cloudflare"` on Workers builds only, with Image Transformations enabled on the zone and WordPress's host as an allowed origin |
-| Serve `www` | A Custom Domain on the Worker, added at cutover: `www.huellalegal.com` is WordPress until then, so no route is in `wrangler.jsonc` |
-| Previews with their own variables | Cloudflare's Previews don't inherit the Worker's variables, so `NUXT_SITE_ENV=preview` and the preview secrets have to be set for them separately |
-| Retire Netlify | `netlify.toml`, `netlify-ignore.sh`, both Netlify workflows, the developer portal's deploy links, the root README badges, and the three privacy notices in `es-ES.json` that name Netlify as host |
-
 ### 🗄 Rendering
 
-A Netlify build prerenders every page that reads nothing from the query string, and Netlify's CDN
-caches the rest for a day through `isr` route rules.
+A deploy build prerenders every page that reads nothing from the query string, and the Worker
+renders the rest per request, with the content cache in front of WordPress.
 [0033](../../docs/decisions/0033-huella-legal-hybrid-prerender.md) has the reasoning and the
 tripwires.
 
 | Route | Served as |
 | --- | --- |
-| `/:slug/` for every post and every slug in `pageSlugs`, `/`, `/areas/`, `/colaboradores/`, `/calculo-intereses/`, `/contacto/`, `/publicar/`, `/sobre/`, `/robots.txt`, `/llms.txt` | A prerendered file. A slug added since the last build falls through to the function, which renders it once under `/**`'s `isr` |
-| `/feed/` and the `GET /api/*` routes | `isr` 86400 |
-| `/publicaciones/`, `/areas/:slug/`, `/etiquetas/:slug/`, `/colaboradores/:slug/`, `/buscar/`, their `_payload.json`, `/api/articles`, `/api/search` | `isr` 86400, with a `Netlify-Vary` naming the query keys each one reads |
-| `/api/articles/:slug/comments` | `isr` 600. New comments are held for moderation, so the window only delays an approval |
-| `/api/newsletter`, `/api/contact`, `/api/comments`, `/sitemap.xml` | The function, uncached. `@nuxtjs/sitemap` caches the sitemap itself for ten minutes |
+| `/:slug/` for every post and every slug in `pageSlugs`, `/`, `/areas/`, `/colaboradores/`, `/calculo-intereses/`, `/contacto/`, `/publicar/`, `/sobre/`, `/robots.txt`, `/llms.txt` | A prerendered file. A slug added since the last build falls through to the Worker |
+| Everything else | The Worker. `@nuxtjs/sitemap` caches the sitemap itself for ten minutes |
 
-Nuxt turns every `isr` rule into a client-side payload rule, so client navigation and link prefetch
-read `<route>/_payload.json` rather than the API. `experimental.payloadExtraction` is `"client"`, so
-a first view still gets its payload inlined instead of fetching it as a second request. A link
-prefetches on hover or touch rather than when it scrolls into view, so a page's own links don't fetch
-payloads while it hydrates. The footer's calculator link never prefetches at all, so the
-[`interest`](./layers/interest/README.md) layer stays off every other page's network.
+Nitro ignores the `isr` rules on Workers, but Nuxt turns each one into a client-side payload rule, so
+client navigation and link prefetch read `<route>/_payload.json` rather than the API.
+`experimental.payloadExtraction` is `"client"`, so a first view still gets its payload inlined
+instead of fetching it as a second request. A link prefetches on hover or touch rather than when it
+scrolls into view, so a page's own links don't fetch payloads while it hydrates. The footer's
+calculator link never prefetches at all, so the [`interest`](./layers/interest/README.md) layer stays
+off every other page's network.
 
 The JS that hydrates a page starts loading on the window's `load` event or the reader's first
 `pointerdown`, `keydown` or `touchstart`, whichever comes first. A background tab hydrates on `load`
@@ -186,8 +157,8 @@ global CSS a cost on every page, so code only some visitors need loads its own: 
 stylesheet and script come with [`consent.client.ts`](./layers/tracking/app/plugins/consent.client.ts)
 once a tracker is configured, and the search modal's chunk on its first open. `@nuxt/fonts` inlines
 `@font-face` rules for the `latin` and `latin-ext` subsets only. Each `NuxtImg` in a fixed-ratio frame
-asks for that ratio with `fit="cover"`, through [`coverHeight`](./app/utils/coverHeight.ts), so
-Netlify crops at the CDN instead of sending the pixels `object-cover` would hide.
+asks for that ratio with `fit="cover"`, through [`coverHeight`](./app/utils/coverHeight.ts). On
+Workers `@nuxt/image` resolves to `none`, so the original file arrives and `object-cover` crops it.
 
 `@iconify-json/lucide` is a dependency so `@nuxt/icon` can bundle icons at all: without it the
 server asked Iconify's API for every icon it rendered, and the browser fetched `/api/_nuxt_icon`
@@ -198,28 +169,34 @@ article's blocking time on hydration. `/_i18n/*/messages.json` is browser-cached
 which is safe because its path carries a hash of the locale file.
 
 Each layer declares the rules for its own routes under `rendering` in its `nuxt.config.ts`: `cache`
-maps a route to its `isr` and the query keys it varies on, and `prerender` lists the routes to
-prerender. [`modules/rendering.ts`](./modules/rendering.ts) turns them into route rules, adds each
-listing's `_payload.json` twin with the same `Netlify-Vary`, and only switches prerendering on when
-`NUXT_SITE_ENV` is set, which every deploy does. CI and e2e build without it, since a prerendered
-file would shadow e2e's fakes. `NUXT_SITE_ENV` is a cache input of `build` and `nuxt:build`, so Nx
-never restores one kind of build for the other. To reproduce a deploy build locally:
+maps a route to its `isr`, and `prerender` lists the routes to prerender.
+[`modules/rendering.ts`](./modules/rendering.ts) turns them into route rules, and only switches
+prerendering on when `NUXT_SITE_ENV` is set, which every deploy does. CI and e2e build without it,
+since a prerendered file would shadow e2e's fakes. `NUXT_SITE_ENV` is a cache input of `build` and
+`nuxt:build`, so Nx never restores one kind of build for the other. To reproduce a deploy build
+locally:
 
 ```sh
 NUXT_SITE_ENV=preview pnpm exec nx build @monorepo/huella-legal --skip-nx-cache
 ```
 
 That build reads the live WordPress. It fails on any page that fails, so a WordPress outage fails
-the build, and Netlify keeps the previous deploy live.
-A 5xx answers `netlify-cdn-cache-control: no-store` from
-[`server/plugins/cdn.ts`](./server/plugins/cdn.ts), so an outage never sits in the CDN for a day.
+the build, which then never deploys and leaves the live version serving.
 
 A prerendered page only changes on a build.
-[`huella-legal-rebuild.yml`](../../.github/workflows/huella-legal-rebuild.yml) posts to a Netlify
-build hook every Monday at 05:00 UTC, which refreshes author counts, related posts and corrections to
-old posts. The hook URL is the `NETLIFY_BUILD_HOOK_URL` repo secret, with no default
-([provisioning](../../docs/guides/repo-secrets.md)). Running the workflow by hand is also the purge
-after an urgent correction, because every deploy empties the CDN cache.
+[`huella-legal-rebuild.yml`](../../.github/workflows/huella-legal-rebuild.yml) posts to a Workers
+Builds deploy hook every Monday at 05:00 UTC, which refreshes author counts, related posts and
+corrections to old posts. The hook URL is the `CLOUDFLARE_DEPLOY_HOOK_URL` repo secret, with no
+default ([provisioning](../../docs/guides/repo-secrets.md)). Running the workflow by hand is also
+the way to publish an urgent correction to a prerendered page.
+
+| Later need | What changes |
+| --- | --- |
+| Cache SSR at the edge | `isr` becomes `swr` with Nitro's `cache` storage mounted on a KV or R2 binding. KV's free tier allows 1,000 writes a day |
+| Crop images at the CDN | `image.provider: "cloudflare"`, with Image Transformations enabled on the zone and WordPress's host as an allowed origin |
+| Serve `www` | A Custom Domain on the Worker, added at cutover: `www.huellalegal.com` is WordPress until then, so no route is in `wrangler.jsonc` |
+| Previews with their own variables | Cloudflare's Previews don't inherit the Worker's variables, so `NUXT_SITE_ENV=preview` and the preview secrets have to be set for them separately |
+
 
 ### 🔐 Abuse and hardening
 
@@ -234,8 +211,8 @@ before it costs anything.
 
 A Turnstile token only proves a human if it was minted on our pages, and siteverify doesn't check
 that here: the site key's hostname list in Cloudflare's dashboard does, so it names only our
-domains. An abusive address is blocked by hand under **Project configuration → Security → Firewall
-traffic rules**, by a Team Owner, and never listed in the repo. WordPress sits outside all of this
+domains. An abusive address is blocked by hand with a WAF custom rule on the zone in Cloudflare's
+dashboard, and never listed in the repo. WordPress sits outside all of this
 on its own hostname, so its REST API needs its own protection there.
 
 ## 🔑 Environment
@@ -295,8 +272,8 @@ everywhere is a literal in [`nuxt.config.ts`](./nuxt.config.ts), so changing it 
 A matching `NUXT_`-prefixed variable still overrides any literal, which is how the e2e suite points
 the vendors at its fakes. Every variable is read at **startup**, not at build time, so one build
 artifact runs in any environment, which is why nothing here reads `process.env`. The exception is a [prerendered page](#-rendering): the build renders it, so
-it keeps the `NUXT_PUBLIC_*` values and the vendor URLs the build had, and Netlify has to expose
-them to builds.
+it keeps the `NUXT_PUBLIC_*` values and the vendor URLs the build had, and Workers Builds has to
+expose them to builds.
 
 ## 🌍 i18n
 
@@ -362,8 +339,8 @@ because WordPress can filter on neither format nor author slug, and has no count
 reads every page of posts through `useContent` at its ceiling of 50, about 5.7 MB upstream for the
 current archive, and is kept for an hour. That index is the one view model cached on top of
 `useContent`, since remapping every body per request would cost far more than one post's few
-milliseconds, so a new post can take up to two hours to list, plus the CDN's day on a listing
-[rendered by Netlify](#-rendering). In dev, both caches keep five minutes
+milliseconds, so a new post can take up to two hours to show on a listing
+[the Worker renders](#-rendering). In dev, both caches keep five minutes
 and refetch an expired entry before answering, set by the `$development` blocks in
 [`nuxt.config.ts`](./nuxt.config.ts) and the [`articles` layer's](./layers/articles/nuxt.config.ts),
 and `pnpm cache:clear` empties them at once. A subject or tag is read whole through
@@ -382,7 +359,7 @@ handled `5xx`, the header that keeps a `5xx` out of the CDN, and the hydration l
 [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) checks the
 [required variables](#-environment) once per build, and
 [`modules/rendering.ts`](./modules/rendering.ts) turns each layer's `rendering` entries into route
-rules and lists the [prerendered routes](#-rendering) on a Netlify build.
+rules and lists the [prerendered routes](#-rendering) on a deploy build.
 
 | Piece | What it holds |
 | --- | --- |
@@ -425,8 +402,8 @@ resolves to nothing, so deleting a layer can't leave its components named on ano
 | --- | --- | --- | --- |
 | [`archive`](./layers/archive) | — | `archive/` is an `ArticleListing` on the four listing pages, under `BasePageIntro` (the breadcrumb, from home) holding `BasePageHeading` or, on a profile, `ArchiveAuthor`, then `ArchiveResults` and the `ArchiveSubjects` aside. A file inside a folder drops the folder's prefix (`archive/Results.vue`): Nuxt collapses a repeated prefix and Storybook doesn't, so `archive/ArchiveResults.vue` would register under two different names; every layer follows this. `useArticleListing` in `app/composables/` is every listing page's controller: the fetch, the query in the URL, the sort and the format pills. [`listingScroll.client.ts`](./layers/archive/app/plugins/listingScroll.client.ts) is its scroll fix. `home/` is the `Home` on the home page, `index.vue`: `HomeFeatured` (the lead and "Lo último"), `HomeSubjects` and `HomeTheses`. `useHome` is its controller. `subjects/` is the `SubjectIndex` on the subjects page: `SubjectsGrid`, `SubjectsFormats` and `SubjectsTopics`, which files topics under their initial with `groupByLetter`. `useSubjectIndex` is the page's controller. `directory/` is the authors page's `DirectoryListing`, which owns the name filter and the no-match state, over `DirectoryCard`s. `Reveal` hands its slot the first `limit` items and shows the rest behind one button, moving focus to the first link revealed. `useAuthorDirectory` is the page's controller. `sobre.vue` is the about page: it counts the archive's articles and authors through `useSubjectIndex` and `useAuthorDirectory` for `AboutIntro`, and holds the static sections itself, between the intro and `AboutCallToAction`. `AboutFingerprint` is the mark that draws itself in, on load or, with `drawOnView`, once it scrolls into view. Its motion is CSS only, in each component's unscoped `<style>`, scroll-driven where the browser supports it, and off under reduced motion | — reads the core's routes: `GET /api/articles`, `GET /api/home`, `GET /api/subjects` and `GET /api/authors` |
 | [`articles`](./layers/articles) | The view models the server returns: `Article`, `ArticleBody`, `ArticleSummary`, `ArticleListing` (with its `Facet` counts and `ListingScope`), `Author`, `Category`, `Citation`, `Note`, `SubjectIndex`, `Home`, `TocItem`, `Page` (a WordPress page's title, `ArticleBody`, SEO and `permalink`), `ArticleComments` (whether the post is open, the count, and its `CommentThread`s of `ReaderComment`s), plus the `ListingQuery` the listing route accepts and `ArticleSearch`, a page of results with its query and the subjects suggested when nothing matched. `Article` carries its absolute `permalink` and `citations` | `summary/` is an `ArticleSummary` wherever articles are listed: `SummaryCard` in five variants (lead, optionally split, standard, compact, media, row), and `SummaryGrid` and `SummaryList` to lay them out. `Byline` (authors, date, reading time and the comment count, linked to the thread) and `MediaFallback` sit beside it, since several features render them outside a card too. `useCachedFetch` in `app/composables/` is how every feature reads a route. `FORMAT_KEYS` in `app/utils/` names each format's copy key, and `bylineAuthors` links each author to their profile. `noteAnchor`/`noteReferenceAnchor` in `shared/utils/` are the note ids the body mapper and `ArticleNotes` share, and `toCitationMeta` beside them builds an `Article`'s Google Scholar tags | `toArticleSummary` maps an `Entry` into them, format rule included. Decoding and reading time parse with the domain-free helpers in `server/utils/hast.ts`, and stay server-side. `toArticleBody` is the WP HTML pipeline, with `extractNotes` and `annotateHeadings` beside the view models they produce, `toCitations` writes APA 7 and the journal's own style, `GET /api/articles/:slug` serves the `Article`, `GET /api/articles/:slug/related` its related `ArticleSummary` list, and `getArticleIndex` in `server/services/` caches every post's summary for `toArticleListing` to slice into `GET /api/articles`, `toSubjectIndex` to count into `GET /api/subjects`, `toHome` to pick from into `GET /api/home` and `toAuthorDirectory` into `GET /api/authors`. `GET /api/search` maps WordPress's results through `toArticleSearch`, with `toSuggestedSubjects` counted from the same index. `toPage` runs the same `toArticleBody` over a page, and `GET /api/pages/:slug` serves it to the slugs in `pageSlugs`. Comments are not content, so `server/adapters/wordpress.ts` reads them from WordPress's comments route directly, unauthenticated, which answers approved ones only: `GET /api/articles/:slug/comments` maps them through `toArticleComments`, which hangs every reply under its top-level comment and turns each paragraph into plain text, and `getCommentCounts` in `server/services/` counts every approved comment once, cached like the index, for `withCommentCounts` to put on the summaries the card routes answer. A failed count leaves the cards without one. `GET /api/__sitemap__/urls` hands `@nuxtjs/sitemap` the posts, `pageSlugs`, áreas and colaboradores, and `server/routes/feed.get.ts` serves the RSS `/feed/` from the same index, both leaving out a post Yoast marks `noindex` |
-| [`contact`](./layers/contact) | `contactSchema`, the Valibot rules a message must pass (name, email, message and consent `true`), worded by the caller so the server reuses them, and `ContactRequest`, the route's body: those fields plus `FormRequest` | `ContactForm` wires the four fields, `FormHoneypot` and `FormChallenge` to `useContact` in `app/composables/`, the same state machine as `useNewsletter`, so a `422` lands on the fields it names. A failed submit renders `FormErrorSummary`, and the notice under the consent checkbox names Netlify, Cloudflare and Resend as recipients. Its page, `contacto.vue`, places it under `BasePageIntro` at `/contacto/` | `POST /api/contact` answers a filled honeypot like a success and sends nothing, then calls `assertChallenge`, re-validates with the same schema through `assertForm` and calls the `forms` layer's `sendMail`: one plain-text email to `mail.to` with Reply-To set to the reader, so the inbox answers them directly. The rest is `422` with `FormError[]`, `403` on a failed challenge, and `502` for anything Resend refuses or can't answer. The app stores nothing: a message lives only in the inbox and in Resend's log |
-| [`comments`](./layers/comments) | `commentSchema`, the Valibot rules the reader's fields must pass (name, email, comment up to 5,000 characters and consent `true`), `newCommentSchema`, those plus the `post` and the `parent` it replies to, and `CommentRequest`, the route's body | `CommentsSection` is the thread under an article: each top-level `CommentItem` with its replies indented once, however deep WordPress nested them, and the one `CommentForm`. "Responder" hands that comment to the form, which says whom the reply answers and takes focus. A closed article keeps its thread and loses the form and the reply buttons. From five threads up, `ListingSortSelect`, worded through its `copy` prop since "Más antiguos" agrees with comments, flips the threads to newest first; replies always stay oldest first. `usePostComment` is the form's state machine, `useContact`'s plus a `failure` naming why a send failed. The notice names Netlify, Cloudflare, Akismet and WordPress as recipients | `POST /api/comments` answers a filled honeypot like a success and files nothing, then calls `assertChallenge`, re-validates through `assertForm` and calls `createComment` in `server/adapters/wordpress.ts`: authenticated with an application password, it files the comment as the reader with `status: "hold"` and their IP and user agent, so Akismet judges them and not the server. The posting user's `unfiltered_html` skips kses, so the content is escaped and `<>` dropped from the name. WordPress's duplicate, flood and closed refusals become `409`, `429` and `410`; anything else is `502` |
+| [`contact`](./layers/contact) | `contactSchema`, the Valibot rules a message must pass (name, email, message and consent `true`), worded by the caller so the server reuses them, and `ContactRequest`, the route's body: those fields plus `FormRequest` | `ContactForm` wires the four fields, `FormHoneypot` and `FormChallenge` to `useContact` in `app/composables/`, the same state machine as `useNewsletter`, so a `422` lands on the fields it names. A failed submit renders `FormErrorSummary`, and the notice under the consent checkbox names Cloudflare and Resend as recipients. Its page, `contacto.vue`, places it under `BasePageIntro` at `/contacto/` | `POST /api/contact` answers a filled honeypot like a success and sends nothing, then calls `assertChallenge`, re-validates with the same schema through `assertForm` and calls the `forms` layer's `sendMail`: one plain-text email to `mail.to` with Reply-To set to the reader, so the inbox answers them directly. The rest is `422` with `FormError[]`, `403` on a failed challenge, and `502` for anything Resend refuses or can't answer. The app stores nothing: a message lives only in the inbox and in Resend's log |
+| [`comments`](./layers/comments) | `commentSchema`, the Valibot rules the reader's fields must pass (name, email, comment up to 5,000 characters and consent `true`), `newCommentSchema`, those plus the `post` and the `parent` it replies to, and `CommentRequest`, the route's body | `CommentsSection` is the thread under an article: each top-level `CommentItem` with its replies indented once, however deep WordPress nested them, and the one `CommentForm`. "Responder" hands that comment to the form, which says whom the reply answers and takes focus. A closed article keeps its thread and loses the form and the reply buttons. From five threads up, `ListingSortSelect`, worded through its `copy` prop since "Más antiguos" agrees with comments, flips the threads to newest first; replies always stay oldest first. `usePostComment` is the form's state machine, `useContact`'s plus a `failure` naming why a send failed. The notice names Cloudflare, Akismet and WordPress as recipients | `POST /api/comments` answers a filled honeypot like a success and files nothing, then calls `assertChallenge`, re-validates through `assertForm` and calls `createComment` in `server/adapters/wordpress.ts`: authenticated with an application password, it files the comment as the reader with `status: "hold"` and their IP and user agent, so Akismet judges them and not the server. The posting user's `unfiltered_html` skips kses, so the content is escaped and `<>` dropped from the name. WordPress's duplicate, flood and closed refusals become `409`, `429` and `410`; anything else is `502` |
 | [`design`](./layers/design) | — | None: the layer is the design system the rest render with. [`main.css`](./layers/design/app/assets/main.css) holds every token and points Nuxt UI's semantic roles at them, and [`app.config.ts`](./layers/design/app/app.config.ts) sets the colour aliases and composes the component theme from `theme/`, one file per component named for its `ui` key (`button.ts`, `footerColumns.ts`), plus `tv.ts` for the tailwind-merge type steps. A `ui` key styles that component everywhere, since Nuxt merges every layer's app config into one, so a look only one layer needs is a `:ui` override where it renders. The layer's `nuxt.config.ts` registers the stylesheet and sets the `ui` and `fonts` options, while `@nuxt/ui` and `@nuxt/fonts` stay in the root `modules` list, because Nuxt installs a layer's modules before the root's | — |
 | [`forms`](./layers/forms) | `Challenge`, the type of `FormChallenge`'s slot prop, and `FormRequest`, the `honeypot` and `token` fields every form posts | The form pieces no single feature owns, for the newsletter, contact and publish controllers to drive. A feature's form lives in its own layer: forms are `UForm`, and fields are `UFormField` with Nuxt UI inputs, themed in the `design` layer. `FormErrorSummary` links each error to its field's `id`, and `FormSuccessPanel` takes focus when it mounts, because a status region mounted with its text is never announced. A failed submit is a plain `UAlert` with `role="alert"`. In `app/composables/`, `useFormSubmission` drives a form that posts: it sends the fields with the honeypot's value through `challenge`, words the server's `422` issues onto their fields with `setErrors`, and validates on input once the form has been submitted; `useErrorSummary` builds `FormErrorSummary`'s rows, and the contact and interest forms use it. The spam defence is two components, kept apart because they do different jobs. `FormHoneypot` is a hidden field bound with `v-model`, placed among the form's own fields so a bot filling the form fills it too. `FormChallenge` wraps the form and holds `@nuxtjs/turnstile`'s `NuxtTurnstile`, which stays invisible unless Cloudflare wants an interaction. The widget mounts on the wrapped form's first `focusin`, so a page nobody signs up from never loads Cloudflare's script. The module's own `trigger` can't do this, since it only listens on the widget's element. Its slot gets `challenge(send)`, which waits up to 30 s for a token, hands it to `send`, and resets the widget once `send` settles, since a token is single-use. The layer's `nuxt.config.ts` installs the module and declares both keys empty, which also keeps out the always-pass keys the module would default to in dev | `assertChallenge` in `server/utils/turnstile.ts` makes one siteverify call through the module's `verifyTurnstileToken` and reads only its `success` flag, never the error codes. A refusal is a `403` carrying Cloudflare's answer as `cause`, even when it arrives as a thrown `400`, and no answer at all is a `502`. `assertForm` in `server/utils/assertForm.ts` re-runs a route's schema, returning its output or throwing a `422` with one `FormError` per issue. `sendMail` in `server/utils/resend.ts` is the one Resend client: a plain-text email from `mail.from` with Reply-To, an optional base64 attachment, a subject whose line breaks are folded so no field can split a header, and a `502` for anything Resend refuses or can't answer. The honeypot is no helper's job: each route returns early on it |
 | [`interest`](./layers/interest) | — | `InterestCalculator` lays out two private parts and owns the arithmetic: `InterestCalculatorForm` emits `submit` with a validated `InterestInput`, the preset already resolved to a percentage, and `edit` on any change, which clears a stale result; `InterestCalculatorResult` formats the cents as euros inside a live region that stays mounted so the first result is announced. Like `NewsletterForm`, the layer's `nuxt.config.ts` keeps both parts out of auto-registration. A failed submit renders `FormErrorSummary`. The form validates with `interestFormSchema` in `app/schemas/`, the Valibot rules worded by the caller, and computes with `calculateInterest` in `app/utils/`, simple interest in cents over actual days and a 365-day year, with `INTEREST_RATES` holding the legal and judicial presets. Its page, `calculo-intereses.vue`, replaces the WordPress calculator at `/calculo-intereses/` per [0028](../../docs/decisions/0028-huella-legal-urls-and-cutover.md) | — the arithmetic runs in the browser |
@@ -652,11 +629,9 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | *Publicaciones* lit in the header on an article | `useSiteNav` marks sections by route, and `/:slug/` also serves WordPress pages (C6), so it needs to know which one it rendered |
 | The `onServerPrefetch` tree-shake override in `nuxt.config.ts` | Drop it once Nuxt stops stripping that hook from client builds; the article e2e's axe scan fails on `aria-controls` if it goes too early |
 | A check on layer directions | Once there are enough layers that review stops catching a wrong edge. A spec can read `.nuxt/components.d.ts` and `.nuxt/types/*imports.d.ts`, which map every auto-import to its source file, and fail on an edge the table above forbids. Two layers exporting one auto-imported name only warn during `nuxi prepare`, so the same spec would be the place to fail on that too |
-| A rebuild when a post is published | `/` is prerendered, so a new post reaches the home page only on the next build: Monday's, or a manual run of the rebuild workflow. WordPress has no webhooks ([0030](../../docs/decisions/0030-huella-legal-rendering-hosting-and-cost.md)), so either one is added on the WordPress side, posting to the build hook, or a scheduled workflow asks WordPress for its newest post and posts to `NETLIFY_BUILD_HOOK_URL` when it changed |
-| A shared Nitro cache for `isr` misses | Mount Nitro's `cache` storage on unstorage's `netlify-blobs` driver if misses on cold instances turn out slow. It is Netlify-only, which cuts against the move to Google Cloud |
-| Cache windows as constants again | With pages prerendered or held by the CDN, `content.cache` and `articles.cache` only govern the build and `isr` misses. If nothing in production ends up tuning them, they fold back into constants with an `import.meta.dev` switch |
+| A rebuild when a post is published | `/` is prerendered, so a new post reaches the home page only on the next build: Monday's, or a manual run of the rebuild workflow. WordPress has no webhooks ([0030](../../docs/decisions/0030-huella-legal-rendering-hosting-and-cost.md)), so either one is added on the WordPress side, posting to the deploy hook, or a scheduled workflow asks WordPress for its newest post and posts to `CLOUDFLARE_DEPLOY_HOOK_URL` when it changed |
+| Cache windows as constants again | With most pages prerendered, `content.cache` and `articles.cache` only govern the build and what the Worker renders. If nothing in production ends up tuning them, they fold back into constants with an `import.meta.dev` switch |
 | Stories for the header's panels | `NavPublicationsPanel` and `NavSubjectsPanel` fetch `/api/home` through `useCachedFetch`, which Storybook doesn't have, so the header's story leaves their items as plain links. An `sb.mock` of `useCachedFetch` in [`preview.ts`](./.storybook/preview.ts) would give them stories |
-| Long browser caching on images | Netlify Image CDN copies the source's `Cache-Control` and a site can't override it for a remote origin, so `/.netlify/images` answers `max-age=0` until WordPress sends one. LiteSpeed Cache's *Browser Cache* setting is the fix on that side, at ≥ 30 days rather than a year `immutable`, since an upload's URL isn't content-hashed |
 | Replaying a form submitted before hydration | The loader keeps only a button's click. A submit button inside a `@submit.prevent` form still submits natively before the app wakes, so a form that must never do that would need the loader to hold the `submit` event too |
 | A shared performance module | The manifest hook, the loader and the click replay are generic. They move into a `packages/` Nuxt module when a second public Nuxt site starts, rather than for one consumer |
 | A `script-src` CSP | `isr` caches the HTML, which rules out a per-request nonce, and Nuxt's inline scripts change per page, so a policy means hashing every response as it leaves. Post bodies already go through `rehype-sanitize`; a script policy comes back if something renders HTML that isn't sanitized |

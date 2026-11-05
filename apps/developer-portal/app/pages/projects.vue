@@ -43,7 +43,7 @@ const projectLinks: Record<
     "@monorepo/ui": { storybook: embedUrl("/storybook/") },
     "@monorepo/huella-legal": {
         storybook: embedUrl("/huella-legal-storybook/"),
-        deploys: `${repoUrl}/actions/workflows/netlify-deployment.yml`,
+        deploys: `${repoUrl}/actions/workflows/huella-legal-deployment.yml`,
         environment: "huella-legal",
         apiDocs: "/_scalar",
     },

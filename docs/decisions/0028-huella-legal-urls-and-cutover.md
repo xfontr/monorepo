@@ -27,8 +27,7 @@ The apex already 301s to `www`, and `www` stays the host.
 **The lean holds for archives and is overturned for posts.** Posts keep `/<slug>/`. No post slug
 collides with a page, a term or a new route, so the 105 citable URLs need no redirect, and the 53
 bodies that link to other posts by absolute URL keep resolving. Canonical URLs keep the trailing
-slash. Netlify matches a `_redirects` rule whether or not the path ends in a slash, so a rule that
-only adds or strips the slash loops.
+slash.
 
 | Old path | Count | New | How |
 | --- | --- | --- | --- |
@@ -83,8 +82,7 @@ Line numbers are as of this report, in `apps/huella-legal/`:
 | --- | --- |
 | `/publicaciones/<slug>/` for posts, the lean | 105 permanent 301s for citable URLs, a hop on every body link, and a committed list of real slugs. Nothing in the design needs the prefix |
 | A Nitro fallback that 301s `/<slug>/` to the prefix | No list, but every stray root path costs a function call and an upstream lookup, all to serve a prefix nobody needs |
-| Dropping the trailing slash | Every kept URL needs a slash-only redirect, which loops in `_redirects` and costs a function call in Nitro |
-| `/categoria/<slug>/`, lowercasing in place | Netlify's `_redirects` is case-sensitive while Vue Router isn't, so the two disagree about one path; a new word avoids that |
+| Dropping the trailing slash | Every kept URL needs a slash-only redirect, which costs a function call in Nitro |
 | Proxying `/wp-content/uploads/**` | Every image byte through a function; a `routeRules` proxy can't read the host, which is runtime config |
 | WP's "Discourage search engines" for the old front end | It changes robots output on the install whose Yoast robots 0027 maps to `Entry.seo.noindex`. The Cloudflare rule leaves that untouched |
 | Cookieless analytics, no banner | A new vendor, and GA4's history starts over |
@@ -107,25 +105,20 @@ hostname move runs in this sequence:
 | Step | Role | Action |
 | --- | --- | --- |
 | 1 | DNS and hosting owner | A new WP hostname on the current origin, with TLS. WP answers on both hosts |
-| 2 | Netlify owner | Production and preview env: `NUXT_CONTENT_VENDOR_BASE_URL` → the new host, `NUXT_PUBLIC_SITE_URL` → `www`; production also gets `NUXT_SITE_ENV=production`. The Confirmation walk passes on a preview |
-| 3 | DNS owner | `www` and the apex to Netlify, per Netlify's external-DNS page |
+| 2 | App owner | Production and preview env: `NUXT_CONTENT_VENDOR_BASE_URL` → the new host, `NUXT_PUBLIC_SITE_URL` → `www`; production also gets `NUXT_SITE_ENV=production`. The Confirmation walk passes on a preview |
+| 3 | DNS owner | `www` and the apex to the app |
 | 4 | Hosting owner | `WP_HOME` and `WP_SITEURL` → the new host in `wp-config.php`, or `wp option update` over WP-CLI. Purge LiteSpeed's cache |
 | 5 | DNS owner | A Cloudflare redirect rule on the WP host: anything outside `/wp-json/`, `/wp-admin/`, `/wp-login.php`, `/wp-content/` and `/wp-includes/` 301s to the same path on `www`. Purge Cloudflare's cache |
 
 Step 3 comes before 4. With the Site Address moved first, WP answers `www` visitors with a 301 to
 the new host, and browsers cache it. Step 4 bypasses Settings → General, because after step 3 the
-login form posts to `www`, which is Netlify. Step 5 comes last: before step 4 it loops.
+login form posts to `www`, which is the app. Step 5 comes last: before step 4 it loops.
 
 Akismet stays active through all of it: reader comments still pass through WordPress, so it is the
 one piece of WordPress's spam wiring the cutover keeps.
 
 **Tripwires:**
-- Nitro defaults a `routeRules` redirect to 307, and the Netlify preset writes 307 into
-  `_redirects` as 302. Set `statusCode: 301` on every rule.
-- Netlify's CDN serves `_redirects` before Nitro runs, so `nuxi preview` exercises Nitro's runtime
-  copy of the rules, not the deployed one. Only the preview walk proves them.
-- The preset's `writeRedirects` turns only a trailing `/**` into a splat. Keep every rule to that
-  shape.
+- Nitro defaults a `routeRules` redirect to 307. Set `statusCode: 301` on every rule.
 - After step 4, media `source_url` moves hosts on its own. Bodies don't: old posts carry `www`,
   and new posts will carry the WP host. That is why change 6 matches both.
 - `www` doesn't change, so Search Console needs no change of address. Submit `/sitemap.xml` there
@@ -144,7 +137,6 @@ one piece of WordPress's spam wiring the cutover keeps.
 | Claim | Check |
 | --- | --- |
 | Every old permalink gets its declared outcome | A walk over the inventory, built from REST on the WP host plus the fixed families: `curl -so /dev/null -w '%{http_code} %{redirect_url}'` against the preview matches each family's row in the first table — 200, one 301 to a 200, or 404 for the dropped ones |
-| Every redirect is permanent | `NITRO_PRESET=netlify pnpm exec nx build @monorepo/huella-legal --skip-nx-cache`, then `test -s apps/huella-legal/dist/_redirects`, `grep -c '' apps/huella-legal/dist/_redirects` equals the rule count in `routeRules`, and `grep -vE '\s301$' apps/huella-legal/dist/_redirects` prints nothing |
 | Canonicals come from the entry | E2E: `/<post>/`, `/<post>` and an upper-cased `/<Page>/` all return the same `link[rel=canonical]`: `NUXT_PUBLIC_SITE_URL` + the entry's slug + `/` |
 | `noindex` posts say so | E2E: a fake-WP post with `seo.noindex` renders `<meta name="robots" content="noindex">` |
 | `noindex` stays out of the sitemap | A spec on `sitemap.xml.get.ts` with a fake-WP entry whose `seo.noindex` is set |
