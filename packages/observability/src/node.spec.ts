@@ -6,8 +6,7 @@ const provider = vi.hoisted(() => {
 
     return {
         instance,
-        // The code under test calls this with `new`, which an arrow cannot be.
-        // eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions, prefer-arrow-callback
+        // eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions, prefer-arrow-callback -- the code under test calls this with `new`, which an arrow cannot be
         NodeTracerProvider: vi.fn<(config: object) => typeof instance>(function () {
             return instance;
         }),

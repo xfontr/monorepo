@@ -1,31 +1,10 @@
+import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import vue from "eslint-plugin-vue";
 import vueParser from "vue-eslint-parser";
 
-import {
-    format,
-    arrowFunctions,
-    destructuring,
-    formatVue,
-    jsonc,
-    boundaries,
-    vitestConfig,
-    baseIgnores,
-    coreIsolation,
-    layerIsolation,
-    restrictedSyntax,
-    restrictedSyntaxVue,
-    templateI18n,
-    templateCalls,
-    useBeforeDefine,
-    useBeforeDefineVue,
-    regexp,
-    noConsole,
-    unsafeCode,
-    unsafeCodeVue,
-    e2eFixture,
-} from "./lib/index.ts";
+import { shared, vueOnly, vitestConfig, baseIgnores } from "./lib/index.ts";
 
 const ignores = {
     ignores: [...baseIgnores, ".nuxt/**", ".output/**"],
@@ -38,9 +17,12 @@ const createBaseVueConfig = (typeChecked?: boolean): object[] => {
 
     const base = [
         ignores,
+        js.configs.recommended,
         ...vueBase,
         ...tseslint.configs.recommended,
         ...(typeChecked ? tseslint.configs.recommendedTypeChecked : []),
+        // Its own `files` stop at `.ts`, yet a `<script lang="ts">` needs the same core rules off.
+        { ...tseslint.configs.eslintRecommended, files: ["**/*.vue"] },
     ];
 
     return [
@@ -54,11 +36,6 @@ const createBaseVueConfig = (typeChecked?: boolean): object[] => {
                     projectService: typeChecked,
                     tsconfigRootDir: process.cwd(),
                 },
-            },
-            rules: {
-                "@typescript-eslint/explicit-function-return-type": "off",
-                "@typescript-eslint/no-explicit-any": "error",
-                "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
             },
         },
 
@@ -91,36 +68,19 @@ const createBaseVueConfig = (typeChecked?: boolean): object[] => {
                     "PascalCase",
                     { registeredComponentsOnly: false },
                 ],
+                "vue/block-order": ["error", { order: ["template", "script", "style"] }],
                 "vue/define-macros-order": [
                     "error",
                     { order: ["defineProps", "defineEmits", "defineModel", "defineSlots"] },
                 ],
-                "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
             },
         },
 
         typeChecked
             ? vitestConfig
             : { ...vitestConfig, settings: { vitest: { typecheck: false } } },
-        format,
-        arrowFunctions,
-        destructuring,
-        formatVue,
-        jsonc,
-        boundaries,
-        coreIsolation,
-        layerIsolation,
-        restrictedSyntax,
-        restrictedSyntaxVue,
-        templateI18n,
-        templateCalls,
-        useBeforeDefine,
-        useBeforeDefineVue,
-        regexp,
-        noConsole,
-        unsafeCode,
-        unsafeCodeVue,
-        e2eFixture,
+        ...shared,
+        ...vueOnly,
     ];
 };
 

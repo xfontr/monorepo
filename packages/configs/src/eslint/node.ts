@@ -1,22 +1,7 @@
 import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
-import {
-    jsonc,
-    format,
-    arrowFunctions,
-    destructuring,
-    boundaries,
-    vitestConfig,
-    baseIgnores,
-    coreIsolation,
-    restrictedSyntax,
-    useBeforeDefine,
-    regexp,
-    noConsole,
-    unsafeCode,
-    e2eFixture,
-} from "./lib/index.ts";
+import { shared, vitestConfig, baseIgnores } from "./lib/index.ts";
 
 const ignores = {
     ignores: baseIgnores,
@@ -41,32 +26,9 @@ const createNodeConfig = (): object[] => {
                 tsconfigRootDir: process.cwd(),
             },
         },
-        rules: {
-            "@typescript-eslint/explicit-function-return-type": "off",
-            "@typescript-eslint/no-explicit-any": "error",
-            "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
-        },
     };
 
-    return [
-        ignores,
-        base,
-        ...typescript,
-        nodeTs,
-        vitestConfig,
-        format,
-        arrowFunctions,
-        destructuring,
-        jsonc,
-        boundaries,
-        coreIsolation,
-        restrictedSyntax,
-        useBeforeDefine,
-        regexp,
-        noConsole,
-        unsafeCode,
-        e2eFixture,
-    ];
+    return [ignores, base, ...typescript, nodeTs, vitestConfig, ...shared];
 };
 
 export default createNodeConfig;

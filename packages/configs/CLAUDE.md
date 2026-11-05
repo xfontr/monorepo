@@ -11,8 +11,12 @@ affected set that `pnpm lint` and CI run is already the whole workspace. Don't r
 - A rule for everyone goes in [`src/eslint/lib`](./src/eslint/lib). A rule for one flavour goes in
   the factory that composes it (`node.ts`, `vue.ts`, or the nuxt config). Putting a flavour rule in
   `lib` is the mistake that's hard to undo later.
-- This package's own `eslint.config.ts` and `tsconfig.json` reference `./src/...` **relatively**, not
-  through `@monorepo/configs`. That is deliberate — a self-reference would be a dependency cycle.
+- **One `monorepo` plugin object, ever.** A `lib` file switches on an in-house rule with
+  `plugins: { monorepo }` imported from [`rules/index.ts`](./src/eslint/rules/index.ts); an inline
+  plugin object under that name crashes ESLint on any file both reach.
+- This package's own `eslint.config.ts`, `vitest.config.ts` and `tsconfig.json` reference
+  `./src/...` **relatively**, not through `@monorepo/configs`. That is deliberate — a
+  self-reference would be a dependency cycle.
 - [`lib/boundaries.ts`](./src/eslint/lib/boundaries.ts) is the enforced copy of the Nx tag table. The
   readable copy is in the [root README](../../README.md#-architecture--boundaries). Change both.
 - Shipped as raw TypeScript and tagged `type:config`, so it may depend on nothing in the workspace.
