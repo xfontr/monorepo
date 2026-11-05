@@ -159,8 +159,7 @@ checks, is in [`docs/guides/change-lifecycle.md`](./docs/guides/change-lifecycle
 - A PR gets its title, assignees and project from the issue
   ([`pr-metadata.yml`](./.github/workflows/pr-metadata.yml)), path labels
   ([`pr-labeler.yml`](./.github/workflows/pr-labeler.yml)) and an advisory docs review
-  ([`docs-review.yml`](./.github/workflows/docs-review.yml)). Non-major Dependabot PRs get
-  auto-merge armed by [`dependabot-auto-merge.yml`](./.github/workflows/dependabot-auto-merge.yml).
+  ([`docs-review.yml`](./.github/workflows/docs-review.yml)).
 - [`post-checkout`](./.husky/post-checkout) and [`post-merge`](./.husky/post-merge) warn when a branch
   operation changes `pnpm-lock.yaml`. They never install anything and never block.
 - [`pnpm docs:drift`](./infrastructure/scripts/src/drift/README.md) is a manual check for a range

@@ -77,7 +77,6 @@ GitHub Actions, named as the Actions tab shows them rather than by filename.
 | Capability | Declared in | Explained in |
 | --- | --- | --- |
 | `CI` | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | [`README.md`](../README.md) |
-| `Dependabot auto-merge` | [`.github/workflows/dependabot-auto-merge.yml`](../.github/workflows/dependabot-auto-merge.yml) | [`README.md`](../README.md) |
 | `Developer Portal deploy` | [`.github/workflows/developer-portal-deploy.yml`](../.github/workflows/developer-portal-deploy.yml) | [`README.md`](../README.md) |
 | `Focused documentation review` | [`.github/workflows/docs-review.yml`](../.github/workflows/docs-review.yml) | [`README.md`](../README.md) |
 | `Huella Legal deployment` | [`.github/workflows/huella-legal-deployment.yml`](../.github/workflows/huella-legal-deployment.yml) | [`README.md`](../README.md) |
