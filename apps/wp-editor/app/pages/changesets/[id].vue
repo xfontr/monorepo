@@ -95,6 +95,14 @@ const runBulk = async (kind: RunReport["kind"]) => {
     if (await bulk(kind)) openReports();
 };
 
+const restoreOpen = ref(false);
+const appliedCount = computed(() => items.value.filter(isApplied).length);
+
+const restoreAll = () => {
+    restoreOpen.value = false;
+    runBulk("restore");
+};
+
 const openFromReport = (key: ItemKey) => {
     filter.value = "all";
     select(key);
@@ -160,6 +168,17 @@ const MODES = [
                             :disabled="!!busy"
                             :loading="busy === 'Dry run'"
                             @click="runBulk('dry-run')"
+                        />
+                    </UTooltip>
+                    <UTooltip :text="data?.restoreBlocker ?? 'Restore every applied article'">
+                        <UButton
+                            icon="i-lucide-undo-2"
+                            color="neutral"
+                            variant="outline"
+                            label="Restore all"
+                            :disabled="!!data?.restoreBlocker || !!busy"
+                            :loading="busy === RUN_LABELS.restore.name"
+                            @click="restoreOpen = true"
                         />
                     </UTooltip>
                     <UTooltip :text="data?.bulkBlocker ?? 'Apply every pending article'">
@@ -295,6 +314,27 @@ const MODES = [
                     />
                 </div>
             </template>
+
+            <UModal
+                v-model:open="restoreOpen"
+                title="Restore every applied article?"
+                :description="`${appliedCount} articles go back to how they were before this changeset. Articles that were never applied get no request.`"
+            >
+                <template #footer>
+                    <UButton
+                        label="Cancel"
+                        color="neutral"
+                        variant="ghost"
+                        @click="restoreOpen = false"
+                    />
+                    <UButton
+                        icon="i-lucide-undo-2"
+                        color="error"
+                        label="Restore all"
+                        @click="restoreAll"
+                    />
+                </template>
+            </UModal>
 
             <UModal v-model:open="reportsOpen" title="Reports" :ui="{ content: 'sm:max-w-2xl' }">
                 <template #body>

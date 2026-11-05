@@ -3,12 +3,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { derivedStatus } from "../../shared/rules.ts";
-import type { ItemKey, RunReport, Settings } from "../../shared/types.ts";
+import type { ItemKey, PostType, Proposal, RunReport, Settings } from "../../shared/types.ts";
 import { DEFAULT_SETTINGS } from "../../shared/types.ts";
 import {
     applyItem,
     bulkApply,
     bulkDryRun,
+    bulkRestore,
     dryRunItem,
     markScanned,
     openChangeset,
@@ -396,5 +397,133 @@ describe("dry runs and reports", () => {
         await review.edit(store, id, KEY, { content: "c", reviewRequested: "dropped by the UI" });
 
         expect((await store.readItem(id, KEY))?.proposal?.reviewRequested).toBe("Legal wording");
+    });
+});
+
+describe("restore all and lost responses", () => {
+    const KEYS: ItemKey[] = ["posts-1", "posts-2", "posts-3", "posts-4", "posts-5"];
+
+    /** One fake post per id, recording every write so a test can see which articles got one. */
+    const fakeSite = (keys: ItemKey[]) => {
+        const posts = new Map(keys.map((key) => [Number(key.slice(6)), fakeWordPress(key)]));
+        const writes: number[] = [];
+        const site = (id: number) => posts.get(id)!;
+        const wp = {
+            get: async (type: PostType, id: number) => ({
+                ...(await site(id).wp.get(type, id)),
+                id,
+            }),
+            update: async (type: PostType, id: number, body: Proposal) => {
+                writes.push(id);
+
+                return { ...(await site(id).wp.update(type, id, body)), id };
+            },
+        } as unknown as WordPress;
+
+        return { wp, writes, content: (id: number) => site(id).post.content.raw };
+    };
+
+    /** WordPress saves the write, then the host drops the connection before the response. */
+    const losingResponses = (wp: WordPress) =>
+        ({
+            ...wp,
+            update: async (...args: Parameters<WordPress["update"]>) => {
+                await wp.update(...args);
+                throw new Error("socket hang up");
+            },
+        }) as WordPress;
+
+    const proposeAll = async (wp: WordPress, keys: ItemKey[]) => {
+        const { id } = await openChangeset(store, wp, { title: "all", ids: keys });
+
+        for (const key of keys) {
+            await store.writeProposal(id, key, { content: `${key} edited` });
+            await review.confirm(store, id, key);
+        }
+
+        await markScanned(store, id, keys);
+
+        return id;
+    };
+
+    it("restores only applied articles and sends nothing for the ones never applied", async () => {
+        const site = fakeSite(["posts-1", "posts-2"]);
+        const id = await proposeAll(site.wp, ["posts-1", "posts-2"]);
+
+        await applyItem(store, site.wp, id, "posts-1");
+        site.writes.length = 0;
+
+        const report = await bulkRestore(store, site.wp, id, 0);
+
+        expect(report.ok).toEqual(["posts-1"]);
+        expect(site.writes).toEqual([1]);
+        expect(site.content(1)).toBe("posts-1");
+    });
+
+    it("resumes a restore that a blocked host stopped, with only the articles still applied", async () => {
+        const site = fakeSite(KEYS);
+        const id = await proposeAll(site.wp, KEYS);
+
+        await bulkApply(store, site.wp, id, 0);
+
+        let calls = 0;
+        const blocked = {
+            ...site.wp,
+            update: (...args: Parameters<WordPress["update"]>) =>
+                ++calls === 1 ? site.wp.update(...args) : Promise.reject(new Error("403")),
+        } as WordPress;
+        const stopped = await bulkRestore(store, blocked, id, 0);
+
+        expect(stopped.ok).toEqual(["posts-1"]);
+        expect(stopped.stopped).toMatch(/the 1 after them/);
+
+        const resumed = await bulkRestore(store, site.wp, id, 0);
+
+        expect(resumed.ok).toEqual(KEYS.slice(1));
+        expect(KEYS.map((_, index) => site.content(index + 1))).toEqual(KEYS);
+    });
+
+    it("refuses restore all in dry-run mode before touching WordPress", async () => {
+        const site = fakeSite(["posts-1"]);
+        const id = await proposeAll(site.wp, ["posts-1"]);
+
+        await applyItem(store, site.wp, id, "posts-1");
+        await store.writeSettings({ ...DEFAULT_SETTINGS, dryRun: true });
+
+        await expect(bulkRestore(store, site.wp, id, 0)).rejects.toThrow(/dry-run mode/i);
+        expect(site.content(1)).toBe("posts-1 edited");
+    });
+
+    it("records an apply whose response was lost instead of flagging drift, so it can be restored", async () => {
+        const site = fakeSite(["posts-1"]);
+        const id = await proposeAll(site.wp, ["posts-1"]);
+
+        expect((await bulkApply(store, losingResponses(site.wp), id, 0)).failed).toHaveLength(1);
+
+        const retried = await bulkApply(store, site.wp, id, 0);
+
+        expect(retried.warnings.map(({ reason }) => reason)).toEqual([
+            expect.stringMatching(/Already live/),
+        ]);
+        expect(site.writes).toEqual([1]);
+
+        await bulkRestore(store, site.wp, id, 0);
+        expect(site.content(1)).toBe("posts-1");
+    });
+
+    it("records a restore whose response was lost instead of refusing it as an overwrite", async () => {
+        const site = fakeSite(["posts-1"]);
+        const id = await proposeAll(site.wp, ["posts-1"]);
+
+        await applyItem(store, site.wp, id, "posts-1");
+        await expect(restoreItem(store, losingResponses(site.wp), id, "posts-1")).rejects.toThrow(
+            "socket hang up",
+        );
+
+        const writes = site.writes.length;
+
+        expect((await bulkRestore(store, site.wp, id, 0)).ok).toEqual(["posts-1"]);
+        expect(site.writes).toHaveLength(writes);
+        expect((await store.readItem(id, "posts-1"))?.state.restored).toBeDefined();
     });
 });

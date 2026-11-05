@@ -15,7 +15,7 @@ const heading = computed(
 
 const sections = computed(() => {
     const { kind, ok, refused, failed, warnings } = props.report;
-    const okLabel = kind === "apply" ? "Applied" : "Would apply";
+    const okLabel = RUN_LABELS[kind].ok;
 
     return [
         { label: "Failed", color: "error", entries: failed },
@@ -46,7 +46,7 @@ const sections = computed(() => {
             variant="subtle"
             icon="i-lucide-octagon-x"
             title="Stopped early"
-            :description="`${report.stopped} Run it again once WordPress answers; only pending articles are retried.`"
+            :description="`${report.stopped} Run it again once WordPress answers; only ${RUN_LABELS[report.kind].retried} articles are retried.`"
         />
 
         <UAlert

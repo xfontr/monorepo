@@ -17,7 +17,8 @@ the WordPress subdomain at the cutover in
 | --- | --- |
 | [`shared/`](./shared) | The pure rules, types and the HTML diff, imported by `app/`, `server/` and `tools/` alike |
 | [`server/adapters/`](./server/adapters) | The fs store and the WordPress REST client, plain Node with no Nitro globals |
-| [`server/services/operations.ts`](./server/services/operations.ts) | Open, apply, bulk apply, restore, re-pull: the rules run against both adapters |
+| [`server/services/operations.ts`](./server/services/operations.ts) | Open, apply, bulk apply, restore, restore all, re-pull: the rules run against both adapters |
+| [`server/plugins/storeLock.ts`](./server/plugins/storeLock.ts) | Claims the store at server start, so only one server writes to it |
 | [`server/api/`](./server/api) | Thin routes over the operations; a broken rule comes back as a 409 with its reason |
 | [`tools/cli/`](./tools/cli) | `pnpm editor`, which imports the same adapters and operations |
 | [`app/`](./app) | Registry, review screen and settings, on Nuxt UI |
@@ -78,6 +79,7 @@ read/write access to the store, granted through `additionalDirectories` in the g
 
 ```
 settings.json                   reviewGate, bulkApplyMinLevel, requireDryRun, dryRun, pauseMs
+.server.lock                    pid and start time of the server using the store
 changesets/0001-ortografia/
     changeset.json              id, title, instructions, createdAt, status, keys, scanned
     base/posts-123.html         content.raw at pull time
@@ -86,6 +88,7 @@ changesets/0001-ortografia/
     proposed/posts-123.json     optional { title?, excerpt?, reviewRequested? }
     state/posts-123.json        level, rejected, drift, applied { at, modifiedGmt }, restored
     runs/<at>-apply.json        one per bulk run: ok, refused, failed, warnings, stopped, incomplete
+    runs/<at>-restore.json      the same, for Restore all
     runs/<at>-dry-run.json      the same, plus the fingerprint of every article it cleared
 ```
 
@@ -113,6 +116,9 @@ All of them live in [`shared/rules.ts`](./shared/rules.ts) and are pinned by its
 | Pause | `pauseMs`, 0–2000 and 500 by default, is the wait between articles in a bulk run; raise it if the host rate-limits us |
 | Drift | Every write compares live `modified_gmt` with `base`; a mismatch refuses the item and flags it for re-pull |
 | Restore | Writes N's `base` back; blocked while a later changeset still has the article applied, naming it. The article goes back to `seen`, so it can be edited, confirmed, rejected and applied again; a restore never reopens a closed changeset |
+| Restore all | Restores every applied article of the changeset, one at a time with the same pause, failure stop and report as bulk apply. Articles never applied get no request, so a run stopped partway resumes with only the ones still applied |
+| Lost response | When the host drops the connection after WordPress saved a write, the next apply or restore finds WordPress already holding that text and records it without writing again, instead of refusing it as drift. Otherwise the only way out would be a re-pull, which overwrites `base`, the backup restore needs |
+| One server | The first server to start writes `.server.lock` into the store, and a second one on the same store, `dev:api` or a built `.output`, serves nothing but an error naming the first. A lock whose pid is dead is taken over, since Nuxt dev never releases it. The mocks use their own store, so `pnpm dev` never blocks the real one. The CLI takes no lock, so Claude can keep writing proposals while you review |
 
 Restore also refuses when WordPress moved since the tool's last write to that article. That last
 write is the apply in N **or a later changeset's restore**. Comparing only against N's own apply

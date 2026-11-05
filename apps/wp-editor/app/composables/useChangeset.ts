@@ -6,6 +6,7 @@ export interface ChangesetView {
     settings: Settings;
     runs: RunReport[];
     bulkBlocker: string | null;
+    restoreBlocker: string | null;
 }
 
 export type ItemAction =
@@ -99,13 +100,8 @@ export const useChangeset = (id: string) => {
         /** Resolves once the view is refreshed, so the new report is `runs[0]`. */
         bulk: (kind: RunReport["kind"]) =>
             run(
-                kind === "apply" ? "Bulk apply" : "Dry run",
-                () =>
-                    watchProgress(kind, () =>
-                        call<RunReport>(kind === "apply" ? "/apply" : "/dry-run", {
-                            method: "POST",
-                        }),
-                    ),
+                RUN_LABELS[kind].name,
+                () => watchProgress(kind, () => call<RunReport>(`/${kind}`, { method: "POST" })),
                 true,
             ),
     };

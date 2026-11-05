@@ -1,5 +1,14 @@
 import { Refusal } from "./refusal.ts";
-import type { Changeset, Item, ItemState, ReviewLevel, RunReport, Settings } from "./types.ts";
+import type {
+    Changeset,
+    Item,
+    ItemState,
+    Proposal,
+    ReviewLevel,
+    RunReport,
+    Settings,
+    Snapshot,
+} from "./types.ts";
 import { DEFAULT_SETTINGS, MAX_PAUSE_MS, REVIEW_GATES } from "./types.ts";
 
 const RANK = { unreviewed: 0, seen: 1, confirmed: 2 } as const satisfies Record<
@@ -139,6 +148,29 @@ export const bulkApplyBlocker = (
     );
 };
 
+/** Why restore-all is disabled, or null when it may run. */
+export const bulkRestoreBlocker = (items: Item[], settings: Settings): string | null => {
+    if (settings.dryRun) return "Dry-run mode is on, so nothing is written to WordPress.";
+
+    return items.some(isApplied) ? null : "Nothing is applied, so there is nothing to restore.";
+};
+
+type Text = Pick<Snapshot, "content" | "title" | "excerpt">;
+
+/** What WordPress holds once `item` is applied; a title or excerpt it leaves out stays as it was. */
+export const appliedText = ({
+    base,
+    proposal,
+}: Pick<Item, "base"> & { proposal: Proposal }): Text => ({
+    content: proposal.content,
+    title: proposal.title ?? base.title,
+    excerpt: proposal.excerpt ?? base.excerpt,
+});
+
+/** Whether WordPress already holds `text`, as when a write landed but its response never came back. */
+export const holdsText = (live: Text, text: Text): boolean =>
+    live.content === text.content && live.title === text.title && live.excerpt === text.excerpt;
+
 /** Merges a settings patch over `current`, refusing any field with an unknown value. */
 export const parseSettings = (patch: unknown, current: Settings = DEFAULT_SETTINGS): Settings => {
     const next = { ...current, ...(patch as Partial<Settings> | null) };
@@ -174,9 +206,15 @@ export interface StackEntry {
 
 /**
  * Why `item` of the changeset at `stack[index]` can't be restored, or null when it can.
- * `stack` is every changeset in creation order, each with its copy of the same key.
+ * `stack` is every changeset in creation order, each with its copy of the same key. `landed` is
+ * true when WordPress already holds this changeset's base, so its timestamp can't count as drift.
  */
-export const restoreBlocker = (stack: StackEntry[], index: number, live: string): string | null => {
+export const restoreBlocker = (
+    stack: StackEntry[],
+    index: number,
+    live: string,
+    landed = false,
+): string | null => {
     const own = stack[index]?.item;
 
     if (!own || !isApplied(own)) return "Not applied, so there is nothing to restore.";
@@ -184,6 +222,7 @@ export const restoreBlocker = (stack: StackEntry[], index: number, live: string)
     const later = stack.slice(index + 1).find(({ item }) => item && isApplied(item));
 
     if (later) return `Restore it in changeset ${later.changeset.id} first; it is applied there.`;
+    if (landed) return null;
 
     // A later changeset's restore is the tool's own write, so it moves the expected timestamp too.
     const writes = [

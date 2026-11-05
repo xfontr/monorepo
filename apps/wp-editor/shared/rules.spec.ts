@@ -4,10 +4,13 @@ import type { Changeset, Item, ItemKey, ItemState, RunReport, Settings } from ".
 import { DEFAULT_SETTINGS } from "./types.ts";
 import {
     afterEdit,
+    appliedText,
     bulkApplyBlocker,
+    bulkRestoreBlocker,
     confirm,
     derivedStatus,
     driftRefusal,
+    holdsText,
     itemFingerprint,
     markSeen,
     nextChangesetId,
@@ -276,5 +279,49 @@ describe("restore", () => {
 
     it("refuses when WordPress moved since the apply", () => {
         expect(restoreBlocker(stack(applied("m1"), {}), 0, "m5")).toMatch(/overwrite/);
+    });
+
+    it("lets a restore whose response was lost through, since WordPress already holds the base", () => {
+        expect(restoreBlocker(stack(applied("m1"), {}), 0, "m5", true)).toBeNull();
+    });
+
+    it("still makes a lost restore wait for the later changeset that has the article applied", () => {
+        expect(restoreBlocker(stack(applied("m1"), applied("m2")), 0, "m5", true)).toContain(
+            "0002-b",
+        );
+    });
+});
+
+describe("restore all", () => {
+    it("stays shut when nothing in the changeset is applied", () => {
+        expect(bulkRestoreBlocker([item(), item({ rejected: true })], DEFAULT_SETTINGS)).toMatch(
+            /Nothing is applied/,
+        );
+    });
+
+    it("opens once one article is applied, and shuts again in dry-run mode", () => {
+        const items = [item(), item(applied())];
+
+        expect(bulkRestoreBlocker(items, DEFAULT_SETTINGS)).toBeNull();
+        expect(bulkRestoreBlocker(items, { ...DEFAULT_SETTINGS, dryRun: true })).toMatch(/Dry-run/);
+    });
+});
+
+describe("a write whose response was lost", () => {
+    const pending = { ...item(), proposal: { content: "<p>b</p>" } };
+
+    it("recognises WordPress holding the proposal, with the title it left alone", () => {
+        expect(
+            holdsText({ content: "<p>b</p>", title: "T", excerpt: "" }, appliedText(pending)),
+        ).toBe(true);
+    });
+
+    it("does not mistake an article still holding base, or edited elsewhere, for applied", () => {
+        const expected = appliedText(pending);
+
+        expect(holdsText({ content: "<p>a</p>", title: "T", excerpt: "" }, expected)).toBe(false);
+        expect(holdsText({ content: "<p>b</p>", title: "Other", excerpt: "" }, expected)).toBe(
+            false,
+        );
     });
 });
