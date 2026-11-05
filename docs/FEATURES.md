@@ -96,6 +96,7 @@ shortest statement of how a task is meant to go here.
 | --- | --- | --- |
 | `/audit-report` | [`.claude/skills/audit-report/SKILL.md`](../.claude/skills/audit-report/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/comment-cleanup` | [`.claude/skills/comment-cleanup/SKILL.md`](../.claude/skills/comment-cleanup/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
+| `/configs-new-rule` | [`.claude/skills/configs-new-rule/SKILL.md`](../.claude/skills/configs-new-rule/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/content-new-vendor` | [`.claude/skills/content-new-vendor/SKILL.md`](../.claude/skills/content-new-vendor/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/decision-report` | [`.claude/skills/decision-report/SKILL.md`](../.claude/skills/decision-report/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/doc-drift-check` | [`.claude/skills/doc-drift-check/SKILL.md`](../.claude/skills/doc-drift-check/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
