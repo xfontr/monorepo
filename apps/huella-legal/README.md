@@ -92,6 +92,52 @@ variable and `NETLIFY_AUTH_TOKEN` a secret, both read at workflow runtime with n
 deploys asynchronously after the push that triggers the workflow, so it polls for up to 10 minutes
 rather than reading the API once.
 
+### ☁️ Cloudflare Workers
+
+The same build also deploys as a Worker through Workers Builds, Cloudflare's git integration, with
+nothing in this repo selecting the host. Workers Builds sets `WORKERS_CI`, from which Nitro picks the
+`cloudflare-module` preset, enables Node compatibility and writes `.output/server/wrangler.json`,
+merging in [`wrangler.jsonc`](./wrangler.jsonc). That file holds only what is the same on every
+deploy: the Worker's name, `keep_vars` so a deploy never wipes the dashboard's variables, and
+Workers Logs. A Netlify build ignores it, so both hosts build from one `master`.
+
+| Workers Builds setting | Value |
+| --- | --- |
+| Root directory | `apps/huella-legal` |
+| Build command | `NUXT_SITE_ENV=$([ "$WORKERS_CI_BRANCH" = master ] && echo production \|\| echo preview) pnpm exec nx build @monorepo/huella-legal` |
+| Deploy command | `npx wrangler deploy`, which follows `.wrangler/deploy/config.json` to the generated config |
+| Build watch paths | The list in [`netlify-ignore.sh`](./netlify-ignore.sh), which the dashboard has to repeat |
+| Build variables | Every `NUXT_PUBLIC_*` and vendor URL a [prerendered page](#-rendering) bakes in, plus the required ones a production build checks |
+| Variables and secrets | Everything in [🔑 Environment](#-environment), `NUXT_SITE_ENV` included, since a Worker reads none of the build's |
+| Plan | Workers Paid: an SSR page needs more than the free plan's 10 ms of CPU |
+
+What behaves differently from Netlify:
+
+| Concern | On Workers |
+| --- | --- |
+| `isr` rules | Nitro ignores them, so a page outside the prerender list renders per request, with only the content cache in front of WordPress, per isolate. `Netlify-Vary` and `netlify-cdn-cache-control` are sent and mean nothing |
+| Images | `@nuxt/image` resolves to `none` on a non-Node preset, so `NuxtImg` serves WordPress's original file and `fit="cover"` crops nothing |
+| Headers | Prerendered files get the security headers from the generated `_headers`, rendered responses from `routeRules`, since `_headers` never applies to a Worker's own response |
+| Redirects | The [`legacy`](./layers/legacy/README.md) rules run in the Worker: Nitro writes no `_redirects` for this preset |
+| Reader IP | The comments route reads `cf-connecting-ip` there, because Cloudflare documents no `X-Forwarded-For` for a Worker |
+| Server telemetry | Keep `NUXT_OBSERVABILITY_URL` unset: the Node tracer was never run under workerd, and nothing flushes its batch through `waitUntil` |
+| Request body | 100 MB on the free zone plan against Netlify's 6 MB, which [#351](https://github.com/xfontr/monorepo/issues/351) raises the manuscript limit for |
+
+A local run of the Worker, with variables in a gitignored `.dev.vars` beside the generated config:
+
+```sh
+WORKERS_CI=1 pnpm exec nx build @monorepo/huella-legal --skip-nx-cache
+npx wrangler dev
+```
+
+| Later need | What changes |
+| --- | --- |
+| Cache SSR at the edge | `isr` becomes `swr` with Nitro's `cache` storage mounted on a KV or R2 binding, which is ADR [0030](../../docs/decisions/0030-huella-legal-rendering-hosting-and-cost.md)'s cost question: KV's free tier allows 1,000 writes a day |
+| Crop images at the CDN | `image.provider: "cloudflare"` on Workers builds only, with Image Transformations enabled on the zone and WordPress's host as an allowed origin |
+| Serve `www` | A Custom Domain on the Worker, added at cutover: `www.huellalegal.com` is WordPress until then, so no route is in `wrangler.jsonc` |
+| Previews with their own variables | Cloudflare's Previews don't inherit the Worker's variables, so `NUXT_SITE_ENV=preview` and the preview secrets have to be set for them separately |
+| Retire Netlify | `netlify.toml`, `netlify-ignore.sh`, both Netlify workflows, the developer portal's deploy links, the root README badges, and the three privacy notices in `es-ES.json` that name Netlify as host |
+
 ### 🗄 Rendering
 
 A Netlify build prerenders every page that reads nothing from the query string, and Netlify's CDN
