@@ -1,13 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    articles: ArticleSummary[];
-}
-
-defineProps<Props>();
-
-const titleId = useId();
-</script>
-
 <template>
     <UPageSection
         v-if="articles.length"
@@ -70,3 +60,13 @@ const titleId = useId();
         </ol>
     </UPageSection>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    articles: ArticleSummary[];
+}
+
+defineProps<Props>();
+
+const titleId = useId();
+</script>

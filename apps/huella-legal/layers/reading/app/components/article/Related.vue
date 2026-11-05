@@ -1,12 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    category: Category;
-    articles: ArticleSummary[];
-}
-
-defineProps<Props>();
-</script>
-
 <template>
     <section
         v-if="articles.length"
@@ -28,3 +19,12 @@ defineProps<Props>();
         </UContainer>
     </section>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    category: Category;
+    articles: ArticleSummary[];
+}
+
+defineProps<Props>();
+</script>

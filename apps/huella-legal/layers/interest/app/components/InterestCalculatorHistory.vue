@@ -1,136 +1,3 @@
-<script setup lang="ts">
-import { useClipboard } from "@vueuse/core";
-import type { InterestEntry } from "../types/InterestEntry";
-
-interface Props {
-    entries: InterestEntry[];
-}
-
-const props = defineProps<Props>();
-
-const emit = defineEmits<{
-    rename: [id: string, concept: string];
-    remove: [id: string];
-    clear: [];
-}>();
-
-const CELLS = ["principal", "from", "to", "rate", "interest", "total"] as const;
-const COLUMNS = ["concept", ...CELLS] as const;
-
-const { t, locale } = useI18n();
-const toast = useToast();
-const headingId = useId();
-const { copy, isSupported: canCopy } = useClipboard();
-
-const confirmingClear = ref(false);
-
-const formats = computed(() => {
-    const euros = new Intl.NumberFormat(locale.value, { style: "currency", currency: "EUR" });
-    const plain = new Intl.NumberFormat(locale.value, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-        useGrouping: false,
-    });
-    const percent = new Intl.NumberFormat(locale.value, { maximumFractionDigits: 4 });
-    const date = new Intl.DateTimeFormat(locale.value, {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        timeZone: "UTC",
-    });
-
-    return {
-        euros: (cents: number) => euros.format(cents / 100),
-        plain: (cents: number) => plain.format(cents / 100),
-        percent: (value: number) => percent.format(value),
-        date: (iso: string) => date.format(Date.parse(`${iso}T00:00:00Z`)),
-    };
-});
-
-const rows = computed(() =>
-    props.entries.map((entry) => ({ ...entry, principalCents: Math.round(entry.principal * 100) })),
-);
-
-const totals = computed(() =>
-    rows.value.reduce(
-        (sum, row) => ({
-            principalCents: sum.principalCents + row.principalCents,
-            interestCents: sum.interestCents + row.interestCents,
-            totalCents: sum.totalCents + row.totalCents,
-        }),
-        { principalCents: 0, interestCents: 0, totalCents: 0 },
-    ),
-);
-
-const displayed = computed(() => {
-    const { euros, percent, date } = formats.value;
-
-    return {
-        rows: rows.value.map((row) => ({
-            id: row.id,
-            concept: row.concept,
-            principal: euros(row.principalCents),
-            from: date(row.from),
-            to: date(row.to),
-            rate: percent(row.ratePercent),
-            interest: euros(row.interestCents),
-            total: euros(row.totalCents),
-        })),
-        totals: {
-            principal: euros(totals.value.principalCents),
-            interest: euros(totals.value.interestCents),
-            total: euros(totals.value.totalCents),
-        },
-    };
-});
-
-const toTsv = (): string => {
-    const { plain, percent, date } = formats.value;
-    const lines = [
-        COLUMNS.map((column) => t(`interestCalculator.history.columns.${column}`)),
-        ...rows.value.map((row) => [
-            row.concept,
-            plain(row.principalCents),
-            date(row.from),
-            date(row.to),
-            percent(row.ratePercent),
-            plain(row.interestCents),
-            plain(row.totalCents),
-        ]),
-        [
-            t("interestCalculator.history.totals"),
-            plain(totals.value.principalCents),
-            "",
-            "",
-            "",
-            plain(totals.value.interestCents),
-            plain(totals.value.totalCents),
-        ],
-    ];
-
-    return lines
-        .map((cells) => cells.map((cell) => cell.replace(/[\t\n]/g, " ")).join("\t"))
-        .join("\n");
-};
-
-const copyTable = async (): Promise<void> => {
-    await copy(toTsv());
-    toast.add({ title: t("interestCalculator.history.copied"), icon: "i-lucide-check" });
-};
-
-const onClear = (): void => {
-    if (!confirmingClear.value) {
-        confirmingClear.value = true;
-
-        return;
-    }
-
-    confirmingClear.value = false;
-    emit("clear");
-    toast.add({ title: t("interestCalculator.history.cleared"), icon: "i-lucide-check" });
-};
-</script>
-
 <template>
     <section :aria-labelledby="headingId">
         <BaseSectionHeading :id="headingId" :title="$t('interestCalculator.history.title')" />
@@ -264,3 +131,136 @@ const onClear = (): void => {
         </template>
     </section>
 </template>
+
+<script setup lang="ts">
+import { useClipboard } from "@vueuse/core";
+import type { InterestEntry } from "../types/InterestEntry";
+
+interface Props {
+    entries: InterestEntry[];
+}
+
+const props = defineProps<Props>();
+
+const emit = defineEmits<{
+    rename: [id: string, concept: string];
+    remove: [id: string];
+    clear: [];
+}>();
+
+const CELLS = ["principal", "from", "to", "rate", "interest", "total"] as const;
+const COLUMNS = ["concept", ...CELLS] as const;
+
+const { t, locale } = useI18n();
+const toast = useToast();
+const headingId = useId();
+const { copy, isSupported: canCopy } = useClipboard();
+
+const confirmingClear = ref(false);
+
+const formats = computed(() => {
+    const euros = new Intl.NumberFormat(locale.value, { style: "currency", currency: "EUR" });
+    const plain = new Intl.NumberFormat(locale.value, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        useGrouping: false,
+    });
+    const percent = new Intl.NumberFormat(locale.value, { maximumFractionDigits: 4 });
+    const date = new Intl.DateTimeFormat(locale.value, {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        timeZone: "UTC",
+    });
+
+    return {
+        euros: (cents: number) => euros.format(cents / 100),
+        plain: (cents: number) => plain.format(cents / 100),
+        percent: (value: number) => percent.format(value),
+        date: (iso: string) => date.format(Date.parse(`${iso}T00:00:00Z`)),
+    };
+});
+
+const rows = computed(() =>
+    props.entries.map((entry) => ({ ...entry, principalCents: Math.round(entry.principal * 100) })),
+);
+
+const totals = computed(() =>
+    rows.value.reduce(
+        (sum, row) => ({
+            principalCents: sum.principalCents + row.principalCents,
+            interestCents: sum.interestCents + row.interestCents,
+            totalCents: sum.totalCents + row.totalCents,
+        }),
+        { principalCents: 0, interestCents: 0, totalCents: 0 },
+    ),
+);
+
+const displayed = computed(() => {
+    const { euros, percent, date } = formats.value;
+
+    return {
+        rows: rows.value.map((row) => ({
+            id: row.id,
+            concept: row.concept,
+            principal: euros(row.principalCents),
+            from: date(row.from),
+            to: date(row.to),
+            rate: percent(row.ratePercent),
+            interest: euros(row.interestCents),
+            total: euros(row.totalCents),
+        })),
+        totals: {
+            principal: euros(totals.value.principalCents),
+            interest: euros(totals.value.interestCents),
+            total: euros(totals.value.totalCents),
+        },
+    };
+});
+
+const toTsv = (): string => {
+    const { plain, percent, date } = formats.value;
+    const lines = [
+        COLUMNS.map((column) => t(`interestCalculator.history.columns.${column}`)),
+        ...rows.value.map((row) => [
+            row.concept,
+            plain(row.principalCents),
+            date(row.from),
+            date(row.to),
+            percent(row.ratePercent),
+            plain(row.interestCents),
+            plain(row.totalCents),
+        ]),
+        [
+            t("interestCalculator.history.totals"),
+            plain(totals.value.principalCents),
+            "",
+            "",
+            "",
+            plain(totals.value.interestCents),
+            plain(totals.value.totalCents),
+        ],
+    ];
+
+    return lines
+        .map((cells) => cells.map((cell) => cell.replace(/[\t\n]/g, " ")).join("\t"))
+        .join("\n");
+};
+
+const copyTable = async (): Promise<void> => {
+    await copy(toTsv());
+    toast.add({ title: t("interestCalculator.history.copied"), icon: "i-lucide-check" });
+};
+
+const onClear = (): void => {
+    if (!confirmingClear.value) {
+        confirmingClear.value = true;
+
+        return;
+    }
+
+    confirmingClear.value = false;
+    emit("clear");
+    toast.add({ title: t("interestCalculator.history.cleared"), icon: "i-lucide-check" });
+};
+</script>

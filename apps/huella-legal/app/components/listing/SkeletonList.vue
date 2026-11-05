@@ -1,13 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    rows?: number;
-}
-
-withDefaults(defineProps<Props>(), {
-    rows: 3,
-});
-</script>
-
 <template>
     <div>
         <p class="sr-only">
@@ -26,3 +16,13 @@ withDefaults(defineProps<Props>(), {
         </ul>
     </div>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    rows?: number;
+}
+
+withDefaults(defineProps<Props>(), {
+    rows: 3,
+});
+</script>

@@ -1,9 +1,3 @@
-<script setup lang="ts">
-const { article, related, authorCounts, comments } = await useArticle();
-
-useScholarlyMeta(article);
-</script>
-
 <template>
     <article v-if="article">
         <ArticleHeader :article :comment-count="comments?.count" />
@@ -28,3 +22,9 @@ useScholarlyMeta(article);
         <ArticleRelated v-if="article.category" :category="article.category" :articles="related" />
     </article>
 </template>
+
+<script setup lang="ts">
+const { article, related, authorCounts, comments } = await useArticle();
+
+useScholarlyMeta(article);
+</script>

@@ -14,7 +14,7 @@ decision: accepted
 > `FormHoneypot` and `FormChallenge` on the client and `assertChallenge` on the server. Each route
 > checks the honeypot itself, and `assertChallenge` reads only siteverify's `success` flag. Rows 4–8
 > say so. No route checks its config per request any more: each layer lists its required variables
-> under `requiredEnv`, and a Netlify production build fails while one is unset. Rows 5 and 8 say so.
+> under `requiredEnv`, and a production build fails while one is unset. Rows 5 and 8 say so.
 >
 > **Amended 2026-10-20.** The Mailchimp adapter lives in `server/adapters/` and no longer matches
 > Mailchimp's error text, which its docs don't publish for these cases. Every `400` is a `422`, so an
@@ -59,8 +59,7 @@ S3 in [the implementation plan](../plans/huella-legal-implementation.md) asks si
 E1 (newsletter) and E2 (publish submission) can start: the newsletter provider, where submissions
 go, spam protection, GDPR copy and retention, what Contacto is, and whether validation takes a
 library. The lean was server routes plus third-party providers. The old board assumed a contact
-form; the form the design actually has is Publicar. S2 (#186) has no report yet, so every platform
-limit below is Netlify's, the host today.
+form; the form the design actually has is Publicar.
 
 ## Result
 
@@ -84,9 +83,9 @@ vendors. Kit (Mailchimp until 2026-10-27) and Resend are called with `$fetch`; T
 | Question | Answer |
 | --- | --- |
 | Newsletter provider | Amended 2026-10-27: Kit, into one form whose incentive email is on. `POST /v4/subscribers` with `state: "inactive"`, an upsert that never changes an existing subscriber's state, then `POST /v4/forms/{form}/subscribers/{id}`, which sends the incentive email as the confirmation. Kit's own WPForms plugin makes the same two calls. A subscriber who is `cancelled`, `bounced` or `complained` never reaches the second call, so an address that unsubscribed is never resubscribed. The route answers with the same success whether or not the address was already on the list |
-| Where submissions go | Amended 2026-11-03: the form, built in #301, sent through Resend with Reply-To set to the author and the draft attached when there is one. Amended 2026-10-27: a `mailto:` for now, built in #243, with #301 deciding whether the form replaces it. Before that: **pending, the owner decides when E2 starts.** The owner leans towards a `mailto:` to the editorial inbox, because accepting uploaded files is a safety risk they won't take on. The documented alternative is the form, sent as a Resend email with Reply-To set to the author and the file attached. In that variant the file stays optional and is capped at **4 MB**: Netlify's 6 MB buffered request is 4.5 MB of binary after base64. A larger file is refused with copy telling the author to send the proposal without it and reply with the file later, which is today's flow. The published PDFs in WP media serve as a proxy for manuscript size: of the 14 that report one, the median is 0.7 MB and one (11.8 MB) is over the cap. Rows marked *form only* apply only if E2 picks the form |
+| Where submissions go | Amended 2026-11-03: the form, built in #301, sent through Resend with Reply-To set to the author and the draft attached when there is one. Amended 2026-10-27: a `mailto:` for now, built in #243, with #301 deciding whether the form replaces it. Before that: **pending, the owner decides when E2 starts.** The owner leans towards a `mailto:` to the editorial inbox, because accepting uploaded files is a safety risk they won't take on. The documented alternative is the form, sent as a Resend email with Reply-To set to the author and the file attached. In that variant the file stays optional and is capped at **4 MB**. A larger file is refused with copy telling the author to send the proposal without it and reply with the file later, which is today's flow. The published PDFs in WP media serve as a proxy for manuscript size: of the 14 that report one, the median is 0.7 MB and one (11.8 MB) is over the cap. Rows marked *form only* apply only if E2 picks the form |
 | Spam protection | A hidden honeypot field plus Cloudflare Turnstile in invisible mode, on both routes, verified server-side through `siteverify`. A filled honeypot gets the success response and nothing is sent. The widget script loads through `@nuxtjs/turnstile`'s `useScriptCloudflareTurnstile` on a manual trigger, fired by the form's first `focusin`, so a page nobody signs up from never loads it. Amended 2026-10-18: the module is `@nuxt/scripts`' `useScript` plus Turnstile's types, and its `verifyTurnstileToken` replaces the hand-written `siteverify` call. It sends no `remoteip`, which Cloudflare treats as optional. Amended 2026-10-19: the honeypot and the widget are two components in `layers/forms/`. `FormHoneypot` sits among a form's fields, and `FormChallenge` wraps the form and mounts the widget on its first `focusin`. The server check is that layer's `assertChallenge` |
-| GDPR | Each form carries a first-layer notice: controller, purpose, legal basis, recipients, rights, and a link to the policy. The recipients are Netlify and Cloudflare on both forms, plus Kit (amended 2026-10-27) for the newsletter and Resend for Contacto (and Publicar, if it keeps its form). Resend acts as a processor under its DPA, and its US transfers are covered by the SCCs and the EU-U.S. Data Privacy Framework. The app stores nothing: a message exists only in the inbox and in Resend's log, which the Free plan keeps for 30 days |
+| GDPR | Each form carries a first-layer notice: controller, purpose, legal basis, recipients, rights, and a link to the policy. The recipients are Cloudflare on both forms, plus Kit (amended 2026-10-27) for the newsletter and Resend for Contacto (and Publicar, if it keeps its form). Resend acts as a processor under its DPA, and its US transfers are covered by the SCCs and the EU-U.S. Data Privacy Framework. The app stores nothing: a message exists only in the inbox and in Resend's log, which the Free plan keeps for 30 days |
 | Contacto | A form at `/contacto`, with the live form's fields: Nombre, Email, Mensaje and consent. It is sent as a Resend email with Reply-To set to the sender, behind the honeypot and Turnstile checks. The route keeps its live path. WP page 625 can't supply it, because its body is Fluent Form 1, which posts to the WP host and which 0027's sanitiser strips. Its TFG job moves to Publicar |
 | Validation library | Valibot, amended 2026-10-18: #199 adopted it before E1, in place of the hand-rolled `validate` this row first chose. One schema factory per form in its layer's `shared/schemas/` (`subscriptionSchema` for the newsletter) takes a function that words each issue code. The form passes it to `UForm`'s `schema` prop with i18n wording, and the route re-runs it with the bare codes and answers them as `FormError[]` (`{ name, message }`) for the client to word. The email rule is the HTML spec's valid e-mail address, the rule `type="email"` enforces |
 
@@ -116,7 +115,6 @@ promotes the markup from; the wiring goes into the promoted components, not into
 | Option | Why not |
 | --- | --- |
 | Storage plus a link | Adds a storage vendor, a purge job for retention, and unpublished manuscripts behind links. It only beats the 4 MB cap with direct-to-storage presigned uploads, which is a second request flow |
-| Netlify Forms | Its 8 MB request cap and built-in Akismet are real, but it binds the forms to Netlify while S2 is open. It needs a static HTML copy of each form for build-time detection, keeps the files at Netlify, and emails links rather than attachments |
 | Brevo for mail | Its allowed attachment types exclude `.pages`. That only matters if Publicar keeps its form, so it gets a second look if E2 picks the `mailto:` |
 | Postmark for mail | Free tier is 100 emails a month, the message cap is 10 MB, and Postmark has no plans for EU servers |
 | Keeping the Mailchimp embed | It posts to Mailchimp's hosted page in a new tab, so none of the design's states ever render, and spam control stays with Mailchimp |
@@ -154,8 +152,8 @@ Nothing here needs a new package or a `@monorepo/*` change.
   otherwise
 
 **Findings for the other spikes:**
-- **S2.** The 4 MB cap (*form only*) is Netlify-specific. Functions default to US East (Ohio), and Resend stores
-  account data in the US even when it sends from its EU region. The policy names both transfers.
+- **S2.** Resend stores account data in the US even when it sends from its EU region. The policy
+  names that transfer.
 - **S4.**
   - `/contacto/` keeps its path.
   - `/suscripcion/`, `/publicar-mi-articulo/` and `/publicar-tfm-tfg-derecho/` need 301 targets.
@@ -192,13 +190,11 @@ Nothing here needs a new package or a `@monorepo/*` change.
 - If no confirmation arrives, the form's incentive email is off. That is a setting in Kit, not code.
 - The two calls are safe to retry: a retry after the second one fails upserts the same subscriber
   and goes on.
-- *Form only*: `readFormData` buffers the whole body. That is only safe because Netlify refuses a
-  body over 6 MB before the function runs.
 - Specs for `server/` stub Nitro's auto-imports as globals, per [the app's
   AGENTS.md](../../apps/huella-legal/CLAUDE.md).
 
-Revisit this if S2 leaves Netlify Functions, if messages pass Resend Free's 100 a day, or if the
-newsletter leaves Kit (amended 2026-10-27).
+Revisit this if messages pass Resend Free's 100 a day, or if the newsletter leaves Kit (amended
+2026-10-27).
 
 ## Confirmation
 

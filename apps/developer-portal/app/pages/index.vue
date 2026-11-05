@@ -1,81 +1,3 @@
-<script setup lang="ts">
-import { sortIssues } from "#shared/issues.ts";
-import { toCollectionPath } from "#shared/wiki.ts";
-import type { ProjectNode } from "#shared/types.ts";
-
-const [
-    { data: projectsSnapshot },
-    { data: coverageSnapshot },
-    { data: docsSnapshot },
-    { data: depsSnapshot },
-    { data: metricsSnapshot },
-] = await Promise.all([
-    useSnapshot("projects"),
-    useSnapshot("coverage"),
-    useSnapshot("docs"),
-    useSnapshot("deps"),
-    useSnapshot("metrics"),
-]);
-const { data: issues } = await useIssues();
-const { data: reviews } = await useReviewPages();
-
-const open = computed(() => issues.value.issues.length);
-const issuesRead = computed(() =>
-    issues.value.fetchedAt ? `read ${relativeTime(issues.value.fetchedAt)}` : "reading…",
-);
-const recentReviews = computed(() => reviews.value.slice(0, 5));
-
-const coverage = computed(() => coverageSnapshot.value?.coverage?.totals?.lines ?? null);
-const coverageTileTone = computed(() => coverageTone(coverage.value));
-const projectNodes = computed(() => projectsSnapshot.value?.projects?.projects ?? []);
-const projects = computed(() => projectNodes.value.length);
-const docs = computed(() => docsSnapshot.value?.docs ?? null);
-
-const { data: readmes } = await useAsyncData("overview-readmes", () =>
-    queryCollection("docs").select("path", "title", "description").all(),
-);
-
-const readmeByPath = computed(
-    () => new Map((readmes.value ?? []).map((page) => [page.path, page])),
-);
-const repositoryReadme = computed(() => readmeByPath.value.get("/readme"));
-const featuredProjects = computed(() =>
-    projectNodes.value.filter((project) => project.root.startsWith("apps/")),
-);
-
-const readmeFor = (project: ProjectNode) =>
-    readmeByPath.value.get(`/${project.root.toLowerCase()}/readme`);
-
-const deps = computed(() => depsSnapshot.value?.deps ?? null);
-const advisories = computed(() => deps.value?.advisories.length ?? 0);
-
-/** The tile shows one number, so it takes the tone of the worst band rather than the total count. */
-const worstSeverity = computed(() => {
-    const counts = deps.value?.vulnerabilities;
-
-    if (!counts) return null;
-
-    return (
-        (["critical", "high", "moderate", "low", "info"] as const).find(
-            (severity) => counts[severity] > 0,
-        ) ?? null
-    );
-});
-
-const vulnerabilityTone = computed(() =>
-    worstSeverity.value ? severityTone(worstSeverity.value) : "neutral",
-);
-
-const findings = computed(() => metricsSnapshot.value?.metrics?.invariantFindings ?? []);
-
-/** Only the pages that actually have one — a list of every doc with zero broken links is a wall. */
-const broken = computed(
-    () => docs.value?.pages.filter((page) => page.brokenLinks.length > 0) ?? [],
-);
-
-const next = computed(() => sortIssues(issues.value.issues).slice(0, 6));
-</script>
-
 <template>
     <UDashboardPanel id="overview">
         <template #header>
@@ -382,3 +304,81 @@ const next = computed(() => sortIssues(issues.value.issues).slice(0, 6));
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+import { sortIssues } from "#shared/issues.ts";
+import { toCollectionPath } from "#shared/wiki.ts";
+import type { ProjectNode } from "#shared/types.ts";
+
+const [
+    { data: projectsSnapshot },
+    { data: coverageSnapshot },
+    { data: docsSnapshot },
+    { data: depsSnapshot },
+    { data: metricsSnapshot },
+] = await Promise.all([
+    useSnapshot("projects"),
+    useSnapshot("coverage"),
+    useSnapshot("docs"),
+    useSnapshot("deps"),
+    useSnapshot("metrics"),
+]);
+const { data: issues } = await useIssues();
+const { data: reviews } = await useReviewPages();
+
+const open = computed(() => issues.value.issues.length);
+const issuesRead = computed(() =>
+    issues.value.fetchedAt ? `read ${relativeTime(issues.value.fetchedAt)}` : "reading…",
+);
+const recentReviews = computed(() => reviews.value.slice(0, 5));
+
+const coverage = computed(() => coverageSnapshot.value?.coverage?.totals?.lines ?? null);
+const coverageTileTone = computed(() => coverageTone(coverage.value));
+const projectNodes = computed(() => projectsSnapshot.value?.projects?.projects ?? []);
+const projects = computed(() => projectNodes.value.length);
+const docs = computed(() => docsSnapshot.value?.docs ?? null);
+
+const { data: readmes } = await useAsyncData("overview-readmes", () =>
+    queryCollection("docs").select("path", "title", "description").all(),
+);
+
+const readmeByPath = computed(
+    () => new Map((readmes.value ?? []).map((page) => [page.path, page])),
+);
+const repositoryReadme = computed(() => readmeByPath.value.get("/readme"));
+const featuredProjects = computed(() =>
+    projectNodes.value.filter((project) => project.root.startsWith("apps/")),
+);
+
+const readmeFor = (project: ProjectNode) =>
+    readmeByPath.value.get(`/${project.root.toLowerCase()}/readme`);
+
+const deps = computed(() => depsSnapshot.value?.deps ?? null);
+const advisories = computed(() => deps.value?.advisories.length ?? 0);
+
+/** The tile shows one number, so it takes the tone of the worst band rather than the total count. */
+const worstSeverity = computed(() => {
+    const counts = deps.value?.vulnerabilities;
+
+    if (!counts) return null;
+
+    return (
+        (["critical", "high", "moderate", "low", "info"] as const).find(
+            (severity) => counts[severity] > 0,
+        ) ?? null
+    );
+});
+
+const vulnerabilityTone = computed(() =>
+    worstSeverity.value ? severityTone(worstSeverity.value) : "neutral",
+);
+
+const findings = computed(() => metricsSnapshot.value?.metrics?.invariantFindings ?? []);
+
+/** Only the pages that actually have one — a list of every doc with zero broken links is a wall. */
+const broken = computed(
+    () => docs.value?.pages.filter((page) => page.brokenLinks.length > 0) ?? [],
+);
+
+const next = computed(() => sortIssues(issues.value.issues).slice(0, 6));
+</script>

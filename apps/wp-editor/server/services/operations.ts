@@ -1,12 +1,15 @@
 import { markersDiffer } from "../../shared/blockMarkers.ts";
 import {
     afterEdit,
+    appliedText,
     bulkApplyBlocker,
+    bulkRestoreBlocker,
     confirm,
     derivedStatus,
     driftRefusal,
     expectedModified,
     gateBlocker,
+    holdsText,
     isApplied,
     itemFingerprint,
     isPending,
@@ -288,22 +291,29 @@ const requireWritable = async (store: Store): Promise<void> => {
     }
 };
 
-/** Everything an apply checks before it writes, and the item it would write. */
+const LANDED = "Already live in WordPress, so it was recorded without writing again.";
+
+/**
+ * Everything an apply checks before it writes, and the item it would write. `landed` is the live
+ * timestamp when WordPress already holds the proposal, so the write must not be sent again.
+ */
 const checkApply = async (store: Store, wp: WordPress, id: string, key: ItemKey) => {
     const { type, id: postId } = keyOf(key);
     const item = await requireItem(store, id, key);
 
     if (!isPending(item)) throw new Refusal(`${key} has nothing to apply.`);
 
+    const pending = item as Item & { proposal: Proposal };
     const live = await wp.get(type, postId);
     const drift = driftRefusal(expectedModified(item), live.modified_gmt);
 
-    if (drift) {
-        await store.writeState(id, key, { ...item.state, drift: true });
-        throw new Refusal(drift);
+    if (!drift) return { item: pending, landed: null };
+    if (holdsText(toSnapshot(live), appliedText(pending))) {
+        return { item: pending, landed: live.modified_gmt };
     }
 
-    return item as Item & { proposal: Proposal };
+    await store.writeState(id, key, { ...item.state, drift: true });
+    throw new Refusal(drift);
 };
 
 const markerWarning = ({ base, proposal }: Item) =>
@@ -313,29 +323,38 @@ const markerWarning = ({ base, proposal }: Item) =>
 
 /** Runs every check an apply would and writes nothing to WordPress. */
 export const dryRunItem = async (store: Store, wp: WordPress, id: string, key: ItemKey) => {
-    const item = await checkApply(store, wp, id, key);
+    const { item, landed } = await checkApply(store, wp, id, key);
 
-    return { key, warning: markerWarning(item), fingerprint: itemFingerprint(item) };
+    return {
+        key,
+        warning: landed
+            ? "Already live in WordPress; Apply records it without writing again."
+            : markerWarning(item),
+        fingerprint: itemFingerprint(item),
+    };
 };
 
-export const applyItem = async (store: Store, wp: WordPress, id: string, key: ItemKey) => {
+const apply = async (store: Store, wp: WordPress, id: string, key: ItemKey) => {
     await requireWritable(store);
 
     const { type, id: postId } = keyOf(key);
-    const item = await checkApply(store, wp, id, key);
-    const written = await wp.update(type, postId, item.proposal);
+    const { item, landed } = await checkApply(store, wp, id, key);
+    const modifiedGmt = landed ?? (await wp.update(type, postId, item.proposal)).modified_gmt;
     const state: ItemState = {
         ...item.state,
         drift: undefined,
         restored: undefined,
-        applied: { at: now(), modifiedGmt: written.modified_gmt },
+        applied: { at: now(), modifiedGmt },
     };
 
     await store.writeState(id, key, state);
     await refreshStatus(store, id);
 
-    return state;
+    return { state, warning: landed ? LANDED : markerWarning(item) };
 };
+
+export const applyItem = async (store: Store, wp: WordPress, id: string, key: ItemKey) =>
+    (await apply(store, wp, id, key)).state;
 
 /** One article at a time, recording each outcome instead of stopping at the first failure. */
 const runEach = async (
@@ -445,11 +464,7 @@ export const bulkApply = async (
     const report = await runEach(
         "apply",
         items.filter(isPending),
-        async (item) => {
-            await applyItem(store, wp, id, item.key);
-
-            return markerWarning(item);
-        },
+        async ({ key }) => (await apply(store, wp, id, key)).warning,
         (partial) => store.writeRun(id, partial),
         pauseMs ?? settings.pauseMs,
     );
@@ -474,21 +489,53 @@ export const restoreItem = async (store: Store, wp: WordPress, id: string, key: 
         })),
     );
     const index = stack.findIndex(({ changeset }) => changeset.id === id);
+    const own = stack[index]?.item;
     const live = await wp.get(type, postId);
-    const blocker = restoreBlocker(stack, index, live.modified_gmt);
+    const landed = !!own && holdsText(toSnapshot(live), own.base);
+    const blocker = restoreBlocker(stack, index, live.modified_gmt, landed);
 
     if (blocker) throw new Refusal(blocker);
 
-    const { base, state } = stack[index]!.item!;
-    const written = await wp.update(type, postId, base);
+    const { base, state } = own!;
+    const modifiedGmt = landed
+        ? live.modified_gmt
+        : (await wp.update(type, postId, base)).modified_gmt;
     // Back in review, so sending it out again takes a fresh confirm.
-    const next: ItemState = {
-        ...state,
-        level: "seen",
-        restored: { at: now(), modifiedGmt: written.modified_gmt },
-    };
+    const next: ItemState = { ...state, level: "seen", restored: { at: now(), modifiedGmt } };
 
     await store.writeState(id, key, next);
 
     return next;
+};
+
+/** Restores every applied article, so a stopped run resumes with only the ones still live. */
+export const bulkRestore = async (
+    store: Store,
+    wp: WordPress,
+    id: string,
+    pauseMs?: number,
+): Promise<RunReport> => {
+    await requireChangeset(store, id);
+
+    const items = await store.readItems(id);
+    const settings = await store.readSettings();
+    const blocker = bulkRestoreBlocker(items, settings);
+
+    if (blocker) throw new Refusal(blocker);
+
+    const report = await runEach(
+        "restore",
+        items.filter(isApplied),
+        async ({ key }) => {
+            await restoreItem(store, wp, id, key);
+
+            return null;
+        },
+        (partial) => store.writeRun(id, partial),
+        pauseMs ?? settings.pauseMs,
+    );
+
+    await store.writeRun(id, report);
+
+    return report;
 };

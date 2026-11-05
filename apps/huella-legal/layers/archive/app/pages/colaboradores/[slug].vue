@@ -1,22 +1,3 @@
-<script setup lang="ts">
-definePageMeta({ name: "author", path: "/colaboradores/:slug/" });
-
-const route = useRoute("author");
-
-const { listing, status, sort, archiveTotal, pageLink } = await useArticleListing({
-    author: route.params.slug,
-});
-
-const profile = computed(() =>
-    listing.value?.scope?.kind === "author" ? listing.value.scope : undefined,
-);
-
-useSeoMeta({
-    title: () => profile.value?.author.name,
-    description: () => profile.value?.author.bio,
-});
-</script>
-
 <template>
     <div v-if="listing && profile">
         <BasePageIntro
@@ -45,3 +26,22 @@ useSeoMeta({
         <NewsletterBand />
     </div>
 </template>
+
+<script setup lang="ts">
+definePageMeta({ name: "author", path: "/colaboradores/:slug/" });
+
+const route = useRoute("author");
+
+const { listing, status, sort, archiveTotal, pageLink } = await useArticleListing({
+    author: route.params.slug,
+});
+
+const profile = computed(() =>
+    listing.value?.scope?.kind === "author" ? listing.value.scope : undefined,
+);
+
+useSeoMeta({
+    title: () => profile.value?.author.name,
+    description: () => profile.value?.author.bio,
+});
+</script>

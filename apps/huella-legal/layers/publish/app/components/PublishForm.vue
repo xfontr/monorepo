@@ -1,56 +1,3 @@
-<script setup lang="ts">
-import { useFormSubmission } from "#layers/forms/app/composables/useFormSubmission";
-import type { Form, SelectItem } from "@nuxt/ui";
-import {
-    MANUSCRIPT_TYPES,
-    SUBMISSION_KINDS,
-    type Submission,
-    type SubmissionIssue,
-    submissionSchema,
-} from "../../shared/schemas/submission";
-import { useSubmission } from "../composables/useSubmission";
-
-const { t } = useI18n();
-const { nav } = useAppConfig();
-const { status, errors, send } = useSubmission();
-
-const issueMessage = (issue: SubmissionIssue): string => t(`publishForm.errors.${issue}`);
-const schema = submissionSchema(issueMessage);
-
-const ACCEPT = MANUSCRIPT_TYPES.join(",");
-
-const kinds = computed<SelectItem[]>(() =>
-    SUBMISSION_KINDS.map((kind) => ({ value: kind, label: t(`publishForm.kind.items.${kind}`) })),
-);
-
-const state = reactive<Omit<Submission, "file"> & { file: File | null }>({
-    name: "",
-    email: "",
-    kind: "article",
-    title: "",
-    summary: "",
-    file: null,
-    consent: false,
-});
-
-const form = useTemplateRef<Form<typeof schema>>("form");
-
-const { honeypot, submitting, validateOn, summaryErrors, submit, onError } = useFormSubmission(
-    form,
-    {
-        status,
-        errors,
-        send,
-        message: issueMessage,
-        label: (field) => t(`publishForm.${field}.name`),
-    },
-);
-
-// The schema keeps only the file's name and size, and `state.file` is a proxy FormData refuses
-const onSubmit = (data: Submission, challenge: Challenge) =>
-    submit({ ...data, file: toRaw(state.file) }, challenge);
-</script>
-
 <template>
     <FormSuccessPanel v-if="status === 'success'" :title="$t('publishForm.success.title')">
         {{ $t("publishForm.success.description") }}
@@ -150,3 +97,56 @@ const onSubmit = (data: Submission, challenge: Challenge) =>
         </UForm>
     </FormChallenge>
 </template>
+
+<script setup lang="ts">
+import { useFormSubmission } from "#layers/forms/app/composables/useFormSubmission";
+import type { Form, SelectItem } from "@nuxt/ui";
+import {
+    MANUSCRIPT_TYPES,
+    SUBMISSION_KINDS,
+    type Submission,
+    type SubmissionIssue,
+    submissionSchema,
+} from "../../shared/schemas/submission";
+import { useSubmission } from "../composables/useSubmission";
+
+const { t } = useI18n();
+const { nav } = useAppConfig();
+const { status, errors, send } = useSubmission();
+
+const issueMessage = (issue: SubmissionIssue): string => t(`publishForm.errors.${issue}`);
+const schema = submissionSchema(issueMessage);
+
+const ACCEPT = MANUSCRIPT_TYPES.join(",");
+
+const kinds = computed<SelectItem[]>(() =>
+    SUBMISSION_KINDS.map((kind) => ({ value: kind, label: t(`publishForm.kind.items.${kind}`) })),
+);
+
+const state = reactive<Omit<Submission, "file"> & { file: File | null }>({
+    name: "",
+    email: "",
+    kind: "article",
+    title: "",
+    summary: "",
+    file: null,
+    consent: false,
+});
+
+const form = useTemplateRef<Form<typeof schema>>("form");
+
+const { honeypot, submitting, validateOn, summaryErrors, submit, onError } = useFormSubmission(
+    form,
+    {
+        status,
+        errors,
+        send,
+        message: issueMessage,
+        label: (field) => t(`publishForm.${field}.name`),
+    },
+);
+
+// The schema keeps only the file's name and size, and `state.file` is a proxy FormData refuses
+const onSubmit = (data: Submission, challenge: Challenge) =>
+    submit({ ...data, file: toRaw(state.file) }, challenge);
+</script>

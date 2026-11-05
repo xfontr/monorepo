@@ -1,61 +1,3 @@
-<script setup lang="ts">
-import type { BreadcrumbItem } from "@nuxt/ui";
-import { locate, toCollectionPath } from "#shared/wiki.ts";
-
-const route = useRoute();
-
-const { data: snapshot } = await useSnapshot("docs");
-const { data: sections } = await useWiki();
-
-const path = computed(() =>
-    `/${((route.params.slug as string[] | undefined) ?? []).join("/")}`.toLowerCase(),
-);
-
-const { data: page } = await useAsyncData(
-    () => `doc-${path.value}`,
-    () => queryCollection("docs").path(path.value).first(),
-    { watch: [path] },
-);
-
-const here = computed(() => locate(sections.value, path.value));
-
-const crumbs = computed<BreadcrumbItem[]>(() => [
-    { label: "Wiki", to: "/docs", icon: "i-lucide-library" },
-    ...(here.value
-        ? [
-              { label: here.value.section.label, icon: here.value.section.icon },
-              { label: here.value.group.label, class: "font-mono" },
-              { label: here.value.entry.label },
-          ]
-        : []),
-]);
-
-/**
- * Neighbours within the group rather than the collection's alphabetical order: `packages/i18n`'s
- * README and `packages/observability`'s CLAUDE.md are adjacent on disk and unrelated to read.
- */
-const around = computed(() => {
-    const entries = here.value?.group.entries ?? [];
-    const index = entries.findIndex((entry) => entry.path === path.value);
-
-    return {
-        previous: index > 0 ? entries[index - 1] : null,
-        next: index === -1 ? null : (entries[index + 1] ?? null),
-    };
-});
-
-const meta = computed(
-    () =>
-        snapshot.value?.docs?.pages.find((doc) => toCollectionPath(doc.path) === path.value) ??
-        null,
-);
-const updated = computed(() => relativeTime(meta.value?.updatedAt));
-const source = computed(() => meta.value?.path ?? `${path.value.slice(1)}.md`);
-const brokenLinks = computed(
-    () => meta.value?.brokenLinks.map((link) => link.href).join(", ") ?? "",
-);
-</script>
-
 <template>
     <UDashboardPanel id="doc">
         <template #header>
@@ -153,3 +95,61 @@ const brokenLinks = computed(
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+import type { BreadcrumbItem } from "@nuxt/ui";
+import { locate, toCollectionPath } from "#shared/wiki.ts";
+
+const route = useRoute();
+
+const { data: snapshot } = await useSnapshot("docs");
+const { data: sections } = await useWiki();
+
+const path = computed(() =>
+    `/${((route.params.slug as string[] | undefined) ?? []).join("/")}`.toLowerCase(),
+);
+
+const { data: page } = await useAsyncData(
+    () => `doc-${path.value}`,
+    () => queryCollection("docs").path(path.value).first(),
+    { watch: [path] },
+);
+
+const here = computed(() => locate(sections.value, path.value));
+
+const crumbs = computed<BreadcrumbItem[]>(() => [
+    { label: "Wiki", to: "/docs", icon: "i-lucide-library" },
+    ...(here.value
+        ? [
+              { label: here.value.section.label, icon: here.value.section.icon },
+              { label: here.value.group.label, class: "font-mono" },
+              { label: here.value.entry.label },
+          ]
+        : []),
+]);
+
+/**
+ * Neighbours within the group rather than the collection's alphabetical order: `packages/i18n`'s
+ * README and `packages/observability`'s CLAUDE.md are adjacent on disk and unrelated to read.
+ */
+const around = computed(() => {
+    const entries = here.value?.group.entries ?? [];
+    const index = entries.findIndex((entry) => entry.path === path.value);
+
+    return {
+        previous: index > 0 ? entries[index - 1] : null,
+        next: index === -1 ? null : (entries[index + 1] ?? null),
+    };
+});
+
+const meta = computed(
+    () =>
+        snapshot.value?.docs?.pages.find((doc) => toCollectionPath(doc.path) === path.value) ??
+        null,
+);
+const updated = computed(() => relativeTime(meta.value?.updatedAt));
+const source = computed(() => meta.value?.path ?? `${path.value.slice(1)}.md`);
+const brokenLinks = computed(
+    () => meta.value?.brokenLinks.map((link) => link.href).join(", ") ?? "",
+);
+</script>

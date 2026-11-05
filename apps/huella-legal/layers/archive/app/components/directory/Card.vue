@@ -1,14 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    author: Author;
-    count: number;
-}
-
-const props = defineProps<Props>();
-
-const authorInitials = computed<string>(() => initials(props.author.name));
-</script>
-
 <template>
     <UPageCard
         variant="outline"
@@ -46,3 +35,14 @@ const authorInitials = computed<string>(() => initials(props.author.name));
         </template>
     </UPageCard>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    author: Author;
+    count: number;
+}
+
+const props = defineProps<Props>();
+
+const authorInitials = computed<string>(() => initials(props.author.name));
+</script>

@@ -1,13 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    topics: Facet<Category>[];
-}
-
-const props = defineProps<Props>();
-
-const letters = computed(() => groupByLetter(props.topics, ({ value }) => value.name));
-</script>
-
 <template>
     <section aria-labelledby="temas">
         <h2 id="temas" class="scroll-mt-6 text-kicker text-muted">
@@ -55,3 +45,13 @@ const letters = computed(() => groupByLetter(props.topics, ({ value }) => value.
         </div>
     </section>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    topics: Facet<Category>[];
+}
+
+const props = defineProps<Props>();
+
+const letters = computed(() => groupByLetter(props.topics, ({ value }) => value.name));
+</script>

@@ -1,11 +1,3 @@
-<script setup lang="ts">
-const REASONS = [
-    { key: "visibility", icon: "i-lucide-eye" },
-    { key: "review", icon: "i-lucide-scale" },
-    { key: "free", icon: "i-lucide-badge-check" },
-] as const;
-</script>
-
 <template>
     <ul class="flex flex-col divide-y divide-(--ui-border-muted) border-t border-default">
         <UPageFeature
@@ -23,3 +15,11 @@ const REASONS = [
         />
     </ul>
 </template>
+
+<script setup lang="ts">
+const REASONS = [
+    { key: "visibility", icon: "i-lucide-eye" },
+    { key: "review", icon: "i-lucide-scale" },
+    { key: "free", icon: "i-lucide-badge-check" },
+] as const;
+</script>

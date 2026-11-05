@@ -1,14 +1,3 @@
-<script setup lang="ts">
-const { data: snapshot } = await useSnapshot("coverage");
-
-const coverage = computed(() => snapshot.value?.coverage ?? null);
-const projects = computed(() => coverage.value?.projects ?? []);
-
-const metrics = ["lines", "statements", "functions", "branches"] as const;
-
-const coverageEmbed = embedUrl("/embed/coverage/index.html");
-</script>
-
 <template>
     <UDashboardPanel id="coverage">
         <template #header>
@@ -146,3 +135,14 @@ const coverageEmbed = embedUrl("/embed/coverage/index.html");
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+const { data: snapshot } = await useSnapshot("coverage");
+
+const coverage = computed(() => snapshot.value?.coverage ?? null);
+const projects = computed(() => coverage.value?.projects ?? []);
+
+const metrics = ["lines", "statements", "functions", "branches"] as const;
+
+const coverageEmbed = embedUrl("/embed/coverage/index.html");
+</script>

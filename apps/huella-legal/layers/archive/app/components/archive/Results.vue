@@ -1,27 +1,3 @@
-<script setup lang="ts">
-import type { RouteLocationRaw } from "vue-router";
-import type { FilterPill } from "~/components/listing/FilterPills.vue";
-
-interface Props {
-    listing: ArticleListing;
-    to: (page: number) => RouteLocationRaw;
-    formatPills?: FilterPill[];
-    heading?: string;
-    pending?: boolean;
-    emptySubject?: string;
-    query?: string;
-}
-
-withDefaults(defineProps<Props>(), {
-    formatPills: () => [],
-    pending: false,
-});
-
-const sort = defineModel<"newest" | "oldest">("sort", { required: true });
-
-const headingId = useId();
-</script>
-
 <template>
     <section :aria-labelledby="headingId" :aria-busy="pending" class="min-w-0">
         <ListingFilterPills
@@ -82,3 +58,27 @@ const headingId = useId();
         />
     </section>
 </template>
+
+<script setup lang="ts">
+import type { RouteLocationRaw } from "vue-router";
+import type { FilterPill } from "~/components/listing/FilterPills.vue";
+
+interface Props {
+    listing: ArticleListing;
+    to: (page: number) => RouteLocationRaw;
+    formatPills?: FilterPill[];
+    heading?: string;
+    pending?: boolean;
+    emptySubject?: string;
+    query?: string;
+}
+
+withDefaults(defineProps<Props>(), {
+    formatPills: () => [],
+    pending: false,
+});
+
+const sort = defineModel<"newest" | "oldest">("sort", { required: true });
+
+const headingId = useId();
+</script>

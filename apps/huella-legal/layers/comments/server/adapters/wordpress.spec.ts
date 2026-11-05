@@ -15,6 +15,8 @@ vi.stubGlobal("createError", (input: Record<string, unknown>) =>
 
 const { createComment } = await import("./wordpress");
 
+const EVENT = { context: {} } as never;
+
 const COMMENT = {
     post: "42",
     parent: "0",
@@ -38,7 +40,7 @@ beforeEach(() => {
 
 describe("createComment", () => {
     it("posts to WordPress authenticated with the application password", async () => {
-        await createComment({} as never, COMMENT);
+        await createComment(EVENT, COMMENT);
 
         expect(call()?.[0]).toBe("/wp-json/wp/v2/comments");
         expect(call()?.[1]).toMatchObject({
@@ -49,7 +51,7 @@ describe("createComment", () => {
     });
 
     it("files the comment as the reader, held for moderation, with ids as WordPress's numbers", async () => {
-        await createComment({} as never, { ...COMMENT, parent: "9" });
+        await createComment(EVENT, { ...COMMENT, parent: "9" });
 
         expect(body()).toMatchObject({
             post: 42,
@@ -61,15 +63,27 @@ describe("createComment", () => {
     });
 
     it("passes the reader's address and browser on, so Akismet never judges this server", async () => {
-        await createComment({} as never, COMMENT);
+        await createComment(EVENT, COMMENT);
 
-        expect(nitro.ip).toHaveBeenCalledWith({}, { xForwardedFor: true });
+        expect(nitro.ip).toHaveBeenCalledWith(EVENT, { xForwardedFor: true });
         expect(body()).toMatchObject({ author_ip: "203.0.113.9", author_user_agent: "Firefox" });
+    });
+
+    it("takes the reader's address from Cloudflare's header on Workers, so Akismet never sees none", async () => {
+        const event = { context: { cloudflare: {} } } as never;
+        nitro.header.mockImplementation((_, name: string) =>
+            name === "cf-connecting-ip" ? "198.51.100.4" : "Firefox",
+        );
+
+        await createComment(event, COMMENT);
+
+        expect(nitro.ip).not.toHaveBeenCalled();
+        expect(body()).toMatchObject({ author_ip: "198.51.100.4" });
     });
 
     // An authenticated editor's comment skips kses, and wp-admin's queue would render the markup
     it("sends a reader's markup as text, never as HTML", async () => {
-        await createComment({} as never, {
+        await createComment(EVENT, {
             ...COMMENT,
             name: "<b>Lucía</b>",
             content: "<script>alert(1)</script> & más",
@@ -88,7 +102,7 @@ describe("createComment", () => {
     ])("answers WordPress's %s with a %s the reader can act on", async (code, statusCode) => {
         nitro.fetch.mockRejectedValue(refused(code));
 
-        await expect(createComment({} as never, COMMENT)).rejects.toMatchObject({ statusCode });
+        await expect(createComment(EVENT, COMMENT)).rejects.toMatchObject({ statusCode });
     });
 
     it.each([
@@ -97,7 +111,7 @@ describe("createComment", () => {
     ])("answers 502 on %s, keeping the cause", async (_, cause) => {
         nitro.fetch.mockRejectedValue(cause);
 
-        await expect(createComment({} as never, COMMENT)).rejects.toMatchObject({
+        await expect(createComment(EVENT, COMMENT)).rejects.toMatchObject({
             statusCode: 502,
             cause,
         });

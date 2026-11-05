@@ -1,41 +1,3 @@
-<script setup lang="ts">
-import { filterIssues, labelsOf, sortIssues } from "#shared/issues.ts";
-
-// Not awaited: `await` resolves to the plain `useFetch` state and would drop `reload` with it.
-// Nuxt settles the request before it serialises the payload either way.
-const { data: issues, reload } = useIssues();
-
-const label = ref<string>("all");
-const search = ref("");
-
-const all = computed(() => issues.value.issues);
-const read = computed(() =>
-    issues.value.fetchedAt ? `read ${relativeTime(issues.value.fetchedAt)}` : "not read yet",
-);
-
-const visible = computed(() =>
-    sortIssues(
-        filterIssues(all.value, {
-            label: label.value,
-            search: search.value,
-        }),
-    ),
-);
-
-const labelItems = computed(() => [
-    { label: "Every label", value: "all" },
-    ...labelsOf(all.value).map((name) => ({ label: name, value: name })),
-]);
-
-const reloading = ref(false);
-
-const refresh = async (): Promise<void> => {
-    reloading.value = true;
-    await reload();
-    reloading.value = false;
-};
-</script>
-
 <template>
     <UDashboardPanel id="issues">
         <template #header>
@@ -140,3 +102,41 @@ const refresh = async (): Promise<void> => {
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+import { filterIssues, labelsOf, sortIssues } from "#shared/issues.ts";
+
+// Not awaited: `await` resolves to the plain `useFetch` state and would drop `reload` with it.
+// Nuxt settles the request before it serialises the payload either way.
+const { data: issues, reload } = useIssues();
+
+const label = ref<string>("all");
+const search = ref("");
+
+const all = computed(() => issues.value.issues);
+const read = computed(() =>
+    issues.value.fetchedAt ? `read ${relativeTime(issues.value.fetchedAt)}` : "not read yet",
+);
+
+const visible = computed(() =>
+    sortIssues(
+        filterIssues(all.value, {
+            label: label.value,
+            search: search.value,
+        }),
+    ),
+);
+
+const labelItems = computed(() => [
+    { label: "Every label", value: "all" },
+    ...labelsOf(all.value).map((name) => ({ label: name, value: name })),
+]);
+
+const reloading = ref(false);
+
+const refresh = async (): Promise<void> => {
+    reloading.value = true;
+    await reload();
+    reloading.value = false;
+};
+</script>

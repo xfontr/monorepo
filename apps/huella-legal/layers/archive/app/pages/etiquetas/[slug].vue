@@ -1,19 +1,3 @@
-<script setup lang="ts">
-definePageMeta({ name: "tag", path: "/etiquetas/:slug/" });
-
-const route = useRoute("tag");
-
-const { listing, status, sort, archiveTotal, pageLink } = await useArticleListing({
-    tag: route.params.slug,
-});
-
-const term = computed(() =>
-    listing.value?.scope?.kind === "tag" ? listing.value.scope.term : undefined,
-);
-
-useSeoMeta({ title: () => term.value?.name, description: () => term.value?.description });
-</script>
-
 <template>
     <div v-if="listing && term">
         <BasePageIntro
@@ -47,3 +31,19 @@ useSeoMeta({ title: () => term.value?.name, description: () => term.value?.descr
         <NewsletterBand />
     </div>
 </template>
+
+<script setup lang="ts">
+definePageMeta({ name: "tag", path: "/etiquetas/:slug/" });
+
+const route = useRoute("tag");
+
+const { listing, status, sort, archiveTotal, pageLink } = await useArticleListing({
+    tag: route.params.slug,
+});
+
+const term = computed(() =>
+    listing.value?.scope?.kind === "tag" ? listing.value.scope.term : undefined,
+);
+
+useSeoMeta({ title: () => term.value?.name, description: () => term.value?.description });
+</script>

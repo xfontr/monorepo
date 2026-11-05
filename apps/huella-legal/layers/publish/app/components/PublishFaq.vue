@@ -1,3 +1,21 @@
+<template>
+    <section :aria-labelledby="headingId" class="border-t-2 border-huella-slate-900 pt-4">
+        <h2 :id="headingId" class="font-serif text-h3 text-highlighted">
+            {{ $t("publish.faq.title") }}
+        </h2>
+        <UAccordion :items :default-value="QUESTIONS[0]" :unmount-on-hide="false" class="mt-2" />
+        <UButton
+            variant="link"
+            color="neutral"
+            :label="$t('publish.faq.guide')"
+            icon="i-lucide-file-text"
+            trailing-icon="i-lucide-arrow-right"
+            :to="nav.publishGuide"
+            class="mt-2 -ml-3"
+        />
+    </section>
+</template>
+
 <script setup lang="ts">
 import type { AccordionItem } from "@nuxt/ui";
 
@@ -16,21 +34,3 @@ const items = computed<AccordionItem[]>(() =>
     })),
 );
 </script>
-
-<template>
-    <section :aria-labelledby="headingId" class="border-t-2 border-huella-slate-900 pt-4">
-        <h2 :id="headingId" class="font-serif text-h3 text-highlighted">
-            {{ $t("publish.faq.title") }}
-        </h2>
-        <UAccordion :items :default-value="QUESTIONS[0]" :unmount-on-hide="false" class="mt-2" />
-        <UButton
-            variant="link"
-            color="neutral"
-            :label="$t('publish.faq.guide')"
-            icon="i-lucide-file-text"
-            trailing-icon="i-lucide-arrow-right"
-            :to="nav.publishGuide"
-            class="mt-2 -ml-3"
-        />
-    </section>
-</template>

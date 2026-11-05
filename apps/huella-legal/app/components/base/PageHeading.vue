@@ -1,13 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    kicker: string;
-    title: string;
-    lead?: string;
-}
-
-defineProps<Props>();
-</script>
-
 <template>
     <div>
         <BaseKicker>{{ kicker }}</BaseKicker>
@@ -21,3 +11,13 @@ defineProps<Props>();
         </p>
     </div>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    kicker: string;
+    title: string;
+    lead?: string;
+}
+
+defineProps<Props>();
+</script>

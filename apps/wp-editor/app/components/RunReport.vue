@@ -1,31 +1,3 @@
-<script setup lang="ts">
-import type { BadgeProps } from "@nuxt/ui";
-import type { ItemKey, RunReport } from "#shared/types.ts";
-
-interface Props {
-    report: RunReport;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<{ select: [key: ItemKey] }>();
-
-const heading = computed(
-    () => `${runLabel(props.report)} · ${new Date(props.report.at).toLocaleString()}`,
-);
-
-const sections = computed(() => {
-    const { kind, ok, refused, failed, warnings } = props.report;
-    const okLabel = kind === "apply" ? "Applied" : "Would apply";
-
-    return [
-        { label: "Failed", color: "error", entries: failed },
-        { label: "Refused", color: "warning", entries: refused },
-        { label: "Warnings", color: "info", entries: warnings },
-        { label: okLabel, color: "success", entries: ok.map((key) => ({ key, reason: "" })) },
-    ] satisfies { label: string; color: BadgeProps["color"]; entries: unknown[] }[];
-});
-</script>
-
 <template>
     <div class="flex flex-col gap-4">
         <p class="text-sm text-muted">{{ heading }}</p>
@@ -46,7 +18,7 @@ const sections = computed(() => {
             variant="subtle"
             icon="i-lucide-octagon-x"
             title="Stopped early"
-            :description="`${report.stopped} Run it again once WordPress answers; only pending articles are retried.`"
+            :description="`${report.stopped} Run it again once WordPress answers; only ${RUN_LABELS[report.kind].retried} articles are retried.`"
         />
 
         <UAlert
@@ -90,3 +62,31 @@ const sections = computed(() => {
         </template>
     </div>
 </template>
+
+<script setup lang="ts">
+import type { BadgeProps } from "@nuxt/ui";
+import type { ItemKey, RunReport } from "#shared/types.ts";
+
+interface Props {
+    report: RunReport;
+}
+
+const props = defineProps<Props>();
+const emit = defineEmits<{ select: [key: ItemKey] }>();
+
+const heading = computed(
+    () => `${runLabel(props.report)} · ${new Date(props.report.at).toLocaleString()}`,
+);
+
+const sections = computed(() => {
+    const { kind, ok, refused, failed, warnings } = props.report;
+    const okLabel = RUN_LABELS[kind].ok;
+
+    return [
+        { label: "Failed", color: "error", entries: failed },
+        { label: "Refused", color: "warning", entries: refused },
+        { label: "Warnings", color: "info", entries: warnings },
+        { label: okLabel, color: "success", entries: ok.map((key) => ({ key, reason: "" })) },
+    ] satisfies { label: string; color: BadgeProps["color"]; entries: unknown[] }[];
+});
+</script>

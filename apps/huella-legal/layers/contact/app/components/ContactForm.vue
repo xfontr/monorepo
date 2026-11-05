@@ -1,32 +1,3 @@
-<script setup lang="ts">
-import { useFormSubmission } from "#layers/forms/app/composables/useFormSubmission";
-import type { Form } from "@nuxt/ui";
-import { type Contact, type ContactIssue, contactSchema } from "../../shared/schemas/contact";
-import { useContact } from "../composables/useContact";
-
-const { t } = useI18n();
-const { nav } = useAppConfig();
-const { status, errors, send } = useContact();
-
-const issueMessage = (issue: ContactIssue): string => t(`contactForm.errors.${issue}`);
-const schema = contactSchema(issueMessage);
-
-const state = reactive<Contact>({ name: "", email: "", message: "", consent: false });
-
-const form = useTemplateRef<Form<typeof schema>>("form");
-
-const { honeypot, submitting, validateOn, summaryErrors, submit, onError } = useFormSubmission(
-    form,
-    {
-        status,
-        errors,
-        send,
-        message: issueMessage,
-        label: (field) => t(`contactForm.${field}.name`),
-    },
-);
-</script>
-
 <template>
     <FormSuccessPanel v-if="status === 'success'" :title="$t('contactForm.success.title')">
         {{ $t("contactForm.success.description") }}
@@ -100,3 +71,32 @@ const { honeypot, submitting, validateOn, summaryErrors, submit, onError } = use
         </UForm>
     </FormChallenge>
 </template>
+
+<script setup lang="ts">
+import { useFormSubmission } from "#layers/forms/app/composables/useFormSubmission";
+import type { Form } from "@nuxt/ui";
+import { type Contact, type ContactIssue, contactSchema } from "../../shared/schemas/contact";
+import { useContact } from "../composables/useContact";
+
+const { t } = useI18n();
+const { nav } = useAppConfig();
+const { status, errors, send } = useContact();
+
+const issueMessage = (issue: ContactIssue): string => t(`contactForm.errors.${issue}`);
+const schema = contactSchema(issueMessage);
+
+const state = reactive<Contact>({ name: "", email: "", message: "", consent: false });
+
+const form = useTemplateRef<Form<typeof schema>>("form");
+
+const { honeypot, submitting, validateOn, summaryErrors, submit, onError } = useFormSubmission(
+    form,
+    {
+        status,
+        errors,
+        send,
+        message: issueMessage,
+        label: (field) => t(`contactForm.${field}.name`),
+    },
+);
+</script>

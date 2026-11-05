@@ -1,3 +1,29 @@
+<template>
+    <section
+        :id="NEWSLETTER_ID"
+        :aria-labelledby="titleId"
+        class="scroll-mt-(--ui-header-height)"
+        :class="ui.root"
+    >
+        <UContainer class="grid gap-12 py-16 lg:grid-cols-12 lg:items-center lg:gap-12 lg:py-20">
+            <div class="lg:col-span-6">
+                <BaseKicker :tone>
+                    {{ $t("newsletterBand.kicker") }}
+                </BaseKicker>
+                <h2
+                    :id="titleId"
+                    class="mt-2 font-serif text-section text-balance md:text-h2"
+                    :class="ui.title"
+                >
+                    {{ $t("newsletterBand.title") }}
+                </h2>
+            </div>
+
+            <NewsletterForm layout="inline" :tone class="lg:col-span-6" />
+        </UContainer>
+    </section>
+</template>
+
 <script setup lang="ts">
 import type { Tone } from "~/types/Tone";
 import { NEWSLETTER_ID } from "../composables/useNewsletterJump";
@@ -28,29 +54,3 @@ const TONES = {
 const ui = computed<Recipe>(() => TONES[props.tone]);
 const titleId = useId();
 </script>
-
-<template>
-    <section
-        :id="NEWSLETTER_ID"
-        :aria-labelledby="titleId"
-        class="scroll-mt-(--ui-header-height)"
-        :class="ui.root"
-    >
-        <UContainer class="grid gap-12 py-16 lg:grid-cols-12 lg:items-center lg:gap-12 lg:py-20">
-            <div class="lg:col-span-6">
-                <BaseKicker :tone>
-                    {{ $t("newsletterBand.kicker") }}
-                </BaseKicker>
-                <h2
-                    :id="titleId"
-                    class="mt-2 font-serif text-section text-balance md:text-h2"
-                    :class="ui.title"
-                >
-                    {{ $t("newsletterBand.title") }}
-                </h2>
-            </div>
-
-            <NewsletterForm layout="inline" :tone class="lg:col-span-6" />
-        </UContainer>
-    </section>
-</template>

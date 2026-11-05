@@ -1,24 +1,3 @@
-<script setup lang="ts">
-import type { RouteLocationRaw } from "vue-router";
-
-interface Props {
-    lead: ArticleSummary;
-    latest: ArticleSummary[];
-}
-
-const props = defineProps<Props>();
-
-const latestId = useId();
-
-const articleLink = (slug: string): RouteLocationRaw => ({ name: "article", params: { slug } });
-
-const leadLink = computed<RouteLocationRaw>(() => articleLink(props.lead.slug));
-
-const authors = computed(() => bylineAuthors(props.lead.authors));
-
-const leadHeight = computed(() => coverHeight(props.lead.image?.width, 16 / 10));
-</script>
-
 <template>
     <UContainer
         as="section"
@@ -121,3 +100,24 @@ const leadHeight = computed(() => coverHeight(props.lead.image?.width, 16 / 10))
         </aside>
     </UContainer>
 </template>
+
+<script setup lang="ts">
+import type { RouteLocationRaw } from "vue-router";
+
+interface Props {
+    lead: ArticleSummary;
+    latest: ArticleSummary[];
+}
+
+const props = defineProps<Props>();
+
+const latestId = useId();
+
+const articleLink = (slug: string): RouteLocationRaw => ({ name: "article", params: { slug } });
+
+const leadLink = computed<RouteLocationRaw>(() => articleLink(props.lead.slug));
+
+const authors = computed(() => bylineAuthors(props.lead.authors));
+
+const leadHeight = computed(() => coverHeight(props.lead.image?.width, 16 / 10));
+</script>

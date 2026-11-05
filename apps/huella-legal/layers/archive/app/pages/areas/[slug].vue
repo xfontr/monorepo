@@ -1,22 +1,3 @@
-<script setup lang="ts">
-definePageMeta({ name: "category", path: "/areas/:slug/" });
-
-const route = useRoute("category");
-
-const { listing, status, sort, archiveTotal, pageLink } = await useArticleListing({
-    category: route.params.slug,
-});
-
-const term = computed(() =>
-    listing.value?.scope?.kind === "category" ? listing.value.scope.term : undefined,
-);
-
-// The card's lead runs the name mid-sentence
-const subject = computed(() => term.value?.name.toLocaleLowerCase("es"));
-
-useSeoMeta({ title: () => term.value?.name, description: () => term.value?.description });
-</script>
-
 <template>
     <div v-if="listing && term">
         <BasePageIntro
@@ -53,3 +34,22 @@ useSeoMeta({ title: () => term.value?.name, description: () => term.value?.descr
         </UContainer>
     </div>
 </template>
+
+<script setup lang="ts">
+definePageMeta({ name: "category", path: "/areas/:slug/" });
+
+const route = useRoute("category");
+
+const { listing, status, sort, archiveTotal, pageLink } = await useArticleListing({
+    category: route.params.slug,
+});
+
+const term = computed(() =>
+    listing.value?.scope?.kind === "category" ? listing.value.scope.term : undefined,
+);
+
+// The card's lead runs the name mid-sentence
+const subject = computed(() => term.value?.name.toLocaleLowerCase("es"));
+
+useSeoMeta({ title: () => term.value?.name, description: () => term.value?.description });
+</script>

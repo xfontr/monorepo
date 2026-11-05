@@ -1,30 +1,3 @@
-<script setup lang="ts">
-const route = useRoute();
-
-const { data: reviews } = await useReviewPages();
-
-/**
- * One route for the list and for a single review, because the list is short and the page is
- * useless without one open — but the id still lives in the URL, so a review can be linked to.
- */
-const selected = computed(() => {
-    const id = (route.params.id as string | undefined) ?? "";
-
-    return id.length > 0 ? `/docs/reviews/${id}` : (reviews.value[0]?.path ?? null);
-});
-
-const { data: page } = await useAsyncData(
-    () => `review-${selected.value ?? "none"}`,
-    () =>
-        selected.value === null
-            ? Promise.resolve(null)
-            : queryCollection("docs").path(selected.value).first(),
-    { watch: [selected] },
-);
-
-const idOf = (path: string): string => path.split("/").at(-1) ?? path;
-</script>
-
 <template>
     <UDashboardPanel id="reviews">
         <template #header>
@@ -121,3 +94,30 @@ const idOf = (path: string): string => path.split("/").at(-1) ?? path;
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+const route = useRoute();
+
+const { data: reviews } = await useReviewPages();
+
+/**
+ * One route for the list and for a single review, because the list is short and the page is
+ * useless without one open — but the id still lives in the URL, so a review can be linked to.
+ */
+const selected = computed(() => {
+    const id = (route.params.id as string | undefined) ?? "";
+
+    return id.length > 0 ? `/docs/reviews/${id}` : (reviews.value[0]?.path ?? null);
+});
+
+const { data: page } = await useAsyncData(
+    () => `review-${selected.value ?? "none"}`,
+    () =>
+        selected.value === null
+            ? Promise.resolve(null)
+            : queryCollection("docs").path(selected.value).first(),
+    { watch: [selected] },
+);
+
+const idOf = (path: string): string => path.split("/").at(-1) ?? path;
+</script>

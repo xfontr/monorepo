@@ -1,7 +1,3 @@
-<script setup lang="ts">
-import { es } from "@nuxt/ui/locale";
-</script>
-
 <template>
     <UApp :locale="es">
         <NuxtLoadingIndicator color="var(--ui-primary)" />
@@ -10,3 +6,7 @@ import { es } from "@nuxt/ui/locale";
         </NuxtLayout>
     </UApp>
 </template>
+
+<script setup lang="ts">
+import { es } from "@nuxt/ui/locale";
+</script>

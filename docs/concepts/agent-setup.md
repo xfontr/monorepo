@@ -1,7 +1,7 @@
 # 🤖 The agent setup as one inspectable system
 
 The repository's agent guidance is Claude Code's native layout: `CLAUDE.md` files for always-on
-guidance, fifteen skills under [`.claude/skills/`](../../.claude/skills/) for task-specific
+guidance, seventeen skills under [`.claude/skills/`](../../.claude/skills/) for task-specific
 procedures, and settings, hooks and subagents beside them under `.claude/`. Every one of them is
 tracked and edited in place.
 
@@ -82,6 +82,6 @@ unstarted. The pipeline's `git` and `gh` permissions live in each machine's
 | A second agent with a different discovery convention | Pick one editable tree and generate the other from it; two hand-kept copies drift |
 | A runtime hook another tool can run too | Move the check into a script both call; until then scripts and CI remain the shared authority |
 | Coverage that fails a PR | CI runs `test` without `--coverage`, so thresholds never gate a merge. A project built by `ship-issue` should put `--coverage` in its own `test` script, with thresholds in its `vitest.config.ts` |
-| Lint for what only `review-architecture` checks today | A scoped `no-restricted-imports` per project, like [`coreIsolation.ts`](../../packages/configs/src/eslint/lib/coreIsolation.ts). A second config setting that rule on `app/` or `server/` replaces [`layerIsolation.ts`](../../packages/configs/src/eslint/lib/layerIsolation.ts) rather than merging with it, so it needs a spec |
+| Lint for what only `review-architecture` checks today | A scoped `no-restricted-imports` per project, like [`coreIsolation.ts`](../../packages/configs/src/eslint/lib/coreIsolation.ts). A second config setting that rule on `app/` or `server/` replaces [`layerIsolation.ts`](../../packages/configs/src/eslint/lib/layerIsolation.ts) rather than merging with it, so it needs a case in [`index.spec.ts`](../../packages/configs/src/eslint/index.spec.ts) |
 | Tests that pass `review-tests` and are still weak | Mutation testing (Stryker) on a project's domain code, as a dependency check-in |
 | Proof that `guard-live.sh` fires inside workflow agents | Claude Code documents settings hooks applying inside subagents, not workflow agents specifically; the first `ship-issue` run should try a blocked command |

@@ -1,3 +1,20 @@
+<template>
+    <span class="inline-flex flex-col leading-none">
+        <span
+            class="font-serif tracking-[-0.01em] whitespace-nowrap"
+            :class="[SIZES[size], ui.name]"
+            >{{ $t("wordmark.lead") }}
+            <span class="italic" :class="ui.accent">{{ $t("wordmark.accent") }}</span></span
+        >
+        <span
+            v-if="tagline"
+            class="mt-1.5 font-sans text-[0.6875rem] font-semibold tracking-[0.16em] uppercase"
+            :class="ui.tagline"
+            >{{ $t("wordmark.tagline") }}</span
+        >
+    </span>
+</template>
+
 <script setup lang="ts">
 import type { Tone } from "~/types/Tone";
 
@@ -37,20 +54,3 @@ const TONES = {
 
 const ui = computed<Recipe>(() => TONES[props.tone]);
 </script>
-
-<template>
-    <span class="inline-flex flex-col leading-none">
-        <span
-            class="font-serif tracking-[-0.01em] whitespace-nowrap"
-            :class="[SIZES[size], ui.name]"
-            >{{ $t("wordmark.lead") }}
-            <span class="italic" :class="ui.accent">{{ $t("wordmark.accent") }}</span></span
-        >
-        <span
-            v-if="tagline"
-            class="mt-1.5 font-sans text-[0.6875rem] font-semibold tracking-[0.16em] uppercase"
-            :class="ui.tagline"
-            >{{ $t("wordmark.tagline") }}</span
-        >
-    </span>
-</template>

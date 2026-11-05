@@ -25,7 +25,7 @@ that files or merges an item.
 | WordPress is read-only to us: no new plugins, ACF fields, REST fields or webhooks. Installed ones, Yoast among them, are exposed | Whatever WP doesn't return is derived from post HTML or terms, or dropped |
 | [`useContent()`](../../packages/content/src/nuxt/runtime/server/utils/useContent.ts) is server-only and its vendor config is private, so every read goes through a layer's Nitro route ([0031](../decisions/0031-content-server-accessor.md)) | "No BFF" means rewriting the data layer to call WP from the browser, or a full static generate with no server for forms and search |
 | `Entry` has no authors, and nothing for issue, series, reading time, TOC, footnotes, bibliography or views | The content model has to be decided before cards, articles or listings (S1) |
-| The app runs SSR on Netlify's git integration with no preset, no `routeRules` and no Nitro storage | `defineCachedEventHandler` caches live in memory per function instance, so the content TTLs barely hold (S2) |
+| The app runs SSR with no preset, no `routeRules` and no Nitro storage | `defineCachedEventHandler` caches live in memory per function instance, so the content TTLs barely hold (S2) |
 | i18n is `defaultLocale: en-GB` with the default `prefix_except_default` strategy | Spanish pages would sit under `/es-ES/`. The site launches Spanish-only (A2) |
 | Tests are Vitest only. No Playwright, axe, visual regression or coverage threshold exists, and huella-legal has only the node preset | The harness comes first. [developer-portal's config](../../apps/developer-portal/vitest.config.ts) is the model to copy |
 | The live site is a WordPress theme served on the domain | Once Nuxt serves the domain, WP (API and admin) needs another hostname, which a WP admin has to change. Every indexed permalink must resolve or 301 (S4) |
@@ -114,8 +114,7 @@ Each spike ends in a report in [`docs/decisions/`](../decisions/), written with 
 
 ### S2 🎫 #186: Rendering, hosting and cost
 
-The choice is between three options:
-- Nitro on Netlify, SSR or hybrid with `routeRules` SWR/ISR
+The choice is between two options:
 - Nitro on Cloudflare Workers
 - a full static build, with third-party services for forms and search
 
@@ -133,8 +132,8 @@ Answer each question from the vendors' current pages, not from memory:
 - **Search in static mode.** WP's CORS headers already allow any origin, so search can run from
   the browser, bypassing the BFF's cache.
 
-The lean is to stay on Netlify with Nitro and hybrid `routeRules`. The content package, the forms
-and search all need a server, and read-only WP rules out WP-side form plugins.
+The content package, the forms and search all need a server, and read-only WP rules out WP-side
+form plugins.
 
 ### S3 🎫 #187: Forms and integrations
 

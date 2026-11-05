@@ -1,19 +1,3 @@
-<script setup lang="ts">
-import type { LinkAction } from "~/types/LinkAction";
-
-interface Props {
-    title: string;
-    kicker?: string;
-    action?: LinkAction;
-    id?: string;
-}
-
-const props = defineProps<Props>();
-
-const fallbackId = useId();
-const headingId = computed<string>(() => props.id ?? fallbackId);
-</script>
-
 <template>
     <div
         class="flex flex-col gap-2 border-t-2 border-huella-slate-900 pt-4 sm:flex-row sm:items-end sm:justify-between"
@@ -41,3 +25,19 @@ const headingId = computed<string>(() => props.id ?? fallbackId);
         />
     </div>
 </template>
+
+<script setup lang="ts">
+import type { LinkAction } from "~/types/LinkAction";
+
+interface Props {
+    title: string;
+    kicker?: string;
+    action?: LinkAction;
+    id?: string;
+}
+
+const props = defineProps<Props>();
+
+const fallbackId = useId();
+const headingId = computed<string>(() => props.id ?? fallbackId);
+</script>

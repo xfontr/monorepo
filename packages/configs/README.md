@@ -3,8 +3,8 @@
 Shared ESLint, Vitest, Playwright and TypeScript configuration for the workspace. It centralizes rules and
 presets so projects stay consistent without copying configuration.
 
-Only the ESLint half reaches all of them. This package has no `vitest.config.ts` at all, and two
-projects extend no tsconfig preset: `packages/ui` is a solution
+The ESLint and Vitest halves reach every project, this one included. Two projects extend no
+tsconfig preset: `packages/ui` is a solution
 file whose `tsconfig.app.json` extends `@vue/tsconfig`, and `apps/huella-legal` only references the four
 `.nuxt/tsconfig.*.json` Nuxt generates. Both are the framework's own layout rather than drift — but
 worth knowing, because a compiler option added here does not reach either one.
@@ -195,20 +195,18 @@ Node types even in a package that otherwise doesn't.
 - `no-restricted-imports` under Nuxt `app/` and `server/`, from
   [`lib/layerIsolation.ts`](./src/eslint/lib/layerIsolation.ts) — neither layer may import the
   Node-only `tools/` tree, keeping collection commands out of browser and server bundles
-- `no-restricted-syntax` under `**/*.ts` and `**/*.vue`, from
+- `monorepo/lookup-table-shape` under `**/*.ts` and `**/*.vue`, from
   [`lib/constTables.ts`](./src/eslint/lib/constTables.ts) — a module-scope lookup table keyed by a
   closed union is `UPPER_SNAKE = { … } as const satisfies Record<K, V>`, never annotated: the
   annotation widens the values and `Partial` makes every lookup `| undefined`. `Record<string, …>`
   and `Record<number, …>` are left alone, since those tables are indexed by keys nobody can list
-- `no-restricted-syntax` under `**/*.vue`, from [`lib/propsInterface.ts`](./src/eslint/lib/propsInterface.ts) — Vue
+- `monorepo/props-shape` under `**/*.vue`, from [`lib/propsInterface.ts`](./src/eslint/lib/propsInterface.ts) — Vue
   configs only. `defineProps` takes a type reference named `Props`, and `Props` is declared with
   `interface`. No plugin rule covers this; `vue/define-props-declaration` only picks type-based over
   runtime, and an inline literal satisfies it. Runtime `defineProps({…})` is left alone. An optional
   prop never defaults to `undefined`, in `withDefaults` or a destructure, because that is already its
-  value when omitted; `vue/require-default-prop` asked for exactly that, so it is off. Both sets of
-  selectors reach ESLint through [`lib/restrictedSyntax.ts`](./src/eslint/lib/restrictedSyntax.ts), the
-  rule's only config
-- `vue/no-restricted-syntax` under `**/*.vue`, from [`lib/templateI18n.ts`](./src/eslint/lib/templateI18n.ts) —
+  value when omitted; `vue/require-default-prop` asked for exactly that, so it is off
+- `monorepo/template-global-i18n` under `**/*.vue`, from [`lib/templateI18n.ts`](./src/eslint/lib/templateI18n.ts) —
   Vue configs only. A `<template>` translates with the global `$t` (and `$te`, `$tm`, `$rt`, `$d`,
   `$n`), never the `t` from `useI18n()`, so a template-only component needs no `useI18n()` call.
   `<script>` is untouched, since `useHead` and friends still need `t`. `$t` reads global messages
@@ -217,28 +215,37 @@ Node types even in a package that otherwise doesn't.
   Vue configs only. A template call that reads nothing but component state belongs in a `computed`,
   which caches it instead of re-running it on every render. Calls on a `$` global, inside a `v-on`
   handler, or reading a `v-for` or slot variable are allowed, since a `computed` cannot take the row
-  as an argument. Only the outermost offending call in an expression is reported. No plugin rule
-  covers this, and `vue/no-restricted-syntax` can't express the variable check, so it is a local
-  rule under an inline `monorepo` plugin.
+  as an argument. Only the outermost offending call in an expression is reported
 - `monorepo/require-route-meta`, from [`lib/routeMeta.ts`](./src/eslint/lib/routeMeta.ts) — in no
   factory; a project opts in with `[...eslint.createNuxtConfig(), eslint.routeMeta]`. Every file
   under `server/api/` or `server/routes/` calls `defineRouteMeta` at top level with an `openAPI`
   object literal holding `tags` and `summary`, since without one the route still appears in
   Nitro's OpenAPI document, untagged and undescribed. The call sits after the `export default`
   handler, so a route reads handler first. `apps/huella-legal` opts in
+- `monorepo/disable-needs-reason` and `reportUnusedDisableDirectives: "error"`, from
+  [`lib/disableReasons.ts`](./src/eslint/lib/disableReasons.ts) — every `eslint-disable` names the
+  rules it silences and ends in `-- <why>`, a block `eslint-disable` is closed with `eslint-enable`,
+  and a disable that no longer hides anything fails. `<template>` comments are checked too. A
+  blanket `/* eslint-disable */` silences this rule's own report, so review still has to catch one
 - `vue/v-bind-style` with `sameNameShorthand: "always"`, in [`vue.ts`](./src/eslint/vue.ts) — a binding whose
   name and value match is written `:id`, never `:id="id"`. `--fix` rewrites it
 - `vue/prefer-separate-static-class`, in [`vue.ts`](./src/eslint/vue.ts) — a class that never
   changes goes in the static `class` attribute, never as a string literal inside `:class`.
   Conditional expressions are left alone, and `--fix` moves the rest
+- `vue/block-order`, in [`vue.ts`](./src/eslint/vue.ts) — a `.vue` file is `<template>`, then
+  `<script>`, then `<style>`. `--fix` moves the blocks
 - `vue/define-macros-order`, in [`vue.ts`](./src/eslint/vue.ts) — `<script setup>` reads imports,
   then types, then `defineProps`, `defineEmits`, `defineModel` and `defineSlots` in that order,
   then everything else. Types are exempt from the ordering; by convention the helper types come first
   and `Props` sits last, just above `defineProps`. `--fix` moves the macros up
-- `@typescript-eslint/consistent-type-definitions: interface`, in [`node.ts`](./src/eslint/node.ts) and [`vue.ts`](./src/eslint/vue.ts) —
+- `@typescript-eslint/consistent-type-definitions: interface`, from [`lib/typeDefinitions.ts`](./src/eslint/lib/typeDefinitions.ts) —
   a plain object shape is an `interface`, never `type X = { … }`. Unions, intersections and mapped types stay
   `type`, and `--fix` rewrites the rest
 
-The shared pieces live in [`src/eslint/lib`](./src/eslint/lib) and are composed by
-[`node.ts`](./src/eslint/node.ts) and [`vue.ts`](./src/eslint/vue.ts). If you're adding a rule for
-everyone, it goes in `lib`; if it's for one flavour, it goes in the factory.
+The shared pieces live in [`src/eslint/lib`](./src/eslint/lib), whose `index.ts` lists them as
+`shared`, spread by [`node.ts`](./src/eslint/node.ts) and [`vue.ts`](./src/eslint/vue.ts), and
+`vueOnly`, spread by `vue.ts` alone. If you're adding a rule for everyone, it goes in `lib`; if it's
+for one flavour, it goes in the factory. Every `monorepo/*`
+rule lives in [`src/eslint/rules`](./src/eslint/rules) with a `RuleTester` spec beside it, because a
+second `no-restricted-syntax` config on the same files replaces the first one's selectors instead
+of adding to them. [`lib/README.md`](./src/eslint/lib/README.md) maps each file to its concern.

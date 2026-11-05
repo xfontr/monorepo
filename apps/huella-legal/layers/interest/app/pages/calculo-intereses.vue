@@ -1,17 +1,3 @@
-<script setup lang="ts">
-definePageMeta({ name: "interestCalculator", path: "/calculo-intereses/" });
-
-const { t } = useI18n();
-
-// The guide is the WordPress page's copy, so the calculator still renders when WordPress fails
-const { data: guide } = await useCachedFetch<Page>("/api/pages/calculo-intereses");
-
-useSeoMeta({
-    title: () => t("interestCalculator.title"),
-    description: () => t("interestCalculator.lead"),
-});
-</script>
-
 <template>
     <div>
         <BasePageIntro :breadcrumbs="[{ label: $t('interestCalculator.breadcrumb') }]">
@@ -32,3 +18,17 @@ useSeoMeta({
         </div>
     </div>
 </template>
+
+<script setup lang="ts">
+definePageMeta({ name: "interestCalculator", path: "/calculo-intereses/" });
+
+const { t } = useI18n();
+
+// The guide is the WordPress page's copy, so the calculator still renders when WordPress fails
+const { data: guide } = await useCachedFetch<Page>("/api/pages/calculo-intereses");
+
+useSeoMeta({
+    title: () => t("interestCalculator.title"),
+    description: () => t("interestCalculator.lead"),
+});
+</script>

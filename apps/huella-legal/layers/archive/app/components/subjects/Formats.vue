@@ -1,46 +1,3 @@
-<script setup lang="ts">
-import type { RouteLocationRaw } from "vue-router";
-import type { Tone } from "~/types/Tone";
-
-interface Props {
-    formats: Facet<ArticleSummary["format"]>[];
-}
-
-const props = defineProps<Props>();
-
-const TONES = {
-    paper: {
-        item: "bg-muted",
-        link: "hover:bg-default",
-        title: "text-highlighted decoration-huella-slate-300",
-        description: "text-toned",
-        kicker: "subjectsFormats.format",
-    },
-    slate: {
-        item: "bg-inverted",
-        link: "hover:bg-huella-slate-800",
-        title: "text-inverted",
-        description: "text-huella-slate-200",
-        kicker: "subjectsFormats.academic",
-    },
-} as const satisfies Record<Tone, Record<string, string>>;
-
-const items = computed(() =>
-    props.formats.map(({ value, count }) => {
-        const tone: Tone = value === "tfg-tfm" ? "slate" : "paper";
-
-        return {
-            value,
-            count,
-            tone,
-            key: FORMAT_KEYS[value],
-            classes: TONES[tone],
-            to: { name: "publications", query: { format: value } } satisfies RouteLocationRaw,
-        };
-    }),
-);
-</script>
-
 <template>
     <section aria-labelledby="formatos" class="border-y border-default bg-muted">
         <UContainer class="py-16 lg:py-20">
@@ -87,3 +44,46 @@ const items = computed(() =>
         </UContainer>
     </section>
 </template>
+
+<script setup lang="ts">
+import type { RouteLocationRaw } from "vue-router";
+import type { Tone } from "~/types/Tone";
+
+interface Props {
+    formats: Facet<ArticleSummary["format"]>[];
+}
+
+const props = defineProps<Props>();
+
+const TONES = {
+    paper: {
+        item: "bg-muted",
+        link: "hover:bg-default",
+        title: "text-highlighted decoration-huella-slate-300",
+        description: "text-toned",
+        kicker: "subjectsFormats.format",
+    },
+    slate: {
+        item: "bg-inverted",
+        link: "hover:bg-huella-slate-800",
+        title: "text-inverted",
+        description: "text-huella-slate-200",
+        kicker: "subjectsFormats.academic",
+    },
+} as const satisfies Record<Tone, Record<string, string>>;
+
+const items = computed(() =>
+    props.formats.map(({ value, count }) => {
+        const tone: Tone = value === "tfg-tfm" ? "slate" : "paper";
+
+        return {
+            value,
+            count,
+            tone,
+            key: FORMAT_KEYS[value],
+            classes: TONES[tone],
+            to: { name: "publications", query: { format: value } } satisfies RouteLocationRaw,
+        };
+    }),
+);
+</script>

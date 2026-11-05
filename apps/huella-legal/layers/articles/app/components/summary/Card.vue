@@ -1,3 +1,61 @@
+<template>
+    <!-- The title is the only link to the article and stretches over the card, so the other links sit above it -->
+    <article class="group relative flex flex-col" :class="[ui.gap, hasMedia && ui.layout]">
+        <div v-if="hasMedia" class="@container overflow-hidden rounded-xs" :class="ui.frame">
+            <!-- Decorative: the title beside it already names the article -->
+            <NuxtImg
+                v-if="article.image"
+                :src="article.image.url"
+                :width="article.image.width"
+                :height="imageHeight"
+                fit="cover"
+                :sizes="ui.sizes"
+                alt=""
+                :loading="ui.eager ? 'eager' : 'lazy'"
+                class="size-full object-cover"
+            />
+            <MediaFallback v-else />
+        </div>
+
+        <div class="flex min-w-0 flex-col" :class="[ui.gap, ui.body]">
+            <BaseKicker
+                v-if="article.category"
+                :to="{ name: 'category', params: { slug: article.category.slug } }"
+                class="relative z-10 self-start"
+            >
+                {{ article.category.name }}
+            </BaseKicker>
+
+            <h3 class="font-serif text-balance text-highlighted" :class="ui.title">
+                <ULink
+                    :to="{ name: 'article', params: { slug: article.slug } }"
+                    raw
+                    class="decoration-huella-slate-300 decoration-1 underline-offset-[0.2em] group-hover:underline after:absolute after:inset-0 focus-visible:rounded-xs focus-visible:outline-offset-4"
+                >
+                    {{ article.title }}
+                </ULink>
+            </h3>
+
+            <p
+                v-if="ui.excerpt && article.excerpt"
+                class="font-serif text-pretty text-toned"
+                :class="ui.excerpt"
+            >
+                {{ article.excerpt }}
+            </p>
+
+            <Byline
+                :authors
+                :published-at="article.publishedAt"
+                :reading-minutes="ui.readingTime ? article.readingMinutes : undefined"
+                :comments
+                class="[&_a]:relative [&_a]:z-10"
+                :class="ui.byline"
+            />
+        </div>
+    </article>
+</template>
+
 <script setup lang="ts">
 type Variant = "lead" | "standard" | "compact" | "media" | "row";
 
@@ -115,61 +173,3 @@ const comments = computed(() =>
         : undefined,
 );
 </script>
-
-<template>
-    <!-- The title is the only link to the article and stretches over the card, so the other links sit above it -->
-    <article class="group relative flex flex-col" :class="[ui.gap, hasMedia && ui.layout]">
-        <div v-if="hasMedia" class="@container overflow-hidden rounded-xs" :class="ui.frame">
-            <!-- Decorative: the title beside it already names the article -->
-            <NuxtImg
-                v-if="article.image"
-                :src="article.image.url"
-                :width="article.image.width"
-                :height="imageHeight"
-                fit="cover"
-                :sizes="ui.sizes"
-                alt=""
-                :loading="ui.eager ? 'eager' : 'lazy'"
-                class="size-full object-cover"
-            />
-            <MediaFallback v-else />
-        </div>
-
-        <div class="flex min-w-0 flex-col" :class="[ui.gap, ui.body]">
-            <BaseKicker
-                v-if="article.category"
-                :to="{ name: 'category', params: { slug: article.category.slug } }"
-                class="relative z-10 self-start"
-            >
-                {{ article.category.name }}
-            </BaseKicker>
-
-            <h3 class="font-serif text-balance text-highlighted" :class="ui.title">
-                <ULink
-                    :to="{ name: 'article', params: { slug: article.slug } }"
-                    raw
-                    class="decoration-huella-slate-300 decoration-1 underline-offset-[0.2em] group-hover:underline after:absolute after:inset-0 focus-visible:rounded-xs focus-visible:outline-offset-4"
-                >
-                    {{ article.title }}
-                </ULink>
-            </h3>
-
-            <p
-                v-if="ui.excerpt && article.excerpt"
-                class="font-serif text-pretty text-toned"
-                :class="ui.excerpt"
-            >
-                {{ article.excerpt }}
-            </p>
-
-            <Byline
-                :authors
-                :published-at="article.publishedAt"
-                :reading-minutes="ui.readingTime ? article.readingMinutes : undefined"
-                :comments
-                class="[&_a]:relative [&_a]:z-10"
-                :class="ui.byline"
-            />
-        </div>
-    </article>
-</template>

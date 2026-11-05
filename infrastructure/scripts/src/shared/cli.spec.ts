@@ -110,8 +110,7 @@ describe("run", () => {
         await run(
             () =>
                 new Promise((_, reject) => {
-                    // This deliberately exercises the CLI's non-Error rejection path.
-                    // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+                    // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- exercises the non-Error rejection path
                     reject("bad value");
                 }),
         );

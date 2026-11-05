@@ -8,9 +8,12 @@ import vitestConfig from "./vitest.ts";
 import baseIgnores from "./ignores.ts";
 import coreIsolation from "./coreIsolation.ts";
 import layerIsolation from "./layerIsolation.ts";
-import { restrictedSyntax, restrictedSyntaxVue } from "./restrictedSyntax.ts";
+import { constTables, constTablesVue } from "./constTables.ts";
+import propsInterface from "./propsInterface.ts";
+import { disableReasons, disableReasonsVue } from "./disableReasons.ts";
 import templateI18n from "./templateI18n.ts";
 import templateCalls from "./templateCalls.ts";
+import { typeDefinitions, typeDefinitionsVue } from "./typeDefinitions.ts";
 import { useBeforeDefine, useBeforeDefineVue } from "./useBeforeDefine.ts";
 import noConsole from "./console.ts";
 import { unsafeCode, unsafeCodeVue } from "./unsafeCode.ts";
@@ -20,28 +23,34 @@ import tailwind from "./tailwind.ts";
 
 const regexp: object = regexpPlugin.configs["flat/recommended"];
 
-export {
+const shared: object[] = [
     format,
-    formatVue,
     arrowFunctions,
     destructuring,
     jsonc,
     boundaries,
-    vitestConfig,
-    baseIgnores,
     coreIsolation,
-    layerIsolation,
-    restrictedSyntax,
-    restrictedSyntaxVue,
-    templateI18n,
-    templateCalls,
+    constTables,
+    typeDefinitions,
     useBeforeDefine,
-    useBeforeDefineVue,
+    regexp,
     noConsole,
     unsafeCode,
-    unsafeCodeVue,
     e2eFixture,
-    routeMeta,
-    tailwind,
-    regexp,
-};
+    disableReasons,
+];
+
+const vueOnly: object[] = [
+    formatVue,
+    layerIsolation,
+    constTablesVue,
+    propsInterface,
+    templateI18n,
+    templateCalls,
+    typeDefinitionsVue,
+    useBeforeDefineVue,
+    unsafeCodeVue,
+    disableReasonsVue,
+];
+
+export { shared, vueOnly, vitestConfig, baseIgnores, routeMeta, tailwind };

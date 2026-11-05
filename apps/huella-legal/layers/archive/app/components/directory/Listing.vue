@@ -1,30 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    authors: Facet<Author>[];
-}
-
-const props = defineProps<Props>();
-
-const PAGE_SIZE = 12;
-
-const query = ref("");
-const input = useTemplateRef("input");
-const headingId = useId();
-
-const trimmedQuery = computed<string>(() => query.value.trim());
-const normalizedQuery = computed<string>(() => normalizeText(trimmedQuery.value));
-
-const matches = computed<Facet<Author>[]>(() =>
-    props.authors.filter(({ value }) => normalizeText(value.name).includes(normalizedQuery.value)),
-);
-
-// The reset button unmounts with the empty state, so focus goes back to the field
-const reset = () => {
-    query.value = "";
-    input.value?.inputRef?.focus();
-};
-</script>
-
 <template>
     <section :aria-labelledby="headingId">
         <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
@@ -78,3 +51,30 @@ const reset = () => {
         />
     </section>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    authors: Facet<Author>[];
+}
+
+const props = defineProps<Props>();
+
+const PAGE_SIZE = 12;
+
+const query = ref("");
+const input = useTemplateRef("input");
+const headingId = useId();
+
+const trimmedQuery = computed<string>(() => query.value.trim());
+const normalizedQuery = computed<string>(() => normalizeText(trimmedQuery.value));
+
+const matches = computed<Facet<Author>[]>(() =>
+    props.authors.filter(({ value }) => normalizeText(value.name).includes(normalizedQuery.value)),
+);
+
+// The reset button unmounts with the empty state, so focus goes back to the field
+const reset = () => {
+    query.value = "";
+    input.value?.inputRef?.focus();
+};
+</script>

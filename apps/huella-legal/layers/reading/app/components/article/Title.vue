@@ -1,14 +1,3 @@
-<script setup lang="ts">
-import type { BreadcrumbItem } from "@nuxt/ui";
-
-interface Props {
-    breadcrumb: BreadcrumbItem[];
-    title: string;
-}
-
-defineProps<Props>();
-</script>
-
 <template>
     <UContainer as="header" class="grid grid-cols-1 pt-6 md:pt-10 lg:grid-cols-12 lg:gap-x-8">
         <div class="lg:col-span-9 lg:col-start-4">
@@ -24,3 +13,14 @@ defineProps<Props>();
         </div>
     </UContainer>
 </template>
+
+<script setup lang="ts">
+import type { BreadcrumbItem } from "@nuxt/ui";
+
+interface Props {
+    breadcrumb: BreadcrumbItem[];
+    title: string;
+}
+
+defineProps<Props>();
+</script>

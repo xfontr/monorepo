@@ -1,54 +1,3 @@
-<script setup lang="ts">
-import { toTitleCase } from "#shared/wiki.ts";
-
-const { data: snapshot } = await useSnapshot("metrics");
-
-const { data: changelogs } = await useAsyncData(
-    "changelogs",
-    () =>
-        queryCollection("docs").where("path", "LIKE", "%/CHANGELOG").select("path", "title").all(),
-    { default: () => [] },
-);
-
-const selected = ref<string | null>(null);
-
-watchEffect(() => {
-    if (selected.value === null) selected.value = changelogs.value[0]?.path ?? null;
-});
-
-const { data: page } = await useAsyncData(
-    () => `changelog-${selected.value ?? "none"}`,
-    () =>
-        selected.value === null
-            ? Promise.resolve(null)
-            : queryCollection("docs").path(selected.value).first(),
-    { watch: [selected] },
-);
-
-/** `packages/ui/changelog` → `packages/ui`, which is how metrics keys its projects. */
-const rootOf = (path: string): string => path.replace(/^\//, "").replace(/\/changelog$/i, "");
-
-/** `packages/i18n` → `I18n` — the project's own name, not the area it lives under. */
-const displayName = (root: string): string => toTitleCase(root.split("/").at(-1) ?? root);
-
-const metrics = computed(() => snapshot.value?.metrics?.projects ?? []);
-
-const metricsFor = (path: string) => metrics.value.find((project) => project.root === rootOf(path));
-
-/** Projects that have shipped commits but no CHANGELOG.md — the gap this page should surface. */
-const unreleased = computed(() =>
-    metrics.value.filter(
-        (project) => !project.hasChangelog && (project.unreleasedCommits ?? 0) > 0,
-    ),
-);
-
-const unreleasedNames = computed(() =>
-    unreleased.value.map((project) => displayName(project.root)).join(", "),
-);
-
-const conventional = computed(() => snapshot.value?.metrics?.conventionalCommitRate ?? null);
-</script>
-
 <template>
     <UDashboardPanel id="changelog">
         <template #header>
@@ -145,3 +94,54 @@ const conventional = computed(() => snapshot.value?.metrics?.conventionalCommitR
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+import { toTitleCase } from "#shared/wiki.ts";
+
+const { data: snapshot } = await useSnapshot("metrics");
+
+const { data: changelogs } = await useAsyncData(
+    "changelogs",
+    () =>
+        queryCollection("docs").where("path", "LIKE", "%/CHANGELOG").select("path", "title").all(),
+    { default: () => [] },
+);
+
+const selected = ref<string | null>(null);
+
+watchEffect(() => {
+    if (selected.value === null) selected.value = changelogs.value[0]?.path ?? null;
+});
+
+const { data: page } = await useAsyncData(
+    () => `changelog-${selected.value ?? "none"}`,
+    () =>
+        selected.value === null
+            ? Promise.resolve(null)
+            : queryCollection("docs").path(selected.value).first(),
+    { watch: [selected] },
+);
+
+/** `packages/ui/changelog` → `packages/ui`, which is how metrics keys its projects. */
+const rootOf = (path: string): string => path.replace(/^\//, "").replace(/\/changelog$/i, "");
+
+/** `packages/i18n` → `I18n` — the project's own name, not the area it lives under. */
+const displayName = (root: string): string => toTitleCase(root.split("/").at(-1) ?? root);
+
+const metrics = computed(() => snapshot.value?.metrics?.projects ?? []);
+
+const metricsFor = (path: string) => metrics.value.find((project) => project.root === rootOf(path));
+
+/** Projects that have shipped commits but no CHANGELOG.md — the gap this page should surface. */
+const unreleased = computed(() =>
+    metrics.value.filter(
+        (project) => !project.hasChangelog && (project.unreleasedCommits ?? 0) > 0,
+    ),
+);
+
+const unreleasedNames = computed(() =>
+    unreleased.value.map((project) => displayName(project.root)).join(", "),
+);
+
+const conventional = computed(() => snapshot.value?.metrics?.conventionalCommitRate ?? null);
+</script>

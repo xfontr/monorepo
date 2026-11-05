@@ -1,16 +1,3 @@
-<script setup lang="ts">
-import type { BreadcrumbItem } from "@nuxt/ui";
-
-const { page } = await usePage();
-
-const { t } = useI18n();
-
-const breadcrumb = computed<BreadcrumbItem[]>(() => [
-    { label: t("page.breadcrumb.home"), to: { name: "index" } },
-    { label: page.value?.title },
-]);
-</script>
-
 <template>
     <article v-if="page">
         <ArticleTitle :breadcrumb :title="page.title" />
@@ -37,3 +24,16 @@ const breadcrumb = computed<BreadcrumbItem[]>(() => [
         </UContainer>
     </article>
 </template>
+
+<script setup lang="ts">
+import type { BreadcrumbItem } from "@nuxt/ui";
+
+const { page } = await usePage();
+
+const { t } = useI18n();
+
+const breadcrumb = computed<BreadcrumbItem[]>(() => [
+    { label: t("page.breadcrumb.home"), to: { name: "index" } },
+    { label: page.value?.title },
+]);
+</script>

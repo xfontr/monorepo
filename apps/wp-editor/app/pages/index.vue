@@ -1,24 +1,3 @@
-<script setup lang="ts">
-import type { BadgeProps } from "@nuxt/ui";
-import type { Changeset } from "#shared/types.ts";
-
-interface Row extends Changeset {
-    counts: Record<
-        "articles" | "scanned" | "proposals" | "pending" | "applied" | "rejected",
-        number
-    >;
-}
-
-const { data: changesets, error } = await useFetch<Row[]>("/api/changesets", { default: () => [] });
-const errorMessage = computed(() => (error.value ? messageOf(error.value) : ""));
-
-const STATUS_COLOR = {
-    open: "primary",
-    closed: "success",
-    abandoned: "neutral",
-} as const satisfies Record<Changeset["status"], BadgeProps["color"]>;
-</script>
-
 <template>
     <UDashboardPanel id="changesets">
         <template #header>
@@ -90,3 +69,24 @@ const STATUS_COLOR = {
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+import type { BadgeProps } from "@nuxt/ui";
+import type { Changeset } from "#shared/types.ts";
+
+interface Row extends Changeset {
+    counts: Record<
+        "articles" | "scanned" | "proposals" | "pending" | "applied" | "rejected",
+        number
+    >;
+}
+
+const { data: changesets, error } = await useFetch<Row[]>("/api/changesets", { default: () => [] });
+const errorMessage = computed(() => (error.value ? messageOf(error.value) : ""));
+
+const STATUS_COLOR = {
+    open: "primary",
+    closed: "success",
+    abandoned: "neutral",
+} as const satisfies Record<Changeset["status"], BadgeProps["color"]>;
+</script>

@@ -1,33 +1,3 @@
-<script setup lang="ts">
-import type { FooterColumn } from "@nuxt/ui";
-import type { SocialLink } from "~/composables/useSiteNav";
-
-interface Props {
-    columns: FooterColumn[];
-    social: SocialLink[];
-    issn: string;
-}
-
-const props = defineProps<Props>();
-
-const jumpToNewsletter = useNewsletterJump();
-const { nav, repository } = useAppConfig();
-
-const linked = computed<FooterColumn[]>(() =>
-    props.columns.map((column) => ({
-        ...column,
-        children: column.children?.map((link) =>
-            link.to === nav.newsletter ? { ...link, onClick: jumpToNewsletter } : link,
-        ),
-    })),
-);
-
-const year = new Date().getFullYear();
-
-const ICON_LINK =
-    "rounded-full text-huella-slate-200 hover:bg-huella-slate-800 hover:text-ivory-50 focus-visible:outline-ivory-50";
-</script>
-
 <template>
     <UFooter>
         <template #top>
@@ -89,3 +59,33 @@ const ICON_LINK =
         </template>
     </UFooter>
 </template>
+
+<script setup lang="ts">
+import type { FooterColumn } from "@nuxt/ui";
+import type { SocialLink } from "~/composables/useSiteNav";
+
+interface Props {
+    columns: FooterColumn[];
+    social: SocialLink[];
+    issn: string;
+}
+
+const props = defineProps<Props>();
+
+const jumpToNewsletter = useNewsletterJump();
+const { nav, repository } = useAppConfig();
+
+const linked = computed<FooterColumn[]>(() =>
+    props.columns.map((column) => ({
+        ...column,
+        children: column.children?.map((link) =>
+            link.to === nav.newsletter ? { ...link, onClick: jumpToNewsletter } : link,
+        ),
+    })),
+);
+
+const year = new Date().getFullYear();
+
+const ICON_LINK =
+    "rounded-full text-huella-slate-200 hover:bg-huella-slate-800 hover:text-ivory-50 focus-visible:outline-ivory-50";
+</script>

@@ -1,38 +1,3 @@
-<script setup lang="ts">
-import type { BreadcrumbItem } from "@nuxt/ui";
-import { FINDING_STATUSES } from "#shared/audits.ts";
-
-const route = useRoute();
-
-const reports = useAuditReports();
-
-const id = computed(() => (route.params.id as string | undefined) ?? "");
-const path = computed(() => `/docs/audits/${id.value}`);
-
-const { data: page } = await useAsyncData(
-    () => `audit-${id.value}`,
-    () => queryCollection("docs").path(path.value).first(),
-    { watch: [path] },
-);
-
-const report = computed(() => reports.value.find((candidate) => candidate.id === id.value) ?? null);
-
-const state = computed(
-    () =>
-        report.value && {
-            label: auditStateLabel(report.value.state),
-            tone: auditStateTone(report.value.state),
-        },
-);
-
-const source = computed(() => report.value?.path ?? `${path.value.slice(1)}.md`);
-
-const crumbs = computed<BreadcrumbItem[]>(() => [
-    { label: "Audits", to: "/audits", icon: "i-lucide-scan-search" },
-    { label: report.value?.date ?? id.value, class: "font-mono" },
-]);
-</script>
-
 <template>
     <UDashboardPanel id="audit">
         <template #header>
@@ -91,3 +56,38 @@ const crumbs = computed<BreadcrumbItem[]>(() => [
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+import type { BreadcrumbItem } from "@nuxt/ui";
+import { FINDING_STATUSES } from "#shared/audits.ts";
+
+const route = useRoute();
+
+const reports = useAuditReports();
+
+const id = computed(() => (route.params.id as string | undefined) ?? "");
+const path = computed(() => `/docs/audits/${id.value}`);
+
+const { data: page } = await useAsyncData(
+    () => `audit-${id.value}`,
+    () => queryCollection("docs").path(path.value).first(),
+    { watch: [path] },
+);
+
+const report = computed(() => reports.value.find((candidate) => candidate.id === id.value) ?? null);
+
+const state = computed(
+    () =>
+        report.value && {
+            label: auditStateLabel(report.value.state),
+            tone: auditStateTone(report.value.state),
+        },
+);
+
+const source = computed(() => report.value?.path ?? `${path.value.slice(1)}.md`);
+
+const crumbs = computed<BreadcrumbItem[]>(() => [
+    { label: "Audits", to: "/audits", icon: "i-lucide-scan-search" },
+    { label: report.value?.date ?? id.value, class: "font-mono" },
+]);
+</script>

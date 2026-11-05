@@ -1,3 +1,19 @@
+<template>
+    <div ref="root">
+        <slot :items="visibleItems" />
+
+        <div v-if="visibleItems.length < items.length" class="mt-10 flex justify-center">
+            <UButton
+                variant="outline"
+                color="neutral"
+                :label
+                trailing-icon="i-lucide-chevron-down"
+                @click="showAll"
+            />
+        </div>
+    </div>
+</template>
+
 <script setup lang="ts" generic="T">
 interface Props {
     items: T[];
@@ -22,19 +38,3 @@ const showAll = async (): Promise<void> => {
     root.value?.querySelectorAll("a")[props.limit]?.focus();
 };
 </script>
-
-<template>
-    <div ref="root">
-        <slot :items="visibleItems" />
-
-        <div v-if="visibleItems.length < items.length" class="mt-10 flex justify-center">
-            <UButton
-                variant="outline"
-                color="neutral"
-                :label
-                trailing-icon="i-lucide-chevron-down"
-                @click="showAll"
-            />
-        </div>
-    </div>
-</template>

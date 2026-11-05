@@ -1,15 +1,3 @@
-<script setup lang="ts">
-const SUBJECTS = 8;
-
-const titleId = useId();
-
-const { data: home, status } = useCachedFetch<Home>("/api/home");
-
-const subjects = computed<Facet<Category>[]>(
-    () => home.value?.subjects.toSorted((a, b) => b.count - a.count).slice(0, SUBJECTS) ?? [],
-);
-</script>
-
 <template>
     <div class="w-120 p-5">
         <p
@@ -60,3 +48,15 @@ const subjects = computed<Facet<Category>[]>(
         </div>
     </div>
 </template>
+
+<script setup lang="ts">
+const SUBJECTS = 8;
+
+const titleId = useId();
+
+const { data: home, status } = useCachedFetch<Home>("/api/home");
+
+const subjects = computed<Facet<Category>[]>(
+    () => home.value?.subjects.toSorted((a, b) => b.count - a.count).slice(0, SUBJECTS) ?? [],
+);
+</script>

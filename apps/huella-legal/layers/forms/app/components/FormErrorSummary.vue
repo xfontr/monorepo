@@ -1,13 +1,3 @@
-<script setup lang="ts">
-import type { FieldError } from "../types/FieldError";
-
-interface Props {
-    errors: readonly FieldError[];
-}
-
-defineProps<Props>();
-</script>
-
 <template>
     <UAlert
         v-if="errors.length"
@@ -33,3 +23,13 @@ defineProps<Props>();
         </template>
     </UAlert>
 </template>
+
+<script setup lang="ts">
+import type { FieldError } from "../types/FieldError";
+
+interface Props {
+    errors: readonly FieldError[];
+}
+
+defineProps<Props>();
+</script>

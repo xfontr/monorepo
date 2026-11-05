@@ -1,3 +1,16 @@
+<template>
+    <label class="-mr-2 flex shrink-0 items-center font-sans text-meta text-muted">
+        <span aria-hidden="true" class="hidden sm:inline">{{ $t("sortSelect.prefix") }}</span>
+        <USelect
+            v-model="sort"
+            :aria-label="words.label"
+            variant="ghost"
+            trailing-icon="i-lucide-chevron-down"
+            :items
+        />
+    </label>
+</template>
+
 <script setup lang="ts">
 interface SortCopy {
     label: string;
@@ -29,16 +42,3 @@ const items = computed(() => [
     { label: words.value.oldest, value: "oldest" as const },
 ]);
 </script>
-
-<template>
-    <label class="-mr-2 flex shrink-0 items-center font-sans text-meta text-muted">
-        <span aria-hidden="true" class="hidden sm:inline">{{ $t("sortSelect.prefix") }}</span>
-        <USelect
-            v-model="sort"
-            :aria-label="words.label"
-            variant="ghost"
-            trailing-icon="i-lucide-chevron-down"
-            :items
-        />
-    </label>
-</template>

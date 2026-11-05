@@ -1,10 +1,11 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Refusal } from "../../shared/refusal.ts";
 import type { Changeset, ItemKey } from "../../shared/types.ts";
-import { createStore, stableJson } from "./store.ts";
+import { createStore, lockStore, stableJson } from "./store.ts";
 
 const BASE = {
     title: "Título",
@@ -96,5 +97,40 @@ describe("store", () => {
 
         expect((await store.listChangesets()).map(({ id }) => id)).toEqual(["0001-test", "0002-b"]);
         expect((await store.readSettings()).bulkApplyMinLevel).toBe("confirmed");
+    });
+});
+
+describe("store lock", () => {
+    const holdLock = (pid: number) =>
+        writeFile(join(root, ".server.lock"), stableJson({ pid, startedAt: "earlier" }));
+
+    it("refuses a second server on the same store while the first is still running", async () => {
+        await holdLock(process.ppid);
+
+        expect(() => lockStore(root)).toThrow(Refusal);
+        expect(() => lockStore(root)).toThrow(`pid ${process.ppid}`);
+    });
+
+    it("takes over a lock left by a server that died without releasing it", async () => {
+        await holdLock(spawnSync(process.execPath, ["-e", ""]).pid);
+
+        lockStore(root);
+
+        expect(JSON.parse(await readFile(join(root, ".server.lock"), "utf8"))).toMatchObject({
+            pid: process.pid,
+        });
+    });
+
+    // The dev mocks live in their own store, so a fake server never blocks the real one.
+    it("never blocks a server on a different store", async () => {
+        const other = await mkdtemp(join(tmpdir(), "wp-editor-"));
+
+        await holdLock(process.ppid);
+
+        try {
+            expect(() => lockStore(other)).not.toThrow();
+        } finally {
+            await rm(other, { recursive: true, force: true });
+        }
     });
 });

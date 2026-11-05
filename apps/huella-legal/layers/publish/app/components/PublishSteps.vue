@@ -1,9 +1,3 @@
-<script setup lang="ts">
-const STEPS = ["summary", "reading", "evaluation", "decision", "publication"] as const;
-
-const headingId = useId();
-</script>
-
 <template>
     <section :aria-labelledby="headingId">
         <BaseSectionHeading :id="headingId" :title="$t('publish.steps.title')" />
@@ -41,3 +35,9 @@ const headingId = useId();
         </ol>
     </section>
 </template>
+
+<script setup lang="ts">
+const STEPS = ["summary", "reading", "evaluation", "decision", "publication"] as const;
+
+const headingId = useId();
+</script>

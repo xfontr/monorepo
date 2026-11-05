@@ -1,4 +1,4 @@
-import { bulkApplyBlocker, derivedStatus } from "../../../shared/rules.ts";
+import { bulkApplyBlocker, bulkRestoreBlocker, derivedStatus } from "../../../shared/rules.ts";
 
 export default defineEventHandler((event) =>
     refusing(async () => {
@@ -19,6 +19,7 @@ export default defineEventHandler((event) =>
             settings,
             runs,
             bulkBlocker: bulkApplyBlocker(items, settings, lastDryRun),
+            restoreBlocker: bulkRestoreBlocker(items, settings),
         };
     }),
 );

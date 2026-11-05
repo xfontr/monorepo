@@ -1,21 +1,3 @@
-<script setup lang="ts">
-import { NuxtLink } from "#components";
-import type { Tone } from "../utils/format.ts";
-
-interface Props {
-    label: string;
-    value: string | number;
-    hint?: string;
-    icon?: string;
-    tone?: Tone;
-    to?: string;
-}
-
-const { label, value, hint, icon, tone = "neutral", to } = defineProps<Props>();
-
-const toneClass = computed(() => (tone === "neutral" ? "" : `tone-${tone}`));
-</script>
-
 <template>
     <component
         :is="to ? NuxtLink : 'div'"
@@ -37,3 +19,21 @@ const toneClass = computed(() => (tone === "neutral" ? "" : `tone-${tone}`));
         </div>
     </component>
 </template>
+
+<script setup lang="ts">
+import { NuxtLink } from "#components";
+import type { Tone } from "../utils/format.ts";
+
+interface Props {
+    label: string;
+    value: string | number;
+    hint?: string;
+    icon?: string;
+    tone?: Tone;
+    to?: string;
+}
+
+const { label, value, hint, icon, tone = "neutral", to } = defineProps<Props>();
+
+const toneClass = computed(() => (tone === "neutral" ? "" : `tone-${tone}`));
+</script>

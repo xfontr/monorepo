@@ -1,16 +1,3 @@
-<script setup lang="ts">
-import type { LinkAction } from "~/types/LinkAction";
-
-interface Props {
-    query: string;
-    subjects?: LinkAction[];
-}
-
-defineProps<Props>();
-
-const titleId = useId();
-</script>
-
 <template>
     <UEmpty
         as="section"
@@ -36,3 +23,16 @@ const titleId = useId();
         </template>
     </UEmpty>
 </template>
+
+<script setup lang="ts">
+import type { LinkAction } from "~/types/LinkAction";
+
+interface Props {
+    query: string;
+    subjects?: LinkAction[];
+}
+
+defineProps<Props>();
+
+const titleId = useId();
+</script>

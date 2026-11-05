@@ -20,9 +20,9 @@ URL that 404s costs readers and rankings. This layer sends every one of those to
 | `/?s=<term>` | `/buscar/?query=<term>` | [`legacy.ts`](./server/middleware/legacy.ts): a route rule can't match a query |
 | `/wp-content/…`, `/wp-admin/…`, `/wp-login.php`, `/wp-json/…` | The same path on `content.vendor.baseURL` | `legacy.ts`: the WordPress host is runtime config |
 
-Every redirect is a 301. Netlify serves the rules from `_redirects` before Nitro runs, so a
-`nuxi preview` exercises only Nitro's copy of them; `e2e/legacy.spec.ts` walks one URL per family
-against that copy.
+Every redirect is a 301, served by the Worker: Nitro writes no `_redirects` for Cloudflare, so a
+`nuxi preview` runs the same rules the deploy does, and `e2e/legacy.spec.ts` walks one URL per
+family against them.
 
 ## 🚚 The cutover
 
@@ -35,7 +35,6 @@ exists, the `content.vendor.baseURL` literal and `image.domains` in the app's
 To check the deployed rules once, on a preview and then on production:
 
 ```sh
-NITRO_PRESET=netlify pnpm exec nuxt build && grep -vE '\s301$' dist/_redirects  # prints nothing
 curl -so /dev/null -w '%{http_code} %{redirect_url}\n' https://<host>/Categoria/<slug>/
 ```
 

@@ -1,36 +1,3 @@
-<script setup lang="ts">
-import type { RouteLocationRaw } from "vue-router";
-
-type BylineAuthor = Pick<Author, "id" | "name" | "avatar"> & { to: RouteLocationRaw };
-
-interface BylineComments {
-    count: number;
-    to: RouteLocationRaw;
-}
-
-interface Props {
-    authors: BylineAuthor[];
-    publishedAt?: string;
-    readingMinutes?: number;
-    comments?: BylineComments;
-    avatars?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), { avatars: false });
-
-const { locale, d } = useI18n();
-
-const names = computed(() =>
-    new Intl.ListFormat(locale.value, { type: "conjunction" })
-        .formatToParts(props.authors.map((_, index) => String(index)))
-        .map(({ type, value }) =>
-            type === "element" ? { author: props.authors[+value] } : { literal: value },
-        ),
-);
-
-const date = computed<string | undefined>(() => props.publishedAt && d(props.publishedAt, "long"));
-</script>
-
 <template>
     <div class="flex items-center gap-3 font-sans text-meta text-muted">
         <UAvatarGroup v-if="avatars" size="lg" aria-hidden="true" :ui="{ base: '-me-2' }">
@@ -80,3 +47,36 @@ const date = computed<string | undefined>(() => props.publishedAt && d(props.pub
         </div>
     </div>
 </template>
+
+<script setup lang="ts">
+import type { RouteLocationRaw } from "vue-router";
+
+type BylineAuthor = Pick<Author, "id" | "name" | "avatar"> & { to: RouteLocationRaw };
+
+interface BylineComments {
+    count: number;
+    to: RouteLocationRaw;
+}
+
+interface Props {
+    authors: BylineAuthor[];
+    publishedAt?: string;
+    readingMinutes?: number;
+    comments?: BylineComments;
+    avatars?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), { avatars: false });
+
+const { locale, d } = useI18n();
+
+const names = computed(() =>
+    new Intl.ListFormat(locale.value, { type: "conjunction" })
+        .formatToParts(props.authors.map((_, index) => String(index)))
+        .map(({ type, value }) =>
+            type === "element" ? { author: props.authors[+value] } : { literal: value },
+        ),
+);
+
+const date = computed<string | undefined>(() => props.publishedAt && d(props.publishedAt, "long"));
+</script>

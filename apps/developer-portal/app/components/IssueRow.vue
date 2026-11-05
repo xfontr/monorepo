@@ -1,26 +1,3 @@
-<script setup lang="ts">
-import { summarize } from "#shared/issues.ts";
-import type { Issue } from "#shared/issues.ts";
-
-interface Props {
-    issue: Issue;
-    compact?: boolean;
-}
-
-const { issue, compact = false } = defineProps<Props>();
-
-const expanded = ref(false);
-
-/**
- * The row shows a clamped line; opening it shows the whole body as plain text. Rendering the
- * markdown here would mean a second renderer to keep in step with the docs one, for a body that is
- * one click from the place it was written for.
- */
-const summary = computed(() => summarize(issue.body, compact ? 100 : 160));
-const updated = computed(() => relativeTime(issue.updatedAt));
-const assignees = computed(() => issue.assignees.join(", "));
-</script>
-
 <template>
     <div class="px-4 py-3 hover:bg-elevated/40 transition-colors">
         <div class="flex items-start gap-3">
@@ -95,3 +72,26 @@ const assignees = computed(() => issue.assignees.join(", "));
         </div>
     </div>
 </template>
+
+<script setup lang="ts">
+import { summarize } from "#shared/issues.ts";
+import type { Issue } from "#shared/issues.ts";
+
+interface Props {
+    issue: Issue;
+    compact?: boolean;
+}
+
+const { issue, compact = false } = defineProps<Props>();
+
+const expanded = ref(false);
+
+/**
+ * The row shows a clamped line; opening it shows the whole body as plain text. Rendering the
+ * markdown here would mean a second renderer to keep in step with the docs one, for a body that is
+ * one click from the place it was written for.
+ */
+const summary = computed(() => summarize(issue.body, compact ? 100 : 160));
+const updated = computed(() => relativeTime(issue.updatedAt));
+const assignees = computed(() => issue.assignees.join(", "));
+</script>

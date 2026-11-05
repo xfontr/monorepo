@@ -1,11 +1,3 @@
-<script setup lang="ts">
-const { home } = await useHome();
-
-useHead({ titleTemplate: "%s" });
-
-const recentId = useId();
-</script>
-
 <template>
     <div v-if="home" class="flex flex-col">
         <UContainer>
@@ -64,3 +56,11 @@ const recentId = useId();
         <LazyNewsletterBand hydrate-on-visible />
     </div>
 </template>
+
+<script setup lang="ts">
+const { home } = await useHome();
+
+useHead({ titleTemplate: "%s" });
+
+const recentId = useId();
+</script>

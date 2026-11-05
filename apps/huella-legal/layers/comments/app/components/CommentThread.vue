@@ -1,14 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    thread: CommentThread;
-    replyable?: boolean;
-}
-
-defineProps<Props>();
-
-defineEmits<{ reply: [comment: ReaderComment] }>();
-</script>
-
 <template>
     <div class="flex flex-col gap-6">
         <CommentItem :comment="thread" :replyable @reply="$emit('reply', $event)" />
@@ -22,3 +11,14 @@ defineEmits<{ reply: [comment: ReaderComment] }>();
         </ol>
     </div>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    thread: CommentThread;
+    replyable?: boolean;
+}
+
+defineProps<Props>();
+
+defineEmits<{ reply: [comment: ReaderComment] }>();
+</script>

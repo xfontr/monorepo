@@ -1,7 +1,3 @@
-<script setup lang="ts">
-const headingId = useId();
-</script>
-
 <template>
     <section
         :aria-labelledby="headingId"
@@ -26,3 +22,7 @@ const headingId = useId();
         />
     </section>
 </template>
+
+<script setup lang="ts">
+const headingId = useId();
+</script>

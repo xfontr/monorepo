@@ -80,8 +80,8 @@ GitHub Actions, named as the Actions tab shows them rather than by filename.
 | `Dependabot auto-merge` | [`.github/workflows/dependabot-auto-merge.yml`](../.github/workflows/dependabot-auto-merge.yml) | [`README.md`](../README.md) |
 | `Developer Portal deploy` | [`.github/workflows/developer-portal-deploy.yml`](../.github/workflows/developer-portal-deploy.yml) | [`README.md`](../README.md) |
 | `Focused documentation review` | [`.github/workflows/docs-review.yml`](../.github/workflows/docs-review.yml) | [`README.md`](../README.md) |
+| `Huella Legal deployment` | [`.github/workflows/huella-legal-deployment.yml`](../.github/workflows/huella-legal-deployment.yml) | [`README.md`](../README.md) |
 | `Huella Legal rebuild` | [`.github/workflows/huella-legal-rebuild.yml`](../.github/workflows/huella-legal-rebuild.yml) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
-| `Netlify deployment` | [`.github/workflows/netlify-deployment.yml`](../.github/workflows/netlify-deployment.yml) | [`README.md`](../README.md) |
 | `PR labeler` | [`.github/workflows/pr-labeler.yml`](../.github/workflows/pr-labeler.yml) | [`README.md`](../README.md) |
 | `PR metadata` | [`.github/workflows/pr-metadata.yml`](../.github/workflows/pr-metadata.yml) | [`README.md`](../README.md) |
 | `Release` | [`.github/workflows/release.yml`](../.github/workflows/release.yml) | [`README.md`](../README.md) |
@@ -96,6 +96,7 @@ shortest statement of how a task is meant to go here.
 | --- | --- | --- |
 | `/audit-report` | [`.claude/skills/audit-report/SKILL.md`](../.claude/skills/audit-report/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/comment-cleanup` | [`.claude/skills/comment-cleanup/SKILL.md`](../.claude/skills/comment-cleanup/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
+| `/configs-new-rule` | [`.claude/skills/configs-new-rule/SKILL.md`](../.claude/skills/configs-new-rule/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/content-new-vendor` | [`.claude/skills/content-new-vendor/SKILL.md`](../.claude/skills/content-new-vendor/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/decision-report` | [`.claude/skills/decision-report/SKILL.md`](../.claude/skills/decision-report/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/doc-drift-check` | [`.claude/skills/doc-drift-check/SKILL.md`](../.claude/skills/doc-drift-check/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |

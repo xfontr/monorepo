@@ -1,62 +1,3 @@
-<script setup lang="ts">
-import type { BreadcrumbItem } from "@nuxt/ui";
-import { sortDecisions } from "#shared/decisionReports.ts";
-
-const route = useRoute();
-
-const reports = useDecisionReports();
-
-const id = computed(() => (route.params.id as string | undefined) ?? "");
-const path = computed(() => `/docs/decisions/${id.value}`);
-
-const { data: page } = await useAsyncData(
-    () => `decision-${id.value}`,
-    () => queryCollection("docs").path(path.value).first(),
-    { watch: [path] },
-);
-
-const report = computed(() => reports.value.find((candidate) => candidate.id === id.value) ?? null);
-
-const supersession = computed(() => {
-    const by = report.value?.decision === "superseded" ? report.value.supersededBy : null;
-
-    return by
-        ? {
-              label: decisionOutcomeLabel("superseded"),
-              to: `/decisions/${by.replace(/\.md$/, "")}`,
-              hint: `Superseded by ${by}`,
-          }
-        : null;
-});
-
-const statusPill = computed(
-    () =>
-        report.value?.status && {
-            label: decisionStatusLabel(report.value.status),
-            tone: decisionStatusTone(report.value.status),
-        },
-);
-
-const updated = computed(() => relativeTime(report.value?.updatedAt));
-const source = computed(() => report.value?.path ?? `${path.value.slice(1)}.md`);
-
-const crumbs = computed<BreadcrumbItem[]>(() => [
-    { label: "Decisions", to: "/decisions", icon: "i-lucide-compass" },
-    { label: report.value?.number ?? id.value, class: "font-mono" },
-]);
-
-/** Neighbours by number — the order the decisions were made, which one report reading on from another follows regardless of how the list was last sorted. */
-const around = computed(() => {
-    const ordered = sortDecisions(reports.value, "oldest");
-    const index = ordered.findIndex((candidate) => candidate.id === id.value);
-
-    return {
-        previous: index > 0 ? ordered[index - 1] : null,
-        next: index === -1 ? null : (ordered[index + 1] ?? null),
-    };
-});
-</script>
-
 <template>
     <UDashboardPanel id="decision">
         <template #header>
@@ -148,3 +89,62 @@ const around = computed(() => {
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+import type { BreadcrumbItem } from "@nuxt/ui";
+import { sortDecisions } from "#shared/decisionReports.ts";
+
+const route = useRoute();
+
+const reports = useDecisionReports();
+
+const id = computed(() => (route.params.id as string | undefined) ?? "");
+const path = computed(() => `/docs/decisions/${id.value}`);
+
+const { data: page } = await useAsyncData(
+    () => `decision-${id.value}`,
+    () => queryCollection("docs").path(path.value).first(),
+    { watch: [path] },
+);
+
+const report = computed(() => reports.value.find((candidate) => candidate.id === id.value) ?? null);
+
+const supersession = computed(() => {
+    const by = report.value?.decision === "superseded" ? report.value.supersededBy : null;
+
+    return by
+        ? {
+              label: decisionOutcomeLabel("superseded"),
+              to: `/decisions/${by.replace(/\.md$/, "")}`,
+              hint: `Superseded by ${by}`,
+          }
+        : null;
+});
+
+const statusPill = computed(
+    () =>
+        report.value?.status && {
+            label: decisionStatusLabel(report.value.status),
+            tone: decisionStatusTone(report.value.status),
+        },
+);
+
+const updated = computed(() => relativeTime(report.value?.updatedAt));
+const source = computed(() => report.value?.path ?? `${path.value.slice(1)}.md`);
+
+const crumbs = computed<BreadcrumbItem[]>(() => [
+    { label: "Decisions", to: "/decisions", icon: "i-lucide-compass" },
+    { label: report.value?.number ?? id.value, class: "font-mono" },
+]);
+
+/** Neighbours by number — the order the decisions were made, which one report reading on from another follows regardless of how the list was last sorted. */
+const around = computed(() => {
+    const ordered = sortDecisions(reports.value, "oldest");
+    const index = ordered.findIndex((candidate) => candidate.id === id.value);
+
+    return {
+        previous: index > 0 ? ordered[index - 1] : null,
+        next: index === -1 ? null : (ordered[index + 1] ?? null),
+    };
+});
+</script>
