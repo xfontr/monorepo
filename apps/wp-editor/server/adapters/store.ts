@@ -1,5 +1,7 @@
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { isMainThread } from "node:worker_threads";
 import type {
     BaseMeta,
     Changeset,
@@ -193,4 +195,57 @@ export const createStore = (root: string) => {
             return items.filter((item) => item !== undefined);
         },
     };
+};
+
+const isAlive = (pid: number): boolean => {
+    try {
+        process.kill(pid, 0);
+
+        return true;
+    } catch (error) {
+        return (error as NodeJS.ErrnoException).code === "EPERM";
+    }
+};
+
+const readHolder = (path: string): { pid: number; startedAt: string } | null => {
+    try {
+        return JSON.parse(readFileSync(path, "utf8")) as { pid: number; startedAt: string };
+    } catch {
+        return null;
+    }
+};
+
+/** Claims `root` for this process, refusing while another live process holds it. */
+export const lockStore = (root: string): void => {
+    const path = join(root, ".server.lock");
+
+    mkdirSync(root, { recursive: true });
+
+    for (;;) {
+        try {
+            writeFileSync(
+                path,
+                stableJson({ pid: process.pid, startedAt: new Date().toISOString() }),
+                { flag: "wx" },
+            );
+            // Nuxt dev reloads Nitro in a worker of the same process, so only the process may release.
+            if (isMainThread) process.once("exit", () => rmSync(path, { force: true }));
+
+            return;
+        } catch (error) {
+            if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+        }
+
+        const holder = readHolder(path);
+
+        if (holder?.pid === process.pid) return;
+        if (holder && isAlive(holder.pid)) {
+            throw new Refusal(
+                `Another server (pid ${holder.pid}, started ${holder.startedAt}) is using ` +
+                    `${root}; stop it first, or delete ${path} if it is gone.`,
+            );
+        }
+
+        rmSync(path, { force: true });
+    }
 };
