@@ -1,28 +1,3 @@
-<script setup lang="ts">
-import { isApplied, isPending } from "#shared/rules.ts";
-import type { Item } from "#shared/types.ts";
-import type { ItemAction } from "~/composables/useChangeset";
-
-interface Props {
-    item: Item;
-    busy: string | null;
-    dirty: boolean;
-    dryRun: boolean;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<{ act: [action: ItemAction]; save: []; discard: [] }>();
-
-const pending = computed(() => isPending(props.item));
-const applying = computed(
-    () => !!props.busy?.startsWith("Apply") || !!props.busy?.startsWith("Dry-run"),
-);
-const restoring = computed(() => !!props.busy?.startsWith("Restore"));
-const live = computed(() => isApplied(props.item));
-const confirmed = computed(() => props.item.state.level === "confirmed");
-const rejected = computed(() => !!props.item.state.rejected);
-</script>
-
 <template>
     <div class="flex flex-wrap items-center gap-2">
         <template v-if="dirty">
@@ -101,3 +76,28 @@ const rejected = computed(() => !!props.item.state.rejected);
         />
     </div>
 </template>
+
+<script setup lang="ts">
+import { isApplied, isPending } from "#shared/rules.ts";
+import type { Item } from "#shared/types.ts";
+import type { ItemAction } from "~/composables/useChangeset";
+
+interface Props {
+    item: Item;
+    busy: string | null;
+    dirty: boolean;
+    dryRun: boolean;
+}
+
+const props = defineProps<Props>();
+const emit = defineEmits<{ act: [action: ItemAction]; save: []; discard: [] }>();
+
+const pending = computed(() => isPending(props.item));
+const applying = computed(
+    () => !!props.busy?.startsWith("Apply") || !!props.busy?.startsWith("Dry-run"),
+);
+const restoring = computed(() => !!props.busy?.startsWith("Restore"));
+const live = computed(() => isApplied(props.item));
+const confirmed = computed(() => props.item.state.level === "confirmed");
+const rejected = computed(() => !!props.item.state.rejected);
+</script>

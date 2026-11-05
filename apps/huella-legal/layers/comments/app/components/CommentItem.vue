@@ -1,20 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    comment: ReaderComment;
-    replyable?: boolean;
-}
-
-const props = defineProps<Props>();
-
-defineEmits<{ reply: [comment: ReaderComment] }>();
-
-const { t } = useI18n();
-
-const author = computed<string>(() => props.comment.author || t("commentItem.anonymous"));
-const authorInitials = computed<string>(() => initials(author.value));
-const id = computed<string>(() => `comentario-${props.comment.id}`);
-</script>
-
 <template>
     <article :id :aria-labelledby="`${id}-autor`" class="grid grid-cols-[2.25rem_1fr] gap-x-3">
         <UAvatar :text="authorInitials" size="md" aria-hidden="true" class="mt-0.5" />
@@ -50,3 +33,20 @@ const id = computed<string>(() => `comentario-${props.comment.id}`);
         </div>
     </article>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    comment: ReaderComment;
+    replyable?: boolean;
+}
+
+const props = defineProps<Props>();
+
+defineEmits<{ reply: [comment: ReaderComment] }>();
+
+const { t } = useI18n();
+
+const author = computed<string>(() => props.comment.author || t("commentItem.anonymous"));
+const authorInitials = computed<string>(() => initials(author.value));
+const id = computed<string>(() => `comentario-${props.comment.id}`);
+</script>

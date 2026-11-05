@@ -1,17 +1,3 @@
-<script setup lang="ts">
-import type { Asset } from "@monorepo/content";
-
-interface Props {
-    lead: string;
-    html: string;
-    image?: Asset;
-}
-
-const props = defineProps<Props>();
-
-const imageHeight = computed(() => coverHeight(props.image?.width, 16 / 9));
-</script>
-
 <template>
     <div>
         <!-- eslint-disable vue/no-v-html -- sanitised by the articles layer's body mapper -->
@@ -31,3 +17,17 @@ const imageHeight = computed(() => coverHeight(props.image?.width, 16 / 9));
         <!-- eslint-enable vue/no-v-html -->
     </div>
 </template>
+
+<script setup lang="ts">
+import type { Asset } from "@monorepo/content";
+
+interface Props {
+    lead: string;
+    html: string;
+    image?: Asset;
+}
+
+const props = defineProps<Props>();
+
+const imageHeight = computed(() => coverHeight(props.image?.width, 16 / 9));
+</script>

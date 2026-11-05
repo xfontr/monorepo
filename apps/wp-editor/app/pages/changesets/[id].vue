@@ -1,120 +1,3 @@
-<script setup lang="ts">
-import { isApplied, isPending } from "#shared/rules.ts";
-import type { ItemKey, RunReport } from "#shared/types.ts";
-
-const route = useRoute();
-const router = useRouter();
-const id = route.params.id as string;
-
-const { data, error, busy, running, progress, act, save, bulk } = useChangeset(id);
-
-const filter = ref<ItemFilter>("all");
-const mode = ref<"preview" | "html">("preview");
-const draft = ref("");
-
-const items = computed(() =>
-    [...(data.value?.items ?? [])].sort((a, b) => b.base.date.localeCompare(a.base.date)),
-);
-const errorMessage = computed(() => (error.value ? messageOf(error.value) : ""));
-const visible = computed(() => items.value.filter((item) => matchesFilter(item, filter.value)));
-const selectedKey = computed(
-    () => (route.query.item as ItemKey | undefined) ?? visible.value[0]?.key,
-);
-const item = computed(() => items.value.find(({ key }) => key === selectedKey.value));
-const badge = computed(() => (item.value ? itemBadge(item.value) : undefined));
-const position = computed(() => visible.value.findIndex(({ key }) => key === selectedKey.value));
-
-const proposed = computed(() => item.value?.proposal?.content ?? item.value?.base.content ?? "");
-const dirty = computed(() => !!item.value?.proposal && draft.value !== proposed.value);
-const editable = computed(() => !!item.value?.proposal && !isApplied(item.value));
-
-const select = (key: ItemKey | undefined) => {
-    if (key) router.replace({ query: { item: key } });
-};
-
-const step = (by: number) => select(visible.value[position.value + by]?.key);
-
-// Separate sources, so a refresh that returns the same item and text doesn't reset the draft.
-watch(
-    [() => item.value?.key, proposed],
-    () => {
-        draft.value = proposed.value;
-
-        const current = item.value;
-
-        if (current?.proposal && current.state.level === "unreviewed" && !current.state.applied) {
-            act(current.key, "seen", true);
-        }
-    },
-    { immediate: true },
-);
-
-const saveDraft = () => {
-    if (item.value?.proposal)
-        save(item.value.key, { ...item.value.proposal, content: draft.value });
-};
-
-defineShortcuts({
-    arrowleft: () => step(-1),
-    arrowright: () => step(1),
-    k: () => step(-1),
-    j: () => step(1),
-    c: () => {
-        const current = item.value;
-
-        if (current && isPending(current) && !dirty.value) {
-            act(current.key, current.state.level === "confirmed" ? "unconfirm" : "confirm");
-        }
-    },
-    h: () => (mode.value = mode.value === "html" ? "preview" : "html"),
-});
-
-const dryRun = computed(() => !!data.value?.settings.dryRun);
-
-const reportsOpen = ref(false);
-const runIndex = ref(0);
-const runs = computed(() => data.value?.runs ?? []);
-const shownRun = computed(() => runs.value[runIndex.value]);
-const runItems = computed(() =>
-    runs.value.map((run, index) => ({
-        label: `${runLabel(run)} · ${new Date(run.at).toLocaleString()}`,
-        value: index,
-    })),
-);
-
-const openReports = () => {
-    runIndex.value = 0;
-    reportsOpen.value = true;
-};
-
-const currentTitle = computed(
-    () => items.value.find(({ key }) => key === progress.value?.current)?.base.title,
-);
-
-const runBulk = async (kind: RunReport["kind"]) => {
-    if (await bulk(kind)) openReports();
-};
-
-const restoreOpen = ref(false);
-const appliedCount = computed(() => items.value.filter(isApplied).length);
-
-const restoreAll = () => {
-    restoreOpen.value = false;
-    runBulk("restore");
-};
-
-const openFromReport = (key: ItemKey) => {
-    filter.value = "all";
-    select(key);
-    reportsOpen.value = false;
-};
-
-const MODES = [
-    { label: "Preview", value: "preview", icon: "i-lucide-eye" },
-    { label: "HTML", value: "html", icon: "i-lucide-code" },
-];
-</script>
-
 <template>
     <UDashboardPanel id="rail" resizable :default-size="22" :min-size="16" :max-size="34">
         <template #header>
@@ -350,3 +233,120 @@ const MODES = [
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+import { isApplied, isPending } from "#shared/rules.ts";
+import type { ItemKey, RunReport } from "#shared/types.ts";
+
+const route = useRoute();
+const router = useRouter();
+const id = route.params.id as string;
+
+const { data, error, busy, running, progress, act, save, bulk } = useChangeset(id);
+
+const filter = ref<ItemFilter>("all");
+const mode = ref<"preview" | "html">("preview");
+const draft = ref("");
+
+const items = computed(() =>
+    [...(data.value?.items ?? [])].sort((a, b) => b.base.date.localeCompare(a.base.date)),
+);
+const errorMessage = computed(() => (error.value ? messageOf(error.value) : ""));
+const visible = computed(() => items.value.filter((item) => matchesFilter(item, filter.value)));
+const selectedKey = computed(
+    () => (route.query.item as ItemKey | undefined) ?? visible.value[0]?.key,
+);
+const item = computed(() => items.value.find(({ key }) => key === selectedKey.value));
+const badge = computed(() => (item.value ? itemBadge(item.value) : undefined));
+const position = computed(() => visible.value.findIndex(({ key }) => key === selectedKey.value));
+
+const proposed = computed(() => item.value?.proposal?.content ?? item.value?.base.content ?? "");
+const dirty = computed(() => !!item.value?.proposal && draft.value !== proposed.value);
+const editable = computed(() => !!item.value?.proposal && !isApplied(item.value));
+
+const select = (key: ItemKey | undefined) => {
+    if (key) router.replace({ query: { item: key } });
+};
+
+const step = (by: number) => select(visible.value[position.value + by]?.key);
+
+// Separate sources, so a refresh that returns the same item and text doesn't reset the draft.
+watch(
+    [() => item.value?.key, proposed],
+    () => {
+        draft.value = proposed.value;
+
+        const current = item.value;
+
+        if (current?.proposal && current.state.level === "unreviewed" && !current.state.applied) {
+            act(current.key, "seen", true);
+        }
+    },
+    { immediate: true },
+);
+
+const saveDraft = () => {
+    if (item.value?.proposal)
+        save(item.value.key, { ...item.value.proposal, content: draft.value });
+};
+
+defineShortcuts({
+    arrowleft: () => step(-1),
+    arrowright: () => step(1),
+    k: () => step(-1),
+    j: () => step(1),
+    c: () => {
+        const current = item.value;
+
+        if (current && isPending(current) && !dirty.value) {
+            act(current.key, current.state.level === "confirmed" ? "unconfirm" : "confirm");
+        }
+    },
+    h: () => (mode.value = mode.value === "html" ? "preview" : "html"),
+});
+
+const dryRun = computed(() => !!data.value?.settings.dryRun);
+
+const reportsOpen = ref(false);
+const runIndex = ref(0);
+const runs = computed(() => data.value?.runs ?? []);
+const shownRun = computed(() => runs.value[runIndex.value]);
+const runItems = computed(() =>
+    runs.value.map((run, index) => ({
+        label: `${runLabel(run)} · ${new Date(run.at).toLocaleString()}`,
+        value: index,
+    })),
+);
+
+const openReports = () => {
+    runIndex.value = 0;
+    reportsOpen.value = true;
+};
+
+const currentTitle = computed(
+    () => items.value.find(({ key }) => key === progress.value?.current)?.base.title,
+);
+
+const runBulk = async (kind: RunReport["kind"]) => {
+    if (await bulk(kind)) openReports();
+};
+
+const restoreOpen = ref(false);
+const appliedCount = computed(() => items.value.filter(isApplied).length);
+
+const restoreAll = () => {
+    restoreOpen.value = false;
+    runBulk("restore");
+};
+
+const openFromReport = (key: ItemKey) => {
+    filter.value = "all";
+    select(key);
+    reportsOpen.value = false;
+};
+
+const MODES = [
+    { label: "Preview", value: "preview", icon: "i-lucide-eye" },
+    { label: "HTML", value: "html", icon: "i-lucide-code" },
+];
+</script>

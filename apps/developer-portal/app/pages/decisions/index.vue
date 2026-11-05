@@ -1,54 +1,3 @@
-<script setup lang="ts">
-import type { DecisionOutcome, DecisionStatus } from "#shared/types.ts";
-import type { DecisionSort } from "#shared/decisionReports.ts";
-import { countByStatus, filterDecisions, sortDecisions } from "#shared/decisionReports.ts";
-import { DECISION_OUTCOMES, DECISION_STATUSES } from "#shared/decisions.ts";
-
-const { data: snapshot } = await useSnapshot("docs");
-const reports = useDecisionReports();
-
-const status = ref<DecisionStatus | "all">("all");
-const decision = ref<DecisionOutcome | "all">("all");
-const search = ref("");
-const sort = ref<DecisionSort>("newest");
-
-const visible = computed(() =>
-    sortDecisions(
-        filterDecisions(reports.value, {
-            status: status.value,
-            decision: decision.value,
-            search: search.value,
-        }),
-        sort.value,
-    ),
-);
-
-const counts = computed(() => countByStatus(reports.value));
-
-const statusTiles: { status: DecisionStatus; hint: string }[] = [
-    { status: "to-implement", hint: "decided, not in the repo yet" },
-    { status: "implemented", hint: "the work has landed" },
-    { status: "wont-implement", hint: "decided against, deliberately" },
-];
-
-const statusItems = [
-    { label: "Every status", value: "all" },
-    ...DECISION_STATUSES.map((value) => ({ label: decisionStatusLabel(value), value })),
-];
-
-const decisionItems = [
-    { label: "Every decision", value: "all" },
-    ...DECISION_OUTCOMES.map((value) => ({ label: decisionOutcomeLabel(value), value })),
-];
-
-const sortItems: { label: string; value: DecisionSort }[] = [
-    { label: "Newest first", value: "newest" },
-    { label: "Oldest first", value: "oldest" },
-    { label: "Recently updated", value: "updated" },
-    { label: "By status", value: "status" },
-];
-</script>
-
 <template>
     <UDashboardPanel id="decisions">
         <template #header>
@@ -208,3 +157,54 @@ const sortItems: { label: string; value: DecisionSort }[] = [
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+import type { DecisionOutcome, DecisionStatus } from "#shared/types.ts";
+import type { DecisionSort } from "#shared/decisionReports.ts";
+import { countByStatus, filterDecisions, sortDecisions } from "#shared/decisionReports.ts";
+import { DECISION_OUTCOMES, DECISION_STATUSES } from "#shared/decisions.ts";
+
+const { data: snapshot } = await useSnapshot("docs");
+const reports = useDecisionReports();
+
+const status = ref<DecisionStatus | "all">("all");
+const decision = ref<DecisionOutcome | "all">("all");
+const search = ref("");
+const sort = ref<DecisionSort>("newest");
+
+const visible = computed(() =>
+    sortDecisions(
+        filterDecisions(reports.value, {
+            status: status.value,
+            decision: decision.value,
+            search: search.value,
+        }),
+        sort.value,
+    ),
+);
+
+const counts = computed(() => countByStatus(reports.value));
+
+const statusTiles: { status: DecisionStatus; hint: string }[] = [
+    { status: "to-implement", hint: "decided, not in the repo yet" },
+    { status: "implemented", hint: "the work has landed" },
+    { status: "wont-implement", hint: "decided against, deliberately" },
+];
+
+const statusItems = [
+    { label: "Every status", value: "all" },
+    ...DECISION_STATUSES.map((value) => ({ label: decisionStatusLabel(value), value })),
+];
+
+const decisionItems = [
+    { label: "Every decision", value: "all" },
+    ...DECISION_OUTCOMES.map((value) => ({ label: decisionOutcomeLabel(value), value })),
+];
+
+const sortItems: { label: string; value: DecisionSort }[] = [
+    { label: "Newest first", value: "newest" },
+    { label: "Oldest first", value: "oldest" },
+    { label: "Recently updated", value: "updated" },
+    { label: "By status", value: "status" },
+];
+</script>

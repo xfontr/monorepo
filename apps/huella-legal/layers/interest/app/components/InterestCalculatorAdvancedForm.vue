@@ -1,3 +1,99 @@
+<template>
+    <UForm
+        ref="form"
+        :schema
+        :state
+        :validate-on="[]"
+        novalidate
+        class="flex flex-col gap-6"
+        @submit="onSubmit"
+        @error="onError"
+    >
+        <FormErrorSummary :errors />
+        <UFormField name="rate" :label="$t('interestCalculator.rate.label')">
+            <URadioGroup v-model="state.rate" :items="rates" />
+        </UFormField>
+
+        <UFormField
+            v-if="state.rate === 'custom'"
+            name="customPercent"
+            :label="$t('interestCalculator.customPercent.label')"
+            :hint="$t('interestCalculator.customPercent.hint')"
+        >
+            <UInput
+                v-model="state.customPercent"
+                inputmode="decimal"
+                autocomplete="off"
+                class="w-full sm:w-48"
+            />
+        </UFormField>
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <fieldset v-for="{ date, errorPattern, parts } in DATES" :key="date" class="min-w-0">
+                <legend class="mb-2 font-sans text-sm font-medium text-highlighted">
+                    {{ $t(`interestCalculator.advanced.${date}.legend`) }}
+                </legend>
+                <div class="grid grid-cols-[1fr_1fr_1.5fr] gap-3">
+                    <!-- Each part carries its date's issue for screen readers; it shows once below -->
+                    <UFormField
+                        v-for="part in parts"
+                        :key="part.name"
+                        :name="part.name"
+                        :error-pattern
+                        :label="$t(`interestCalculator.date.${part.label}`)"
+                        :ui="{ error: 'sr-only' }"
+                    >
+                        <UInput
+                            v-model.number="state[part.name]"
+                            type="number"
+                            inputmode="numeric"
+                            :min="part.min"
+                            :max="part.max"
+                            step="1"
+                            class="w-full"
+                        />
+                    </UFormField>
+                </div>
+                <p
+                    v-if="form?.getErrors(`${date}Day`)[0]"
+                    aria-hidden="true"
+                    class="mt-2 text-sm text-error"
+                >
+                    {{ form.getErrors(`${date}Day`)[0]?.message }}
+                </p>
+            </fieldset>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <UFormField
+                name="principal"
+                :label="$t('interestCalculator.principal.label')"
+                :hint="$t('interestCalculator.principal.hint')"
+            >
+                <UInput
+                    v-model="state.principal"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    class="w-full"
+                />
+            </UFormField>
+            <UFormField
+                name="concept"
+                :label="$t('interestCalculator.concept.label')"
+                :hint="$t('interestCalculator.concept.hint')"
+            >
+                <UInput v-model="state.concept" maxlength="120" class="w-full" />
+            </UFormField>
+        </div>
+
+        <UButton
+            type="submit"
+            :label="$t('interestCalculator.submit')"
+            class="justify-center sm:self-start"
+        />
+    </UForm>
+</template>
+
 <script setup lang="ts">
 import type { FormErrorEvent, FormSubmitEvent } from "@nuxt/ui";
 import { useErrorSummary } from "#layers/forms/app/composables/useErrorSummary";
@@ -99,99 +195,3 @@ watch(
     },
 );
 </script>
-
-<template>
-    <UForm
-        ref="form"
-        :schema
-        :state
-        :validate-on="[]"
-        novalidate
-        class="flex flex-col gap-6"
-        @submit="onSubmit"
-        @error="onError"
-    >
-        <FormErrorSummary :errors />
-        <UFormField name="rate" :label="$t('interestCalculator.rate.label')">
-            <URadioGroup v-model="state.rate" :items="rates" />
-        </UFormField>
-
-        <UFormField
-            v-if="state.rate === 'custom'"
-            name="customPercent"
-            :label="$t('interestCalculator.customPercent.label')"
-            :hint="$t('interestCalculator.customPercent.hint')"
-        >
-            <UInput
-                v-model="state.customPercent"
-                inputmode="decimal"
-                autocomplete="off"
-                class="w-full sm:w-48"
-            />
-        </UFormField>
-
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <fieldset v-for="{ date, errorPattern, parts } in DATES" :key="date" class="min-w-0">
-                <legend class="mb-2 font-sans text-sm font-medium text-highlighted">
-                    {{ $t(`interestCalculator.advanced.${date}.legend`) }}
-                </legend>
-                <div class="grid grid-cols-[1fr_1fr_1.5fr] gap-3">
-                    <!-- Each part carries its date's issue for screen readers; it shows once below -->
-                    <UFormField
-                        v-for="part in parts"
-                        :key="part.name"
-                        :name="part.name"
-                        :error-pattern
-                        :label="$t(`interestCalculator.date.${part.label}`)"
-                        :ui="{ error: 'sr-only' }"
-                    >
-                        <UInput
-                            v-model.number="state[part.name]"
-                            type="number"
-                            inputmode="numeric"
-                            :min="part.min"
-                            :max="part.max"
-                            step="1"
-                            class="w-full"
-                        />
-                    </UFormField>
-                </div>
-                <p
-                    v-if="form?.getErrors(`${date}Day`)[0]"
-                    aria-hidden="true"
-                    class="mt-2 text-sm text-error"
-                >
-                    {{ form.getErrors(`${date}Day`)[0]?.message }}
-                </p>
-            </fieldset>
-        </div>
-
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <UFormField
-                name="principal"
-                :label="$t('interestCalculator.principal.label')"
-                :hint="$t('interestCalculator.principal.hint')"
-            >
-                <UInput
-                    v-model="state.principal"
-                    inputmode="decimal"
-                    autocomplete="off"
-                    class="w-full"
-                />
-            </UFormField>
-            <UFormField
-                name="concept"
-                :label="$t('interestCalculator.concept.label')"
-                :hint="$t('interestCalculator.concept.hint')"
-            >
-                <UInput v-model="state.concept" maxlength="120" class="w-full" />
-            </UFormField>
-        </div>
-
-        <UButton
-            type="submit"
-            :label="$t('interestCalculator.submit')"
-            class="justify-center sm:self-start"
-        />
-    </UForm>
-</template>

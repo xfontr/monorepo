@@ -1,18 +1,3 @@
-<script setup lang="ts">
-import type { RouteLocationRaw } from "vue-router";
-
-interface Props {
-    author: Author;
-    to: RouteLocationRaw;
-    count?: number;
-}
-
-const props = defineProps<Props>();
-
-const id = useId();
-const authorInitials = computed<string>(() => initials(props.author.name));
-</script>
-
 <template>
     <section
         :aria-labelledby="id"
@@ -51,3 +36,18 @@ const authorInitials = computed<string>(() => initials(props.author.name));
         </div>
     </section>
 </template>
+
+<script setup lang="ts">
+import type { RouteLocationRaw } from "vue-router";
+
+interface Props {
+    author: Author;
+    to: RouteLocationRaw;
+    count?: number;
+}
+
+const props = defineProps<Props>();
+
+const id = useId();
+const authorInitials = computed<string>(() => initials(props.author.name));
+</script>

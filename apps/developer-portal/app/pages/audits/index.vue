@@ -1,53 +1,3 @@
-<script setup lang="ts">
-import type { AuditState, FindingStatus } from "#shared/audits.ts";
-import type { AuditSort } from "#shared/auditReports.ts";
-import { countAll, filterAudits, scopesOf, sortAudits } from "#shared/auditReports.ts";
-import { AUDIT_STATES } from "#shared/audits.ts";
-
-const { data: snapshot } = await useSnapshot("docs");
-const reports = useAuditReports();
-
-const state = ref<AuditState | "all">("all");
-const scope = ref<string>("all");
-const search = ref("");
-const sort = ref<AuditSort>("newest");
-
-const visible = computed(() =>
-    sortAudits(
-        filterAudits(reports.value, {
-            state: state.value,
-            scope: scope.value,
-            search: search.value,
-        }),
-        sort.value,
-    ),
-);
-
-const totals = computed(() => countAll(reports.value));
-
-const findingTiles: { status: FindingStatus; hint: string }[] = [
-    { status: "open", hint: "findings still owed work" },
-    { status: "fixed", hint: "the fix has landed" },
-    { status: "wont-fix", hint: "decided against, deliberately" },
-];
-
-const stateItems = [
-    { label: "Every state", value: "all" },
-    ...AUDIT_STATES.map((value) => ({ label: auditStateLabel(value), value })),
-];
-
-const scopeItems = computed(() => [
-    { label: "Every scope", value: "all" },
-    ...scopesOf(reports.value).map((value) => ({ label: value, value })),
-]);
-
-const sortItems: { label: string; value: AuditSort }[] = [
-    { label: "Newest first", value: "newest" },
-    { label: "Oldest first", value: "oldest" },
-    { label: "Most open", value: "most-open" },
-];
-</script>
-
 <template>
     <UDashboardPanel id="audits">
         <template #header>
@@ -214,3 +164,53 @@ const sortItems: { label: string; value: AuditSort }[] = [
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+import type { AuditState, FindingStatus } from "#shared/audits.ts";
+import type { AuditSort } from "#shared/auditReports.ts";
+import { countAll, filterAudits, scopesOf, sortAudits } from "#shared/auditReports.ts";
+import { AUDIT_STATES } from "#shared/audits.ts";
+
+const { data: snapshot } = await useSnapshot("docs");
+const reports = useAuditReports();
+
+const state = ref<AuditState | "all">("all");
+const scope = ref<string>("all");
+const search = ref("");
+const sort = ref<AuditSort>("newest");
+
+const visible = computed(() =>
+    sortAudits(
+        filterAudits(reports.value, {
+            state: state.value,
+            scope: scope.value,
+            search: search.value,
+        }),
+        sort.value,
+    ),
+);
+
+const totals = computed(() => countAll(reports.value));
+
+const findingTiles: { status: FindingStatus; hint: string }[] = [
+    { status: "open", hint: "findings still owed work" },
+    { status: "fixed", hint: "the fix has landed" },
+    { status: "wont-fix", hint: "decided against, deliberately" },
+];
+
+const stateItems = [
+    { label: "Every state", value: "all" },
+    ...AUDIT_STATES.map((value) => ({ label: auditStateLabel(value), value })),
+];
+
+const scopeItems = computed(() => [
+    { label: "Every scope", value: "all" },
+    ...scopesOf(reports.value).map((value) => ({ label: value, value })),
+]);
+
+const sortItems: { label: string; value: AuditSort }[] = [
+    { label: "Newest first", value: "newest" },
+    { label: "Oldest first", value: "oldest" },
+    { label: "Most open", value: "most-open" },
+];
+</script>

@@ -1,45 +1,3 @@
-<script setup lang="ts">
-import type { SelectItem } from "@nuxt/ui";
-import type { Settings } from "#shared/types.ts";
-import { DEFAULT_SETTINGS, MAX_PAUSE_MS } from "#shared/types.ts";
-
-const toast = useToast();
-const { data: settings, error } = await useFetch<Settings>("/api/settings");
-const errorMessage = computed(() => (error.value ? messageOf(error.value) : ""));
-
-const draft = ref<Settings | null>(settings.value ? { ...settings.value } : null);
-const dirty = computed(() => JSON.stringify(draft.value) !== JSON.stringify(settings.value));
-const saving = ref(false);
-
-const GATES = [
-    { value: "all", label: "All articles" },
-    { value: "requested", label: "Flagged for review" },
-    { value: "none", label: "None" },
-] satisfies SelectItem[];
-
-const LEVELS = [
-    { value: "seen", label: "Seen" },
-    { value: "confirmed", label: "Confirmed" },
-] satisfies SelectItem[];
-
-const save = async () => {
-    saving.value = true;
-
-    try {
-        settings.value = await $fetch<Settings>("/api/settings", {
-            method: "PUT",
-            body: draft.value,
-        });
-        draft.value = { ...settings.value };
-        toast.add({ title: "Saved", color: "success", icon: "i-lucide-check" });
-    } catch (saveError) {
-        toast.add({ title: "Not saved", description: messageOf(saveError), color: "error" });
-    } finally {
-        saving.value = false;
-    }
-};
-</script>
-
 <template>
     <UDashboardPanel id="settings">
         <template #header>
@@ -143,3 +101,45 @@ const save = async () => {
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+import type { SelectItem } from "@nuxt/ui";
+import type { Settings } from "#shared/types.ts";
+import { DEFAULT_SETTINGS, MAX_PAUSE_MS } from "#shared/types.ts";
+
+const toast = useToast();
+const { data: settings, error } = await useFetch<Settings>("/api/settings");
+const errorMessage = computed(() => (error.value ? messageOf(error.value) : ""));
+
+const draft = ref<Settings | null>(settings.value ? { ...settings.value } : null);
+const dirty = computed(() => JSON.stringify(draft.value) !== JSON.stringify(settings.value));
+const saving = ref(false);
+
+const GATES = [
+    { value: "all", label: "All articles" },
+    { value: "requested", label: "Flagged for review" },
+    { value: "none", label: "None" },
+] satisfies SelectItem[];
+
+const LEVELS = [
+    { value: "seen", label: "Seen" },
+    { value: "confirmed", label: "Confirmed" },
+] satisfies SelectItem[];
+
+const save = async () => {
+    saving.value = true;
+
+    try {
+        settings.value = await $fetch<Settings>("/api/settings", {
+            method: "PUT",
+            body: draft.value,
+        });
+        draft.value = { ...settings.value };
+        toast.add({ title: "Saved", color: "success", icon: "i-lucide-check" });
+    } catch (saveError) {
+        toast.add({ title: "Not saved", description: messageOf(saveError), color: "error" });
+    } finally {
+        saving.value = false;
+    }
+};
+</script>

@@ -1,124 +1,3 @@
-<script setup lang="ts">
-import { deploymentUrlFor } from "#shared/deployments.ts";
-import type { ProjectMetrics, ProjectNode } from "#shared/types.ts";
-
-const { data: snapshot } = await useSnapshot("projects");
-const { data: metricsSnapshot } = await useSnapshot("metrics");
-const { data: live } = useDeployments();
-const {
-    public: { repoUrl },
-} = useRuntimeConfig();
-const { data: readmes } = await useAsyncData("project-readmes", () =>
-    queryCollection("docs").select("path", "title", "description").all(),
-);
-
-const projects = computed(() => snapshot.value?.projects?.projects ?? []);
-const metrics = computed(
-    () =>
-        new Map(
-            metricsSnapshot.value?.metrics?.projects.map((project) => [project.name, project]) ??
-                [],
-        ),
-);
-const deployments = computed(() => live.value.deployments);
-const readmeByPath = computed(
-    () =>
-        new Map(
-            (readmes.value ?? [])
-                .filter((page) => page.path !== "/readme" && page.path.endsWith("/readme"))
-                .map((page) => [page.path, page]),
-        ),
-);
-
-const projectLinks: Record<
-    string,
-    {
-        storybook?: string;
-        deploys?: string;
-        environment?: string;
-        website?: () => string | undefined;
-        apiDocs?: string;
-    }
-> = {
-    "@monorepo/ui": { storybook: embedUrl("/storybook/") },
-    "@monorepo/huella-legal": {
-        storybook: embedUrl("/huella-legal-storybook/"),
-        deploys: `${repoUrl}/actions/workflows/huella-legal-deployment.yml`,
-        environment: "huella-legal",
-        apiDocs: "/_scalar",
-    },
-    "@monorepo/developer-portal": {
-        deploys: `${repoUrl}/actions/workflows/developer-portal-deploy.yml`,
-        website: () => {
-            try {
-                const { hostname, pathname } = new URL(repoUrl);
-                const [owner, repo] = pathname.split("/").filter(Boolean);
-
-                return owner && repo && hostname === "github.com"
-                    ? `https://${owner}.github.io/${repo}/`
-                    : undefined;
-            } catch {
-                return undefined;
-            }
-        },
-    },
-};
-
-const areaOrder: Record<string, number> = { apps: 0, infrastructure: 1, packages: 2 };
-
-const orderedProjects = computed(() =>
-    projects.value.slice().sort((a, b) => {
-        const [aArea] = a.root.split("/");
-        const [bArea] = b.root.split("/");
-        const aOrder = areaOrder[aArea ?? ""] ?? Number.MAX_SAFE_INTEGER;
-        const bOrder = areaOrder[bArea ?? ""] ?? Number.MAX_SAFE_INTEGER;
-
-        return aOrder === bOrder ? a.name.localeCompare(b.name) : aOrder - bOrder;
-    }),
-);
-
-const metricFor = (project: ProjectNode): ProjectMetrics | undefined =>
-    metrics.value.get(project.name);
-
-const readmeFor = (project: ProjectNode) =>
-    readmeByPath.value.get(`/${project.root.toLowerCase()}/readme`);
-
-const categoryFor = (project: ProjectNode): string => {
-    const [area] = project.root.split("/");
-
-    return (
-        {
-            apps: "Application",
-            packages: "Shared building block",
-            infrastructure: "Repository tooling",
-        }[area ?? ""] ?? "Repository project"
-    );
-};
-
-const storybookFor = (project: ProjectNode): string | undefined =>
-    projectLinks[project.name]?.storybook;
-
-const deploysFor = (project: ProjectNode): string | undefined =>
-    projectLinks[project.name]?.deploys;
-
-const deploymentsFor = (project: ProjectNode) =>
-    projectLinks[project.name]?.environment ? deployments.value : [];
-
-const websiteFor = (project: ProjectNode): string | undefined => {
-    const links = projectLinks[project.name];
-    if (links?.environment) return deploymentUrlFor(deploymentsFor(project), links.environment);
-
-    return links?.website?.();
-};
-
-const apiDocsFor = (project: ProjectNode): string | undefined => {
-    const path = projectLinks[project.name]?.apiDocs;
-    const website = websiteFor(project);
-
-    return path && website ? new URL(path, website).href : undefined;
-};
-</script>
-
 <template>
     <UDashboardPanel id="projects">
         <template #header>
@@ -278,3 +157,124 @@ const apiDocsFor = (project: ProjectNode): string | undefined => {
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+import { deploymentUrlFor } from "#shared/deployments.ts";
+import type { ProjectMetrics, ProjectNode } from "#shared/types.ts";
+
+const { data: snapshot } = await useSnapshot("projects");
+const { data: metricsSnapshot } = await useSnapshot("metrics");
+const { data: live } = useDeployments();
+const {
+    public: { repoUrl },
+} = useRuntimeConfig();
+const { data: readmes } = await useAsyncData("project-readmes", () =>
+    queryCollection("docs").select("path", "title", "description").all(),
+);
+
+const projects = computed(() => snapshot.value?.projects?.projects ?? []);
+const metrics = computed(
+    () =>
+        new Map(
+            metricsSnapshot.value?.metrics?.projects.map((project) => [project.name, project]) ??
+                [],
+        ),
+);
+const deployments = computed(() => live.value.deployments);
+const readmeByPath = computed(
+    () =>
+        new Map(
+            (readmes.value ?? [])
+                .filter((page) => page.path !== "/readme" && page.path.endsWith("/readme"))
+                .map((page) => [page.path, page]),
+        ),
+);
+
+const projectLinks: Record<
+    string,
+    {
+        storybook?: string;
+        deploys?: string;
+        environment?: string;
+        website?: () => string | undefined;
+        apiDocs?: string;
+    }
+> = {
+    "@monorepo/ui": { storybook: embedUrl("/storybook/") },
+    "@monorepo/huella-legal": {
+        storybook: embedUrl("/huella-legal-storybook/"),
+        deploys: `${repoUrl}/actions/workflows/huella-legal-deployment.yml`,
+        environment: "huella-legal",
+        apiDocs: "/_scalar",
+    },
+    "@monorepo/developer-portal": {
+        deploys: `${repoUrl}/actions/workflows/developer-portal-deploy.yml`,
+        website: () => {
+            try {
+                const { hostname, pathname } = new URL(repoUrl);
+                const [owner, repo] = pathname.split("/").filter(Boolean);
+
+                return owner && repo && hostname === "github.com"
+                    ? `https://${owner}.github.io/${repo}/`
+                    : undefined;
+            } catch {
+                return undefined;
+            }
+        },
+    },
+};
+
+const areaOrder: Record<string, number> = { apps: 0, infrastructure: 1, packages: 2 };
+
+const orderedProjects = computed(() =>
+    projects.value.slice().sort((a, b) => {
+        const [aArea] = a.root.split("/");
+        const [bArea] = b.root.split("/");
+        const aOrder = areaOrder[aArea ?? ""] ?? Number.MAX_SAFE_INTEGER;
+        const bOrder = areaOrder[bArea ?? ""] ?? Number.MAX_SAFE_INTEGER;
+
+        return aOrder === bOrder ? a.name.localeCompare(b.name) : aOrder - bOrder;
+    }),
+);
+
+const metricFor = (project: ProjectNode): ProjectMetrics | undefined =>
+    metrics.value.get(project.name);
+
+const readmeFor = (project: ProjectNode) =>
+    readmeByPath.value.get(`/${project.root.toLowerCase()}/readme`);
+
+const categoryFor = (project: ProjectNode): string => {
+    const [area] = project.root.split("/");
+
+    return (
+        {
+            apps: "Application",
+            packages: "Shared building block",
+            infrastructure: "Repository tooling",
+        }[area ?? ""] ?? "Repository project"
+    );
+};
+
+const storybookFor = (project: ProjectNode): string | undefined =>
+    projectLinks[project.name]?.storybook;
+
+const deploysFor = (project: ProjectNode): string | undefined =>
+    projectLinks[project.name]?.deploys;
+
+const deploymentsFor = (project: ProjectNode) =>
+    projectLinks[project.name]?.environment ? deployments.value : [];
+
+const websiteFor = (project: ProjectNode): string | undefined => {
+    const links = projectLinks[project.name];
+    if (links?.environment) return deploymentUrlFor(deploymentsFor(project), links.environment);
+
+    return links?.website?.();
+};
+
+const apiDocsFor = (project: ProjectNode): string | undefined => {
+    const path = projectLinks[project.name]?.apiDocs;
+    const website = websiteFor(project);
+
+    return path && website ? new URL(path, website).href : undefined;
+};
+</script>

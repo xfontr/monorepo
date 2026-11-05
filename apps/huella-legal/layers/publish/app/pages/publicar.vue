@@ -1,14 +1,3 @@
-<script setup lang="ts">
-definePageMeta({ name: "publish", path: "/publicar/" });
-
-const { t } = useI18n();
-
-useSeoMeta({
-    title: () => t("publish.breadcrumb"),
-    description: () => t("publish.lead"),
-});
-</script>
-
 <template>
     <div>
         <BasePageIntro :breadcrumbs="[{ label: $t('publish.breadcrumb') }]">
@@ -51,3 +40,14 @@ useSeoMeta({
         </div>
     </div>
 </template>
+
+<script setup lang="ts">
+definePageMeta({ name: "publish", path: "/publicar/" });
+
+const { t } = useI18n();
+
+useSeoMeta({
+    title: () => t("publish.breadcrumb"),
+    description: () => t("publish.lead"),
+});
+</script>

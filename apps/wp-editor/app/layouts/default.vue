@@ -1,12 +1,3 @@
-<script setup lang="ts">
-import type { NavigationMenuItem } from "@nuxt/ui";
-
-const items: NavigationMenuItem[] = [
-    { label: "Changesets", icon: "i-lucide-layers", to: "/" },
-    { label: "Settings", icon: "i-lucide-settings-2", to: "/settings" },
-];
-</script>
-
 <template>
     <UDashboardGroup unit="rem">
         <UDashboardSidebar id="nav" collapsible :default-size="13" :min-size="11" :max-size="18">
@@ -29,3 +20,12 @@ const items: NavigationMenuItem[] = [
         <slot />
     </UDashboardGroup>
 </template>
+
+<script setup lang="ts">
+import type { NavigationMenuItem } from "@nuxt/ui";
+
+const items: NavigationMenuItem[] = [
+    { label: "Changesets", icon: "i-lucide-layers", to: "/" },
+    { label: "Settings", icon: "i-lucide-settings-2", to: "/settings" },
+];
+</script>

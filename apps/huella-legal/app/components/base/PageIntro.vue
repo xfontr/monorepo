@@ -1,13 +1,3 @@
-<script setup lang="ts">
-import type { BreadcrumbItem } from "@nuxt/ui";
-
-interface Props {
-    breadcrumbs: BreadcrumbItem[];
-}
-
-defineProps<Props>();
-</script>
-
 <template>
     <section class="border-b border-default">
         <UContainer class="pt-6 pb-10 md:pt-10 lg:pb-12">
@@ -26,3 +16,13 @@ defineProps<Props>();
         </UContainer>
     </section>
 </template>
+
+<script setup lang="ts">
+import type { BreadcrumbItem } from "@nuxt/ui";
+
+interface Props {
+    breadcrumbs: BreadcrumbItem[];
+}
+
+defineProps<Props>();
+</script>

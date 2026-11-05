@@ -1,13 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    notes: Note[];
-}
-
-defineProps<Props>();
-
-const headingId = useId();
-</script>
-
 <template>
     <section v-if="notes.length" :aria-labelledby="headingId" class="border-t border-default pt-6">
         <h2 :id="headingId" class="text-kicker">
@@ -35,3 +25,13 @@ const headingId = useId();
         </ol>
     </section>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    notes: Note[];
+}
+
+defineProps<Props>();
+
+const headingId = useId();
+</script>

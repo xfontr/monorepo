@@ -1,3 +1,73 @@
+<template>
+    <FormSuccessPanel v-if="status === 'success'" :title="$t('newsletterForm.success.title')">
+        {{ $t("newsletterForm.success.description") }}
+    </FormSuccessPanel>
+    <FormChallenge v-else v-slot="{ challenge }">
+        <UForm
+            ref="form"
+            :schema
+            :state
+            :validate-on
+            :disabled="submitting"
+            class="flex flex-col gap-3"
+            novalidate
+            :aria-busy="submitting"
+            @submit="submit($event.data, challenge)"
+            @error="onInvalid($event.errors)"
+        >
+            <UFormField
+                name="email"
+                :label="$t('newsletterForm.email.label')"
+                :ui="{ label: colors.label, error: colors.error }"
+                eager-validation
+            >
+                <div :class="arrangement.row">
+                    <UInput
+                        ref="email"
+                        v-model="state.email"
+                        type="email"
+                        autocomplete="email"
+                        :placeholder="$t('newsletterForm.email.placeholder')"
+                        class="w-full"
+                    />
+                    <UButton
+                        type="submit"
+                        :block="arrangement.block"
+                        :loading="submitting"
+                        :label="$t('newsletterForm.submit')"
+                        :color="colors.button"
+                        class="shrink-0 justify-center"
+                    />
+                </div>
+            </UFormField>
+            <FormHoneypot v-model="honeypot" />
+            <UAlert
+                v-if="status === 'error'"
+                role="alert"
+                color="error"
+                variant="subtle"
+                icon="i-lucide-circle-alert"
+                :title="$t('newsletterForm.error.title')"
+                :description="$t('newsletterForm.error.description')"
+            />
+            <I18nT
+                keypath="newsletterForm.notice"
+                scope="global"
+                tag="p"
+                class="font-sans text-meta"
+                :class="colors.notice"
+            >
+                <template #privacy>
+                    <ULink raw :to="nav.privacy" data-inline class="underline underline-offset-2">
+                        {{ $t("newsletterForm.privacy") }}
+                    </ULink>
+                </template>
+            </I18nT>
+            <p class="sr-only" aria-live="polite">{{ announcement }}</p>
+        </UForm>
+    </FormChallenge>
+</template>
+
 <script setup lang="ts">
 import { useFormSubmission } from "#layers/forms/app/composables/useFormSubmission";
 import type { Form, FormErrorWithId } from "@nuxt/ui";
@@ -95,73 +165,3 @@ const onInvalid = async (formErrors: readonly FormErrorWithId[]): Promise<void> 
 const arrangement = computed<LayoutRecipe>(() => LAYOUTS[props.layout]);
 const colors = computed<ToneRecipe>(() => TONES[props.tone]);
 </script>
-
-<template>
-    <FormSuccessPanel v-if="status === 'success'" :title="$t('newsletterForm.success.title')">
-        {{ $t("newsletterForm.success.description") }}
-    </FormSuccessPanel>
-    <FormChallenge v-else v-slot="{ challenge }">
-        <UForm
-            ref="form"
-            :schema
-            :state
-            :validate-on
-            :disabled="submitting"
-            class="flex flex-col gap-3"
-            novalidate
-            :aria-busy="submitting"
-            @submit="submit($event.data, challenge)"
-            @error="onInvalid($event.errors)"
-        >
-            <UFormField
-                name="email"
-                :label="$t('newsletterForm.email.label')"
-                :ui="{ label: colors.label, error: colors.error }"
-                eager-validation
-            >
-                <div :class="arrangement.row">
-                    <UInput
-                        ref="email"
-                        v-model="state.email"
-                        type="email"
-                        autocomplete="email"
-                        :placeholder="$t('newsletterForm.email.placeholder')"
-                        class="w-full"
-                    />
-                    <UButton
-                        type="submit"
-                        :block="arrangement.block"
-                        :loading="submitting"
-                        :label="$t('newsletterForm.submit')"
-                        :color="colors.button"
-                        class="shrink-0 justify-center"
-                    />
-                </div>
-            </UFormField>
-            <FormHoneypot v-model="honeypot" />
-            <UAlert
-                v-if="status === 'error'"
-                role="alert"
-                color="error"
-                variant="subtle"
-                icon="i-lucide-circle-alert"
-                :title="$t('newsletterForm.error.title')"
-                :description="$t('newsletterForm.error.description')"
-            />
-            <I18nT
-                keypath="newsletterForm.notice"
-                scope="global"
-                tag="p"
-                class="font-sans text-meta"
-                :class="colors.notice"
-            >
-                <template #privacy>
-                    <ULink raw :to="nav.privacy" data-inline class="underline underline-offset-2">
-                        {{ $t("newsletterForm.privacy") }}
-                    </ULink>
-                </template>
-            </I18nT>
-            <p class="sr-only" aria-live="polite">{{ announcement }}</p>
-        </UForm>
-    </FormChallenge>
-</template>

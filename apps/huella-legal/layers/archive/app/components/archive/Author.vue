@@ -1,24 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    author: Author;
-    total: number;
-    since?: string;
-}
-
-const props = defineProps<Props>();
-
-const { t, d } = useI18n();
-
-const authorInitials = computed<string>(() => initials(props.author.name));
-
-const stats = computed(() => [
-    { label: t("archiveAuthor.stats.publications", props.total), value: props.total },
-    ...(props.since
-        ? [{ label: t("archiveAuthor.stats.since"), value: d(props.since, "year") }]
-        : []),
-]);
-</script>
-
 <template>
     <div class="grid gap-6 md:grid-cols-[6rem_1fr] md:gap-8 lg:grid-cols-[7rem_1fr_16rem]">
         <UAvatar
@@ -51,3 +30,24 @@ const stats = computed(() => [
         </dl>
     </div>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    author: Author;
+    total: number;
+    since?: string;
+}
+
+const props = defineProps<Props>();
+
+const { t, d } = useI18n();
+
+const authorInitials = computed<string>(() => initials(props.author.name));
+
+const stats = computed(() => [
+    { label: t("archiveAuthor.stats.publications", props.total), value: props.total },
+    ...(props.since
+        ? [{ label: t("archiveAuthor.stats.since"), value: d(props.since, "year") }]
+        : []),
+]);
+</script>

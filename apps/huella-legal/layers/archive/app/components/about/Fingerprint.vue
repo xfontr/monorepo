@@ -1,3 +1,26 @@
+<template>
+    <svg
+        ref="root"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.25"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        class="hl-about-fingerprint"
+        :data-waiting="waiting || undefined"
+    >
+        <path
+            v-for="(ridge, index) in RIDGES"
+            :key="ridge"
+            :d="ridge"
+            pathLength="1"
+            :style="{ '--ridge': index }"
+        />
+    </svg>
+</template>
+
 <script setup lang="ts">
 import { useElementVisibility } from "@vueuse/core";
 
@@ -24,29 +47,6 @@ const visible = useElementVisibility(root, { once: true, threshold: 0.25 });
 
 const waiting = computed<boolean>(() => props.drawOnView && !visible.value);
 </script>
-
-<template>
-    <svg
-        ref="root"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.25"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-        class="hl-about-fingerprint"
-        :data-waiting="waiting || undefined"
-    >
-        <path
-            v-for="(ridge, index) in RIDGES"
-            :key="ridge"
-            :d="ridge"
-            pathLength="1"
-            :style="{ '--ridge': index }"
-        />
-    </svg>
-</template>
 
 <style>
 .hl-about-fingerprint path {

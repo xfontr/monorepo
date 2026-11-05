@@ -1,26 +1,3 @@
-<script setup lang="ts">
-import { toCollectionPath } from "#shared/wiki.ts";
-
-const { data: snapshot } = await useSnapshot("scorecards");
-
-const reviews = computed(() => snapshot.value?.scorecards?.reviews ?? []);
-const latest = computed(() => reviews.value[0] ?? null);
-
-const weakest = computed(() => {
-    if (!latest.value || latest.value.cards.length === 0) return null;
-
-    return latest.value.cards.reduce((worst, card) => (card.score < worst.score ? card : worst));
-});
-
-const idOf = (path: string): string => toCollectionPath(path).split("/").at(-1) ?? path;
-
-const totalTone = computed(() => scoreTone(latest.value?.total));
-const latestLink = computed(() =>
-    latest.value ? `/reviews/${idOf(latest.value.path)}` : "/reviews",
-);
-const weakestTone = computed(() => (weakest.value ? scoreTone(weakest.value.score) : "neutral"));
-</script>
-
 <template>
     <UDashboardPanel id="scorecards">
         <template #header>
@@ -202,3 +179,26 @@ const weakestTone = computed(() => (weakest.value ? scoreTone(weakest.value.scor
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+import { toCollectionPath } from "#shared/wiki.ts";
+
+const { data: snapshot } = await useSnapshot("scorecards");
+
+const reviews = computed(() => snapshot.value?.scorecards?.reviews ?? []);
+const latest = computed(() => reviews.value[0] ?? null);
+
+const weakest = computed(() => {
+    if (!latest.value || latest.value.cards.length === 0) return null;
+
+    return latest.value.cards.reduce((worst, card) => (card.score < worst.score ? card : worst));
+});
+
+const idOf = (path: string): string => toCollectionPath(path).split("/").at(-1) ?? path;
+
+const totalTone = computed(() => scoreTone(latest.value?.total));
+const latestLink = computed(() =>
+    latest.value ? `/reviews/${idOf(latest.value.path)}` : "/reviews",
+);
+const weakestTone = computed(() => (weakest.value ? scoreTone(weakest.value.score) : "neutral"));
+</script>

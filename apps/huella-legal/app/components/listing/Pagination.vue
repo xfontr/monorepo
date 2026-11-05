@@ -1,22 +1,3 @@
-<script setup lang="ts">
-import type { RouteLocationRaw } from "vue-router";
-
-interface Props {
-    page: number;
-    total: number;
-    perPage: number;
-    to: (page: number) => RouteLocationRaw;
-}
-
-const props = defineProps<Props>();
-
-const pageCount = computed<number>(() => Math.max(1, Math.ceil(props.total / props.perPage)));
-const previousLink = computed(() => (props.page > 1 ? props.to(props.page - 1) : undefined));
-const nextLink = computed(() =>
-    props.page < pageCount.value ? props.to(props.page + 1) : undefined,
-);
-</script>
-
 <template>
     <div v-if="pageCount > 1" class="relative border-t border-default">
         <p
@@ -76,3 +57,22 @@ const nextLink = computed(() =>
         </UPagination>
     </div>
 </template>
+
+<script setup lang="ts">
+import type { RouteLocationRaw } from "vue-router";
+
+interface Props {
+    page: number;
+    total: number;
+    perPage: number;
+    to: (page: number) => RouteLocationRaw;
+}
+
+const props = defineProps<Props>();
+
+const pageCount = computed<number>(() => Math.max(1, Math.ceil(props.total / props.perPage)));
+const previousLink = computed(() => (props.page > 1 ? props.to(props.page - 1) : undefined));
+const nextLink = computed(() =>
+    props.page < pageCount.value ? props.to(props.page + 1) : undefined,
+);
+</script>

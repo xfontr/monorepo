@@ -1,3 +1,63 @@
+<template>
+    <UCommandPalette
+        v-model:search-term="term"
+        :groups
+        :loading="pending"
+        :placeholder="$t('searchPalette.placeholder')"
+        :input
+        :ui="{ root: 'h-full sm:h-auto' }"
+        @update:model-value="emit('close')"
+    >
+        <template #close>
+            <UButton
+                variant="link"
+                color="neutral"
+                :label="$t('searchPalette.close')"
+                class="sm:hidden"
+                @click="emit('close')"
+            />
+            <UKbd value="escape" class="max-sm:hidden" />
+        </template>
+
+        <template #all="{ item }">
+            <UIcon name="i-lucide-search" class="size-5 shrink-0 text-primary" />
+            <span class="font-semibold text-primary">{{ item.label }}</span>
+            <span v-if="item.suffix" class="text-muted"
+                ><span class="sr-only">, </span>{{ item.suffix }}</span
+            >
+        </template>
+
+        <template #article="{ item }">
+            <span class="flex min-w-0 flex-col gap-1 text-start">
+                <BaseKicker v-if="item.article.category">{{
+                    item.article.category.name
+                }}</BaseKicker>
+                <span class="font-serif text-base/snug text-highlighted">{{ item.label }}</span>
+                <span class="font-sans text-meta text-muted">{{ byline(item.article) }}</span>
+            </span>
+        </template>
+
+        <template #empty>
+            <span class="sr-only">{{ $t("common.loading") }}</span>
+        </template>
+
+        <template #footer>
+            <div class="hidden items-center gap-4 px-2 py-1.5 font-sans text-xs text-muted sm:flex">
+                <span class="flex items-center gap-1">
+                    <UKbd value="arrowup" /><UKbd value="arrowdown" />
+                    {{ $t("searchPalette.hints.move") }}
+                </span>
+                <span class="flex items-center gap-1">
+                    <UKbd value="enter" /> {{ $t("searchPalette.hints.open") }}
+                </span>
+                <span class="ml-auto flex items-center gap-1">
+                    <UKbd value="/" /> {{ $t("searchPalette.hints.shortcut") }}
+                </span>
+            </div>
+        </template>
+    </UCommandPalette>
+</template>
+
 <script setup lang="ts">
 import { MAX_SEARCH_LENGTH } from "@monorepo/content";
 import type { CommandPaletteGroup, CommandPaletteItem } from "@nuxt/ui";
@@ -99,63 +159,3 @@ const groups = computed<CommandPaletteGroup[]>(() =>
     })),
 );
 </script>
-
-<template>
-    <UCommandPalette
-        v-model:search-term="term"
-        :groups
-        :loading="pending"
-        :placeholder="$t('searchPalette.placeholder')"
-        :input
-        :ui="{ root: 'h-full sm:h-auto' }"
-        @update:model-value="emit('close')"
-    >
-        <template #close>
-            <UButton
-                variant="link"
-                color="neutral"
-                :label="$t('searchPalette.close')"
-                class="sm:hidden"
-                @click="emit('close')"
-            />
-            <UKbd value="escape" class="max-sm:hidden" />
-        </template>
-
-        <template #all="{ item }">
-            <UIcon name="i-lucide-search" class="size-5 shrink-0 text-primary" />
-            <span class="font-semibold text-primary">{{ item.label }}</span>
-            <span v-if="item.suffix" class="text-muted"
-                ><span class="sr-only">, </span>{{ item.suffix }}</span
-            >
-        </template>
-
-        <template #article="{ item }">
-            <span class="flex min-w-0 flex-col gap-1 text-start">
-                <BaseKicker v-if="item.article.category">{{
-                    item.article.category.name
-                }}</BaseKicker>
-                <span class="font-serif text-base/snug text-highlighted">{{ item.label }}</span>
-                <span class="font-sans text-meta text-muted">{{ byline(item.article) }}</span>
-            </span>
-        </template>
-
-        <template #empty>
-            <span class="sr-only">{{ $t("common.loading") }}</span>
-        </template>
-
-        <template #footer>
-            <div class="hidden items-center gap-4 px-2 py-1.5 font-sans text-xs text-muted sm:flex">
-                <span class="flex items-center gap-1">
-                    <UKbd value="arrowup" /><UKbd value="arrowdown" />
-                    {{ $t("searchPalette.hints.move") }}
-                </span>
-                <span class="flex items-center gap-1">
-                    <UKbd value="enter" /> {{ $t("searchPalette.hints.open") }}
-                </span>
-                <span class="ml-auto flex items-center gap-1">
-                    <UKbd value="/" /> {{ $t("searchPalette.hints.shortcut") }}
-                </span>
-            </div>
-        </template>
-    </UCommandPalette>
-</template>

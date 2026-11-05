@@ -1,28 +1,3 @@
-<script lang="ts" setup>
-import type { NuxtError } from "#app";
-import { es } from "@nuxt/ui/locale";
-
-interface Props {
-    error: NuxtError<{ message?: string }>;
-}
-
-const { error } = defineProps<Props>();
-
-const { t } = useI18n();
-const searchAction = useRouter().resolve({ name: "search" }).href;
-const { nav } = useAppConfig();
-
-const isDev = import.meta.dev;
-
-useHead(
-    {
-        title: t("error.head", { status: error.status }),
-        meta: [{ name: "robots", content: "noindex" }],
-    },
-    { tagPriority: "high" },
-);
-</script>
-
 <template>
     <UApp :locale="es">
         <NuxtLayout>
@@ -98,3 +73,28 @@ useHead(
         </NuxtLayout>
     </UApp>
 </template>
+
+<script lang="ts" setup>
+import type { NuxtError } from "#app";
+import { es } from "@nuxt/ui/locale";
+
+interface Props {
+    error: NuxtError<{ message?: string }>;
+}
+
+const { error } = defineProps<Props>();
+
+const { t } = useI18n();
+const searchAction = useRouter().resolve({ name: "search" }).href;
+const { nav } = useAppConfig();
+
+const isDev = import.meta.dev;
+
+useHead(
+    {
+        title: t("error.head", { status: error.status }),
+        meta: [{ name: "robots", content: "noindex" }],
+    },
+    { tagPriority: "high" },
+);
+</script>

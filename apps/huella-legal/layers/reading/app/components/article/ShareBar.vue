@@ -1,3 +1,36 @@
+<template>
+    <div class="flex items-center print:hidden">
+        <UButton
+            v-if="citeTo"
+            variant="ghost"
+            color="neutral"
+            icon="i-lucide-quote"
+            :label="$t('shareBar.cite')"
+            :to="citeTo"
+            class="px-3"
+        />
+        <ClientOnly>
+            <UButton
+                v-if="canNativeShare || canCopy"
+                square
+                variant="ghost"
+                color="neutral"
+                icon="i-lucide-share"
+                :aria-label="$t('shareBar.share')"
+                @click="share"
+            />
+        </ClientOnly>
+        <UButton
+            square
+            variant="ghost"
+            color="neutral"
+            icon="i-lucide-printer"
+            :aria-label="$t('shareBar.print')"
+            @click="print"
+        />
+    </div>
+</template>
+
 <script setup lang="ts">
 import { useClipboard, useShare } from "@vueuse/core";
 import type { RouteLocationRaw } from "vue-router";
@@ -40,36 +73,3 @@ const print = (): void => {
     window.print();
 };
 </script>
-
-<template>
-    <div class="flex items-center print:hidden">
-        <UButton
-            v-if="citeTo"
-            variant="ghost"
-            color="neutral"
-            icon="i-lucide-quote"
-            :label="$t('shareBar.cite')"
-            :to="citeTo"
-            class="px-3"
-        />
-        <ClientOnly>
-            <UButton
-                v-if="canNativeShare || canCopy"
-                square
-                variant="ghost"
-                color="neutral"
-                icon="i-lucide-share"
-                :aria-label="$t('shareBar.share')"
-                @click="share"
-            />
-        </ClientOnly>
-        <UButton
-            square
-            variant="ghost"
-            color="neutral"
-            icon="i-lucide-printer"
-            :aria-label="$t('shareBar.print')"
-            @click="print"
-        />
-    </div>
-</template>

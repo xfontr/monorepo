@@ -1,33 +1,3 @@
-<script setup lang="ts">
-import { useClipboard } from "@vueuse/core";
-
-interface Props {
-    citations: Citation[];
-}
-
-const props = defineProps<Props>();
-
-const { t } = useI18n();
-const toast = useToast();
-const headingId = useId();
-const { copy: copyText, isSupported: canCopy } = useClipboard();
-const track = useTrack();
-const tab = ref<string>("0");
-
-const tabs = computed(() =>
-    props.citations.map(({ style, text }, index) => ({ label: style, value: String(index), text })),
-);
-const citation = computed<Citation | undefined>(
-    () => props.citations[Number(tab.value)] ?? props.citations[0],
-);
-
-const copy = async ({ style, text }: Citation): Promise<void> => {
-    await copyText(text);
-    track("citation_copy", { style });
-    toast.add({ title: t("citeBox.copied"), icon: "i-lucide-check" });
-};
-</script>
-
 <template>
     <section
         v-if="citation"
@@ -72,3 +42,33 @@ const copy = async ({ style, text }: Citation): Promise<void> => {
         </ClientOnly>
     </section>
 </template>
+
+<script setup lang="ts">
+import { useClipboard } from "@vueuse/core";
+
+interface Props {
+    citations: Citation[];
+}
+
+const props = defineProps<Props>();
+
+const { t } = useI18n();
+const toast = useToast();
+const headingId = useId();
+const { copy: copyText, isSupported: canCopy } = useClipboard();
+const track = useTrack();
+const tab = ref<string>("0");
+
+const tabs = computed(() =>
+    props.citations.map(({ style, text }, index) => ({ label: style, value: String(index), text })),
+);
+const citation = computed<Citation | undefined>(
+    () => props.citations[Number(tab.value)] ?? props.citations[0],
+);
+
+const copy = async ({ style, text }: Citation): Promise<void> => {
+    await copyText(text);
+    track("citation_copy", { style });
+    toast.add({ title: t("citeBox.copied"), icon: "i-lucide-check" });
+};
+</script>

@@ -1,29 +1,3 @@
-<script setup lang="ts">
-const { data: snapshot } = await useSnapshot("projects");
-const { data: metricsSnapshot } = await useSnapshot("metrics");
-
-const projects = computed(() => snapshot.value?.projects?.projects ?? []);
-const findings = computed(() => metricsSnapshot.value?.metrics?.invariantFindings ?? []);
-const projectGroups = computed(() => [
-    {
-        label: "Applications",
-        projects: projects.value.filter((project) => project.root.startsWith("apps/")),
-    },
-    {
-        label: "Shared building blocks",
-        projects: projects.value.filter((project) => project.root.startsWith("packages/")),
-    },
-    {
-        label: "Repository tooling",
-        projects: projects.value.filter(
-            (project) => !project.root.startsWith("apps/") && !project.root.startsWith("packages/"),
-        ),
-    },
-]);
-
-const graphEmbed = embedUrl("/embed/graph/index.html");
-</script>
-
 <template>
     <UDashboardPanel id="graph">
         <template #header>
@@ -208,3 +182,29 @@ const graphEmbed = embedUrl("/embed/graph/index.html");
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+const { data: snapshot } = await useSnapshot("projects");
+const { data: metricsSnapshot } = await useSnapshot("metrics");
+
+const projects = computed(() => snapshot.value?.projects?.projects ?? []);
+const findings = computed(() => metricsSnapshot.value?.metrics?.invariantFindings ?? []);
+const projectGroups = computed(() => [
+    {
+        label: "Applications",
+        projects: projects.value.filter((project) => project.root.startsWith("apps/")),
+    },
+    {
+        label: "Shared building blocks",
+        projects: projects.value.filter((project) => project.root.startsWith("packages/")),
+    },
+    {
+        label: "Repository tooling",
+        projects: projects.value.filter(
+            (project) => !project.root.startsWith("apps/") && !project.root.startsWith("packages/"),
+        ),
+    },
+]);
+
+const graphEmbed = embedUrl("/embed/graph/index.html");
+</script>

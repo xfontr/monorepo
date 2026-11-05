@@ -1,3 +1,49 @@
+<template>
+    <UForm
+        ref="form"
+        :schema
+        :state
+        :validate-on="[]"
+        novalidate
+        class="flex flex-col gap-6"
+        @submit="onSubmit"
+        @error="onError"
+    >
+        <FormErrorSummary :errors />
+        <UFormField name="rate" :label="$t('interestCalculator.rate.label')">
+            <URadioGroup v-model="state.rate" :items="rates" />
+        </UFormField>
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <UFormField name="from" :label="$t('interestCalculator.from.label')">
+                <UInput v-model="state.from" type="date" class="w-full" />
+            </UFormField>
+            <UFormField name="to" :label="$t('interestCalculator.to.label')">
+                <UInput v-model="state.to" type="date" class="w-full" />
+            </UFormField>
+        </div>
+
+        <UFormField
+            name="principal"
+            :label="$t('interestCalculator.principal.label')"
+            :hint="$t('interestCalculator.principal.hint')"
+        >
+            <UInput
+                v-model="state.principal"
+                inputmode="decimal"
+                autocomplete="off"
+                class="w-full"
+            />
+        </UFormField>
+
+        <UButton
+            type="submit"
+            :label="$t('interestCalculator.submit')"
+            class="justify-center sm:self-start"
+        />
+    </UForm>
+</template>
+
 <script setup lang="ts">
 import type { FormErrorEvent, FormSubmitEvent } from "@nuxt/ui";
 import { useErrorSummary } from "#layers/forms/app/composables/useErrorSummary";
@@ -66,49 +112,3 @@ watch(
     },
 );
 </script>
-
-<template>
-    <UForm
-        ref="form"
-        :schema
-        :state
-        :validate-on="[]"
-        novalidate
-        class="flex flex-col gap-6"
-        @submit="onSubmit"
-        @error="onError"
-    >
-        <FormErrorSummary :errors />
-        <UFormField name="rate" :label="$t('interestCalculator.rate.label')">
-            <URadioGroup v-model="state.rate" :items="rates" />
-        </UFormField>
-
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <UFormField name="from" :label="$t('interestCalculator.from.label')">
-                <UInput v-model="state.from" type="date" class="w-full" />
-            </UFormField>
-            <UFormField name="to" :label="$t('interestCalculator.to.label')">
-                <UInput v-model="state.to" type="date" class="w-full" />
-            </UFormField>
-        </div>
-
-        <UFormField
-            name="principal"
-            :label="$t('interestCalculator.principal.label')"
-            :hint="$t('interestCalculator.principal.hint')"
-        >
-            <UInput
-                v-model="state.principal"
-                inputmode="decimal"
-                autocomplete="off"
-                class="w-full"
-            />
-        </UFormField>
-
-        <UButton
-            type="submit"
-            :label="$t('interestCalculator.submit')"
-            class="justify-center sm:self-start"
-        />
-    </UForm>
-</template>

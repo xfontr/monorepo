@@ -1,14 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    subjects: Facet<Category>[];
-    formats: Facet<ArticleSummary["format"]>[];
-}
-
-defineProps<Props>();
-
-const titleId = useId();
-</script>
-
 <template>
     <UPageSection
         orientation="horizontal"
@@ -78,3 +67,14 @@ const titleId = useId();
         </div>
     </UPageSection>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    subjects: Facet<Category>[];
+    formats: Facet<ArticleSummary["format"]>[];
+}
+
+defineProps<Props>();
+
+const titleId = useId();
+</script>

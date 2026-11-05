@@ -1,34 +1,3 @@
-<script setup lang="ts">
-import type { Item, ItemKey } from "#shared/types.ts";
-
-interface Props {
-    items: Item[];
-    selected: ItemKey | undefined;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<{ select: [key: ItemKey] }>();
-const filter = defineModel<ItemFilter>("filter", { required: true });
-const filterItems = computed(() =>
-    ITEM_FILTERS.map((value) => ({
-        label: `${value} (${props.items.filter((item) => matchesFilter(item, value)).length})`,
-        value,
-    })),
-);
-
-const visible = computed(() => props.items.filter((item) => matchesFilter(item, filter.value)));
-
-const list = useTemplateRef<HTMLElement>("list");
-
-watch(
-    () => props.selected,
-    async (key) => {
-        await nextTick();
-        list.value?.querySelector(`[data-key="${key}"]`)?.scrollIntoView({ block: "nearest" });
-    },
-);
-</script>
-
 <template>
     <div class="flex h-full min-h-0 flex-col">
         <div class="border-b border-default p-3">
@@ -90,3 +59,34 @@ watch(
         />
     </div>
 </template>
+
+<script setup lang="ts">
+import type { Item, ItemKey } from "#shared/types.ts";
+
+interface Props {
+    items: Item[];
+    selected: ItemKey | undefined;
+}
+
+const props = defineProps<Props>();
+const emit = defineEmits<{ select: [key: ItemKey] }>();
+const filter = defineModel<ItemFilter>("filter", { required: true });
+const filterItems = computed(() =>
+    ITEM_FILTERS.map((value) => ({
+        label: `${value} (${props.items.filter((item) => matchesFilter(item, value)).length})`,
+        value,
+    })),
+);
+
+const visible = computed(() => props.items.filter((item) => matchesFilter(item, filter.value)));
+
+const list = useTemplateRef<HTMLElement>("list");
+
+watch(
+    () => props.selected,
+    async (key) => {
+        await nextTick();
+        list.value?.querySelector(`[data-key="${key}"]`)?.scrollIntoView({ block: "nearest" });
+    },
+);
+</script>

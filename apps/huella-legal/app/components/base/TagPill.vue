@@ -1,18 +1,3 @@
-<script setup lang="ts">
-import type { RouteLocationRaw } from "vue-router";
-
-interface Props {
-    label: string;
-    to: RouteLocationRaw;
-    count?: number;
-    active?: boolean;
-}
-
-withDefaults(defineProps<Props>(), {
-    active: false,
-});
-</script>
-
 <template>
     <!-- A forced `active` never sets `aria-current` in Nuxt UI, so it is passed by hand -->
     <!-- The state classes go in `class`, the only slot input Nuxt UI merges after the neutral outline's compound variant -->
@@ -43,3 +28,18 @@ withDefaults(defineProps<Props>(), {
         </template>
     </UButton>
 </template>
+
+<script setup lang="ts">
+import type { RouteLocationRaw } from "vue-router";
+
+interface Props {
+    label: string;
+    to: RouteLocationRaw;
+    count?: number;
+    active?: boolean;
+}
+
+withDefaults(defineProps<Props>(), {
+    active: false,
+});
+</script>

@@ -1,34 +1,3 @@
-<script setup lang="ts">
-import type { InterestResult } from "../types/InterestResult";
-
-interface Props {
-    result?: InterestResult;
-    added?: boolean;
-}
-
-const props = defineProps<Props>();
-
-defineEmits<{ add: [] }>();
-
-// The button that was focused unmounts once the row is added, so focus lands on what replaced it
-const confirmation = useTemplateRef("confirmation");
-
-watch(confirmation, (element) => element?.focus());
-
-const { locale } = useI18n();
-
-const amounts = computed(() => {
-    if (!props.result) return undefined;
-
-    const euros = new Intl.NumberFormat(locale.value, { style: "currency", currency: "EUR" });
-
-    return {
-        interest: euros.format(props.result.interestCents / 100),
-        total: euros.format(props.result.totalCents / 100),
-    };
-});
-</script>
-
 <template>
     <section :aria-label="$t('interestCalculator.result.label')">
         <div role="status" aria-live="polite">
@@ -84,3 +53,34 @@ const amounts = computed(() => {
         </p>
     </section>
 </template>
+
+<script setup lang="ts">
+import type { InterestResult } from "../types/InterestResult";
+
+interface Props {
+    result?: InterestResult;
+    added?: boolean;
+}
+
+const props = defineProps<Props>();
+
+defineEmits<{ add: [] }>();
+
+// The button that was focused unmounts once the row is added, so focus lands on what replaced it
+const confirmation = useTemplateRef("confirmation");
+
+watch(confirmation, (element) => element?.focus());
+
+const { locale } = useI18n();
+
+const amounts = computed(() => {
+    if (!props.result) return undefined;
+
+    const euros = new Intl.NumberFormat(locale.value, { style: "currency", currency: "EUR" });
+
+    return {
+        interest: euros.format(props.result.interestCents / 100),
+        total: euros.format(props.result.totalCents / 100),
+    };
+});
+</script>

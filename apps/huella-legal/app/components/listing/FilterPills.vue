@@ -1,19 +1,3 @@
-<script setup lang="ts">
-import type { LinkAction } from "~/types/LinkAction";
-
-export interface FilterPill extends LinkAction {
-    count: number;
-    active?: boolean;
-}
-
-interface Props {
-    label: string;
-    items: FilterPill[];
-}
-
-defineProps<Props>();
-</script>
-
 <template>
     <nav :aria-label="label" class="scrollbar-none overflow-x-auto border-b border-default">
         <ul class="-ml-3 flex">
@@ -34,3 +18,19 @@ defineProps<Props>();
         </ul>
     </nav>
 </template>
+
+<script setup lang="ts">
+import type { LinkAction } from "~/types/LinkAction";
+
+export interface FilterPill extends LinkAction {
+    count: number;
+    active?: boolean;
+}
+
+interface Props {
+    label: string;
+    items: FilterPill[];
+}
+
+defineProps<Props>();
+</script>

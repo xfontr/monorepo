@@ -1,43 +1,3 @@
-<script setup lang="ts">
-import type { BreadcrumbItem } from "@nuxt/ui";
-
-interface Props {
-    article: Article;
-    commentCount?: number;
-}
-
-const props = defineProps<Props>();
-
-const { t } = useI18n();
-
-const breadcrumb = computed<BreadcrumbItem[]>(() => {
-    const { category } = props.article;
-    const items: BreadcrumbItem[] = [
-        { label: t("article.breadcrumb.home"), to: { name: "index" } },
-        { label: t("article.breadcrumb.publications"), to: { name: "publications" } },
-    ];
-
-    return category
-        ? [
-              ...items,
-              { label: category.name, to: { name: "category", params: { slug: category.slug } } },
-          ]
-        : items;
-});
-
-const formatLabel = computed<string>(() =>
-    t(`article.formats.${FORMAT_KEYS[props.article.format]}`),
-);
-
-const comments = computed(() =>
-    props.commentCount ? { count: props.commentCount, to: { hash: "#comentarios" } } : undefined,
-);
-
-const bylineAuthors = computed(() =>
-    props.article.authors.map((author) => ({ ...author, to: { hash: "#autor" } })),
-);
-</script>
-
 <template>
     <ArticleTitle :breadcrumb :title="article.title">
         <template #kicker>
@@ -78,3 +38,43 @@ const bylineAuthors = computed(() =>
         </div>
     </ArticleTitle>
 </template>
+
+<script setup lang="ts">
+import type { BreadcrumbItem } from "@nuxt/ui";
+
+interface Props {
+    article: Article;
+    commentCount?: number;
+}
+
+const props = defineProps<Props>();
+
+const { t } = useI18n();
+
+const breadcrumb = computed<BreadcrumbItem[]>(() => {
+    const { category } = props.article;
+    const items: BreadcrumbItem[] = [
+        { label: t("article.breadcrumb.home"), to: { name: "index" } },
+        { label: t("article.breadcrumb.publications"), to: { name: "publications" } },
+    ];
+
+    return category
+        ? [
+              ...items,
+              { label: category.name, to: { name: "category", params: { slug: category.slug } } },
+          ]
+        : items;
+});
+
+const formatLabel = computed<string>(() =>
+    t(`article.formats.${FORMAT_KEYS[props.article.format]}`),
+);
+
+const comments = computed(() =>
+    props.commentCount ? { count: props.commentCount, to: { hash: "#comentarios" } } : undefined,
+);
+
+const bylineAuthors = computed(() =>
+    props.article.authors.map((author) => ({ ...author, to: { hash: "#autor" } })),
+);
+</script>

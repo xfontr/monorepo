@@ -1,3 +1,15 @@
+<template>
+    <div class="flex h-full min-h-0 flex-col">
+        <div class="grid grid-cols-2 divide-x divide-default border-b border-default">
+            <p class="px-3 py-1.5 text-xs font-medium text-muted">Original</p>
+            <p class="px-3 py-1.5 text-xs font-medium text-muted">
+                Proposed <span v-if="editable" class="text-dimmed">· editable</span>
+            </p>
+        </div>
+        <div ref="host" class="min-h-0 flex-1 overflow-auto" />
+    </div>
+</template>
+
 <script setup lang="ts">
 import { html } from "@codemirror/lang-html";
 import { MergeView } from "@codemirror/merge";
@@ -61,15 +73,3 @@ watch(draft, (value) => {
     if (view && value !== view.b.state.doc.toString()) build();
 });
 </script>
-
-<template>
-    <div class="flex h-full min-h-0 flex-col">
-        <div class="grid grid-cols-2 divide-x divide-default border-b border-default">
-            <p class="px-3 py-1.5 text-xs font-medium text-muted">Original</p>
-            <p class="px-3 py-1.5 text-xs font-medium text-muted">
-                Proposed <span v-if="editable" class="text-dimmed">· editable</span>
-            </p>
-        </div>
-        <div ref="host" class="min-h-0 flex-1 overflow-auto" />
-    </div>
-</template>

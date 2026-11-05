@@ -1,14 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    article: Article;
-    authorCounts: Record<string, number>;
-}
-
-const props = defineProps<Props>();
-
-const tagNames = computed<string>(() => props.article.tags.map(({ name }) => name).join(" · "));
-</script>
-
 <template>
     <div class="flex max-w-measure flex-col gap-12">
         <ArticleNotes :notes="article.body.notes" />
@@ -34,3 +23,14 @@ const tagNames = computed<string>(() => props.article.tags.map(({ name }) => nam
         </div>
     </div>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    article: Article;
+    authorCounts: Record<string, number>;
+}
+
+const props = defineProps<Props>();
+
+const tagNames = computed<string>(() => props.article.tags.map(({ name }) => name).join(" · "));
+</script>

@@ -1,14 +1,3 @@
-<script setup lang="ts">
-definePageMeta({ name: "contact", path: "/contacto/" });
-
-const { t } = useI18n();
-
-useSeoMeta({
-    title: () => t("contact.breadcrumb"),
-    description: () => t("contact.lead"),
-});
-</script>
-
 <template>
     <div>
         <BasePageIntro :breadcrumbs="[{ label: $t('contact.breadcrumb') }]">
@@ -24,3 +13,14 @@ useSeoMeta({
         </UContainer>
     </div>
 </template>
+
+<script setup lang="ts">
+definePageMeta({ name: "contact", path: "/contacto/" });
+
+const { t } = useI18n();
+
+useSeoMeta({
+    title: () => t("contact.breadcrumb"),
+    description: () => t("contact.lead"),
+});
+</script>

@@ -1,13 +1,3 @@
-<script setup lang="ts">
-const { data: snapshot } = await useSnapshot("deps");
-
-const deps = computed(() => snapshot.value?.deps ?? null);
-const advisories = computed(() => deps.value?.advisories ?? []);
-const outdated = computed(() => deps.value?.outdated ?? []);
-
-const severities = ["critical", "high", "moderate", "low"] as const;
-</script>
-
 <template>
     <UDashboardPanel id="deps">
         <template #header>
@@ -183,3 +173,13 @@ const severities = ["critical", "high", "moderate", "low"] as const;
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+const { data: snapshot } = await useSnapshot("deps");
+
+const deps = computed(() => snapshot.value?.deps ?? null);
+const advisories = computed(() => deps.value?.advisories ?? []);
+const outdated = computed(() => deps.value?.outdated ?? []);
+
+const severities = ["critical", "high", "moderate", "low"] as const;
+</script>

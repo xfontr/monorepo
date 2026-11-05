@@ -1,96 +1,3 @@
-<script setup lang="ts">
-import { toCollectionPath } from "#shared/wiki.ts";
-
-const { data: snapshot } = await useSnapshot("docs");
-const { data: sections } = await useWiki();
-
-const pages = computed(() => snapshot.value?.docs?.pages ?? []);
-
-const count = computed(() =>
-    sections.value.reduce(
-        (sum, section) =>
-            sum + section.groups.reduce((inner, group) => inner + group.entries.length, 0),
-        0,
-    ),
-);
-
-const START_GROUPS = [
-    {
-        label: "Explore",
-        items: [
-            {
-                to: "/docs/readme",
-                label: "Repository overview",
-                hint: "What this monorepo contains",
-                icon: "i-lucide-map",
-            },
-            {
-                to: "/projects",
-                label: "Project catalog",
-                hint: "Applications, packages, and tooling",
-                icon: "i-lucide-boxes",
-            },
-        ],
-    },
-    {
-        label: "Understand",
-        items: [
-            {
-                to: "/docs/docs/concepts/boundaries",
-                label: "Architecture and boundaries",
-                hint: "How projects are allowed to depend",
-                icon: "i-lucide-git-branch",
-            },
-            {
-                to: "/graph",
-                label: "Architecture view",
-                hint: "How the collected projects fit together",
-                icon: "i-lucide-git-fork",
-            },
-        ],
-    },
-    {
-        label: "Contribute",
-        items: [
-            {
-                to: "/docs/docs/guides/first-hour",
-                label: "First hour",
-                hint: "An ordered way into the repository",
-                icon: "i-lucide-play",
-            },
-        ],
-    },
-];
-
-const known = computed(
-    () =>
-        new Set(
-            sections.value.flatMap((section) =>
-                section.groups.flatMap((group) => group.entries.map((entry) => entry.path)),
-            ),
-        ),
-);
-
-const startGroups = computed(() =>
-    START_GROUPS.map((group) => ({
-        ...group,
-        items: group.items.filter(
-            (entry) =>
-                !entry.to.startsWith("/docs/") || known.value.has(entry.to.slice("/docs".length)),
-        ),
-    })).filter((group) => group.items.length > 0),
-);
-
-const recent = computed(() =>
-    pages.value
-        .filter((page) => page.updatedAt !== null && known.value.has(toCollectionPath(page.path)))
-        .sort((a, b) => (b.updatedAt ?? "").localeCompare(a.updatedAt ?? ""))
-        .slice(0, 8),
-);
-
-const broken = computed(() => pages.value.filter((page) => page.brokenLinks.length > 0));
-</script>
-
 <template>
     <UDashboardPanel id="docs">
         <template #header>
@@ -213,3 +120,96 @@ const broken = computed(() => pages.value.filter((page) => page.brokenLinks.leng
         </template>
     </UDashboardPanel>
 </template>
+
+<script setup lang="ts">
+import { toCollectionPath } from "#shared/wiki.ts";
+
+const { data: snapshot } = await useSnapshot("docs");
+const { data: sections } = await useWiki();
+
+const pages = computed(() => snapshot.value?.docs?.pages ?? []);
+
+const count = computed(() =>
+    sections.value.reduce(
+        (sum, section) =>
+            sum + section.groups.reduce((inner, group) => inner + group.entries.length, 0),
+        0,
+    ),
+);
+
+const START_GROUPS = [
+    {
+        label: "Explore",
+        items: [
+            {
+                to: "/docs/readme",
+                label: "Repository overview",
+                hint: "What this monorepo contains",
+                icon: "i-lucide-map",
+            },
+            {
+                to: "/projects",
+                label: "Project catalog",
+                hint: "Applications, packages, and tooling",
+                icon: "i-lucide-boxes",
+            },
+        ],
+    },
+    {
+        label: "Understand",
+        items: [
+            {
+                to: "/docs/docs/concepts/boundaries",
+                label: "Architecture and boundaries",
+                hint: "How projects are allowed to depend",
+                icon: "i-lucide-git-branch",
+            },
+            {
+                to: "/graph",
+                label: "Architecture view",
+                hint: "How the collected projects fit together",
+                icon: "i-lucide-git-fork",
+            },
+        ],
+    },
+    {
+        label: "Contribute",
+        items: [
+            {
+                to: "/docs/docs/guides/first-hour",
+                label: "First hour",
+                hint: "An ordered way into the repository",
+                icon: "i-lucide-play",
+            },
+        ],
+    },
+];
+
+const known = computed(
+    () =>
+        new Set(
+            sections.value.flatMap((section) =>
+                section.groups.flatMap((group) => group.entries.map((entry) => entry.path)),
+            ),
+        ),
+);
+
+const startGroups = computed(() =>
+    START_GROUPS.map((group) => ({
+        ...group,
+        items: group.items.filter(
+            (entry) =>
+                !entry.to.startsWith("/docs/") || known.value.has(entry.to.slice("/docs".length)),
+        ),
+    })).filter((group) => group.items.length > 0),
+);
+
+const recent = computed(() =>
+    pages.value
+        .filter((page) => page.updatedAt !== null && known.value.has(toCollectionPath(page.path)))
+        .sort((a, b) => (b.updatedAt ?? "").localeCompare(a.updatedAt ?? ""))
+        .slice(0, 8),
+);
+
+const broken = computed(() => pages.value.filter((page) => page.brokenLinks.length > 0));
+</script>

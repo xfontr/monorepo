@@ -1,18 +1,3 @@
-<script setup lang="ts">
-definePageMeta({ name: "publications", path: "/publicaciones/" });
-
-const { t } = useI18n();
-
-const { listing, status, sort, search, archiveTotal, formatPills, pageLink } =
-    await useArticleListing();
-
-const lead = computed<string>(() =>
-    t("publications.lead", { subjects: listing.value?.subjects.length ?? 0 }),
-);
-
-useSeoMeta({ title: () => t("publications.title"), description: lead });
-</script>
-
 <template>
     <div v-if="listing">
         <BasePageIntro :breadcrumbs="[{ label: $t('publications.title') }]">
@@ -51,3 +36,18 @@ useSeoMeta({ title: () => t("publications.title"), description: lead });
         <NewsletterBand />
     </div>
 </template>
+
+<script setup lang="ts">
+definePageMeta({ name: "publications", path: "/publicaciones/" });
+
+const { t } = useI18n();
+
+const { listing, status, sort, search, archiveTotal, formatPills, pageLink } =
+    await useArticleListing();
+
+const lead = computed<string>(() =>
+    t("publications.lead", { subjects: listing.value?.subjects.length ?? 0 }),
+);
+
+useSeoMeta({ title: () => t("publications.title"), description: lead });
+</script>

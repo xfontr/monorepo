@@ -1,3 +1,22 @@
+<template>
+    <NuxtLink
+        v-if="file && repoUrl"
+        :to="`${repoUrl}/blob/master/${file}`"
+        target="_blank"
+        external
+    >
+        <slot />
+    </NuxtLink>
+
+    <span v-else-if="file">
+        <slot />
+    </span>
+
+    <NuxtLink v-else :href="props.href" :target="props.target">
+        <slot />
+    </NuxtLink>
+</template>
+
 <script setup lang="ts">
 import { REPO_SCHEME } from "#shared/docLinks.ts";
 
@@ -18,22 +37,3 @@ const file = computed(() =>
     props.href?.startsWith(REPO_SCHEME) ? props.href.slice(REPO_SCHEME.length) : null,
 );
 </script>
-
-<template>
-    <NuxtLink
-        v-if="file && repoUrl"
-        :to="`${repoUrl}/blob/master/${file}`"
-        target="_blank"
-        external
-    >
-        <slot />
-    </NuxtLink>
-
-    <span v-else-if="file">
-        <slot />
-    </span>
-
-    <NuxtLink v-else :href="props.href" :target="props.target">
-        <slot />
-    </NuxtLink>
-</template>

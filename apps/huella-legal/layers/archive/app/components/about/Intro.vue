@@ -1,17 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    articles: number;
-    authors: number;
-}
-
-const props = defineProps<Props>();
-
-const figures = computed(() => [
-    { key: "articles", value: props.articles },
-    { key: "authors", value: props.authors },
-]);
-</script>
-
 <template>
     <BasePageIntro :breadcrumbs="[{ label: $t('aboutIntro.breadcrumb') }]">
         <div class="grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-x-12">
@@ -60,6 +46,20 @@ const figures = computed(() => [
         </div>
     </BasePageIntro>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    articles: number;
+    authors: number;
+}
+
+const props = defineProps<Props>();
+
+const figures = computed(() => [
+    { key: "articles", value: props.articles },
+    { key: "authors", value: props.authors },
+]);
+</script>
 
 <style>
 @property --about-n {

@@ -1,18 +1,3 @@
-<script setup lang="ts">
-import type { LinkAction } from "~/types/LinkAction";
-
-interface Props {
-    title: string;
-    action?: LinkAction;
-}
-
-defineProps<Props>();
-
-const heading = useTemplateRef("heading");
-
-onMounted(() => heading.value?.focus());
-</script>
-
 <template>
     <div
         class="flex flex-col items-start gap-4 rounded-sm border border-huella-teal-200 bg-huella-teal-50 p-6 md:p-8"
@@ -31,3 +16,18 @@ onMounted(() => heading.value?.focus());
         <UButton v-if="action" variant="link" :label="action.label" :to="action.to" class="-ml-3" />
     </div>
 </template>
+
+<script setup lang="ts">
+import type { LinkAction } from "~/types/LinkAction";
+
+interface Props {
+    title: string;
+    action?: LinkAction;
+}
+
+defineProps<Props>();
+
+const heading = useTemplateRef("heading");
+
+onMounted(() => heading.value?.focus());
+</script>

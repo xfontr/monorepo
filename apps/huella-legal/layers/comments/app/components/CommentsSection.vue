@@ -1,33 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    article: Pick<Article, "id">;
-    comments?: ArticleComments;
-}
-
-const props = defineProps<Props>();
-
-const SORTABLE_FROM = 5;
-
-const { t } = useI18n();
-
-const replyTo = ref<ReaderComment>();
-const sort = ref<"newest" | "oldest">("oldest");
-
-const sortable = computed<boolean>(() => (props.comments?.threads.length ?? 0) >= SORTABLE_FROM);
-const sortCopy = computed(() => ({
-    label: t("commentsSection.sort.label"),
-    newest: t("commentsSection.sort.newest"),
-    oldest: t("commentsSection.sort.oldest"),
-}));
-
-const threads = computed<CommentThread[]>(() => {
-    const oldestFirst = props.comments?.threads ?? [];
-    return sort.value === "newest" ? oldestFirst.toReversed() : oldestFirst;
-});
-
-const open = computed<boolean>(() => props.comments?.open !== false);
-</script>
-
 <template>
     <section
         id="comentarios"
@@ -63,3 +33,33 @@ const open = computed<boolean>(() => props.comments?.open !== false);
         </p>
     </section>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    article: Pick<Article, "id">;
+    comments?: ArticleComments;
+}
+
+const props = defineProps<Props>();
+
+const SORTABLE_FROM = 5;
+
+const { t } = useI18n();
+
+const replyTo = ref<ReaderComment>();
+const sort = ref<"newest" | "oldest">("oldest");
+
+const sortable = computed<boolean>(() => (props.comments?.threads.length ?? 0) >= SORTABLE_FROM);
+const sortCopy = computed(() => ({
+    label: t("commentsSection.sort.label"),
+    newest: t("commentsSection.sort.newest"),
+    oldest: t("commentsSection.sort.oldest"),
+}));
+
+const threads = computed<CommentThread[]>(() => {
+    const oldestFirst = props.comments?.threads ?? [];
+    return sort.value === "newest" ? oldestFirst.toReversed() : oldestFirst;
+});
+
+const open = computed<boolean>(() => props.comments?.open !== false);
+</script>

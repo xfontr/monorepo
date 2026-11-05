@@ -1,51 +1,3 @@
-<script setup lang="ts">
-import type { NavigationMenuItem } from "@nuxt/ui";
-import { useMediaQuery } from "@vueuse/core";
-
-interface Props {
-    sections: NavigationMenuItem[];
-    issn: string;
-}
-
-const props = defineProps<Props>();
-
-const WIDE = "(min-width: 64rem)";
-
-const router = useRouter();
-const route = useRoute();
-const jumpToNewsletter = useNewsletterJump();
-const { nav } = useAppConfig();
-
-const jumpFromMenu = (event: MouseEvent, close?: () => void): void => {
-    close?.();
-    jumpToNewsletter(event);
-};
-
-const homePath = computed(() => router.resolve({ name: "index" }).path);
-
-const menuSections = computed<NavigationMenuItem[]>(() =>
-    props.sections.map((section) =>
-        section.children ? { ...section, type: "trigger" as const } : section,
-    ),
-);
-
-const wide = useMediaQuery(WIDE);
-const inlineSections = shallowRef<NavigationMenuItem[]>(props.sections);
-
-watchEffect(() => {
-    if (wide.value) inlineSections.value = props.sections;
-});
-
-const openSection = ref<string>("");
-
-watch(
-    () => route.fullPath,
-    () => {
-        openSection.value = "";
-    },
-);
-</script>
-
 <template>
     <UHeader
         :to="homePath"
@@ -161,3 +113,51 @@ watch(
         </template>
     </UHeader>
 </template>
+
+<script setup lang="ts">
+import type { NavigationMenuItem } from "@nuxt/ui";
+import { useMediaQuery } from "@vueuse/core";
+
+interface Props {
+    sections: NavigationMenuItem[];
+    issn: string;
+}
+
+const props = defineProps<Props>();
+
+const WIDE = "(min-width: 64rem)";
+
+const router = useRouter();
+const route = useRoute();
+const jumpToNewsletter = useNewsletterJump();
+const { nav } = useAppConfig();
+
+const jumpFromMenu = (event: MouseEvent, close?: () => void): void => {
+    close?.();
+    jumpToNewsletter(event);
+};
+
+const homePath = computed(() => router.resolve({ name: "index" }).path);
+
+const menuSections = computed<NavigationMenuItem[]>(() =>
+    props.sections.map((section) =>
+        section.children ? { ...section, type: "trigger" as const } : section,
+    ),
+);
+
+const wide = useMediaQuery(WIDE);
+const inlineSections = shallowRef<NavigationMenuItem[]>(props.sections);
+
+watchEffect(() => {
+    if (wide.value) inlineSections.value = props.sections;
+});
+
+const openSection = ref<string>("");
+
+watch(
+    () => route.fullPath,
+    () => {
+        openSection.value = "";
+    },
+);
+</script>

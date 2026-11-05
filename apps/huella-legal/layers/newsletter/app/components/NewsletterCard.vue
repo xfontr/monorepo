@@ -1,13 +1,3 @@
-<script setup lang="ts">
-import NewsletterForm from "./NewsletterForm.vue";
-
-interface Props {
-    subject?: string;
-}
-
-defineProps<Props>();
-</script>
-
 <template>
     <div class="rounded-sm border border-default bg-ivory-50 p-5">
         <BaseKicker>{{ $t("newsletterCard.kicker") }}</BaseKicker>
@@ -19,3 +9,13 @@ defineProps<Props>();
         <NewsletterForm class="mt-4" />
     </div>
 </template>
+
+<script setup lang="ts">
+import NewsletterForm from "./NewsletterForm.vue";
+
+interface Props {
+    subject?: string;
+}
+
+defineProps<Props>();
+</script>

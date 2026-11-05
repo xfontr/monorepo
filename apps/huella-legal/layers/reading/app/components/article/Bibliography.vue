@@ -1,13 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    entries: string[];
-}
-
-defineProps<Props>();
-
-const headingId = useId();
-</script>
-
 <template>
     <section
         v-if="entries.length"
@@ -29,3 +19,13 @@ const headingId = useId();
         </ul>
     </section>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    entries: string[];
+}
+
+defineProps<Props>();
+
+const headingId = useId();
+</script>

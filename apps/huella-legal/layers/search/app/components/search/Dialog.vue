@@ -1,24 +1,3 @@
-<script setup lang="ts">
-const router = useRouter();
-const open = ref<boolean>(false);
-// A modal mounted from the start puts Reka's dialog code in the layout chunk every page loads
-const used = ref<boolean>(false);
-
-const show = (event?: Event) => {
-    event?.preventDefault();
-    used.value = true;
-    open.value = true;
-};
-
-defineShortcuts({ "/": () => show(), meta_k: () => show() });
-
-const cleanUp = router.afterEach(() => {
-    open.value = false;
-});
-
-onUnmounted(cleanUp);
-</script>
-
 <template>
     <UButton
         :to="{ name: 'search' }"
@@ -45,3 +24,24 @@ onUnmounted(cleanUp);
         </template>
     </LazyUModal>
 </template>
+
+<script setup lang="ts">
+const router = useRouter();
+const open = ref<boolean>(false);
+// A modal mounted from the start puts Reka's dialog code in the layout chunk every page loads
+const used = ref<boolean>(false);
+
+const show = (event?: Event) => {
+    event?.preventDefault();
+    used.value = true;
+    open.value = true;
+};
+
+defineShortcuts({ "/": () => show(), meta_k: () => show() });
+
+const cleanUp = router.afterEach(() => {
+    open.value = false;
+});
+
+onUnmounted(cleanUp);
+</script>

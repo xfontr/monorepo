@@ -1,15 +1,3 @@
-<script setup lang="ts">
-definePageMeta({ name: "categories", path: "/areas/" });
-
-const { t } = useI18n();
-
-const { index } = await useSubjectIndex();
-
-const SECTIONS = { subjects: "#areas", formats: "#formatos", topics: "#temas" } as const;
-
-useSeoMeta({ title: () => t("categories.title"), description: () => t("categories.lead") });
-</script>
-
 <template>
     <div v-if="index">
         <BasePageIntro :breadcrumbs="[{ label: $t('categories.title') }]">
@@ -50,3 +38,15 @@ useSeoMeta({ title: () => t("categories.title"), description: () => t("categorie
         </UContainer>
     </div>
 </template>
+
+<script setup lang="ts">
+definePageMeta({ name: "categories", path: "/areas/" });
+
+const { t } = useI18n();
+
+const { index } = await useSubjectIndex();
+
+const SECTIONS = { subjects: "#areas", formats: "#formatos", topics: "#temas" } as const;
+
+useSeoMeta({ title: () => t("categories.title"), description: () => t("categories.lead") });
+</script>

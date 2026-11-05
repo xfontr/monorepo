@@ -1,70 +1,3 @@
-<script setup lang="ts">
-import { useFormSubmission } from "#layers/forms/app/composables/useFormSubmission";
-import type { ButtonProps, Form } from "@nuxt/ui";
-import {
-    type CommentFields,
-    type CommentIssue,
-    commentSchema,
-    MAX_COMMENT_LENGTH,
-} from "../../shared/schemas/comment";
-import { usePostComment } from "../composables/usePostComment";
-
-interface Props {
-    postId: string;
-    replyTo?: ReaderComment;
-}
-
-const props = defineProps<Props>();
-
-const emit = defineEmits<{ cancelReply: [] }>();
-
-const { t } = useI18n();
-const { nav } = useAppConfig();
-const { status, errors, failure, send } = usePostComment();
-
-const issueMessage = (issue: CommentIssue): string => t(`commentForm.errors.${issue}`);
-const schema = commentSchema(issueMessage);
-
-const state = reactive<CommentFields>({ name: "", email: "", content: "", consent: false });
-
-const replyingTo = computed<string>(() =>
-    t("commentForm.replyingTo", { author: props.replyTo?.author || t("commentItem.anonymous") }),
-);
-const replyActions = computed<ButtonProps[]>(() => [
-    {
-        label: t("commentForm.cancelReply"),
-        variant: "link",
-        color: "neutral",
-        onClick: () => emit("cancelReply"),
-    },
-]);
-
-const form = useTemplateRef<Form<typeof schema>>("form");
-const content = useTemplateRef<{ textareaRef?: HTMLTextAreaElement | null }>("content");
-
-const { honeypot, submitting, validateOn, summaryErrors, submit, onError } = useFormSubmission(
-    form,
-    {
-        status,
-        errors,
-        send,
-        message: issueMessage,
-        label: (field) => t(`commentForm.${field}.name`),
-    },
-);
-
-const onSubmit = (fields: CommentFields, challenge: Challenge): Promise<void> =>
-    submit({ ...fields, post: props.postId, parent: props.replyTo?.id ?? "0" }, challenge);
-
-watch(
-    () => props.replyTo,
-    (comment) => {
-        if (comment) content.value?.textareaRef?.focus();
-    },
-    { flush: "post" },
-);
-</script>
-
 <template>
     <FormSuccessPanel v-if="status === 'success'" :title="$t('commentForm.success.title')">
         {{ $t("commentForm.success.description") }}
@@ -163,3 +96,70 @@ watch(
         </UForm>
     </FormChallenge>
 </template>
+
+<script setup lang="ts">
+import { useFormSubmission } from "#layers/forms/app/composables/useFormSubmission";
+import type { ButtonProps, Form } from "@nuxt/ui";
+import {
+    type CommentFields,
+    type CommentIssue,
+    commentSchema,
+    MAX_COMMENT_LENGTH,
+} from "../../shared/schemas/comment";
+import { usePostComment } from "../composables/usePostComment";
+
+interface Props {
+    postId: string;
+    replyTo?: ReaderComment;
+}
+
+const props = defineProps<Props>();
+
+const emit = defineEmits<{ cancelReply: [] }>();
+
+const { t } = useI18n();
+const { nav } = useAppConfig();
+const { status, errors, failure, send } = usePostComment();
+
+const issueMessage = (issue: CommentIssue): string => t(`commentForm.errors.${issue}`);
+const schema = commentSchema(issueMessage);
+
+const state = reactive<CommentFields>({ name: "", email: "", content: "", consent: false });
+
+const replyingTo = computed<string>(() =>
+    t("commentForm.replyingTo", { author: props.replyTo?.author || t("commentItem.anonymous") }),
+);
+const replyActions = computed<ButtonProps[]>(() => [
+    {
+        label: t("commentForm.cancelReply"),
+        variant: "link",
+        color: "neutral",
+        onClick: () => emit("cancelReply"),
+    },
+]);
+
+const form = useTemplateRef<Form<typeof schema>>("form");
+const content = useTemplateRef<{ textareaRef?: HTMLTextAreaElement | null }>("content");
+
+const { honeypot, submitting, validateOn, summaryErrors, submit, onError } = useFormSubmission(
+    form,
+    {
+        status,
+        errors,
+        send,
+        message: issueMessage,
+        label: (field) => t(`commentForm.${field}.name`),
+    },
+);
+
+const onSubmit = (fields: CommentFields, challenge: Challenge): Promise<void> =>
+    submit({ ...fields, post: props.postId, parent: props.replyTo?.id ?? "0" }, challenge);
+
+watch(
+    () => props.replyTo,
+    (comment) => {
+        if (comment) content.value?.textareaRef?.focus();
+    },
+    { flush: "post" },
+);
+</script>

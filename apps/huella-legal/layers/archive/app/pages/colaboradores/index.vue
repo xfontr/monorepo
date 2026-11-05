@@ -1,19 +1,3 @@
-<script setup lang="ts">
-definePageMeta({ name: "authors", path: "/colaboradores/" });
-
-const { t } = useI18n();
-const { nav } = useAppConfig();
-
-const { authors } = await useAuthorDirectory();
-
-const PRINCIPLES = ["rigour", "accessibility", "openAccess"] as const;
-
-useSeoMeta({
-    title: () => t("authors.title"),
-    description: () => t("authors.about.title"),
-});
-</script>
-
 <template>
     <div>
         <BasePageIntro :breadcrumbs="[{ label: $t('authors.title') }]">
@@ -79,3 +63,19 @@ useSeoMeta({
         </div>
     </div>
 </template>
+
+<script setup lang="ts">
+definePageMeta({ name: "authors", path: "/colaboradores/" });
+
+const { t } = useI18n();
+const { nav } = useAppConfig();
+
+const { authors } = await useAuthorDirectory();
+
+const PRINCIPLES = ["rigour", "accessibility", "openAccess"] as const;
+
+useSeoMeta({
+    title: () => t("authors.title"),
+    description: () => t("authors.about.title"),
+});
+</script>

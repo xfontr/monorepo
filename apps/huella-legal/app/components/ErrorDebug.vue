@@ -1,13 +1,3 @@
-<script lang="ts" setup>
-import type { NuxtError } from "#app";
-
-interface Props {
-    error: NuxtError<{ message?: string }>;
-}
-
-const { error } = defineProps<Props>();
-</script>
-
 <template>
     <section class="error__debug">
         <details v-if="error.data?.message" open>
@@ -26,3 +16,13 @@ const { error } = defineProps<Props>();
         </details>
     </section>
 </template>
+
+<script lang="ts" setup>
+import type { NuxtError } from "#app";
+
+interface Props {
+    error: NuxtError<{ message?: string }>;
+}
+
+const { error } = defineProps<Props>();
+</script>

@@ -1,17 +1,3 @@
-<script setup lang="ts">
-import type { RouteLocationRaw } from "vue-router";
-
-interface Props {
-    subject: string;
-    publishTo: RouteLocationRaw;
-    browseTo: RouteLocationRaw;
-}
-
-defineProps<Props>();
-
-const titleId = useId();
-</script>
-
 <template>
     <UEmpty
         as="section"
@@ -38,3 +24,17 @@ const titleId = useId();
         </template>
     </UEmpty>
 </template>
+
+<script setup lang="ts">
+import type { RouteLocationRaw } from "vue-router";
+
+interface Props {
+    subject: string;
+    publishTo: RouteLocationRaw;
+    browseTo: RouteLocationRaw;
+}
+
+defineProps<Props>();
+
+const titleId = useId();
+</script>

@@ -1,9 +1,3 @@
-<script setup lang="ts">
-const { submissionEmail } = useRuntimeConfig().public;
-
-const headingId = useId();
-</script>
-
 <template>
     <section :aria-labelledby="headingId">
         <h2 :id="headingId" class="font-serif text-section text-highlighted md:text-h2">
@@ -28,3 +22,9 @@ const headingId = useId();
         <PublishForm />
     </section>
 </template>
+
+<script setup lang="ts">
+const { submissionEmail } = useRuntimeConfig().public;
+
+const headingId = useId();
+</script>

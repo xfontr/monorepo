@@ -1,11 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    subjects: Facet<Category>[];
-}
-
-defineProps<Props>();
-</script>
-
 <template>
     <section aria-labelledby="areas">
         <h2 id="areas" class="scroll-mt-6 text-kicker text-muted">
@@ -33,3 +25,11 @@ defineProps<Props>();
         </ol>
     </section>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    subjects: Facet<Category>[];
+}
+
+defineProps<Props>();
+</script>

@@ -1,18 +1,3 @@
-<script setup lang="ts">
-interface Props {
-    title: string;
-    subjects: Facet<Category>[];
-    currentSubject?: string;
-    archiveLink?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), { archiveLink: false });
-
-const shown = computed(() =>
-    props.subjects.filter(({ value }) => value.id !== props.currentSubject),
-);
-</script>
-
 <template>
     <aside :aria-label="$t('archiveSubjects.label')">
         <h2 class="flex min-h-12 items-center text-kicker text-muted">
@@ -50,3 +35,18 @@ const shown = computed(() =>
         />
     </aside>
 </template>
+
+<script setup lang="ts">
+interface Props {
+    title: string;
+    subjects: Facet<Category>[];
+    currentSubject?: string;
+    archiveLink?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), { archiveLink: false });
+
+const shown = computed(() =>
+    props.subjects.filter(({ value }) => value.id !== props.currentSubject),
+);
+</script>

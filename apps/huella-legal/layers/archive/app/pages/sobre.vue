@@ -1,41 +1,3 @@
-<script setup lang="ts">
-definePageMeta({ name: "about", path: "/sobre/" });
-
-const VALUES = [
-    { key: "rigour", icon: "i-lucide-scale" },
-    { key: "clarity", icon: "i-lucide-book-open" },
-    { key: "usefulness", icon: "i-lucide-graduation-cap" },
-] as const;
-
-const TOPICS = [
-    { key: "criminal", icon: "i-lucide-gavel" },
-    { key: "fundamentalRights", icon: "i-lucide-shield-check" },
-    { key: "caseLaw", icon: "i-lucide-landmark" },
-    { key: "more", icon: "i-lucide-library" },
-] as const;
-
-const MODEL = [
-    { key: "freeToRead", icon: "i-lucide-lock-open" },
-    { key: "openToWriters", icon: "i-lucide-pen-line" },
-    { key: "independent", icon: "i-lucide-heart-handshake" },
-] as const;
-
-const { t } = useI18n();
-
-useSeoMeta({
-    title: () => t("about.title"),
-    description: () => t("about.description"),
-    ogType: "website",
-});
-
-const { index: subjectIndex } = await useSubjectIndex();
-const { authors } = await useAuthorDirectory();
-
-const articleCount = computed<number>(
-    () => subjectIndex.value?.formats.reduce((total, { count }) => total + count, 0) ?? 0,
-);
-</script>
-
 <template>
     <div>
         <AboutIntro :articles="articleCount" :authors="authors.length" />
@@ -193,6 +155,44 @@ const articleCount = computed<number>(
         <NewsletterBand />
     </div>
 </template>
+
+<script setup lang="ts">
+definePageMeta({ name: "about", path: "/sobre/" });
+
+const VALUES = [
+    { key: "rigour", icon: "i-lucide-scale" },
+    { key: "clarity", icon: "i-lucide-book-open" },
+    { key: "usefulness", icon: "i-lucide-graduation-cap" },
+] as const;
+
+const TOPICS = [
+    { key: "criminal", icon: "i-lucide-gavel" },
+    { key: "fundamentalRights", icon: "i-lucide-shield-check" },
+    { key: "caseLaw", icon: "i-lucide-landmark" },
+    { key: "more", icon: "i-lucide-library" },
+] as const;
+
+const MODEL = [
+    { key: "freeToRead", icon: "i-lucide-lock-open" },
+    { key: "openToWriters", icon: "i-lucide-pen-line" },
+    { key: "independent", icon: "i-lucide-heart-handshake" },
+] as const;
+
+const { t } = useI18n();
+
+useSeoMeta({
+    title: () => t("about.title"),
+    description: () => t("about.description"),
+    ogType: "website",
+});
+
+const { index: subjectIndex } = await useSubjectIndex();
+const { authors } = await useAuthorDirectory();
+
+const articleCount = computed<number>(
+    () => subjectIndex.value?.formats.reduce((total, { count }) => total + count, 0) ?? 0,
+);
+</script>
 
 <style>
 @supports (animation-timeline: view()) {
