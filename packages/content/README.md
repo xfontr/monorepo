@@ -162,7 +162,10 @@ Two things the port deliberately carries:
 And one thing it deliberately hides: a failed request surfaces as an `UpstreamError`, never as
 a transport-specific one. Without that, the domain cannot tell "upstream said no" from "the
 network is down", and the status it answers with would depend on which HTTP library is
-installed.
+installed. A body declared as anything but JSON counts as failed too, even with a 200: a host's
+bot filter answers REST routes with an HTML challenge page, and a provider handed that string
+breaks on it with an error that names nothing. Its `cause` carries the URL, the content type and
+the first 300 characters of the body instead.
 
 There is no service layer on top of the provider port, deliberately: a class forwarding one
 call to one collaborator would add a name and a file without adding behaviour. Callers talk to
@@ -287,7 +290,7 @@ All of them extend `ContentError`, so one `instanceof` catches anything the pack
 | `MalformedQueryError` | 400 | a query parameter is unparseable or out of range — the message says what was expected |
 | `UndefinedResourceError` | 404 | the request names a resource, or a taxonomy, the domain does not have — the message lists the ones it does |
 | `NotFoundError` | 404 | the vendor answered, with nothing under that slug |
-| `UpstreamError` | 400 / 404 / 502 | the transport failed. A 400 or 404 relays the answer to the request that was actually made; **everything else is a 502**, because an upstream 401 or 403 means *our* credentials are wrong and must never invite the client to retry with different ones |
+| `UpstreamError` | 400 / 404 / 502 | the transport failed, or the vendor answered with something other than JSON. A 400 or 404 relays the answer to the request that was actually made; **everything else is a 502**, because an upstream 401 or 403 means *our* credentials are wrong and must never invite the client to retry with different ones |
 | `ContentUnavailableError` | 502 | the vendor failed for that resource in a way nothing else diagnosed (original error in `cause`) |
 | `UndefinedVendorError` | 500 | config names a vendor the registry doesn't have — the message lists the registered names |
 | `MisconfiguredVendorError` | 500 | the vendor exists but its config cannot work — `problems` lists every reason |
