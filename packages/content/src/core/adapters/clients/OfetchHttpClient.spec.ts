@@ -60,6 +60,73 @@ describe("OfetchHttpClient", () => {
         });
     });
 
+    // A host's bot filter can answer a REST route with a 200 challenge page, which ofetch hands back
+    // as a string the provider would then try to map
+    describe("when the vendor answers with something other than JSON", () => {
+        const challenge = {
+            _data: "<!DOCTYPE html>\n<html>\n  <title>Just a moment</title>\n</html>",
+            headers: new Headers({ "content-type": "text/html; charset=UTF-8" }),
+            status: 200,
+        };
+
+        it("fails the read instead of passing the page off as a parsed body", async () => {
+            const { $fetch } = createFetch(challenge);
+
+            await expect(
+                new OfetchHttpClient($fetch).get("https://wp.test/wp-json/wp/v2/posts"),
+            ).rejects.toMatchObject({ upstreamStatus: 200, statusCode: 502 });
+        });
+
+        it("names the url, type, status and start of the body on the cause, where logs reach it", async () => {
+            const { $fetch } = createFetch(challenge);
+
+            await expect(
+                new OfetchHttpClient($fetch).get("https://wp.test/wp-json/wp/v2/posts"),
+            ).rejects.toMatchObject({
+                cause: {
+                    message:
+                        "Expected JSON from https://wp.test/wp-json/wp/v2/posts, got " +
+                        `text/html; charset=UTF-8 (200): ${challenge._data}`,
+                },
+            });
+        });
+
+        it("keeps the vendor's url and body out of the message a client receives", async () => {
+            const { $fetch } = createFetch(challenge);
+
+            await expect(
+                new OfetchHttpClient($fetch).get("https://wp.test/wp-json/wp/v2/posts"),
+            ).rejects.toMatchObject({ statusMessage: "Upstream request failed" });
+        });
+
+        it("keeps only the start of the body, so a full page never floods the log", async () => {
+            const { $fetch } = createFetch({ ...challenge, _data: "x".repeat(5000) });
+
+            const error = await new OfetchHttpClient($fetch)
+                .get("https://wp.test/wp-json/wp/v2/posts")
+                .catch((caught: UpstreamError) => caught);
+
+            expect((error as UpstreamError).cause).toHaveProperty(
+                "message",
+                expect.stringMatching(/: x{300}$/),
+            );
+        });
+
+        // ofetch parses a body with no content type as JSON, so refusing it would break a vendor
+        // that simply omits the header
+        it.each([["application/json; charset=UTF-8"], ["application/problem+json"], [null]])(
+            "accepts a %s body as JSON",
+            async (contentType) => {
+                const headers = new Headers(contentType ? { "content-type": contentType } : {});
+                const { $fetch } = createFetch({ _data: [{ id: 1 }], headers, status: 200 });
+
+                await expect(
+                    new OfetchHttpClient($fetch).get("https://wp.test/wp-json/wp/v2/posts"),
+                ).resolves.toMatchObject({ data: [{ id: 1 }] });
+            },
+        );
+    });
+
     describe("when the request fails", () => {
         // Without this the domain cannot tell "upstream said no" from "the network is down"
         it("never surfaces a transport-specific error", async () => {
