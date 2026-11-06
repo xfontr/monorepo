@@ -1,5 +1,6 @@
 {
     "name": "huella-legal",
     "keep_vars": true,
+    "keep_names": false,
     "observability": { "enabled": true }
 }
