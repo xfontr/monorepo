@@ -5,6 +5,10 @@
             "command": "pnpm",
             "args": ["exec", "nx", "mcp", "--minimal=false", "--disableTelemetry"],
             "env": {}
+        },
+        "cloudflare-api": {
+            "type": "http",
+            "url": "https://mcp.cloudflare.com/mcp"
         }
     }
 }
