@@ -4,10 +4,10 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
 
 - **A public value that is the same in every environment is a literal in
   [`nuxt.config.ts`](./nuxt.config.ts); a secret or a per-environment value is an env var with no
-  default, and nothing there reads `process.env`.** The WordPress root is a literal; tokens, keys
-  and the telemetry URLs are not. An unset env var must fail loudly, not fall back to something
-  plausible: list one the feature can't work without under `requiredEnv` in the `nuxt.config.ts` of
-  the layer that uses it, and [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) fails a
+  default, and nothing there reads `process.env` but a build-time option, as `image.domains` does.**
+  The site's origin is a literal; the WordPress root, tokens, keys and the telemetry URLs are not.
+  An unset env var must fail loudly, not fall back to something plausible: list one the feature
+  can't work without under `requiredEnv` in the `nuxt.config.ts` of the layer that uses it, and [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) fails a
   production deploy naming it. Never re-check it per request. Declare the key empty and let the
   `NUXT_`-prefixed var fill it at startup, so one build runs in every environment. A new env var
   goes in `.env.example` with a row in the README table, and nowhere else.

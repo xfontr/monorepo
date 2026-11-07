@@ -2,6 +2,7 @@
 await import("vue-router/unplugin");
 
 const SITE_URL = "https://www.huellalegal.com";
+const WORDPRESS_HOST = URL.parse(process.env.NUXT_CONTENT_VENDOR_BASE_URL ?? "")?.host;
 
 export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
@@ -36,6 +37,7 @@ export default defineNuxtConfig({
     },
 
     experimental: {
+        viewTransition: true,
         typedPages: true,
         routeTypedFetch: true,
         payloadExtraction: "client",
@@ -213,7 +215,7 @@ export default defineNuxtConfig({
     content: {
         vendor: {
             name: "wordpress",
-            baseURL: SITE_URL,
+            baseURL: "",
         },
     },
 
@@ -247,7 +249,7 @@ export default defineNuxtConfig({
     },
 
     image: {
-        domains: ["www.huellalegal.com"],
+        domains: ["www.huellalegal.com", ...(WORDPRESS_HOST ? [WORDPRESS_HOST] : [])],
     },
 
     nitro: {
@@ -268,6 +270,15 @@ export default defineNuxtConfig({
             ui: {
                 swagger: false,
             },
+        },
+    },
+
+    vite: {
+        optimizeDeps: {
+            include: [
+                "@monorepo/observability > @grafana/faro-web-sdk",
+                "@monorepo/observability > @grafana/faro-web-tracing",
+            ],
         },
     },
 });

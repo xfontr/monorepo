@@ -227,7 +227,7 @@ turns their feature off.
 
 | Variable | What it is |
 | --- | --- |
-| `NUXT_CONTENT_VENDOR_BASE_URL` | Optional. Overrides the WordPress site root set in `nuxt.config.ts` |
+| `NUXT_CONTENT_VENDOR_BASE_URL` | The WordPress site root, with scheme and **without** `/wp-json` — the provider owns that path. The build reads it too, to allow its host in `image.domains` |
 | `NUXT_PUBLIC_SITE_URL` | Optional. Overrides the public origin set in `nuxt.config.ts`, with scheme. Article permalinks, the share link, both citations, canonicals and the SEO modules' absolute URLs are built on it rather than on the request's host |
 | `NUXT_SITE_ENV` | `production` on the production deploy and `preview` on every other deploy, for builds as well as functions, and unset in dev, CI and e2e builds. A build prerenders only when it is set, and only `production` fails on an unset required variable. Unset or `preview`, robots.txt disallows everything and every page says `noindex`. Prerendered pages bake the value in, which is why builds need it |
 | `NUXT_PUBLIC_PAGE_SLUGS` | A JSON array of the WordPress page slugs served at `/:slug/`, such as `["aviso-legal"]`. Every other slug there is read as a post. The `articles` layer defaults it to `["aviso-legal", "calculo-intereses", "guia-de-publicaciones"]`, the second read only as the calculator's guide; set but empty, it replaces the list with `""`, so leave it unset instead |
@@ -255,7 +255,6 @@ everywhere is a literal in [`nuxt.config.ts`](./nuxt.config.ts), so changing it 
 
 | Literal | Value |
 | --- | --- |
-| `content.vendor.baseURL` | The WordPress site root, **without** `/wp-json` — the provider owns that path |
 | `public.site.url` | The site's public origin, `www` included, with no trailing slash |
 | `mail.baseURL`, `.from` | Resend's API origin and the sender every form's email comes from, set in [`layers/forms/nuxt.config.ts`](./layers/forms/nuxt.config.ts) |
 | `mail.to` | The inbox Contacto sends to, set in [`layers/contact/nuxt.config.ts`](./layers/contact/nuxt.config.ts) |
@@ -346,8 +345,9 @@ and the gotchas.
 ## 🧩 Structure
 
 [`app/`](./app) is the front-end shell and stays thin: a layout, an error page and its dev-only debug
-panel, two client plugins (Faro telemetry, and a dev-only console filter for a known Nuxt/Vue
-warning), and one page — the entry page. Its own server code is four Nitro plugins (telemetry, a log line for every
+panel, its client plugins (Faro telemetry, a dev-only console filter for a known Nuxt/Vue
+warning, the replay of a click made before hydration, and `navDirection`, which tells the page
+transition whether the reader went back), and one page — the entry page. Its own server code is four Nitro plugins (telemetry, a log line for every
 handled `5xx`, the header that keeps a `5xx` out of the CDN, and the hydration loader). Beside it,
 [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) checks the
 [required variables](#-environment) once per build, and
@@ -356,7 +356,7 @@ rules and lists the [prerendered routes](#-rendering) on a Netlify build.
 
 | Piece | What it holds |
 | --- | --- |
-| [`layouts/default.vue`](./app/layouts/default.vue) | The skip link, `SiteHeader`, the one `<main id="contenido">` and `SiteFooter`, fed by `useSiteNav`. A page never renders its own `<main>` |
+| [`layouts/default.vue`](./app/layouts/default.vue) | The skip link, `SiteHeader`, the one `<main id="contenido">` and `SiteFooter`, fed by `useSiteNav`. A page never renders its own `<main>`. A client-side page change is a native View Transition, Nuxt's `experimental.viewTransition`: a short fade and slide in the [`design`](./layers/design) layer's `main.css`, CSS only, skipped under reduced motion and on a query-only change, with `SiteHeader` held still by its own `view-transition-name` |
 | [`composables/useSiteNav.ts`](./app/composables/useSiteNav.ts) | The shell's arrangement of links: which `nav` keys the header, its *Revista* group and each footer column show and in what order, with `aria-current`, plus the configured social profiles and the ISSN. Each layer declares where its own keys go under `nav` in its `app/app.config.ts`, so the shell never names a route. The layout calls it and hands the results to the shell |
 | [`components/shell/`](./app/components/shell) | `SiteHeader` (`UHeader` with a slideover menu below `lg`, and dropdowns above it whose *Publicaciones* and *Áreas* panels are the archive layer's `NavPublicationsPanel` and `NavSubjectsPanel`) and `SiteFooter` (`UFooter` + `UFooterColumns`), both props-in. Every link is a [route name](#-links). WordPress pages such as `aviso-legal` are `article` slugs, and the privacy and cookies links are anchors on `aviso-legal`, per [0028](../../docs/decisions/0028-huella-legal-urls-and-cutover.md) |
 | [`types/`](./app/types) | The vocabulary kits share across layers: `LinkAction`, the `{ label, to }` every link and action prop takes, and `Tone`, the `paper` or `slate` surface a component renders on. [`AnalyticsEvent.ts`](./app/types/AnalyticsEvent.ts) is the one map of analytics event names to their params, which carry names, counts and buckets, never what a reader typed |

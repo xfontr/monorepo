@@ -10,7 +10,7 @@ export const useWordPress = (event: H3Event) => {
     const { baseURL, username, applicationPassword } = useRuntimeConfig(event).wordpress;
 
     return createWordPress({
-        baseURL,
+        baseURL: requireEnv("NUXT_WORDPRESS_BASE_URL", baseURL),
         username: requireEnv("NUXT_WORDPRESS_USERNAME", username),
         applicationPassword: requireEnv("NUXT_WORDPRESS_APPLICATION_PASSWORD", applicationPassword),
     });

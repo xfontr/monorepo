@@ -7,9 +7,7 @@ and its REST API can't restore a revision, so this tool keeps its own backup of 
 touches.
 
 It runs on `127.0.0.1` only and **never deploys**. Nothing in it is specific to one blog except the
-base URL in [`shared/site.ts`](./shared/site.ts), which points at huellalegal.com today and moves to
-the WordPress subdomain at the cutover in
-[ADR 0028](../../docs/decisions/0028-huella-legal-urls-and-cutover.md).
+site it reads, `NUXT_WORDPRESS_BASE_URL`.
 
 ## 🗂 Structure
 
@@ -66,11 +64,12 @@ Claude's batch loop over these commands is in the
 
 | Var | Why |
 | --- | --- |
+| `NUXT_WORDPRESS_BASE_URL` | The WordPress site root, with scheme and **without** `/wp-json` |
 | `NUXT_WORDPRESS_USERNAME` | The account the Application Password belongs to |
 | `NUXT_WORDPRESS_APPLICATION_PASSWORD` | A **new** one, never the comments password; the account needs `edit_others_posts`, `edit_published_posts`, `edit_pages` and `unfiltered_html` |
 | `NUXT_EDITOR_STORE` | Absolute path to the store, outside the repo |
 
-All three are checked when a command or route needs them, never at build time, because CI builds
+All four are checked when a command or route needs them, never at build time, because CI builds
 the app with no env. The CLI loads `.env` itself through `--env-file-if-exists`. Claude needs
 read/write access to the store, granted through `additionalDirectories` in the gitignored
 `.claude/settings.local.json`, since the path differs per machine.
@@ -154,4 +153,4 @@ because it is the only thing in the workspace that writes post content.
 | A styled preview | Inject the site's stylesheet into the preview `srcdoc`; today it is default browser styles plus the `ins`/`del` highlight |
 | An MCP server instead of the CLI | Wrap the same operations as tools; the store layout stays |
 | Other WordPress fields (slug, categories, meta) | Widen `Snapshot` and `Proposal`, and the block guard if the field holds markup |
-| Another blog | Make `WORDPRESS_BASE_URL` a runtime value and namespace the store per site |
+| Another blog | Namespace the store per site, since `NUXT_WORDPRESS_BASE_URL` already picks it |

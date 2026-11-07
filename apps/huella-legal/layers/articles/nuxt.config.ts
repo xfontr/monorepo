@@ -9,6 +9,10 @@ export default defineNuxtConfig({
         },
     },
 
+    requiredEnv: {
+        articles: ["NUXT_CONTENT_VENDOR_BASE_URL"],
+    },
+
     rendering: {
         cache: {
             "/api/articles": {
