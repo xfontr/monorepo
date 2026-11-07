@@ -175,6 +175,13 @@ old posts. The hook URL is the `NETLIFY_BUILD_HOOK_URL` repo secret, with no def
 ([provisioning](../../docs/guides/repo-secrets.md)). Running the workflow by hand is also the purge
 after an urgent correction, because every deploy empties the CDN cache.
 
+A cold listing render pages through every WordPress post from the function's region, which took
+11 s on `/publicaciones/` once measured. So after each production deploy,
+[`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml) requests `/publicaciones/`,
+`/buscar/` and every listing in the sitemap, each with its `_payload.json`, and the durable cache
+serves every edge from then on. A failed request is a warning, never a red run. The weekly rebuild
+isn't warmed, since its deploy repeats a commit the workflow has already recorded.
+
 ### 🔐 Abuse and hardening
 
 Every BFF route is public, because the browser calls it, so what reaches one is capped and checked

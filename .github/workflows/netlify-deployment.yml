@@ -35,8 +35,8 @@ jobs:
                       echo "build=true" >> "$GITHUB_OUTPUT"
                   fi
 
-            # Records the Netlify deploy as a GitHub Deployment; it builds and deploys nothing —
-            # huella-legal ships entirely through Netlify's own git integration, outside this repo.
+            # Records the Netlify deploy as a GitHub Deployment and warms its cache; it builds and
+            # deploys nothing — huella-legal ships through Netlify's own git integration.
             - if: steps.changes.outputs.build == 'true'
               uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
               env:
@@ -101,3 +101,39 @@ jobs:
                           environment,
                           environment_url: process.env.NETLIFY_PRODUCTION_URL || deploy.ssl_url,
                       });
+
+                      // A deploy empties the CDN, and a cold listing render pages through every
+                      // WordPress post, so the runner pays for it once and the durable cache serves
+                      // every edge after that.
+                      const origin = process.env.NETLIFY_PRODUCTION_URL || deploy.ssl_url;
+                      const get = (path) => fetch(new URL(path, origin), { signal: AbortSignal.timeout(30_000) });
+
+                      try {
+                          const sitemap = await (await get("/sitemap.xml")).text();
+                          // The sitemap's `<loc>`s carry the site URL, which needn't be this host
+                          const listings = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)]
+                              .map(([, loc]) => new URL(loc).pathname)
+                              .filter((path) => /^\/(areas|colaboradores)\/[^/]+\/$/.test(path));
+                          const paths = ["/publicaciones/", "/buscar/", ...listings].flatMap((path) => [
+                              path,
+                              `${path}_payload.json`,
+                          ]);
+
+                          for (let i = 0; i < paths.length; i += 4) {
+                              const batch = paths.slice(i, i + 4);
+                              const results = await Promise.allSettled(
+                                  batch.map(async (path) => {
+                                      const response = await get(path);
+                                      await response.arrayBuffer();
+                                      return response.status;
+                                  })
+                              );
+                              results.forEach((result, j) =>
+                                  result.status === "fulfilled"
+                                      ? core.info(`${result.value} ${batch[j]}`)
+                                      : core.warning(`${batch[j]}: ${result.reason}`)
+                              );
+                          }
+                      } catch (error) {
+                          core.warning(`Cache warm-up stopped: ${error.message}`);
+                      }
