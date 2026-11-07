@@ -79,7 +79,6 @@ GitHub Actions, named as the Actions tab shows them rather than by filename.
 | `CI` | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | [`README.md`](../README.md) |
 | `Developer Portal deploy` | [`.github/workflows/developer-portal-deploy.yml`](../.github/workflows/developer-portal-deploy.yml) | [`README.md`](../README.md) |
 | `Focused documentation review` | [`.github/workflows/docs-review.yml`](../.github/workflows/docs-review.yml) | [`README.md`](../README.md) |
-| `Huella Legal rebuild` | [`.github/workflows/huella-legal-rebuild.yml`](../.github/workflows/huella-legal-rebuild.yml) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
 | `Netlify deployment` | [`.github/workflows/netlify-deployment.yml`](../.github/workflows/netlify-deployment.yml) | [`README.md`](../README.md) |
 | `PR labeler` | [`.github/workflows/pr-labeler.yml`](../.github/workflows/pr-labeler.yml) | [`README.md`](../README.md) |
 | `PR metadata` | [`.github/workflows/pr-metadata.yml`](../.github/workflows/pr-metadata.yml) | [`README.md`](../README.md) |
