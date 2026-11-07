@@ -93,7 +93,9 @@ site stays on the previous build until a change to the app lands, the Monday run
 Fork and Dependabot PRs get no repo secrets, so they pass without a preview. The site ID and auth
 token never enter this repo: `NETLIFY_SITE_ID` is a GitHub Actions repo variable and
 `NETLIFY_AUTH_TOKEN` a secret, both read at workflow runtime with no default. The build runs with
-`NX_SKIP_NX_CACHE`, because the prerender reads live WordPress and no task hash covers that.
+`NX_SKIP_NX_CACHE`, because the prerender reads live WordPress and no task hash covers that. It also
+pins `NITRO_PRESET` and `NUXT_IMAGE_PROVIDER`: on a runner, auto-detection sees GitHub Actions rather
+than Netlify, and would build a Node server with no Netlify function.
 Netlify gives a CLI build no secret values, so the [Nitro telemetry plugin](./server/plugins/observability.ts) starts
 no exporter while prerendering: a 401 from the OTLP gateway on shutdown would otherwise fail the
 build.
