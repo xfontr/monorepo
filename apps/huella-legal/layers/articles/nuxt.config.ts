@@ -13,7 +13,7 @@ export default defineNuxtConfig({
         cache: {
             "/api/articles": {
                 isr: 60 * 60 * 24,
-                queryKeys: ["page", "sort", "format", "category", "tag", "author"],
+                queryKeys: ["page", "sort", "format", "category", "tag", "author", "query"],
             },
             "/api/search": { isr: 60 * 60 * 24, queryKeys: ["query", "page"] },
             "/api/articles/**": { isr: 60 * 60 * 24 },
