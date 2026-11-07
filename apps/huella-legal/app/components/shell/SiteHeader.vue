@@ -1,5 +1,6 @@
 <template>
     <UHeader
+        class="[view-transition-name:site-header]"
         :to="homePath"
         mode="slideover"
         :title="$t('app.header.home')"

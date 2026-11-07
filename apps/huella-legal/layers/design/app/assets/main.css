@@ -235,3 +235,36 @@ html {
 button:not(:disabled) {
     cursor: pointer;
 }
+
+/* A client-side navigation's View Transition: `data-nav` comes from the app's `navDirection` plugin */
+@media (prefers-reduced-motion: no-preference) {
+    :root {
+        --hl-nav-shift: 0.75rem;
+    }
+
+    :root[data-nav="back"] {
+        --hl-nav-shift: -0.75rem;
+    }
+
+    ::view-transition-old(root) {
+        animation: 160ms ease-in both hl-nav-out;
+    }
+
+    ::view-transition-new(root) {
+        animation: 220ms ease-out both hl-nav-in;
+    }
+}
+
+@keyframes hl-nav-out {
+    to {
+        opacity: 0;
+        translate: calc(var(--hl-nav-shift) * -1) 0;
+    }
+}
+
+@keyframes hl-nav-in {
+    from {
+        opacity: 0;
+        translate: var(--hl-nav-shift) 0;
+    }
+}

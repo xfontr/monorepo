@@ -37,6 +37,7 @@ export default defineNuxtConfig({
     },
 
     experimental: {
+        viewTransition: true,
         typedPages: true,
         routeTypedFetch: true,
         payloadExtraction: "client",
