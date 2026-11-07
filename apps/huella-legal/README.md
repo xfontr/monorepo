@@ -98,6 +98,27 @@ Netlify gives a CLI build no secret values, so the [Nitro telemetry plugin](./se
 no exporter while prerendering: a 401 from the OTLP gateway on shutdown would otherwise fail the
 build.
 
+### 🔒 Preview login
+
+Every deploy but production asks for a username and password, through the browser's own Basic Auth
+prompt. Netlify's password protection is a paid feature, so
+[`modules/previewGate.ts`](./modules/previewGate.ts) writes an edge function into
+`.netlify/edge-functions/` on a `NUXT_SITE_ENV=preview` build, and nowhere else. It has to be an
+edge function because those run before the CDN, and most pages are prerendered files that Nitro
+never sees. It's a build-time file rather than a runtime check, so the production deploy never
+carries it and pays no edge invocation per request. A build that isn't a preview deletes any gate a
+previous preview build left in the same checkout.
+
+| Case | What the visitor gets |
+| --- | --- |
+| No credentials, or wrong ones | `401` and the browser's login prompt |
+| `PREVIEW_USERNAME` or `PREVIEW_PASSWORD` unset | `401` for everyone, so a missing variable can't leave a preview open |
+| Both match | The page, and every asset after it, since the browser resends the header |
+
+The edge function reads both variables at request time through `Netlify.env`, so they need the
+**Functions** scope in Netlify and a redeploy after any change. The `*.netlify.app` URLs can't be
+switched off, which is why the gate sits inside Netlify rather than at the DNS.
+
 ### 🗄 Rendering
 
 A deploy build prerenders every page that reads nothing from the query string, and Netlify's CDN
@@ -235,6 +256,7 @@ turns their feature off.
 | `NUXT_CONTENT_VENDOR_BASE_URL` | The WordPress site root, with scheme and **without** `/wp-json` — the provider owns that path. The build reads it too, to allow its host in `image.domains` |
 | `NUXT_PUBLIC_SITE_URL` | Optional. Overrides the public origin set in `nuxt.config.ts`, with scheme. Article permalinks, the share link, both citations, canonicals and the SEO modules' absolute URLs are built on it rather than on the request's host |
 | `NUXT_SITE_ENV` | `production` on the production deploy and `preview` on every other deploy, for builds as well as functions, and unset in dev, CI and e2e builds. A build prerenders only when it is set, and only `production` fails on an unset required variable. Unset or `preview`, robots.txt disallows everything and every page says `noindex`. Prerendered pages bake the value in, which is why builds need it |
+| `PREVIEW_USERNAME`, `PREVIEW_PASSWORD` | The [preview login](#-preview-login). Read by the edge function rather than Nuxt, so they have no `NUXT_` prefix and need the Functions scope. Unset, every preview answers `401` |
 | `NUXT_PUBLIC_PAGE_SLUGS` | A JSON array of the WordPress page slugs served at `/:slug/`, such as `["aviso-legal"]`. Every other slug there is read as a post. The `articles` layer defaults it to `["aviso-legal", "calculo-intereses", "guia-de-publicaciones"]`, the second read only as the calculator's guide; set but empty, it replaces the list with `""`, so leave it unset instead |
 | `NUXT_NEWSLETTER_API_KEY` | The Kit v4 API key, sent as `X-Kit-Api-Key` |
 | `NUXT_NEWSLETTER_FORM_ID` | The Kit form new readers join. Its incentive email must be on, since that is the confirmation Kit sends |
@@ -357,7 +379,9 @@ handled `5xx`, the header that keeps a `5xx` out of the CDN, and the hydration l
 [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) checks the
 [required variables](#-environment) once per build, and
 [`modules/rendering.ts`](./modules/rendering.ts) turns each layer's `rendering` entries into route
-rules and lists the [prerendered routes](#-rendering) on a deploy build.
+rules and lists the [prerendered routes](#-rendering) on a deploy build, and
+[`modules/previewGate.ts`](./modules/previewGate.ts) puts the [preview login](#-preview-login) on a
+preview build.
 
 | Piece | What it holds |
 | --- | --- |
@@ -635,4 +659,5 @@ Pre-push doesn't run e2e, so a green push is not yet a green `e2e` job.
 | Replaying a form submitted before hydration | The loader keeps only a button's click. A submit button inside a `@submit.prevent` form still submits natively before the app wakes, so a form that must never do that would need the loader to hold the `submit` event too |
 | A shared performance module | The manifest hook, the loader and the click replay are generic. They move into a `packages/` Nuxt module when a second public Nuxt site starts, rather than for one consumer |
 | A `script-src` CSP | `isr` caches the HTML, which rules out a per-request nonce, and Nuxt's inline scripts change per page, so a policy means hashing every response as it leaves. Post bodies already go through `rehype-sanitize`; a script policy comes back if something renders HTML that isn't sanitized |
+| More than one preview login | The gate compares one shared pair. Per-person access means a list in one variable, or Netlify's team login on a paid plan, whose `context.user` the edge function could read instead |
 | A per-form Turnstile `action` | Set `action` on each `FormChallenge` and assert it in `assertChallenge`, so a newsletter token can't post a comment. Tokens are single-use already, which makes this a small gain |
