@@ -33,7 +33,9 @@ beforeEach(() => {
     vi.clearAllMocks();
     nitro.fetch.mockResolvedValue({ id: 7 });
     nitro.ip.mockReturnValue("203.0.113.9");
-    nitro.header.mockReturnValue("Firefox");
+    nitro.header.mockImplementation((_, name: string) =>
+        name === "user-agent" ? "Firefox" : undefined,
+    );
 });
 
 describe("createComment", () => {
@@ -65,6 +67,17 @@ describe("createComment", () => {
 
         expect(nitro.ip).toHaveBeenCalledWith({}, { xForwardedFor: true });
         expect(body()).toMatchObject({ author_ip: "203.0.113.9", author_user_agent: "Firefox" });
+    });
+
+    it("prefers Netlify's own client-address header over X-Forwarded-For", async () => {
+        nitro.header.mockImplementation((_, name: string) =>
+            name === "x-nf-client-connection-ip" ? "198.51.100.4" : "Firefox",
+        );
+
+        await createComment({} as never, COMMENT);
+
+        expect(nitro.ip).not.toHaveBeenCalled();
+        expect(body()).toMatchObject({ author_ip: "198.51.100.4" });
     });
 
     // An authenticated editor's comment skips kses, and wp-admin's queue would render the markup
