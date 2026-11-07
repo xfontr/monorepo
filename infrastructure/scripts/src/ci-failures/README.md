@@ -24,7 +24,7 @@ domain/checks.ts       grouping by gh's buckets, the job id in a link, the log-p
 
 ## 🔗 Two kinds of check
 
-A PR here fans out to GitHub Actions, SonarCloud, Netlify, Snyk, CodeRabbit and a "PR Lens" bot.
+A PR here fans out to GitHub Actions, SonarCloud, Snyk, CodeRabbit and a "PR Lens" bot.
 Only an Actions job has a log `gh` can fetch, and `jobOf` in
 [`domain/checks.ts`](./domain/checks.ts) tells them apart by the `/actions/runs/<run>/job/<job>`
 link. Every other failed check prints its name, its description and its link.

@@ -55,8 +55,8 @@ rather than trusting a single `gh` call, because a single call catches two diffe
 mid-flight and reports them as if they were done:
 
 - **Right after `push`**, GitHub can take a while to attach even the *first* check run to the new
-  commit — this repo alone fans a PR out to GH Actions, a second "PR metadata" workflow, two
-  SonarCloud checks and four Netlify ones. `gh pr checks --watch` doesn't wait that out; it errors
+  commit — this repo alone fans a PR out to GH Actions, a second "PR metadata" workflow, the
+  Netlify deployment workflow and two SonarCloud checks. `gh pr checks --watch` doesn't wait that out; it errors
   immediately with "no checks reported", indistinguishable from a genuine failing check by exit code
   alone. [`domain/checks.ts`](./domain/checks.ts) names that one message so `watchChecks` retries
   for up to a minute instead of reporting it as "a check failed" — a real failure never carries that
