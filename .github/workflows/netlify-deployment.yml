@@ -87,6 +87,10 @@ jobs:
                   CONTEXT: ${{ steps.changes.outputs.context }}
                   # The prerender reads live WordPress, which no task hash covers.
                   NX_SKIP_NX_CACHE: "true"
+                  # std-env detects GitHub Actions before Netlify, so both would fall back to
+                  # `node-server` and a local `ipx` that fetches every image during the prerender.
+                  NITRO_PRESET: netlify
+                  NUXT_IMAGE_PROVIDER: netlifyImageCdn
 
             - if: steps.changes.outputs.build == 'true'
               id: deploy
