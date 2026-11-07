@@ -20,7 +20,6 @@ whole story.
 | [`change-lifecycle.md`](./change-lifecycle.md) | An issue, end to end, from `issue:pick` to a released version |
 | [`adding-a-locale.md`](./adding-a-locale.md) | Adding a locale across the app and the translations service |
 | [`repo-secrets.md`](./repo-secrets.md) | Provisioning the four Actions secrets nothing else sets up |
-| [`huella-legal-cloudflare-cutover.md`](./huella-legal-cloudflare-cutover.md) | Moving Huella Legal to Cloudflare Pages, with WordPress on its own subdomain |
 
 ## 🧭 Deliberately deferred
 
