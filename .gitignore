@@ -5,6 +5,7 @@
 .nitro
 .cache
 dist
+.netlify
 
 # Storybook
 storybook-static

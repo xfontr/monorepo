@@ -169,6 +169,23 @@ describe("the rendering module", () => {
         expect(routes).not.toContain("/aviso-legal/");
     });
 
+    // The config declares the root empty, so without the env every deploy build fails here
+    it("lists the posts from NUXT_CONTENT_VENDOR_BASE_URL", async () => {
+        vi.stubEnv("NUXT_CONTENT_VENDOR_BASE_URL", BASE_URL);
+
+        const { hooks } = install({
+            runtimeConfig: {
+                content: { vendor: { name: "wordpress", baseURL: "" } },
+                public: { pageSlugs: [] },
+            },
+        });
+        const routes = await collectRoutes(hooks.get("prerender:routes"));
+
+        expect([...routes].sort()).toEqual(
+            ["/contacto/", ...POSTS.map(({ slug }) => `/${slug}/`)].sort(),
+        );
+    });
+
     it("fails the build when WordPress can't list the posts", async () => {
         server.use(http.get(`${BASE_URL}/*`, () => HttpResponse.json({}, { status: 503 })));
 
