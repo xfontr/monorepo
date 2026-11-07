@@ -26,7 +26,9 @@ const RENDERING = {
     cache: {
         "/**": { isr: 86400 },
         "/api/**": { isr: false },
-        "/publicaciones/": { isr: 86400 },
+        "/publicaciones/": { isr: 86400, queryKeys: ["page", "sort", "format"] },
+        "/areas/*": { isr: 86400, queryKeys: ["page", "sort", "format"] },
+        "/api/search": { isr: 86400, queryKeys: ["query", "page"] },
     },
     prerender: ["/contacto/"],
 } satisfies Rendering;
@@ -90,6 +92,36 @@ describe("the rendering module", () => {
         expect(kit.extendRouteRules).toHaveBeenCalledWith("/api/**", { isr: false });
     });
 
+    it("varies the CDN copy on exactly the query keys a route reads", () => {
+        install();
+
+        expect(kit.extendRouteRules).toHaveBeenCalledWith("/api/search", {
+            isr: 86400,
+            headers: { "Netlify-Vary": "query=query|page" },
+        });
+    });
+
+    it.each([
+        ["/publicaciones/", "/publicaciones/_payload.json"],
+        ["/areas/*", "/areas/*/_payload.json"],
+    ])("gives %s's payload the page's vary, which Nuxt doesn't copy", (route, payload) => {
+        install();
+
+        const rule = { isr: 86400, headers: { "Netlify-Vary": "query=page|sort|format" } };
+
+        expect(kit.extendRouteRules).toHaveBeenCalledWith(route, rule);
+        expect(kit.extendRouteRules).toHaveBeenCalledWith(payload, rule);
+    });
+
+    it("gives an API route no payload rule, since it has no page", () => {
+        install();
+
+        expect(kit.extendRouteRules).not.toHaveBeenCalledWith(
+            "/api/search/_payload.json",
+            expect.anything(),
+        );
+    });
+
     it("registers no route rule for a prerendered route", () => {
         install();
 
@@ -113,7 +145,7 @@ describe("the rendering module", () => {
         },
     );
 
-    // A failed build never deploys, so the live version keeps serving and a failed page costs nothing
+    // Netlify keeps the previous deploy live when a build fails, so a failed page costs nothing
     it("fails the build on any page that fails, keeping the rest of the prerender options", () => {
         expect(install().nitro.prerender).toEqual({ crawlLinks: false, failOnError: true });
     });

@@ -5,7 +5,7 @@ export default defineNuxtConfig({
 
     rendering: {
         cache: {
-            "/buscar/": { isr: 60 * 60 * 24 },
+            "/buscar/": { isr: 60 * 60 * 24, queryKeys: ["query", "page"] },
         },
     },
 });

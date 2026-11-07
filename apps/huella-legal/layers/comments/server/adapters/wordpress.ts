@@ -19,11 +19,6 @@ const toRefusal = (cause: unknown) => {
     });
 };
 
-const readerIP = (event: H3Event): string | undefined =>
-    event.context.cloudflare
-        ? getRequestHeader(event, "cf-connecting-ip")
-        : getRequestIP(event, { xForwardedFor: true });
-
 /** Files a reader's comment into WordPress's moderation queue, as the reader rather than as us. */
 export const createComment = async (
     event: H3Event,
@@ -44,7 +39,7 @@ export const createComment = async (
             author_email: email,
             content: escapeHtml(content),
             // Akismet
-            author_ip: readerIP(event),
+            author_ip: getRequestIP(event, { xForwardedFor: true }),
             author_user_agent: getRequestHeader(event, "user-agent"),
             status: "hold",
         },

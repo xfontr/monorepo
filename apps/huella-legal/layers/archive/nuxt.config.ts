@@ -6,10 +6,10 @@ export default defineNuxtConfig({
 
     rendering: {
         cache: {
-            "/publicaciones/": { isr: 60 * 60 * 24 },
-            "/areas/*": { isr: 60 * 60 * 24 },
-            "/etiquetas/*": { isr: 60 * 60 * 24 },
-            "/colaboradores/*": { isr: 60 * 60 * 24 },
+            "/publicaciones/": { isr: 60 * 60 * 24, queryKeys: ["page", "sort", "format"] },
+            "/areas/*": { isr: 60 * 60 * 24, queryKeys: ["page", "sort", "format"] },
+            "/etiquetas/*": { isr: 60 * 60 * 24, queryKeys: ["page", "sort", "format"] },
+            "/colaboradores/*": { isr: 60 * 60 * 24, queryKeys: ["page", "sort", "format"] },
         },
         prerender: ["/", "/areas/", "/colaboradores/", "/sobre/"],
     },

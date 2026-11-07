@@ -9,14 +9,39 @@ import { defineNuxtModule, extendRouteRules } from "nuxt/kit";
 import { ofetch } from "ofetch";
 import { readAllPages } from "../layers/articles/server/utils/readAllPages";
 
+type RouteRule = Parameters<typeof extendRouteRules>[1];
+
 interface CachedRule {
     isr: number | false;
+    queryKeys?: string[];
 }
 
 export interface Rendering {
     cache: Record<string, CachedRule>;
     prerender: string[];
 }
+
+// Nuxt copies only `isr` onto a payload path and skips wildcards, so the vary is repeated here
+const hasPayload = (route: string, { queryKeys }: CachedRule): boolean =>
+    !!queryKeys && !route.startsWith("/api/");
+
+const payloadPath = (route: string): string =>
+    `${route.endsWith("/") ? route : `${route}/`}_payload.json`;
+
+const toRouteRule = ({ isr, queryKeys }: CachedRule): RouteRule =>
+    queryKeys ? { isr, headers: { "Netlify-Vary": `query=${queryKeys.join("|")}` } } : { isr };
+
+const toRouteRules = (cache: Rendering["cache"]): [string, RouteRule][] =>
+    Object.entries(cache).flatMap(([route, rule]) => {
+        const routeRule = toRouteRule(rule);
+
+        return hasPayload(route, rule)
+            ? [
+                  [route, routeRule],
+                  [payloadPath(route), routeRule],
+              ]
+            : [[route, routeRule]];
+    });
 
 const listPostSlugs = async (vendor: VendorConfig): Promise<string[]> => {
     const provider = await createProvider(vendor, new OfetchHttpClient(ofetch));
@@ -43,7 +68,7 @@ export default defineNuxtModule<Rendering>({
     defaults: { cache: {}, prerender: [] },
 
     setup: ({ cache, prerender }, { options, hook }) => {
-        for (const [route, { isr }] of Object.entries(cache)) extendRouteRules(route, { isr });
+        for (const [route, rule] of toRouteRules(cache)) extendRouteRules(route, rule);
 
         // Every deploy sets it; CI and e2e build without it, so their pages read the fakes
         if (!process.env.NUXT_SITE_ENV || options._prepare || options.dev) return;
