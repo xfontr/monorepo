@@ -9,7 +9,7 @@ to="${2:-}"
 
 cd "$(git rev-parse --show-toplevel)" || exit 1
 
-# A preview's last build is master's or its own, and neither says what the PR itself changes.
+# A push's own range says nothing about what the PR changes as a whole.
 if [ "${CONTEXT:-}" = "deploy-preview" ]; then
     base="${NETLIFY_IGNORE_BASE:-}"
     if [ -z "$base" ]; then
@@ -19,8 +19,7 @@ if [ "${CONTEXT:-}" = "deploy-preview" ]; then
     from="$(git merge-base "$base" "$to")" || exit 1
 fi
 
-# Netlify sets both refs to the same commit when a build has no cache, and GitHub sends an all-zero
-# `before` on a new branch, so an unusable range builds rather than skipping.
+# GitHub sends an all-zero `before` on a new branch, so an unusable range builds rather than skipping.
 if [ -z "$from" ] || [ -z "$to" ] || [ "$from" = "$to" ] || ! git cat-file -e "$from^{commit}" 2>/dev/null; then
     exit 1
 fi
@@ -33,7 +32,7 @@ git diff --quiet "$from" "$to" -- \
     pnpm-lock.yaml \
     pnpm-workspace.yaml \
     .nvmrc \
-    netlify.toml \
+    .github/workflows/netlify-deployment.yml \
     ":(exclude,glob)**/*.md" \
     ":(exclude,glob)**/*.spec.ts" \
     ":(exclude,glob)**/*.test.ts" \

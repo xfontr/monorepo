@@ -65,36 +65,42 @@ for every spec. The spec also lists the handlers Nuxt and its modules register, 
 
 ## 🚢 Deployment
 
-The app ships through Netlify's own git integration, with build settings in the Netlify UI and no
-build or deploy step in this repo. [`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml)
-builds and deploys nothing itself: once Netlify's own pipeline publishes a commit, it polls
-Netlify's Deploys API for that commit and records a GitHub Deployment against the
-`huella-legal` environment, so the live URL shows up on the repo's Deployments page
-alongside `developer-portal` instead of only in Netlify's own dashboard.
+The app builds on a GitHub runner and Netlify only hosts it, because Netlify's build minutes are
+billed and a runner's aren't. [`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml)
+runs `netlify build` and then `netlify deploy --no-build` with the Netlify CLI. The build command,
+the publish directory and the env vars all come from the Netlify project, so the repo holds no copy
+of them. It then records a GitHub Deployment, so the URL shows on the repo's Deployments page
+alongside `developer-portal`. Netlify's own git builds stay stopped (**Project configuration →
+Build & deploy → Stop builds**). A CLI deploy goes through either way, but a running git
+integration would build every commit a second time.
 
-The root [`netlify.toml`](../../netlify.toml) holds only an `ignore` command, which runs
-[`netlify-ignore.sh`](./netlify-ignore.sh). It cancels the build unless the diff touches this app,
-`content`, `i18n`, `observability` or the pnpm and Node pins. Docs, specs, stories, e2e and lint
-config don't count.
+| Trigger | Deploys | Environment |
+| --- | --- | --- |
+| Push to `master` | Production, then warms the cache ([Rendering](#-rendering)) | `huella-legal` |
+| Pull request | A draft at `pr-<number>--<project>.netlify.app` | `huella-legal-preview` |
+| Monday 05:00 UTC, or run by hand | Production, whatever changed | `huella-legal` |
 
-| Build | Diffed from |
-| --- | --- |
-| Production | Netlify's last build |
-| Deploy preview | The PR's merge base with `master` |
-| `netlify-deployment.yml` | The push's `before`, and it skips recording when the script says so |
+The job is called `huella-legal`, and it is the PR check `master`'s ruleset requires. It always runs
+and passes when there's nothing to deploy, because a required check that never reports blocks the
+merge. [`netlify-ignore.sh`](./netlify-ignore.sh) decides whether to build. It exits 0, meaning
+skip, unless the diff touches this app, `content`, `observability`, the pnpm and Node pins, or the
+workflow itself. Docs, specs, stories, e2e and lint config don't count. A push diffs from its
+`before` and a PR from its merge base with `master`. The list is kept by hand, so a new runtime
+`@monorepo/*` import needs a line there. Any `pnpm-lock.yaml` change still builds, even one that
+only touches another project. A push the script skips deploys nothing, so after a failed deploy the
+site stays on the previous build until a change to the app lands, the Monday run or a manual run.
 
-The ignore command runs before dependencies are installed, so it can't ask Nx and the list is kept
-by hand. A new runtime `@monorepo/*` import needs a line there. Any `pnpm-lock.yaml` change still
-builds, even one that only touches another project.
-
-The site ID and auth token never enter this repo: `NETLIFY_SITE_ID` is a GitHub Actions repo
-variable and `NETLIFY_AUTH_TOKEN` a secret, both read at workflow runtime with no default. Netlify
-deploys asynchronously after the push that triggers the workflow, so it polls for up to 10 minutes
-rather than reading the API once.
+Fork and Dependabot PRs get no repo secrets, so they pass without a preview. The site ID and auth
+token never enter this repo: `NETLIFY_SITE_ID` is a GitHub Actions repo variable and
+`NETLIFY_AUTH_TOKEN` a secret, both read at workflow runtime with no default. The build runs with
+`NX_SKIP_NX_CACHE`, because the prerender reads live WordPress and no task hash covers that.
+Netlify gives a CLI build no secret values, so the [Nitro telemetry plugin](./server/plugins/observability.ts) starts
+no exporter while prerendering: a 401 from the OTLP gateway on shutdown would otherwise fail the
+build.
 
 ### 🗄 Rendering
 
-A Netlify build prerenders every page that reads nothing from the query string, and Netlify's CDN
+A deploy build prerenders every page that reads nothing from the query string, and Netlify's CDN
 caches the rest for a day through `isr` route rules.
 [0033](../../docs/decisions/0033-huella-legal-hybrid-prerender.md) has the reasoning and the
 tripwires.
@@ -164,23 +170,22 @@ NUXT_SITE_ENV=preview pnpm exec nx build @monorepo/huella-legal --skip-nx-cache
 ```
 
 That build reads the live WordPress. It fails on any page that fails, so a WordPress outage fails
-the build, and Netlify keeps the previous deploy live.
+the build, and the previous deploy stays live.
 A 5xx answers `netlify-cdn-cache-control: no-store` from
 [`server/plugins/cdn.ts`](./server/plugins/cdn.ts), so an outage never sits in the CDN for a day.
 
-A prerendered page only changes on a build.
-[`huella-legal-rebuild.yml`](../../.github/workflows/huella-legal-rebuild.yml) posts to a Netlify
-build hook every Monday at 05:00 UTC, which refreshes author counts, related posts and corrections to
-old posts. The hook URL is the `NETLIFY_BUILD_HOOK_URL` repo secret, with no default
-([provisioning](../../docs/guides/repo-secrets.md)). Running the workflow by hand is also the purge
-after an urgent correction, because every deploy empties the CDN cache.
+A prerendered page only changes on a build, so
+[`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml) also rebuilds production
+every Monday at 05:00 UTC, which refreshes author counts, related posts and corrections to old
+posts. Running the workflow by hand is also the purge after an urgent correction, because every
+deploy empties the CDN cache.
 
 A cold listing render pages through every WordPress post from the function's region, which took
 11 s on `/publicaciones/` once measured. So after each production deploy,
 [`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml) requests `/publicaciones/`,
 `/buscar/` and every listing in the sitemap, each with its `_payload.json`, and the durable cache
-serves every edge from then on. A failed request is a warning, never a red run. The weekly rebuild
-isn't warmed, since its deploy repeats a commit the workflow has already recorded.
+serves every edge from then on, the Monday rebuild included. A failed request is a warning, never a
+red run. A preview isn't warmed.
 
 Nitro's cache lives in one function instance's memory, which a cold instance doesn't have, so
 [`articleIndex.ts`](./layers/articles/server/services/articleIndex.ts) also saves the index to a
@@ -352,7 +357,7 @@ handled `5xx`, the header that keeps a `5xx` out of the CDN, and the hydration l
 [`modules/requiredEnv.ts`](./modules/requiredEnv.ts) checks the
 [required variables](#-environment) once per build, and
 [`modules/rendering.ts`](./modules/rendering.ts) turns each layer's `rendering` entries into route
-rules and lists the [prerendered routes](#-rendering) on a Netlify build.
+rules and lists the [prerendered routes](#-rendering) on a deploy build.
 
 | Piece | What it holds |
 | --- | --- |
@@ -498,7 +503,7 @@ each skipped entirely when its URL is unset — which is why local dev ships not
 | Where | Plugin | Off switch |
 | --- | --- | --- |
 | Browser | [`app/plugins/observability.client.ts`](./app/plugins/observability.client.ts) | `NUXT_PUBLIC_OBSERVABILITY_URL` |
-| Nitro | [`server/plugins/observability.ts`](./server/plugins/observability.ts) | `NUXT_OBSERVABILITY_URL` |
+| Nitro | [`server/plugins/observability.ts`](./server/plugins/observability.ts) | `NUXT_OBSERVABILITY_URL`, and always off while prerendering, since a build has no token ([Deployment](#-deployment)) |
 
 The browser half imports Faro on the reader's first `pointerdown` or `keydown` after `onNuxtReady`,
 or ten seconds after it if none comes, and holds any Vue error thrown before then until it starts.

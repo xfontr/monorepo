@@ -62,7 +62,9 @@ export default defineNitroPlugin((nitroApp) => {
         },
     } = useRuntimeConfig();
 
-    if (!observability.url) return;
+    // Nitro inlines `process.env.prerender` at build time, and a build never has the OTLP token
+    // because Netlify withholds secret values from CLI builds
+    if (!observability.url || process.env.prerender) return;
 
     const provider = startNodeTelemetry({ ...observability, app });
     const tracer = trace.getTracer(app.name, app.version);

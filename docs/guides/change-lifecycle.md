@@ -91,8 +91,8 @@ Every PR, and every push to `master`, runs [`ci.yml`](../../.github/workflows/ci
 as part of its build, which is where a local pass and a red CI run most often diverge.
 
 The `master` ruleset requires a PR but no approving review. Its required checks are `checks`, `e2e`
-and `dependency-review` from CI, plus the Netlify deploy preview, and SonarCloud code scanning gates
-on top. So an auto-merge armed by `pnpm issue:ship` lands the moment those pass.
+and `dependency-review` from CI, plus `huella-legal` from Netlify deployment, which builds the PR's
+preview, and SonarCloud code scanning gates on top. So an auto-merge armed by `pnpm issue:ship` lands the moment those pass.
 
 ## 7. Merge, then release — separately
 

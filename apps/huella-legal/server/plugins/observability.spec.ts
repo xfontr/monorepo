@@ -183,6 +183,18 @@ describe("the nitro observability plugin", () => {
         expect(otel.tracer.startActiveSpan).not.toHaveBeenCalled();
     });
 
+    // A rejected export on shutdown fails the build
+    it("starts no exporter while prerendering, so a build without the token still finishes", () => {
+        vi.stubEnv("prerender", "true");
+
+        const { nitroApp, handler } = start();
+
+        vi.unstubAllEnvs();
+
+        expect(telemetry.startNodeTelemetry).not.toHaveBeenCalled();
+        expect(handler).toBe(nitroApp.h3App.handler);
+    });
+
     it("hands the collector credentials and the app identity to the exporter", () => {
         start();
 
