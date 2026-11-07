@@ -227,7 +227,7 @@ turns their feature off.
 
 | Variable | What it is |
 | --- | --- |
-| `NUXT_CONTENT_VENDOR_BASE_URL` | Optional. Overrides the WordPress site root set in `nuxt.config.ts` |
+| `NUXT_CONTENT_VENDOR_BASE_URL` | The WordPress site root, with scheme and **without** `/wp-json` — the provider owns that path. The build reads it too, to allow its host in `image.domains` |
 | `NUXT_PUBLIC_SITE_URL` | Optional. Overrides the public origin set in `nuxt.config.ts`, with scheme. Article permalinks, the share link, both citations, canonicals and the SEO modules' absolute URLs are built on it rather than on the request's host |
 | `NUXT_SITE_ENV` | `production` on the production deploy and `preview` on every other deploy, for builds as well as functions, and unset in dev, CI and e2e builds. A build prerenders only when it is set, and only `production` fails on an unset required variable. Unset or `preview`, robots.txt disallows everything and every page says `noindex`. Prerendered pages bake the value in, which is why builds need it |
 | `NUXT_PUBLIC_PAGE_SLUGS` | A JSON array of the WordPress page slugs served at `/:slug/`, such as `["aviso-legal"]`. Every other slug there is read as a post. The `articles` layer defaults it to `["aviso-legal", "calculo-intereses", "guia-de-publicaciones"]`, the second read only as the calculator's guide; set but empty, it replaces the list with `""`, so leave it unset instead |
@@ -255,7 +255,6 @@ everywhere is a literal in [`nuxt.config.ts`](./nuxt.config.ts), so changing it 
 
 | Literal | Value |
 | --- | --- |
-| `content.vendor.baseURL` | The WordPress site root, **without** `/wp-json` — the provider owns that path |
 | `public.site.url` | The site's public origin, `www` included, with no trailing slash |
 | `mail.baseURL`, `.from` | Resend's API origin and the sender every form's email comes from, set in [`layers/forms/nuxt.config.ts`](./layers/forms/nuxt.config.ts) |
 | `mail.to` | The inbox Contacto sends to, set in [`layers/contact/nuxt.config.ts`](./layers/contact/nuxt.config.ts) |

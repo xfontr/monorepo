@@ -26,11 +26,10 @@ against that copy.
 
 ## 🚚 The cutover
 
-The `/wp-*` forward does nothing while `content.vendor.baseURL` is the request's own host, which it
-is until WordPress moves to its own hostname, so the layer ships safely before the switch. The
-switch itself is DNS and WordPress settings, in the order 0028's step table gives. Once the new host
-exists, the `content.vendor.baseURL` literal and `image.domains` in the app's
-[`nuxt.config.ts`](../../nuxt.config.ts) change to it.
+The `/wp-*` forward does nothing while `content.vendor.baseURL` is the request's own host, so once
+WordPress has its own hostname and `NUXT_CONTENT_VENDOR_BASE_URL` points at it, the forward sends
+wp-admin, the login and uploads there. The switch itself is DNS and WordPress settings, in the
+order 0028's step table gives.
 
 To check the deployed rules once, on a preview and then on production:
 

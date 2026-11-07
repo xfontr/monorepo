@@ -1,5 +1,3 @@
-import { WORDPRESS_BASE_URL } from "./shared/site.ts";
-
 export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
 
@@ -27,7 +25,7 @@ export default defineNuxtConfig({
 
     runtimeConfig: {
         wordpress: {
-            baseURL: WORDPRESS_BASE_URL,
+            baseURL: "",
             username: "",
             applicationPassword: "",
         },
