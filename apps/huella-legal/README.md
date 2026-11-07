@@ -182,6 +182,15 @@ A cold listing render pages through every WordPress post from the function's reg
 serves every edge from then on. A failed request is a warning, never a red run. The weekly rebuild
 isn't warmed, since its deploy repeats a commit the workflow has already recorded.
 
+Nitro's cache lives in one function instance's memory, which a cold instance doesn't have, so
+[`articleIndex.ts`](./layers/articles/server/services/articleIndex.ts) also saves the index to a
+Netlify Blobs deploy store through [`adapters/netlify.ts`](./layers/articles/server/adapters/netlify.ts).
+A cold instance reads that copy instead of WordPress while it is younger than the cache's `maxAge`.
+The store belongs to its deploy and is deleted with it, so a copy saved by older code never reaches
+newer code. The save is awaited, because the preset hands Nitro no `waitUntil`, and a failed read
+or save only logs a warning and falls back to WordPress. Off Netlify there is no Blobs context, so
+dev, CI and e2e read WordPress or its fakes as before.
+
 ### 🔐 Abuse and hardening
 
 Every BFF route is public, because the browser calls it, so what reaches one is capped and checked
