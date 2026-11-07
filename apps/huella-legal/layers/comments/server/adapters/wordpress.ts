@@ -19,10 +19,10 @@ const toRefusal = (cause: unknown) => {
     });
 };
 
+// The only client-address header Netlify guarantees; `X-Forwarded-For` covers `nuxi preview`
 const readerIP = (event: H3Event): string | undefined =>
-    event.context.cloudflare
-        ? getRequestHeader(event, "cf-connecting-ip")
-        : getRequestIP(event, { xForwardedFor: true });
+    getRequestHeader(event, "x-nf-client-connection-ip") ??
+    getRequestIP(event, { xForwardedFor: true });
 
 /** Files a reader's comment into WordPress's moderation queue, as the reader rather than as us. */
 export const createComment = async (

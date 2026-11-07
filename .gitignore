@@ -47,7 +47,3 @@ vite.config.*.timestamp*
 *.tsbuildinfo
 
 coverage/
-
-# Cloudflare
-.wrangler
-.dev.vars

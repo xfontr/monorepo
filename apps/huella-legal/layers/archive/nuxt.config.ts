@@ -1,3 +1,6 @@
+// Every key `useArticleListing` reads from the route, which the CDN must vary on
+const LISTING = { isr: 60 * 60 * 24, queryKeys: ["page", "sort", "format", "query"] };
+
 export default defineNuxtConfig({
     // Yoast kept WordPress's tag archives out of search, and the app's stay out too
     routeRules: {
@@ -6,10 +9,10 @@ export default defineNuxtConfig({
 
     rendering: {
         cache: {
-            "/publicaciones/": { isr: 60 * 60 * 24 },
-            "/areas/*": { isr: 60 * 60 * 24 },
-            "/etiquetas/*": { isr: 60 * 60 * 24 },
-            "/colaboradores/*": { isr: 60 * 60 * 24 },
+            "/publicaciones/": LISTING,
+            "/areas/*": LISTING,
+            "/etiquetas/*": LISTING,
+            "/colaboradores/*": LISTING,
         },
         prerender: ["/", "/areas/", "/colaboradores/", "/sobre/"],
     },

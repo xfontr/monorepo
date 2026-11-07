@@ -7,6 +7,7 @@ export type SubmissionError = FormError & { message: SubmissionIssue };
 
 export const SUBMISSION_KINDS = ["article", "tfg", "tfm"] as const;
 
+// Netlify buffers 6 MB of request, which is 4.5 MB of binary once base64-encoded
 export const MANUSCRIPT_MAX_BYTES = 4 * 1024 * 1024;
 
 const MAX_NAME_LENGTH = 245;
