@@ -272,4 +272,13 @@ export default defineNuxtConfig({
             },
         },
     },
+
+    vite: {
+        optimizeDeps: {
+            include: [
+                "@monorepo/observability > @grafana/faro-web-sdk",
+                "@monorepo/observability > @grafana/faro-web-tracing",
+            ],
+        },
+    },
 });
