@@ -67,7 +67,9 @@ for every spec. The spec also lists the handlers Nuxt and its modules register, 
 
 The app builds on a GitHub runner and Netlify only hosts it, because Netlify's build minutes are
 billed and a runner's aren't. [`netlify-deployment.yml`](../../.github/workflows/netlify-deployment.yml)
-runs `netlify build` and then `netlify deploy --no-build` with the Netlify CLI. The build command,
+runs one `netlify deploy` with the Netlify CLI, which builds and then uploads. It's never split into
+`netlify build` and `deploy --no-build`, because that upload drops the config the build writes, so
+the image CDN rejects every WordPress image. The build command,
 the publish directory and the env vars all come from the Netlify project, so the repo holds no copy
 of them. It then records a GitHub Deployment, so the URL shows on the repo's Deployments page
 alongside `developer-portal`. Netlify's own git builds stay stopped (**Project configuration →

@@ -80,47 +80,46 @@ jobs:
               run: pnpm install --frozen-lockfile --ignore-scripts
 
             # The build command and publish directory come from the Netlify project, and so do the
-            # env vars for `--context`.
+            # env vars for `--context`. One command, because `--no-build` uploads without the config
+            # the build writes, such as the image CDN's allowed remote hosts.
             - if: steps.changes.outputs.build == 'true'
-              run: npx --yes "$NETLIFY_CLI" build --context "$CONTEXT" --filter @monorepo/huella-legal
               env:
                   CONTEXT: ${{ steps.changes.outputs.context }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
                   # The prerender reads live WordPress, which no task hash covers.
                   NX_SKIP_NX_CACHE: "true"
                   # std-env detects GitHub Actions before Netlify, so both would fall back to
                   # `node-server` and a local `ipx` that fetches every image during the prerender.
                   NITRO_PRESET: netlify
                   NUXT_IMAGE_PROVIDER: netlifyImageCdn
-
-            - if: steps.changes.outputs.build == 'true'
-              id: deploy
-              env:
-                  PR_NUMBER: ${{ github.event.pull_request.number }}
               run: |
                   if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
                       target=(--alias "pr-$PR_NUMBER")
                   else
                       target=(--prod)
                   fi
-                  npx --yes "$NETLIFY_CLI" deploy --no-build --json "${target[@]}" \
-                      --filter @monorepo/huella-legal --message "$GITHUB_EVENT_NAME ${GITHUB_SHA::7}" \
-                      > "$RUNNER_TEMP/deploy.json"
-                  cat "$RUNNER_TEMP/deploy.json"
-                  echo "json=$(jq -c . "$RUNNER_TEMP/deploy.json")" >> "$GITHUB_OUTPUT"
+                  npx --yes "$NETLIFY_CLI" deploy "${target[@]}" --context "$CONTEXT" \
+                      --filter @monorepo/huella-legal --message "$GITHUB_EVENT_NAME ${GITHUB_SHA::7}"
 
             - if: steps.changes.outputs.build == 'true'
               uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
               env:
-                  DEPLOY: ${{ steps.deploy.outputs.json }}
                   NETLIFY_PRODUCTION_URL: ${{ vars.NETLIFY_PRODUCTION_URL }}
               with:
                   script: |
-                      const deploy = JSON.parse(process.env.DEPLOY);
+                      const response = await fetch(
+                          `https://api.netlify.com/api/v1/sites/${process.env.NETLIFY_SITE_ID}`,
+                          { headers: { Authorization: `Bearer ${process.env.NETLIFY_AUTH_TOKEN}` } }
+                      );
+                      if (!response.ok) {
+                          throw new Error(`Netlify API returned ${response.status}: ${await response.text()}`);
+                      }
+                      const site = await response.json();
                       const preview = context.eventName === "pull_request";
                       const environment = preview ? "huella-legal-preview" : "huella-legal";
                       const url = preview
-                          ? deploy.deploy_url
-                          : process.env.NETLIFY_PRODUCTION_URL || deploy.url;
+                          ? `https://pr-${context.payload.pull_request.number}--${site.name}.netlify.app`
+                          : process.env.NETLIFY_PRODUCTION_URL || site.ssl_url;
 
                       const { data: deployment } = await github.rest.repos.createDeployment({
                           owner: context.repo.owner,
