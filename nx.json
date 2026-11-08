@@ -46,7 +46,8 @@
         },
         "build": {
             "dependsOn": [
-                "^build"
+                "^build",
+                "nuxt-prepare"
             ],
             "inputs": [
                 "production",

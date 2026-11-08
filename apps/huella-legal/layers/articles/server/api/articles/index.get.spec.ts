@@ -17,6 +17,7 @@ vi.stubGlobal("createError", (input: { statusCode?: number }) =>
     Object.assign(new Error("http"), input),
 );
 vi.stubGlobal("useContent", () => ({ getTerm: nitro.getTerm }));
+vi.stubGlobal("useRuntimeConfig", () => ({ articles: { hiddenTerms: ["oculta"] } }));
 
 vi.mock("../../services/commentCounts", () => ({
     withCommentCounts: (_event: unknown, summaries: unknown) => Promise.resolve(summaries),
@@ -48,6 +49,16 @@ beforeEach(() => {
 });
 
 describe("GET /api/articles", () => {
+    it.each([[{ tag: "oculta" }], [{ category: "oculta" }]])(
+        "answers %o with a 404 without asking the CMS, since that term is hidden",
+        async (query) => {
+            nitro.query = query;
+
+            await expect(handler({})).rejects.toMatchObject({ statusCode: 404 });
+            expect(nitro.getTerm).not.toHaveBeenCalled();
+        },
+    );
+
     it("answers the first page newest first when asked for nothing", async () => {
         const listing = await handler({});
 

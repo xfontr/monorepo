@@ -1,5 +1,6 @@
 import type { Article } from "../../../shared/types/Article";
 import { toArticle } from "../../mappers/article";
+import { isHiddenTerm } from "../../services/hiddenTerms";
 
 export default defineEventHandler(async (event): Promise<Article> => {
     const {
@@ -11,7 +12,14 @@ export default defineEventHandler(async (event): Promise<Article> => {
         getRouterParam(event, "slug", { decode: true }) ?? "",
     );
 
-    return toArticle(entry, { siteUrl: site.url, journal: useAppConfig().journal });
+    const article = toArticle(entry, { siteUrl: site.url, journal: useAppConfig().journal });
+
+    return {
+        ...article,
+        category:
+            article.category && !isHiddenTerm(article.category) ? article.category : undefined,
+        tags: article.tags.filter((tag) => !isHiddenTerm(tag)),
+    };
 });
 
 defineRouteMeta({

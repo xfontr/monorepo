@@ -14,6 +14,7 @@ const nitro = vi.hoisted(() => ({
 
 vi.stubGlobal("defineEventHandler", (handler: unknown) => handler);
 vi.stubGlobal("getRouterParam", () => "la-culpa");
+vi.stubGlobal("useRuntimeConfig", () => ({ articles: { hiddenTerms: ["oculta"] } }));
 vi.stubGlobal("useContent", () => ({ getEntry: nitro.getEntry, listEntries: nitro.listEntries }));
 
 vi.mock("../../../services/commentCounts", () => ({
@@ -33,6 +34,17 @@ beforeEach(() => {
 });
 
 describe("GET /api/articles/:slug/related", () => {
+    it("never relates a post carrying a hidden tag", async () => {
+        const hidden = fakeEntry({
+            terms: [CATEGORY, fakeTerm({ resource: "tags", slug: "oculta" })],
+        });
+        nitro.listEntries.mockResolvedValue({ items: [hidden, ...SIBLINGS] });
+
+        const related = await handler({});
+
+        expect(related.map(({ id }) => id)).toEqual(SIBLINGS.slice(0, 3).map(({ id }) => id));
+    });
+
     it("relates the three newest posts in its category, never the article itself", async () => {
         const related = await handler({});
 

@@ -23,7 +23,7 @@ pnpm dev                                    # or from this directory
 | `pnpm storybook` | Storybook on port 6007 — see [Storybook](#-storybook) |
 | `pnpm build:storybook` | Static Storybook build (output in `storybook-static/`) |
 | `pnpm cache:clear` | Deletes the `articles` and `content` caches under `.nuxt/cache/`, so the next request rereads WordPress. Safe with the dev server running, and only touches local dev — see [Content](#-content) |
-| `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
+| `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`/`build`, so this is only for calling it by hand |
 
 Two modules beyond the shared ones are installed here, `@nuxt/fonts` and `@nuxt/image`, and the
 `forms` layer installs `@nuxtjs/turnstile`.
@@ -267,6 +267,7 @@ turns their feature off.
 | `NUXT_SITE_ENV` | `production` on the production deploy and `preview` on every other deploy, for builds as well as functions, and unset in dev, CI and e2e builds. A build prerenders only when it is set, and only `production` fails on an unset required variable. Unset or `preview`, robots.txt disallows everything and every page says `noindex`. Prerendered pages bake the value in, which is why builds need it |
 | `STAGING_USERNAME`, `STAGING_PASSWORD` | The [staging login](#-staging-login). Read by the edge function rather than Nuxt, so they have no `NUXT_` prefix and need the Functions scope. Unset, every host but the site's own answers `401` |
 | `NUXT_PUBLIC_PAGE_SLUGS` | A JSON array of the WordPress page slugs served at `/:slug/`, such as `["aviso-legal"]`. Every other slug there is read as a post. The `articles` layer defaults it to `["aviso-legal", "calculo-intereses", "guia-de-publicaciones"]`, the second read only as the calculator's guide; set but empty, it replaces the list with `""`, so leave it unset instead |
+| `NUXT_ARTICLES_HIDDEN_TERMS` | Optional. A JSON array of category and tag slugs, replacing the `articles` layer's `["consultas-legales-gratuitas"]`; `[]` hides nothing. A post filed under one is left out of every listing, the search, the related band, the feed and the sitemap, and the term's own `/areas/:slug/` or `/etiquetas/:slug/` answers `404`, but the post still opens at `/:slug/` with the term off its page. Prerendered pages bake the value in, so builds need it too |
 | `NUXT_NEWSLETTER_API_KEY` | The Kit v4 API key, sent as `X-Kit-Api-Key` |
 | `NUXT_NEWSLETTER_FORM_ID` | The Kit form new readers join. Its incentive email must be on, since that is the confirmation Kit sends |
 | `NUXT_NEWSLETTER_BASE_URL` | Optional. Overrides the Kit API origin set in the `newsletter` layer, **without** `/v4` — the adapter owns that path |

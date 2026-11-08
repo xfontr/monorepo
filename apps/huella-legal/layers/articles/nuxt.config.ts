@@ -2,6 +2,7 @@ export default defineNuxtConfig({
     runtimeConfig: {
         articles: {
             cache: { maxAge: 60 * 60, swr: true },
+            hiddenTerms: ["consultas-legales-gratuitas"],
         },
 
         public: {

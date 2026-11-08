@@ -37,7 +37,7 @@ test("leads with the newest post and lists the next five, without repeating it",
     ).toHaveText(titles[0]!);
     await expect(
         featured
-            .getByRole("complementary", { name: "Lo último" })
+            .getByRole("complementary", { name: "Últimas publicaciones" })
             .getByRole("listitem")
             .getByRole("link"),
     ).toHaveText(titles.slice(1, 6));

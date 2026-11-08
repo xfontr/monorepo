@@ -20,4 +20,9 @@ if [ "$STATUS" -eq 1 ] && ! awk 'NR == 1 && $0 == "---" { skip = 1; next }
     printf "\n${YELLOW}📦 ${NC}pnpm-lock.yaml changed — run pnpm install.\n"
 fi
 
+if ! git diff --quiet ORIG_HEAD HEAD -- ':(glob)**/.env.example' >/dev/null 2>&1; then
+    printf "\n${YELLOW}🔑 ${NC}A .env.example changed — syncing .env files.\n"
+    pnpm env:sync || true
+fi
+
 exit 0

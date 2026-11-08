@@ -38,7 +38,7 @@ The CLI reaches into `server/` and not the reverse, because the shared ESLint la
 | `pnpm editor status` | Counts per state, per changeset |
 | `pnpm editor probe` | Step 0 below; creates and force-deletes one draft |
 | `pnpm editor:dev <command>` | Any of the above against the mocks, never the live site |
-| `pnpm exec nx nuxt-prepare @monorepo/wp-editor` | Generates `.nuxt/`, which `tsconfig.json` points into; `lint`, `typecheck` and `test` depend on it |
+| `pnpm exec nx nuxt-prepare @monorepo/wp-editor` | Generates `.nuxt/`, which `tsconfig.json` points into; `lint`, `typecheck`, `test` and `build` depend on it |
 
 ### 🧪 Dev mocks
 

@@ -9,7 +9,7 @@
         "node": "^22.18.0 || >=24.12.0"
     },
     "scripts": {
-        "quick-start": "husky && pnpm test:coverage && pnpm exec nx collect @monorepo/developer-portal",
+        "quick-start": "husky && pnpm env:sync && pnpm test:coverage && pnpm exec nx collect @monorepo/developer-portal",
         "dev": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/dev/index.ts",
         "lint": "nx affected --base=master -t lint",
         "typecheck": "nx affected --base=master -t typecheck",
@@ -28,6 +28,7 @@
         "docs:map": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/map/index.ts",
         "package:check": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/package-contracts/index.ts",
         "review:version": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/review-version/index.ts",
+        "env:sync": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/env-sync/index.ts",
         "release": "nx release --skip-publish",
         "release:dry": "nx release --skip-publish --dry-run"
     },
