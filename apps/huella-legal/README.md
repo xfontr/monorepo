@@ -280,7 +280,6 @@ turns their feature off.
 | `NUXT_TURNSTILE_SECRET_KEY` | The Turnstile widget's secret key. Rejected by Cloudflare, every form route answers `403`, with `invalid-input-secret` in the `cause` |
 | `NUXT_PUBLIC_TURNSTILE_SITE_KEY` | The Turnstile widget's site key. Unset, the form shows its error state on submit |
 | `NUXT_PUBLIC_OBSERVABILITY_URL` | Faro collector URL. Leave unset and browser telemetry stays off |
-| `NUXT_PUBLIC_OBSERVABILITY_APP_VERSION` | Stamped on browser *and* server spans. Defaults to `0.0.0`, which nothing can be attributed to — set it at deploy time |
 | `NUXT_PUBLIC_OBSERVABILITY_APP_ENVIRONMENT` | Stamped the same way. Defaults to `development` |
 | `NUXT_OBSERVABILITY_URL` | Grafana OTLP gateway URL. Leave unset and server telemetry stays off |
 | `NUXT_OBSERVABILITY_INSTANCE_ID` | Grafana Cloud instance ID, the user half of the OTLP credentials |
@@ -554,10 +553,18 @@ internal `$fetch` calls nest under the request that made them, and an incoming `
 continues the browser's trace rather than starting a second one.
 
 Both halves read `app.version` and `app.environment` from the same public runtime config, so one
-`NUXT_PUBLIC_OBSERVABILITY_APP_VERSION` stamps browser and server alike. It defaults to `0.0.0` —
-set it at deploy time or nothing can be attributed to a release. Static assets and Nuxt's own dev
+value stamps browser and server alike. The version is the commit the build ran on, read from
+`GITHUB_SHA` because the [deploy workflow](#-deployment) builds inside GitHub Actions; a local build
+has none and stamps `0.0.0`. Don't set `NUXT_PUBLIC_OBSERVABILITY_APP_VERSION` on Netlify: as a
+runtime env var it overrides the build's commit on every deploy. Static assets and Nuxt's own dev
 endpoints (`/_nuxt`, `/_fonts`, `/__nuxt`, `/favicon.ico`) are left untraced on purpose; the list
 lives in the plugin.
+
+Netlify freezes a function as soon as it responds, so the batch exporter's timer would never fire.
+Each request span therefore hands `forceFlush()` to the function's `waitUntil`, through
+`@netlify/functions`' `getContext()`, which lets the export finish after the reader already has the
+page. A request span carries the method, path and host, and nothing that identifies the reader:
+no client IP, no user agent, no query string.
 
 The span is named for the **matched route**, not the path — it opens under the concrete URL, because
 nothing has matched a route yet, and is renamed once the response is known. Anything that skips that
