@@ -44,7 +44,7 @@ work in progress remain directly addressable without creating a second applicati
 | --- | --- |
 | `pnpm dev developer-portal` | Start the portal, from the workspace root |
 | `pnpm exec nx collect @monorepo/developer-portal` | Rebuild the snapshot — graph, coverage, metrics, docs, scorecards |
-| `pnpm exec nx nuxt-prepare @monorepo/developer-portal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
+| `pnpm exec nx nuxt-prepare @monorepo/developer-portal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`/`build`, so this is only for calling it by hand |
 | `pnpm exec nx build-static @monorepo/developer-portal` | `nuxt build --prerender` — the build the deploy publishes, and the only one that renders every route |
 
 The collector reads each project's `coverage/coverage-summary.json` and copies in the merged report

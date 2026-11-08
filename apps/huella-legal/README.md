@@ -23,7 +23,7 @@ pnpm dev                                    # or from this directory
 | `pnpm storybook` | Storybook on port 6007 — see [Storybook](#-storybook) |
 | `pnpm build:storybook` | Static Storybook build (output in `storybook-static/`) |
 | `pnpm cache:clear` | Deletes the `articles` and `content` caches under `.nuxt/cache/`, so the next request rereads WordPress. Safe with the dev server running, and only touches local dev — see [Content](#-content) |
-| `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`, so this is only for calling it by hand |
+| `pnpm exec nx nuxt-prepare @monorepo/huella-legal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`/`build`, so this is only for calling it by hand |
 
 Two modules beyond the shared ones are installed here, `@nuxt/fonts` and `@nuxt/image`, and the
 `forms` layer installs `@nuxtjs/turnstile`.
