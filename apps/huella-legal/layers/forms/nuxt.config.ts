@@ -2,6 +2,10 @@ export default defineNuxtConfig({
     modules: ["@nuxtjs/turnstile"],
 
     runtimeConfig: {
+        forms: {
+            slowRepliesUntil: "",
+        },
+
         mail: {
             baseURL: "https://api.resend.com",
             apiKey: "",

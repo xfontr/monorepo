@@ -19,6 +19,7 @@
                 </ULink>
             </template>
         </I18nT>
+        <FormReplyNotice class="mb-6" />
         <PublishForm />
     </section>
 </template>

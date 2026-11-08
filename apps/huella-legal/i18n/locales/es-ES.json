@@ -452,6 +452,10 @@
     "formHoneypot": {
         "label": "Deja este campo vacío"
     },
+    "formReplyNotice": {
+        "description": "Tu mensaje nos llega igual, pero estos días tardaremos más de lo habitual en contestarte. Gracias por la paciencia.",
+        "title": "Ahora respondemos más despacio"
+    },
     "home": {
         "hero": {
             "emphasis": "leído",
