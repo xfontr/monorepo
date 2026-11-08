@@ -273,6 +273,7 @@ turns their feature off.
 | `NUXT_MAIL_API_KEY` | The Resend API key Contacto and Publicar send with, as a `Bearer` token. Resend sends only from a domain verified in that account, so the `from` literal has to be on it |
 | `NUXT_MAIL_BASE_URL`, `_FROM` | Optional. Override Resend's API origin and the sender set in the `forms` layer |
 | `NUXT_MAIL_TO` | Optional. Overrides Contacto's inbox, set in the `contact` layer |
+| `NUXT_FORMS_SLOW_REPLIES_UNTIL` | Optional. A `YYYY-MM-DD` date: through that day in Madrid, a notice above Contacto's and Publicar's forms says replies will be slower than usual, then it disappears by itself. A value in any other shape makes `GET /api/replies` answer `500`, and the notice stays hidden. Only the Worker needs it: the forms read it through that route in the browser, so a change applies without a rebuild |
 | `NUXT_COMMENTS_USERNAME`, `NUXT_COMMENTS_APPLICATION_PASSWORD` | The WordPress user new comments are posted as, and an application password of theirs. It must hold `moderate_comments` (Editor), the only capability that lets the request file the comment as the reader with their IP and hold it, so it is an editor-grade secret |
 | `NUXT_PUBLIC_SUBMISSION_EMAIL` | Optional. Overrides the editorial inbox set in the `publish` layer, which Publicar's form sends to and its `mailto:` writes to |
 | `NUXT_TURNSTILE_SECRET_KEY` | The Turnstile widget's secret key. Rejected by Cloudflare, every form route answers `403`, with `invalid-input-secret` in the `cause` |

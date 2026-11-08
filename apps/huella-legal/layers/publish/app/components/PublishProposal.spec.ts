@@ -15,7 +15,7 @@ describe("publish proposal", () => {
 
     it("keeps the editorial inbox as a mailto beside the form, for an author who'd rather write", async () => {
         const wrapper = await mountSuspended(PublishProposal, {
-            global: { stubs: { PublishForm: true } },
+            global: { stubs: { FormReplyNotice: true, PublishForm: true } },
         });
 
         expect(wrapper.get("a[href^='mailto:']").attributes("href")).toBe(`mailto:${ADDRESS}`);
@@ -24,7 +24,7 @@ describe("publish proposal", () => {
 
     it("names its section by its heading", async () => {
         const wrapper = await mountSuspended(PublishProposal, {
-            global: { stubs: { PublishForm: true } },
+            global: { stubs: { FormReplyNotice: true, PublishForm: true } },
         });
 
         expect(wrapper.get("section").attributes("aria-labelledby")).toBe(

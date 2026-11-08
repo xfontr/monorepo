@@ -23,12 +23,13 @@ const routes = [
     { name: "category", path: "/areas/:slug/" },
 ].map((route) => ({ ...route, component: { render: () => null } }));
 
-// Swapped for its `__mocks__` copy, so a story's form never posts; Storybook restores the copy's
+// Swapped for its `__mocks__` copy, so a story never calls a route; Storybook restores the copy's
 // idle default before each story
 sb.mock("../layers/newsletter/app/composables/useNewsletter.ts");
 sb.mock("../layers/contact/app/composables/useContact.ts");
 sb.mock("../layers/publish/app/composables/useSubmission.ts");
 sb.mock("../layers/comments/app/composables/usePostComment.ts");
+sb.mock("../layers/forms/app/composables/useReplyPace.ts");
 
 setup((app) => {
     // FormChallenge mounts the module's widget on focus, which would load Cloudflare's script

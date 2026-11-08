@@ -9,6 +9,7 @@
             />
         </BasePageIntro>
         <UContainer class="pt-10 pb-16 lg:pb-20">
+            <FormReplyNotice class="mb-6 lg:w-7/12" />
             <ContactForm class="lg:w-7/12" />
         </UContainer>
     </div>
