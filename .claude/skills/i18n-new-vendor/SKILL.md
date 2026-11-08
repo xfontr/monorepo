@@ -34,13 +34,15 @@ without.
    export default PhraseProvider;
    ```
 
-   Note the shape differs from `@monorepo/content`: here `baseURL` and `project` are on the base
-   class for every vendor, and only `options` is per-vendor. Don't re-declare them. Overrides carry
-   the `override` keyword.
+   `baseURL` and `project` are on the base class for every vendor, and only `options` is per-vendor.
+   Don't re-declare them. **`options` is credentials only**, because it is left out of the cache key:
+   anything that picks the document (a branch, an export profile) belongs on `Vendor`. The shape is
+   `@monorepo/content`'s too, so change both packages or neither. Overrides carry the `override`
+   keyword.
 
-3. **`configProblems()` covers `options` only, and is optional here.** Same name as the hook in
-   `@monorepo/content`, narrower job: `project` non-empty and `baseURL` absolute are already checked
-   in the base for every vendor, so a vendor with no options overrides nothing. It is called from the
+3. **`configProblems()` covers `options` only, and is optional.** `project` non-empty and `baseURL`
+   absolute are already checked in the base for every vendor, so a vendor with no options overrides
+   nothing. It is called from the
    base constructor via `assertConfigured()`, so an override may only read `this.options`; the
    subclass's own field initialisers have not run. Return every problem as a string, never throw: one
    `MisconfiguredVendorError` listing all of them beats one restart per missing env var.
@@ -59,9 +61,8 @@ the locale was checked against the declared list before the request, so nothing 
 the caller's fault. Read its `upstreamStatus` if a vendor needs to tell one failure from another, but
 do not relay it as a status. (`@monorepo/content` does relay 400 and 404; its slug is caller input.)
 
-The URLs here are **relative**: the consumer builds the client with `ofetch.create({ baseURL })`, so
-a provider passes a path. (`@monorepo/content` is the opposite — absolute URLs, no base URL on the
-client. Don't copy that convention across.)
+The URLs are **relative**: the consumer builds the client with `ofetch.create({ baseURL })`, so a
+provider passes a path. `http.get` resolves `{ data, headers }`; read the body off `data`.
 
 No service layer over the port: a class forwarding one call to one collaborator adds a name and a
 file without adding behaviour. Locale fallback or merging local overrides would be the day that
