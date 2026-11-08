@@ -8,21 +8,26 @@ import type {
     TermResource,
 } from "#core/domain/content";
 import { MisconfiguredVendorError, NotFoundError } from "#core/domain/errors";
+import type { Vendor } from "#core/domain/vendor";
 import type { HttpClient } from "./HttpClient";
 
-abstract class ContentProvider<T extends object = object> {
+abstract class ContentProvider<T extends object = object> implements Vendor<T> {
+    readonly baseURL: string;
+    readonly options: T;
+
     constructor(
-        public readonly config: T,
+        { baseURL, options = {} as T }: Vendor<T>,
         protected readonly http: HttpClient,
     ) {
+        this.baseURL = baseURL;
+        this.options = options;
+
         this.assertConfigured();
     }
 
     public abstract listEntries(resource: EntryResource, query?: EntryQuery): Promise<Page<Entry>>;
 
     public abstract listTerms(resource: TermResource, query?: Query): Promise<Page<Term>>;
-
-    protected abstract configProblems(): string[];
 
     public async getEntry(resource: EntryResource, slug: string): Promise<Entry> {
         const { items } = await this.listEntries(resource, { slug, perPage: 1 });
@@ -38,8 +43,15 @@ abstract class ContentProvider<T extends object = object> {
         return items[0];
     }
 
+    protected configProblems(): string[] {
+        return [];
+    }
+
     private assertConfigured(): void {
-        const problems = this.configProblems();
+        const problems = [
+            !URL.canParse(this.baseURL) ? "baseURL is not an absolute URL" : "",
+            ...this.configProblems(),
+        ].filter(Boolean);
 
         if (problems.length) throw new MisconfiguredVendorError(this.constructor.name, problems);
     }

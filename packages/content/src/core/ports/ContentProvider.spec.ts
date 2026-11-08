@@ -11,6 +11,7 @@ import type {
     TermResource,
 } from "#core/domain/content";
 import { MisconfiguredVendorError, NotFoundError } from "#core/domain/errors";
+import type { Vendor } from "#core/domain/vendor";
 
 const get = vi.fn();
 const http: HttpClient = { get };
@@ -20,7 +21,7 @@ const listTerms = vi.fn<(resource: TermResource, query?: Query) => Promise<Page<
 
 class StubProvider extends ContentProvider<{ problems: string[] }> {
     protected override configProblems(): string[] {
-        return this.config.problems;
+        return this.options.problems;
     }
 
     override listEntries(resource: EntryResource, query?: EntryQuery): Promise<Page<Entry>> {
@@ -44,7 +45,21 @@ const page = <T>(...items: T[]): Page<T> => ({
     totalPages: 1,
 });
 
-const build = (problems: string[] = []) => new StubProvider({ problems }, http);
+// A vendor with no options overrides nothing, and the base still checks what every vendor shares
+class BareProvider extends ContentProvider {
+    override listEntries(): Promise<Page<Entry>> {
+        return Promise.resolve(page<Entry>());
+    }
+
+    override listTerms(): Promise<Page<Term>> {
+        return Promise.resolve(page<Term>());
+    }
+}
+
+const BASE_URL = "https://cms.test/";
+
+const build = (problems: string[] = [], baseURL = BASE_URL) =>
+    new StubProvider({ baseURL, options: { problems } }, http);
 
 const entry = {
     id: "1",
@@ -57,41 +72,58 @@ const entry = {
 const term = { id: "1", resource: "categories", slug: "news", name: "News" } as Term;
 
 describe("ContentProvider", () => {
-    // The registry reads each vendor's config type off this, so it has to stay public
+    // The registry reads each vendor's options type off this, so it has to stay public
     it("exposes the vendor config to its subclasses and to the registry", () => {
-        expect(build().config).toEqual({ problems: [] });
+        const provider = build();
+
+        expect(provider.baseURL).toBe(BASE_URL);
+        expect(provider.options).toEqual({ problems: [] });
+    });
+
+    // Declared as an object, so a vendor that takes none must not hand its provider `undefined`
+    it("exposes empty options rather than none, for the vendor that has none", () => {
+        expect(new BareProvider({ baseURL: BASE_URL } as Vendor, http).options).toEqual({});
     });
 
     it("holds the injected transport, so a provider cannot exist unable to fetch", async () => {
-        await build().fetch("https://wp.test/wp-json");
+        await build().fetch("/wp-json");
 
-        expect(get).toHaveBeenCalledWith("https://wp.test/wp-json");
+        expect(get).toHaveBeenCalledWith("/wp-json");
     });
 
     describe("when the vendor config cannot work", () => {
+        // An unset env var would otherwise become a relative fetch and come back as a 502
+        it.each(["", "   ", "cms.test", "/blog"])(
+            "refuses to exist with %o as its base URL, whatever the vendor",
+            (baseURL) => {
+                const bare = () => new BareProvider({ baseURL, options: {} }, http);
+
+                expect(bare).toThrow(MisconfiguredVendorError);
+                expect(bare).toThrow(/baseURL is not an absolute URL/);
+            },
+        );
+
         it("refuses to exist, naming the provider that cannot be built", () => {
-            expect(() => build(["baseURL is not an absolute URL"])).toThrow(
-                MisconfiguredVendorError,
-            );
-            expect(() => build(["baseURL is not an absolute URL"])).toThrow(
+            expect(() => build(["options.token is empty"])).toThrow(MisconfiguredVendorError);
+            expect(() => build(["options.token is empty"])).toThrow(
                 /StubProvider is misconfigured/,
             );
         });
 
         // One restart per missing variable is the thing worth avoiding
-        it("reports every problem at once", () => {
-            expect(() => build(["baseURL is not an absolute URL", "token is empty"])).toThrow(
-                /baseURL is not an absolute URL, token is empty/,
+        it("reports every problem at once, the shared ones and the vendor's own", () => {
+            expect(() => build(["options.token is empty"], "")).toThrow(
+                /baseURL is not an absolute URL, options.token is empty/,
             );
         });
 
         it("reports as an internal error, since the deployment is at fault rather than the vendor", () => {
-            expect(() => build(["baseURL is not an absolute URL"])).toThrow(
+            expect(() => build(["options.token is empty"])).toThrow(
                 expect.objectContaining({ statusCode: 500 }) as Error,
             );
         });
 
-        // The base constructor runs the check, so an override may only read `config` — pinned here
+        // The base constructor runs the check, so an override may only read `options` — pinned here
         // because the type system cannot enforce it and the next vendor will meet it
         it("validates before a subclass's own field initialisers have run", () => {
             class EagerProvider extends StubProvider {
@@ -102,7 +134,9 @@ describe("ContentProvider", () => {
                 }
             }
 
-            expect(() => new EagerProvider({ problems: [] }, http)).toThrow(/derived is unset/);
+            expect(
+                () => new EagerProvider({ baseURL: BASE_URL, options: { problems: [] } }, http),
+            ).toThrow(/derived is unset/);
         });
     });
 

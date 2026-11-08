@@ -1,7 +1,3 @@
-export interface WordpressProviderConfig {
-    baseURL: string;
-}
-
 interface WordpressRendered {
     rendered: string;
 }

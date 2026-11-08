@@ -16,4 +16,6 @@ const queryKey = (query?: EntryQuery): string => {
 };
 
 export const contentKey = (vendor: VendorConfig, resource: Resource, query?: EntryQuery): string =>
-    [vendor.name, resource, hash(vendor), hash(queryKey(query))].map(toWordChars).join("_");
+    [vendor.name, resource, hash({ ...vendor, options: undefined }), hash(queryKey(query))]
+        .map(toWordChars)
+        .join("_");
