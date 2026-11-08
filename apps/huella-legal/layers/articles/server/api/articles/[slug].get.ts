@@ -5,6 +5,7 @@ import { isHiddenTerm } from "../../services/hiddenTerms";
 
 export default defineEventHandler(async (event): Promise<Article> => {
     const {
+        content: { vendor },
         public: { site },
     } = useRuntimeConfig(event);
 
@@ -13,7 +14,11 @@ export default defineEventHandler(async (event): Promise<Article> => {
         getRouterParam(event, "slug", { decode: true }) ?? "",
     );
 
-    const article = toArticle(entry, { siteUrl: site.url, journal: JOURNAL });
+    const article = toArticle(entry, {
+        siteUrl: site.url,
+        wordpressUrl: vendor.baseURL,
+        journal: JOURNAL,
+    });
 
     return {
         ...article,

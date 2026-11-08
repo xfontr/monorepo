@@ -4,8 +4,10 @@ import { toPage } from "./page";
 
 const SITE = "https://revista.test";
 
+const ORIGINS = { siteUrl: SITE, wordpressUrl: "https://wp.revista.test" };
+
 const page = (html: string, overrides = {}) =>
-    toPage(fakeEntry({ body: { format: "html", value: html }, ...overrides }), SITE);
+    toPage(fakeEntry({ body: { format: "html", value: html }, ...overrides }), ORIGINS);
 
 describe("toPage", () => {
     it("splits the first paragraph off as the lead and keeps the rest as the body", () => {
@@ -54,13 +56,15 @@ describe("toPage", () => {
         const slug = "aviso-legal";
         const entry = fakeEntry({ slug });
 
-        expect(toPage(entry, SITE).permalink).toBe(`${SITE}/${slug}/`);
-        expect(toPage(entry, `${SITE}/`).permalink).toBe(`${SITE}/${slug}/`);
+        expect(toPage(entry, ORIGINS).permalink).toBe(`${SITE}/${slug}/`);
+        expect(toPage(entry, { ...ORIGINS, siteUrl: `${SITE}/` }).permalink).toBe(
+            `${SITE}/${slug}/`,
+        );
     });
 
     it("has an empty body for a block document, which WordPress never serves", () => {
         const entry = fakeEntry({ body: { format: "blocks", value: [] } });
 
-        expect(toPage(entry, SITE).body).toMatchObject({ lead: "", html: "", toc: [] });
+        expect(toPage(entry, ORIGINS).body).toMatchObject({ lead: "", html: "", toc: [] });
     });
 });

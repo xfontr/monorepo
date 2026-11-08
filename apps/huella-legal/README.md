@@ -113,8 +113,7 @@ Netlify's password protection is a paid feature, so
 [`modules/stagingGate.ts`](./modules/stagingGate.ts) writes an edge function into
 `.netlify/edge-functions/` on a `NUXT_SITE_ENV=production` build, and nowhere else. It has to be an
 edge function because those run before the CDN, and most pages are prerendered files that Nitro
-never sees. The public hosts are an allowlist, so a new alias is gated until it's listed. Any other
-build deletes a gate a previous production build left in the same checkout.
+never sees. Any other build deletes a gate a previous production build left in the same checkout.
 
 | Case | What the visitor gets |
 | --- | --- |
@@ -123,10 +122,14 @@ build deletes a gate a previous production build left in the same checkout.
 | `STAGING_USERNAME` or `STAGING_PASSWORD` unset | `401` on every other host, so a missing variable can't leave staging open |
 | Both match | The page, and every page after it, since the browser resends the header |
 
-Every production page request now runs the function, which counts against the plan's edge
-invocations. `/_nuxt/*`, `/_fonts/*` and `/.netlify/*` are left out, since those files are public on
-the site's host anyway. The function reads both variables at request time through `Netlify.env`, so
-they need the **Functions** scope in Netlify and a redeploy after any change.
+Netlify only invokes the function when the `host` header matches `staging.*` or `*.netlify.app`.
+The function used to run on every request, and on a cold edge it spent 200–470 ms before a reader in
+Latin America got a prerendered article. That made the site's public host pay for a check that
+always let it through. Inside the function, the public hosts are still an allowlist. The routing
+regex is a denylist, though, so a new alias that matches neither pattern stays open until it's added
+to `GATED_HOSTS`. `/_nuxt/*`, `/_fonts/*` and `/.netlify/*` are left out on every host, since those
+files are public anyway. The function reads both variables at request time through `Netlify.env`,
+so they need the **Functions** scope in Netlify and a redeploy after any change.
 
 ### 🗄 Rendering
 
@@ -182,8 +185,10 @@ Netlify crops at the CDN instead of sending the pixels `object-cover` would hide
 `@iconify-json/lucide` is a dependency so `@nuxt/icon` can bundle icons at all: without it the
 server asked Iconify's API for every icon it rendered, and the browser fetched `/api/_nuxt_icon`
 for each one that first renders client-side. The design layer's `icon.clientBundle.icons` lists
-exactly those, the share bar's and the calculator history's, so a new icon inside a `ClientOnly`
-or a lazily opened component belongs there too. Bundling every icon with `scan` instead tripled the
+exactly those: the share bar, the calculator history, the comment reply button, and the `sobre` and
+`publicar` icons that a client-side navigation renders first. A new icon inside a `ClientOnly`, a
+lazily opened component or a page reached by client navigation belongs there too. Netlify's
+request log shows any icon that was missed as a `/api/_nuxt_icon/lucide.json?icons=…` call. Bundling every icon with `scan` instead tripled the
 article's blocking time on hydration. `/_i18n/*/messages.json` is browser-cached for a year,
 which is safe because its path carries a hash of the locale file.
 
@@ -482,7 +487,7 @@ counts behind each rule.
 | Notes | One shape only: the text links to `#_ftnN`, and each note is a top-level paragraph opening with a link to `#_ftnrefN`. Those paragraphs become `ArticleBody.notes`, and each reference becomes `<sup><a href="#nota-N" id="ref-N">`, the ids `ArticleNotes` links back to. Any other shape, bare `<sup>` numbers included, renders as written. Runs before the bibliography split, since the notes close the post, after it |
 | Bibliography | Split from the last top-level *Bibliografía*, *Fuentes* or *Referencias (bibliográficas)* heading, one fragment per paragraph or list item, because the design sets it apart below the body |
 | TOC | Every `h2` and `h3` gets an ASCII id unless it has one, never repeated |
-| Images | Every one gets `loading="lazy"` and `decoding="async"` |
+| Images | Every one gets `loading="lazy"` and `decoding="async"`. A `src` or `srcset` candidate under `/wp-content/` on the site's own host (with or without `www`), or relative to it, is pointed at `content.vendor.baseURL`. Posts still name the pre-cutover host, so each image would otherwise cost a server-function call and the [`legacy`](./layers/legacy) 301 |
 | Lead | Everything up to and including the first top-level paragraph goes in `lead`, and the page sets the featured image after it |
 
 The article routes read posts through the content module's `useContent(event)`, so the provider,

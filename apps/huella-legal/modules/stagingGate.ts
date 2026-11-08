@@ -25,6 +25,8 @@ export default (request) => {
 };
 `;
 
+const GATED_HOSTS = String.raw`^(staging\..+|.+\.netlify\.app)$`;
+
 const MANIFEST = {
     version: 1,
     functions: [
@@ -34,6 +36,7 @@ const MANIFEST = {
             path: "/*",
             // Assets are public on the site's own host anyway, and each one would cost an invocation
             excludedPath: ["/_nuxt/*", "/_fonts/*", "/.netlify/*"],
+            header: { host: GATED_HOSTS },
         },
     ],
 };

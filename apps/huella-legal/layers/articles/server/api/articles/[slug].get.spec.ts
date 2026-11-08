@@ -10,6 +10,7 @@ vi.stubGlobal("defineEventHandler", (handler: unknown) => handler);
 vi.stubGlobal("getRouterParam", nitro.param);
 vi.stubGlobal("useRuntimeConfig", () => ({
     articles: { hiddenTerms: ["oculta"] },
+    content: { vendor: { baseURL: "https://wp.revista.test" } },
     public: { site: { url: "https://revista.test" } },
 }));
 vi.stubGlobal("useContent", () => ({ getEntry: nitro.getEntry }));

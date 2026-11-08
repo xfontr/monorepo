@@ -15,7 +15,26 @@ export default defineNuxtConfig({
 
     icon: {
         clientBundle: {
-            icons: ["lucide:share", "lucide:printer", "lucide:eraser", "lucide:trash-2"],
+            icons: [
+                "lucide:share",
+                "lucide:printer",
+                "lucide:eraser",
+                "lucide:trash-2",
+                "lucide:reply",
+                "lucide:badge-check",
+                "lucide:file-text",
+                "lucide:book-open",
+                "lucide:gavel",
+                "lucide:graduation-cap",
+                "lucide:heart-handshake",
+                "lucide:landmark",
+                "lucide:library",
+                "lucide:lock-open",
+                "lucide:pen-line",
+                "lucide:quote",
+                "lucide:scale",
+                "lucide:shield-check",
+            ],
         },
     },
 
