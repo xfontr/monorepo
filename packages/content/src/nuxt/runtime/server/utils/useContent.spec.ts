@@ -15,7 +15,7 @@ const nitro = vi.hoisted(() => ({
     },
 }));
 
-const transport = vi.hoisted(() => ({ raw: vi.fn() }));
+const transport = vi.hoisted(() => ({ create: vi.fn(), raw: vi.fn() }));
 
 // Each cached function records the key Nitro would store it under, then runs uncached
 vi.mock("nitropack/runtime", () => ({
@@ -38,7 +38,7 @@ vi.mock("nitropack/runtime", () => ({
 // Only the instance is replaced: FetchError stays real, since that is what the client maps a status off
 vi.mock("ofetch", async (importOriginal) => ({
     ...(await importOriginal<typeof import("ofetch")>()),
-    ofetch: { raw: transport.raw },
+    ofetch: { create: transport.create },
 }));
 
 const { useContent } = await import("./useContent");
@@ -71,6 +71,7 @@ beforeEach(() => {
     vi.clearAllMocks();
     nitro.calls = [];
     nitro.vendor = { name: "wordpress", baseURL: "https://wp.test/" };
+    transport.create.mockReturnValue({ raw: transport.raw });
     respond([ENTRY], { "x-wp-total": "12", "x-wp-totalpages": "2" });
 });
 
@@ -84,7 +85,8 @@ describe("useContent", () => {
 
         expect(page).toMatchObject({ page: 2, perPage: 6, total: 12, totalPages: 2 });
         expect(page.items[0]).toMatchObject({ id: "7", slug: "hello-world" });
-        expect(transport.raw).toHaveBeenCalledWith("https://wp.test/wp-json/wp/v2/posts", {
+        expect(transport.create).toHaveBeenCalledWith({ baseURL: "https://wp.test/" });
+        expect(transport.raw).toHaveBeenCalledWith("/wp-json/wp/v2/posts", {
             headers: undefined,
             query: expect.objectContaining({ page: 2, per_page: 6, categories: "12" }) as unknown,
         });
@@ -96,7 +98,7 @@ describe("useContent", () => {
         const page = await useContent(EVENT).listTerms("categories");
 
         expect(page.items[0]).toMatchObject({ id: "3", resource: "categories", name: "News" });
-        expect(transport.raw).toHaveBeenCalledWith("https://wp.test/wp-json/wp/v2/categories", {
+        expect(transport.raw).toHaveBeenCalledWith("/wp-json/wp/v2/categories", {
             headers: undefined,
             query: { page: 1, per_page: 10, slug: undefined, search: undefined },
         });
@@ -109,7 +111,7 @@ describe("useContent", () => {
             slug: "hello-world",
         });
 
-        expect(transport.raw).toHaveBeenCalledWith("https://wp.test/wp-json/wp/v2/posts", {
+        expect(transport.raw).toHaveBeenCalledWith("/wp-json/wp/v2/posts", {
             headers: undefined,
             query: expect.objectContaining({ per_page: 1, slug: "hello-world" }) as unknown,
         });

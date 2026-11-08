@@ -25,7 +25,7 @@ export {
     TERM_RESOURCES,
 } from "./core/domain/content";
 export { OfetchHttpClient } from "./core/adapters/clients/OfetchHttpClient";
-export type { WordpressProviderConfig } from "./core/adapters/providers/wordpress/WordpressTypes";
+export type { Vendor } from "./core/domain/vendor";
 export {
     default as createProvider,
     isVendorName,

@@ -16,7 +16,7 @@ describe("contentKey", () => {
         expect(contentKey(vendor, "posts")).not.toBe(contentKey(vendor, "pages"));
     });
 
-    // Vendor config carries identity as readily as credentials — a Contentful environment lives there too
+    // Whatever picks the document lives outside `options`, so the base URL tells deployments apart
     it("separates two deployments of the same vendor", () => {
         const staging: VendorConfig = { ...vendor, baseURL: "https://staging.wp.test/" };
 
@@ -25,10 +25,14 @@ describe("contentKey", () => {
 
     // Nitro turns a key into a filesystem path or a KV entry, so config is hashed rather than listed
     it("hashes the vendor config instead of spelling it out", () => {
-        const authenticated = { ...vendor, token: "s3cret" } as unknown as VendorConfig;
-
-        expect(contentKey(authenticated, "posts")).not.toContain("s3cret");
         expect(contentKey(vendor, "posts")).not.toContain("wp.test");
+    });
+
+    // `options` carries credentials only: two tokens for one site fetch the same document
+    it("shares an entry across credentials, so rotating a token keeps the cache", () => {
+        const rotated = { ...vendor, options: { token: "s3cret" } } as unknown as VendorConfig;
+
+        expect(contentKey(rotated, "posts")).toBe(contentKey(vendor, "posts"));
     });
 
     // Nitro strips every non-word character out of the key, so anything else here is silently lost

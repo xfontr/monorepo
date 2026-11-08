@@ -38,7 +38,10 @@ const rethrowAsHttpError = (cause: unknown): never => {
 
 const resolveProvider = async (vendor: VendorConfig): Promise<ContentProvider> => {
     try {
-        return await createProvider(vendor, new OfetchHttpClient(ofetch));
+        return await createProvider(
+            vendor,
+            new OfetchHttpClient(ofetch.create({ baseURL: vendor.baseURL })),
+        );
     } catch (cause) {
         return rethrowAsHttpError(cause);
     }

@@ -9,7 +9,7 @@ abstract class TranslationProvider<T extends object = object> implements Vendor<
     readonly options: T;
 
     constructor(
-        { baseURL, project, options = {} as T }: Vendor<T>,
+        { baseURL, project, options = {} as T }: Omit<Vendor<T>, "options"> & { options?: T },
         protected readonly http: HttpClient,
     ) {
         this.baseURL = baseURL;

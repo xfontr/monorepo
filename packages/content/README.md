@@ -27,7 +27,8 @@ src/
 ├── core/
 │   ├── domain/
 │   │   ├── content.ts                        # Entry, Term, Page, the resources, the query ceilings
-│   │   └── errors.ts                         # what can go wrong, with an HTTP status attached
+│   │   ├── errors.ts                         # what can go wrong, with an HTTP status attached
+│   │   └── vendor.ts                         # vendor config shape
 │   ├── ports/
 │   │   ├── HttpClient.ts                     # driven port: the transport
 │   │   └── ContentProvider.ts                # driven port: a vendor, and its config checks
@@ -39,7 +40,7 @@ src/
 │   │           ├── WordpressProvider.ts      # the `wordpress` vendor (WP REST API v2)
 │   │           ├── WordpressConfigs.ts       # API path, the vendor's own page ceiling, taxonomies
 │   │           ├── WordpressHelpers.ts       # query mapping, payload mapping, `x-wp-total` parsing
-│   │           └── WordpressTypes.ts         # the WP REST shapes, and the config type
+│   │           └── WordpressTypes.ts         # the WP REST shapes
 │   ├── contentKey.ts                         # which upstream document a request resolves to
 │   └── registry.ts                           # vendor name → provider, and the config type
 ├── nuxt/                                     # the Nuxt module (separate entry point)
@@ -101,28 +102,33 @@ const providers = {
 };
 ```
 
-`VendorConfig` is derived from it. Each vendor declares its whole config on its provider class,
-and the registry flattens it under `name`:
+`VendorConfig` is derived from it, in the same shape as
+[`@monorepo/i18n`'s](../i18n/README.md#-vendors). `baseURL` is shared by every vendor, and each
+vendor's `options` field is read off its provider class, so a vendor that needs options makes them
+**required** in config, and a vendor that needs none **forbids** them:
 
 ```ts
-{ name: "wordpress", baseURL }        // exactly what WordpressProvider needs, and nothing else
+{ name: "wordpress", baseURL }                       // options not allowed
+{ name: "contentful", baseURL, options: { token } }  // a vendor with credentials
 ```
 
-There is no hoisted `baseURL`. For Contentful or Sanity the endpoint is derived from the
-vendor's own config (a space, a dataset), so a shared one would be a field the consumer has to
-invent — and the transport is built without a base URL for the same reason.
+Whatever picks the document goes in `baseURL`, and `options` carries credentials and nothing else.
+A Contentful space and environment, or a Sanity project and dataset, are path or host segments of
+the vendor's API, so they belong in `baseURL`
+(`https://cdn.contentful.com/spaces/<space>/environments/<env>`). That split is what lets the
+[cache key](#-framework-agnostic-use) leave `options` out.
 
 Adding a vendor:
 
-1. Write `core/adapters/providers/<name>/<Name>Provider.ts` extending `ContentProvider<YourConfig>`,
-   overriding `listEntries` and `listTerms` with that vendor's URL contract, and exporting its
-   config type. One directory per vendor, named for its registry key, and directory, file, class and
+1. Write `core/adapters/providers/<name>/<Name>Provider.ts` extending `ContentProvider`, or
+   `ContentProvider<YourOptions>` if it takes credentials, overriding `listEntries` and `listTerms`
+   with that vendor's URL contract. One directory per vendor, named for its registry key, and directory, file, class and
    key all carry the same name — `wordpress` → `wordpress/WordpressProvider.ts` →
    `class WordpressProvider`. Constants, mapping helpers and the vendor's own response types move
    into siblings in that directory as soon as the provider stops fitting in one file, which keeps
    the shapes that must not leave the adapter from being importable from anywhere else;
    [`wordpress/`](./src/core/adapters/providers/wordpress) is the worked example.
-2. Override `configProblems()` to say when its config is unusable — see
+2. If it takes `options`, override `configProblems()` to say when they are unusable — see
    [validation](#-validation).
 3. Add one line to `providers`.
 4. Override `getEntry` / `getTerm` **only** if the vendor has a native single-document
@@ -138,10 +144,10 @@ interface HttpClient {
     get<T>(url: string, options?: RequestOptions): Promise<HttpResponse<T>>
 }
 
-abstract class ContentProvider<T extends object = object> {
+abstract class ContentProvider<T extends object = object> implements Vendor<T> {
     abstract listEntries(resource: EntryResource, query?: EntryQuery): Promise<Page<Entry>>
     abstract listTerms(resource: TermResource, query?: Query): Promise<Page<Term>>
-    protected abstract configProblems(): string[]
+    protected configProblems(): string[]      // [] unless the vendor has options to check
 
     getEntry(resource, slug): Promise<Entry>   // a one-item list, unless overridden
     getTerm(resource, slug): Promise<Term>
@@ -154,8 +160,9 @@ and injects it.
 
 Two things the port deliberately carries:
 
-- **`url` is absolute.** A provider owns how its vendor is addressed, so no transport is ever
-  configured with vendor knowledge.
+- **`url` is relative.** The consumer builds the client with `ofetch.create({ baseURL })` from the
+  same config it hands `createProvider`, and the provider passes the path its API contract defines.
+  ofetch keeps the path of a subdirectory install (`https://example.com/blog`) when it joins them.
 - **`HttpResponse` exposes headers.** Vendors report pagination there — a body alone cannot
   build a `Page`.
 
@@ -178,19 +185,21 @@ The registry types the config at compile time, but deploy-time values arrive fro
 constructor**: it cannot exist misconfigured, the same way it cannot exist without a transport.
 Every construction path is covered, not just `createProvider`.
 
-What is knowable differs per vendor, so there is nothing to check in the base class — each
-provider answers `configProblems()` for itself. `wordpress` requires a `baseURL` that parses as
-an absolute URL, so a missing scheme (`wp.example.com`) is caught rather than silently becoming
-a relative fetch.
+Two halves, because only one of them is knowable in the core:
 
-It returns problems rather than throwing, so one `MisconfiguredVendorError` lists **all** of
+| Checked | Where | Rule |
+| --- | --- | --- |
+| `baseURL` | `ContentProvider` | parses as an absolute URL, so a missing scheme (`wp.example.com`) is caught rather than silently becoming a relative fetch |
+| `options` | the provider, via `configProblems()` | whatever that vendor's credentials need. `wordpress` has none and overrides nothing |
+
+`configProblems()` returns problems rather than throwing, so one `MisconfiguredVendorError` lists **all** of
 them at once: fixing a deployment one restart per missing variable is the thing worth avoiding.
 
 Because it is a `ContentError`, it needs no wiring at the edge: it reports as a `500` naming
 what is unset, instead of the vendor being blamed with a `502` for config that never arrived.
 
 > `configProblems()` is called from the base constructor, so an override may only read
-> `config` — a subclass's own field initialisers have not run yet. The type system cannot
+> `options` — a subclass's own field initialisers have not run yet. The type system cannot
 > enforce that; `core/ports/ContentProvider.spec.ts` pins it so the next vendor meets it in a
 > test rather than in production.
 
@@ -200,16 +209,17 @@ what is unset, instead of the vendor being blamed with a `502` for config that n
 import { ofetch } from "ofetch";
 import { createProvider, OfetchHttpClient } from "@monorepo/content";
 
-const http = new OfetchHttpClient(ofetch);
-const provider = await createProvider({ name: "wordpress", baseURL: process.env.CONTENT_VENDOR_BASE_URL! }, http);
+const baseURL = process.env.CONTENT_VENDOR_BASE_URL!;
+
+const http = new OfetchHttpClient(ofetch.create({ baseURL }));
+const provider = await createProvider({ name: "wordpress", baseURL }, http);
 
 const page = await provider.listEntries("posts", { perPage: 6 });
 const entry = await provider.getEntry("posts", "hello-world");
 ```
 
-The transport is a constructor argument, so a provider cannot exist without one. Note it is
-built with **no** `baseURL`: providers compose absolute URLs, so a client configured with one
-vendor's host could not serve another. On a transport that is not ofetch, write the ten-line
+The transport is a constructor argument, so a provider cannot exist without one. Build it from
+the config you already hold — never from the provider you are about to create. On a transport that is not ofetch, write the ten-line
 `HttpClient` for it in your own app — that interface is the only thing the core needs.
 
 Caching itself is **not** in the core — the Nuxt integration caches inside `useContent`, and any
@@ -223,10 +233,11 @@ contentKey({ name: "wordpress", baseURL: "https://wp.test/" }, "posts", { page: 
 
 Four decisions in there:
 
-- **The vendor config is hashed whole**, not listed field by field. Listing it would put a
-  credential in a key that Nitro turns into a filesystem path or a KV entry; excluding it would
-  let two deployments of the same vendor collide, because vendor config carries identity as
-  readily as credentials — a Contentful environment and a Sanity dataset both live there.
+- **The vendor config is hashed whole, bar `options`**, not listed field by field. A field added
+  to `Vendor` can't be forgotten here, and `baseURL` being one of them is what stops two
+  deployments of one vendor sharing an entry. `options` stays out because it carries credentials,
+  and credentials are not identity: two tokens for one space fetch the same document, so rotating
+  one keeps the cache, and a secret never reaches a storage path.
 - **The query axes are sorted and encoded before being hashed**, so two callers spelling one query
   differently share an entry, and a crafted value cannot forge an axis it did not ask for.
 - **The key is word characters only**, because Nitro's storage layer cuts a key at `?` and splits it
@@ -324,3 +335,4 @@ Sized for a small monorepo. When it grows:
 | A query axis one vendor serves and another can't | There is no error for it, because there is no such axis today. Add one — a 400 naming the vendor and the parameter — rather than letting a provider drop the axis: a dropped one is cached under the value that was asked for, which is worse than refusing |
 | Structured content | `RichText` already carries a `blocks` format, so a Contentful or Sanity provider is not a breaking change for consumers |
 | Tracing the upstream call | nothing here emits a span, and it cannot: the boundary rules let `type:integration` depend on `type:config` only, and the Nuxt reader builds its own transport. Instrument at the Nitro level from the consuming app, or make the client injectable — but only when there is something to swap |
+| A third vendor package, or an app adapter that wants this plumbing | `@monorepo/content` and `@monorepo/i18n` keep matching copies of their vendor plumbing on purpose: the boundaries forbid either importing the other, and while there are two consumers a second copy of one contract costs less than a package. When a third appears (a newsletter's Mailchimp client, say), extract a vendor kit with its own boundaries tag that the integration packages may depend on: the base error with `UpstreamError`, `UndefinedVendorError` and `MisconfiguredVendorError`, the `HttpClient` port and its ofetch adapter, a `createRegistry(providers)` factory, `assertConfigured`, the h3 error mapping and the key escaping. Each package keeps its domain and its named errors. [D2](../../docs/audits/2026-10-21-monorepo.md#-duplication) lists the copies |
