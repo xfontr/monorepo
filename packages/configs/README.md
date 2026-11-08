@@ -232,6 +232,10 @@ Node types even in a package that otherwise doesn't.
 - `vue/prefer-separate-static-class`, in [`vue.ts`](./src/eslint/vue.ts) — a class that never
   changes goes in the static `class` attribute, never as a string literal inside `:class`.
   Conditional expressions are left alone, and `--fix` moves the rest
+- `vue/no-setup-props-reactivity-loss`, in [`vue.ts`](./src/eslint/vue.ts) — destructuring
+  `props`, or copying a prop into a variable, at the root of `setup()` or `<script setup>` fails,
+  since the copy stops tracking the prop. Destructuring `defineProps()` itself stays reactive on
+  Vue 3.5+ and passes, as does any read inside a `computed` or other function
 - `vue/block-order`, in [`vue.ts`](./src/eslint/vue.ts) — a `.vue` file is `<template>`, then
   `<script>`, then `<style>`. `--fix` moves the blocks
 - `vue/define-macros-order`, in [`vue.ts`](./src/eslint/vue.ts) — `<script setup>` reads imports,
