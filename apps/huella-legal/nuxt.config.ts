@@ -4,6 +4,8 @@ await import("vue-router/unplugin");
 const SITE_URL = "https://www.huellalegal.com";
 const WORDPRESS_HOST = URL.parse(process.env.NUXT_CONTENT_VENDOR_BASE_URL ?? "")?.host;
 
+const COMMIT = process.env.GITHUB_SHA;
+
 export default defineNuxtConfig({
     compatibilityDate: "2025-01-15",
 
@@ -235,7 +237,7 @@ export default defineNuxtConfig({
                 url: "",
                 app: {
                     name: "@monorepo/huella-legal",
-                    version: "0.0.0",
+                    version: COMMIT ?? "0.0.0",
                     environment: "development",
                 },
             },
