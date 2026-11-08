@@ -11,6 +11,7 @@ import layerIsolation from "./layerIsolation.ts";
 import { constTables, constTablesVue } from "./constTables.ts";
 import propsInterface from "./propsInterface.ts";
 import { disableReasons, disableReasonsVue } from "./disableReasons.ts";
+import { defaultExports, defaultExportsVue } from "./defaultExports.ts";
 import templateI18n from "./templateI18n.ts";
 import templateCalls from "./templateCalls.ts";
 import { typeDefinitions, typeDefinitionsVue } from "./typeDefinitions.ts";
@@ -38,6 +39,7 @@ const shared: object[] = [
     unsafeCode,
     e2eFixture,
     disableReasons,
+    defaultExports,
 ];
 
 const vueOnly: object[] = [
@@ -51,6 +53,7 @@ const vueOnly: object[] = [
     useBeforeDefineVue,
     unsafeCodeVue,
     disableReasonsVue,
+    defaultExportsVue,
 ];
 
 export { shared, vueOnly, vitestConfig, baseIgnores, routeMeta, tailwind };

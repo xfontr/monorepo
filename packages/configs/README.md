@@ -227,6 +227,10 @@ Node types even in a package that otherwise doesn't.
   rules it silences and ends in `-- <why>`, a block `eslint-disable` is closed with `eslint-enable`,
   and a disable that no longer hides anything fails. `<template>` comments are checked too. A
   blanket `/* eslint-disable */` silences this rule's own report, so review still has to catch one
+- `monorepo/named-default-export`, from [`lib/defaultExports.ts`](./src/eslint/lib/defaultExports.ts) —
+  a default-exported function or class carries a name, so stack traces, profiles and auto-imports
+  show it instead of `default`. A call such as `defineEventHandler(…)` and a config-file object or
+  array literal are left alone
 - `vue/v-bind-style` with `sameNameShorthand: "always"`, in [`vue.ts`](./src/eslint/vue.ts) — a binding whose
   name and value match is written `:id`, never `:id="id"`. `--fix` rewrites it
 - `vue/prefer-separate-static-class`, in [`vue.ts`](./src/eslint/vue.ts) — a class that never
