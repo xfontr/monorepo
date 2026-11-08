@@ -9,7 +9,7 @@ supersededBy: 0033-huella-legal-hybrid-prerender.md
 
 ## Context
 
-S2 in [the implementation plan](../plans/huella-legal-implementation.md) weighs three options:
+S2 in [the implementation plan](https://github.com/xfontr/monorepo/blob/3891f29041e31884c6821e99fd5ecc9c5daab2af/docs/plans/huella-legal-implementation.md) weighs three options:
 Nitro on Netlify (SSR, or hybrid with `routeRules`), Nitro on Cloudflare Workers, and a full static
 build with third-party services. It asks for the cost at expected traffic, where the content cache
 persists, time-based revalidation (WP is read-only and has no webhooks), the function body limit

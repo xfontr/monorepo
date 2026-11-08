@@ -10,7 +10,7 @@ decision: accepted
 
 The `/lab` design shows fields that `Entry` doesn't carry: authors with bios and avatars, reading
 time, TOC, footnotes, bibliography, citation, issue number, series and a "Más leídas" sort. S1 in
-[the implementation plan](../plans/huella-legal-implementation.md) asks where each one comes from,
+[the implementation plan](https://github.com/xfontr/monorepo/blob/3891f29041e31884c6821e99fd5ecc9c5daab2af/docs/plans/huella-legal-implementation.md) asks where each one comes from,
 where each gap gets filled, and how body HTML is sanitised. The lean was app-local mappers. The plan
 assumed WordPress exposes nothing beyond core. It turns out to expose several plugins, Yoast among
 them, so there's a second question: which plugin output to take.
