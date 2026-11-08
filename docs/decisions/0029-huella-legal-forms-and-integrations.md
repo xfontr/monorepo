@@ -55,7 +55,7 @@ decision: accepted
 
 ## Context
 
-S3 in [the implementation plan](../plans/huella-legal-implementation.md) asks six questions before
+S3 in [the implementation plan](https://github.com/xfontr/monorepo/blob/3891f29041e31884c6821e99fd5ecc9c5daab2af/docs/plans/huella-legal-implementation.md) asks six questions before
 E1 (newsletter) and E2 (publish submission) can start: the newsletter provider, where submissions
 go, spam protection, GDPR copy and retention, what Contacto is, and whether validation takes a
 library. The lean was server routes plus third-party providers. The old board assumed a contact

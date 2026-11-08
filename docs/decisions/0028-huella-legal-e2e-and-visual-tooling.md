@@ -11,7 +11,7 @@ decision: accepted
 
 ## Context
 
-The [implementation plan](../plans/huella-legal-implementation.md) gives each page ticket a
+The [implementation plan](https://github.com/xfontr/monorepo/blob/3891f29041e31884c6821e99fd5ecc9c5daab2af/docs/plans/huella-legal-implementation.md) gives each page ticket a
 Playwright spec against the built app: an axe scan with zero violations and screenshots at 390, 768
 and 1280. It gives the app a coverage threshold, too. None of that exists yet. #189 asks five
 things before A1 (#192) builds the harness: where Playwright lives, which browsers and OS image the
