@@ -37,5 +37,5 @@ export const useIssues = () => {
         server: false, // A baked issue list would ship as old as the deploy.
     });
 
-    return { ...state, reload: state.refresh };
+    return Object.assign(state, { reload: state.refresh });
 };

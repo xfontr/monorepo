@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { htmlDiff, htmlTokens } from "./htmlDiff.ts";
 
-const stripHighlights = (html: string) => html.replace(/<\/?(ins|del)>/g, "");
+const stripHighlights = (html: string) => html.replace(/<\/?(?:ins|del)>/g, "");
 
 describe("htmlDiff", () => {
     it("wraps only the changed words", () => {

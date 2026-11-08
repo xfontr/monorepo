@@ -21,7 +21,7 @@ const packageDirectories = (): string[] =>
     readdirSync(at("packages"), { withFileTypes: true })
         .filter((entry) => entry.isDirectory())
         .map((entry) => entry.name)
-        .sort();
+        .sort((a, b) => a.localeCompare(b));
 
 export const readPackages = (): PackageSource[] =>
     packageDirectories().map((directory) => {

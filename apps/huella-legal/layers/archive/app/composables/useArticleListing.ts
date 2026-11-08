@@ -23,12 +23,12 @@ export const useArticleListing = async (
 
     const sort = computed<Sort>({
         get: () => (route.query.sort === "oldest" ? "oldest" : "newest"),
-        set: (value) => navigate({ sort: value }),
+        set: (value) => void navigate({ sort: value }),
     });
 
     const search = computed<string>({
         get: () => (typeof route.query.query === "string" ? route.query.query : ""),
-        set: (value) => navigate({ query: value.trim() || undefined }),
+        set: (value) => void navigate({ query: value.trim() || undefined }),
     });
 
     const pageLink = (page: number): RouteLocationRaw => link({ page: String(page) });

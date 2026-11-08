@@ -6,7 +6,7 @@ export const useArticleSearch = async () => {
 
     const term = computed<string>({
         get: () => (typeof route.query.query === "string" ? route.query.query.trim() : ""),
-        set: (value) => navigate({ query: value.trim() }),
+        set: (value) => void navigate({ query: value.trim() }),
     });
 
     const request = useCachedFetch<ArticleSearch>("/api/search", {

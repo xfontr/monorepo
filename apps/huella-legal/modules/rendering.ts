@@ -59,7 +59,7 @@ const listSlugRoutes = async ({ runtimeConfig }: Nuxt["options"]): Promise<strin
     const { content, public: config } = runtimeConfig;
     // The prerendered pages read both from the env at runtime, so the route list has to as well
     const override = process.env.NUXT_PUBLIC_PAGE_SLUGS;
-    const pageSlugs: string[] = override ? JSON.parse(override) : config.pageSlugs;
+    const pageSlugs = override ? (JSON.parse(override) as string[]) : config.pageSlugs;
     const baseURL = process.env.NUXT_CONTENT_VENDOR_BASE_URL || content.vendor.baseURL;
     const slugs = [...pageSlugs, ...(await listPostSlugs({ ...content.vendor, baseURL }))];
 

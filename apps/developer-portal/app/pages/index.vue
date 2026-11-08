@@ -323,7 +323,7 @@ const [
     useSnapshot("deps"),
     useSnapshot("metrics"),
 ]);
-const { data: issues } = await useIssues();
+const { data: issues } = useIssues();
 const { data: reviews } = await useReviewPages();
 
 const open = computed(() => issues.value.issues.length);

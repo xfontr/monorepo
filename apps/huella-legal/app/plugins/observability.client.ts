@@ -33,9 +33,11 @@ export default defineNuxtPlugin((nuxtApp) => {
             for (const error of earlyErrors.splice(0)) faro.api.pushError(error);
         };
 
-        for (const type of INTERACTIONS)
-            addEventListener(type, start, { passive: true, signal: triggers.signal });
+        const begin = () => void start();
 
-        setTimeout(start, IDLE_START_MS);
+        for (const type of INTERACTIONS)
+            addEventListener(type, begin, { passive: true, signal: triggers.signal });
+
+        setTimeout(begin, IDLE_START_MS);
     });
 });

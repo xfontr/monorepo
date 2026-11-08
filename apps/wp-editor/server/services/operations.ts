@@ -105,9 +105,7 @@ export const openChangeset = async (
         instructions: options.instructions ?? "",
         createdAt: now(),
         status: "open",
-        keys: posts.map(
-            ({ type, id }) => `${type === "page" ? "pages" : "posts"}-${id}` as ItemKey,
-        ),
+        keys: posts.map(({ type, id }) => `${type === "page" ? "pages" : "posts"}-${id}` as const),
         scanned: [],
     };
 

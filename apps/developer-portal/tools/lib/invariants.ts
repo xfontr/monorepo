@@ -111,7 +111,9 @@ export const compareReviewHistory = (
 export const listReviewFiles = async (): Promise<string[]> => {
     const entries = await readdir(resolve(WORKSPACE_ROOT, REVIEWS_DIR)).catch(() => [] as string[]);
 
-    return entries.filter((entry) => /^\d{4}-\d{2}-\d{2}-.+\.md$/.test(entry)).sort();
+    return entries
+        .filter((entry) => /^\d{4}-\d{2}-\d{2}-.+\.md$/.test(entry))
+        .sort((a, b) => a.localeCompare(b));
 };
 
 /**
@@ -139,7 +141,9 @@ export const compareScorecardShape = (file: string, markdown: string): Invariant
 export const listAuditFiles = async (): Promise<string[]> => {
     const entries = await readdir(resolve(WORKSPACE_ROOT, AUDITS_DIR)).catch(() => [] as string[]);
 
-    return entries.filter((entry) => /^\d{4}-.+\.md$/.test(entry)).sort();
+    return entries
+        .filter((entry) => /^\d{4}-.+\.md$/.test(entry))
+        .sort((a, b) => a.localeCompare(b));
 };
 
 /** A finding whose status doesn't parse still counts as open on the audits page, so this is what says why. */
@@ -157,7 +161,9 @@ export const listDecisionFiles = async (): Promise<string[]> => {
         () => [] as string[],
     );
 
-    return entries.filter((entry) => /^\d{4}-.+\.md$/.test(entry)).sort();
+    return entries
+        .filter((entry) => /^\d{4}-.+\.md$/.test(entry))
+        .sort((a, b) => a.localeCompare(b));
 };
 
 export const compareDecisionShape = (

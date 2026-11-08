@@ -40,5 +40,5 @@ export default defineEventHandler(async (event): Promise<SnapshotResponse> => {
 
     const value = await read();
 
-    return { manifest, [artifact as string]: value } as SnapshotResponse;
+    return { manifest, [artifact]: value };
 });
