@@ -54,7 +54,7 @@ Projects are layered with Nx tags (declared in each `package.json` under `nx.tag
 
 | Tag | May depend on | Who has it |
 | --- | --- | --- |
-| `type:app` | `type:integration`, `type:observability`, `type:config` | `developer-portal`, `huella-legal` |
+| `type:app` | `type:integration`, `type:observability`, `type:config` | `developer-portal`, `huella-legal`, `wp-editor` |
 | `type:integration` | `type:config` | `content`, `i18n` |
 | `type:observability` | `type:config` | `observability` |
 | `type:infra` | `type:config` | `translations` |
@@ -67,7 +67,7 @@ Every project also carries exactly one `scope:*` tag, and both rules apply at on
 | --- | --- | --- |
 | `scope:shared` | `scope:shared` | `configs`, `content`, `i18n`, `observability` |
 | `scope:huella-legal` | `scope:huella-legal`, `scope:shared` | `huella-legal` |
-| `scope:internal` | `scope:internal`, `scope:shared` | `developer-portal` |
+| `scope:internal` | `scope:internal`, `scope:shared` | `developer-portal`, `wp-editor` |
 | `scope:tooling` | `scope:tooling`, `scope:shared` | `scripts` |
 | `scope:infra` | `scope:infra`, `scope:shared` | `translations` |
 
