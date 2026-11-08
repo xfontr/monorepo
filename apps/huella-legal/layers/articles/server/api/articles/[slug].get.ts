@@ -1,3 +1,4 @@
+import { JOURNAL } from "../../../shared/constants";
 import type { Article } from "../../../shared/types/Article";
 import { toArticle } from "../../mappers/article";
 import { isHiddenTerm } from "../../services/hiddenTerms";
@@ -12,7 +13,7 @@ export default defineEventHandler(async (event): Promise<Article> => {
         getRouterParam(event, "slug", { decode: true }) ?? "",
     );
 
-    const article = toArticle(entry, { siteUrl: site.url, journal: useAppConfig().journal });
+    const article = toArticle(entry, { siteUrl: site.url, journal: JOURNAL });
 
     return {
         ...article,

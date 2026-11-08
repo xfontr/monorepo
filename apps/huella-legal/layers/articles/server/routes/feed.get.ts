@@ -1,4 +1,5 @@
 import { Feed } from "feed";
+import { JOURNAL } from "../../shared/constants";
 import { toPermalink } from "../mappers/page";
 import { getArticleIndex } from "../services/articleIndex";
 
@@ -8,10 +9,9 @@ export default defineEventHandler(async (event): Promise<string> => {
     const {
         public: { site },
     } = useRuntimeConfig(event);
-    const { journal } = useAppConfig();
 
     const feed = new Feed({
-        title: journal.name,
+        title: JOURNAL.name,
         link: toPermalink("", site.url),
         language: "es",
         feedLinks: { rss: new URL("/feed/", site.url).href },

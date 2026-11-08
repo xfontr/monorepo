@@ -12,7 +12,6 @@ vi.stubGlobal("useRuntimeConfig", () => ({
     articles: { hiddenTerms: ["oculta"] },
     public: { site: { url: "https://revista.test" } },
 }));
-vi.stubGlobal("useAppConfig", () => ({ journal: { name: "Huella Legal", issn: "0000-0000" } }));
 vi.stubGlobal("useContent", () => ({ getEntry: nitro.getEntry }));
 
 const handler = (await import("./[slug].get")).default as unknown as (

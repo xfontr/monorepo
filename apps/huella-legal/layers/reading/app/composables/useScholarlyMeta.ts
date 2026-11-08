@@ -1,13 +1,12 @@
 import type { Ref } from "vue";
+import { JOURNAL } from "../../../articles/shared/constants";
 
 /** The `citation_*` tags and the `ScholarlyArticle` graph, from an article that has loaded. */
 export const useScholarlyMeta = (article: Ref<Article | undefined>) => {
-    const { journal } = useAppConfig();
-
     useHead({
         meta: () =>
             article.value
-                ? toCitationMeta(article.value, journal).map((tag, index) => ({
+                ? toCitationMeta(article.value, JOURNAL).map((tag, index) => ({
                       ...tag,
                       key: `citation-${index}`,
                       "data-hid": `citation-${index}`,
@@ -24,7 +23,7 @@ export const useScholarlyMeta = (article: Ref<Article | undefined>) => {
             const periodical = new URL("/#periodical", permalink).href;
 
             return [
-                { "@type": "Periodical", "@id": periodical, ...journal },
+                { "@type": "Periodical", "@id": periodical, ...JOURNAL },
                 defineArticle({
                     "@type": "ScholarlyArticle",
                     headline: title,
