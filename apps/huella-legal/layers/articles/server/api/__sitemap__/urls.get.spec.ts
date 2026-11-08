@@ -18,7 +18,10 @@ const nitro = vi.hoisted(() => ({
 }));
 
 vi.stubGlobal("defineSitemapEventHandler", (handler: unknown) => handler);
-vi.stubGlobal("useRuntimeConfig", () => ({ public: { pageSlugs: ["aviso-legal", "oculta"] } }));
+vi.stubGlobal("useRuntimeConfig", () => ({
+    articles: { hiddenTerms: ["consultas"] },
+    public: { pageSlugs: ["aviso-legal", "oculta"] },
+}));
 vi.stubGlobal("useContent", () => ({ getEntry: nitro.getEntry }));
 
 vi.mock("../../services/articleIndex", () => ({
@@ -59,6 +62,12 @@ describe("GET /api/__sitemap__/urls", () => {
                 "/colaboradores/ana-ruiz/",
             ]),
         );
+    });
+
+    it("leaves out a hidden category's área", async () => {
+        nitro.categories = [toCategory(fakeTerm({ slug: "consultas" }))];
+
+        expect(await locs()).not.toContain("/areas/consultas/");
     });
 
     it("leaves out a post or a page the CMS marks noindex", async () => {

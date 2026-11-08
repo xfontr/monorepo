@@ -5,6 +5,7 @@ import type { ArticleSearch } from "../../shared/types/ArticleSearch";
 import { toArticleSearch, toSuggestedSubjects } from "../mappers/articleSearch";
 import { getArticleIndex } from "../services/articleIndex";
 import { withCommentCounts } from "../services/commentCounts";
+import { isListed } from "../services/hiddenTerms";
 
 const PER_PAGE = 20;
 
@@ -38,7 +39,13 @@ export default defineEventHandler(async (event): Promise<ArticleSearch> => {
         });
 
     const found = toArticleSearch(query, results);
-    const search = { ...found, items: await withCommentCounts(event, found.items) };
+    const listed = found.items.filter(isListed);
+    const search = {
+        ...found,
+        items: await withCommentCounts(event, listed),
+        // Only this page's hidden matches are known, so a later page can still overcount
+        total: found.total - (found.items.length - listed.length),
+    };
 
     // WP only refuses a page past the end when something matched
     if (page > search.totalPages) throw notFound(`"page" is past the end for "${query}"`);

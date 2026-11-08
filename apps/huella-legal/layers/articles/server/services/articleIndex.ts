@@ -3,6 +3,7 @@ import type { H3Event } from "h3";
 import type { ArticleSummary } from "../../shared/types/ArticleSummary";
 import { readSaved, save } from "../adapters/netlify";
 import { toArticleSummary } from "../mappers/articleSummary";
+import { isListed } from "./hiddenTerms";
 import { readAllPages } from "../utils/readAllPages";
 
 const { cache } = useRuntimeConfig().articles;
@@ -15,7 +16,7 @@ const newestFirst = (a: ArticleSummary, b: ArticleSummary): number =>
 
 // Nitro's cache lives in one function instance's memory, so a cold instance reads the deploy's
 // saved copy before it pages through every post in WordPress
-export const getArticleIndex = defineCachedFunction(
+const readArticleIndex = defineCachedFunction(
     async (event: H3Event): Promise<ArticleSummary[]> => {
         const saved = await readSaved<ArticleSummary[]>(STORE, KEY, cache.maxAge);
 
@@ -39,3 +40,7 @@ export const getArticleIndex = defineCachedFunction(
         getKey: () => KEY,
     },
 );
+
+// Filtered after the cache, so a change to the hidden tags needs no cache bust
+export const getArticleIndex = async (event: H3Event): Promise<ArticleSummary[]> =>
+    (await readArticleIndex(event)).filter(isListed);

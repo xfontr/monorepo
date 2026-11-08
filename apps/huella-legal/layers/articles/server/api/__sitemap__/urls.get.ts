@@ -1,5 +1,6 @@
 import { getArticleIndex } from "../../services/articleIndex";
 import { getCategories } from "../../services/categories";
+import { isHiddenTerm } from "../../services/hiddenTerms";
 
 export default defineSitemapEventHandler(async (event) => {
     const {
@@ -28,7 +29,9 @@ export default defineSitemapEventHandler(async (event) => {
             .filter(({ seo }) => !seo?.noindex)
             .map(({ slug, updatedAt }) => ({ loc: `/${slug}/`, lastmod: updatedAt })),
         // Yoast marked these archives noindex for WordPress's theme; the app's áreas are indexed
-        ...categories.map(({ slug }) => ({ loc: `/areas/${slug}/` })),
+        ...categories
+            .filter((category) => !isHiddenTerm(category))
+            .map(({ slug }) => ({ loc: `/areas/${slug}/` })),
         ...[...authorSlugs].map((slug) => ({ loc: `/colaboradores/${slug}/` })),
     ];
 });

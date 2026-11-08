@@ -9,6 +9,7 @@ import { FORMATS, toArticleListing } from "../../mappers/articleListing";
 import { toCategory } from "../../mappers/articleSummary";
 import { getArticleIndex } from "../../services/articleIndex";
 import { withCommentCounts } from "../../services/commentCounts";
+import { isHiddenTerm } from "../../services/hiddenTerms";
 
 const listingQuerySchema = v.object({
     page: v.optional(v.pipe(v.string(), v.toNumber(), v.integer(), v.minValue(1)), "1"),
@@ -48,7 +49,9 @@ const toScope = async (
     { category, tag, author }: ListingQuery,
     index: ArticleSummary[],
 ): Promise<ListingScope | undefined> => {
+    if (category && isHiddenTerm({ slug: category })) throw notFound(`No category "${category}"`);
     if (category) return { kind: "category", term: await fetchTerm(event, "categories", category) };
+    if (tag && isHiddenTerm({ slug: tag })) throw notFound(`No tag "${tag}"`);
     if (tag) return { kind: "tag", term: await fetchTerm(event, "tags", tag) };
     if (author) return toAuthorScope(author, index);
 

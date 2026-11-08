@@ -1,4 +1,4 @@
-import { fakeEntry } from "@monorepo/content/testing";
+import { fakeEntry, fakeTerm } from "@monorepo/content/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ArticleSummary } from "../../shared/types/ArticleSummary";
 
@@ -17,7 +17,9 @@ vi.stubGlobal("defineCachedFunction", (fn: unknown, options: typeof nitro.cache)
 
     return fn;
 });
-vi.stubGlobal("useRuntimeConfig", () => ({ articles: { cache: nitro.window } }));
+vi.stubGlobal("useRuntimeConfig", () => ({
+    articles: { cache: nitro.window, hiddenTerms: ["consultas-legales-gratuitas"] },
+}));
 vi.stubGlobal("useContent", () => ({ listEntries: nitro.listEntries }));
 
 const { getArticleIndex } = (await import("./articleIndex")) as unknown as {
@@ -38,6 +40,19 @@ beforeEach(() => {
 });
 
 describe("getArticleIndex", () => {
+    // Saved whole, so emptying the hidden tags shows the posts again without a cache bust
+    it("leaves a post with a hidden tag out of the index it answers, but not out of the saved copy", async () => {
+        const hidden = fakeEntry({
+            terms: [fakeTerm({ resource: "tags", slug: "consultas-legales-gratuitas" })],
+        });
+        nitro.listEntries.mockResolvedValue({ items: [hidden, NEW], totalPages: 1 });
+
+        const index = await getArticleIndex({});
+
+        expect(index.map(({ id }) => id)).toEqual([NEW.id]);
+        expect(blobs.save.mock.calls[0]?.[2]).toHaveLength(2);
+    });
+
     it("reads every page of posts at the content module's ceiling, not just the first", async () => {
         const index = await getArticleIndex({});
 
@@ -50,10 +65,10 @@ describe("getArticleIndex", () => {
     });
 
     it("serves the deploy's saved copy without asking WordPress, so a cold instance is fast", async () => {
-        const saved = [{ id: "saved" }];
+        const saved = [{ id: "saved", tags: [] }];
         blobs.readSaved.mockResolvedValue(saved);
 
-        await expect(getArticleIndex({})).resolves.toBe(saved);
+        await expect(getArticleIndex({})).resolves.toEqual(saved);
         expect(blobs.readSaved).toHaveBeenCalledWith("article-index", "posts", 300);
         expect(nitro.listEntries).not.toHaveBeenCalled();
     });

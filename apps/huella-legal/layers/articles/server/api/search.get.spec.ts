@@ -17,6 +17,7 @@ vi.stubGlobal("createError", (input: { statusCode?: number }) =>
     Object.assign(new Error("http"), input),
 );
 vi.stubGlobal("useContent", () => ({ listEntries: nitro.listEntries }));
+vi.stubGlobal("useRuntimeConfig", () => ({ articles: { hiddenTerms: ["oculta"] } }));
 
 vi.mock("../services/commentCounts", () => ({
     withCommentCounts: (_event: unknown, summaries: unknown) => Promise.resolve(summaries),
@@ -49,6 +50,16 @@ beforeEach(() => {
 });
 
 describe("GET /api/search", () => {
+    it("drops a match carrying a hidden tag and counts it out of the total", async () => {
+        const hidden = fakeEntry({ terms: [fakeTerm({ resource: "tags", slug: "oculta" })] });
+        nitro.listEntries.mockResolvedValue(page([hidden, MATCH]));
+
+        const search = await handler({});
+
+        expect(search.items.map(({ id }) => id)).toEqual([MATCH.id]);
+        expect(search.total).toBe(1);
+    });
+
     it("asks the CMS for the trimmed query twenty at a time and maps what it answers", async () => {
         nitro.query = { query: "  culpa  ", page: "2" };
         nitro.listEntries.mockResolvedValue({ ...page([MATCH]), page: 2, totalPages: 2 });
