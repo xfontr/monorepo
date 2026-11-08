@@ -99,7 +99,7 @@ Requires the Node version in `.nvmrc` and pnpm (version pinned via `packageManag
 
 ```sh
 pnpm install
-pnpm quick-start                        # hooks, workspace coverage and developer-portal snapshot
+pnpm quick-start                        # hooks, .env files, workspace coverage and developer-portal snapshot
 pnpm dev                                # pick a project to start
 ```
 
@@ -125,7 +125,7 @@ which is also what CI runs, except `pnpm test:coverage`. For the whole workspace
 
 | Command | What it does |
 | --- | --- |
-| `pnpm quick-start` | Install Git hooks for this clone, collect coverage for the workspace, then refresh the developer portal's snapshot |
+| `pnpm quick-start` | Install Git hooks for this clone, create the `.env` files from their examples, collect coverage for the workspace, then refresh the developer portal's snapshot |
 | `pnpm dev` | Pick a project and start its dev server — `pnpm dev developer-portal` skips the picker. Installs the workspace first if this is a fresh clone |
 | `pnpm lint` | Lint affected projects |
 | `pnpm typecheck` | Typecheck affected projects |
@@ -163,6 +163,9 @@ checks, is in [`docs/guides/change-lifecycle.md`](./docs/guides/change-lifecycle
   ([`docs-review.yml`](./.github/workflows/docs-review.yml)).
 - [`post-checkout`](./.husky/post-checkout) and [`post-merge`](./.husky/post-merge) warn when a branch
   operation changes `pnpm-lock.yaml`. They never install anything and never block.
+- [`pnpm env:sync`](./infrastructure/scripts/src/env-sync/README.md) lays every `.env` out like its
+  `.env.example`. `pre-commit` runs it when a commit stages an example, and `post-checkout` and
+  `post-merge` when one changed. None of them blocks on it.
 - [`pnpm docs:drift`](./infrastructure/scripts/src/drift/README.md) is a manual check for a range
   whose project docs may have gone stale. No hook runs it.
 - Four workflows need secrets nothing provisions — `PROJECTS_TOKEN`, `NX_CLOUD_ACCESS_TOKEN`,

@@ -23,7 +23,8 @@ loudly.
 
 The [`pre-commit`](../../.husky/pre-commit) hook runs `pnpm docs:map --check` and
 `pnpm review:version --check`. A stale generated feature map or an unrecorded review-method change
-blocks the commit.
+blocks the commit. When the commit stages a `.env.example`, it also runs
+[`pnpm env:sync`](../../infrastructure/scripts/src/env-sync/README.md), which never blocks.
 
 The [`commit-msg`](../../.husky/commit-msg) hook runs before `commitlint` sees your message. It
 reads the issue number out of the current branch name and rewrites the subject to carry it —

@@ -18,6 +18,7 @@
     "docs:map": "node --disable-warning=ExperimentalWarning src/map/index.ts",
     "package:check": "node --disable-warning=ExperimentalWarning src/package-contracts/index.ts",
     "review:version": "node --disable-warning=ExperimentalWarning src/review-version/index.ts",
+    "env:sync": "node --disable-warning=ExperimentalWarning src/env-sync/index.ts",
     "coverage": "node --disable-warning=ExperimentalWarning src/coverage-report/index.ts",
          "lint": "nx eslint:lint",
     "typecheck": "tsc --noEmit",
