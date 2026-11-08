@@ -104,7 +104,12 @@ test("hands reference managers the article on screen after navigating to it in t
 test("keeps a post the CMS marks noindex, and every tag archive, out of search", async ({
     page,
 }) => {
-    for (const path of [`/${HIDDEN.slug}/`, `/etiquetas/${TAG.slug}/`, "/buscar/"]) {
+    for (const path of [
+        `/${HIDDEN.slug}/`,
+        `/etiquetas/${TAG.slug}/`,
+        "/buscar/",
+        "/suscripcion-confirmada/",
+    ]) {
         await page.goto(path);
 
         await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /^noindex/);
@@ -126,7 +131,7 @@ test("lists indexable posts in the sitemap, and leaves noindex ones out", async 
     expect(sitemap).toContain(`<loc>${new URL(PATH, baseURL).href}</loc>`);
     expect(sitemap).toContain(`<loc>${new URL("/sobre/", baseURL).href}</loc>`);
     expect(sitemap).not.toContain(`/${HIDDEN.slug}/`);
-    expect(sitemap).not.toMatch(/\/(?:etiquetas|buscar|lab)\//);
+    expect(sitemap).not.toMatch(/\/(?:etiquetas|buscar|lab|suscripcion-confirmada)\//);
 });
 
 test("allows crawlers on the canonical host and points them at the sitemap", async ({

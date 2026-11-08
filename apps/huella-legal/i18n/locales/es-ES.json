@@ -622,6 +622,13 @@
         "lead": "Lo nuevo de la revista, una vez al mes.",
         "subjectLead": "Lo nuevo en {subject} y el resto de áreas, una vez al mes."
     },
+    "newsletterConfirmed": {
+        "categories": "Explorar las áreas",
+        "kicker": "Newsletter",
+        "latest": "Leer lo último",
+        "lead": "Tu dirección ya está en la lista. El próximo correo llegará con lo que publiquemos este mes; mientras tanto, puedes empezar por lo último de la revista.",
+        "title": "Suscripción confirmada"
+    },
     "newsletterForm": {
         "email": {
             "errors": {
