@@ -39,5 +39,5 @@ relative paths would fold two identically-named files from different projects in
 
 | Later need | What changes |
 | --- | --- |
-| A single workspace-wide coverage percentage or thresholds | Not built — mixing `apps/huella-legal` with `packages/ui` into one number isn't actionable. Per-project thresholds belong in each project's `vitest.config.ts` |
+| A single workspace-wide coverage percentage or thresholds | Not built — mixing `apps/huella-legal` with `packages/configs` into one number isn't actionable. Per-project thresholds belong in each project's `vitest.config.ts` |
 | CI gating on coverage, or per-PR diff coverage | That's the hosted-service conversation (Codecov, Coveralls, SonarCloud) the decision report names, and it replaces none of the above — every project already emits `lcov` whether or not anything uploads it |

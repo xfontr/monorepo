@@ -502,8 +502,8 @@ and the page print the same day.
 ## 📚 Storybook
 
 Components are worked on in isolation here, with a story beside the component it renders
-(`app/**` or `layers/*/app/**`, as `*.stories.ts`). The setup follows
-[`@monorepo/ui`](../../packages/ui/README.md) — `@storybook/vue3-vite`, not a Nuxt integration,
+(`app/**` or `layers/*/app/**`, as `*.stories.ts`). The setup is
+`@storybook/vue3-vite`, not a Nuxt integration,
 because the Nuxt one (`@storybook-vue/nuxt`) stops at Nuxt 3, Vite 7 and Storybook 9.
 
 So Storybook is a plain Vite app, and [`.storybook/main.ts`](./.storybook/main.ts) gets back what

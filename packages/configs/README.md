@@ -3,11 +3,10 @@
 Shared ESLint, Vitest, Playwright and TypeScript configuration for the workspace. It centralizes rules and
 presets so projects stay consistent without copying configuration.
 
-The ESLint and Vitest halves reach every project, this one included. Two projects extend no
-tsconfig preset: `packages/ui` is a solution
-file whose `tsconfig.app.json` extends `@vue/tsconfig`, and `apps/huella-legal` only references the four
-`.nuxt/tsconfig.*.json` Nuxt generates. Both are the framework's own layout rather than drift — but
-worth knowing, because a compiler option added here does not reach either one.
+The ESLint and Vitest halves reach every project, this one included. One project extends no
+tsconfig preset: `apps/huella-legal` only references the four `.nuxt/tsconfig.*.json` Nuxt
+generates. That is the framework's own layout rather than drift — but worth knowing, because a
+compiler option added here does not reach it.
 
 Shipped as raw TypeScript, and tagged `type:config`: it depends on nothing in the workspace, and
 everything is allowed to depend on it.

@@ -35,7 +35,6 @@ export default defineNuxtConfig({
     nitro: {
         prerender: {
             ignore: [
-                `${process.env.NUXT_APP_BASE_URL ?? "/"}storybook/`,
                 `${process.env.NUXT_APP_BASE_URL ?? "/"}huella-legal-storybook/`,
             ],
         },

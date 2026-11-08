@@ -140,7 +140,6 @@ describe("projects page", () => {
         expect(wrapper.text()).toContain("Used by: @monorepo/developer-portal");
         expect(wrapper.find("a[href='https://site.example']").exists()).toBe(true);
         expect(wrapper.find("a[href='https://site.example/_scalar']").exists()).toBe(true);
-        expect(wrapper.find("a[href$='/storybook/']").exists()).toBe(true);
         expect(wrapper.find("a[href$='/huella-legal-storybook/']").exists()).toBe(true);
         expect(wrapper.find("a[href$='/actions/workflows/netlify-deployment.yml']").exists()).toBe(
             true,

@@ -48,14 +48,9 @@ jobs:
 
             - run: pnpm exec nx collect @monorepo/developer-portal
 
-            # Pages serves one artifact. Storybook is built beneath developer-portal rather than deploying
-            # a second artifact that would replace the dashboard.
-            - name: Build Storybook
-              run: pnpm --filter @monorepo/ui exec storybook build --output-dir ../../apps/developer-portal/public/storybook
-              env:
-                  STORYBOOK_BASE_URL: ${{ steps.pages.outputs.base_path }}/storybook/
-
-            # The script, not a bare `storybook build`, because it runs `nuxi prepare` first.
+            # Pages serves one artifact, so Storybook is built beneath developer-portal rather than
+            # deploying a second artifact that would replace the dashboard. The script, not a bare
+            # `storybook build`, because it runs `nuxi prepare` first.
             - name: Build Huella Legal Storybook
               run: pnpm --filter @monorepo/huella-legal run build:storybook --output-dir ../developer-portal/public/huella-legal-storybook
               env:

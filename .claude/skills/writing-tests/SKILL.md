@@ -86,13 +86,6 @@ Both are easy to break by accident and neither is optional:
 - **`core/ports/*Provider.spec.ts`** pins that `configProblems()` / `optionProblems()` runs from the
   base constructor, before a subclass's field initialisers. Both `*:new-vendor` skills lean on it.
 
-## Where the boilerplate lives
-
-[`packages/ui/lib/components/Button.spec.ts`](../../../packages/ui/lib/components/Button.spec.ts) is
-the one spec in the workspace not written to any of this — `describe("test")`, `it("render")`,
-asserting on the string `"test"`. It is scaffolding that was never revisited. Copy the shape of a
-Vue spec from it if you must, but not its titles, and fix it if you touch it.
-
 ## Verify
 
 ```sh

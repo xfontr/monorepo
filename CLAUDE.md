@@ -191,6 +191,5 @@ the symptom is `lint` failing to parse every file rather than anything mentionin
 | `i18n-new-vendor` | Adding a TMS vendor to `@monorepo/i18n` |
 | `scripts-new-script` | Adding a repo-local CLI under `infrastructure/scripts` |
 | `configs-new-rule` | Adding, changing or scoping a lint rule in `@monorepo/configs`, or turning a review finding into one |
-| `ui-new-component` | Adding a component to `@monorepo/ui` |
 | `wp-bulk-edit` | A site-wide content pass on the blog through `@monorepo/wp-editor`: open a changeset, write proposals in batches, validate |
 | `ship-issue` | Taking issues to merged PRs unattended, as `/ship-issue <numbers>`. A saved workflow in [`.claude/workflows/`](./.claude/workflows/ship-issue.js), not a skill; see [agent setup](./docs/concepts/agent-setup.md#-the-ship-issue-pipeline) |

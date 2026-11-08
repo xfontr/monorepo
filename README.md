@@ -22,7 +22,6 @@ packages/
     content/          @monorepo/content — CMS entries and taxonomies + a Nuxt module
     i18n/             @monorepo/i18n — translations core + a Nuxt module
     observability/    @monorepo/observability — Grafana Faro in the browser, OpenTelemetry on the server
-    ui/               @monorepo/ui — shared Vue 3 component library
 infrastructure/
     translations/     @monorepo/translations — TMS serving the locale files over HTTP
     scripts/          @monorepo/scripts — repo-local dev tooling, one folder per script
@@ -55,10 +54,9 @@ Projects are layered with Nx tags (declared in each `package.json` under `nx.tag
 
 | Tag | May depend on | Who has it |
 | --- | --- | --- |
-| `type:app` | `type:integration`, `type:observability`, `type:ui`, `type:config` | `developer-portal`, `huella-legal` |
+| `type:app` | `type:integration`, `type:observability`, `type:config` | `developer-portal`, `huella-legal` |
 | `type:integration` | `type:config` | `content`, `i18n` |
 | `type:observability` | `type:config` | `observability` |
-| `type:ui` | `type:ui`, `type:config` | `ui` |
 | `type:infra` | `type:config` | `translations` |
 | `type:tooling` | `type:config` | `scripts` |
 | `type:config` | nothing | `configs` |
@@ -67,7 +65,7 @@ Every project also carries exactly one `scope:*` tag, and both rules apply at on
 
 | Scope | May depend on | Who has it |
 | --- | --- | --- |
-| `scope:shared` | `scope:shared` | `configs`, `content`, `i18n`, `observability`, `ui` |
+| `scope:shared` | `scope:shared` | `configs`, `content`, `i18n`, `observability` |
 | `scope:huella-legal` | `scope:huella-legal`, `scope:shared` | `huella-legal` |
 | `scope:internal` | `scope:internal`, `scope:shared` | `developer-portal` |
 | `scope:tooling` | `scope:tooling`, `scope:shared` | `scripts` |

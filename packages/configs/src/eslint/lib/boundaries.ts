@@ -16,13 +16,11 @@ const boundaries: object = {
                         onlyDependOnLibsWithTags: [
                             "type:integration",
                             "type:observability",
-                            "type:ui",
                             "type:config",
                         ],
                     },
                     { sourceTag: "type:integration", onlyDependOnLibsWithTags: ["type:config"] },
                     { sourceTag: "type:observability", onlyDependOnLibsWithTags: ["type:config"] },
-                    { sourceTag: "type:ui", onlyDependOnLibsWithTags: ["type:ui", "type:config"] },
                     { sourceTag: "type:infra", onlyDependOnLibsWithTags: ["type:config"] },
                     { sourceTag: "type:tooling", onlyDependOnLibsWithTags: ["type:config"] },
                     { sourceTag: "type:config", onlyDependOnLibsWithTags: [] },
