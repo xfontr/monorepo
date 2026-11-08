@@ -33,12 +33,9 @@ export default defineEventHandler(async (event): Promise<SnapshotResponse> => {
     const artifact = getRouterParam(event, "artifact");
     const manifest = await readArtifact<Manifest>("manifest");
 
-    const read =
-        artifact && artifact in readers ? readers[artifact as keyof typeof readers] : undefined;
+    if (!artifact || !(artifact in readers)) return { manifest };
 
-    if (!read) return { manifest };
-
-    const value = await read();
+    const value = await readers[artifact as keyof typeof readers]();
 
     return { manifest, [artifact]: value };
 });

@@ -36,7 +36,7 @@ describe("directory listing", () => {
         await wrapper.find("input").setValue("  ALVARO ");
 
         expect(names(wrapper)).toEqual(["Álvaro Núñez"]);
-        expect(wrapper.find("[role='status']").text()).toBe("t(directoryListing.matches)");
+        expect(wrapper.find("output").text()).toBe("t(directoryListing.matches)");
 
         await wrapper.find("input").setValue("Autora 11");
 
@@ -56,7 +56,7 @@ describe("directory listing", () => {
     it("keeps the status region silent until a search is typed", async () => {
         const wrapper = await mountListing();
 
-        expect(wrapper.find("[role='status']").text()).toBe("");
+        expect(wrapper.find("output").text()).toBe("");
     });
 
     it("answers a name nobody has with the no-match state, whose reset brings everyone back", async () => {
