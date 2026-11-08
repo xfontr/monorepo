@@ -2,16 +2,10 @@
     <div>
         <AboutIntro :articles="articleCount" :authors="authors.length" />
 
-        <section
-            aria-labelledby="por-que-existimos"
-            class="bg-inverted text-highlighted surface-inverted"
-        >
+        <section class="bg-inverted text-highlighted surface-inverted">
             <UContainer class="py-20 lg:py-28">
                 <figure class="hl-about-reveal mx-auto max-w-4xl">
-                    <p id="por-que-existimos" class="flex">
-                        <BaseKicker>{{ $t("aboutQuote.label") }}</BaseKicker>
-                    </p>
-                    <UIcon name="i-lucide-quote" class="mt-6 size-10 text-secondary md:size-12" />
+                    <UIcon name="i-lucide-quote" class="size-10 text-secondary md:size-12" />
                     <blockquote class="mt-6">
                         <p
                             class="font-serif text-section/snug text-balance italic md:text-pull-quote"

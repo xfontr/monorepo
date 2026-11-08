@@ -15,12 +15,11 @@ test("answers at its own route, with its sections reachable by heading", async (
         await expect(page.getByRole("heading", { level: 2, name })).toBeVisible();
 });
 
-// The quote is the one section with no heading, so it alone is a named landmark
-test("names the quote's landmark after its visible label", async ({ page }) => {
+test("shows the quote with its author", async ({ page }) => {
     await page.goto(PATH);
 
     await expect(
-        page.getByRole("region", { name: "Por qué existimos" }).getByRole("blockquote"),
+        page.getByRole("figure").filter({ hasText: "Bernd Schünemann" }).getByRole("blockquote"),
     ).toBeVisible();
 });
 
