@@ -3,9 +3,11 @@ import type { Check } from "./domain/checks.ts";
 
 const gh = vi.hoisted(() => ({ prTitle: vi.fn(), prChecks: vi.fn(), failedLog: vi.fn() }));
 const files = vi.hoisted(() => ({ saveLog: vi.fn() }));
+const sonar = vi.hoisted(() => ({ openIssues: vi.fn() }));
 const io = vi.hoisted(() => ({ out: { info: vi.fn(), error: vi.fn() } }));
 vi.mock("./adapters/gh.ts", () => gh);
 vi.mock("./adapters/files.ts", () => files);
+vi.mock("./adapters/sonar.ts", () => sonar);
 vi.mock("../shared/adapters/io.ts", () => io);
 
 import { main } from "./main.ts";
@@ -33,6 +35,15 @@ const SONAR_FAILURE = check({
     link: "https://github.com/owner/repo/runs/3",
 });
 
+const SONAR_GATE = check({
+    name: "SonarCloud Code Analysis",
+    bucket: "fail",
+    state: "FAILURE",
+    workflow: "",
+    description: "Quality Gate failed",
+    link: "https://sonarcloud.io/dashboard?id=owner_repo&pullRequest=287",
+});
+
 const NO_ARGS = { flags: new Set<string>(), positionals: [] };
 const originalExitCode = process.exitCode;
 
@@ -51,10 +62,10 @@ afterEach(() => {
 });
 
 describe("ci-failures main", () => {
-    it("reports a green PR in one line and exits 0", () => {
+    it("reports a green PR in one line and exits 0", async () => {
         gh.prChecks.mockReturnValue([check({}), check({ bucket: "skipping" })]);
 
-        main(NO_ARGS);
+        await main(NO_ARGS);
 
         expect(io.out.info.mock.calls).toEqual([
             ["#287 Title: 0 failed, 0 pending, 2 passed or skipped"],
@@ -62,20 +73,20 @@ describe("ci-failures main", () => {
         expect(process.exitCode).toBeUndefined();
     });
 
-    it("names a pending check without failing, since its log doesn't exist yet", () => {
+    it("names a pending check without failing, since its log doesn't exist yet", async () => {
         gh.prChecks.mockReturnValue([check({ bucket: "pending", state: "IN_PROGRESS" })]);
 
-        main(NO_ARGS);
+        await main(NO_ARGS);
 
         expect(printed()).toContain("… checks (in_progress)");
         expect(gh.failedLog).not.toHaveBeenCalled();
         expect(process.exitCode).toBeUndefined();
     });
 
-    it("prints a failed job's error lines and the saved log's path, then exits 1", () => {
+    it("prints a failed job's error lines and the saved log's path, then exits 1", async () => {
         gh.prChecks.mockReturnValue([ACTIONS_FAILURE]);
 
-        main({ flags: new Set(), positionals: ["287"] });
+        await main({ flags: new Set(), positionals: ["287"] });
 
         expect(gh.failedLog).toHaveBeenCalledWith("1", "2");
         expect(printed()).toContain(
@@ -85,13 +96,49 @@ describe("ci-failures main", () => {
         expect(process.exitCode).toBe(1);
     });
 
-    it("links an external app's check instead of fetching a log gh can't reach", () => {
+    it("links an external app's check instead of fetching a log gh can't reach", async () => {
         gh.prChecks.mockReturnValue([SONAR_FAILURE, ACTIONS_FAILURE]);
 
-        main(NO_ARGS);
+        await main(NO_ARGS);
 
         expect(gh.failedLog).toHaveBeenCalledTimes(1);
         expect(printed()).toContain("https://github.com/owner/repo/runs/3");
         expect(io.out.error).toHaveBeenCalledWith("2 failing checks.");
+    });
+
+    it("lists a failed quality gate's open issues by path and line, so nobody opens the dashboard", async () => {
+        gh.prChecks.mockReturnValue([SONAR_GATE]);
+        sonar.openIssues.mockResolvedValue([
+            {
+                severity: "MINOR",
+                rule: "typescript:S7776",
+                component: "owner_repo:src/sync.ts",
+                line: 88,
+                message: "`written` should be a `Set`.",
+            },
+        ]);
+
+        await main(NO_ARGS);
+
+        expect(sonar.openIssues).toHaveBeenCalledWith({
+            origin: "https://sonarcloud.io",
+            project: "owner_repo",
+            pullRequest: "287",
+        });
+        expect(printed()).toContain(
+            "  MINOR typescript:S7776 src/sync.ts:88 — `written` should be a `Set`.",
+        );
+        expect(process.exitCode).toBe(1);
+    });
+
+    it("still reports the failed gate when Sonar's API doesn't answer", async () => {
+        gh.prChecks.mockReturnValue([SONAR_GATE]);
+        sonar.openIssues.mockRejectedValue(new Error("Sonar answered 503."));
+
+        await main(NO_ARGS);
+
+        expect(printed()).toContain("✖ SonarCloud Code Analysis (failure)");
+        expect(printed()).toContain("Sonar's issues didn't load: Sonar answered 503.");
+        expect(process.exitCode).toBe(1);
     });
 });
