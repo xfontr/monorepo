@@ -5,7 +5,7 @@ import TolgeeProvider from "./adapters/providers/TolgeeProvider";
 import { MisconfiguredVendorError, UndefinedVendorError } from "./domain/errors";
 import type { HttpClient } from "./ports/HttpClient";
 
-const http: HttpClient = { get: vi.fn() };
+const http: HttpClient = { get: vi.fn().mockResolvedValue({ data: {}, headers: new Headers() }) };
 
 describe("createProvider", () => {
     it("builds the internal provider from its config", async () => {
@@ -31,7 +31,7 @@ describe("createProvider", () => {
     });
 
     it("hands the transport to the provider, so it can never be built unable to fetch", async () => {
-        const get = vi.fn();
+        const get = vi.fn().mockResolvedValue({ data: {}, headers: new Headers() });
         const provider = await createProvider(
             { name: "internal", baseURL: "https://translations.test/", project: "external" },
             { get },

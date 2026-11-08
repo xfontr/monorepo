@@ -150,12 +150,12 @@ wraps the function so every call records the key it would be stored under. That 
 query mints no key at all. The rest follows the repo's spec conventions — see the `writing-tests`
 skill.
 
-## One thing not to copy across
+## Building the transport
 
-URLs are **relative** in `@monorepo/i18n`, because the consumer builds the client with
-`ofetch.create({ baseURL })`. They are **absolute** in `@monorepo/content`, whose providers compose
-their own. Both READMEs argue their side. Whichever package you are in, follow its convention and
-leave the other alone.
+Both packages build the client from the vendor config, as
+`new OfetchHttpClient(ofetch.create({ baseURL: vendor.baseURL }))`, and providers pass relative
+paths. A route that builds it any other way, or hands a provider an absolute URL, breaks the
+contract the two packages share.
 
 ## Verify
 

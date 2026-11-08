@@ -13,8 +13,14 @@ The invariants worth losing a build over:
   **optional peer dependencies**. Never promote one to a real dependency — a non-Nuxt consumer would
   start installing it.
 - Use the `#core/*` and `#nuxt/*` subpath imports, never `../../`.
-- `configProblems()` is called from the base constructor, so an override may only read `config` — a
-  subclass's own field initialisers have not run yet. `core/ports/ContentProvider.spec.ts` pins it.
+- The vendor contract is `@monorepo/i18n`'s: keep the two matching, and change both or neither.
+  `baseURL` is validated in `ContentProvider` for every vendor. A provider only overrides
+  `configProblems()`, only for its own `options`, and only reading `this.options` — it runs from the
+  base constructor, before the subclass's field initialisers. `core/ports/ContentProvider.spec.ts`
+  pins it.
+- `options` carries credentials and nothing else, and stays out of the cache key. Whatever picks the
+  document belongs in `baseURL`.
+- URLs are relative: the consumer builds the client with `ofetch.create({ baseURL })`.
 - A vendor's shapes never leave its adapter. Ids are strings, always.
 - A query axis the vendor can't serve is refused with a 400, never dropped silently: the result
   would be cached under the value that was asked for. No axis needs this today, so there is no

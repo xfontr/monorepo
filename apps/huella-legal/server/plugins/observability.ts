@@ -1,4 +1,5 @@
 import { startNodeTelemetry } from "@monorepo/observability/node";
+import { getContext } from "@netlify/functions";
 import {
     context,
     propagation,
@@ -8,14 +9,11 @@ import {
     type Span,
 } from "@opentelemetry/api";
 import {
-    ATTR_CLIENT_ADDRESS,
     ATTR_HTTP_REQUEST_METHOD,
     ATTR_HTTP_RESPONSE_STATUS_CODE,
     ATTR_HTTP_ROUTE,
     ATTR_SERVER_ADDRESS,
     ATTR_URL_PATH,
-    ATTR_URL_QUERY,
-    ATTR_USER_AGENT_ORIGINAL,
 } from "@opentelemetry/semantic-conventions";
 import type { H3Event } from "h3";
 
@@ -23,18 +21,12 @@ const UNTRACED = ["/_nuxt", "/_fonts", "/__nuxt", "/favicon.ico"];
 
 const isUntraced = (url: string) => UNTRACED.some((path) => url.startsWith(path));
 
-const requestAttributes = (event: H3Event) => {
-    const [path, query] = event.path.split("?");
-
-    return {
-        [ATTR_HTTP_REQUEST_METHOD]: event.method,
-        [ATTR_URL_PATH]: path,
-        [ATTR_URL_QUERY]: query,
-        [ATTR_SERVER_ADDRESS]: getRequestHost(event),
-        [ATTR_USER_AGENT_ORIGINAL]: getRequestHeader(event, "user-agent"),
-        [ATTR_CLIENT_ADDRESS]: getRequestIP(event, { xForwardedFor: true }),
-    };
-};
+// No client IP, user agent or query: they are the reader's personal data, and Grafana is a third party
+const requestAttributes = (event: H3Event) => ({
+    [ATTR_HTTP_REQUEST_METHOD]: event.method,
+    [ATTR_URL_PATH]: event.path.split("?")[0],
+    [ATTR_SERVER_ADDRESS]: getRequestHost(event),
+});
 
 const recordError = (span: Span, error: Error) => {
     span.recordException(error);
@@ -70,6 +62,15 @@ export default defineNitroPlugin((nitroApp) => {
     const tracer = trace.getTracer(app.name, app.version);
     const handle = nitroApp.h3App.handler;
 
+    // Netlify freezes the function once it responds, which would strand the batch until a later thaw
+    const flush = () => {
+        try {
+            getContext().waitUntil(provider.forceFlush());
+        } catch {
+            // Off Netlify there is no request context, and the batch's own timer exports instead
+        }
+    };
+
     nitroApp.h3App.handler = defineEventHandler((event) => {
         if (isUntraced(event.path)) return handle(event) as unknown;
 
@@ -91,6 +92,8 @@ export default defineNitroPlugin((nitroApp) => {
                     end(span, event, createError(error as Error).statusCode);
 
                     throw error;
+                } finally {
+                    flush();
                 }
             },
         );

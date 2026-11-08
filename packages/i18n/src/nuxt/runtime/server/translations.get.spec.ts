@@ -14,7 +14,7 @@ const nitro = vi.hoisted(() => ({
 
 const ofetch = vi.hoisted(() => ({
     create: vi.fn(),
-    request: vi.fn(),
+    raw: vi.fn(),
 }));
 
 vi.mock("nitropack/runtime", () => ({
@@ -49,8 +49,8 @@ beforeEach(() => {
     vi.clearAllMocks();
     nitro.vendor = { name: "internal", baseURL: "https://translations.test/", project: "external" };
     nitro.locales = ["en-GB", "es-ES"];
-    ofetch.create.mockReturnValue(ofetch.request);
-    ofetch.request.mockResolvedValue(messages);
+    ofetch.create.mockReturnValue({ raw: ofetch.raw });
+    ofetch.raw.mockResolvedValue({ _data: messages, headers: new Headers() });
 });
 
 describe("GET /api/translations/:locale", () => {
@@ -58,23 +58,29 @@ describe("GET /api/translations/:locale", () => {
         await expect(handler(createEvent("en-GB"))).resolves.toBe(messages);
 
         expect(ofetch.create).toHaveBeenCalledWith({ baseURL: "https://translations.test/" });
-        expect(ofetch.request).toHaveBeenCalledWith("en-GB/external", { headers: undefined });
+        expect(ofetch.raw).toHaveBeenCalledWith("en-GB/external", {
+            headers: undefined,
+            query: undefined,
+        });
     });
 
     it("404s a request without a locale", async () => {
         await expect(handler(createEvent())).rejects.toMatchObject({ statusCode: 404 });
-        expect(ofetch.request).not.toHaveBeenCalled();
+        expect(ofetch.raw).not.toHaveBeenCalled();
     });
 
     it("404s a locale the app does not declare, without asking the vendor for it", async () => {
         await expect(handler(createEvent("fr-FR"))).rejects.toMatchObject({ statusCode: 404 });
-        expect(ofetch.request).not.toHaveBeenCalled();
+        expect(ofetch.raw).not.toHaveBeenCalled();
     });
 
     it("serves every declared locale, not just the first", async () => {
         await expect(handler(createEvent("es-ES"))).resolves.toBe(messages);
 
-        expect(ofetch.request).toHaveBeenCalledWith("es-ES/external", { headers: undefined });
+        expect(ofetch.raw).toHaveBeenCalledWith("es-ES/external", {
+            headers: undefined,
+            query: undefined,
+        });
     });
 
     it("500s when the configured vendor does not exist", async () => {
@@ -96,7 +102,7 @@ describe("GET /api/translations/:locale", () => {
             statusMessage: expect.stringContaining("options.token is empty") as unknown,
         });
 
-        expect(ofetch.request).not.toHaveBeenCalled();
+        expect(ofetch.raw).not.toHaveBeenCalled();
     });
 
     // The vendor answered, so it did not fail — flattening this into a 502 used to blame it for a
@@ -108,7 +114,7 @@ describe("GET /api/translations/:locale", () => {
             project: "1",
             options: { token: "abc" },
         };
-        ofetch.request.mockResolvedValue({ "es-ES": messages });
+        ofetch.raw.mockResolvedValue({ _data: { "es-ES": messages }, headers: new Headers() });
 
         await expect(handler(createEvent("en-GB"))).rejects.toMatchObject({
             statusCode: 500,
@@ -118,7 +124,7 @@ describe("GET /api/translations/:locale", () => {
 
     it("502s when the vendor is unreachable, keeping the failure as the cause", async () => {
         const cause = new Error("upstream down");
-        ofetch.request.mockRejectedValue(cause);
+        ofetch.raw.mockRejectedValue(cause);
 
         await expect(handler(createEvent("en-GB"))).rejects.toMatchObject({
             statusCode: 502,

@@ -61,17 +61,28 @@ const server = setupServer(
     }),
 );
 
-// The real provider on the real client, so the fake is held to what WordpressProvider parses
-const provider = () =>
+// The real provider on the real client, built the way the Nuxt reader builds it, so the fake is held
+// to what WordpressProvider parses
+const provider = (baseURL = BASE_URL) =>
     createProvider(
-        { name: "wordpress", baseURL: BASE_URL },
-        new OfetchHttpClient(ofetch.create({})),
+        { name: "wordpress", baseURL },
+        new OfetchHttpClient(ofetch.create({ baseURL })),
     );
 
 beforeAll(() => server.listen({ onUnhandledFrame: "error" }));
 afterAll(() => server.close());
 
 describe("the fake WordPress", () => {
+    // The fake only answers under /blog, so a join that dropped the subdirectory would miss it
+    it.each([BASE_URL, `${BASE_URL}/`])(
+        "is reached under the path of a subdirectory install at %s",
+        async (baseURL) => {
+            await expect((await provider(baseURL)).getEntry("pages", "about")).resolves.toEqual(
+                BARE_PAGE,
+            );
+        },
+    );
+
     it("round-trips every entry field through the provider unchanged", async () => {
         const page = await (await provider()).listEntries("posts", { page: 2, perPage: 2 });
 

@@ -2,14 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { H3Event } from "h3";
 import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
 import {
-    ATTR_CLIENT_ADDRESS,
     ATTR_HTTP_REQUEST_METHOD,
     ATTR_HTTP_RESPONSE_STATUS_CODE,
     ATTR_HTTP_ROUTE,
     ATTR_SERVER_ADDRESS,
     ATTR_URL_PATH,
-    ATTR_URL_QUERY,
-    ATTR_USER_AGENT_ORIGINAL,
 } from "@opentelemetry/semantic-conventions";
 
 const otel = vi.hoisted(() => {
@@ -34,9 +31,11 @@ const otel = vi.hoisted(() => {
 });
 
 const telemetry = vi.hoisted(() => ({
-    provider: { shutdown: vi.fn() },
+    provider: { shutdown: vi.fn(), forceFlush: vi.fn() },
     startNodeTelemetry: vi.fn(),
 }));
+
+const netlify = vi.hoisted(() => ({ getContext: vi.fn(), waitUntil: vi.fn() }));
 
 // Only the three entry points the plugin reaches through are replaced — SpanKind and SpanStatusCode
 // stay real, so the spec pins the values a collector actually receives rather than its own sentinels
@@ -51,6 +50,8 @@ vi.mock("@monorepo/observability/node", () => ({
     startNodeTelemetry: telemetry.startNodeTelemetry,
 }));
 
+vi.mock("@netlify/functions", () => ({ getContext: netlify.getContext }));
+
 const APP = { name: "@monorepo/huella-legal", version: "1.4.0", environment: "production" };
 
 const COLLECTOR = "https://otlp-gateway-prod-eu-west-0.grafana.net/otlp";
@@ -58,9 +59,8 @@ const COLLECTOR = "https://otlp-gateway-prod-eu-west-0.grafana.net/otlp";
 const PARENT = "parent-context";
 const ACTIVE = "active-context";
 const TRACEPARENT = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01";
-const USER_AGENT = "Mozilla/5.0";
-const CLIENT_IP = "203.0.113.4";
 const BODY = { ok: true };
+const FLUSHED = Promise.resolve();
 
 // Nitro auto-imports these at build time, so the plugin never imports them and they do not exist
 // under vitest. `defineNitroPlugin` has to be stubbed before the module is imported: it runs at
@@ -73,10 +73,6 @@ vi.stubGlobal("defineEventHandler", (handler: unknown) => handler);
 vi.stubGlobal("useRuntimeConfig", () => runtimeConfig);
 vi.stubGlobal("getRequestHeaders", () => ({ traceparent: TRACEPARENT }));
 vi.stubGlobal("getRequestHost", () => "huella-legal.test");
-vi.stubGlobal("getRequestHeader", (_event: unknown, name: string) =>
-    name === "user-agent" ? USER_AGENT : undefined,
-);
-vi.stubGlobal("getRequestIP", () => CLIENT_IP);
 vi.stubGlobal("getResponseStatus", () => responseStatus);
 vi.stubGlobal("createError", (error: { statusCode?: number }) => ({
     statusCode: error.statusCode ?? 500,
@@ -153,6 +149,8 @@ beforeEach(() => {
     responseStatus = 200;
 
     telemetry.startNodeTelemetry.mockReturnValue(telemetry.provider);
+    telemetry.provider.forceFlush.mockReturnValue(FLUSHED);
+    netlify.getContext.mockReturnValue({ waitUntil: netlify.waitUntil });
     otel.getTracer.mockReturnValue(otel.tracer);
     otel.getActiveSpan.mockReturnValue(otel.span);
     otel.extract.mockReturnValue(PARENT);
@@ -253,16 +251,14 @@ describe("the nitro observability plugin", () => {
         expect(attributes()[ATTR_HTTP_ROUTE]).toBe("/nope");
     });
 
-    it("stamps the request attributes, keeping the query out of the path", async () => {
-        await traced("/articles?page=2", "/articles");
+    // A search query, the reader's IP and their user agent are personal data a third party must not get
+    it("stamps no attribute that identifies the reader or what they typed", async () => {
+        await traced("/buscar?q=despido", "/buscar");
 
         expect(spanCall()[1].attributes).toEqual({
             [ATTR_HTTP_REQUEST_METHOD]: "GET",
-            [ATTR_URL_PATH]: "/articles",
-            [ATTR_URL_QUERY]: "page=2",
+            [ATTR_URL_PATH]: "/buscar",
             [ATTR_SERVER_ADDRESS]: "huella-legal.test",
-            [ATTR_USER_AGENT_ORIGINAL]: USER_AGENT,
-            [ATTR_CLIENT_ADDRESS]: CLIENT_IP,
         });
     });
 
@@ -389,6 +385,37 @@ describe("the nitro observability plugin", () => {
         otel.getActiveSpan.mockReturnValue(undefined);
 
         expect(() => start().nitroApp.fire("error", new Error("render failed"))).not.toThrow();
+    });
+
+    // Netlify freezes the function once it responds, so a batch left waiting on its timer never leaves
+    describe("flushing on Netlify", () => {
+        it("hands the flush to waitUntil once the request span has ended", async () => {
+            otel.span.end.mockImplementationOnce(() =>
+                expect(telemetry.provider.forceFlush).not.toHaveBeenCalled(),
+            );
+
+            await traced("/articles", "/articles");
+
+            expect(netlify.waitUntil).toHaveBeenCalledWith(FLUSHED);
+        });
+
+        it("flushes a request whose handler threw, since that is the span most worth seeing", async () => {
+            await expect(
+                traced("/articles", "/articles", () => Promise.reject(new Error("boom"))),
+            ).rejects.toThrow("boom");
+
+            expect(netlify.waitUntil).toHaveBeenCalledWith(FLUSHED);
+        });
+
+        // `getContext` throws outside a Netlify request, which is every local `nuxi dev` or preview
+        it("serves the request untouched when there is no Netlify context to flush through", async () => {
+            netlify.getContext.mockImplementation(() => {
+                throw new Error("getContext() can only be called within a Netlify function");
+            });
+
+            await expect(traced("/articles", "/articles")).resolves.toBe(BODY);
+            expect(telemetry.provider.forceFlush).not.toHaveBeenCalled();
+        });
     });
 
     // The exporter batches, so without this the spans from the last seconds before a deploy are lost

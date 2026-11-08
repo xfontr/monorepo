@@ -10,7 +10,7 @@ const vendor = { baseURL: "https://translations.test/", project: "external" } as
 
 describe("InternalProvider", () => {
     it("asks the translations server for the project's locale tree", async () => {
-        const get = vi.fn().mockResolvedValue(messages);
+        const get = vi.fn().mockResolvedValue({ data: messages, headers: new Headers() });
         const http: HttpClient = { get };
         const provider = new InternalProvider(vendor, http);
 

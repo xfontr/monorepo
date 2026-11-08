@@ -1,12 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import WordpressProvider from "./WordpressProvider";
 import type { HttpClient } from "#core/ports/HttpClient";
-import { MisconfiguredVendorError } from "#core/domain/errors";
 
 const get = vi.fn();
 const http: HttpClient = { get };
 
-const POSTS_URL = "https://wp.test/wp-json/wp/v2/posts";
+const POSTS_URL = "/wp-json/wp/v2/posts";
 
 const entry = {
     id: 7,
@@ -19,9 +18,8 @@ const respond = (data: unknown, headers: Record<string, string> = {}) => {
     get.mockResolvedValue({ data, headers: new Headers(headers) });
 };
 
-const build = (baseURL = "https://wp.test") => new WordpressProvider({ baseURL }, http);
-
-const requestedUrl = (): unknown => get.mock.calls[0]?.[0] as unknown;
+// Built the way the registry builds it: a vendor with no options is configured without the field
+const build = () => new WordpressProvider({ baseURL: "https://wp.test" }, http);
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -45,32 +43,10 @@ describe("WordpressProvider", () => {
             });
         });
 
-        // new URL() against the site root would discard "/blog"
-        it("keeps the path of a subdirectory install", async () => {
-            await build("https://wp.test/blog").listEntries("posts");
-
-            expect(requestedUrl()).toBe("https://wp.test/blog/wp-json/wp/v2/posts");
-        });
-
-        it.each(["https://wp.test/", "https://wp.test///"])(
-            "joins the API path onto %s exactly once",
-            async (baseURL) => {
-                await build(baseURL).listEntries("posts");
-
-                expect(requestedUrl()).toBe(POSTS_URL);
-            },
-        );
-
-        it("trims a long slash suffix while keeping a subdirectory install", async () => {
-            await build(`https://wp.test/blog/${"/".repeat(10_000)}`).listEntries("posts");
-
-            expect(requestedUrl()).toBe("https://wp.test/blog/wp-json/wp/v2/posts");
-        });
-
         it("sends no _embed for terms, which have nothing to embed", async () => {
             await build().listTerms("categories");
 
-            expect(get).toHaveBeenCalledWith("https://wp.test/wp-json/wp/v2/categories", {
+            expect(get).toHaveBeenCalledWith("/wp-json/wp/v2/categories", {
                 query: { page: undefined, per_page: 10, slug: undefined, search: undefined },
             });
         });
@@ -106,15 +82,6 @@ describe("WordpressProvider", () => {
             });
         });
     });
-
-    // An unset NUXT_CONTENT_VENDOR_BASE_URL would otherwise become a relative fetch and come back as a 502
-    it.each(["", "   ", "wp.test", "/blog"])(
-        "refuses to exist with %o as its base URL",
-        (baseURL) => {
-            expect(() => build(baseURL)).toThrow(MisconfiguredVendorError);
-            expect(() => build(baseURL)).toThrow(/baseURL is not an absolute URL/);
-        },
-    );
 
     // A thin smoke test that the query and the response are actually wired through WordpressHelpers —
     // the mapping and pagination edge cases themselves are pinned in WordpressHelpers.spec.ts

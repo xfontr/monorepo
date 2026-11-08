@@ -47,7 +47,10 @@ const toRouteRules = (cache: Rendering["cache"]): [string, RouteRule][] =>
     });
 
 const listPostSlugs = async (vendor: VendorConfig): Promise<string[]> => {
-    const provider = await createProvider(vendor, new OfetchHttpClient(ofetch));
+    const provider = await createProvider(
+        vendor,
+        new OfetchHttpClient(ofetch.create({ baseURL: vendor.baseURL })),
+    );
     const posts = await readAllPages((page) =>
         provider.listEntries("posts", { page, perPage: MAX_PER_PAGE }),
     );

@@ -8,7 +8,7 @@ decision: accepted
 
 ## Context
 
-S4 in [the implementation plan](../plans/huella-legal-implementation.md) asks for the new route
+S4 in [the implementation plan](https://github.com/xfontr/monorepo/blob/3891f29041e31884c6821e99fd5ecc9c5daab2af/docs/plans/huella-legal-implementation.md) asks for the new route
 scheme, a 301 for every indexed WordPress permalink, the move of WordPress to another hostname and
 who makes it, the source of canonical tags, sitemap, robots, JSON-LD and RSS, what replaces the
 analytics and cookie banner, and where the interest calculator goes. The lean was Spanish slugs and

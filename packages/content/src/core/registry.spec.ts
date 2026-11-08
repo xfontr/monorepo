@@ -14,7 +14,8 @@ describe("createProvider", () => {
         const provider = await createProvider(wordpress, http);
 
         expect(provider).toBeInstanceOf(WordpressProvider);
-        expect(provider.config).toEqual(wordpress);
+        expect(provider.baseURL).toBe(wordpress.baseURL);
+        expect(provider.options).toEqual({});
     });
 
     it("hands the transport to the provider, so it can never be built unable to fetch", async () => {

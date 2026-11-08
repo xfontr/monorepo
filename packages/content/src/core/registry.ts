@@ -1,6 +1,7 @@
 import type ContentProvider from "./ports/ContentProvider";
 import type { HttpClient } from "./ports/HttpClient";
 import { UndefinedVendorError } from "./domain/errors";
+import type { Vendor } from "./domain/vendor";
 
 const providers = {
     wordpress: () => import("./adapters/providers/wordpress/WordpressProvider"),
@@ -14,11 +15,15 @@ type ProviderOf<N extends VendorName> = InstanceType<
     Awaited<ReturnType<(typeof providers)[N]>>["default"]
 >;
 
+type OptionsFieldOf<N extends VendorName> = [keyof ProviderOf<N>["options"]] extends [never]
+    ? { options?: never }
+    : { options: ProviderOf<N>["options"] };
+
 export type VendorConfig = {
-    [N in VendorName]: { name: N } & ProviderOf<N>["config"];
+    [N in VendorName]: Omit<Vendor, "options"> & { name: N } & OptionsFieldOf<N>;
 }[VendorName];
 
-type ProviderConstructor = new (config: VendorConfig, http: HttpClient) => ContentProvider;
+type ProviderConstructor = new (vendor: VendorConfig, http: HttpClient) => ContentProvider;
 
 export const isVendorName = (name: string | undefined): name is VendorName =>
     VENDOR_NAMES.includes(name as VendorName);

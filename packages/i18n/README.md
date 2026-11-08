@@ -87,7 +87,7 @@ Adding a vendor:
 
 ```ts
 interface HttpClient {
-    get<T>(url: string, options?: { headers: Record<string, string> }): Promise<T>
+    get<T>(url: string, options?: RequestOptions): Promise<HttpResponse<T>>
 }
 
 abstract class TranslationProvider<T extends object = object> implements Vendor<T> {
@@ -104,10 +104,16 @@ A provider knows its vendor's URL contract but delegates all I/O to an injected 
 so it binds to no transport. Composition happens at the edge — the consumer builds the client
 and injects it.
 
+The port is the one [`@monorepo/content`'s](../content/README.md#-the-ports) is: `RequestOptions`
+carries headers and a query, and `HttpResponse` carries the headers next to the body, so a vendor
+that authenticates by query parameter or reports anything in a header is reachable without
+widening it.
+
 One thing the port deliberately hides: a failed request surfaces as an `UpstreamError`, never as a
 transport-specific one. Without that the domain cannot tell "upstream said no" from "the network is
 down", and a `FetchError` reaching the edge would put the vendor's URL into a `statusMessage` the
-client reads.
+client reads. A body declared as anything but JSON counts as failed too, even with a 200: a proxy
+or bot filter answering with an HTML page would otherwise be served as a `TranslationMap`.
 
 `TranslationProvider` is abstract, so a vendor that forgets `getTranslations` fails to compile
 instead of throwing at request time.
@@ -229,9 +235,9 @@ Sized for a small monorepo. When it grows:
 
 | Later need | What changes |
 | --- | --- |
-| A vendor authenticated some other way (query param, signed URL) | `HttpClient.get` only carries headers today — `tolgee` covers itself with an API key header. Widen the options bag again when a vendor needs more |
 | Schema validation of vendor config or TMS responses | Construction checks values, not shapes, by hand — see [validation](#-validation). Reach for a schema library the day you validate what the TMS *sends back*: that is third-party JSON with a shape you don't control, which is a different problem from the handful of strings you wrote yourself |
 | Locale fallback / merging local overrides | Nothing sits between the caller and the provider port today. That is where a service belongs — add it when there is behaviour to put in it, not before |
+| A third vendor package, or an app adapter that wants this plumbing | `@monorepo/content` and `@monorepo/i18n` keep matching copies of their vendor plumbing on purpose: the boundaries forbid either importing the other, and while there are two consumers a second copy of one contract costs less than a package. When a third appears (a newsletter's Mailchimp client, say), extract a vendor kit with its own boundaries tag that the integration packages may depend on: the base error with `UpstreamError`, `UndefinedVendorError` and `MisconfiguredVendorError`, the `HttpClient` port and its ofetch adapter, a `createRegistry(providers)` factory, `assertConfigured`, the h3 error mapping and the key escaping. Each package keeps its domain and its named errors. [D2](../../docs/audits/2026-10-21-monorepo.md#-duplication) lists the copies |
 
 The `internal` vendor's translations live in the TMS at
 [`infrastructure/translations/`](../../infrastructure/translations).
