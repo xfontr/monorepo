@@ -29,6 +29,9 @@ different objects under one name meet on a file.
 | [`destructuring.ts`](./destructuring.ts) | Core `prefer-destructuring` for scripts and `**/*.vue`, on variable declarations and objects only — array access and assignments are exempt |
 | [`typeDefinitions.ts`](./typeDefinitions.ts) | `@typescript-eslint/consistent-type-definitions: interface`: `typeDefinitions` for `**/*.ts` and `typeDefinitionsVue` for `**/*.vue` (Vue configs only) |
 | [`useBeforeDefine.ts`](./useBeforeDefine.ts) | `@typescript-eslint/no-use-before-define`, types exempt: `useBeforeDefine` for `**/*.ts` and `useBeforeDefineVue` for `**/*.vue` (Vue configs only), so every module declares a helper above the code that calls it |
+| [`regexp.ts`](./regexp.ts) | `eslint-plugin-regexp`'s `flat/recommended` plus `regexp/no-super-linear-move`, which the preset leaves off and which is the shape of every quadratic regex SonarCloud has reported here |
+| [`awaitInLoop.ts`](./awaitInLoop.ts) | Core `no-await-in-loop` everywhere but specs. Independent awaits go through `Promise.all`; a loop that must stay sequential carries a block disable saying why |
+| [`ternaries.ts`](./ternaries.ts) | Core `no-nested-ternary` everywhere but specs |
 | [`ignores.ts`](./ignores.ts) | `baseIgnores` — the glob list every factory feeds into ESLint's `ignores` |
 | [`jsonc.ts`](./jsonc.ts) | `eslint-plugin-jsonc`'s `sort-keys`, scoped to `**/projects/*/*.json` so the TMS locale files stay diffable |
 | [`format.ts`](./format.ts) | `format/prettier` with the Prettier options inline: `format` for scripts, `formatVue` for `**/*.vue` (Vue configs only), which also turns off every `vue/*` rule of type `layout` |

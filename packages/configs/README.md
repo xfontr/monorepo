@@ -180,10 +180,18 @@ Node types even in a package that otherwise doesn't.
   plus `vue/no-v-html` for the Vue configs, from [`lib/unsafeCode.ts`](./src/eslint/lib/unsafeCode.ts).
   Raw HTML reaches the page only through a `v-html` that opts out on its own lines with the reason
   its input is safe
-- `eslint-plugin-regexp` (`flat/recommended`) — ESLint core does not read inside a regex literal, and
-  this repo parses markdown, commit subjects and command output with them. It catches super-linear
-  backtracking, dead alternatives and unread capturing groups; [`0013`](../../docs/decisions/0013-linter-coverage.md)
-  has the sweep
+- `eslint-plugin-regexp` (`flat/recommended`) plus `regexp/no-super-linear-move`, from
+  [`lib/regexp.ts`](./src/eslint/lib/regexp.ts) — ESLint core does not read inside a regex literal,
+  and this repo parses markdown, commit subjects and command output with them. It catches
+  super-linear backtracking, dead alternatives and unread capturing groups;
+  [`0013`](../../docs/decisions/0013-linter-coverage.md) has the sweep. The preset leaves the
+  quantifier-before-anchor shape (`\s*x$`, `-+$`) off, and all four quadratic regexes SonarCloud
+  reported in #232 had it
+- `no-await-in-loop` and `no-nested-ternary` everywhere but specs, from
+  [`lib/awaitInLoop.ts`](./src/eslint/lib/awaitInLoop.ts) and
+  [`lib/ternaries.ts`](./src/eslint/lib/ternaries.ts). Independent awaits go through `Promise.all`; a
+  loop that must stay sequential — paced writes, one prompt after another — says why in a block
+  disable around it. Specs are exempt because their steps are sequential by design
 - `@nx/enforce-module-boundaries` — the layering rules. [`lib/boundaries.ts`](./src/eslint/lib/boundaries.ts)
   is the enforced copy; the readable one is the tag table in the
   [root README](../../README.md#-architecture--boundaries). Change both, or they drift

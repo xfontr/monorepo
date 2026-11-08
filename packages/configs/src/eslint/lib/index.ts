@@ -1,4 +1,3 @@
-import regexpPlugin from "eslint-plugin-regexp";
 import { format, formatVue } from "./format.ts";
 import arrowFunctions from "./arrowFunctions.ts";
 import destructuring from "./destructuring.ts";
@@ -21,8 +20,9 @@ import { unsafeCode, unsafeCodeVue } from "./unsafeCode.ts";
 import e2eFixture from "./e2eFixture.ts";
 import routeMeta from "./routeMeta.ts";
 import tailwind from "./tailwind.ts";
-
-const regexp: object = regexpPlugin.configs["flat/recommended"];
+import regexp from "./regexp.ts";
+import awaitInLoop from "./awaitInLoop.ts";
+import ternaries from "./ternaries.ts";
 
 const shared: object[] = [
     format,
@@ -35,6 +35,8 @@ const shared: object[] = [
     typeDefinitions,
     useBeforeDefine,
     regexp,
+    awaitInLoop,
+    ternaries,
     noConsole,
     unsafeCode,
     e2eFixture,

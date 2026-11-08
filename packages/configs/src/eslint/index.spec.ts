@@ -98,6 +98,18 @@ describe("eslint factories", () => {
         expect(severity(component?.["no-undef"])).toBe(0);
     });
 
+    it("flags a quadratic regex, a nested ternary and an await in a loop outside specs", async () => {
+        const config = createNodeConfig();
+        const source = await resolve(config, "src/report.ts");
+        const spec = await resolve(config, "src/report.spec.ts");
+
+        expect(severity(source?.["regexp/no-super-linear-move"])).toBe(2);
+        expect(severity(source?.["no-await-in-loop"])).toBe(2);
+        expect(severity(source?.["no-nested-ternary"])).toBe(2);
+        expect(spec?.["no-await-in-loop"]).toBeUndefined();
+        expect(spec?.["no-nested-ternary"]).toBeUndefined();
+    });
+
     it("scopes Tailwind to the entry point the app passes", async () => {
         const config = [...createNuxtConfig(), tailwind("app/main.css")];
         const rules = await resolve(config, "app/App.vue");
