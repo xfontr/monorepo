@@ -10,10 +10,12 @@ The invariants worth losing a build over:
   `ohash` are the package's only real dependencies; everything the Nuxt entry point needs is an **optional peer
   dependency**. Never promote one.
 - Use the `#core/*` and `#nuxt/*` subpath imports, never `../../`.
-- `baseURL` and `project` are validated in `TranslationProvider` for every vendor. A provider only
+- The vendor contract is `@monorepo/content`'s: keep the two matching, and change both or neither.
+  `baseURL` and `project` are validated in `TranslationProvider` for every vendor. A provider only
   overrides `configProblems()`, only for its own `options`, and only reading `this.options` — it runs
-  from the base constructor, before the subclass's field initialisers. The name matches
-  `@monorepo/content`'s hook; the scope does not, and that is the whole difference.
+  from the base constructor, before the subclass's field initialisers.
+- `options` carries credentials and nothing else, and stays out of the cache key. Whatever picks the
+  document belongs in `baseURL` or `project`.
 - Problems are returned as strings and collected, never thrown one at a time. Fixing a deployment one
   restart per missing env var is the thing being avoided.
 - Validation is hand-written on purpose. Adding a schema library to a package with two dependencies
