@@ -141,8 +141,10 @@ Node types even in a package that otherwise doesn't.
 
 ## 🧰 What the ESLint factories bundle
 
-- `@eslint/js` + `typescript-eslint` — type-checked for node and vue, non-type-checked for nuxt
-  (Nuxt's generated files make a type-aware pass more trouble than it's worth)
+- `@eslint/js` + `typescript-eslint` — type-checked for node and vue. Nuxt gets it for `.ts` only,
+  minus specs, stories and `.storybook/`: those import `.vue` files, which resolve to error types
+  outside `vue-tsc`, and a Nuxt `.vue` file gets no type-aware pass at all. Before that split, a
+  spread `AsyncData` and a floating promise reached `master` in the only user-facing code here
 - `eslint-plugin-vue` (strongly-recommended) for the Vue configs
 - Prettier as the `format/prettier` rule from `eslint-plugin-format`, at 100 columns, 4-space
   indent, semicolons, double quotes, trailing commas and parenthesised arrow params. An object,
@@ -192,6 +194,10 @@ Node types even in a package that otherwise doesn't.
   [`lib/ternaries.ts`](./src/eslint/lib/ternaries.ts). Independent awaits go through `Promise.all`; a
   loop that must stay sequential — paced writes, one prompt after another — says why in a block
   disable around it. Specs are exempt because their steps are sequential by design
+- `@typescript-eslint/require-array-sort-compare` with `ignoreStringArrays: false`, in every `.ts`
+  that gets type information, from [`lib/sortCompare.ts`](./src/eslint/lib/sortCompare.ts). A bare
+  `sort()` orders strings by UTF-16 code unit, so `"Área"` lands after `"Zona"`; name the comparison,
+  usually `localeCompare`
 - `@nx/enforce-module-boundaries` — the layering rules. [`lib/boundaries.ts`](./src/eslint/lib/boundaries.ts)
   is the enforced copy; the readable one is the tag table in the
   [root README](../../README.md#-architecture--boundaries). Change both, or they drift

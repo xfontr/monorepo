@@ -23,6 +23,7 @@ import tailwind from "./tailwind.ts";
 import regexp from "./regexp.ts";
 import awaitInLoop from "./awaitInLoop.ts";
 import ternaries from "./ternaries.ts";
+import sortCompare from "./sortCompare.ts";
 
 const shared: object[] = [
     format,
@@ -37,6 +38,7 @@ const shared: object[] = [
     regexp,
     awaitInLoop,
     ternaries,
+    sortCompare,
     noConsole,
     unsafeCode,
     e2eFixture,

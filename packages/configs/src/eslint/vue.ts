@@ -10,7 +10,14 @@ const ignores = {
     ignores: [...baseIgnores, ".nuxt/**", ".output/**"],
 };
 
-const createBaseVueConfig = (typeChecked?: boolean): object[] => {
+// A Nuxt app's `.vue` imports resolve to error types, so the files that import components sit out
+const typeCheckedTs = tseslint.configs.recommendedTypeChecked.map((config) => ({
+    ...config,
+    files: ["**/*.ts", "*.ts"],
+    ignores: ["**/*.spec.ts", "**/*.stories.ts", "**/.storybook/**"],
+}));
+
+const createBaseVueConfig = (typeChecked: boolean): object[] => {
     const vueBaseRaw = vue.configs["flat/strongly-recommended"];
 
     const vueBase = Array.isArray(vueBaseRaw) ? vueBaseRaw : [vueBaseRaw];
@@ -20,7 +27,7 @@ const createBaseVueConfig = (typeChecked?: boolean): object[] => {
         js.configs.recommended,
         ...vueBase,
         ...tseslint.configs.recommended,
-        ...(typeChecked ? tseslint.configs.recommendedTypeChecked : []),
+        ...(typeChecked ? tseslint.configs.recommendedTypeChecked : typeCheckedTs),
         // Its own `files` stop at `.ts`, yet a `<script lang="ts">` needs the same core rules off.
         { ...tseslint.configs.eslintRecommended, files: ["**/*.vue"] },
     ];
@@ -33,7 +40,7 @@ const createBaseVueConfig = (typeChecked?: boolean): object[] => {
                 parser: tseslint.parser,
 
                 parserOptions: {
-                    projectService: typeChecked,
+                    projectService: true,
                     tsconfigRootDir: process.cwd(),
                 },
             },

@@ -32,6 +32,7 @@ different objects under one name meet on a file.
 | [`regexp.ts`](./regexp.ts) | `eslint-plugin-regexp`'s `flat/recommended` plus `regexp/no-super-linear-move`, which the preset leaves off and which is the shape of every quadratic regex SonarCloud has reported here |
 | [`awaitInLoop.ts`](./awaitInLoop.ts) | Core `no-await-in-loop` everywhere but specs. Independent awaits go through `Promise.all`; a loop that must stay sequential carries a block disable saying why |
 | [`ternaries.ts`](./ternaries.ts) | Core `no-nested-ternary` everywhere but specs |
+| [`sortCompare.ts`](./sortCompare.ts) | `@typescript-eslint/require-array-sort-compare` with string arrays included, for `.ts` outside specs, stories and `.storybook/` — the files every flavour type-checks |
 | [`ignores.ts`](./ignores.ts) | `baseIgnores` — the glob list every factory feeds into ESLint's `ignores` |
 | [`jsonc.ts`](./jsonc.ts) | `eslint-plugin-jsonc`'s `sort-keys`, scoped to `**/projects/*/*.json` so the TMS locale files stay diffable |
 | [`format.ts`](./format.ts) | `format/prettier` with the Prettier options inline: `format` for scripts, `formatVue` for `**/*.vue` (Vue configs only), which also turns off every `vue/*` rule of type `layout` |
