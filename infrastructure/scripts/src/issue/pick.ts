@@ -253,6 +253,7 @@ export const pick = async ({ positionals, flags }: Args = NO_ARGS): Promise<void
     out.begin("🌱 Pick an issue");
 
     // Choosing "← Back to project list" must re-run `pickProject`, not cancel the command.
+    /* eslint-disable no-await-in-loop -- each prompt waits on the answer to the one before it */
     for (;;) {
         const { value: project, offline } = await pickProject();
         if (!project) return;
@@ -275,4 +276,5 @@ export const pick = async ({ positionals, flags }: Args = NO_ARGS): Promise<void
 
         return;
     }
+    /* eslint-enable no-await-in-loop */
 };

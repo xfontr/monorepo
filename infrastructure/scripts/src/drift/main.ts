@@ -69,6 +69,7 @@ export const main = async (): Promise<void> => {
         const warn = shouldWarn(size, lastMdCommitMs(lastMdCommitEpochSeconds(root)));
 
         // Recording only after an answer means Ctrl+C or a non-interactive run asks again next time.
+        // eslint-disable-next-line no-await-in-loop -- one prompt at a time, each answer recorded
         if (warn && !(await warnFor(root))) continue;
 
         seen = transition.seen;

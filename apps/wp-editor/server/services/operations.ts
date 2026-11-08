@@ -375,6 +375,7 @@ const runEach = async (
 
     await progress();
 
+    /* eslint-disable no-await-in-loop -- one article at a time, paced, stopping after a failure run */
     for (const [index, item] of items.entries()) {
         if (index > 0) await sleep(pauseMs);
 
@@ -407,6 +408,7 @@ const runEach = async (
 
         await progress();
     }
+    /* eslint-enable no-await-in-loop */
 
     return report;
 };
