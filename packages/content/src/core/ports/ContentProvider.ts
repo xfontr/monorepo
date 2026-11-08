@@ -16,7 +16,7 @@ abstract class ContentProvider<T extends object = object> implements Vendor<T> {
     readonly options: T;
 
     constructor(
-        { baseURL, options = {} as T }: Vendor<T>,
+        { baseURL, options = {} as T }: Omit<Vendor<T>, "options"> & { options?: T },
         protected readonly http: HttpClient,
     ) {
         this.baseURL = baseURL;

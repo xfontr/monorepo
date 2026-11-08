@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import TolgeeProvider, { type TolgeeProviderOptions } from "./TolgeeProvider";
+import TolgeeProvider from "./TolgeeProvider";
 import type { HttpClient } from "#core/ports/HttpClient";
 import { MisconfiguredVendorError, UndefinedLocaleProviderError } from "#core/domain/errors";
 
@@ -47,7 +47,7 @@ describe("TolgeeProvider", () => {
                     {
                         baseURL: "https://app.tolgee.io/",
                         project: "1",
-                        options: options as TolgeeProviderOptions,
+                        options,
                     },
                     { get: vi.fn() },
                 );

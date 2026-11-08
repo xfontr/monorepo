@@ -11,7 +11,6 @@ import type {
     TermResource,
 } from "#core/domain/content";
 import { MisconfiguredVendorError, NotFoundError } from "#core/domain/errors";
-import type { Vendor } from "#core/domain/vendor";
 
 const get = vi.fn();
 const http: HttpClient = { get };
@@ -82,7 +81,7 @@ describe("ContentProvider", () => {
 
     // Declared as an object, so a vendor that takes none must not hand its provider `undefined`
     it("exposes empty options rather than none, for the vendor that has none", () => {
-        expect(new BareProvider({ baseURL: BASE_URL } as Vendor, http).options).toEqual({});
+        expect(new BareProvider({ baseURL: BASE_URL }, http).options).toEqual({});
     });
 
     it("holds the injected transport, so a provider cannot exist unable to fetch", async () => {

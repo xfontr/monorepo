@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import WordpressProvider from "./WordpressProvider";
 import type { HttpClient } from "#core/ports/HttpClient";
-import type { Vendor } from "#core/domain/vendor";
 
 const get = vi.fn();
 const http: HttpClient = { get };
@@ -20,7 +19,7 @@ const respond = (data: unknown, headers: Record<string, string> = {}) => {
 };
 
 // Built the way the registry builds it: a vendor with no options is configured without the field
-const build = () => new WordpressProvider({ baseURL: "https://wp.test" } as Vendor, http);
+const build = () => new WordpressProvider({ baseURL: "https://wp.test" }, http);
 
 beforeEach(() => {
     vi.clearAllMocks();
