@@ -13,6 +13,8 @@ mockNuxtImport("useRoute", () => () => state.route);
 mockNuxtImport("useWiki", () => () => ({ data: state.sections }));
 mockNuxtImport("useSnapshot", () => () => ({ data: state.snapshot }));
 mockNuxtImport("useAsyncData", () => () => ({ data: state.page }));
+const setStatus = vi.hoisted(() => vi.fn());
+mockNuxtImport("setResponseStatus", () => setStatus);
 
 const global = {
     stubs: {
@@ -70,9 +72,21 @@ beforeEach(() => {
         },
     });
     state.page = ref({ title: "First hour", body: { toc: { links: [{ id: "intro" }] } } });
+    setStatus.mockClear();
 });
 
 describe("doc detail page", () => {
+    it("answers a missing page with a 404 so the prerender crawler fails on a dead link", async () => {
+        state.page = ref(null);
+        await mountSuspended(Page, { global });
+        expect(setStatus).toHaveBeenCalledWith(404);
+    });
+
+    it("leaves a found page on 200", async () => {
+        await mountSuspended(Page, { global });
+        expect(setStatus).not.toHaveBeenCalled();
+    });
+
     it("renders breadcrumbs, broken links, table of contents and in-group neighbours", async () => {
         const wrapper = await mountSuspended(Page, { global });
         expect(wrapper.text()).toContain("Docs");

@@ -119,5 +119,7 @@ const { data: page } = await useAsyncData(
     { watch: [selected] },
 );
 
+if (selected.value !== null && !page.value) setResponseStatus(404);
+
 const idOf = (path: string): string => path.split("/").at(-1) ?? path;
 </script>

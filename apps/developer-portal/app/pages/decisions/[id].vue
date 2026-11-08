@@ -107,6 +107,8 @@ const { data: page } = await useAsyncData(
     { watch: [path] },
 );
 
+if (!page.value) setResponseStatus(404);
+
 const report = computed(() => reports.value.find((candidate) => candidate.id === id.value) ?? null);
 
 const supersession = computed(() => {

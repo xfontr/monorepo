@@ -11,6 +11,8 @@ const state = vi.hoisted(() => ({
 mockNuxtImport("useReviewPages", () => () => ({ data: state.reviews }));
 mockNuxtImport("useRoute", () => () => state.route);
 mockNuxtImport("useAsyncData", () => () => ({ data: state.page }));
+const setStatus = vi.hoisted(() => vi.fn());
+mockNuxtImport("setResponseStatus", () => setStatus);
 const global = {
     stubs: {
         UDashboardPanel: {
@@ -29,9 +31,22 @@ beforeEach(() => {
     state.reviews = ref([]);
     state.route = { params: {} };
     state.page = ref(null);
+    setStatus.mockClear();
 });
 
 describe("reviews page", () => {
+    it("answers an unknown review id with a 404 so the prerender crawler fails on a dead link", async () => {
+        state.reviews = ref([{ path: "/docs/reviews/2026-09-20-b.md" }]);
+        state.route = { params: { id: "missing" } };
+        await mountSuspended(Page, { global });
+        expect(setStatus).toHaveBeenCalledWith(404);
+    });
+
+    it("keeps the bare list on 200 when there are no reviews to open", async () => {
+        await mountSuspended(Page, { global });
+        expect(setStatus).not.toHaveBeenCalled();
+    });
+
     it("shows the empty list when no dated reviews exist", async () => {
         const wrapper = await mountSuspended(Page, { global });
         expect(wrapper.text()).toContain("No review under");
