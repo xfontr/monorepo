@@ -12,6 +12,7 @@ vi.stubGlobal("createError", (input: { statusCode?: number }) =>
     Object.assign(new Error("http"), input),
 );
 vi.stubGlobal("useRuntimeConfig", () => ({
+    content: { vendor: { baseURL: "https://wp.revista.test" } },
     public: { site: { url: "https://revista.test" }, pageSlugs: ["aviso-legal"] },
 }));
 vi.stubGlobal("useContent", () => ({ getEntry: nitro.getEntry }));

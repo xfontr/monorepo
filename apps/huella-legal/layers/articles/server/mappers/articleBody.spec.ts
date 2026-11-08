@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { toArticleBody } from "./articleBody";
+import { toArticleBody as toBody } from "./articleBody";
+
+const ORIGINS = {
+    siteUrl: "https://www.revista.test",
+    wordpressUrl: "https://wp.revista.test/blog",
+};
+
+const toArticleBody = (body: string) => toBody(body, ORIGINS);
 
 const html = (body: string) => {
     const { lead, html } = toArticleBody(body);
@@ -38,6 +45,34 @@ describe("sanitising", () => {
 
     it("keeps an existing id as written, not prefixed with user-content-", () => {
         expect(html('<p id="_ftn1">Nota</p>')).toBe('<p id="_ftn1">Nota</p>');
+    });
+
+    it.each([
+        "https://www.revista.test/wp-content/uploads/a.jpg",
+        "http://revista.test/wp-content/uploads/a.jpg",
+        "/wp-content/uploads/a.jpg",
+    ])("loads %s from WordPress, not through the site's redirect", (src) => {
+        expect(html(`<p><img src="${src}" alt=""></p>`)).toContain(
+            'src="https://wp.revista.test/blog/wp-content/uploads/a.jpg"',
+        );
+    });
+
+    it("rehosts every srcset candidate and keeps its width", () => {
+        const srcSet =
+            "https://www.revista.test/wp-content/a-300.jpg 300w, " +
+            "https://www.revista.test/wp-content/a-768.jpg 768w";
+
+        expect(html(`<p><img src="/a.jpg" srcset="${srcSet}" alt=""></p>`)).toContain(
+            'srcset="https://wp.revista.test/blog/wp-content/a-300.jpg 300w, ' +
+                'https://wp.revista.test/blog/wp-content/a-768.jpg 768w"',
+        );
+    });
+
+    it.each([
+        "https://elsewhere.test/wp-content/uploads/a.jpg",
+        "https://www.revista.test/images/a.jpg",
+    ])("leaves %s where it is, since the site never redirected it", (src) => {
+        expect(html(`<p><img src="${src}" alt=""></p>`)).toContain(`src="${src}"`);
     });
 
     it("lazy-loads every body image", () => {

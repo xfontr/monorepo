@@ -89,13 +89,47 @@ const lazyLoadImages = (tree: Root): void => {
     });
 };
 
+export interface Origins {
+    siteUrl: string;
+    wordpressUrl: string;
+}
+
+const bareHost = (url: URL): string => url.hostname.replace(/^www\./, "");
+
+// Post HTML still names the pre-cutover host, where every image cost a function call and a 301
+const rehostImages = (tree: Root, { siteUrl, wordpressUrl }: Origins): void => {
+    const site = bareHost(new URL(siteUrl));
+    const wordpress = wordpressUrl.endsWith("/") ? wordpressUrl : `${wordpressUrl}/`;
+
+    const rehost = (value: string): string => {
+        const url = URL.parse(value, siteUrl);
+
+        if (!url || bareHost(url) !== site || !url.pathname.startsWith("/wp-content/"))
+            return value;
+
+        return new URL(`${url.pathname.slice(1)}${url.search}`, wordpress).href;
+    };
+
+    eachElement(tree, (element) => {
+        if (element.tagName !== "img") return;
+
+        const { src, srcSet } = element.properties;
+
+        if (typeof src === "string") element.properties.src = rehost(src);
+        if (srcSet)
+            element.properties.srcSet = (Array.isArray(srcSet) ? srcSet : String(srcSet).split(","))
+                .map((candidate) => String(candidate).trim().replace(/^\S+/, rehost))
+                .join(", ");
+    });
+};
+
 const splitLead = (nodes: RootContent[]): [RootContent[], RootContent[]] => {
     const end = nodes.findIndex((node) => node.type === "element" && node.tagName === "p") + 1;
 
     return [nodes.slice(0, end), nodes.slice(end)];
 };
 
-export const toArticleBody = (html: string): ArticleBody => {
+export const toArticleBody = (html: string, origins: Origins): ArticleBody => {
     const tree = sanitize(parseFragment(html));
     // Notes close the post, after the bibliography, so they must leave before it is split off
     const notes = extractNotes(tree);
@@ -103,6 +137,7 @@ export const toArticleBody = (html: string): ArticleBody => {
     const toc = annotateHeadings(tree);
 
     lazyLoadImages(tree);
+    rehostImages(tree, origins);
 
     const [lead, rest] = splitLead(tree.children);
 

@@ -79,6 +79,30 @@ describe("stagingGate module", () => {
         ]);
     });
 
+    const hostMatcher = async (): Promise<RegExp> => {
+        await build();
+
+        const manifest = JSON.parse(await readFile(join(edgeDir(), "manifest.json"), "utf8"));
+
+        return new RegExp(manifest.functions[0].header.host);
+    };
+
+    it.each([
+        "staging.huellalegal.com",
+        "huella-legal.netlify.app",
+        "6aef4ce2db378b2cd9bfd57c--huella-legal.netlify.app",
+    ])("still routes %s through the gate, so staging never opens", async (host) => {
+        expect((await hostMatcher()).test(host)).toBe(true);
+    });
+
+    it.each([
+        "www.huellalegal.com",
+        "huellalegal.com",
+        "www.huellalegal.com.netlify.app.example.org",
+    ])("keeps %s out of the gate, so its pages never wait on an edge cold start", async (host) => {
+        expect((await hostMatcher()).test(host)).toBe(false);
+    });
+
     it.each(["https://www.huellalegal.com/sobre/", "https://huellalegal.com/"])(
         "never asks a reader on the public host %s for a password",
         async (url) => {

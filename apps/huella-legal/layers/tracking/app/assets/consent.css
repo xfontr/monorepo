@@ -77,3 +77,8 @@
     outline: 2px solid var(--ui-primary);
     outline-offset: 2px;
 }
+
+/* The banner is the page's last paint, and its fade alone stretched the lab Speed Index */
+#cc-main .cc--anim .cm {
+    transition: none;
+}

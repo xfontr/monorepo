@@ -6,6 +6,7 @@ import { toArticleSummary } from "./articleSummary";
 
 const PUBLICATION = {
     siteUrl: "https://revista.test",
+    wordpressUrl: "https://wp.revista.test",
     journal: { name: "Huella Legal", issn: "0000-0000" },
 };
 
@@ -18,7 +19,7 @@ describe("toArticle", () => {
 
         expect(toArticle(entry, PUBLICATION)).toMatchObject({
             ...toArticleSummary(entry),
-            body: toArticleBody("<p>Uno</p><h2>Dos</h2>"),
+            body: toArticleBody("<p>Uno</p><h2>Dos</h2>", PUBLICATION),
             seo: { title: "Uno | Huella" },
         });
     });

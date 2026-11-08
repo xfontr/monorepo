@@ -9,7 +9,7 @@ const AUTHORS = [fakeAuthor(), fakeAuthor()];
 
 const ARTICLE = toArticle(
     fakeEntry({ slug: "la-culpa", publishedAt: "2024-03-09T23:30:00Z", authors: AUTHORS }),
-    { siteUrl: "https://revista.test", journal: JOURNAL },
+    { siteUrl: "https://revista.test", wordpressUrl: "https://wp.revista.test", journal: JOURNAL },
 );
 
 describe("toCitationMeta", () => {
