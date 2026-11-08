@@ -336,7 +336,7 @@ const appliedCount = computed(() => items.value.filter(isApplied).length);
 
 const restoreAll = () => {
     restoreOpen.value = false;
-    runBulk("restore");
+    void runBulk("restore");
 };
 
 const openFromReport = (key: ItemKey) => {

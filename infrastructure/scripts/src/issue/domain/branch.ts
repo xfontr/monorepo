@@ -9,8 +9,8 @@ export const slugify = (title: string): string =>
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+/, "")
-        .replace(/-+$/, "");
+        .replace(/^-/, "")
+        .replace(/-$/, "");
 
 /** The project slug stays one path segment so `.husky/pre-push` accepts real board names. */
 export const branchName = (

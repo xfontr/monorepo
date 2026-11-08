@@ -23,7 +23,7 @@ export default [
                                 '"$0" repeats a role: use bg-default/muted/accented/inverted, text-inverted/secondary/dimmed/muted/default/highlighted or border-muted/default/accented/inverted.',
                         },
                         {
-                            pattern: "(^|:)(text|leading|tracking)-\\[",
+                            pattern: String.raw`(^|:)(text|leading|tracking)-\[`,
                             message:
                                 '"$0" hard-codes a type value: add a --text-* or --tracking-* token to main.css.',
                         },

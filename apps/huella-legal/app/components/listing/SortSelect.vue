@@ -1,5 +1,5 @@
 <template>
-    <label class="-mr-2 flex shrink-0 items-center font-sans text-meta text-muted">
+    <div class="-mr-2 flex shrink-0 items-center font-sans text-meta text-muted">
         <span aria-hidden="true" class="hidden sm:inline">{{ $t("sortSelect.prefix") }}</span>
         <USelect
             v-model="sort"
@@ -8,7 +8,7 @@
             trailing-icon="i-lucide-chevron-down"
             :items
         />
-    </label>
+    </div>
 </template>
 
 <script setup lang="ts">

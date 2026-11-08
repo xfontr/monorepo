@@ -51,7 +51,9 @@ const toReadingMinutes = (body: RichText): number => {
 const toExcerpt = (excerpt?: RichText): string | undefined => {
     if (!excerpt || excerpt.format === "blocks") return undefined;
 
-    return toText(excerpt.value).replace(/\s*\[…\]$/, "") || undefined;
+    const text = toText(excerpt.value);
+
+    return (text.endsWith("[…]") ? text.slice(0, -"[…]".length).trimEnd() : text) || undefined;
 };
 
 // ACF's `num`, entered by hand as NN/YY on the posts numbered before the year was written in full
@@ -61,8 +63,9 @@ const toNumber = (value: unknown): string | undefined => {
     if (!match) return undefined;
 
     const [, index = "", year = ""] = match;
+    const fullYear = year.length === 2 ? `20${year}` : year;
 
-    return `${index.padStart(2, "0")}/${year.length === 2 ? `20${year}` : year}`;
+    return `${index.padStart(2, "0")}/${fullYear}`;
 };
 
 export const toArticleSummary = (entry: Entry): ArticleSummary => {

@@ -31,7 +31,7 @@
             />
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <UFormField name="name" :label="$t('contactForm.name.label')" required>
-                    <UInput v-model="state.name" autocomplete="name" class="w-full" />
+                    <UInput v-model="state.name" type="text" autocomplete="name" class="w-full" />
                 </UFormField>
                 <UFormField name="email" :label="$t('contactForm.email.label')" required>
                     <UInput

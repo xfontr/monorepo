@@ -22,7 +22,7 @@ for (const method of METHODS) {
         const message = format(...args);
         if (UPSTREAM.some((pattern) => pattern.test(message))) return;
 
-        const stack = (new Error().stack ?? "").split("\n").slice(2, 6).join("\n");
+        const stack = (new Error("console call").stack ?? "").split("\n").slice(2, 6).join("\n");
         calls.push({ method, message, stack });
     };
 }

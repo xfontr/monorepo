@@ -47,8 +47,10 @@ case "$rel" in
                     exit 2
                 fi
                 ;;
+            *) ;;
         esac
         ;;
+    *) ;;
 esac
 
 # A review whose row never lands in the history table is a review nobody will ever compare against.
@@ -63,6 +65,7 @@ case "$rel" in
             exit 2
         fi
         ;;
+    *) ;;
 esac
 
 # A package.json git has never seen means a new project, and step 5 of new-package is the one skipped.
@@ -87,6 +90,7 @@ case "$rel" in
             exit 2
         fi
         ;;
+    *) ;;
 esac
 
 exit 0

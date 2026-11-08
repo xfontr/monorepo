@@ -1,7 +1,7 @@
 <template>
     <section :aria-busy="pending" :aria-labelledby="search?.total ? headingId : undefined">
         <!-- Always rendered: a status region is only announced when its text changes later -->
-        <p role="status" class="sr-only">{{ announcement }}</p>
+        <output class="sr-only">{{ announcement }}</output>
         <ListingSkeletonList v-if="pending || !search" />
         <template v-else-if="search.total">
             <h2

@@ -25,8 +25,11 @@ export interface Rendering {
 const hasPayload = (route: string, { queryKeys }: CachedRule): boolean =>
     !!queryKeys && !route.startsWith("/api/");
 
-const payloadPath = (route: string): string =>
-    `${route.endsWith("/") ? route : `${route}/`}_payload.json`;
+const payloadPath = (route: string): string => {
+    const directory = route.endsWith("/") ? route : `${route}/`;
+
+    return `${directory}_payload.json`;
+};
 
 const toRouteRule = ({ isr, queryKeys }: CachedRule): RouteRule =>
     queryKeys ? { isr, headers: { "Netlify-Vary": `query=${queryKeys.join("|")}` } } : { isr };

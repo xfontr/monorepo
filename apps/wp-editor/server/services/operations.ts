@@ -111,14 +111,18 @@ export const openChangeset = async (
         scanned: [],
     };
 
-    for (const [index, post] of posts.entries()) {
-        await store.writeBase(changeset.id, changeset.keys[index]!, toSnapshot(post));
-    }
+    await Promise.all(
+        posts.map((post, index) =>
+            store.writeBase(changeset.id, changeset.keys[index]!, toSnapshot(post)),
+        ),
+    );
 
     // Last, so a failed pull leaves the previous changeset open and no half-written one listed.
-    for (const open of existing.filter(({ status }) => status === "open")) {
-        await store.writeChangeset({ ...open, status: "abandoned" });
-    }
+    await Promise.all(
+        existing
+            .filter(({ status }) => status === "open")
+            .map((open) => store.writeChangeset({ ...open, status: "abandoned" })),
+    );
 
     await store.writeChangeset(changeset);
 
@@ -159,13 +163,13 @@ export const validate = async (store: Store, id: string): Promise<ValidateReport
             (proposal.excerpt ?? base.excerpt) === base.excerpt;
 
         if (same) {
-            await store.writeProposal(id, key, null);
             report.removed.push(key);
         } else if (markersDiffer(base.content, proposal.content)) {
             report.markerWarnings.push(key);
         }
     }
 
+    await Promise.all(report.removed.map((key) => store.writeProposal(id, key, null)));
     await refreshStatus(store, id);
 
     return report;

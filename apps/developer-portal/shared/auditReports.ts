@@ -91,7 +91,7 @@ export const scopesOf = (reports: AuditReport[]): string[] =>
                 .map((report) => report.scope)
                 .filter((scope): scope is string => scope !== null),
         ),
-    ].sort();
+    ].sort((a, b) => a.localeCompare(b));
 
 /** Across every audit, so the tiles answer "how much is still owed" rather than "how many files". */
 export const countAll = (

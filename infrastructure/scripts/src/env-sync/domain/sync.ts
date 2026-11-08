@@ -85,7 +85,7 @@ export const lostData = (env: EnvLine[], example: EnvLine[], output: string): st
     if (parsed.problem !== undefined) return [`the result would not parse: ${parsed.problem}`];
 
     const written = new Map(parsed.lines.filter(isEntry).map((line) => [line.key, line]));
-    const writtenText = parsed.lines.map((line) => textOf(line).join("\n"));
+    const writtenText = new Set(parsed.lines.map((line) => textOf(line).join("\n")));
     const problems: string[] = [];
 
     for (const line of env.filter(isEntry)) {
@@ -95,7 +95,7 @@ export const lostData = (env: EnvLine[], example: EnvLine[], output: string): st
     }
 
     for (const line of env.filter(isCommented)) {
-        if (!writtenText.includes(line.text)) problems.push(`a commented ${line.key} would go`);
+        if (!writtenText.has(line.text)) problems.push(`a commented ${line.key} would go`);
     }
 
     for (const line of example.filter(isEntry)) {

@@ -17,7 +17,9 @@ const toFormData = (fields: Record<string, unknown>): FormData => {
 
     for (const [name, value] of Object.entries(fields)) {
         if (value instanceof Blob) data.append(name, value);
-        else if (value !== null && value !== undefined) data.append(name, String(value));
+        else if (["string", "number", "boolean"].includes(typeof value)) {
+            data.append(name, String(value as string | number | boolean));
+        }
     }
 
     return data;

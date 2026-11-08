@@ -71,8 +71,9 @@ export const useSiteNav = () => {
             const { path, hash } = router.resolve(to);
 
             if (hash) return undefined;
+            if (here === path) return "page";
 
-            return here === path ? "page" : here.startsWith(path) ? "true" : undefined;
+            return here.startsWith(path) ? "true" : undefined;
         };
 
         return HEADER.map(({ key, to, slot, children }) => {

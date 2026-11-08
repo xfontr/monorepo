@@ -21,9 +21,9 @@
             </UFormField>
         </div>
 
-        <p role="status" class="sr-only">
+        <output class="sr-only">
             {{ normalizedQuery ? $t("directoryListing.matches", matches.length) : "" }}
-        </p>
+        </output>
 
         <Reveal
             v-if="matches.length"

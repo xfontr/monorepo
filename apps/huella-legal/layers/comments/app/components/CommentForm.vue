@@ -54,7 +54,7 @@
                     :hint="$t('commentForm.name.hint')"
                     required
                 >
-                    <UInput v-model="state.name" autocomplete="name" class="w-full" />
+                    <UInput v-model="state.name" type="text" autocomplete="name" class="w-full" />
                 </UFormField>
                 <UFormField
                     name="email"

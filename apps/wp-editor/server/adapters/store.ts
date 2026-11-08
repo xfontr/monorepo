@@ -190,7 +190,9 @@ export const createStore = (root: string) => {
                     (name) => name.replace(/\.(html|json)$/, "") as ItemKey,
                 ),
             );
-            const items = await Promise.all([...keys].sort().map((key) => readItem(id, key)));
+            const items = await Promise.all(
+                [...keys].sort((a, b) => a.localeCompare(b)).map((key) => readItem(id, key)),
+            );
 
             return items.filter((item) => item !== undefined);
         },

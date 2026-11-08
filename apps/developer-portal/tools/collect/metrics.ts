@@ -113,35 +113,36 @@ export const collectMetrics = async (
     coverage: CoverageArtifact,
     generatedAt: string,
 ): Promise<MetricsArtifact> => {
-    const measured: ProjectMetrics[] = [];
     const releasePatterns = await releaseProjects();
 
-    for (const project of projects) {
-        const files = await filesIn(project.root);
-        const specs = files.filter((file) => file.endsWith(SPEC_SUFFIX));
-        const projectCoverage = coverage.projects.find((entry) => entry.name === project.name);
-        const history = await tryRun(() => commitStats(project.root));
+    const measured = await Promise.all(
+        projects.map(async (project): Promise<ProjectMetrics> => {
+            const files = await filesIn(project.root);
+            const specs = files.filter((file) => file.endsWith(SPEC_SUFFIX));
+            const projectCoverage = coverage.projects.find((entry) => entry.name === project.name);
+            const history = await tryRun(() => commitStats(project.root));
 
-        measured.push({
-            name: project.name,
-            root: project.root,
-            specs: specs.length,
-            commits: history.ok ? history.value.commits : null,
-            commitsLastTwoWeeks: history.ok ? history.value.commitsLastTwoWeeks : null,
-            coverageLinesPct: projectCoverage?.collected
-                ? (projectCoverage.lines?.pct ?? null)
-                : null,
-            unreleasedCommits: await unreleasedFor(
-                project.name,
-                project.root,
-                releasePatterns.some(
-                    (pattern) => pattern === project.name || matchesGlob(project.root, pattern),
+            return {
+                name: project.name,
+                root: project.root,
+                specs: specs.length,
+                commits: history.ok ? history.value.commits : null,
+                commitsLastTwoWeeks: history.ok ? history.value.commitsLastTwoWeeks : null,
+                coverageLinesPct: projectCoverage?.collected
+                    ? (projectCoverage.lines?.pct ?? null)
+                    : null,
+                unreleasedCommits: await unreleasedFor(
+                    project.name,
+                    project.root,
+                    releasePatterns.some(
+                        (pattern) => pattern === project.name || matchesGlob(project.root, pattern),
+                    ),
                 ),
-            ),
-            currentVersion: await versionOf(project.root),
-            hasChangelog: files.some((file) => file.endsWith("CHANGELOG.md")),
-        });
-    }
+                currentVersion: await versionOf(project.root),
+                hasChangelog: files.some((file) => file.endsWith("CHANGELOG.md")),
+            };
+        }),
+    );
 
     const subjects = (await git(["log", "--no-merges", "--format=%s", "-100"]))
         .split("\n")

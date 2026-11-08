@@ -16,8 +16,9 @@ export const annotateHeadings = (tree: Root): TocItem[] => {
         const { id } = element.properties;
         const base = typeof id === "string" && id ? id : slugify(label) || "seccion";
         let anchor = base;
+        let suffix = 2;
 
-        for (let suffix = 2; used.has(anchor); suffix++) anchor = `${base}-${suffix}`;
+        while (used.has(anchor)) anchor = `${base}-${suffix++}`;
 
         used.add(anchor);
         element.properties.id = anchor;

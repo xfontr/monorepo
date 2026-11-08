@@ -106,8 +106,8 @@ export const gateBlocker = (
 const hash = (text: string): string => {
     let value = 0x811c9dc5;
 
-    for (let index = 0; index < text.length; index++) {
-        value = Math.imul(value ^ text.charCodeAt(index), 0x01000193);
+    for (const char of text) {
+        value = Math.imul(value ^ (char.codePointAt(0) ?? 0), 0x01000193);
     }
 
     return (value >>> 0).toString(16).padStart(8, "0");
