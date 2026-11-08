@@ -147,10 +147,10 @@ const menuSections = computed<NavigationMenuItem[]>(() =>
 );
 
 const wide = useMediaQuery(WIDE);
-const inlineSections = shallowRef<NavigationMenuItem[]>(props.sections);
+const inlineSections = shallowRef<NavigationMenuItem[]>();
 
 watchEffect(() => {
-    if (wide.value) inlineSections.value = props.sections;
+    if (wide.value || !inlineSections.value) inlineSections.value = props.sections;
 });
 
 const openSection = ref<string>("");

@@ -92,7 +92,7 @@ const isDev = import.meta.dev;
 
 useHead(
     {
-        title: t("error.head", { status: error.status }),
+        title: () => t("error.head", { status: error.status }),
         meta: [{ name: "robots", content: "noindex" }],
     },
     { tagPriority: "high" },

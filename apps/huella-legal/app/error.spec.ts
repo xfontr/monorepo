@@ -76,9 +76,11 @@ describe("error page", () => {
     it("keeps error pages out of search results", async () => {
         await mountError(NOT_FOUND);
 
-        const [{ title, meta }] = head.useHead.mock.calls[0] as [{ title: string; meta: object[] }];
+        const [{ title, meta }] = head.useHead.mock.calls[0] as [
+            { title: () => string; meta: object[] },
+        ];
 
-        expect(title).toBe('t(error.head, {"status":404})');
+        expect(title()).toBe('t(error.head, {"status":404})');
         expect(meta).toContainEqual({ name: "robots", content: "noindex" });
     });
 
