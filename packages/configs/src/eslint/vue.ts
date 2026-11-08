@@ -68,6 +68,7 @@ const createBaseVueConfig = (typeChecked?: boolean): object[] => {
                     "PascalCase",
                     { registeredComponentsOnly: false },
                 ],
+                "vue/no-setup-props-reactivity-loss": "error",
                 "vue/block-order": ["error", { order: ["template", "script", "style"] }],
                 "vue/define-macros-order": [
                     "error",
