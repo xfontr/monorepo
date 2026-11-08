@@ -16,16 +16,16 @@ class TolgeeProvider extends TranslationProvider<TolgeeProviderOptions> {
     }
 
     override async getTranslations(locale: Locale): Promise<TranslationMap> {
-        const response = await this.http.get<TolgeeTranslations>(
+        const { data } = await this.http.get<TolgeeTranslations>(
             `/v2/projects/${this.project}/translations/${locale}`,
             { headers: { "X-API-Key": this.options.token } },
         );
 
-        if (!response[locale]) {
+        if (!data[locale]) {
             throw new UndefinedLocaleProviderError(locale, "Tolgee");
         }
 
-        return response[locale];
+        return data[locale];
     }
 }
 

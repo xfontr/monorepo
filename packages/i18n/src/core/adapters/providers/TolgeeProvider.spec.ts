@@ -7,7 +7,9 @@ const messages = { shared: { health: "Health" } };
 
 describe("TolgeeProvider", () => {
     it("asks Tolgee for the project's locale tree, authenticated with the project token", async () => {
-        const get = vi.fn().mockResolvedValue({ "en-GB": messages });
+        const get = vi
+            .fn()
+            .mockResolvedValue({ data: { "en-GB": messages }, headers: new Headers() });
         const http: HttpClient = { get };
         const provider = new TolgeeProvider(
             { baseURL: "https://app.tolgee.io/", project: "1", options: { token: "abc" } },
@@ -22,7 +24,9 @@ describe("TolgeeProvider", () => {
 
     // The config claims a locale the project does not hold — a mismatch on our side, not a vendor failure
     it("refuses to invent a locale Tolgee answered without", async () => {
-        const get = vi.fn().mockResolvedValue({ "es-ES": messages });
+        const get = vi
+            .fn()
+            .mockResolvedValue({ data: { "es-ES": messages }, headers: new Headers() });
         const provider = new TolgeeProvider(
             { baseURL: "https://app.tolgee.io/", project: "1", options: { token: "abc" } },
             { get },
