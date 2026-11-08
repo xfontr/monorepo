@@ -34,6 +34,24 @@ test("subscribes from the band under an article and asks the reader to confirm",
     expect(violations).toEqual([]);
 });
 
+test("tells a reader back from Kit's confirmation link that they are on the list", async ({
+    page,
+}) => {
+    await page.goto("/suscripcion-confirmada/");
+
+    await expect(
+        page.getByRole("heading", { level: 1, name: "Suscripción confirmada" }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Leer lo último" })).toHaveAttribute(
+        "href",
+        "/publicaciones/",
+    );
+
+    const { violations } = await new AxeBuilder({ page }).withTags(WCAG_AA).analyze();
+
+    expect(violations).toEqual([]);
+});
+
 test("refuses an address with no domain without sending it", async ({ page }) => {
     let sent = false;
 
