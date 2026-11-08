@@ -46,3 +46,41 @@ export const externalCheck = ({ name, state, description, link }: Check): string
     ...(description ? [`  ${description}`] : []),
     `  ${link || "no link"}`,
 ];
+
+export interface SonarPullRequest {
+    origin: string;
+    project: string;
+    pullRequest: string;
+}
+
+export interface SonarIssue {
+    severity: string;
+    rule: string;
+    component: string;
+    line?: number;
+    message: string;
+}
+
+/** The "SonarCloud Code Analysis" status links to `/dashboard?id=<project>&pullRequest=<n>`. */
+export const sonarPullRequestOf = ({ link }: Check): SonarPullRequest | undefined => {
+    if (!URL.canParse(link)) return undefined;
+
+    const url = new URL(link);
+    const project = url.searchParams.get("id");
+    const pullRequest = url.searchParams.get("pullRequest");
+
+    return url.pathname === "/dashboard" && project && pullRequest
+        ? { origin: url.origin, project, pullRequest }
+        : undefined;
+};
+
+/** Sonar's component is `<project>:<path>`; the path alone is what an agent opens. */
+export const sonarIssueLines = ({ project }: SonarPullRequest, issues: SonarIssue[]): string[] =>
+    issues.map(({ severity, rule, component, line, message }) => {
+        const path = component.startsWith(`${project}:`)
+            ? component.slice(project.length + 1)
+            : component;
+        const at = line === undefined ? path : `${path}:${line}`;
+
+        return `  ${severity} ${rule} ${at} — ${message}`;
+    });

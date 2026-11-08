@@ -16,7 +16,9 @@ export default defineEventHandler(async (event): Promise<void> => {
 
     if (form.get("honeypot")) return;
 
-    await assertChallenge(event, form.get("token")?.toString());
+    const token = form.get("token");
+
+    await assertChallenge(event, typeof token === "string" ? token : undefined);
 
     const { name, email, kind, title, summary } = assertForm(schema, {
         ...Object.fromEntries(form),

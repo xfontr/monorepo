@@ -5,7 +5,7 @@ export default defineNuxtPlugin(() => {
     const originalInfo = console.info;
 
     // eslint-disable-next-line no-console -- the filter wraps console.info itself
-    console.info = (...args) => {
+    console.info = (...args: unknown[]) => {
         // Unpatched, known Vue bug - src: https://github.com/nuxt/nuxt/discussions/25973#discussioncomment-12203169
         if (
             typeof args[0] === "string" &&

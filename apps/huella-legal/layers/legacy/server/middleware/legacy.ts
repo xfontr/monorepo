@@ -1,5 +1,11 @@
 const WORDPRESS_PATHS = /^\/(?:wp-content\/|wp-admin(?:\/|$)|wp-login\.php$|wp-json(?:\/|$))/;
 
+const withoutTrailingSlashes = (url: string): string => {
+    let end = url.length;
+    while (url.endsWith("/", end)) end--;
+    return url.slice(0, end);
+};
+
 export default defineEventHandler((event) => {
     const url = getRequestURL(event);
 
@@ -14,5 +20,9 @@ export default defineEventHandler((event) => {
 
     if (new URL(baseURL).host === url.host) return;
 
-    return sendRedirect(event, `${baseURL.replace(/\/+$/, "")}${url.pathname}${url.search}`, 301);
+    return sendRedirect(
+        event,
+        `${withoutTrailingSlashes(baseURL)}${url.pathname}${url.search}`,
+        301,
+    );
 });

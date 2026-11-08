@@ -1,4 +1,5 @@
 import { ESLint, type Linter } from "eslint";
+import tseslint from "typescript-eslint";
 import { describe, expect, it } from "vitest";
 import {
     createNodeConfig,
@@ -28,7 +29,8 @@ const importBans = async (config: object[], filePath: string): Promise<string> =
 
 describe("eslint factories", () => {
     it("loads the in-house plugin when several configs and an appended one all register it", async () => {
-        const config = [...createNuxtConfig(), routeMeta];
+        // The linted file isn't on disk, so no tsconfig can type it
+        const config = [...createNuxtConfig(), routeMeta, tseslint.configs.disableTypeChecked];
         const eslint = new ESLint({
             overrideConfigFile: true,
             overrideConfig: config as Linter.Config[],
@@ -96,6 +98,32 @@ describe("eslint factories", () => {
         expect(severity(component?.["no-fallthrough"])).toBe(2);
         expect(severity(server?.["no-cond-assign"])).toBe(2);
         expect(severity(component?.["no-undef"])).toBe(0);
+    });
+
+    it("type-checks a Nuxt app's scripts but not the specs and stories that import components", async () => {
+        const config = createNuxtConfig();
+        const script = await resolve(config, "app/composables/useItems.ts");
+        const spec = await resolve(config, "app/composables/useItems.spec.ts");
+        const story = await resolve(config, "app/components/Card.stories.ts");
+        const component = await resolve(config, "app/App.vue");
+
+        expect(severity(script?.["@typescript-eslint/no-misused-promises"])).toBe(2);
+        expect(severity(script?.["@typescript-eslint/require-array-sort-compare"])).toBe(2);
+        expect(spec?.["@typescript-eslint/no-misused-promises"]).toBeUndefined();
+        expect(story?.["@typescript-eslint/no-misused-promises"]).toBeUndefined();
+        expect(component?.["@typescript-eslint/no-misused-promises"]).toBeUndefined();
+    });
+
+    it("flags a quadratic regex, a nested ternary and an await in a loop outside specs", async () => {
+        const config = createNodeConfig();
+        const source = await resolve(config, "src/report.ts");
+        const spec = await resolve(config, "src/report.spec.ts");
+
+        expect(severity(source?.["regexp/no-super-linear-move"])).toBe(2);
+        expect(severity(source?.["no-await-in-loop"])).toBe(2);
+        expect(severity(source?.["no-nested-ternary"])).toBe(2);
+        expect(spec?.["no-await-in-loop"]).toBeUndefined();
+        expect(spec?.["no-nested-ternary"]).toBeUndefined();
     });
 
     it("scopes Tailwind to the entry point the app passes", async () => {

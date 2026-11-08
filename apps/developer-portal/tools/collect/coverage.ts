@@ -137,29 +137,27 @@ export const collectCoverage = async (
     generatedAt: string,
     read: SummaryReader = readSummary,
 ): Promise<CoverageArtifact> => {
-    const measured: ProjectCoverage[] = [];
+    const measured = await Promise.all(
+        projects.map(async (project): Promise<ProjectCoverage> => {
+            const summary = await read(project.root);
 
-    for (const project of projects) {
-        const summary = await read(project.root);
-
-        if (!summary) {
             // Absent is its own state. Reporting it as 0% would drag the workspace number down for
             // a package that simply has no test target; reporting 100% would be a lie.
-            measured.push({ name: project.name, root: project.root, collected: false, files: 0 });
-            continue;
-        }
+            if (!summary)
+                return { name: project.name, root: project.root, collected: false, files: 0 };
 
-        measured.push({
-            name: project.name,
-            root: project.root,
-            collected: true,
-            files: Object.keys(summary).filter((key) => key !== "total").length,
-            lines: summary.total.lines,
-            statements: summary.total.statements,
-            functions: summary.total.functions,
-            branches: summary.total.branches,
-        });
-    }
+            return {
+                name: project.name,
+                root: project.root,
+                collected: true,
+                files: Object.keys(summary).filter((key) => key !== "total").length,
+                lines: summary.total.lines,
+                statements: summary.total.statements,
+                functions: summary.total.functions,
+                branches: summary.total.branches,
+            };
+        }),
+    );
 
     const anyCollected = measured.some((project) => project.collected);
 

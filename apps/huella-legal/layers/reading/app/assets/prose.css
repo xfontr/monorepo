@@ -8,9 +8,7 @@
     line-height: var(--text-reading--line-height);
     color: var(--ui-text);
     text-wrap: pretty;
-}
 
-.hl-prose {
     @variant md { font-size: var(--text-reading); }
 }
 
@@ -23,9 +21,7 @@
     color: var(--ui-text-highlighted);
     scroll-margin-top: 2rem;
     text-wrap: balance;
-}
 
-.hl-prose h2 {
     @variant md { font-size: var(--text-h2); }
 }
 
@@ -37,9 +33,7 @@
     line-height: var(--text-h3--line-height);
     color: var(--ui-text-highlighted);
     scroll-margin-top: 2rem;
-}
 
-.hl-prose h3 {
     @variant md { font-size: var(--text-h3); }
 }
 
@@ -99,9 +93,7 @@
     font-style: italic;
     line-height: var(--text-quote--line-height);
     color: var(--ui-text-highlighted);
-}
 
-.hl-prose blockquote p {
     @variant md { font-size: var(--text-quote); }
 }
 

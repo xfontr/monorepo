@@ -153,42 +153,40 @@ export const collectDocs = async (generatedAt: string): Promise<DocsArtifact> =>
     )
         .split("\n")
         .filter(Boolean);
-    const pages: DocPage[] = [];
+    const read = await Promise.all(
+        paths.map(async (path): Promise<DocPage | undefined> => {
+            const absolute = resolve(WORKSPACE_ROOT, path);
 
-    for (const path of paths) {
-        const absolute = resolve(WORKSPACE_ROOT, path);
+            if (!(await exists(absolute))) return undefined;
 
-        if (!(await exists(absolute))) continue;
+            const source = await readFile(absolute, "utf8");
 
-        const source = await readFile(absolute, "utf8");
+            const title = source.match(HEADING)?.[0]?.replace(/^#{1,3}\s+/, "");
+            const checked = await Promise.all(
+                hrefsIn(source)
+                    .filter(isRepoRelative)
+                    .map((href) => checkLink(path, href)),
+            );
+            const brokenLinks = checked.filter((link): link is DocLink => link !== null);
 
-        const title = source.match(HEADING)?.[0]?.replace(/^#{1,3}\s+/, "");
-        const brokenLinks: DocLink[] = [];
+            const updatedAt = (await git(["log", "-1", "--format=%cI", "--", path])).trim();
+            const decisionMeta = decisionMetaOf(path, source);
 
-        for (const href of hrefsIn(source)) {
-            if (!isRepoRelative(href)) continue;
-
-            const broken = await checkLink(path, href);
-
-            if (broken) brokenLinks.push(broken);
-        }
-
-        const updatedAt = (await git(["log", "-1", "--format=%cI", "--", path])).trim();
-        const decisionMeta = decisionMetaOf(path, source);
-
-        pages.push({
-            path,
-            kind: kindOf(path),
-            title: title?.trim() ?? path,
-            words: source.split(/\s+/).filter(Boolean).length,
-            updatedAt: updatedAt || null,
-            decisionStatus: decisionMeta.status,
-            decisionOutcome: decisionMeta.decision,
-            decisionSupersededBy: decisionMeta.supersededBy,
-            audit: auditMetaOf(path, source),
-            brokenLinks,
-        });
-    }
+            return {
+                path,
+                kind: kindOf(path),
+                title: title?.trim() ?? path,
+                words: source.split(/\s+/).filter(Boolean).length,
+                updatedAt: updatedAt || null,
+                decisionStatus: decisionMeta.status,
+                decisionOutcome: decisionMeta.decision,
+                decisionSupersededBy: decisionMeta.supersededBy,
+                audit: auditMetaOf(path, source),
+                brokenLinks,
+            };
+        }),
+    );
+    const pages = read.filter((page): page is DocPage => page !== undefined);
 
     pages.sort((a, b) => a.path.localeCompare(b.path));
 

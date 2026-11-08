@@ -35,11 +35,11 @@ export const normalizeGraph = (raw: RawGraph, generatedAt: string): ProjectsArti
             dependsOn: edges
                 .filter((edge) => edge.source === node.name)
                 .map((edge) => edge.target)
-                .sort(),
+                .sort((a, b) => a.localeCompare(b)),
             dependedOnBy: edges
                 .filter((edge) => edge.target === node.name)
                 .map((edge) => edge.source)
-                .sort(),
+                .sort((a, b) => a.localeCompare(b)),
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
 

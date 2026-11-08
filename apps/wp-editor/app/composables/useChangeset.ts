@@ -67,12 +67,13 @@ export const useChangeset = (id: string) => {
 
         const startedAt = new Date().toISOString();
         let finished = false;
-        const poll = setInterval(async () => {
+        const check = async () => {
             const latest = await $fetch<RunReport | null>(`${base}/progress`).catch(() => null);
 
             // An older run that was interrupted is still incomplete on disk; it isn't this one.
             if (!finished) progress.value = latest && latest.at >= startedAt ? latest : null;
-        }, PROGRESS_POLL_MS);
+        };
+        const poll = setInterval(() => void check(), PROGRESS_POLL_MS);
 
         try {
             return await start();
@@ -84,8 +85,7 @@ export const useChangeset = (id: string) => {
         }
     };
 
-    return {
-        ...request,
+    return Object.assign(request, {
         busy,
         running,
         progress,
@@ -104,5 +104,5 @@ export const useChangeset = (id: string) => {
                 () => watchProgress(kind, () => call<RunReport>(`/${kind}`, { method: "POST" })),
                 true,
             ),
-    };
+    });
 };

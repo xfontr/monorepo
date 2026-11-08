@@ -3,5 +3,5 @@ export const useCachedFetch = createUseFetch({
     getCachedData: (key, nuxtApp, { cause }) =>
         cause === "refresh:manual" || cause === "refresh:hook"
             ? undefined
-            : (nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]),
+            : ((nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]) as unknown),
 });

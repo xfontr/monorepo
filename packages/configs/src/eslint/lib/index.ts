@@ -1,4 +1,3 @@
-import regexpPlugin from "eslint-plugin-regexp";
 import { format, formatVue } from "./format.ts";
 import arrowFunctions from "./arrowFunctions.ts";
 import destructuring from "./destructuring.ts";
@@ -11,6 +10,7 @@ import layerIsolation from "./layerIsolation.ts";
 import { constTables, constTablesVue } from "./constTables.ts";
 import propsInterface from "./propsInterface.ts";
 import { disableReasons, disableReasonsVue } from "./disableReasons.ts";
+import { defaultExports, defaultExportsVue } from "./defaultExports.ts";
 import templateI18n from "./templateI18n.ts";
 import templateCalls from "./templateCalls.ts";
 import { typeDefinitions, typeDefinitionsVue } from "./typeDefinitions.ts";
@@ -20,8 +20,10 @@ import { unsafeCode, unsafeCodeVue } from "./unsafeCode.ts";
 import e2eFixture from "./e2eFixture.ts";
 import routeMeta from "./routeMeta.ts";
 import tailwind from "./tailwind.ts";
-
-const regexp: object = regexpPlugin.configs["flat/recommended"];
+import regexp from "./regexp.ts";
+import awaitInLoop from "./awaitInLoop.ts";
+import ternaries from "./ternaries.ts";
+import sortCompare from "./sortCompare.ts";
 
 const shared: object[] = [
     format,
@@ -34,10 +36,14 @@ const shared: object[] = [
     typeDefinitions,
     useBeforeDefine,
     regexp,
+    awaitInLoop,
+    ternaries,
+    sortCompare,
     noConsole,
     unsafeCode,
     e2eFixture,
     disableReasons,
+    defaultExports,
 ];
 
 const vueOnly: object[] = [
@@ -51,6 +57,7 @@ const vueOnly: object[] = [
     useBeforeDefineVue,
     unsafeCodeVue,
     disableReasonsVue,
+    defaultExportsVue,
 ];
 
 export { shared, vueOnly, vitestConfig, baseIgnores, routeMeta, tailwind };

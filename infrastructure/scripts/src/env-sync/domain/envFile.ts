@@ -27,6 +27,32 @@ export const toLines = (text: string): string[] =>
 export const render = (lines: string[]): string =>
     lines.length === 0 ? "" : `${lines.join("\n")}\n`;
 
+const classify = (line: string): EnvLine | undefined => {
+    if (line.trim() === "") return { kind: "blank", text: line };
+
+    const commented = COMMENTED.exec(line);
+    if (commented?.[1]) return { kind: "commented", key: commented[1], text: line };
+
+    if (line.trimStart().startsWith("#")) return { kind: "comment", text: line };
+
+    return undefined;
+};
+
+/** The index of the line an entry's value ends on, or the problem when a quote never closes. */
+const entryEnd = (raw: string[], start: number, key: string, value: string): number | string => {
+    const quote = value[0];
+    if (!quote || !QUOTES.has(quote)) return start;
+
+    let index = start;
+    let joined = value;
+    while (!closes(joined, quote)) {
+        index++;
+        if (index >= raw.length) return `${key} opens a ${quote} quote that never closes`;
+        joined += `\n${raw[index]}`;
+    }
+    return index;
+};
+
 /** Refuses anything it can't classify, so a file it doesn't understand is never rewritten. */
 export const parseEnv = (text: string): Parsed => {
     if (text.includes("\r")) return { problem: "it has CRLF line endings" };
@@ -37,20 +63,10 @@ export const parseEnv = (text: string): Parsed => {
 
     for (let index = 0; index < raw.length; index++) {
         const line = raw[index] ?? "";
+        const other = classify(line);
 
-        if (line.trim() === "") {
-            lines.push({ kind: "blank", text: line });
-            continue;
-        }
-
-        const commented = COMMENTED.exec(line);
-        if (commented?.[1]) {
-            lines.push({ kind: "commented", key: commented[1], text: line });
-            continue;
-        }
-
-        if (line.trimStart().startsWith("#")) {
-            lines.push({ kind: "comment", text: line });
+        if (other) {
+            lines.push(other);
             continue;
         }
 
@@ -60,24 +76,14 @@ export const parseEnv = (text: string): Parsed => {
         }
 
         const key = entry[1];
-        const value = (entry[2] ?? "").trimStart();
         if (seen.has(key)) return { problem: `${key} is set twice` };
         seen.add(key);
 
-        const start = index;
-        const quote = value[0];
-        if (quote && QUOTES.has(quote)) {
-            let joined = value;
-            while (!closes(joined, quote)) {
-                index++;
-                if (index >= raw.length) {
-                    return { problem: `${key} opens a ${quote} quote that never closes` };
-                }
-                joined += `\n${raw[index]}`;
-            }
-        }
+        const end = entryEnd(raw, index, key, (entry[2] ?? "").trimStart());
+        if (typeof end === "string") return { problem: end };
 
-        lines.push({ kind: "entry", key, lines: raw.slice(start, index + 1) });
+        lines.push({ kind: "entry", key, lines: raw.slice(index, end + 1) });
+        index = end;
     }
 
     return { lines };

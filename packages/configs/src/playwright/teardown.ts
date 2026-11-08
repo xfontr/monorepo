@@ -3,7 +3,7 @@ import type { FullConfig } from "@playwright/test";
 import { SERVER_CONSOLE_ENV } from "./server.ts";
 
 /** Fails the run on anything the built server logged, which no browser fixture can see. */
-export default (config: FullConfig) => {
+const teardown = (config: FullConfig) => {
     const path = config.webServer?.env?.[SERVER_CONSOLE_ENV];
     if (!path) return;
     if (!existsSync(path)) {
@@ -18,3 +18,5 @@ export default (config: FullConfig) => {
 
     if (output) throw new Error(`The server logged during the e2e run:\n\n${output}`);
 };
+
+export default teardown;

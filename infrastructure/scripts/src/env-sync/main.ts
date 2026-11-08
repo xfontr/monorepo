@@ -39,7 +39,8 @@ const syncOne = (example: string, check: boolean): Outcome => {
     }
 
     const backup = writeEnv(env, after);
-    out.success(`${env}: ${summary}.${backup ? ` Backup at ${backup}.` : ""}`);
+    const backupNote = backup ? ` Backup at ${backup}.` : "";
+    out.success(`${env}: ${summary}.${backupNote}`);
     return "written";
 };
 

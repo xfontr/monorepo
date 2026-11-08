@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { htmlDiff } from "./htmlDiff.ts";
+import { htmlDiff, htmlTokens } from "./htmlDiff.ts";
 
-const stripHighlights = (html: string) => html.replace(/<\/?(ins|del)>/g, "");
+const stripHighlights = (html: string) => html.replace(/<\/?(?:ins|del)>/g, "");
 
 describe("htmlDiff", () => {
     it("wraps only the changed words", () => {
@@ -28,5 +28,30 @@ describe("htmlDiff", () => {
         const { after } = htmlDiff("<p>a</p>", "<style>p { color: red }</style><p>a</p>");
 
         expect(after).toBe("<style>p { color: red }</style><p>a</p>");
+    });
+});
+
+describe("htmlTokens", () => {
+    it("keeps a STYLE block whole even when its closing tag is written in another case", () => {
+        expect(htmlTokens("<STYLE>p{}</style> <!-- x -->a")).toEqual([
+            "<STYLE>p{}</style>",
+            " ",
+            "<!-- x -->",
+            "a",
+        ]);
+    });
+
+    it("falls back to a plain tag for an unclosed style or comment, and drops a stray <", () => {
+        expect(htmlTokens("<style>p <!-- a> <")).toEqual(["<style>", "p", " ", "<!-- a>", " "]);
+    });
+
+    // The regex this replaced rescanned to the end from every unclosed opener: ~40s on this input
+    it("tokenizes a run of unclosed openers in linear time", () => {
+        const html = "<style".repeat(50_000) + "<!--".repeat(50_000) + "<".repeat(50_000);
+        const started = performance.now();
+
+        htmlTokens(html);
+
+        expect(performance.now() - started).toBeLessThan(1000);
     });
 });

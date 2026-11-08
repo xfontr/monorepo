@@ -72,7 +72,7 @@ export default defineNitroPlugin((nitroApp) => {
     };
 
     nitroApp.h3App.handler = defineEventHandler((event) => {
-        if (isUntraced(event.path)) return handle(event);
+        if (isUntraced(event.path)) return handle(event) as unknown;
 
         const parent = propagation.extract(context.active(), getRequestHeaders(event));
         const options = { kind: SpanKind.SERVER, attributes: requestAttributes(event) };
@@ -83,7 +83,7 @@ export default defineNitroPlugin((nitroApp) => {
             parent,
             async (span) => {
                 try {
-                    const body = await handle(event);
+                    const body: unknown = await handle(event);
                     end(span, event, getResponseStatus(event));
 
                     return body;

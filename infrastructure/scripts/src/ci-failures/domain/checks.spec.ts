@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { externalCheck, group, headline, jobOf, stripLogPrefix, type Check } from "./checks.ts";
+import {
+    externalCheck,
+    group,
+    headline,
+    jobOf,
+    sonarIssueLines,
+    sonarPullRequestOf,
+    stripLogPrefix,
+    type Check,
+} from "./checks.ts";
 
 const check = (overrides: Partial<Check>): Check => ({
     name: "checks",
@@ -76,5 +85,39 @@ describe("externalCheck", () => {
             "  Quality Gate failed",
             "  https://github.com/owner/repo/runs/119867629091",
         ]);
+    });
+});
+
+describe("sonarPullRequestOf", () => {
+    it("reads the project and PR off the gate's dashboard link and ignores the GitHub check run", () => {
+        const gate = check({
+            name: "SonarCloud Code Analysis",
+            link: "https://sonarcloud.io/dashboard?id=owner_repo&pullRequest=393",
+        });
+
+        expect(sonarPullRequestOf(gate)).toEqual({
+            origin: "https://sonarcloud.io",
+            project: "owner_repo",
+            pullRequest: "393",
+        });
+        expect(sonarPullRequestOf(SONAR)).toBeUndefined();
+        expect(sonarPullRequestOf(check({ link: "" }))).toBeUndefined();
+    });
+});
+
+describe("sonarIssueLines", () => {
+    it("drops the project prefix from a path and omits the line on a file-level issue", () => {
+        const pr = { origin: "https://sonarcloud.io", project: "owner_repo", pullRequest: "1" };
+
+        expect(
+            sonarIssueLines(pr, [
+                {
+                    severity: "MAJOR",
+                    rule: "css:S4666",
+                    component: "owner_repo:a.css",
+                    message: "m",
+                },
+            ]),
+        ).toEqual(["  MAJOR css:S4666 a.css — m"]);
     });
 });

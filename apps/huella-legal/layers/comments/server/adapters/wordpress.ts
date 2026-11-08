@@ -8,7 +8,7 @@ const REFUSALS: Record<string, { statusCode: number; statusMessage: string }> = 
 };
 
 const escapeHtml = (text: string): string =>
-    text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
 const toRefusal = (cause: unknown) => {
     const code = (cause as { data?: { code?: string } }).data?.code;
@@ -31,12 +31,13 @@ export const createComment = async (
 ): Promise<void> => {
     const { content: cms, comments } = useRuntimeConfig(event);
     const { username, applicationPassword } = comments;
+    const credentials = btoa(`${username}:${applicationPassword}`);
 
     // https://developer.wordpress.org/rest-api/reference/comments/#create-a-comment
     await $fetch("/wp-json/wp/v2/comments", {
         baseURL: cms.vendor.baseURL,
         method: "POST",
-        headers: { Authorization: `Basic ${btoa(`${username}:${applicationPassword}`)}` },
+        headers: { Authorization: `Basic ${credentials}` },
         body: {
             post: Number(post),
             parent: Number(parent),

@@ -17,28 +17,29 @@ const FILENAME = /^(\d{4}-\d{2}-\d{2})-([0-9a-f]+)\.md$/;
  */
 export const collectScorecards = async (generatedAt: string): Promise<ScorecardsArtifact> => {
     const files = await listReviewFiles();
-    const reviews: ReviewScorecard[] = [];
+    const read = await Promise.all(
+        files.map(async (file): Promise<ReviewScorecard | undefined> => {
+            const match = FILENAME.exec(file);
 
-    for (const file of files) {
-        const match = FILENAME.exec(file);
+            if (!match) return undefined;
 
-        if (!match) continue;
+            const [, date, commit] = match;
+            const markdown = await readFile(resolve(WORKSPACE_ROOT, REVIEWS_DIR, file), "utf8");
+            const parsed = parseScoresTable(markdown);
+            const problems = scorecardShapeProblems(parsed);
 
-        const [, date, commit] = match;
-        const markdown = await readFile(resolve(WORKSPACE_ROOT, REVIEWS_DIR, file), "utf8");
-        const parsed = parseScoresTable(markdown);
-        const problems = scorecardShapeProblems(parsed);
-
-        reviews.push({
-            path: `${REVIEWS_DIR}/${file}`,
-            date: date ?? "",
-            commit: commit ?? "",
-            cards: parsed?.cards ?? [],
-            total: parsed?.total ?? 0,
-            totalDelta: parsed?.totalDelta ?? "",
-            parseError: problems.length > 0 ? problems.join("; ") : null,
-        });
-    }
+            return {
+                path: `${REVIEWS_DIR}/${file}`,
+                date: date ?? "",
+                commit: commit ?? "",
+                cards: parsed?.cards ?? [],
+                total: parsed?.total ?? 0,
+                totalDelta: parsed?.totalDelta ?? "",
+                parseError: problems.length > 0 ? problems.join("; ") : null,
+            };
+        }),
+    );
+    const reviews = read.filter((review): review is ReviewScorecard => review !== undefined);
 
     // `listReviewFiles` sorts ascending by date; the page wants the newest one first.
     reviews.reverse();

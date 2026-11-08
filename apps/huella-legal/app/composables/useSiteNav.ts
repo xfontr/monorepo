@@ -1,6 +1,7 @@
 import type { FooterColumn, NavigationMenuItem } from "@nuxt/ui";
 import type { AppConfig } from "nuxt/schema";
 import type { RouteLocationRaw } from "vue-router";
+import { JOURNAL } from "../../layers/articles/shared/constants";
 
 type NavKey = keyof AppConfig["nav"];
 type Current = "page" | "true" | undefined;
@@ -57,7 +58,7 @@ export const useSiteNav = () => {
     const { t } = useI18n();
     const route = useRoute();
     const router = useRouter();
-    const { journal, nav } = useAppConfig();
+    const { nav } = useAppConfig();
     const {
         public: { social: profiles },
     } = useRuntimeConfig();
@@ -71,8 +72,9 @@ export const useSiteNav = () => {
             const { path, hash } = router.resolve(to);
 
             if (hash) return undefined;
+            if (here === path) return "page";
 
-            return here === path ? "page" : here.startsWith(path) ? "true" : undefined;
+            return here.startsWith(path) ? "true" : undefined;
         };
 
         return HEADER.map(({ key, to, slot, children }) => {
@@ -127,5 +129,5 @@ export const useSiteNav = () => {
         })),
     );
 
-    return { sections, columns, social, issn: journal.issn };
+    return { sections, columns, social, issn: JOURNAL.issn };
 };

@@ -17,12 +17,12 @@
 </template>
 
 <script setup lang="ts">
+import { JOURNAL } from "../../layers/articles/shared/constants";
 const { t, localeProperties } = useI18n();
 const { sections, columns, social, issn } = useSiteNav();
 const {
     public: { site },
 } = useRuntimeConfig();
-const { journal } = useAppConfig();
 
 useHead({
     htmlAttrs: { lang: () => localeProperties.value.language },
@@ -30,7 +30,7 @@ useHead({
         {
             rel: "alternate",
             type: "application/rss+xml",
-            title: journal.name,
+            title: JOURNAL.name,
             href: new URL("/feed/", site.url).href,
         },
     ],

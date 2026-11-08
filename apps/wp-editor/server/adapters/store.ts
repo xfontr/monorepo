@@ -111,7 +111,7 @@ export const createStore = (root: string) => {
             const all = await Promise.all(
                 ids
                     .filter((id) => CHANGESET_ID.test(id))
-                    .sort()
+                    .sort((a, b) => a.localeCompare(b))
                     .map((id) => readJson<Changeset>(join(changesetDir(id), "changeset.json"))),
             );
 
@@ -169,7 +169,7 @@ export const createStore = (root: string) => {
             );
             const runs = await Promise.all(
                 names
-                    .sort()
+                    .sort((a, b) => a.localeCompare(b))
                     .reverse()
                     .map((name) => readJson<RunReport>(join(dir, name))),
             );
@@ -187,10 +187,12 @@ export const createStore = (root: string) => {
                 );
             const keys = new Set(
                 [...(await names("proposed")), ...(await names("state"))].map(
-                    (name) => name.replace(/\.(html|json)$/, "") as ItemKey,
+                    (name) => name.replace(/\.(?:html|json)$/, "") as ItemKey,
                 ),
             );
-            const items = await Promise.all([...keys].sort().map((key) => readItem(id, key)));
+            const items = await Promise.all(
+                [...keys].sort((a, b) => a.localeCompare(b)).map((key) => readItem(id, key)),
+            );
 
             return items.filter((item) => item !== undefined);
         },

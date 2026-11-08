@@ -25,8 +25,11 @@ export interface Rendering {
 const hasPayload = (route: string, { queryKeys }: CachedRule): boolean =>
     !!queryKeys && !route.startsWith("/api/");
 
-const payloadPath = (route: string): string =>
-    `${route.endsWith("/") ? route : `${route}/`}_payload.json`;
+const payloadPath = (route: string): string => {
+    const directory = route.endsWith("/") ? route : `${route}/`;
+
+    return `${directory}_payload.json`;
+};
 
 const toRouteRule = ({ isr, queryKeys }: CachedRule): RouteRule =>
     queryKeys ? { isr, headers: { "Netlify-Vary": `query=${queryKeys.join("|")}` } } : { isr };
@@ -59,7 +62,7 @@ const listSlugRoutes = async ({ runtimeConfig }: Nuxt["options"]): Promise<strin
     const { content, public: config } = runtimeConfig;
     // The prerendered pages read both from the env at runtime, so the route list has to as well
     const override = process.env.NUXT_PUBLIC_PAGE_SLUGS;
-    const pageSlugs: string[] = override ? JSON.parse(override) : config.pageSlugs;
+    const pageSlugs = override ? (JSON.parse(override) as string[]) : config.pageSlugs;
     const baseURL = process.env.NUXT_CONTENT_VENDOR_BASE_URL || content.vendor.baseURL;
     const slugs = [...pageSlugs, ...(await listPostSlugs({ ...content.vendor, baseURL }))];
 

@@ -77,17 +77,20 @@ const commands: Record<string, () => Promise<void>> = {
         const { id } = await openChangesetOf(store);
         const { removed, markerWarnings } = await validate(store, id);
 
-        print(
-            `Removed ${removed.length} no-op proposals${removed.length ? `: ${removed.join(", ")}` : ""}.`,
-        );
+        const keys = removed.length ? `: ${removed.join(", ")}` : "";
+
+        print(`Removed ${removed.length} no-op proposals${keys}.`);
         for (const key of markerWarnings) print(`WARNING ${key}: block markers differ from base.`);
     },
 
     status: async () => {
         const store = createStore(storePath());
 
-        for (const changeset of await store.listChangesets()) {
-            const items = await store.readItems(changeset.id);
+        const changesets = await store.listChangesets();
+        const itemsOf = await Promise.all(changesets.map(({ id }) => store.readItems(id)));
+
+        for (const [index, changeset] of changesets.entries()) {
+            const items = itemsOf[index] ?? [];
             const count = (test: (state: (typeof items)[number]["state"]) => boolean) =>
                 items.filter(({ state }) => test(state)).length;
 

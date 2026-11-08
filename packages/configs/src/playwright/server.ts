@@ -5,8 +5,6 @@ import { format } from "node:util";
 /** Names the file the server's console is recorded to; `createConfig` sets it per app. */
 export const SERVER_CONSOLE_ENV = "E2E_SERVER_CONSOLE";
 
-const STARTUP = /^Listening on /;
-
 /** Replaces the server's console with a recorder that `teardown.ts` fails the run on. */
 export const recordServerConsole = (): void => {
     const path = process.env[SERVER_CONSOLE_ENV];
@@ -29,7 +27,7 @@ export const recordServerConsole = (): void => {
         console[method] = (...args: unknown[]) => {
             const message = format(...args);
 
-            if (STARTUP.test(message)) {
+            if (message.startsWith("Listening on ")) {
                 listening = true;
                 return;
             }

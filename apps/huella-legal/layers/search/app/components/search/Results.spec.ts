@@ -83,13 +83,13 @@ describe("search results", () => {
             global,
         });
 
-        const status = wrapper.find("[role='status']");
+        const status = wrapper.find("output");
 
         expect(status.text()).toBe("");
 
         await wrapper.setProps({ pending: false });
 
-        expect(wrapper.find("[role='status']").element).toBe(status.element);
+        expect(wrapper.find("output").element).toBe(status.element);
         expect(status.text()).toContain("searchResults.count");
 
         await wrapper.setProps({ search: NOTHING });

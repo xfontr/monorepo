@@ -8,7 +8,6 @@ const nitro = vi.hoisted(() => ({ index: [] as ArticleSummary[], header: vi.fn()
 vi.stubGlobal("defineEventHandler", (handler: unknown) => handler);
 vi.stubGlobal("setResponseHeader", nitro.header);
 vi.stubGlobal("useRuntimeConfig", () => ({ public: { site: { url: "https://revista.test" } } }));
-vi.stubGlobal("useAppConfig", () => ({ journal: { name: "Huella Legal", issn: "0000-0000" } }));
 
 vi.mock("../services/articleIndex", () => ({
     getArticleIndex: () => Promise.resolve(nitro.index),

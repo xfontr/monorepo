@@ -52,27 +52,28 @@ export const createWordPress = ({
     username,
     applicationPassword,
 }: WordPressCredentials) => {
+    const credentials = btoa(`${username}:${applicationPassword}`);
     const api = ofetch.create({
         baseURL: `${baseURL}/wp-json/wp/v2`,
-        headers: { Authorization: `Basic ${btoa(`${username}:${applicationPassword}`)}` },
+        headers: { Authorization: `Basic ${credentials}` },
     });
     const edit = { context: "edit", _embed: "author,wp:featuredmedia" };
 
     return {
         /** Every item of `type` in `status`, following WordPress's `X-WP-TotalPages`. */
         list: async (type: PostType, status = "publish"): Promise<WpPost[]> => {
-            const posts: WpPost[] = [];
-
-            for (let page = 1, pages = 1; page <= pages; page++) {
-                const response = await api.raw<WpPost[]>(`/${type}`, {
+            const fetchPage = (page: number) =>
+                api.raw<WpPost[]>(`/${type}`, {
                     query: { ...edit, status, per_page: PAGE_SIZE, page },
                 });
 
-                posts.push(...(response._data ?? []));
-                pages = Number(response.headers.get("x-wp-totalpages") ?? 1);
-            }
+            const first = await fetchPage(1);
+            const pages = Number(first.headers.get("x-wp-totalpages") ?? 1);
+            const rest = await Promise.all(
+                Array.from({ length: Math.max(pages - 1, 0) }, (_, index) => fetchPage(index + 2)),
+            );
 
-            return posts;
+            return [first, ...rest].flatMap((response) => response._data ?? []);
         },
 
         get: (type: PostType, id: number) => api<WpPost>(`/${type}/${id}`, { query: edit }),

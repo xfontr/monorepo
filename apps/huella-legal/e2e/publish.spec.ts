@@ -167,19 +167,14 @@ test("the page fits the viewport without scrolling sideways", async ({ page }) =
     expect(overflow).toBeLessThanOrEqual(0);
 });
 
-test("the publish page has no WCAG AA violations", async ({ page }) => {
+test("the publish page has no WCAG AA violations", async ({ page }, testInfo) => {
     await page.goto(PATH);
 
     const { violations } = await new AxeBuilder({ page }).withTags(WCAG_AA).analyze();
-
-    expect(violations).toEqual([]);
-});
-
-test("records the page at this width for review", async ({ page }, testInfo) => {
-    await page.goto(PATH);
 
     await testInfo.attach(`publicar-${testInfo.project.name}`, {
         body: await page.screenshot({ fullPage: true }),
         contentType: "image/png",
     });
+    expect(violations).toEqual([]);
 });

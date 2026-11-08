@@ -29,6 +29,10 @@ different objects under one name meet on a file.
 | [`destructuring.ts`](./destructuring.ts) | Core `prefer-destructuring` for scripts and `**/*.vue`, on variable declarations and objects only — array access and assignments are exempt |
 | [`typeDefinitions.ts`](./typeDefinitions.ts) | `@typescript-eslint/consistent-type-definitions: interface`: `typeDefinitions` for `**/*.ts` and `typeDefinitionsVue` for `**/*.vue` (Vue configs only) |
 | [`useBeforeDefine.ts`](./useBeforeDefine.ts) | `@typescript-eslint/no-use-before-define`, types exempt: `useBeforeDefine` for `**/*.ts` and `useBeforeDefineVue` for `**/*.vue` (Vue configs only), so every module declares a helper above the code that calls it |
+| [`regexp.ts`](./regexp.ts) | `eslint-plugin-regexp`'s `flat/recommended` plus `regexp/no-super-linear-move`, which the preset leaves off and which is the shape of every quadratic regex SonarCloud has reported here |
+| [`awaitInLoop.ts`](./awaitInLoop.ts) | Core `no-await-in-loop` everywhere but specs. Independent awaits go through `Promise.all`; a loop that must stay sequential carries a block disable saying why |
+| [`ternaries.ts`](./ternaries.ts) | Core `no-nested-ternary` everywhere but specs |
+| [`sortCompare.ts`](./sortCompare.ts) | `@typescript-eslint/require-array-sort-compare` with string arrays included, for `.ts` outside specs, stories and `.storybook/` — the files every flavour type-checks |
 | [`ignores.ts`](./ignores.ts) | `baseIgnores` — the glob list every factory feeds into ESLint's `ignores` |
 | [`jsonc.ts`](./jsonc.ts) | `eslint-plugin-jsonc`'s `sort-keys`, scoped to `**/projects/*/*.json` so the TMS locale files stay diffable |
 | [`format.ts`](./format.ts) | `format/prettier` with the Prettier options inline: `format` for scripts, `formatVue` for `**/*.vue` (Vue configs only), which also turns off every `vue/*` rule of type `layout` |
@@ -36,6 +40,7 @@ different objects under one name meet on a file.
 | [`unsafeCode.ts`](./unsafeCode.ts) | `unsafeCode`: core `no-eval`, `no-implied-eval`, `no-new-func`, `no-script-url` and a `no-restricted-properties` ban on the raw-HTML sinks, everywhere but specs. `unsafeCodeVue`: `vue/no-v-html` under `**/*.vue` (Vue configs only) |
 | [`e2eFixture.ts`](./e2eFixture.ts) | `no-restricted-imports` of `test` from `@playwright/test` in `**/e2e/**/*.spec.ts`, so every Playwright spec goes through `@monorepo/configs/playwright/test` and its console guard |
 | [`disableReasons.ts`](./disableReasons.ts) | `monorepo/disable-needs-reason` and `reportUnusedDisableDirectives: "error"`: `disableReasons` for scripts and `disableReasonsVue` for `**/*.vue` (Vue configs only). Every `eslint-disable` names its rules and ends in `-- <why>`, a block disable is closed, and a disable that hides nothing fails |
+| [`defaultExports.ts`](./defaultExports.ts) | `monorepo/named-default-export`: `defaultExports` for scripts and `defaultExportsVue` for `**/*.vue` (Vue configs only). A default-exported function or class has a name; calls and literals are left alone |
 | [`routeMeta.ts`](./routeMeta.ts) | `monorepo/require-route-meta` under `server/api/` and `server/routes/`: a top-level `defineRouteMeta` whose `openAPI` object literal has `tags` and `summary`, placed after the `export default` handler. Opt-in, for a Nitro app with `experimental.openAPI` on |
 | [`tailwind.ts`](./tailwind.ts) | `eslint-plugin-better-tailwindcss`'s `recommended-error` rules under `**/*.vue` and `**/*.ts`, minus `enforce-consistent-line-wrapping`, which fights Prettier. Opt-in: a project with Tailwind spreads `eslint.tailwind(entryPoint)`, naming its CSS entry point |
 | [`vitest.ts`](./vitest.ts) | `@vitest/eslint-plugin`'s `recommended` rules, globals and `typecheck: true`, scoped to `**/*.spec.ts` |

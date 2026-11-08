@@ -52,7 +52,7 @@ const sanitize = (tree: Root): Root => {
             element.properties.className = className.map((name) => CLASS_MAP[String(name)] ?? "");
     });
 
-    return sanitizer.runSync(tree) as Root;
+    return sanitizer.runSync(tree);
 };
 
 const isBibliographyHeading = (node: RootContent): boolean =>

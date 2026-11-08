@@ -141,8 +141,10 @@ Node types even in a package that otherwise doesn't.
 
 ## 🧰 What the ESLint factories bundle
 
-- `@eslint/js` + `typescript-eslint` — type-checked for node and vue, non-type-checked for nuxt
-  (Nuxt's generated files make a type-aware pass more trouble than it's worth)
+- `@eslint/js` + `typescript-eslint` — type-checked for node and vue. Nuxt gets it for `.ts` only,
+  minus specs, stories and `.storybook/`: those import `.vue` files, which resolve to error types
+  outside `vue-tsc`, and a Nuxt `.vue` file gets no type-aware pass at all. Before that split, a
+  spread `AsyncData` and a floating promise reached `master` in the only user-facing code here
 - `eslint-plugin-vue` (strongly-recommended) for the Vue configs
 - Prettier as the `format/prettier` rule from `eslint-plugin-format`, at 100 columns, 4-space
   indent, semicolons, double quotes, trailing commas and parenthesised arrow params. An object,
@@ -180,10 +182,22 @@ Node types even in a package that otherwise doesn't.
   plus `vue/no-v-html` for the Vue configs, from [`lib/unsafeCode.ts`](./src/eslint/lib/unsafeCode.ts).
   Raw HTML reaches the page only through a `v-html` that opts out on its own lines with the reason
   its input is safe
-- `eslint-plugin-regexp` (`flat/recommended`) — ESLint core does not read inside a regex literal, and
-  this repo parses markdown, commit subjects and command output with them. It catches super-linear
-  backtracking, dead alternatives and unread capturing groups; [`0013`](../../docs/decisions/0013-linter-coverage.md)
-  has the sweep
+- `eslint-plugin-regexp` (`flat/recommended`) plus `regexp/no-super-linear-move`, from
+  [`lib/regexp.ts`](./src/eslint/lib/regexp.ts) — ESLint core does not read inside a regex literal,
+  and this repo parses markdown, commit subjects and command output with them. It catches
+  super-linear backtracking, dead alternatives and unread capturing groups;
+  [`0013`](../../docs/decisions/0013-linter-coverage.md) has the sweep. The preset leaves the
+  quantifier-before-anchor shape (`\s*x$`, `-+$`) off, and all four quadratic regexes SonarCloud
+  reported in #232 had it
+- `no-await-in-loop` and `no-nested-ternary` everywhere but specs, from
+  [`lib/awaitInLoop.ts`](./src/eslint/lib/awaitInLoop.ts) and
+  [`lib/ternaries.ts`](./src/eslint/lib/ternaries.ts). Independent awaits go through `Promise.all`; a
+  loop that must stay sequential — paced writes, one prompt after another — says why in a block
+  disable around it. Specs are exempt because their steps are sequential by design
+- `@typescript-eslint/require-array-sort-compare` with `ignoreStringArrays: false`, in every `.ts`
+  that gets type information, from [`lib/sortCompare.ts`](./src/eslint/lib/sortCompare.ts). A bare
+  `sort()` orders strings by UTF-16 code unit, so `"Área"` lands after `"Zona"`; name the comparison,
+  usually `localeCompare`
 - `@nx/enforce-module-boundaries` — the layering rules. [`lib/boundaries.ts`](./src/eslint/lib/boundaries.ts)
   is the enforced copy; the readable one is the tag table in the
   [root README](../../README.md#-architecture--boundaries). Change both, or they drift
@@ -227,6 +241,10 @@ Node types even in a package that otherwise doesn't.
   rules it silences and ends in `-- <why>`, a block `eslint-disable` is closed with `eslint-enable`,
   and a disable that no longer hides anything fails. `<template>` comments are checked too. A
   blanket `/* eslint-disable */` silences this rule's own report, so review still has to catch one
+- `monorepo/named-default-export`, from [`lib/defaultExports.ts`](./src/eslint/lib/defaultExports.ts) —
+  a default-exported function or class carries a name, so stack traces, profiles and auto-imports
+  show it instead of `default`. A call such as `defineEventHandler(…)` and a config-file object or
+  array literal are left alone
 - `vue/v-bind-style` with `sameNameShorthand: "always"`, in [`vue.ts`](./src/eslint/vue.ts) — a binding whose
   name and value match is written `:id`, never `:id="id"`. `--fix` rewrites it
 - `vue/prefer-separate-static-class`, in [`vue.ts`](./src/eslint/vue.ts) — a class that never

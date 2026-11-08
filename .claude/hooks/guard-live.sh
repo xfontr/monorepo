@@ -17,7 +17,8 @@ block() {
 at='(^|[;&|(])[[:space:]]*'
 
 matches() {
-    printf '%s' "$cmd" | grep -Eq "$at$1"
+    pattern=$1
+    printf '%s' "$cmd" | grep -Eq "$at$pattern"
 }
 
 runner='(npx[[:space:]]+|pnpm[[:space:]]+(exec[[:space:]]+|dlx[[:space:]]+)?)?'

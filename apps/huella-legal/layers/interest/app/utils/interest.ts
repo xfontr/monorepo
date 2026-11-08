@@ -75,8 +75,12 @@ export const calculateInterest = ({
     from,
     to,
 }: InterestInput): InterestResult => {
-    if (!(principal > 0)) throw new RangeError("The principal must be positive");
-    if (!(ratePercent > 0)) throw new RangeError("The rate must be positive");
+    if (Number.isNaN(principal) || principal <= 0) {
+        throw new RangeError("The principal must be positive");
+    }
+    if (Number.isNaN(ratePercent) || ratePercent <= 0) {
+        throw new RangeError("The rate must be positive");
+    }
 
     const days = daysBetween(from, to);
     const principalCents = Math.round(principal * 100);

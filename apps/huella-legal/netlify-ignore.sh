@@ -10,9 +10,9 @@ to="${2:-}"
 cd "$(git rev-parse --show-toplevel)" || exit 1
 
 # A push's own range says nothing about what the PR changes as a whole.
-if [ "${CONTEXT:-}" = "deploy-preview" ]; then
+if [[ "${CONTEXT:-}" == "deploy-preview" ]]; then
     base="${NETLIFY_IGNORE_BASE:-}"
-    if [ -z "$base" ]; then
+    if [[ -z "$base" ]]; then
         git fetch --quiet --no-tags origin master || exit 1
         base=FETCH_HEAD
     fi
@@ -20,7 +20,7 @@ if [ "${CONTEXT:-}" = "deploy-preview" ]; then
 fi
 
 # GitHub sends an all-zero `before` on a new branch, so an unusable range builds rather than skipping.
-if [ -z "$from" ] || [ -z "$to" ] || [ "$from" = "$to" ] || ! git cat-file -e "$from^{commit}" 2>/dev/null; then
+if [[ -z "$from" || -z "$to" || "$from" == "$to" ]] || ! git cat-file -e "$from^{commit}" 2>/dev/null; then
     exit 1
 fi
 
