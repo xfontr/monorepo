@@ -32,8 +32,8 @@ work in progress remain directly addressable without creating a second applicati
 | Path | What lives there |
 | --- | --- |
 | `app/` | The Nuxt UI dashboard — pages and components |
-| `server/api/` | `badges.get.ts` for the navigation badge counts, and `snapshot/[artifact].get.ts` for one collected artifact by name. The issues come straight from GitHub to the browser |
-| `server/utils/` | `store.ts`, which reads a `.report/` artifact and returns `null` rather than throwing when it was never collected |
+| `server/api/` | `badges.get.ts` for the navigation badge counts, `snapshot/[artifact].get.ts` for one collected artifact by name, and `workflows/` — the workflow files read in place, plus a write route that only answers under `nuxt dev`. The issues come straight from GitHub to the browser |
+| `server/utils/` | `store.ts`, which reads a `.report/` artifact and returns `null` rather than throwing when it was never collected; `workflowFiles.ts`, which parses `docs/workflows` and is the one file `tools/` imports from here; and `workflows.ts`, which assembles and edits it |
 | `shared/` | Pure logic — the wiki's shape, the issue rules, the decision and audit vocabularies, the findings-table parser, both lists' own filtering and counting, and where a doc's link points. Imported by app, server and tools alike |
 | `tools/collect/` | Builds the derived snapshot: graph, coverage, metrics, docs, scorecards |
 | `tools/lib/` | Node-only helpers — paths, the `git` allowlist, the invariant checks, and the remark plugin that rewrites a doc's links as it is parsed |
@@ -78,6 +78,7 @@ that.
 | Decisions | `docs/decisions/NNNN-<slug>.md` — the files the `decision-report` skill writes, see [🔬 Decisions are their own section](#-decisions-are-their-own-section) |
 | Audits | `docs/audits/YYYY-MM-DD-<scope>.md` — the files the `audit-report` skill writes, see [🔎 Audits count findings, not files](#-audits-count-findings-not-files) |
 | Reviews | `docs/reviews/YYYY-MM-DD-<sha>.md` — the files the `repo-review` skill writes |
+| Workflows | `docs/workflows/` templates, projects and their synced snapshots, read in place on every request rather than collected — see [`docs/workflows/README.md`](../../docs/workflows/README.md). Under `pnpm dev` the page also switches capabilities, approves gates and creates projects |
 | Work in progress | Open issues read from GitHub in the browser |
 | What's new | Every `CHANGELOG.md`, beside its unreleased-commit count, plus any project in `nx.json`'s `release.projects` that has commits and no release yet |
 | Engineering health | Coverage, dependencies, reviews, scorecards and collected repository findings |
@@ -247,6 +248,11 @@ gets committed is a report that goes stale silently. Nothing else here is stored
 the reviews and the changelogs are files in the tree read where they live, and the issues are read
 live off GitHub. If you delete every derived file in this project, one command puts it back.
 
+The one committed snapshot is `docs/workflows/projects/*.snapshot.json`, and it is the exception on
+purpose: a project's progress has to render on the deployed site, which has no token to ask GitHub
+for closed issues and board state, and no history to read commit activity from. `pnpm workflow:sync` rewrites it, the page prints when it last
+changed, and a malformed one shows as a file problem rather than blanking the page.
+
 ## 🚢 The deployed site is a snapshot
 
 [`developer-portal-deploy.yml`](../../.github/workflows/developer-portal-deploy.yml) prerenders this app and publishes it to
@@ -269,11 +275,12 @@ pull-request check reads.
 the deploy is wrong without it. The workspace default excludes `!{projectRoot}/**/*.md` and scopes
 everything to the project, so nothing this app renders was a build input: editing any doc left the
 task hash unchanged and `nx affected` reported no project at all for a file under `docs/`. The
-override adds two entries, and they fix different halves.
+override adds three entries.
 
 | Addition | What it buys |
 | --- | --- |
 | `{workspaceRoot}/**/*.md` | A doc anywhere is a build input, **and** it is what makes `nx affected` name this project for a file that belongs to none — no `implicitDependencies` entry needed |
+| `{workspaceRoot}/docs/workflows/**/*` | The same for the workflow YAML and snapshots, which aren't markdown and so slipped past the line above |
 | A `runtime` input running [`snapshotStamp.ts`](./tools/lib/snapshotStamp.ts) | `.report/` is gitignored, so it is absent from Nx's file map and a file input over it hashes *nothing* — a re-collected snapshot still replayed a cached `.output`. Stdout is hashed instead |
 
 Two values are baked in at build time, because a static site keeps no server to read runtime config
@@ -286,7 +293,7 @@ here. A `public/` path that Nuxt does not rewrite goes through
 **Every page is as old as the last deploy**, which is the price of the snapshot and worth reading off
 the Overview's own `manifest.commit`: the docs travel with the build rather than being read in place,
 and the advisory count was true when `pnpm audit` ran. Issues are the exception, because the browser
-fetches them.
+fetches them. Workflows are older still: as old as the last committed `pnpm workflow:sync`.
 
 ## 🔍 What it checks that nothing else does
 
@@ -306,13 +313,14 @@ dashboard shows correctly. The split is deliberate: the vocabulary is
 `DecisionOutcome` from and which client code can import; the parsing lives in `tools/` so a node-only
 dependency never reaches the browser bundle.
 
-Three checks here have no shell-hook twin, and each guards a shape a page's parser depends on:
+Four checks here have no shell-hook twin, and each guards a shape a page's parser depends on:
 
 | Check | Flags |
 | --- | --- |
 | `compareScorecardShape` | A review whose `## 🧮 Scores` table doesn't match `SCORECARDS.md`'s seven cards, in order, each `n/5` |
 | `compareAuditShape` | An audit with a bad filename, missing frontmatter, a reused ID or an unknown status |
 | `compareDecisionShape` | A decision report with a bad filename, a reused number, an unknown `status:`/`decision:`, no `issue:` or a dangling `supersededBy:` |
+| `compareWorkflowShape` | A workflow template, project or snapshot that breaks a rule in [`docs/workflows/README.md`](../../docs/workflows/README.md), or a `reuse.from` path that doesn't exist |
 
 ## 📊 Colour
 

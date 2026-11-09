@@ -26,6 +26,7 @@
         "!{projectRoot}/**/*.test.ts",
         "!{projectRoot}/vitest.config.ts",
         "{workspaceRoot}/**/*.md",
+        "{workspaceRoot}/docs/workflows/**/*",
         {
           "runtime": "node apps/developer-portal/tools/lib/snapshotStamp.ts"
         }
