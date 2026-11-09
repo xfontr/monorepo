@@ -24,7 +24,7 @@ command.
 
 | Hook | Enforces |
 | --- | --- |
-| [`eslint-fix.sh`](../../.claude/hooks/eslint-fix.sh) | Runs `eslint --fix` on the touched file, so style is corrected mechanically |
+| [`eslint-fix.sh`](../../.claude/hooks/eslint-fix.sh) | Runs `eslint --fix` on the touched file, so style is corrected mechanically, and records each rule hit first for the portal's [lint usage](../../infrastructure/scripts/src/usage/README.md) |
 | [`check-invariants.sh`](../../.claude/hooks/check-invariants.sh) | Catches known cross-file and generated-file mistakes immediately after an edit |
 | [`guard-live.sh`](../../.claude/hooks/guard-live.sh) | Refuses `pnpm start`, `nuxt preview`, requests to the live WordPress site, force pushes and pushes to `master`: the things an unattended run must never do, whatever its prompt says |
 
