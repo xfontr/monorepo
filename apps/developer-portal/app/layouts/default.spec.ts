@@ -80,6 +80,7 @@ describe("default layout", () => {
             ["Audits", "/audits"],
             ["Work in progress", "/issues"],
             ["Coverage", "/coverage"],
+            ["Telemetry", "/telemetry"],
             ["Dependencies", "/deps"],
             ["Reviews", "/reviews"],
             ["Scorecards", "/scorecards"],
