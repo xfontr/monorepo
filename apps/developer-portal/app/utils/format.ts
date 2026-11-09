@@ -1,4 +1,5 @@
 import type { AuditState, FindingStatus } from "#shared/audits.ts";
+import type { CapabilityState, ReusePlan } from "#shared/workflows.ts";
 import type { DecisionOutcome, DecisionStatus } from "#shared/types.ts";
 
 /** The palette behind these three classes lives in `assets/css/main.css` and is shown beside the figure it describes, never instead of it. */
@@ -100,6 +101,62 @@ const AUDIT_STATE_TONES = {
 } as const satisfies Record<AuditState, Tone>;
 
 export const auditStateTone = (state: AuditState): Tone => AUDIT_STATE_TONES[state];
+
+const CAPABILITY_STATES = {
+    off: { label: "Off", tone: "neutral" },
+    skipped: { label: "Skipped", tone: "neutral" },
+    todo: { label: "No tickets", tone: "neutral" },
+    planned: { label: "Planned", tone: "warn" },
+    "in-progress": { label: "In progress", tone: "warn" },
+    done: { label: "Done", tone: "good" },
+} as const satisfies Record<CapabilityState, { label: string; tone: Tone }>;
+
+export const capabilityStateLabel = (state: CapabilityState): string =>
+    CAPABILITY_STATES[state].label;
+
+export const capabilityStateTone = (state: CapabilityState): Tone => CAPABILITY_STATES[state].tone;
+
+/** OKLCH hues, one per stage; decoration only, so a stage is never told apart by its hue alone. */
+const STAGE_HUES = [5, 50, 95, 160, 235, 275, 315] as const;
+
+export const stageColor = (index: number): string =>
+    `oklch(0.72 0.18 ${STAGE_HUES[index % STAGE_HUES.length]})`;
+
+export const capabilityColor = (state: CapabilityState): string => {
+    if (state === "done") return "var(--tone-good)";
+    if (state === "in-progress" || state === "planned") return "var(--tone-warn)";
+    return "var(--ui-text-dimmed)";
+};
+
+/** Hollow for work not yet delivered, so a capability's state survives without its colour. */
+export const capabilityFilled = (state: CapabilityState): boolean =>
+    state === "done" || state === "in-progress" || state === "skipped";
+
+const REUSE_PLAN_LABELS = {
+    package: "Import the package",
+    extract: "Extract to a package",
+    copy: "Copy and adapt",
+    method: "Follow the method",
+    new: "Build new",
+} as const satisfies Record<ReusePlan, string>;
+
+export const reusePlanLabel = (plan: ReusePlan): string => REUSE_PLAN_LABELS[plan];
+
+export const progressTone = (percent: number): Tone => {
+    if (percent >= 100) return "good";
+    if (percent >= 50) return "warn";
+
+    return "neutral";
+};
+
+/** A `YYYY-MM-DD` calendar day as "6 Oct", read in UTC so the server and the browser agree. */
+export const calendarDay = (day: string, month: "short" | "only" = "short"): string =>
+    new Date(`${day}T00:00:00Z`).toLocaleDateString(
+        "en-GB",
+        month === "only"
+            ? { timeZone: "UTC", month: "short" }
+            : { timeZone: "UTC", day: "numeric", month: "short" },
+    );
 
 /** "3 hours ago" beats a timestamp for the one question a report page has to answer. */
 export const relativeTime = (iso: string | null | undefined): string => {

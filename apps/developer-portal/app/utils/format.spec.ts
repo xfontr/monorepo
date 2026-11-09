@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+    capabilityColor,
+    capabilityFilled,
     coverageTone,
     decisionOutcomeLabel,
     decisionStatusLabel,
@@ -8,6 +10,7 @@ import {
     relativeTime,
     scoreTone,
     severityTone,
+    stageColor,
 } from "./format.ts";
 
 describe("coverageTone", () => {
@@ -92,5 +95,26 @@ describe("relativeTime", () => {
         vi.setSystemTime(new Date("2026-09-20T12:00:00.000Z"));
 
         expect(relativeTime(timestamp)).toBe(label);
+    });
+});
+
+describe("capability marks", () => {
+    it.each([
+        ["done", "var(--tone-good)", true],
+        ["in-progress", "var(--tone-warn)", true],
+        ["planned", "var(--tone-warn)", false],
+        ["todo", "var(--ui-text-dimmed)", false],
+        ["off", "var(--ui-text-dimmed)", false],
+        ["skipped", "var(--ui-text-dimmed)", true],
+    ] as const)(
+        "draws %s as %s, filled: %s, so state reads without colour",
+        (state, colour, filled) => {
+            expect(capabilityColor(state)).toBe(colour);
+            expect(capabilityFilled(state)).toBe(filled);
+        },
+    );
+
+    it("wraps the stage palette instead of running off its end", () => {
+        expect(stageColor(7)).toBe(stageColor(0));
     });
 });
