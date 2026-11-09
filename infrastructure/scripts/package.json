@@ -19,8 +19,9 @@
     "package:check": "node --disable-warning=ExperimentalWarning src/package-contracts/index.ts",
     "review:version": "node --disable-warning=ExperimentalWarning src/review-version/index.ts",
     "env:sync": "node --disable-warning=ExperimentalWarning src/env-sync/index.ts",
+    "workflow:sync": "node --disable-warning=ExperimentalWarning src/workflow/index.ts",
     "coverage": "node --disable-warning=ExperimentalWarning src/coverage-report/index.ts",
-         "lint": "nx eslint:lint",
+    "lint": "nx eslint:lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest . --watch=false --passWithNoTests",
     "test:dev": "vitest .",
@@ -36,7 +37,8 @@
     "@clack/prompts": "^1.8.1",
     "istanbul-lib-coverage": "^3.2.2",
     "istanbul-lib-report": "^3.0.1",
-    "istanbul-reports": "^3.2.0"
+    "istanbul-reports": "^3.2.0",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@monorepo/configs": "workspace:*",
