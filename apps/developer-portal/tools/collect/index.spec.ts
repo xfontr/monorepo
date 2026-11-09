@@ -7,6 +7,7 @@ const state = vi.hoisted(() => ({
     collectDeps: vi.fn(),
     collectDocs: vi.fn(),
     collectScorecards: vi.fn(),
+    collectUsage: vi.fn(),
     git: vi.fn(),
     writes: [] as { path: string; value: unknown }[],
     originalExitCode: undefined as typeof process.exitCode,
@@ -37,6 +38,7 @@ vi.mock("./metrics.ts", () => ({ collectMetrics: state.collectMetrics }));
 vi.mock("./deps.ts", () => ({ collectDeps: state.collectDeps }));
 vi.mock("./docs.ts", () => ({ collectDocs: state.collectDocs }));
 vi.mock("./scorecards.ts", () => ({ collectScorecards: state.collectScorecards }));
+vi.mock("./usage.ts", () => ({ collectUsage: state.collectUsage }));
 
 const projects = {
     generatedAt: "generated",
@@ -79,6 +81,12 @@ const successfulCollectors = (): void => {
     state.collectScorecards.mockImplementation(async (generatedAt: string) => ({
         generatedAt,
         reviews: [],
+    }));
+    state.collectUsage.mockImplementation(async (generatedAt: string) => ({
+        generatedAt,
+        known: [],
+        scripts: {},
+        lint: { since: null, rules: {} },
     }));
 };
 
@@ -125,6 +133,7 @@ describe("collector entrypoint", () => {
         expect(state.collectMetrics).not.toHaveBeenCalled();
         expect(state.collectDocs).not.toHaveBeenCalled();
         expect(state.collectScorecards).not.toHaveBeenCalled();
+        expect(state.collectUsage).not.toHaveBeenCalled();
         expect(state.writes).toHaveLength(1);
         expect(state.writes[0]).toMatchObject({
             path: "/tmp/developer-portal-snapshot/manifest.json",
@@ -155,6 +164,7 @@ describe("collector entrypoint", () => {
             "deps.json",
             "docs.json",
             "scorecards.json",
+            "usage.json",
             "manifest.json",
         ]);
         expect(state.writes.find(({ path }) => path.endsWith("coverage.json"))).toBeUndefined();
@@ -165,6 +175,7 @@ describe("collector entrypoint", () => {
         state.collectDeps.mockRejectedValue(new Error("deps unavailable"));
         state.collectDocs.mockRejectedValue(new Error("docs unavailable"));
         state.collectScorecards.mockRejectedValue(new Error("scorecards unavailable"));
+        state.collectUsage.mockRejectedValue(new Error("usage unavailable"));
 
         await runCollector();
 
@@ -173,6 +184,7 @@ describe("collector entrypoint", () => {
             "✗ deps — deps unavailable",
             "✗ docs — docs unavailable",
             "✗ scorecards — scorecards unavailable",
+            "✗ usage — usage unavailable",
         ]);
 
         expect(state.writes.map(({ path }) => path.split("/").at(-1))).toEqual([
@@ -194,6 +206,7 @@ describe("collector entrypoint", () => {
                 ok: false,
                 error: "scorecards unavailable",
             },
+            usage: { generatedAt: expect.any(String), ok: false, error: "usage unavailable" },
         });
     });
 
@@ -203,13 +216,13 @@ describe("collector entrypoint", () => {
         expect(printed(stderr)).toEqual([]);
 
         expect(state.writes.at(-1)?.path).toBe("/tmp/developer-portal-snapshot/manifest.json");
-        const artifactWrites = state.writes.slice(0, 6);
+        const artifactWrites = state.writes.slice(0, 7);
         const manifestWrite = state.writes[state.writes.length - 1]!;
         const { generatedAt } = manifestWrite.value as { generatedAt: string };
 
         expect(
             artifactWrites.map((write) => (write.value as { generatedAt: string }).generatedAt),
-        ).toEqual([generatedAt, generatedAt, generatedAt, generatedAt, generatedAt, generatedAt]);
+        ).toEqual(Array.from({ length: 7 }, () => generatedAt));
         expect(manifestWrite.value).toMatchObject({
             commit: "abc123",
             branch: "feature/collect",
@@ -219,5 +232,6 @@ describe("collector entrypoint", () => {
         expect(state.collectCoverage).toHaveBeenCalledWith(projects.projects, generatedAt);
         expect(state.collectDocs).toHaveBeenCalledWith(generatedAt);
         expect(state.collectScorecards).toHaveBeenCalledWith(generatedAt);
+        expect(state.collectUsage).toHaveBeenCalledWith(generatedAt);
     });
 });

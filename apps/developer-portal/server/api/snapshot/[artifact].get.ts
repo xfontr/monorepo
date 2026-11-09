@@ -7,6 +7,7 @@ import type {
     MetricsArtifact,
     ProjectsArtifact,
     ScorecardsArtifact,
+    UsageArtifact,
 } from "../../../shared/types.ts";
 import { readArtifact } from "../../utils/store.ts";
 
@@ -18,6 +19,7 @@ export interface SnapshotResponse {
     deps?: DepsArtifact | null;
     docs?: DocsArtifact | null;
     scorecards?: ScorecardsArtifact | null;
+    usage?: UsageArtifact | null;
 }
 
 const readers = {
@@ -27,6 +29,7 @@ const readers = {
     deps: () => readArtifact<DepsArtifact>("deps"),
     docs: () => readArtifact<DocsArtifact>("docs"),
     scorecards: () => readArtifact<ScorecardsArtifact>("scorecards"),
+    usage: () => readArtifact<UsageArtifact>("usage"),
 };
 
 export default defineEventHandler(async (event): Promise<SnapshotResponse> => {
