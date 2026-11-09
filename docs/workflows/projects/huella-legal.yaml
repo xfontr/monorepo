@@ -1,0 +1,58 @@
+id: huella-legal
+title: Huella Legal
+template: website-rebuild
+area: app:huella-legal
+milestone: Huella Legal
+summary: huellalegal.com, a WordPress legal blog for students and general
+  readers, rebuilt as a Nuxt app.
+
+switches:
+  storybook: true
+  comments: true
+  editorial-tooling: true
+  i18n: false
+
+gates:
+  discovery: 2026-09-30
+  design: 2026-09-30
+  foundations: 2026-10-05
+  build: 2026-11-03
+  hardening: 2026-11-04
+  launch: 2026-11-04
+
+settled:
+  feature-inventory:
+    status: skipped
+    note: Never done; comments, the about page and the confirmation page were found
+      late.
+  brand-extraction:
+    status: done
+    note: Transcribed by hand from a Penpot sheet, before the lab existed.
+  component-inventory:
+    status: done
+    note: The kits the approved lab pages rendered, listed in the old implementation
+      plan.
+  app-scaffold:
+    status: done
+    note: Renamed from apps/external on 2026-09-04.
+  spam-protection:
+    status: done
+    note: Turnstile and the honeypot landed inside the newsletter and contact
+      tickets.
+  accessibility:
+    status: done
+    note: Axe runs in every e2e page spec; the fixes came through the component
+      review.
+  legacy-redirects:
+    status: done
+    note: The redirect map landed inside the cutover ticket.
+
+extras:
+  - id: interest-calculator
+    stage: build
+    title: Interest calculator
+    summary: A legal-interest calculator page.
+  - id: publish-form
+    stage: build
+    title: Publish proposal form
+    summary: The page and form for proposing an article, with a .docx upload.

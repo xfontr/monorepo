@@ -1,0 +1,1343 @@
+{
+    "syncedAt": "2026-11-09T14:18:01.360Z",
+    "milestone": "Huella Legal",
+    "issues": [
+        {
+            "number": 26,
+            "title": "[SPIKE] Should @monorepo/ui be headless?",
+            "url": "https://github.com/xfontr/monorepo/issues/26",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "design-tokens"
+            ],
+            "closedAt": "2026-09-29T19:19:06Z",
+            "activity": []
+        },
+        {
+            "number": 27,
+            "title": "Prepare new Huella Legal design (Figma)",
+            "url": "https://github.com/xfontr/monorepo/issues/27",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "design-lab"
+            ],
+            "closedAt": "2026-09-30T10:27:34Z",
+            "activity": []
+        },
+        {
+            "number": 185,
+            "title": "[SPIKE] WP content probe and content model",
+            "url": "https://github.com/xfontr/monorepo/issues/185",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "content-audit"
+            ],
+            "closedAt": "2026-09-29T20:20:22Z",
+            "activity": [
+                "2026-09-29"
+            ]
+        },
+        {
+            "number": 186,
+            "title": "[SPIKE] Rendering, hosting and cost",
+            "url": "https://github.com/xfontr/monorepo/issues/186",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "hosting-prototype"
+            ],
+            "closedAt": "2026-09-30T10:29:19Z",
+            "activity": [
+                "2026-09-30",
+                "2026-09-30"
+            ]
+        },
+        {
+            "number": 187,
+            "title": "[SPIKE] Forms and integrations",
+            "url": "https://github.com/xfontr/monorepo/issues/187",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "integrations-inventory"
+            ],
+            "closedAt": "2026-09-29T20:52:15Z",
+            "activity": [
+                "2026-09-29"
+            ]
+        },
+        {
+            "number": 188,
+            "title": "[SPIKE] URLs, SEO and cutover",
+            "url": "https://github.com/xfontr/monorepo/issues/188",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "url-inventory"
+            ],
+            "closedAt": "2026-09-30T10:29:10Z",
+            "activity": [
+                "2026-09-30"
+            ]
+        },
+        {
+            "number": 189,
+            "title": "[SPIKE] E2E and visual tooling",
+            "url": "https://github.com/xfontr/monorepo/issues/189",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "test-harness"
+            ],
+            "closedAt": "2026-09-30T09:05:15Z",
+            "activity": []
+        },
+        {
+            "number": 192,
+            "title": "Set up the test harness",
+            "url": "https://github.com/xfontr/monorepo/issues/192",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "test-harness"
+            ],
+            "closedAt": "2026-09-30T16:11:31Z",
+            "activity": [
+                "2026-09-30",
+                "2026-09-30",
+                "2026-09-30",
+                "2026-09-30",
+                "2026-09-30",
+                "2026-09-30",
+                "2026-09-30",
+                "2026-09-30"
+            ]
+        },
+        {
+            "number": 193,
+            "title": "Switch to a Spanish-only locale and wire copy keys",
+            "url": "https://github.com/xfontr/monorepo/issues/193",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "i18n"
+            ],
+            "closedAt": "2026-09-30T14:46:47Z",
+            "activity": []
+        },
+        {
+            "number": 194,
+            "title": "Add the content model and view-model mappers",
+            "url": "https://github.com/xfontr/monorepo/issues/194",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "content-source"
+            ],
+            "closedAt": "2026-09-30T15:41:09Z",
+            "activity": []
+        },
+        {
+            "number": 195,
+            "title": "Build the WP HTML pipeline",
+            "url": "https://github.com/xfontr/monorepo/issues/195",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "content-source"
+            ],
+            "closedAt": "2026-09-30T20:31:17Z",
+            "activity": [
+                "2026-09-30",
+                "2026-09-30"
+            ]
+        },
+        {
+            "number": 196,
+            "title": "Promote the editorial primitives",
+            "url": "https://github.com/xfontr/monorepo/issues/196",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "component-kit"
+            ],
+            "closedAt": "2026-09-30T21:53:07Z",
+            "activity": [
+                "2026-09-30",
+                "2026-09-30"
+            ]
+        },
+        {
+            "number": 197,
+            "title": "Promote the ArticleCard family",
+            "url": "https://github.com/xfontr/monorepo/issues/197",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "component-kit"
+            ],
+            "closedAt": "2026-10-04T14:22:40Z",
+            "activity": [
+                "2026-10-04",
+                "2026-10-04",
+                "2026-10-04",
+                "2026-10-04"
+            ]
+        },
+        {
+            "number": 198,
+            "title": "Promote the shell and error surface",
+            "url": "https://github.com/xfontr/monorepo/issues/198",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "component-kit"
+            ],
+            "closedAt": "2026-10-05T08:54:18Z",
+            "activity": [
+                "2026-10-05",
+                "2026-10-05"
+            ]
+        },
+        {
+            "number": 199,
+            "title": "Promote the form kit",
+            "url": "https://github.com/xfontr/monorepo/issues/199",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "component-kit"
+            ],
+            "closedAt": "2026-10-05T17:04:43Z",
+            "activity": [
+                "2026-10-05",
+                "2026-10-05",
+                "2026-10-05",
+                "2026-10-05",
+                "2026-10-05"
+            ]
+        },
+        {
+            "number": 200,
+            "title": "Promote the listing kit",
+            "url": "https://github.com/xfontr/monorepo/issues/200",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "component-kit"
+            ],
+            "closedAt": "2026-10-04T09:43:42Z",
+            "activity": [
+                "2026-10-04",
+                "2026-10-04",
+                "2026-10-04"
+            ]
+        },
+        {
+            "number": 201,
+            "title": "Promote the article reading kit",
+            "url": "https://github.com/xfontr/monorepo/issues/201",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "component-kit"
+            ],
+            "closedAt": "2026-10-05T09:22:58Z",
+            "activity": [
+                "2026-10-05",
+                "2026-10-05"
+            ]
+        },
+        {
+            "number": 208,
+            "title": "Choose final design",
+            "url": "https://github.com/xfontr/monorepo/issues/208",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "design-lab"
+            ],
+            "closedAt": "2026-09-30T09:30:01Z",
+            "activity": [
+                "2026-09-30",
+                "2026-09-30"
+            ]
+        },
+        {
+            "number": 212,
+            "title": "Complete Grafana observability for Huella Legal and Developer Portal",
+            "url": "https://github.com/xfontr/monorepo/issues/212",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "observability"
+            ],
+            "closedAt": "2026-11-08T16:34:18Z",
+            "activity": [
+                "2026-11-08",
+                "2026-11-08"
+            ]
+        },
+        {
+            "number": 219,
+            "title": "Add Storybook to Huella Legal",
+            "url": "https://github.com/xfontr/monorepo/issues/219",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "storybook"
+            ],
+            "closedAt": "2026-09-30T20:56:47Z",
+            "activity": [
+                "2026-09-30",
+                "2026-09-30",
+                "2026-09-30",
+                "2026-09-30",
+                "2026-09-30",
+                "2026-09-30",
+                "2026-09-30"
+            ]
+        },
+        {
+            "number": 223,
+            "title": "Review first base components",
+            "url": "https://github.com/xfontr/monorepo/issues/223",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "component-kit"
+            ],
+            "closedAt": "2026-10-02T08:28:21Z",
+            "activity": [
+                "2026-10-01",
+                "2026-10-01",
+                "2026-10-01",
+                "2026-10-01",
+                "2026-10-02"
+            ]
+        },
+        {
+            "number": 231,
+            "title": "Audit and fix linting rules",
+            "url": "https://github.com/xfontr/monorepo/issues/231",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "quality-sweep"
+            ],
+            "closedAt": "2026-11-05T17:22:13Z",
+            "activity": [
+                "2026-11-05",
+                "2026-11-05",
+                "2026-11-05",
+                "2026-11-05",
+                "2026-11-05",
+                "2026-11-05",
+                "2026-11-05",
+                "2026-11-05"
+            ]
+        },
+        {
+            "number": 232,
+            "title": "SonarQube findings",
+            "url": "https://github.com/xfontr/monorepo/issues/232",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "quality-sweep"
+            ],
+            "closedAt": "2026-11-08T17:13:26Z",
+            "activity": [
+                "2026-11-08",
+                "2026-11-08",
+                "2026-11-08",
+                "2026-11-08",
+                "2026-11-08",
+                "2026-11-08",
+                "2026-11-08",
+                "2026-11-08",
+                "2026-11-08"
+            ]
+        },
+        {
+            "number": 234,
+            "title": "Review new components",
+            "url": "https://github.com/xfontr/monorepo/issues/234",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "component-kit"
+            ],
+            "closedAt": "2026-10-07T15:45:11Z",
+            "activity": [
+                "2026-10-06",
+                "2026-10-06",
+                "2026-10-06",
+                "2026-10-07",
+                "2026-10-07",
+                "2026-10-07",
+                "2026-10-07",
+                "2026-10-08",
+                "2026-10-08",
+                "2026-10-08",
+                "2026-10-08"
+            ]
+        },
+        {
+            "number": 236,
+            "title": "Refresh cached content when a post changes in WordPress",
+            "url": "https://github.com/xfontr/monorepo/issues/236",
+            "state": "closed",
+            "reason": "not_planned",
+            "caps": [
+                "rendering-strategy"
+            ],
+            "closedAt": "2026-11-04T08:59:06Z",
+            "activity": []
+        },
+        {
+            "number": 240,
+            "title": "Build the article page",
+            "url": "https://github.com/xfontr/monorepo/issues/240",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "article-page"
+            ],
+            "closedAt": "2026-10-09T17:04:31Z",
+            "activity": [
+                "2026-10-09",
+                "2026-10-09",
+                "2026-10-09",
+                "2026-10-09",
+                "2026-10-09",
+                "2026-10-09",
+                "2026-10-09",
+                "2026-10-09",
+                "2026-10-09",
+                "2026-10-09",
+                "2026-10-09",
+                "2026-10-09",
+                "2026-10-09",
+                "2026-10-09"
+            ]
+        },
+        {
+            "number": 241,
+            "title": "Build the listing template",
+            "url": "https://github.com/xfontr/monorepo/issues/241",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "listing-pages"
+            ],
+            "closedAt": "2026-10-16T16:46:15Z",
+            "activity": [
+                "2026-10-12",
+                "2026-10-12",
+                "2026-10-16",
+                "2026-10-16",
+                "2026-10-16",
+                "2026-10-16",
+                "2026-10-16",
+                "2026-10-16"
+            ]
+        },
+        {
+            "number": 242,
+            "title": "Wire the newsletter signup",
+            "url": "https://github.com/xfontr/monorepo/issues/242",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "newsletter"
+            ],
+            "closedAt": "2026-10-22T14:43:40Z",
+            "activity": [
+                "2026-10-21",
+                "2026-10-21",
+                "2026-10-21",
+                "2026-10-21",
+                "2026-10-21",
+                "2026-10-21",
+                "2026-10-21",
+                "2026-10-21",
+                "2026-10-21",
+                "2026-10-22"
+            ]
+        },
+        {
+            "number": 243,
+            "title": "Build the Publicar page",
+            "url": "https://github.com/xfontr/monorepo/issues/243",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "publish-form"
+            ],
+            "closedAt": "2026-10-27T22:05:20Z",
+            "activity": [
+                "2026-10-27"
+            ]
+        },
+        {
+            "number": 244,
+            "title": "Set up the deploy configuration",
+            "url": "https://github.com/xfontr/monorepo/issues/244",
+            "state": "closed",
+            "reason": "not_planned",
+            "caps": [
+                "hosting-prototype"
+            ],
+            "closedAt": "2026-11-04T09:01:14Z",
+            "activity": []
+        },
+        {
+            "number": 245,
+            "title": "Build the interest calculator page",
+            "url": "https://github.com/xfontr/monorepo/issues/245",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "interest-calculator"
+            ],
+            "closedAt": "2026-10-26T20:15:14Z",
+            "activity": [
+                "2026-10-26",
+                "2026-10-26"
+            ]
+        },
+        {
+            "number": 246,
+            "title": "Build the home page",
+            "url": "https://github.com/xfontr/monorepo/issues/246",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "home-page"
+            ],
+            "closedAt": "2026-10-28T10:57:36Z",
+            "activity": [
+                "2026-10-28",
+                "2026-10-28",
+                "2026-10-28"
+            ]
+        },
+        {
+            "number": 247,
+            "title": "Build the Materias index and Colaboradores pages",
+            "url": "https://github.com/xfontr/monorepo/issues/247",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "listing-pages"
+            ],
+            "closedAt": "2026-10-27T19:20:34Z",
+            "activity": [
+                "2026-10-27",
+                "2026-10-27",
+                "2026-10-27",
+                "2026-10-27"
+            ]
+        },
+        {
+            "number": 248,
+            "title": "Build the search page",
+            "url": "https://github.com/xfontr/monorepo/issues/248",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "search"
+            ],
+            "closedAt": "2026-10-28T10:12:54Z",
+            "activity": [
+                "2026-10-28",
+                "2026-10-28",
+                "2026-10-28",
+                "2026-10-28",
+                "2026-10-28",
+                "2026-10-28"
+            ]
+        },
+        {
+            "number": 249,
+            "title": "Build the standard page template",
+            "url": "https://github.com/xfontr/monorepo/issues/249",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "standard-pages"
+            ],
+            "closedAt": "2026-10-26T19:53:54Z",
+            "activity": [
+                "2026-10-26",
+                "2026-10-26",
+                "2026-10-26",
+                "2026-10-26"
+            ]
+        },
+        {
+            "number": 250,
+            "title": "Add SEO and metadata",
+            "url": "https://github.com/xfontr/monorepo/issues/250",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "seo"
+            ],
+            "closedAt": "2026-11-01T16:52:57Z",
+            "activity": [
+                "2026-11-01",
+                "2026-11-01",
+                "2026-11-01",
+                "2026-11-01",
+                "2026-11-01",
+                "2026-11-01"
+            ]
+        },
+        {
+            "number": 251,
+            "title": "Cut over the domain to Nuxt",
+            "url": "https://github.com/xfontr/monorepo/issues/251",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "cutover"
+            ],
+            "closedAt": "2026-11-04T09:49:30Z",
+            "activity": [
+                "2026-11-04"
+            ]
+        },
+        {
+            "number": 252,
+            "title": "Remove the lab scaffolding",
+            "url": "https://github.com/xfontr/monorepo/issues/252",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "cleanup"
+            ],
+            "closedAt": "2026-11-03T22:44:57Z",
+            "activity": [
+                "2026-11-03",
+                "2026-11-03",
+                "2026-11-03"
+            ]
+        },
+        {
+            "number": 253,
+            "title": "Add archive search to the publications listing",
+            "url": "https://github.com/xfontr/monorepo/issues/253",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "listing-pages"
+            ],
+            "closedAt": "2026-10-31T14:48:01Z",
+            "activity": [
+                "2026-10-31",
+                "2026-10-31",
+                "2026-10-31"
+            ]
+        },
+        {
+            "number": 274,
+            "title": "Huella Legal Storybook build fails to resolve #layers imports",
+            "url": "https://github.com/xfontr/monorepo/issues/274",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "storybook"
+            ],
+            "closedAt": "2026-10-17T11:51:36Z",
+            "activity": [
+                "2026-10-17"
+            ]
+        },
+        {
+            "number": 280,
+            "title": "Decide whether @monorepo/observability ships a Nuxt module",
+            "url": "https://github.com/xfontr/monorepo/issues/280",
+            "state": "open",
+            "reason": null,
+            "caps": [
+                "observability"
+            ],
+            "closedAt": null,
+            "activity": []
+        },
+        {
+            "number": 283,
+            "title": "Converge @monorepo/content and @monorepo/i18n on one vendor contract",
+            "url": "https://github.com/xfontr/monorepo/issues/283",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "content-source"
+            ],
+            "closedAt": "2026-11-08T16:48:13Z",
+            "activity": [
+                "2026-11-08",
+                "2026-11-08",
+                "2026-11-08",
+                "2026-11-08",
+                "2026-11-08"
+            ]
+        },
+        {
+            "number": 284,
+            "title": "Check required env at startup and let packages declare their own vendor keys",
+            "url": "https://github.com/xfontr/monorepo/issues/284",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "env-discipline"
+            ],
+            "closedAt": "2026-11-04T08:57:58Z",
+            "activity": []
+        },
+        {
+            "number": 286,
+            "title": "Split the Huella Legal Nuxt UI theme out of app.config.ts",
+            "url": "https://github.com/xfontr/monorepo/issues/286",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "design-tokens"
+            ],
+            "closedAt": "2026-10-22T14:04:46Z",
+            "activity": [
+                "2026-10-22"
+            ]
+        },
+        {
+            "number": 299,
+            "title": "Migrate the newsletter subscription from Mailchimp to Kit",
+            "url": "https://github.com/xfontr/monorepo/issues/299",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "newsletter"
+            ],
+            "closedAt": "2026-10-27T20:36:28Z",
+            "activity": [
+                "2026-10-27",
+                "2026-10-27"
+            ]
+        },
+        {
+            "number": 301,
+            "title": "Decide and wire the Publicar submission form",
+            "url": "https://github.com/xfontr/monorepo/issues/301",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "publish-form"
+            ],
+            "closedAt": "2026-11-03T21:55:15Z",
+            "activity": [
+                "2026-11-03",
+                "2026-11-03",
+                "2026-11-03",
+                "2026-11-03",
+                "2026-11-03",
+                "2026-11-03"
+            ]
+        },
+        {
+            "number": 302,
+            "title": "Prerender Huella Legal's stable pages and CDN-cache the rest",
+            "url": "https://github.com/xfontr/monorepo/issues/302",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "rendering-strategy"
+            ],
+            "closedAt": "2026-10-28T15:33:02Z",
+            "activity": [
+                "2026-10-28",
+                "2026-10-28",
+                "2026-10-28"
+            ]
+        },
+        {
+            "number": 304,
+            "title": "Improve article caching and page loading",
+            "url": "https://github.com/xfontr/monorepo/issues/304",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "rendering-strategy"
+            ],
+            "closedAt": "2026-10-27T22:57:12Z",
+            "activity": [
+                "2026-10-27",
+                "2026-10-27",
+                "2026-10-27"
+            ]
+        },
+        {
+            "number": 308,
+            "title": "Keep huella-legal route rules in sync with its routes",
+            "url": "https://github.com/xfontr/monorepo/issues/308",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "rendering-strategy"
+            ],
+            "closedAt": "2026-11-02T18:13:34Z",
+            "activity": [
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02"
+            ]
+        },
+        {
+            "number": 311,
+            "title": "Send contact messages through Resend",
+            "url": "https://github.com/xfontr/monorepo/issues/311",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "contact-form"
+            ],
+            "closedAt": "2026-10-30T15:13:18Z",
+            "activity": [
+                "2026-10-30",
+                "2026-10-30",
+                "2026-10-30",
+                "2026-10-30",
+                "2026-10-30"
+            ]
+        },
+        {
+            "number": 312,
+            "title": "Serve featured images through Nuxt Image",
+            "url": "https://github.com/xfontr/monorepo/issues/312",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "images"
+            ],
+            "closedAt": "2026-10-28T20:11:17Z",
+            "activity": [
+                "2026-10-28",
+                "2026-10-28",
+                "2026-10-28",
+                "2026-10-28",
+                "2026-10-28"
+            ]
+        },
+        {
+            "number": 313,
+            "title": "Build the contact page",
+            "url": "https://github.com/xfontr/monorepo/issues/313",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "contact-form"
+            ],
+            "closedAt": "2026-10-31T14:25:38Z",
+            "activity": [
+                "2026-10-31",
+                "2026-10-31",
+                "2026-10-31"
+            ]
+        },
+        {
+            "number": 316,
+            "title": "Open header search in place instead of on a separate page",
+            "url": "https://github.com/xfontr/monorepo/issues/316",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "search"
+            ],
+            "closedAt": "2026-10-29T23:51:15Z",
+            "activity": [
+                "2026-10-29",
+                "2026-10-29",
+                "2026-10-29",
+                "2026-10-29",
+                "2026-10-30",
+                "2026-10-30",
+                "2026-10-30"
+            ]
+        },
+        {
+            "number": 324,
+            "title": "Implement comments",
+            "url": "https://github.com/xfontr/monorepo/issues/324",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "comments"
+            ],
+            "closedAt": "2026-10-31T16:23:32Z",
+            "activity": [
+                "2026-10-31",
+                "2026-10-31",
+                "2026-10-31",
+                "2026-10-31",
+                "2026-10-31",
+                "2026-10-31",
+                "2026-10-31",
+                "2026-10-31",
+                "2026-10-31",
+                "2026-10-31",
+                "2026-10-31"
+            ]
+        },
+        {
+            "number": 328,
+            "title": "Build the about page",
+            "url": "https://github.com/xfontr/monorepo/issues/328",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "standard-pages"
+            ],
+            "closedAt": "2026-10-31T20:57:49Z",
+            "activity": [
+                "2026-10-31",
+                "2026-10-31",
+                "2026-10-31"
+            ]
+        },
+        {
+            "number": 330,
+            "title": "Developer Portal deploy fails building the Huella Legal Storybook",
+            "url": "https://github.com/xfontr/monorepo/issues/330",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "storybook"
+            ],
+            "closedAt": "2026-10-31T21:54:10Z",
+            "activity": [
+                "2026-10-31",
+                "2026-10-31",
+                "2026-10-31"
+            ]
+        },
+        {
+            "number": 331,
+            "title": "Run huella-legal Nuxt specs in a shared environment",
+            "url": "https://github.com/xfontr/monorepo/issues/331",
+            "state": "open",
+            "reason": null,
+            "caps": [
+                "test-harness"
+            ],
+            "closedAt": null,
+            "activity": []
+        },
+        {
+            "number": 336,
+            "title": "Add a cookie consent banner",
+            "url": "https://github.com/xfontr/monorepo/issues/336",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "consent-analytics"
+            ],
+            "closedAt": "2026-11-01T22:09:34Z",
+            "activity": []
+        },
+        {
+            "number": 337,
+            "title": "Add cookie consent and mock WordPress in local dev",
+            "url": "https://github.com/xfontr/monorepo/issues/337",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "consent-analytics"
+            ],
+            "closedAt": "2026-11-01T22:09:32Z",
+            "activity": [
+                "2026-11-01",
+                "2026-11-01",
+                "2026-11-01",
+                "2026-11-01",
+                "2026-11-01"
+            ]
+        },
+        {
+            "number": 340,
+            "title": "Build the bulk WordPress editor for Huella Legal",
+            "url": "https://github.com/xfontr/monorepo/issues/340",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "editorial-tooling"
+            ],
+            "closedAt": "2026-11-02T22:41:14Z",
+            "activity": [
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02"
+            ]
+        },
+        {
+            "number": 341,
+            "title": "Improve mobile performance",
+            "url": "https://github.com/xfontr/monorepo/issues/341",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "performance"
+            ],
+            "closedAt": "2026-11-02T20:49:43Z",
+            "activity": [
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02"
+            ]
+        },
+        {
+            "number": 343,
+            "title": "Lazily hydrated header navigation with dropdowns",
+            "url": "https://github.com/xfontr/monorepo/issues/343",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "navigation-shell"
+            ],
+            "closedAt": "2026-11-02T22:53:21Z",
+            "activity": [
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-02",
+                "2026-11-03",
+                "2026-11-03",
+                "2026-11-03",
+                "2026-11-03",
+                "2026-11-03",
+                "2026-11-03",
+                "2026-11-03",
+                "2026-11-03",
+                "2026-11-03",
+                "2026-11-03",
+                "2026-11-03"
+            ]
+        },
+        {
+            "number": 344,
+            "title": "Save bulk run reports as the run progresses",
+            "url": "https://github.com/xfontr/monorepo/issues/344",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "editorial-tooling"
+            ],
+            "closedAt": "2026-11-04T10:53:50Z",
+            "activity": [
+                "2026-11-04",
+                "2026-11-04"
+            ]
+        },
+        {
+            "number": 346,
+            "title": "Cover the wp-editor app end to end with tests",
+            "url": "https://github.com/xfontr/monorepo/issues/346",
+            "state": "open",
+            "reason": null,
+            "caps": [
+                "editorial-tooling"
+            ],
+            "closedAt": null,
+            "activity": []
+        },
+        {
+            "number": 348,
+            "title": "Link to the GitHub repository from the site",
+            "url": "https://github.com/xfontr/monorepo/issues/348",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "navigation-shell"
+            ],
+            "closedAt": "2026-11-04T10:16:40Z",
+            "activity": [
+                "2026-11-04",
+                "2026-11-04",
+                "2026-11-04"
+            ]
+        },
+        {
+            "number": 349,
+            "title": "Nuxt UI ships its own Spanish and English dictionaries outside our i18n",
+            "url": "https://github.com/xfontr/monorepo/issues/349",
+            "state": "closed",
+            "reason": "not_planned",
+            "caps": [
+                "i18n"
+            ],
+            "closedAt": "2026-11-04T10:47:34Z",
+            "activity": []
+        },
+        {
+            "number": 350,
+            "title": "Investigate Nuxt performance modules and a shared performance module",
+            "url": "https://github.com/xfontr/monorepo/issues/350",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "performance"
+            ],
+            "closedAt": "2026-11-04T11:21:23Z",
+            "activity": [
+                "2026-11-04"
+            ]
+        },
+        {
+            "number": 360,
+            "title": "Send typed analytics events to GA4 from huella-legal",
+            "url": "https://github.com/xfontr/monorepo/issues/360",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "consent-analytics"
+            ],
+            "closedAt": "2026-11-04T17:05:01Z",
+            "activity": [
+                "2026-11-04",
+                "2026-11-04",
+                "2026-11-04"
+            ]
+        },
+        {
+            "number": 361,
+            "title": "Publish an article approval and editing guide",
+            "url": "https://github.com/xfontr/monorepo/issues/361",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "editorial-tooling"
+            ],
+            "closedAt": "2026-11-04T17:10:01Z",
+            "activity": [
+                "2026-11-04",
+                "2026-11-04",
+                "2026-11-04"
+            ]
+        },
+        {
+            "number": 362,
+            "title": "Harden huella-legal and the pipeline against abuse",
+            "url": "https://github.com/xfontr/monorepo/issues/362",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "security"
+            ],
+            "closedAt": "2026-11-04T17:09:59Z",
+            "activity": [
+                "2026-11-04",
+                "2026-11-04",
+                "2026-11-04",
+                "2026-11-04",
+                "2026-11-04",
+                "2026-11-04"
+            ]
+        },
+        {
+            "number": 371,
+            "title": "Verify the design system across the app",
+            "url": "https://github.com/xfontr/monorepo/issues/371",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "design-tokens"
+            ],
+            "closedAt": "2026-11-05T23:05:23Z",
+            "activity": [
+                "2026-11-05",
+                "2026-11-05",
+                "2026-11-05",
+                "2026-11-05",
+                "2026-11-05"
+            ]
+        },
+        {
+            "number": 373,
+            "title": "chore(huella-legal): switch image provider and add cloudflare mcp",
+            "url": "https://github.com/xfontr/monorepo/issues/373",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "ci-deploy"
+            ],
+            "closedAt": "2026-11-06T15:18:24Z",
+            "activity": [
+                "2026-11-06"
+            ]
+        },
+        {
+            "number": 375,
+            "title": "Content reads crash with an unreadable error when the vendor answers with HTML",
+            "url": "https://github.com/xfontr/monorepo/issues/375",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "content-source"
+            ],
+            "closedAt": "2026-11-06T16:06:19Z",
+            "activity": [
+                "2026-11-06"
+            ]
+        },
+        {
+            "number": 377,
+            "title": "Move Huella Legal back to Netlify",
+            "url": "https://github.com/xfontr/monorepo/issues/377",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "ci-deploy"
+            ],
+            "closedAt": "2026-11-07T11:11:07Z",
+            "activity": [
+                "2026-11-07",
+                "2026-11-07",
+                "2026-11-07",
+                "2026-11-07",
+                "2026-11-07",
+                "2026-11-07"
+            ]
+        },
+        {
+            "number": 380,
+            "title": "Read the WordPress host from env vars",
+            "url": "https://github.com/xfontr/monorepo/issues/380",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "env-discipline"
+            ],
+            "closedAt": "2026-11-07T15:23:30Z",
+            "activity": [
+                "2026-11-07",
+                "2026-11-07",
+                "2026-11-07",
+                "2026-11-07"
+            ]
+        },
+        {
+            "number": 383,
+            "title": "Build Huella Legal in GitHub Actions instead of Netlify",
+            "url": "https://github.com/xfontr/monorepo/issues/383",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "ci-deploy"
+            ],
+            "closedAt": "2026-11-07T16:17:32Z",
+            "activity": [
+                "2026-11-07",
+                "2026-11-07",
+                "2026-11-07",
+                "2026-11-07",
+                "2026-11-07",
+                "2026-11-07"
+            ]
+        },
+        {
+            "number": 385,
+            "title": "Password-protect Huella Legal previews",
+            "url": "https://github.com/xfontr/monorepo/issues/385",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "staging-gate"
+            ],
+            "closedAt": "2026-11-07T16:24:08Z",
+            "activity": [
+                "2026-11-07",
+                "2026-11-07"
+            ]
+        },
+        {
+            "number": 390,
+            "title": "Warn readers when form replies are slower than usual",
+            "url": "https://github.com/xfontr/monorepo/issues/390",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "contact-form"
+            ],
+            "closedAt": "2026-11-08T12:04:47Z",
+            "activity": [
+                "2026-11-08"
+            ]
+        },
+        {
+            "number": 392,
+            "title": "Polish post-deploy details",
+            "url": "https://github.com/xfontr/monorepo/issues/392",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "post-launch-check"
+            ],
+            "closedAt": "2026-11-08T15:29:51Z",
+            "activity": [
+                "2026-11-08",
+                "2026-11-08",
+                "2026-11-08",
+                "2026-11-08"
+            ]
+        },
+        {
+            "number": 400,
+            "title": "Add a page for readers who confirmed their newsletter subscription",
+            "url": "https://github.com/xfontr/monorepo/issues/400",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "standard-pages"
+            ],
+            "closedAt": "2026-11-08T17:56:23Z",
+            "activity": [
+                "2026-11-08"
+            ]
+        },
+        {
+            "number": 402,
+            "title": "Cut production TTFB on articles and remove runtime detours",
+            "url": "https://github.com/xfontr/monorepo/issues/402",
+            "state": "closed",
+            "reason": "completed",
+            "caps": [
+                "performance"
+            ],
+            "closedAt": "2026-11-08T18:58:56Z",
+            "activity": [
+                "2026-11-08"
+            ]
+        }
+    ],
+    "noMilestone": []
+}
