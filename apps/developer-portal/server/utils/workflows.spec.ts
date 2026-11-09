@@ -126,26 +126,13 @@ describe("applyEdit", () => {
             "`nope` isn't an optional capability or group of site",
         ],
         [
-            { action: "gate", project: "blog", stage: "nope", approvedOn: null },
-            "`nope` is no stage of site",
+            { action: "gate", project: "blog", stage: "build", approvedOn: "2026-11-09" },
+            "`gate` isn't an edit",
         ],
         [{ action: "rename", project: "blog" }, "`rename` isn't an edit"],
     ])("refuses %j before writing anything", async (body, problem) => {
         await expect(applyEdit(body)).resolves.toBe(problem);
         expect(await projectFile()).toBe(PROJECT);
-    });
-
-    it("drops a gate's date when it is reopened", async () => {
-        await applyEdit({
-            action: "gate",
-            project: "blog",
-            stage: "build",
-            approvedOn: "2026-11-09",
-        });
-        expect(await projectFile()).toContain("build: 2026-11-09");
-
-        await applyEdit({ action: "gate", project: "blog", stage: "build", approvedOn: null });
-        expect(await projectFile()).not.toContain("2026-11-09");
     });
 });
 

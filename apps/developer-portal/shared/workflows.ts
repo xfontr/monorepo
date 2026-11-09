@@ -1,21 +1,36 @@
 /** The vocabularies `docs/workflows/README.md` documents, as the one copy every other spelling derives from. */
 export const REUSE_PLANS = ["package", "extract", "copy", "method", "new"] as const;
+export const KINDS = ["build", "spike", "owner"] as const;
 export const SETTLED_STATES = ["done", "skipped"] as const;
 export const CAPABILITY_STATES = [
     "off",
     "skipped",
-    "todo",
+    "waits",
+    "can-file",
     "planned",
     "in-progress",
     "done",
 ] as const;
+export const TICKET_STATUSES = [
+    "waiting-on-you",
+    "ready",
+    "in-flight",
+    "blocked",
+    "done",
+    "dropped",
+] as const;
 
 export type ReusePlan = (typeof REUSE_PLANS)[number];
+export type Kind = (typeof KINDS)[number];
 export type SettledState = (typeof SETTLED_STATES)[number];
 export type CapabilityState = (typeof CAPABILITY_STATES)[number];
+export type TicketStatus = (typeof TICKET_STATUSES)[number];
 
 /** The prefix of the GitHub label that places an issue under a capability. */
 export const CAPABILITY_LABEL_PREFIX = "cap:";
+
+/** The GitHub label on a ticket only the project's owner can close: a decision, a credential, DNS. */
+export const OWNER_LABEL = "owner";
 
 export interface Lesson {
     text: string;
@@ -34,6 +49,7 @@ export interface Capability {
     group: string | null;
     title: string;
     summary: string;
+    kind: Kind;
     optional: boolean;
     /** Whether an optional capability starts switched on; always true for a required one. */
     default: boolean;
@@ -57,7 +73,6 @@ export interface Stage {
     id: string;
     title: string;
     goal: string;
-    gate: string;
 }
 
 export interface Template {
@@ -77,8 +92,6 @@ export interface Project {
     milestone: string;
     summary: string;
     switches: Record<string, boolean>;
-    /** Stage id to the ISO date its gate was approved. */
-    gates: Record<string, string>;
     settled: Record<string, { status: SettledState; note: string }>;
     extras: Capability[];
 }
@@ -94,6 +107,11 @@ export interface SnapshotIssue {
     closedAt: string | null;
     /** The author date of every commit tagged `[#N]` for this issue, ascending. */
     activity: string[];
+    /** GitHub's blocked-by links, each with its blocker's state, since a blocker can sit outside the milestone. */
+    blockedBy: { number: number; open: boolean }[];
+    /** A branch is linked on the issue, which is how `pnpm issue:pick` marks it as taken. */
+    branch: boolean;
+    owner: boolean;
 }
 
 export interface Snapshot {
@@ -193,12 +211,19 @@ const readCapability = (reader: Reader, raw: unknown, index: number): Capability
         }
     }
 
+    const kind = asText(raw.kind) ?? "build";
+
+    if (!(KINDS as readonly string[]).includes(kind)) {
+        reader.problems.push(`${where}: \`kind: ${kind}\` isn't one of ${KINDS.join(", ")}`);
+    }
+
     return {
         id,
         stage: reader.text(raw, "stage", where),
         group: asText(raw.group),
         title: reader.text(raw, "title", where),
         summary: reader.text(raw, "summary", where, ""),
+        kind: (KINDS as readonly string[]).includes(kind) ? (kind as Kind) : "build",
         optional,
         default: optional ? raw.default === true : true,
         dependsOn: reader.texts(raw, "dependsOn", where),
@@ -227,6 +252,42 @@ const readCapability = (reader: Reader, raw: unknown, index: number): Capability
                 : [],
         ),
     };
+};
+
+/** The first loop of `dependsOn` links found, as the ids walked round it, or null when there is none. */
+export const dependencyCycle = (capabilities: Capability[]): string[] | null => {
+    const needs = new Map(capabilities.map(({ id, dependsOn }) => [id, dependsOn]));
+    const finished = new Set<string>();
+    const path: string[] = [];
+
+    const walk = (id: string): string[] | null => {
+        const at = path.indexOf(id);
+
+        if (at >= 0) return [...path.slice(at), id];
+        if (finished.has(id) || !needs.has(id)) return null;
+
+        path.push(id);
+        for (const need of needs.get(id) ?? []) {
+            const cycle = walk(need);
+            if (cycle) return cycle;
+        }
+        path.pop();
+        finished.add(id);
+
+        return null;
+    };
+
+    for (const { id } of capabilities) {
+        const cycle = walk(id);
+        if (cycle) return cycle;
+    }
+
+    return null;
+};
+
+const cycleProblem = (capabilities: Capability[]): string[] => {
+    const cycle = dependencyCycle(capabilities);
+    return cycle ? [`\`dependsOn\` goes round in a loop: ${cycle.join(" → ")}`] : [];
 };
 
 const duplicates = (ids: string[]): string[] =>
@@ -282,7 +343,7 @@ const templateRuleProblems = ({ stages, groups, capabilities }: Template): strin
         }
     }
 
-    return problems;
+    return [...problems, ...cycleProblem(capabilities)];
 };
 
 /** A template read from parsed YAML, and everything about it that breaks the rules. */
@@ -306,7 +367,6 @@ export const readTemplate = (raw: unknown): { template: Template; problems: stri
                 id,
                 title: reader.text(stage, "title", where),
                 goal: reader.text(stage, "goal", where, ""),
-                gate: reader.text(stage, "gate", where, ""),
             },
         ];
     });
@@ -365,12 +425,10 @@ export const readProject = (raw: unknown): { project: Project; problems: string[
         else reader.problems.push(`switch \`${id}\` must be true or false`);
     }
 
-    const gates: Record<string, string> = {};
-
-    for (const [id, value] of Object.entries(reader.record(source, "gates", "project"))) {
-        const date = asText(value);
-        if (date !== null && /^\d{4}-\d{2}-\d{2}$/.test(date)) gates[id] = date;
-        else reader.problems.push(`gate \`${id}\` must be a YYYY-MM-DD date`);
+    if (source.gates !== undefined) {
+        reader.problems.push(
+            "`gates:` is gone: a gate is an `owner` block now, approved by closing its ticket or settling it as done",
+        );
     }
 
     const settled: Project["settled"] = {};
@@ -400,7 +458,6 @@ export const readProject = (raw: unknown): { project: Project; problems: string[
         milestone: reader.text(source, "milestone", "project"),
         summary: reader.text(source, "summary", "project", ""),
         switches,
-        gates,
         settled,
         extras,
     };
@@ -443,10 +500,6 @@ export const projectProblems = (project: Project, template: Template): string[] 
             );
     }
 
-    for (const id of Object.keys(project.gates)) {
-        if (!stageIds.has(id)) problems.push(`gate \`${id}\` names no stage in \`${template.id}\``);
-    }
-
     const extraIds = new Set(project.extras.map((extra) => extra.id));
 
     for (const id of Object.keys(project.settled)) {
@@ -460,11 +513,17 @@ export const projectProblems = (project: Project, template: Template): string[] 
         all.filter((capability) => isEnabled(capability, project, template)).map(({ id }) => id),
     );
 
+    // A need switched off with its whole group, a blog on a site with none, just drops out of the order.
+    const offOnItsOwn = (id: string): boolean => {
+        const dependency = byId.get(id);
+        return !!dependency && !on.has(id) && isGroupEnabled(dependency.group, project, template);
+    };
+
     for (const capability of all) {
         if (!on.has(capability.id)) continue;
 
         for (const dependency of capability.dependsOn) {
-            if (byId.has(dependency) && !on.has(dependency)) {
+            if (offOnItsOwn(dependency)) {
                 problems.push(
                     `\`${capability.id}\` is on but needs \`${dependency}\`, which is switched off`,
                 );
@@ -484,9 +543,16 @@ export const projectProblems = (project: Project, template: Template): string[] 
                 `extra \`${extra.id}\` names stage \`${extra.stage}\`, which doesn't exist`,
             );
         }
+        for (const dependency of extra.dependsOn) {
+            if (!byId.has(dependency) && !extraIds.has(dependency)) {
+                problems.push(
+                    `extra \`${extra.id}\` depends on \`${dependency}\`, which doesn't exist`,
+                );
+            }
+        }
     }
 
-    return problems;
+    return project.extras.length > 0 ? [...problems, ...cycleProblem(all)] : problems;
 };
 
 const readIssue = (reader: Reader, raw: unknown, where: string): SnapshotIssue | null => {
@@ -511,6 +577,15 @@ const readIssue = (reader: Reader, raw: unknown, where: string): SnapshotIssue |
         caps: reader.texts(raw, "caps", at),
         closedAt: asText(raw.closedAt),
         activity: reader.texts(raw, "activity", at),
+        blockedBy: reader
+            .list(raw, "blockedBy", at)
+            .flatMap((blocker) =>
+                isRecord(blocker) && typeof blocker.number === "number"
+                    ? [{ number: blocker.number, open: blocker.open === true }]
+                    : [],
+            ),
+        branch: raw.branch === true,
+        owner: raw.owner === true,
     };
 };
 
@@ -544,13 +619,15 @@ export interface CapabilityView extends Capability {
     extra: boolean;
     note: string | null;
     issues: SnapshotIssue[];
+    /** The longest chain of `dependsOn` behind it, so one wave holds what can run side by side. */
+    wave: number;
+    /** What it needs that keeps its tickets from being filed yet; empty once it has tickets. */
+    waitsOn: string[];
+    /** The capabilities that name it in `dependsOn`. */
+    unblocks: string[];
 }
 
-export type StageState = "done" | "current" | "upcoming";
-
 export interface StageView extends Stage {
-    state: StageState;
-    approvedOn: string | null;
     capabilities: CapabilityView[];
     progress: Progress;
 }
@@ -570,14 +647,32 @@ export interface GroupView extends Group {
     enabled: boolean;
 }
 
+export interface NowTicket {
+    issue: SnapshotIssue;
+    status: TicketStatus;
+    /** Open tickets waiting on this one, directly or through a chain of others. */
+    unblocks: number;
+    /** The numbers of its blockers that are still open. */
+    blockers: number[];
+    capability: string | null;
+}
+
+/** Every open milestone ticket by what can happen to it next, each list most-unblocking first. */
+export interface Now {
+    waiting: NowTicket[];
+    ready: NowTicket[];
+    inFlight: NowTicket[];
+    blocked: NowTicket[];
+}
+
 export interface ProjectView {
     project: Project;
     template: Template;
     groups: GroupView[];
     stages: StageView[];
+    waves: CapabilityView[][];
+    now: Now;
     unsorted: UnsortedIssue[];
-    /** Every capability still owed, in stage order: on, and neither done nor skipped. */
-    left: CapabilityView[];
     progress: Progress;
     syncedAt: string | null;
 }
@@ -598,6 +693,7 @@ const progressOf = (capabilities: CapabilityView[]): Progress => {
 const delivered = (issue: SnapshotIssue): boolean =>
     issue.state === "closed" && issue.reason !== "not_planned";
 
+/** A capability's state from its switch, its settlement and its tickets; `projectView` turns `can-file` into `waits`. */
 export const capabilityState = (
     enabled: boolean,
     settled: SettledState | null,
@@ -608,10 +704,108 @@ export const capabilityState = (
 
     const live = issues.filter((issue) => issue.reason !== "not_planned");
 
-    if (live.length === 0) return "todo";
+    if (live.length === 0) return "can-file";
     if (live.every(delivered)) return "done";
     if (live.some(delivered)) return "in-progress";
     return "planned";
+};
+
+export const ticketStatus = (issue: SnapshotIssue): TicketStatus => {
+    if (issue.state === "closed") return issue.reason === "not_planned" ? "dropped" : "done";
+    if (issue.branch) return "in-flight";
+    if (issue.blockedBy.some(({ open }) => open)) return "blocked";
+    return issue.owner ? "waiting-on-you" : "ready";
+};
+
+/** How many open tickets wait on each one, directly or through a chain of blocked-by links. */
+export const unblockCounts = (issues: SnapshotIssue[]): Map<number, number> => {
+    const waiting = new Map<number, number[]>();
+
+    for (const issue of issues) {
+        if (issue.state !== "open") continue;
+
+        for (const blocker of issue.blockedBy) {
+            if (blocker.open) {
+                waiting.set(blocker.number, [...(waiting.get(blocker.number) ?? []), issue.number]);
+            }
+        }
+    }
+
+    return new Map(
+        issues.map((issue) => {
+            const seen = new Set<number>();
+            const queue = [...(waiting.get(issue.number) ?? [])];
+
+            for (let next = queue.pop(); next !== undefined; next = queue.pop()) {
+                if (seen.has(next)) continue;
+                seen.add(next);
+                queue.push(...(waiting.get(next) ?? []));
+            }
+
+            return [issue.number, seen.size];
+        }),
+    );
+};
+
+/** Each capability's wave: 0 when it needs nothing, else one past the latest wave it needs. */
+export const wavesOf = (capabilities: Capability[]): Map<string, number> => {
+    const needs = new Map(capabilities.map(({ id, dependsOn }) => [id, dependsOn]));
+    const waves = new Map<string, number>();
+    const walking = new Set<string>();
+
+    const waveOf = (id: string): number => {
+        const known = waves.get(id);
+
+        if (known !== undefined) return known;
+        // A loop is already a reported problem; cutting it here keeps the page drawing.
+        if (walking.has(id)) return 0;
+
+        walking.add(id);
+        const wave =
+            Math.max(-1, ...(needs.get(id) ?? []).filter((need) => needs.has(need)).map(waveOf)) +
+            1;
+        walking.delete(id);
+        waves.set(id, wave);
+
+        return wave;
+    };
+
+    for (const id of needs.keys()) waveOf(id);
+
+    return waves;
+};
+
+const NOW_LISTS = {
+    "waiting-on-you": "waiting",
+    ready: "ready",
+    "in-flight": "inFlight",
+    blocked: "blocked",
+} as const satisfies Partial<Record<TicketStatus, keyof Now>>;
+
+const nowOf = (issues: SnapshotIssue[]): Now => {
+    const counts = unblockCounts(issues);
+    const now: Now = { waiting: [], ready: [], inFlight: [], blocked: [] };
+
+    for (const issue of issues) {
+        const status = ticketStatus(issue);
+        const list = status in NOW_LISTS ? NOW_LISTS[status as keyof typeof NOW_LISTS] : null;
+
+        if (!list) continue;
+
+        now[list].push({
+            issue,
+            status,
+            unblocks: counts.get(issue.number) ?? 0,
+            blockers: issue.blockedBy.filter(({ open }) => open).map(({ number }) => number),
+            capability: issue.caps[0] ?? null,
+        });
+    }
+
+    for (const list of [now.waiting, now.ready, now.inFlight, now.blocked]) {
+        list.sort((a, b) => b.unblocks - a.unblocks || a.issue.number - b.issue.number);
+    }
+
+    return now;
 };
 
 /** One project laid over its template and its last GitHub snapshot. */
@@ -631,35 +825,56 @@ export const projectView = (
                 : isEnabled(capability, project, template),
         ]),
     );
+    const waves = wavesOf(all);
 
-    const views: CapabilityView[] = all.map((capability) => {
+    const base = all.map((capability) => {
         const enabled = enabledById.get(capability.id) ?? false;
         const placed = issues.filter((issue) => issue.caps.includes(capability.id));
         const settled = project.settled[capability.id];
 
         return {
-            ...capability,
+            capability,
             enabled,
-            extra: extraIds.has(capability.id),
+            placed,
             note: settled?.note || null,
-            issues: placed,
             state: capabilityState(enabled, settled?.status ?? null, placed),
         };
     });
+    const baseById = new Map(base.map((entry) => [entry.capability.id, entry]));
 
-    const current = template.stages.find((stage) => !project.gates[stage.id]);
+    // Decide before you file: an open spike or owner block holds back what needs it, and a build
+    // block holds it back only until its own tickets exist to link to.
+    const holdsBack = (id: string): boolean => {
+        const need = baseById.get(id);
+
+        if (!need || ["off", "done", "skipped"].includes(need.state)) return false;
+        return need.capability.kind === "build" ? need.state === "can-file" : true;
+    };
+
+    const views: CapabilityView[] = base.map(({ capability, enabled, placed, note, state }) => {
+        const waitsOn = state === "can-file" ? capability.dependsOn.filter(holdsBack) : [];
+
+        return {
+            ...capability,
+            enabled,
+            extra: extraIds.has(capability.id),
+            note,
+            issues: placed,
+            state: waitsOn.length > 0 ? "waits" : state,
+            wave: waves.get(capability.id) ?? 0,
+            waitsOn,
+            unblocks: all
+                .filter(({ dependsOn }) => dependsOn.includes(capability.id))
+                .map(({ id }) => id),
+        };
+    });
 
     const stages: StageView[] = template.stages.map((stage) => {
         const capabilities = views.filter((capability) => capability.stage === stage.id);
-        const approvedOn = project.gates[stage.id] ?? null;
-
-        let state: StageState = "upcoming";
-
-        if (approvedOn) state = "done";
-        else if (stage === current) state = "current";
-
-        return { ...stage, state, approvedOn, capabilities, progress: progressOf(capabilities) };
+        return { ...stage, capabilities, progress: progressOf(capabilities) };
     });
+
+    const waveCount = Math.max(-1, ...views.map(({ wave }) => wave)) + 1;
 
     const unsorted: UnsortedIssue[] = issues.flatMap((issue) => {
         if (issue.caps.length === 0) {
@@ -686,14 +901,11 @@ export const projectView = (
         return [];
     });
 
-    // Once every gate is approved, an area issue outside the milestone is maintenance, not this effort.
-    const strays: UnsortedIssue[] = current
+    // Once everything switched on is delivered, an area issue outside the milestone is maintenance.
+    const running = views.some(({ state }) => !["off", "skipped", "done"].includes(state));
+    const strays: UnsortedIssue[] = running
         ? (snapshot?.noMilestone ?? []).map((issue) => ({ issue, reason: "not in the milestone" }))
         : [];
-
-    const left = stages.flatMap((stage) =>
-        stage.capabilities.filter(({ state }) => !["off", "skipped", "done"].includes(state)),
-    );
 
     return {
         project,
@@ -703,8 +915,11 @@ export const projectView = (
             enabled: isGroupEnabled(group.id, project, template),
         })),
         stages,
+        waves: Array.from({ length: waveCount }, (_, wave) =>
+            views.filter((capability) => capability.wave === wave),
+        ),
+        now: nowOf(issues),
         unsorted: [...unsorted, ...strays],
-        left,
         progress: progressOf(views),
         syncedAt: snapshot?.syncedAt ?? null,
     };

@@ -11,6 +11,7 @@ const prompts = vi.hoisted(() => ({
 const state = vi.hoisted(() => ({ cancel: Symbol("cancel") }));
 const gh = vi.hoisted(() => ({
     assignToMe: vi.fn(),
+    blockedBy: vi.fn(),
     developBranch: vi.fn(),
     isOnline: vi.fn(),
     listIssues: vi.fn(),
@@ -66,6 +67,7 @@ beforeEach(() => {
     prompts.text.mockResolvedValue("Fix picker");
     prompts.confirm.mockResolvedValue(true);
     git.branchForIssue.mockReturnValue(undefined);
+    gh.blockedBy.mockReturnValue([]);
 });
 
 afterEach(() => {
@@ -248,6 +250,37 @@ describe("issue pick <number>", () => {
         expect(gh.moveToInProgress).toHaveBeenCalledWith(PROJECT, ISSUE);
         expect(io.requireTerminal).not.toHaveBeenCalled();
         expect(prompts.select).not.toHaveBeenCalled();
+    });
+
+    it("refuses to branch off an issue whose blocker is still open, naming the blocker", async () => {
+        gh.blockedBy.mockReturnValue([
+            { number: 40, title: "Approve design", state: "OPEN" },
+            { number: 41, title: "Old spike", state: "CLOSED" },
+        ]);
+
+        await expect(pick(args("42"))).rejects.toThrow(
+            "#42 is blocked by #40 Approve design. Take one of those first, or pass --force.",
+        );
+        expect(gh.developBranch).not.toHaveBeenCalled();
+    });
+
+    it("branches off a blocked issue when --force says so, without asking GitHub", async () => {
+        gh.blockedBy.mockReturnValue([{ number: 40, title: "Approve design", state: "OPEN" }]);
+
+        await pick(args("42", "--force"));
+
+        expect(gh.blockedBy).not.toHaveBeenCalled();
+        expect(gh.developBranch).toHaveBeenCalledWith(42, "fix/huella-legal/42-fix-picker");
+    });
+
+    it("resumes an existing branch on a blocked issue, since the work already started", async () => {
+        git.branchForIssue.mockReturnValue("fix/huella-legal/42-fix-picker");
+        gh.blockedBy.mockReturnValue([{ number: 40, title: "Approve design", state: "OPEN" }]);
+
+        await pick(args("42"));
+
+        expect(git.checkout).toHaveBeenCalledWith("fix/huella-legal/42-fix-picker");
+        expect(gh.blockedBy).not.toHaveBeenCalled();
     });
 
     it("lets the flags override the label, the board and the branch title", async () => {

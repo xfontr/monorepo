@@ -1,5 +1,5 @@
 import type { AuditState, FindingStatus } from "#shared/audits.ts";
-import type { CapabilityState, ReusePlan } from "#shared/workflows.ts";
+import type { CapabilityState, Kind, ReusePlan, TicketStatus } from "#shared/workflows.ts";
 import type { DecisionOutcome, DecisionStatus } from "#shared/types.ts";
 
 /** The palette behind these three classes lives in `assets/css/main.css` and is shown beside the figure it describes, never instead of it. */
@@ -105,7 +105,8 @@ export const auditStateTone = (state: AuditState): Tone => AUDIT_STATE_TONES[sta
 const CAPABILITY_STATES = {
     off: { label: "Off", tone: "neutral" },
     skipped: { label: "Skipped", tone: "neutral" },
-    todo: { label: "No tickets", tone: "neutral" },
+    waits: { label: "Waits", tone: "neutral" },
+    "can-file": { label: "Can file now", tone: "warn" },
     planned: { label: "Planned", tone: "warn" },
     "in-progress": { label: "In progress", tone: "warn" },
     done: { label: "Done", tone: "good" },
@@ -115,6 +116,29 @@ export const capabilityStateLabel = (state: CapabilityState): string =>
     CAPABILITY_STATES[state].label;
 
 export const capabilityStateTone = (state: CapabilityState): Tone => CAPABILITY_STATES[state].tone;
+
+const TICKET_STATUSES = {
+    "waiting-on-you": { label: "Waiting on you", tone: "warn" },
+    ready: { label: "Ready", tone: "good" },
+    "in-flight": { label: "In flight", tone: "warn" },
+    blocked: { label: "Blocked", tone: "neutral" },
+    done: { label: "Done", tone: "good" },
+    dropped: { label: "Dropped", tone: "neutral" },
+} as const satisfies Record<TicketStatus, { label: string; tone: Tone }>;
+
+export const ticketStatusLabel = (status: TicketStatus): string => TICKET_STATUSES[status].label;
+
+export const ticketStatusTone = (status: TicketStatus): Tone => TICKET_STATUSES[status].tone;
+
+const BLOCK_KINDS = {
+    build: { label: "Build", icon: null },
+    spike: { label: "Spike — answers a question", icon: "i-lucide-flask-conical" },
+    owner: { label: "Yours — only you can close it", icon: "i-lucide-user-round" },
+} as const satisfies Record<Kind, { label: string; icon: string | null }>;
+
+export const blockKindLabel = (kind: Kind): string => BLOCK_KINDS[kind].label;
+
+export const blockKindIcon = (kind: Kind): string | null => BLOCK_KINDS[kind].icon;
 
 /** OKLCH hues, one per stage; decoration only, so a stage is never told apart by its hue alone. */
 const STAGE_HUES = [5, 50, 95, 160, 235, 275, 315] as const;

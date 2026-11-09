@@ -95,6 +95,12 @@ number and hand-type a branch name.
 | Branch title | Free text, pre-filled with the issue title; slugified, so edit it down to something short |
 | — | `gh issue develop <number> --name <type>/<area>/<number>-<slug> --checkout`, then `gh issue edit --add-assignee @me`, then `gh project item-edit --field Status --value "In Progress"` |
 
+Before the branch, `pick` reads the issue's blocked-by links live and stops while any is open,
+naming each one; `--force` skips the check. A resumed branch isn't checked, since the work already
+started. The links are GitHub's own, written by `pnpm workflow:file` or by hand on the issue, so an
+agent can't start on a ticket a stale snapshot showed as ready. `pnpm issue:brief` lists the same
+links under *Blockers*, beside any older `**Blocked by:**` line in the body.
+
 `gh issue develop` over `git checkout -b`: the branch it creates is linked on the issue's
 Development panel, the same link the "Create a branch" button on the issue would give you, and a
 branch name alone — however it's formatted — never gets you.
@@ -117,6 +123,7 @@ Every answer the prompts would collect comes off the issue or a flag:
 | Branch type | `--type=<feature\|fix\|hotfix\|release>`, else the label: `enhancement` is `feature`, `bug` is `fix`. A `spike`, or both labels, fails and names the flag |
 | Branch title | `--title=<text>`, else the issue title. One that slugs to nothing fails, as the prompt's validation does |
 | Resume | An existing branch for the number is checked out, without asking |
+| Blocked | `--force` branches off an issue with an open blocker; without it the pick stops |
 
 Flags take the `--name=value` form only. `run` parses argv into a set of flags and a list of
 positionals, so `--type fix` would read `fix` as a second positional.

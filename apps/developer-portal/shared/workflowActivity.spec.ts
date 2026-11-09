@@ -31,6 +31,9 @@ const issue = (
     caps,
     closedAt: null,
     activity,
+    blockedBy: [],
+    branch: false,
+    owner: false,
 });
 
 const activityOf = (issues: SnapshotIssue[]) =>

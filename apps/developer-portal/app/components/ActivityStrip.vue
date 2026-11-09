@@ -55,7 +55,7 @@ const labelsMonth = (day: string, index: number): boolean => {
     return activity.days.slice(0, 7).every((next) => next.slice(0, 7) === day.slice(0, 7));
 };
 
-/** Segments stack bottom to top in skyline order, so a day's colours run the way the stages do. */
+/** Segments stack bottom to top in stage order, so a day's colours run the way the stages do. */
 const columns = computed(() => {
     const tallest = Math.max(
         1,

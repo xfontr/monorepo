@@ -14,7 +14,6 @@ export const loadWorkflows = async (): Promise<Workflows> => {
 };
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 const textOf = (value: unknown): string => (typeof value === "string" ? value.trim() : "");
 
@@ -44,7 +43,6 @@ const createProject = async (
         milestone,
         summary: "",
         switches: {},
-        gates: {},
     });
 
     await writeFile(path, document.toString(), "utf8");
@@ -86,15 +84,6 @@ export const applyEdit = async (body: unknown): Promise<string | null> => {
         if (typeof edit.on !== "boolean") return "a switch is on or off";
 
         document.setIn(["switches", switchable.id], edit.on);
-    } else if (edit.action === "gate") {
-        const stage = view.template.stages.find((candidate) => candidate.id === edit.stage);
-
-        if (!stage) return `\`${String(edit.stage)}\` is no stage of ${view.template.id}`;
-
-        if (edit.approvedOn === null) document.deleteIn(["gates", stage.id]);
-        else if (typeof edit.approvedOn === "string" && DATE.test(edit.approvedOn)) {
-            document.setIn(["gates", stage.id], edit.approvedOn);
-        } else return "a gate date must be YYYY-MM-DD";
     } else {
         return `\`${String(edit.action)}\` isn't an edit`;
     }

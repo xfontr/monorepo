@@ -73,3 +73,16 @@ export const selectedProject = (
     projects: ProjectSummary[],
     title: string,
 ): ProjectSummary | undefined => projects.find((project) => project.title === title);
+
+/** Why a pick is refused, or null when every blocked-by link is closed; `--force` skips the check. */
+export const blockedPickMessage = (
+    issue: number,
+    blockers: { number: number; title: string; state: string }[],
+): string | null => {
+    const open = blockers.filter(({ state }) => state === "OPEN");
+
+    if (open.length === 0) return null;
+
+    const list = open.map(({ number, title }) => `#${number} ${title}`).join(", ");
+    return `#${issue} is blocked by ${list}. Take one of those first, or pass --force.`;
+};

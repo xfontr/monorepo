@@ -78,7 +78,7 @@ that.
 | Decisions | `docs/decisions/NNNN-<slug>.md` — the files the `decision-report` skill writes, see [🔬 Decisions are their own section](#-decisions-are-their-own-section) |
 | Audits | `docs/audits/YYYY-MM-DD-<scope>.md` — the files the `audit-report` skill writes, see [🔎 Audits count findings, not files](#-audits-count-findings-not-files) |
 | Reviews | `docs/reviews/YYYY-MM-DD-<sha>.md` — the files the `repo-review` skill writes |
-| Workflows | `docs/workflows/` templates, projects and their synced snapshots, read in place on every request rather than collected — see [`docs/workflows/README.md`](../../docs/workflows/README.md). Under `pnpm dev` the page also switches capabilities, approves gates and creates projects |
+| Workflows | `docs/workflows/` templates, projects and their synced snapshots, read in place on every request rather than collected — see [`docs/workflows/README.md`](../../docs/workflows/README.md). Under `pnpm dev` the page also switches blocks and groups and creates projects |
 | Work in progress | Open issues read from GitHub in the browser |
 | What's new | Every `CHANGELOG.md`, beside its unreleased-commit count, plus any project in `nx.json`'s `release.projects` that has commits and no release yet |
 | Engineering health | Coverage, dependencies, reviews, scorecards and collected repository findings |
@@ -250,7 +250,7 @@ live off GitHub. If you delete every derived file in this project, one command p
 
 The one committed snapshot is `docs/workflows/projects/*.snapshot.json`, and it is the exception on
 purpose: a project's progress has to render on the deployed site, which has no token to ask GitHub
-for closed issues and board state, and no history to read commit activity from. `pnpm workflow:sync` rewrites it, the page prints when it last
+for closed issues and blocked-by links, and no history to read commit activity from. `pnpm workflow:sync` rewrites it, the page prints when it last
 changed, and a malformed one shows as a file problem rather than blanking the page.
 
 ## 🚢 The deployed site is a snapshot

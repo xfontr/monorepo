@@ -18,7 +18,8 @@ import {
     toSnapshot,
 } from "./domain/snapshot.ts";
 
-export const main = ({ positionals }: Args): void => {
+/** Snapshots each project's milestone and commit activity beside its project file. */
+export const sync = ({ positionals }: Args): void => {
     const known = projectIds();
     const ids = positionals.length > 0 ? positionals : known;
 

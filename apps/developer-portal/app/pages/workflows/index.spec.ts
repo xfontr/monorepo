@@ -54,7 +54,7 @@ beforeEach(() => {
 });
 
 describe("workflows page", () => {
-    it("shows each project's progress and the stage it is in", async () => {
+    it("shows each project's progress and what can be taken now", async () => {
         state.data = ref(
             workflows([
                 { id: "p0", title: "Blog", template: "website-rebuild", milestone: "Blog" },
@@ -65,7 +65,9 @@ describe("workflows page", () => {
 
         expect(wrapper.text()).toContain("Blog");
         expect(wrapper.text()).toContain("0%");
-        expect(wrapper.text()).toContain("Now: Discovery");
+        expect(wrapper.text()).toContain(
+            "Now: 0 waiting on you · 0 ready · 0 in flight · 0 blocked",
+        );
         expect(wrapper.text()).toContain("Content audit");
     });
 

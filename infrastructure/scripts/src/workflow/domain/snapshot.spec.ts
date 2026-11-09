@@ -16,6 +16,8 @@ const issue = (overrides: Partial<GhIssue>): GhIssue => ({
     stateReason: "",
     labels: [],
     closedAt: null,
+    blockedBy: [],
+    branches: 0,
     ...overrides,
 });
 
@@ -66,6 +68,34 @@ describe("toSnapshot", () => {
             [3, "closed", "not_planned"],
             [4, "open", null],
         ]);
+    });
+
+    it("keeps each blocker's state, since a blocker outside the milestone can't be looked up", () => {
+        const { issues } = toSnapshot(
+            "Site",
+            [
+                issue({
+                    labels: [{ name: "owner" }],
+                    blockedBy: [
+                        { number: 9, state: "CLOSED" },
+                        { number: 4, state: "OPEN" },
+                    ],
+                    branches: 1,
+                }),
+            ],
+            [],
+            NO_ACTIVITY,
+            "",
+        );
+
+        expect(issues[0]).toMatchObject({
+            blockedBy: [
+                { number: 4, open: true },
+                { number: 9, open: false },
+            ],
+            branch: true,
+            owner: true,
+        });
     });
 
     it("orders issues by number so a re-sync with the same tickets produces the same file", () => {

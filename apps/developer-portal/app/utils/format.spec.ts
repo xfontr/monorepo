@@ -103,7 +103,8 @@ describe("capability marks", () => {
         ["done", "var(--tone-good)", true],
         ["in-progress", "var(--tone-warn)", true],
         ["planned", "var(--tone-warn)", false],
-        ["todo", "var(--ui-text-dimmed)", false],
+        ["can-file", "var(--ui-text-dimmed)", false],
+        ["waits", "var(--ui-text-dimmed)", false],
         ["off", "var(--ui-text-dimmed)", false],
         ["skipped", "var(--ui-text-dimmed)", true],
     ] as const)(

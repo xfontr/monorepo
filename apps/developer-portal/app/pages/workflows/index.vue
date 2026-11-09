@@ -28,9 +28,10 @@
         <template #body>
             <div class="flex flex-col gap-6">
                 <p class="text-sm text-muted max-w-3xl">
-                    A workflow is every stage and capability a kind of project needs, learned from
-                    the ones already shipped. Each project switches the optional ones on or off, and
-                    its GitHub tickets show where it stands.
+                    A workflow is a map of every block a kind of project needs and what each one
+                    needs first, learned from the ones already shipped. Each project switches the
+                    optional blocks on or off, files them as GitHub tickets with their blocked-by
+                    links, and from then on GitHub says where it stands.
                 </p>
 
                 <UAlert
@@ -75,8 +76,8 @@
                             <div class="min-w-0 flex-1">
                                 <p class="font-semibold truncate">{{ card.title }}</p>
                                 <p class="text-xs text-muted truncate">{{ card.templateTitle }}</p>
-                                <p class="mt-1 text-xs">
-                                    <span class="text-dimmed">Now:</span> {{ card.current }}
+                                <p class="mt-1 text-xs tabular-nums">
+                                    <span class="text-dimmed">Now:</span> {{ card.now }}
                                 </p>
                                 <p class="text-xs text-dimmed tabular-nums">
                                     {{ card.done }}/{{ card.total }} capabilities
@@ -199,7 +200,7 @@ const { data } = await useWorkflows();
 const { editable, edit } = useWorkflowEdit();
 
 const projectCards = computed(() =>
-    data.value.projects.map(({ project, template, stages, progress, unsorted }) => ({
+    data.value.projects.map(({ project, template, now, progress, unsorted }) => ({
         id: project.id,
         title: project.title,
         templateTitle: template.title,
@@ -207,7 +208,12 @@ const projectCards = computed(() =>
         done: progress.done,
         total: progress.total,
         unsorted: unsorted.length,
-        current: stages.find((stage) => stage.state === "current")?.title ?? "Finished",
+        now: [
+            `${now.waiting.length} waiting on you`,
+            `${now.ready.length} ready`,
+            `${now.inFlight.length} in flight`,
+            `${now.blocked.length} blocked`,
+        ].join(" · "),
     })),
 );
 

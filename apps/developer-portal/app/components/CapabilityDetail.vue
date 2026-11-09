@@ -2,6 +2,10 @@
     <div class="flex flex-col gap-5 text-sm">
         <div class="flex flex-wrap items-center gap-2">
             <StatusPill :label :tone />
+            <span v-if="kindText" class="flex items-center gap-1 text-xs text-muted">
+                <UIcon v-if="kindIconName" :name="kindIconName" class="size-3.5" />
+                {{ kindText }}
+            </span>
             <UBadge
                 v-if="capability.extra"
                 label="This project only"
@@ -25,6 +29,26 @@
 
         <p v-if="capability.summary" class="text-muted">{{ capability.summary }}</p>
         <p v-if="capability.note" class="text-muted italic">{{ capability.note }}</p>
+        <p v-if="capability.waitsOn.length > 0" class="text-muted">
+            Not fileable yet: it waits on {{ waitsOn }}.
+        </p>
+
+        <section v-for="link in links" :key="link.title" class="flex flex-col gap-1.5">
+            <h3 class="text-xs font-semibold uppercase tracking-wide text-dimmed">
+                {{ link.title }}
+            </h3>
+            <ul class="flex flex-wrap gap-1.5">
+                <li v-for="target in link.ids" :key="target">
+                    <UButton
+                        :label="titles[target] ?? target"
+                        color="neutral"
+                        variant="subtle"
+                        size="xs"
+                        @click="emit('select', target)"
+                    />
+                </li>
+            </ul>
+        </section>
 
         <section v-if="capability.issues.length > 0" class="flex flex-col gap-1.5">
             <h3 class="text-xs font-semibold uppercase tracking-wide text-dimmed">Tickets</h3>
@@ -41,7 +65,10 @@
                             :class="delivered(issue) ? 'tone-good' : 'text-dimmed'"
                         />
                         <span class="font-mono text-xs text-dimmed">#{{ issue.number }}</span>
-                        <span class="min-w-0">{{ issue.title }}</span>
+                        <span class="min-w-0 flex-1">{{ issue.title }}</span>
+                        <span v-if="statusOf[issue.number]" class="shrink-0 text-xs text-muted">{{
+                            statusOf[issue.number]
+                        }}</span>
                     </a>
                 </li>
             </ul>
@@ -52,10 +79,7 @@
             <p class="text-muted">{{ activitySummary }}</p>
         </section>
 
-        <section
-            v-if="capability.reuse || capability.dependsOn.length > 0"
-            class="flex flex-col gap-1.5"
-        >
+        <section v-if="capability.reuse" class="flex flex-col gap-1.5">
             <h3 class="text-xs font-semibold uppercase tracking-wide text-dimmed">Start from</h3>
             <p v-if="capability.reuse" class="text-muted">
                 {{ reuseLabel }}
@@ -63,7 +87,6 @@
                     capability.reuse.from
                 }}</code>
             </p>
-            <p v-if="capability.dependsOn.length > 0" class="text-muted">Needs {{ needs }}</p>
         </section>
 
         <section v-if="capability.doneWhen.length > 0" class="flex flex-col gap-1.5">
@@ -89,22 +112,61 @@
 
 <script setup lang="ts">
 import type { CapabilityActivity } from "#shared/workflowActivity.ts";
-import type { CapabilityView, SnapshotIssue } from "#shared/workflows.ts";
+import { ticketStatus, type CapabilityView, type SnapshotIssue } from "#shared/workflows.ts";
 
 interface Props {
     capability: CapabilityView;
+    /** Capability id to its title, for the blocks it needs and unblocks. */
+    titles?: Record<string, string>;
     editable?: boolean;
     activity?: CapabilityActivity | null;
     /** The title of the group holding this capability when that group is switched off. */
     groupOff?: string | null;
 }
 
-const { capability, editable = false, activity = null, groupOff = null } = defineProps<Props>();
-const emit = defineEmits<{ toggle: [on: boolean] }>();
+const {
+    capability,
+    titles = {},
+    editable = false,
+    activity = null,
+    groupOff = null,
+} = defineProps<Props>();
+const emit = defineEmits<{ toggle: [on: boolean]; select: [capability: string] }>();
 
 const label = computed(() => capabilityStateLabel(capability.state));
 const tone = computed(() => capabilityStateTone(capability.state));
-const needs = computed(() => capability.dependsOn.join(", "));
+const kindText = computed(() =>
+    capability.kind === "build" ? null : blockKindLabel(capability.kind),
+);
+const kindIconName = computed(() => blockKindIcon(capability.kind) ?? undefined);
+const waitsOn = computed(() => capability.waitsOn.map((id) => titles[id] ?? id).join(", "));
+/** An open ticket's status, naming its open blockers when it has any. */
+const statusOf = computed(() =>
+    Object.fromEntries(
+        capability.issues
+            .filter((issue) => issue.state === "open")
+            .map((issue) => {
+                const status = ticketStatus(issue);
+                const blockers = issue.blockedBy
+                    .filter((blocker) => blocker.open)
+                    .map((blocker) => `#${blocker.number}`);
+
+                return [
+                    issue.number,
+                    status === "blocked"
+                        ? `Blocked by ${blockers.join(" ")}`
+                        : ticketStatusLabel(status),
+                ];
+            }),
+    ),
+);
+
+const links = computed(() =>
+    [
+        { title: "Needs", ids: capability.dependsOn },
+        { title: "Unblocks", ids: capability.unblocks },
+    ].filter(({ ids }) => ids.length > 0),
+);
 const plural = (count: number, word: string): string => `${count} ${word}${count === 1 ? "" : "s"}`;
 
 const activitySummary = computed(() => {

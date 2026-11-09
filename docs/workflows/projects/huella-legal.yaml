@@ -11,16 +11,19 @@ switches:
   comments: true
   editorial-tooling: true
   i18n: false
-
-gates:
-  discovery: 2026-09-30
-  design: 2026-09-30
-  foundations: 2026-10-05
-  build: 2026-11-03
-  hardening: 2026-11-04
-  launch: 2026-11-04
+  blog: true
 
 settled:
+  scope-signoff:
+    status: done
+    note: Approved 2026-09-30 when the spikes merged, before owner blocks had
+      tickets.
+  design-approval:
+    status: done
+    note: Design D chosen on 2026-09-30 in #208.
+  go-live:
+    status: done
+    note: Approved for the cutover on 2026-11-04.
   feature-inventory:
     status: skipped
     note: Never done; comments, the about page and the confirmation page were found
@@ -51,8 +54,10 @@ extras:
   - id: interest-calculator
     stage: build
     title: Interest calculator
+    dependsOn: [ component-kit, ci-deploy ]
     summary: A legal-interest calculator page.
   - id: publish-form
     stage: build
     title: Publish proposal form
+    dependsOn: [ component-kit, ci-deploy ]
     summary: The page and form for proposing an article, with a .docx upload.

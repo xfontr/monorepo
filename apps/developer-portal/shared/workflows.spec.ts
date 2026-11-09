@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
     assembleWorkflows,
     capabilityState,
+    dependencyCycle,
     projectView,
     readProject,
     readTemplate,
+    ticketStatus,
+    unblockCounts,
     type SnapshotIssue,
 } from "./workflows.ts";
 
@@ -40,11 +43,22 @@ const issue = (number: number, caps: string[], overrides: Partial<SnapshotIssue>
         caps,
         closedAt: "2026-11-01T00:00:00Z",
         activity: [],
+        blockedBy: [],
+        branch: false,
+        owner: false,
         ...overrides,
     }) satisfies SnapshotIssue;
 
-const view = (project: object, issues: SnapshotIssue[], noMilestone: SnapshotIssue[] = []) =>
-    projectView(readProject({ ...PROJECT, ...project }).project, readTemplate(TEMPLATE).template, {
+const open = (number: number, caps: string[], overrides: Partial<SnapshotIssue> = {}) =>
+    issue(number, caps, { state: "open", reason: null, closedAt: null, ...overrides });
+
+const view = (
+    project: object,
+    issues: SnapshotIssue[],
+    noMilestone: SnapshotIssue[] = [],
+    template: object = TEMPLATE,
+) =>
+    projectView(readProject({ ...PROJECT, ...project }).project, readTemplate(template).template, {
         syncedAt: "2026-11-09T00:00:00Z",
         milestone: "Site",
         issues,
@@ -59,7 +73,7 @@ describe("capabilityState", () => {
     it.each([
         ["switched off", false, null, [], "off"],
         ["settled without a ticket", true, "done", [], "done"],
-        ["on with nothing filed", true, null, [], "todo"],
+        ["on with nothing filed", true, null, [], "can-file"],
         [
             "filed and untouched",
             true,
@@ -75,7 +89,7 @@ describe("capabilityState", () => {
             "in-progress",
         ],
         ["fully delivered", true, null, [issue(1, [])], "done"],
-        ["only dropped tickets", true, null, [issue(1, [], { reason: "not_planned" })], "todo"],
+        ["only dropped tickets", true, null, [issue(1, [], { reason: "not_planned" })], "can-file"],
     ] as const)("reads %s as %s", (_, enabled, settled, issues, expected) => {
         expect(capabilityState(enabled, settled, [...issues])).toBe(expected);
     });
@@ -97,31 +111,85 @@ describe("projectView", () => {
         expect(result.progress.done).toBe(0);
     });
 
-    it("keeps a finished stage current until its gate is approved, since a gate is a person's call", () => {
-        const result = view({}, [issue(1, ["content-audit"])]);
+    it("holds back filing behind an open decision, but not behind a build block that has tickets", () => {
+        const template = {
+            ...TEMPLATE,
+            capabilities: [
+                { id: "design-approval", stage: "discovery", title: "Design", kind: "owner" },
+                { id: "content-audit", stage: "discovery", title: "Audit" },
+                {
+                    id: "article-page",
+                    stage: "build",
+                    title: "Article",
+                    dependsOn: ["design-approval", "content-audit"],
+                },
+                { id: "search", stage: "build", title: "Search", dependsOn: ["content-audit"] },
+            ],
+        };
+        const result = view(
+            {},
+            [open(1, ["design-approval"]), open(2, ["content-audit"])],
+            [],
+            template,
+        );
+        const article = result.stages[1]?.capabilities.find(({ id }) => id === "article-page");
 
-        expect(result.stages.map((stage) => stage.state)).toEqual(["current", "upcoming"]);
+        expect(article?.state).toBe("waits");
+        expect(article?.waitsOn).toEqual(["design-approval"]);
+        expect(stateOf(result, "search")).toBe("can-file");
     });
 
-    it("moves past an approved stage even with a ticket still open on it", () => {
-        const result = view({ gates: { discovery: "2026-09-30" } }, [
-            issue(1, ["content-audit"], { state: "open", reason: null }),
-        ]);
+    it("holds back filing behind a build block with nothing filed, since there is no ticket to link to", () => {
+        const template = {
+            ...TEMPLATE,
+            capabilities: [
+                { id: "content-audit", stage: "discovery", title: "Audit" },
+                { id: "search", stage: "build", title: "Search", dependsOn: ["content-audit"] },
+            ],
+        };
 
-        expect(result.stages.map((stage) => stage.state)).toEqual(["done", "current"]);
-        expect(result.left.map(({ id }) => id)).toEqual([
-            "content-audit",
-            "article-page",
-            "search",
+        expect(stateOf(view({}, [], [], template), "search")).toBe("waits");
+        expect(stateOf(view({}, [issue(1, ["content-audit"])], [], template), "search")).toBe(
+            "can-file",
+        );
+    });
+
+    it("lays blocks out by the longest chain behind them, not by their stage", () => {
+        const template = {
+            ...TEMPLATE,
+            capabilities: [
+                { id: "a", stage: "build", title: "A" },
+                { id: "b", stage: "discovery", title: "B", dependsOn: ["a"] },
+                { id: "c", stage: "build", title: "C", dependsOn: ["a", "b"] },
+                { id: "d", stage: "build", title: "D" },
+            ],
+        };
+
+        expect(view({}, [], [], template).waves.map((wave) => wave.map(({ id }) => id))).toEqual([
+            ["a", "d"],
+            ["b"],
+            ["c"],
         ]);
     });
 
-    it("lists what is left in stage order, leaving out what is done, skipped or off", () => {
-        const result = view({ settled: { search: { status: "skipped", note: "" } } }, [
-            issue(1, ["content-audit"]),
+    it("sorts open tickets into what each needs next, most-unblocking first", () => {
+        const result = view({}, [
+            open(1, ["content-audit"]),
+            open(2, ["article-page"], { blockedBy: [{ number: 1, open: true }] }),
+            open(3, ["search"], { blockedBy: [{ number: 2, open: true }] }),
+            open(4, ["search"]),
+            open(5, ["content-audit"], { owner: true }),
+            open(6, ["search"], { branch: true }),
+            issue(7, ["search"]),
         ]);
+        const numbers = (list: { issue: SnapshotIssue }[]) => list.map(({ issue }) => issue.number);
 
-        expect(result.left.map(({ id }) => id)).toEqual(["article-page"]);
+        expect(numbers(result.now.ready)).toEqual([1, 4]);
+        expect(result.now.ready[0]?.unblocks).toBe(2);
+        expect(numbers(result.now.waiting)).toEqual([5]);
+        expect(numbers(result.now.inFlight)).toEqual([6]);
+        expect(numbers(result.now.blocked)).toEqual([2, 3]);
+        expect(result.now.blocked[1]?.blockers).toEqual([2]);
     });
 
     it("puts an area ticket outside the milestone under To organise while the project runs", () => {
@@ -132,11 +200,15 @@ describe("projectView", () => {
         ]);
     });
 
-    it("treats an area ticket outside the milestone as maintenance once every gate is approved", () => {
-        const stray = issue(7, [], { state: "open", reason: null });
-        const gates = { discovery: "2026-09-30", build: "2026-11-04" };
+    it("treats an area ticket outside the milestone as maintenance once everything on is delivered", () => {
+        const stray = open(7, []);
+        const delivered = [
+            issue(1, ["content-audit"]),
+            issue(2, ["article-page"]),
+            issue(3, ["search"]),
+        ];
 
-        expect(view({ gates }, [], [stray]).unsorted).toEqual([]);
+        expect(view({}, delivered, [stray]).unsorted).toEqual([]);
     });
 
     it("sends issues it can't place to the unsorted list, but not closed history on a dropped capability", () => {
@@ -217,6 +289,24 @@ describe("assembleWorkflows", () => {
         ]);
     });
 
+    it("lets a need switched off with its whole group drop out instead of flagging it", () => {
+        const template = {
+            ...TEMPLATE,
+            groups: [{ id: "blog", title: "Blog", optional: true, default: true }],
+            capabilities: [
+                { id: "article-page", stage: "build", title: "Article", group: "blog" },
+                { id: "seo", stage: "build", title: "SEO", dependsOn: ["article-page"] },
+            ],
+        };
+        const { problems } = assembleWorkflows(
+            [parsed("website-rebuild.yaml", template)],
+            [parsed("site.yaml", { ...PROJECT, switches: { blog: false } })],
+            {},
+        );
+
+        expect(problems).toEqual([]);
+    });
+
     it("reports a malformed snapshot and still renders the project", () => {
         const { projects, problems } = assembleWorkflows(
             [parsed("website-rebuild.yaml", TEMPLATE)],
@@ -263,13 +353,32 @@ describe("readTemplate", () => {
         ]);
     });
 
-    it("reads an unquoted YAML date on a gate as the same day", () => {
-        const { project } = readProject({
-            ...PROJECT,
-            gates: { discovery: new Date("2026-09-30") },
+    it("catches a loop of dependsOn links, which no order could ever satisfy", () => {
+        const { problems } = readTemplate({
+            ...TEMPLATE,
+            capabilities: [
+                { id: "a", stage: "build", title: "A", dependsOn: ["c"] },
+                { id: "b", stage: "build", title: "B", dependsOn: ["a"] },
+                { id: "c", stage: "build", title: "C", dependsOn: ["b"] },
+            ],
         });
 
-        expect(project.gates).toEqual({ discovery: "2026-09-30" });
+        expect(problems).toEqual(["`dependsOn` goes round in a loop: a → c → b → a"]);
+    });
+
+    it("refuses a kind outside build, spike and owner", () => {
+        const { problems } = readTemplate({
+            ...TEMPLATE,
+            capabilities: [{ id: "x", stage: "build", title: "X", kind: "epic" }],
+        });
+
+        expect(problems).toEqual(["capability `x`: `kind: epic` isn't one of build, spike, owner"]);
+    });
+
+    it("points a leftover gates: block at the owner block that replaced it", () => {
+        expect(readProject({ ...PROJECT, gates: { discovery: "2026-09-30" } }).problems).toEqual([
+            "`gates:` is gone: a gate is an `owner` block now, approved by closing its ticket or settling it as done",
+        ]);
     });
 });
 
@@ -297,7 +406,7 @@ describe("groups", () => {
 
         expect(stateOf(result, "article-page")).toBe("off");
         expect(stateOf(result, "comments")).toBe("off");
-        expect(stateOf(result, "search")).toBe("todo");
+        expect(stateOf(result, "search")).toBe("can-file");
         expect(result.groups).toEqual([expect.objectContaining({ id: "blog", enabled: false })]);
         expect(result.progress.total).toBe(2);
     });
@@ -305,7 +414,7 @@ describe("groups", () => {
     it("leaves each optional capability's own switch working while its group is on", () => {
         const result = groupedView({});
 
-        expect(stateOf(result, "article-page")).toBe("todo");
+        expect(stateOf(result, "article-page")).toBe("can-file");
         expect(stateOf(result, "comments")).toBe("off");
     });
 
@@ -355,5 +464,65 @@ describe("groups", () => {
             "group `search` shares its id with a capability, so a switch can't tell them apart",
             "capability `feeds` names group `blog`, which the template doesn't have",
         ]);
+    });
+});
+
+describe("ticketStatus", () => {
+    it.each([
+        ["closed as completed", issue(1, []), "done"],
+        ["closed as not planned", issue(1, [], { reason: "not_planned" }), "dropped"],
+        [
+            "open on a linked branch, even if blocked",
+            open(1, [], { branch: true, blockedBy: [{ number: 2, open: true }] }),
+            "in-flight",
+        ],
+        [
+            "open behind an open blocker",
+            open(1, [], { blockedBy: [{ number: 2, open: true }] }),
+            "blocked",
+        ],
+        [
+            "open behind closed blockers only",
+            open(1, [], { blockedBy: [{ number: 2, open: false }] }),
+            "ready",
+        ],
+        ["open, unblocked and the owner's", open(1, [], { owner: true }), "waiting-on-you"],
+    ] as const)("reads a ticket %s as %s", (_, subject, expected) => {
+        expect(ticketStatus(subject)).toBe(expected);
+    });
+});
+
+describe("unblockCounts", () => {
+    it("counts a ticket waiting through two links once, not once per path", () => {
+        const counts = unblockCounts([
+            open(1, []),
+            open(2, [], { blockedBy: [{ number: 1, open: true }] }),
+            open(3, [], {
+                blockedBy: [
+                    { number: 1, open: true },
+                    { number: 2, open: true },
+                ],
+            }),
+            issue(4, [], { blockedBy: [{ number: 1, open: true }] }),
+        ]);
+
+        expect(counts.get(1)).toBe(2);
+        expect(counts.get(2)).toBe(1);
+    });
+});
+
+describe("dependencyCycle", () => {
+    it("finds no loop in a chain that only runs one way", () => {
+        expect(
+            dependencyCycle(
+                readTemplate({
+                    ...TEMPLATE,
+                    capabilities: [
+                        { id: "a", stage: "build", title: "A" },
+                        { id: "b", stage: "build", title: "B", dependsOn: ["a"] },
+                    ],
+                }).template.capabilities,
+            ),
+        ).toBeNull();
     });
 });

@@ -1,7 +1,10 @@
 /** Mirrors `CAPABILITY_LABEL_PREFIX` in apps/developer-portal/shared/workflows.ts. */
 export const CAPABILITY_LABEL_PREFIX = "cap:";
 
-/** One issue as `gh issue list --json number,title,url,state,stateReason,labels,closedAt` prints it. */
+/** Mirrors `OWNER_LABEL` in apps/developer-portal/shared/workflows.ts. */
+export const OWNER_LABEL = "owner";
+
+/** One issue as `adapters/gh.ts` hands it over, its GraphQL connections already flattened. */
 export interface GhIssue {
     number: number;
     title: string;
@@ -10,6 +13,9 @@ export interface GhIssue {
     stateReason: string;
     labels: { name: string }[];
     closedAt: string | null;
+    blockedBy: { number: number; state: string }[];
+    /** Branches linked on the issue's Development panel. */
+    branches: number;
 }
 
 export interface SnapshotIssue {
@@ -22,6 +28,9 @@ export interface SnapshotIssue {
     closedAt: string | null;
     /** The author date of every commit whose subject names this issue as `[#N]`, ascending. */
     activity: string[];
+    blockedBy: { number: number; open: boolean }[];
+    branch: boolean;
+    owner: boolean;
 }
 
 /** Read back by `readSnapshot` in apps/developer-portal/shared/workflows.ts; change both together. */
@@ -72,6 +81,11 @@ const toIssue = (issue: GhIssue, activity: Map<number, string[]>): SnapshotIssue
         .sort((a, b) => a.localeCompare(b)),
     closedAt: issue.closedAt || null,
     activity: activity.get(issue.number) ?? [],
+    blockedBy: issue.blockedBy
+        .map(({ number, state }) => ({ number, open: state === "OPEN" }))
+        .sort((a, b) => a.number - b.number),
+    branch: issue.branches > 0,
+    owner: issue.labels.some(({ name }) => name === OWNER_LABEL),
 });
 
 export const toSnapshot = (

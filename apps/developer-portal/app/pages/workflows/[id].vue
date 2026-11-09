@@ -30,7 +30,12 @@
                     <div class="min-w-0 flex-1">
                         <p class="text-lg font-semibold">
                             {{ view.progress.done }} of {{ view.progress.total }} done
-                            <span class="text-muted font-normal">· {{ current }}</span>
+                        </p>
+                        <p class="flex flex-wrap gap-x-3 text-sm tabular-nums">
+                            <span v-for="count in counts" :key="count.label"
+                                ><span class="font-semibold">{{ count.value }}</span
+                                >&nbsp;<span class="text-muted">{{ count.label }}</span></span
+                            >
                         </p>
                         <p class="text-sm text-muted">{{ view.project.summary }}</p>
                         <p class="mt-0.5 flex flex-wrap gap-x-3 text-xs text-dimmed">
@@ -92,59 +97,29 @@
                     </template>
                 </UAlert>
 
-                <section v-if="view.left.length > 0" class="flex flex-col gap-2">
-                    <h2 class="text-sm font-semibold">
-                        What's left
-                        <span class="font-normal text-muted tabular-nums">
-                            {{ view.left.length }}
-                        </span>
-                    </h2>
-                    <ul class="flex flex-wrap gap-2">
-                        <li v-for="capability in leftShown" :key="capability.id">
-                            <button
-                                type="button"
-                                class="flex items-center gap-2 rounded-2xl border border-default px-3 py-1 text-left text-sm transition hover:bg-elevated"
-                                @click="selectedId = capability.id"
-                                @mouseenter="highlight = capability.id"
-                                @mouseleave="highlight = null"
-                                @focus="highlight = capability.id"
-                                @blur="highlight = null"
-                            >
-                                <span
-                                    class="size-2.5 shrink-0 rounded-full border-2"
-                                    :style="{
-                                        borderColor: capabilityColor(capability.state),
-                                        background: capabilityFilled(capability.state)
-                                            ? capabilityColor(capability.state)
-                                            : 'transparent',
-                                    }"
-                                    aria-hidden="true"
-                                />
-                                <span class="flex flex-wrap items-baseline gap-x-2">
-                                    <span class="font-medium">{{ capability.title }}</span>
-                                    <span class="text-xs text-muted">
-                                        {{ stageTitles.get(capability.stage) }} ·
-                                        {{ capabilityStateLabel(capability.state) }}
-                                    </span>
-                                </span>
-                            </button>
-                        </li>
-                        <li
-                            v-if="view.left.length > leftShown.length"
-                            class="self-center text-xs text-muted"
-                        >
-                            and {{ view.left.length - leftShown.length }} more in later stages
-                        </li>
-                    </ul>
-                </section>
+                <NowBoard
+                    v-if="open > 0"
+                    :now="view.now"
+                    :titles
+                    @select="(capability) => (selectedId = capability)"
+                />
+                <p v-else class="text-sm text-muted">
+                    No open ticket in the milestone. File a block from the map with
+                    <code class="font-mono">pnpm workflow:file {{ id }} &lt;block&gt;</code>.
+                </p>
 
                 <div class="rounded-2xl border border-default bg-elevated/30 p-3 sm:p-6">
-                    <WorkflowSkyline
+                    <WorkflowMap
+                        :waves="view.waves"
                         :stages="view.stages"
-                        :selected="activeId"
-                        :highlight
-                        @select-stage="(stage) => (stageId = stage)"
+                        :focus="highlight ?? selectedId"
+                        :editable
+                        :groups="view.groups"
+                        :activity="activity?.capabilities"
+                        :activity-peak="activity?.peak"
                         @select="(capability) => (selectedId = capability)"
+                        @hover="(capability) => (highlight = capability)"
+                        @toggle-group="toggle"
                     />
                     <ActivityStrip
                         v-if="activity"
@@ -153,20 +128,6 @@
                         class="mt-6 border-t border-default pt-4"
                     />
                 </div>
-
-                <StageCards
-                    v-if="activeStage"
-                    :stage="activeStage"
-                    :index="activeIndex"
-                    :editable
-                    :activity="activity?.capabilities"
-                    :activity-peak="activity?.peak"
-                    :groups="view.groups"
-                    @toggle-group="toggle"
-                    @select="(capability) => (selectedId = capability)"
-                    @hover="(capability) => (highlight = capability)"
-                    @approve="approve"
-                />
             </div>
 
             <USlideover
@@ -179,10 +140,12 @@
                     <CapabilityDetail
                         v-if="selected"
                         :capability="selected"
+                        :titles
                         :editable
                         :activity="activity?.capabilities[selected.id]"
                         :group-off="selectedGroupOff"
                         @toggle="(on) => toggle(selected!.id, on)"
+                        @select="(capability) => (selectedId = capability)"
                     />
                 </template>
             </USlideover>
@@ -192,8 +155,6 @@
 
 <script setup lang="ts">
 import { projectActivity } from "#shared/workflowActivity.ts";
-
-const LEFT_LIMIT = 8;
 
 const route = useRoute();
 const id = computed(() => String(route.params.id));
@@ -207,66 +168,42 @@ const activity = computed(() => (view.value ? projectActivity(view.value) : null
 useHead({ title: () => view.value?.project.title ?? "Workflow" });
 
 const synced = computed(() => relativeTime(view.value?.syncedAt));
-const current = computed(() => {
-    const stage = view.value?.stages.find(({ state }) => state === "current");
-    return stage ? `now in ${stage.title}` : "every gate approved";
-});
 const problems = computed(() =>
     data.value.problems
         .filter(({ file }) => file.startsWith(`projects/${id.value}.`))
         .map(({ file, message }) => `${file}: ${message}`),
 );
 
-const stageTitles = computed(
-    () => new Map(view.value?.stages.map((stage) => [stage.id, stage.title])),
+const capabilities = computed(() => view.value?.waves.flat() ?? []);
+const titles = computed(() =>
+    Object.fromEntries(capabilities.value.map((capability) => [capability.id, capability.title])),
 );
 
-const stageId = ref<string | null>(null);
-const highlight = ref<string | null>(null);
+const counts = computed(() => {
+    const now = view.value?.now;
 
-const activeIndex = computed(() => {
-    const stages = view.value?.stages ?? [];
-    const chosen = stages.findIndex((stage) => stage.id === stageId.value);
-    const current = stages.findIndex((stage) => stage.state === "current");
-
-    return Math.max(chosen >= 0 ? chosen : current, 0);
+    return [
+        { label: "waiting on you", value: now?.waiting.length ?? 0 },
+        { label: "ready", value: now?.ready.length ?? 0 },
+        { label: "in flight", value: now?.inFlight.length ?? 0 },
+        { label: "blocked", value: now?.blocked.length ?? 0 },
+    ];
 });
-const activeStage = computed(() => view.value?.stages[activeIndex.value]);
-const activeId = computed(() => activeStage.value?.id ?? null);
+const open = computed(() => counts.value.reduce((sum, { value }) => sum + value, 0));
 
-/** A fresh project owes every capability, so the list stops at what the next stages need. */
-const leftShown = computed(() => view.value?.left.slice(0, LEFT_LIMIT) ?? []);
-
+const highlight = ref<string | null>(null);
 const selectedId = ref<string | null>(null);
 const selected = computed(() =>
-    view.value?.stages
-        .flatMap((stage) => stage.capabilities)
-        .find((capability) => capability.id === selectedId.value),
+    capabilities.value.find((capability) => capability.id === selectedId.value),
 );
 const selectedGroupOff = computed(() => {
     const group = view.value?.groups.find(({ id }) => id === selected.value?.group);
     return group && !group.enabled ? group.title : null;
 });
-const selectedStage = computed(() =>
-    selected.value ? stageTitles.value.get(selected.value.stage) : undefined,
+const selectedStage = computed(
+    () => view.value?.stages.find((stage) => stage.id === selected.value?.stage)?.title,
 );
-
-/** The local calendar day; near midnight, UTC's is a different one. */
-const today = (): string => {
-    const now = new Date();
-    const pad = (value: number) => String(value).padStart(2, "0");
-
-    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-};
 
 const toggle = (capability: string, on: boolean) =>
     edit({ action: "switch", project: id.value, capability, on });
-
-const approve = (stage: string, approving: boolean) =>
-    edit({
-        action: "gate",
-        project: id.value,
-        stage,
-        approvedOn: approving ? today() : null,
-    });
 </script>

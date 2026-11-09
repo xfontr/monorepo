@@ -1,6 +1,6 @@
 import { mountSuspended, mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { ref } from "vue";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { assembleWorkflows } from "#shared/workflows.ts";
 import Page from "./[id].vue";
 
@@ -18,12 +18,18 @@ const TEMPLATE = {
     id: "website-rebuild",
     title: "Website rebuild",
     stages: [
-        { id: "build", title: "Build", gate: "Everything is reachable." },
-        { id: "launch", title: "Launch", gate: "Traffic is on the new site." },
+        { id: "build", title: "Build" },
+        { id: "launch", title: "Launch" },
     ],
     capabilities: [
         { id: "comments", stage: "build", title: "Comments", optional: true },
-        { id: "cutover", stage: "launch", title: "Cutover", optional: false },
+        {
+            id: "cutover",
+            stage: "launch",
+            title: "Cutover",
+            optional: false,
+            dependsOn: ["comments"],
+        },
     ],
 };
 
@@ -43,6 +49,11 @@ const issue = {
     reason: null,
     closedAt: null,
 };
+
+const ISSUES = [
+    { ...issue, caps: [] },
+    { ...issue, number: 13, title: "Moderate comments", caps: ["comments"] },
+];
 
 const global = {
     stubs: {
@@ -64,7 +75,7 @@ const global = {
     },
 };
 
-const workflows = (project: object) =>
+const workflows = (project: object, issues: object[] = ISSUES) =>
     ref(
         assembleWorkflows(
             [{ file: "website-rebuild.yaml", ok: true, value: TEMPLATE }],
@@ -76,15 +87,7 @@ const workflows = (project: object) =>
                     value: {
                         syncedAt: "2026-11-09T00:00:00Z",
                         milestone: "Blog",
-                        issues: [
-                            { ...issue, caps: [] },
-                            {
-                                ...issue,
-                                number: 13,
-                                title: "Moderate comments",
-                                caps: ["comments"],
-                            },
-                        ],
+                        issues,
                     },
                 },
             },
@@ -98,10 +101,6 @@ beforeEach(() => {
     state.data = workflows(PROJECT);
 });
 
-afterEach(() => {
-    vi.useRealTimers();
-});
-
 describe("workflow page", () => {
     it("puts a ticket with no capability label under To organise", async () => {
         const wrapper = await mountSuspended(Page, { global });
@@ -111,67 +110,44 @@ describe("workflow page", () => {
         expect(wrapper.text()).toContain("no cap: label");
     });
 
-    it("opens a capability's details from its card in the active stage", async () => {
+    it("opens a block's details from its card on the map", async () => {
         const wrapper = await mountSuspended(Page, { global });
 
         expect(wrapper.find("aside").exists()).toBe(false);
 
-        await wrapper
-            .findAll("#stage-build button")
-            .find((card) => card.text().startsWith("Comments"))
-            ?.trigger("click");
+        await wrapper.find("[data-capability='comments']").trigger("click");
 
         expect(wrapper.find("aside").text()).toContain("Planned");
         expect(wrapper.find("aside").text()).toContain("Moderate comments");
     });
 
-    it("keeps work left behind an approved gate on the page, opening it from there", async () => {
-        state.data = workflows({ ...PROJECT, gates: { build: "2026-11-01" } });
+    it("puts a block one column right of the block it needs, whatever its stage", async () => {
         const wrapper = await mountSuspended(Page, { global });
 
-        expect(wrapper.find("#stage-build").exists()).toBe(false);
+        expect(wrapper.find("[data-wave='0'] [data-capability='comments']").exists()).toBe(true);
+        expect(wrapper.find("[data-wave='1'] [data-capability='cutover']").exists()).toBe(true);
+    });
 
-        await wrapper
-            .findAll("li button")
-            .find((button) => button.text().startsWith("Comments"))
+    it("lists an unblocked open ticket as ready and opens its block from there", async () => {
+        const wrapper = await mountSuspended(Page, { global });
+        const ready = wrapper.find("[data-column='ready']");
+
+        expect(ready.text()).toContain("Moderate comments");
+
+        await ready
+            .findAll("button")
+            .find((button) => button.text() === "Comments")
             ?.trigger("click");
 
         expect(wrapper.find("aside").text()).toContain("Moderate comments");
     });
 
-    it("shows the stage that is in progress first and swaps cards when another stage is chosen", async () => {
+    it("says how to file a block when nothing in the milestone is open", async () => {
+        state.data = workflows(PROJECT, []);
         const wrapper = await mountSuspended(Page, { global });
 
-        expect(wrapper.find("#stage-build").exists()).toBe(true);
-        expect(wrapper.find("#stage-launch").exists()).toBe(false);
-
-        await wrapper
-            .findAll("button[aria-pressed]")
-            .find((stage) => stage.text().includes("Launch"))
-            ?.trigger("click");
-
-        expect(wrapper.find("#stage-build").exists()).toBe(false);
-        expect(wrapper.find("#stage-launch").text()).toContain("Cutover");
-    });
-
-    // Just past midnight local time is still the previous day in UTC east of Greenwich.
-    it("approves a gate with today's local date when editing locally", async () => {
-        vi.useFakeTimers({ toFake: ["Date"] });
-        vi.setSystemTime(new Date(2026, 10, 9, 0, 30));
-        state.editable = true;
-        const wrapper = await mountSuspended(Page, { global });
-
-        await wrapper
-            .findAll("button")
-            .find((button) => button.text() === "Approve today")
-            ?.trigger("click");
-
-        expect(state.edit).toHaveBeenCalledWith({
-            action: "gate",
-            project: "blog",
-            stage: "build",
-            approvedOn: "2026-11-09",
-        });
+        expect(wrapper.text()).toContain("pnpm workflow:file blog");
+        expect(wrapper.text()).not.toContain("Approve");
     });
 
     it("says so when the project doesn't exist instead of rendering an empty pipeline", async () => {

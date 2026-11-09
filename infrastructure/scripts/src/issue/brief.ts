@@ -2,7 +2,7 @@ import { out } from "../shared/adapters/io.ts";
 import type { Args } from "../shared/cli.ts";
 import { ExpectedError } from "../shared/errors.ts";
 import { decisions, exists, projectDirs } from "./adapters/files.ts";
-import { issueStatus, viewThread } from "./adapters/gh.ts";
+import { blockedBy, issueStatus, viewThread } from "./adapters/gh.ts";
 import { currentBranch } from "./adapters/git.ts";
 import { issueFromBranch } from "./domain/branch.ts";
 import {
@@ -29,6 +29,19 @@ const statusOf = (number: number): IssueStatus => {
     }
 };
 
+/** GitHub's own blocked-by links first, then any older `**Blocked by:**` line in the body. */
+const blockersOf = (number: number, body: string): IssueStatus[] => {
+    const linked = blockedBy(number);
+    const linkedNumbers = new Set(linked.map((blocker) => blocker.number));
+
+    return [
+        ...linked,
+        ...blockersIn(body)
+            .filter((blocker) => !linkedNumbers.has(blocker))
+            .map(statusOf),
+    ];
+};
+
 export const brief = ({ positionals }: Args): void => {
     const [requested] = positionals;
     const branch = issueFromBranch(currentBranch());
@@ -42,7 +55,7 @@ export const brief = ({ positionals }: Args): void => {
     out.info(
         renderBrief({
             thread,
-            blockers: blockersIn(thread.body).map(statusOf),
+            blockers: blockersOf(number, thread.body),
             decisions: relevantDecisions(
                 decisions(),
                 [number, ...referencedIssues(thread)],

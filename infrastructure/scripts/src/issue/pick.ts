@@ -6,6 +6,7 @@ import { optionValue } from "../shared/domain/cli.ts";
 import { ExpectedError } from "../shared/errors.ts";
 import {
     assignToMe,
+    blockedBy,
     developBranch,
     isOnline,
     listIssues,
@@ -27,6 +28,7 @@ import {
 } from "./domain/branch.ts";
 import { issueNumberFrom, type IssueThread } from "./domain/brief.ts";
 import {
+    blockedPickMessage,
     issueCountMessage,
     issueOptionMatches,
     issueOptions,
@@ -39,7 +41,7 @@ import { issueSource } from "./domain/source.ts";
 const CANCELLED = "Cancelled — still on the same branch.";
 
 const TYPE_HINT = `--type=<${BRANCH_TYPES.join("|")}>`;
-const NO_TERMINAL_HINT = `pass an issue number: pnpm issue:pick <number> [${TYPE_HINT}] [--project=<board>] [--title=<branch title>]`;
+const NO_TERMINAL_HINT = `pass an issue number: pnpm issue:pick <number> [${TYPE_HINT}] [--project=<board>] [--title=<branch title>] [--force]`;
 
 const or = <T>(value: Cancellable<T>): T => orExit(value, CANCELLED);
 
@@ -204,6 +206,14 @@ const boardFor = (title: string): Project | undefined => {
     return project;
 };
 
+/** Only a new branch is checked: resuming one means the work already started. */
+const refuseIfBlocked = (issue: number, flags: ReadonlySet<string>): void => {
+    if (flags.has("force")) return;
+
+    const message = blockedPickMessage(issue, blockedBy(issue));
+    if (message) throw new ExpectedError(message);
+};
+
 const newBranch = (thread: IssueThread, flags: ReadonlySet<string>): string => {
     const { number, labels } = thread;
     const type = optionValue(flags, "type") ?? branchTypeFor(labels);
@@ -220,6 +230,8 @@ const newBranch = (thread: IssueThread, flags: ReadonlySet<string>): string => {
         throw new ExpectedError(
             `"${title}" has no letter or digit to slug — pass --title=<branch title>.`,
         );
+
+    refuseIfBlocked(number, flags);
 
     const branch = branchName(type, areaFor(labels), number, title);
     developBranch(number, branch);
@@ -267,6 +279,8 @@ export const pick = async ({ positionals, flags }: Args = NO_ARGS): Promise<void
         if (issue === BACK) continue;
 
         if (await resumeBranch(project, issue)) return;
+
+        refuseIfBlocked(issue.number, flags);
 
         const branch = await promptBranch(issue);
         out.note(issue.url, branch);

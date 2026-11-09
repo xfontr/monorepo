@@ -1,5 +1,5 @@
 {
-    "syncedAt": "2026-11-09T14:18:01.360Z",
+    "syncedAt": "2026-11-09T15:26:26.228Z",
     "milestone": "Huella Legal",
     "issues": [
         {
@@ -12,7 +12,10 @@
                 "design-tokens"
             ],
             "closedAt": "2026-09-29T19:19:06Z",
-            "activity": []
+            "activity": [],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 27,
@@ -24,7 +27,10 @@
                 "design-lab"
             ],
             "closedAt": "2026-09-30T10:27:34Z",
-            "activity": []
+            "activity": [],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 185,
@@ -38,7 +44,10 @@
             "closedAt": "2026-09-29T20:20:22Z",
             "activity": [
                 "2026-09-29"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 186,
@@ -53,7 +62,10 @@
             "activity": [
                 "2026-09-30",
                 "2026-09-30"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 187,
@@ -67,7 +79,10 @@
             "closedAt": "2026-09-29T20:52:15Z",
             "activity": [
                 "2026-09-29"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 188,
@@ -81,7 +96,10 @@
             "closedAt": "2026-09-30T10:29:10Z",
             "activity": [
                 "2026-09-30"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 189,
@@ -93,7 +111,10 @@
                 "test-harness"
             ],
             "closedAt": "2026-09-30T09:05:15Z",
-            "activity": []
+            "activity": [],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 192,
@@ -114,7 +135,15 @@
                 "2026-09-30",
                 "2026-09-30",
                 "2026-09-30"
-            ]
+            ],
+            "blockedBy": [
+                {
+                    "number": 189,
+                    "open": false
+                }
+            ],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 193,
@@ -126,7 +155,10 @@
                 "i18n"
             ],
             "closedAt": "2026-09-30T14:46:47Z",
-            "activity": []
+            "activity": [],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 194,
@@ -138,7 +170,19 @@
                 "content-source"
             ],
             "closedAt": "2026-09-30T15:41:09Z",
-            "activity": []
+            "activity": [],
+            "blockedBy": [
+                {
+                    "number": 185,
+                    "open": false
+                },
+                {
+                    "number": 192,
+                    "open": false
+                }
+            ],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 195,
@@ -153,7 +197,19 @@
             "activity": [
                 "2026-09-30",
                 "2026-09-30"
-            ]
+            ],
+            "blockedBy": [
+                {
+                    "number": 185,
+                    "open": false
+                },
+                {
+                    "number": 192,
+                    "open": false
+                }
+            ],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 196,
@@ -168,7 +224,19 @@
             "activity": [
                 "2026-09-30",
                 "2026-09-30"
-            ]
+            ],
+            "blockedBy": [
+                {
+                    "number": 192,
+                    "open": false
+                },
+                {
+                    "number": 193,
+                    "open": false
+                }
+            ],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 197,
@@ -185,7 +253,27 @@
                 "2026-10-04",
                 "2026-10-04",
                 "2026-10-04"
-            ]
+            ],
+            "blockedBy": [
+                {
+                    "number": 192,
+                    "open": false
+                },
+                {
+                    "number": 193,
+                    "open": false
+                },
+                {
+                    "number": 194,
+                    "open": false
+                },
+                {
+                    "number": 195,
+                    "open": false
+                }
+            ],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 198,
@@ -200,7 +288,19 @@
             "activity": [
                 "2026-10-05",
                 "2026-10-05"
-            ]
+            ],
+            "blockedBy": [
+                {
+                    "number": 192,
+                    "open": false
+                },
+                {
+                    "number": 193,
+                    "open": false
+                }
+            ],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 199,
@@ -218,7 +318,19 @@
                 "2026-10-05",
                 "2026-10-05",
                 "2026-10-05"
-            ]
+            ],
+            "blockedBy": [
+                {
+                    "number": 192,
+                    "open": false
+                },
+                {
+                    "number": 193,
+                    "open": false
+                }
+            ],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 200,
@@ -234,7 +346,27 @@
                 "2026-10-04",
                 "2026-10-04",
                 "2026-10-04"
-            ]
+            ],
+            "blockedBy": [
+                {
+                    "number": 192,
+                    "open": false
+                },
+                {
+                    "number": 193,
+                    "open": false
+                },
+                {
+                    "number": 194,
+                    "open": false
+                },
+                {
+                    "number": 195,
+                    "open": false
+                }
+            ],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 201,
@@ -249,7 +381,27 @@
             "activity": [
                 "2026-10-05",
                 "2026-10-05"
-            ]
+            ],
+            "blockedBy": [
+                {
+                    "number": 192,
+                    "open": false
+                },
+                {
+                    "number": 193,
+                    "open": false
+                },
+                {
+                    "number": 194,
+                    "open": false
+                },
+                {
+                    "number": 195,
+                    "open": false
+                }
+            ],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 208,
@@ -264,7 +416,10 @@
             "activity": [
                 "2026-09-30",
                 "2026-09-30"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 212,
@@ -279,7 +434,10 @@
             "activity": [
                 "2026-11-08",
                 "2026-11-08"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 219,
@@ -299,7 +457,10 @@
                 "2026-09-30",
                 "2026-09-30",
                 "2026-09-30"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 223,
@@ -317,7 +478,10 @@
                 "2026-10-01",
                 "2026-10-01",
                 "2026-10-02"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 231,
@@ -338,7 +502,10 @@
                 "2026-11-05",
                 "2026-11-05",
                 "2026-11-05"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 232,
@@ -360,7 +527,10 @@
                 "2026-11-08",
                 "2026-11-08",
                 "2026-11-08"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 234,
@@ -384,7 +554,10 @@
                 "2026-10-08",
                 "2026-10-08",
                 "2026-10-08"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 236,
@@ -396,7 +569,10 @@
                 "rendering-strategy"
             ],
             "closedAt": "2026-11-04T08:59:06Z",
-            "activity": []
+            "activity": [],
+            "blockedBy": [],
+            "branch": true,
+            "owner": false
         },
         {
             "number": 240,
@@ -423,7 +599,10 @@
                 "2026-10-09",
                 "2026-10-09",
                 "2026-10-09"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 241,
@@ -444,7 +623,10 @@
                 "2026-10-16",
                 "2026-10-16",
                 "2026-10-16"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 242,
@@ -467,7 +649,10 @@
                 "2026-10-21",
                 "2026-10-21",
                 "2026-10-22"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 243,
@@ -481,7 +666,10 @@
             "closedAt": "2026-10-27T22:05:20Z",
             "activity": [
                 "2026-10-27"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 244,
@@ -493,7 +681,10 @@
                 "hosting-prototype"
             ],
             "closedAt": "2026-11-04T09:01:14Z",
-            "activity": []
+            "activity": [],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 245,
@@ -508,7 +699,10 @@
             "activity": [
                 "2026-10-26",
                 "2026-10-26"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 246,
@@ -524,7 +718,10 @@
                 "2026-10-28",
                 "2026-10-28",
                 "2026-10-28"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 247,
@@ -541,7 +738,10 @@
                 "2026-10-27",
                 "2026-10-27",
                 "2026-10-27"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 248,
@@ -560,7 +760,10 @@
                 "2026-10-28",
                 "2026-10-28",
                 "2026-10-28"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 249,
@@ -577,7 +780,10 @@
                 "2026-10-26",
                 "2026-10-26",
                 "2026-10-26"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 250,
@@ -596,7 +802,10 @@
                 "2026-11-01",
                 "2026-11-01",
                 "2026-11-01"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 251,
@@ -610,7 +819,10 @@
             "closedAt": "2026-11-04T09:49:30Z",
             "activity": [
                 "2026-11-04"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 252,
@@ -626,7 +838,10 @@
                 "2026-11-03",
                 "2026-11-03",
                 "2026-11-03"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 253,
@@ -642,7 +857,10 @@
                 "2026-10-31",
                 "2026-10-31",
                 "2026-10-31"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 274,
@@ -656,7 +874,10 @@
             "closedAt": "2026-10-17T11:51:36Z",
             "activity": [
                 "2026-10-17"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 280,
@@ -668,7 +889,10 @@
                 "observability"
             ],
             "closedAt": null,
-            "activity": []
+            "activity": [],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 283,
@@ -686,7 +910,10 @@
                 "2026-11-08",
                 "2026-11-08",
                 "2026-11-08"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 284,
@@ -698,7 +925,10 @@
                 "env-discipline"
             ],
             "closedAt": "2026-11-04T08:57:58Z",
-            "activity": []
+            "activity": [],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 286,
@@ -712,7 +942,10 @@
             "closedAt": "2026-10-22T14:04:46Z",
             "activity": [
                 "2026-10-22"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 299,
@@ -727,7 +960,10 @@
             "activity": [
                 "2026-10-27",
                 "2026-10-27"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 301,
@@ -746,7 +982,10 @@
                 "2026-11-03",
                 "2026-11-03",
                 "2026-11-03"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 302,
@@ -762,7 +1001,10 @@
                 "2026-10-28",
                 "2026-10-28",
                 "2026-10-28"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 304,
@@ -778,7 +1020,10 @@
                 "2026-10-27",
                 "2026-10-27",
                 "2026-10-27"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 308,
@@ -797,7 +1042,10 @@
                 "2026-11-02",
                 "2026-11-02",
                 "2026-11-02"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 311,
@@ -815,7 +1063,10 @@
                 "2026-10-30",
                 "2026-10-30",
                 "2026-10-30"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 312,
@@ -833,7 +1084,10 @@
                 "2026-10-28",
                 "2026-10-28",
                 "2026-10-28"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 313,
@@ -849,7 +1103,10 @@
                 "2026-10-31",
                 "2026-10-31",
                 "2026-10-31"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 316,
@@ -869,7 +1126,10 @@
                 "2026-10-30",
                 "2026-10-30",
                 "2026-10-30"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 324,
@@ -893,7 +1153,10 @@
                 "2026-10-31",
                 "2026-10-31",
                 "2026-10-31"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 328,
@@ -909,7 +1172,10 @@
                 "2026-10-31",
                 "2026-10-31",
                 "2026-10-31"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 330,
@@ -925,7 +1191,10 @@
                 "2026-10-31",
                 "2026-10-31",
                 "2026-10-31"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 331,
@@ -937,7 +1206,10 @@
                 "test-harness"
             ],
             "closedAt": null,
-            "activity": []
+            "activity": [],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 336,
@@ -949,7 +1221,10 @@
                 "consent-analytics"
             ],
             "closedAt": "2026-11-01T22:09:34Z",
-            "activity": []
+            "activity": [],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 337,
@@ -967,7 +1242,10 @@
                 "2026-11-01",
                 "2026-11-01",
                 "2026-11-01"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 340,
@@ -991,7 +1269,10 @@
                 "2026-11-02",
                 "2026-11-02",
                 "2026-11-02"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 341,
@@ -1012,7 +1293,10 @@
                 "2026-11-02",
                 "2026-11-02",
                 "2026-11-02"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 343,
@@ -1041,7 +1325,10 @@
                 "2026-11-03",
                 "2026-11-03",
                 "2026-11-03"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 344,
@@ -1056,7 +1343,10 @@
             "activity": [
                 "2026-11-04",
                 "2026-11-04"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 346,
@@ -1068,7 +1358,10 @@
                 "editorial-tooling"
             ],
             "closedAt": null,
-            "activity": []
+            "activity": [],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 348,
@@ -1084,7 +1377,10 @@
                 "2026-11-04",
                 "2026-11-04",
                 "2026-11-04"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 349,
@@ -1096,7 +1392,10 @@
                 "i18n"
             ],
             "closedAt": "2026-11-04T10:47:34Z",
-            "activity": []
+            "activity": [],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 350,
@@ -1110,7 +1409,10 @@
             "closedAt": "2026-11-04T11:21:23Z",
             "activity": [
                 "2026-11-04"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 360,
@@ -1126,7 +1428,10 @@
                 "2026-11-04",
                 "2026-11-04",
                 "2026-11-04"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 361,
@@ -1142,7 +1447,10 @@
                 "2026-11-04",
                 "2026-11-04",
                 "2026-11-04"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 362,
@@ -1161,7 +1469,10 @@
                 "2026-11-04",
                 "2026-11-04",
                 "2026-11-04"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 371,
@@ -1179,7 +1490,10 @@
                 "2026-11-05",
                 "2026-11-05",
                 "2026-11-05"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 373,
@@ -1193,7 +1507,10 @@
             "closedAt": "2026-11-06T15:18:24Z",
             "activity": [
                 "2026-11-06"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 375,
@@ -1207,7 +1524,10 @@
             "closedAt": "2026-11-06T16:06:19Z",
             "activity": [
                 "2026-11-06"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 377,
@@ -1226,7 +1546,10 @@
                 "2026-11-07",
                 "2026-11-07",
                 "2026-11-07"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 380,
@@ -1243,7 +1566,10 @@
                 "2026-11-07",
                 "2026-11-07",
                 "2026-11-07"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 383,
@@ -1262,7 +1588,10 @@
                 "2026-11-07",
                 "2026-11-07",
                 "2026-11-07"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 385,
@@ -1277,7 +1606,10 @@
             "activity": [
                 "2026-11-07",
                 "2026-11-07"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 390,
@@ -1291,7 +1623,10 @@
             "closedAt": "2026-11-08T12:04:47Z",
             "activity": [
                 "2026-11-08"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 392,
@@ -1308,7 +1643,10 @@
                 "2026-11-08",
                 "2026-11-08",
                 "2026-11-08"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 400,
@@ -1322,7 +1660,10 @@
             "closedAt": "2026-11-08T17:56:23Z",
             "activity": [
                 "2026-11-08"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         },
         {
             "number": 402,
@@ -1336,7 +1677,10 @@
             "closedAt": "2026-11-08T18:58:56Z",
             "activity": [
                 "2026-11-08"
-            ]
+            ],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false
         }
     ],
     "noMilestone": []
