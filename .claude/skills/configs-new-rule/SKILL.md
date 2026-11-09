@@ -11,6 +11,11 @@ maps every file to its concern. This file covers what that map can't enforce.
 and [`lib/routeMeta.ts`](../../../packages/configs/src/eslint/lib/routeMeta.ts) are the smallest
 complete in-house rule.
 
+Before removing or relaxing a rule, check the developer portal's Telemetry page: how often it fired
+and how often it is disabled inline. Those hits come from agent edits only, never the user's, so a
+rule that never fired there may still be catching the user's mistakes. Treat it as a question to
+ask them, not a reason to remove the rule.
+
 ## Pick the place
 
 1. **A plugin preset taken as shipped** is a const in `lib/index.ts`, no file of its own.

@@ -25,6 +25,28 @@ while [ "$dir" != "/" ] && [ "$dir" != "." ] && [ ! -f "$dir/package.json" ]; do
 done
 [ -f "$dir/package.json" ] || exit 0
 
+# A pass without --fix first, because a fixed problem vanishes from eslint's report. Exit 1 means
+# problems were found, 2 that eslint itself failed.
+report=$(cd "$dir" && pnpm exec eslint --format json "$file" 2>/dev/null)
+[ $? -le 1 ] || exit 0
+
+# One row per rule hit, buffered in .git like a script run; columns and order are LINT_COLUMNS in
+# infrastructure/scripts/src/shared/domain/usage.ts, and the caller is derived as callerOf does there.
+common=$(git -C "$dir" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+if [ -n "$common" ] && mkdir -p "$common/telemetry" 2>/dev/null; then
+    caller=${AI_AGENT%%_*}
+    printf '%s' "$report" | jq -r \
+        --arg at "$(date -u +%Y-%m-%d)" \
+        --arg project "$(jq -r '.name // ""' "$dir/package.json" | sed 's|^@monorepo/||')" \
+        --arg caller "${caller:-claude-code}" \
+        '.[].messages[] | select(.ruleId)
+         | [$at, .ruleId, $project, (if .severity == 2 then "error" else "warn" end),
+            (if .fix then "1" else "0" end), $caller]
+         | join(",")' >> "$common/telemetry/lint.csv" 2>/dev/null
+fi
+
+[ "$(printf '%s' "$report" | jq '[.[].errorCount] | add // 0' 2>/dev/null)" -gt 0 ] 2>/dev/null || exit 0
+
 # --quiet skips warn-level rules, fixes included; exit 1 means errors remain, 2 that eslint failed
 residue=$(cd "$dir" && pnpm exec eslint --fix --quiet "$file" 2>/dev/null)
 [ $? -eq 1 ] && [ -n "$residue" ] || exit 0
