@@ -94,17 +94,21 @@ describe("decisions", () => {
 });
 
 describe("projectsFor", () => {
-    it("joins the app label, the board slug and paths in the thread, keeping only real folders", () => {
+    it("joins the area labels, the branch area and paths in the thread, keeping only real folders", () => {
         expect(projectsFor(THREAD, "huella-legal", DIRS)).toEqual([
             "apps/huella-legal",
             "packages/content",
         ]);
     });
 
-    it("matches nothing for a board that spans several projects", () => {
+    it("matches nothing for the repo area, which spans every project", () => {
+        expect(projectsFor({ ...THREAD, labels: [], comments: [] }, "repo", DIRS)).toEqual([]);
+    });
+
+    it("reads an infra label as a folder under infrastructure", () => {
         expect(
-            projectsFor({ ...THREAD, labels: [], comments: [] }, "infrastructure", DIRS),
-        ).toEqual([]);
+            projectsFor({ ...THREAD, labels: ["infra:scripts"], comments: [] }, undefined, DIRS),
+        ).toEqual(["infrastructure/scripts"]);
     });
 });
 

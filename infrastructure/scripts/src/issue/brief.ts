@@ -37,7 +37,7 @@ export const brief = ({ positionals }: Args): void => {
 
     const thread = viewThread(number);
     const text = threadText(thread);
-    const boardSlug = branch?.number === number ? branch.board : undefined;
+    const branchArea = branch?.number === number ? branch.area : undefined;
 
     out.info(
         renderBrief({
@@ -48,7 +48,7 @@ export const brief = ({ positionals }: Args): void => {
                 [number, ...referencedIssues(thread)],
                 decisionNumbersIn(text),
             ),
-            projects: projectsFor(thread, boardSlug, projectDirs()).map((dir) => ({
+            projects: projectsFor(thread, branchArea, projectDirs()).map((dir) => ({
                 dir,
                 agents: exists(`${dir}/CLAUDE.md`) ? `${dir}/CLAUDE.md` : undefined,
             })),

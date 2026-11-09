@@ -17,7 +17,14 @@ import {
 } from "./adapters/gh.ts";
 import { branchForIssue, checkout } from "./adapters/git.ts";
 import { ISSUE_SCOPE_HINT, projectOptions, PROJECT_SCOPE_HINT } from "./adapters/prompts.ts";
-import { branchName, branchTypeFor, BRANCH_TYPES, isBranchType, slugify } from "./domain/branch.ts";
+import {
+    areaFor,
+    branchName,
+    branchTypeFor,
+    BRANCH_TYPES,
+    isBranchType,
+    slugify,
+} from "./domain/branch.ts";
 import { issueNumberFrom, type IssueThread } from "./domain/brief.ts";
 import {
     issueCountMessage,
@@ -43,6 +50,7 @@ const NO_ARGS: Args = { flags: new Set(), positionals: [] };
 interface Picked<T> {
     value: T | undefined;
     offline: boolean;
+    only: boolean;
 }
 
 const pickProject = async (): Promise<Picked<Project>> => {
@@ -68,8 +76,10 @@ const pickProject = async (): Promise<Picked<Project>> => {
                 ? "No cached projects to fall back to — run pick again once you're back online."
                 : PROJECT_SCOPE_HINT,
         );
-        return { value: undefined, offline };
+        return { value: undefined, offline, only: false };
     }
+
+    if (projects.length === 1) return { value: projects[0], offline, only: true };
 
     const title = or(
         await select({
@@ -78,10 +88,14 @@ const pickProject = async (): Promise<Picked<Project>> => {
         }),
     );
 
-    return { value: selectedProject(projects, title), offline };
+    return { value: selectedProject(projects, title), offline, only: false };
 };
 
-const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue | typeof BACK> => {
+const pickIssue = async (
+    project: Project,
+    knownOffline: boolean,
+    canGoBack: boolean,
+): Promise<Issue | typeof BACK> => {
     const loading = out.spinner();
     loading.start(
         knownOffline
@@ -119,7 +133,7 @@ const pickIssue = async (project: Project, knownOffline: boolean): Promise<Issue
             message: prompt.message,
             placeholder: prompt.placeholder,
             maxItems: 12,
-            options: issueOptions(BACK, issues),
+            options: issueOptions(canGoBack ? BACK : undefined, issues),
             // Keep navigation visible only when the issue search is empty.
             filter: (search, { value }) => issueOptionMatches(BACK, value, search),
         }),
@@ -163,7 +177,7 @@ const resumeBranch = async (project: Project, issue: Issue): Promise<boolean> =>
     return true;
 };
 
-const promptBranch = async (project: Project, issue: Issue): Promise<string> => {
+const promptBranch = async (issue: Issue): Promise<string> => {
     const type = or(
         await select({
             message: "Branch type",
@@ -180,7 +194,7 @@ const promptBranch = async (project: Project, issue: Issue): Promise<string> => 
         }),
     );
 
-    return branchName(type, project.title, issue.number, title);
+    return branchName(type, areaFor(issue.labels), issue.number, title);
 };
 
 const boardFor = (title: string): Project | undefined => {
@@ -190,17 +204,8 @@ const boardFor = (title: string): Project | undefined => {
     return project;
 };
 
-const newBranch = (
-    thread: IssueThread,
-    board: string | undefined,
-    flags: ReadonlySet<string>,
-): string => {
+const newBranch = (thread: IssueThread, flags: ReadonlySet<string>): string => {
     const { number, labels } = thread;
-    if (!board)
-        throw new ExpectedError(
-            `#${number} is on no project board — pass --project=<board title>.`,
-        );
-
     const type = optionValue(flags, "type") ?? branchTypeFor(labels);
     if (!type) {
         throw new ExpectedError(
@@ -216,7 +221,7 @@ const newBranch = (
             `"${title}" has no letter or digit to slug — pass --title=<branch title>.`,
         );
 
-    const branch = branchName(type, board, number, title);
+    const branch = branchName(type, areaFor(labels), number, title);
     developBranch(number, branch);
     return branch;
 };
@@ -232,7 +237,7 @@ const pickByNumber = (number: number, flags: ReadonlySet<string>): void => {
         checkout(branch);
         out.info(`Resumed the existing branch for #${number}.`);
     } else {
-        branch = newBranch(thread, board, flags);
+        branch = newBranch(thread, flags);
     }
 
     const issue: Issue = { number, title: thread.title, url: thread.url, labels: thread.labels };
@@ -255,15 +260,15 @@ export const pick = async ({ positionals, flags }: Args = NO_ARGS): Promise<void
     // Choosing "← Back to project list" must re-run `pickProject`, not cancel the command.
     /* eslint-disable no-await-in-loop -- each prompt waits on the answer to the one before it */
     for (;;) {
-        const { value: project, offline } = await pickProject();
+        const { value: project, offline, only } = await pickProject();
         if (!project) return;
 
-        const issue = await pickIssue(project, offline);
+        const issue = await pickIssue(project, offline, !only);
         if (issue === BACK) continue;
 
         if (await resumeBranch(project, issue)) return;
 
-        const branch = await promptBranch(project, issue);
+        const branch = await promptBranch(issue);
         out.note(issue.url, branch);
 
         try {

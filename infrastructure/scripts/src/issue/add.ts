@@ -23,6 +23,8 @@ const pickProject = async (projects: Project[]): Promise<string | undefined> => 
         return undefined;
     }
 
+    if (projects.length === 1) return projects[0]?.title;
+
     const picked = or(
         await select({
             message: "Project",

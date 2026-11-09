@@ -23,8 +23,9 @@ export const projectLoad = (live: ProjectSummary[], online: boolean): ProjectSou
     return online ? "empty" : "cache";
 };
 
-export const issueOptions = <T>(back: T, issues: PickIssue[]): IssueOption<T>[] => [
-    { value: back, label: "← Back to project list" },
+/** No `back` means a single board, where going back would only reopen the same list. */
+export const issueOptions = <T>(back: T | undefined, issues: PickIssue[]): IssueOption<T>[] => [
+    ...(back === undefined ? [] : [{ value: back, label: "← Back to project list" }]),
     ...issues.map((issue) => ({
         value: issue,
         label: `#${issue.number} ${issue.title}`,
