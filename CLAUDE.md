@@ -136,8 +136,9 @@ The rest of this section is reference for when the user asks for it, not licence
 the traps in it.
 
 - Branches must match `^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+`, and `master` is not
-  pushable. `pnpm issue:pick` builds `<type>/<project>/<issue number>-<slug>`, `<project>` being the
-  slugified title of the gh Project board the issue came from.
+  pushable. `pnpm issue:pick` builds `<type>/<area>/<issue number>-<slug>`, `<area>` being the
+  folder the issue's `app:`/`package:`/`infra:` label names, or `repo` without one. There is one gh
+  Project board, `Monorepo`; a finite effort is a milestone, not a new board.
 - [`commitlint.config.mjs`](./commitlint.config.mjs) just extends `@commitlint/config-conventional`
   with no overrides, and two of that preset's rules aren't obvious from a rejection message: the
   **type is lower-case** and the **subject is not** sentence-case, start-case, Pascal-case or
