@@ -29,6 +29,7 @@ const issue = (
     state,
     reason: state === "closed" ? "completed" : null,
     caps,
+    createdAt: null,
     closedAt: null,
     activity,
     blockedBy: [],

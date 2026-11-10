@@ -41,7 +41,12 @@ const mondayOf = (day: string): number => {
 
 const isoDay = (at: number): string => new Date(at).toISOString().slice(0, 10);
 
-const OPEN_STATES = new Set<CapabilityView["state"]>(["planned", "in-progress"]);
+const OPEN_STATES = new Set<CapabilityView["state"]>([
+    "waiting-on-you",
+    "ready",
+    "in-flight",
+    "blocked",
+]);
 
 /** Commit activity over one shared timeline for a whole project; null when no commit names any of its tickets. */
 export const projectActivity = (view: ProjectView): ProjectActivity | null => {

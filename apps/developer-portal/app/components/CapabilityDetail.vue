@@ -29,8 +29,8 @@
 
         <p v-if="capability.summary" class="text-muted">{{ capability.summary }}</p>
         <p v-if="capability.note" class="text-muted italic">{{ capability.note }}</p>
-        <p v-if="capability.waitsOn.length > 0" class="text-muted">
-            Not fileable yet: it waits on {{ waitsOn }}.
+        <p v-if="why" class="text-muted">
+            {{ why }}
         </p>
 
         <section v-for="link in links" :key="link.title" class="flex flex-col gap-1.5">
@@ -139,7 +139,27 @@ const kindText = computed(() =>
     capability.kind === "build" ? null : blockKindLabel(capability.kind),
 );
 const kindIconName = computed(() => blockKindIcon(capability.kind) ?? undefined);
-const waitsOn = computed(() => capability.waitsOn.map((id) => titles[id] ?? id).join(", "));
+/** Why it sits where it does, in the words a reader acts on. */
+const why = computed(() => {
+    const waiting = capability.waitingOn.map((id) => titles[id] ?? id).join(", ");
+
+    switch (capability.state) {
+        case "waits":
+            return `Not fileable yet: it waits on ${waiting}, which can still change what its tickets say.`;
+        case "blocked":
+            return waiting
+                ? `Blocked: it waits on ${waiting}.`
+                : "Blocked by an open ticket on GitHub.";
+        case "can-file":
+            return "Nothing it needs is undecided, so its tickets can be filed now.";
+        case "waiting-on-you":
+            return "Only you can close this, and everything after it waits.";
+        case "ready":
+            return "Nothing open blocks it, so an agent can take it.";
+        default:
+            return null;
+    }
+});
 /** An open ticket's status, naming its open blockers when it has any. */
 const statusOf = computed(() =>
     Object.fromEntries(
@@ -163,7 +183,7 @@ const statusOf = computed(() =>
 
 const links = computed(() =>
     [
-        { title: "Needs", ids: capability.dependsOn },
+        { title: "Needs", ids: capability.needs },
         { title: "Unblocks", ids: capability.unblocks },
     ].filter(({ ids }) => ids.length > 0),
 );

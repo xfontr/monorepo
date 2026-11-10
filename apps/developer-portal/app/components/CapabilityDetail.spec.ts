@@ -101,7 +101,7 @@ describe("CapabilityDetail", () => {
             props: { capability: capabilityWith([]), titles: { "spam-protection": "Captcha" } },
         });
 
-        expect(wrapper.text()).toContain("Not fileable yet: it waits on Captcha.");
+        expect(wrapper.text()).toContain("Not fileable yet: it waits on Captcha");
     });
 
     it("opens a block it needs or unblocks from the panel, so the links can be walked", async () => {

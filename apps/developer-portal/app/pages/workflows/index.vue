@@ -29,9 +29,9 @@
             <div class="flex flex-col gap-6">
                 <p class="text-sm text-muted max-w-3xl">
                     A workflow is a map of every block a kind of project needs and what each one
-                    needs first, learned from the ones already shipped. Each project switches the
-                    optional blocks on or off, files them as GitHub tickets with their blocked-by
-                    links, and from then on GitHub says where it stands.
+                    needs first, learned from the ones already shipped. Each project picks its
+                    features, files the blocks as GitHub tickets with their blocked-by links, and
+                    from then on GitHub says where it stands.
                 </p>
 
                 <UAlert
@@ -200,7 +200,7 @@ const { data } = await useWorkflows();
 const { editable, edit } = useWorkflowEdit();
 
 const projectCards = computed(() =>
-    data.value.projects.map(({ project, template, now, progress, unsorted }) => ({
+    data.value.projects.map(({ project, template, counts, progress, unsorted }) => ({
         id: project.id,
         title: project.title,
         templateTitle: template.title,
@@ -209,10 +209,10 @@ const projectCards = computed(() =>
         total: progress.total,
         unsorted: unsorted.length,
         now: [
-            `${now.waiting.length} waiting on you`,
-            `${now.ready.length} ready`,
-            `${now.inFlight.length} in flight`,
-            `${now.blocked.length} blocked`,
+            `${counts["waiting-on-you"]} waiting on you`,
+            `${counts.ready} ready`,
+            `${counts["in-flight"]} in flight`,
+            `${counts.blocked} blocked`,
         ].join(" · "),
     })),
 );

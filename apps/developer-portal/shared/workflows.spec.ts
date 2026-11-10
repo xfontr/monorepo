@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
     assembleWorkflows,
-    capabilityState,
     dependencyCycle,
+    issueAsOf,
     projectView,
     readProject,
     readTemplate,
+    replayRange,
     ticketStatus,
-    unblockCounts,
     type SnapshotIssue,
 } from "./workflows.ts";
 
@@ -41,6 +41,7 @@ const issue = (number: number, caps: string[], overrides: Partial<SnapshotIssue>
         state: "closed",
         reason: "completed",
         caps,
+        createdAt: "2026-10-01T00:00:00Z",
         closedAt: "2026-11-01T00:00:00Z",
         activity: [],
         blockedBy: [],
@@ -57,41 +58,64 @@ const view = (
     issues: SnapshotIssue[],
     noMilestone: SnapshotIssue[] = [],
     template: object = TEMPLATE,
+    asOf: string | null = null,
 ) =>
-    projectView(readProject({ ...PROJECT, ...project }).project, readTemplate(template).template, {
-        syncedAt: "2026-11-09T00:00:00Z",
-        milestone: "Site",
-        issues,
-        noMilestone,
-    });
+    projectView(
+        readProject({ ...PROJECT, ...project }).project,
+        readTemplate(template).template,
+        { syncedAt: "2026-11-09T00:00:00Z", milestone: "Site", issues, noMilestone },
+        asOf,
+    );
+
+const capabilityOf = (result: ReturnType<typeof view>, id: string) =>
+    result.capabilities.find((capability) => capability.id === id);
 
 const stateOf = (result: ReturnType<typeof view>, id: string) =>
     result.stages.flatMap((stage) => stage.capabilities).find((capability) => capability.id === id)
         ?.state;
 
-describe("capabilityState", () => {
+describe("block status", () => {
+    const CHAIN = {
+        ...TEMPLATE,
+        capabilities: [
+            { id: "kit", stage: "build", title: "Kit" },
+            { id: "page", stage: "build", title: "Page", dependsOn: ["kit"] },
+            { id: "sign-off", stage: "build", title: "Sign-off", kind: "owner" },
+        ],
+    };
+
     it.each([
-        ["switched off", false, null, [], "off"],
-        ["settled without a ticket", true, "done", [], "done"],
-        ["on with nothing filed", true, null, [], "can-file"],
+        ["nothing filed and nothing it needs open", [], "kit", "can-file"],
+        ["its tickets all delivered", [issue(1, ["kit"])], "kit", "done"],
+        ["an open ticket with nothing in the way", [open(1, ["kit"])], "kit", "ready"],
         [
-            "filed and untouched",
-            true,
-            null,
-            [issue(1, [], { state: "open", reason: null })],
-            "planned",
+            "an open ticket someone has a branch on",
+            [open(1, ["kit"], { branch: true })],
+            "kit",
+            "in-flight",
         ],
         [
-            "half delivered",
-            true,
-            null,
-            [issue(1, []), issue(2, [], { state: "open", reason: null })],
-            "in-progress",
+            "an open ticket a commit names",
+            [open(1, ["kit"], { activity: ["2026-10-02"] })],
+            "kit",
+            "in-flight",
         ],
-        ["fully delivered", true, null, [issue(1, [])], "done"],
-        ["only dropped tickets", true, null, [issue(1, [], { reason: "not_planned" })], "can-file"],
-    ] as const)("reads %s as %s", (_, enabled, settled, issues, expected) => {
-        expect(capabilityState(enabled, settled, [...issues])).toBe(expected);
+        [
+            "tickets while a block it needs is unfinished",
+            [open(1, ["kit"]), open(2, ["page"])],
+            "page",
+            "blocked",
+        ],
+        [
+            "tickets whose GitHub blockers are all open",
+            [open(2, ["kit"], { blockedBy: [{ number: 9, open: true, closedAt: null }] })],
+            "kit",
+            "blocked",
+        ],
+        ["an owner block with nothing in its way", [], "sign-off", "waiting-on-you"],
+        ["only dropped tickets", [issue(1, ["kit"], { reason: "not_planned" })], "kit", "can-file"],
+    ] as const)("reads a block with %s as %s", (_, issues, id, expected) => {
+        expect(capabilityOf(view({}, [...issues], [], CHAIN), id)?.state).toBe(expected);
     });
 });
 
@@ -135,7 +159,7 @@ describe("projectView", () => {
         const article = result.stages[1]?.capabilities.find(({ id }) => id === "article-page");
 
         expect(article?.state).toBe("waits");
-        expect(article?.waitsOn).toEqual(["design-approval"]);
+        expect(article?.waitingOn).toEqual(["design-approval", "content-audit"]);
         expect(stateOf(result, "search")).toBe("can-file");
     });
 
@@ -154,42 +178,53 @@ describe("projectView", () => {
         );
     });
 
-    it("lays blocks out by the longest chain behind them, not by their stage", () => {
+    it("routes round a switched-off block, so what needed it waits on what it needed", () => {
+        const template = {
+            ...TEMPLATE,
+            capabilities: [
+                { id: "kit", stage: "build", title: "Kit" },
+                {
+                    id: "search",
+                    stage: "build",
+                    title: "Search",
+                    optional: true,
+                    dependsOn: ["kit"],
+                },
+                { id: "seo", stage: "build", title: "SEO", dependsOn: ["search"] },
+            ],
+        };
+        const result = view({ switches: { search: false } }, [], [], template);
+
+        expect(capabilityOf(result, "seo")?.needs).toEqual(["kit"]);
+        expect(capabilityOf(result, "kit")?.unblocks).toEqual(["seo"]);
+    });
+
+    it("lists what's left with the owner's first, then most-unblocking first", () => {
         const template = {
             ...TEMPLATE,
             capabilities: [
                 { id: "a", stage: "build", title: "A" },
-                { id: "b", stage: "discovery", title: "B", dependsOn: ["a"] },
-                { id: "c", stage: "build", title: "C", dependsOn: ["a", "b"] },
-                { id: "d", stage: "build", title: "D" },
+                { id: "b", stage: "build", title: "B" },
+                { id: "c", stage: "build", title: "C", dependsOn: ["b"] },
+                { id: "d", stage: "build", title: "D", dependsOn: ["c"] },
+                { id: "yours", stage: "build", title: "Yours", kind: "owner" },
             ],
         };
+        const result = view(
+            {},
+            [open(1, ["a"]), open(2, ["b"]), open(3, ["c"]), open(4, ["d"])],
+            [],
+            template,
+        );
 
-        expect(view({}, [], [], template).waves.map((wave) => wave.map(({ id }) => id))).toEqual([
-            ["a", "d"],
-            ["b"],
-            ["c"],
+        expect(result.left.map(({ id, unblockCount }) => [id, unblockCount])).toEqual([
+            ["yours", 0],
+            ["b", 2],
+            ["a", 0],
+            ["c", 1],
+            ["d", 0],
         ]);
-    });
-
-    it("sorts open tickets into what each needs next, most-unblocking first", () => {
-        const result = view({}, [
-            open(1, ["content-audit"]),
-            open(2, ["article-page"], { blockedBy: [{ number: 1, open: true }] }),
-            open(3, ["search"], { blockedBy: [{ number: 2, open: true }] }),
-            open(4, ["search"]),
-            open(5, ["content-audit"], { owner: true }),
-            open(6, ["search"], { branch: true }),
-            issue(7, ["search"]),
-        ]);
-        const numbers = (list: { issue: SnapshotIssue }[]) => list.map(({ issue }) => issue.number);
-
-        expect(numbers(result.now.ready)).toEqual([1, 4]);
-        expect(result.now.ready[0]?.unblocks).toBe(2);
-        expect(numbers(result.now.waiting)).toEqual([5]);
-        expect(numbers(result.now.inFlight)).toEqual([6]);
-        expect(numbers(result.now.blocked)).toEqual([2, 3]);
-        expect(result.now.blocked[1]?.blockers).toEqual([2]);
+        expect(result.critical).toEqual(["b", "c", "d"]);
     });
 
     it("puts an area ticket outside the milestone under To organise while the project runs", () => {
@@ -265,42 +300,17 @@ describe("assembleWorkflows", () => {
         ]);
     });
 
-    it("flags an optional capability switched off under one that needs it", () => {
+    it("raises no problem for a need switched off, since the map routes round it", () => {
         const template = {
             ...TEMPLATE,
             capabilities: [
                 ...TEMPLATE.capabilities,
-                {
-                    id: "newsletter",
-                    stage: "build",
-                    title: "Newsletter",
-                    dependsOn: ["search"],
-                },
+                { id: "newsletter", stage: "build", title: "Newsletter", dependsOn: ["search"] },
             ],
         };
         const { problems } = assembleWorkflows(
             [parsed("website-rebuild.yaml", template)],
             [parsed("site.yaml", { ...PROJECT, switches: { search: false } })],
-            {},
-        );
-
-        expect(problems.map((problem) => problem.message)).toEqual([
-            "`newsletter` is on but needs `search`, which is switched off",
-        ]);
-    });
-
-    it("lets a need switched off with its whole group drop out instead of flagging it", () => {
-        const template = {
-            ...TEMPLATE,
-            groups: [{ id: "blog", title: "Blog", optional: true, default: true }],
-            capabilities: [
-                { id: "article-page", stage: "build", title: "Article", group: "blog" },
-                { id: "seo", stage: "build", title: "SEO", dependsOn: ["article-page"] },
-            ],
-        };
-        const { problems } = assembleWorkflows(
-            [parsed("website-rebuild.yaml", template)],
-            [parsed("site.yaml", { ...PROJECT, switches: { blog: false } })],
             {},
         );
 
@@ -407,8 +417,18 @@ describe("groups", () => {
         expect(stateOf(result, "article-page")).toBe("off");
         expect(stateOf(result, "comments")).toBe("off");
         expect(stateOf(result, "search")).toBe("can-file");
-        expect(result.groups).toEqual([expect.objectContaining({ id: "blog", enabled: false })]);
+        expect(result.features.find(({ id }) => id === "blog")?.enabled).toBe(false);
         expect(result.progress.total).toBe(2);
+    });
+
+    it("lists the blog and every optional block as one flat set of features", () => {
+        expect(
+            groupedView({}).features.map(({ id, enabled, within }) => [id, enabled, within]),
+        ).toEqual([
+            ["blog", true, null],
+            ["comments", false, "blog"],
+            ["search", true, null],
+        ]);
     });
 
     it("leaves each optional capability's own switch working while its group is on", () => {
@@ -473,17 +493,17 @@ describe("ticketStatus", () => {
         ["closed as not planned", issue(1, [], { reason: "not_planned" }), "dropped"],
         [
             "open on a linked branch, even if blocked",
-            open(1, [], { branch: true, blockedBy: [{ number: 2, open: true }] }),
+            open(1, [], { branch: true, blockedBy: [{ number: 2, open: true, closedAt: null }] }),
             "in-flight",
         ],
         [
             "open behind an open blocker",
-            open(1, [], { blockedBy: [{ number: 2, open: true }] }),
+            open(1, [], { blockedBy: [{ number: 2, open: true, closedAt: null }] }),
             "blocked",
         ],
         [
             "open behind closed blockers only",
-            open(1, [], { blockedBy: [{ number: 2, open: false }] }),
+            open(1, [], { blockedBy: [{ number: 2, open: false, closedAt: null }] }),
             "ready",
         ],
         ["open, unblocked and the owner's", open(1, [], { owner: true }), "waiting-on-you"],
@@ -492,22 +512,86 @@ describe("ticketStatus", () => {
     });
 });
 
-describe("unblockCounts", () => {
-    it("counts a ticket waiting through two links once, not once per path", () => {
-        const counts = unblockCounts([
-            open(1, []),
-            open(2, [], { blockedBy: [{ number: 1, open: true }] }),
-            open(3, [], {
-                blockedBy: [
-                    { number: 1, open: true },
-                    { number: 2, open: true },
-                ],
-            }),
-            issue(4, [], { blockedBy: [{ number: 1, open: true }] }),
-        ]);
+describe("replay", () => {
+    const REPLAYED = {
+        ...TEMPLATE,
+        capabilities: [
+            { id: "kit", stage: "build", title: "Kit" },
+            { id: "page", stage: "build", title: "Page", dependsOn: ["kit"] },
+            { id: "sign-off", stage: "build", title: "Sign-off", kind: "owner" },
+        ],
+    };
+    const HISTORY = [
+        issue(1, ["kit"], {
+            createdAt: "2026-10-01T09:00:00Z",
+            closedAt: "2026-10-10T09:00:00Z",
+            activity: ["2026-10-05"],
+        }),
+        issue(2, ["page"], {
+            createdAt: "2026-10-08T09:00:00Z",
+            closedAt: "2026-10-20T09:00:00Z",
+            activity: ["2026-10-15"],
+        }),
+    ];
 
-        expect(counts.get(1)).toBe(2);
-        expect(counts.get(2)).toBe(1);
+    it("shows a past day as it stood: fileable, in flight, blocked behind it, then done", () => {
+        const on = (day: string) => {
+            const result = view({}, HISTORY, [], REPLAYED, day);
+            return [capabilityOf(result, "kit")?.state, capabilityOf(result, "page")?.state];
+        };
+
+        expect(on("2026-10-02")).toEqual(["ready", "can-file"]);
+        expect(on("2026-10-06")).toEqual(["in-flight", "can-file"]);
+        expect(on("2026-10-09")).toEqual(["in-flight", "blocked"]);
+        expect(on("2026-10-12")).toEqual(["done", "ready"]);
+        expect(on("2026-10-21")).toEqual(["done", "done"]);
+    });
+
+    it("counts a settled block only from the day it was settled", () => {
+        const project = { settled: { "sign-off": { status: "done", note: "", on: "2026-10-15" } } };
+
+        expect(capabilityOf(view(project, [], [], REPLAYED, "2026-10-14"), "sign-off")?.state).toBe(
+            "waiting-on-you",
+        );
+        expect(capabilityOf(view(project, [], [], REPLAYED, "2026-10-15"), "sign-off")?.state).toBe(
+            "done",
+        );
+    });
+
+    it("reopens a blocker that closed after the day replayed, and drops a branch only the sync saw", () => {
+        const replayed = issueAsOf(
+            open(5, [], {
+                branch: true,
+                blockedBy: [{ number: 4, open: false, closedAt: "2026-10-20T00:00:00Z" }],
+            }),
+            "2026-10-10",
+            "2026-11-09",
+        );
+
+        expect(replayed?.blockedBy[0]?.open).toBe(true);
+        expect(replayed?.branch).toBe(false);
+        expect(
+            issueAsOf(open(6, [], { createdAt: "2026-10-11T00:00:00Z" }), "2026-10-10", null),
+        ).toBeNull();
+    });
+
+    it("runs from the first commit on a ticket to the day of the sync", () => {
+        expect(
+            replayRange({
+                syncedAt: "2026-11-09T10:00:00Z",
+                milestone: "Site",
+                issues: HISTORY,
+                noMilestone: [],
+            }),
+        ).toEqual({ first: "2026-10-05", last: "2026-11-09" });
+        expect(
+            replayRange({
+                syncedAt: "2026-11-09T10:00:00Z",
+                milestone: "Site",
+                issues: [],
+                noMilestone: [],
+            }),
+        ).toBeNull();
     });
 });
 

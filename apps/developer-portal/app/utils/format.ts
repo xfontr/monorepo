@@ -102,13 +102,29 @@ const AUDIT_STATE_TONES = {
 
 export const auditStateTone = (state: AuditState): Tone => AUDIT_STATE_TONES[state];
 
+/** One hue per state, shared by blocks and tickets; each reads on both themes. */
+const STATE_COLORS = {
+    "waiting-on-you": "#8b5cf6",
+    ready: "#0ea5e9",
+    "in-flight": "#f59e0b",
+    blocked: "#64748b",
+    "can-file": "#14b8a6",
+    waits: "#94a3b8",
+    done: "var(--tone-good)",
+    dropped: "var(--ui-text-dimmed)",
+    skipped: "var(--ui-text-dimmed)",
+    off: "var(--ui-text-dimmed)",
+} as const satisfies Record<CapabilityState | TicketStatus, string>;
+
 const CAPABILITY_STATES = {
     off: { label: "Off", tone: "neutral" },
     skipped: { label: "Skipped", tone: "neutral" },
-    waits: { label: "Waits", tone: "neutral" },
-    "can-file": { label: "Can file now", tone: "warn" },
-    planned: { label: "Planned", tone: "warn" },
-    "in-progress": { label: "In progress", tone: "warn" },
+    waits: { label: "Waits on a decision", tone: "neutral" },
+    "can-file": { label: "Can file now", tone: "neutral" },
+    blocked: { label: "Blocked", tone: "neutral" },
+    "waiting-on-you": { label: "Waiting on you", tone: "warn" },
+    ready: { label: "Ready", tone: "neutral" },
+    "in-flight": { label: "In flight", tone: "warn" },
     done: { label: "Done", tone: "good" },
 } as const satisfies Record<CapabilityState, { label: string; tone: Tone }>;
 
@@ -119,7 +135,7 @@ export const capabilityStateTone = (state: CapabilityState): Tone => CAPABILITY_
 
 const TICKET_STATUSES = {
     "waiting-on-you": { label: "Waiting on you", tone: "warn" },
-    ready: { label: "Ready", tone: "good" },
+    ready: { label: "Ready", tone: "neutral" },
     "in-flight": { label: "In flight", tone: "warn" },
     blocked: { label: "Blocked", tone: "neutral" },
     done: { label: "Done", tone: "good" },
@@ -129,6 +145,8 @@ const TICKET_STATUSES = {
 export const ticketStatusLabel = (status: TicketStatus): string => TICKET_STATUSES[status].label;
 
 export const ticketStatusTone = (status: TicketStatus): Tone => TICKET_STATUSES[status].tone;
+
+export const stateColor = (state: CapabilityState | TicketStatus): string => STATE_COLORS[state];
 
 const BLOCK_KINDS = {
     build: { label: "Build", icon: null },
@@ -146,15 +164,11 @@ const STAGE_HUES = [5, 50, 95, 160, 235, 275, 315] as const;
 export const stageColor = (index: number): string =>
     `oklch(0.72 0.18 ${STAGE_HUES[index % STAGE_HUES.length]})`;
 
-export const capabilityColor = (state: CapabilityState): string => {
-    if (state === "done") return "var(--tone-good)";
-    if (state === "in-progress" || state === "planned") return "var(--tone-warn)";
-    return "var(--ui-text-dimmed)";
-};
+export const capabilityColor = (state: CapabilityState): string => STATE_COLORS[state];
 
-/** Hollow for work not yet delivered, so a capability's state survives without its colour. */
+/** Hollow for a block nobody can work on yet, so its state survives without its colour. */
 export const capabilityFilled = (state: CapabilityState): boolean =>
-    state === "done" || state === "in-progress" || state === "skipped";
+    ["done", "in-flight", "ready", "waiting-on-you", "skipped"].includes(state);
 
 const REUSE_PLAN_LABELS = {
     package: "Import the package",

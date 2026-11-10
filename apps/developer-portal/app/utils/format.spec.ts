@@ -101,10 +101,12 @@ describe("relativeTime", () => {
 describe("capability marks", () => {
     it.each([
         ["done", "var(--tone-good)", true],
-        ["in-progress", "var(--tone-warn)", true],
-        ["planned", "var(--tone-warn)", false],
-        ["can-file", "var(--ui-text-dimmed)", false],
-        ["waits", "var(--ui-text-dimmed)", false],
+        ["in-flight", "#f59e0b", true],
+        ["ready", "#0ea5e9", true],
+        ["waiting-on-you", "#8b5cf6", true],
+        ["blocked", "#64748b", false],
+        ["can-file", "#14b8a6", false],
+        ["waits", "#94a3b8", false],
         ["off", "var(--ui-text-dimmed)", false],
         ["skipped", "var(--ui-text-dimmed)", true],
     ] as const)(

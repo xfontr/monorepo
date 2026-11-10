@@ -71,6 +71,16 @@ const global = {
             props: { open: Boolean, title: String },
             template: "<aside v-if='open'><h2>{{ title }}</h2><slot name='body' /></aside>",
         },
+        UModal: {
+            props: { open: Boolean, title: String },
+            template: "<dialog v-if='open' open><h2>{{ title }}</h2><slot name='body' /></dialog>",
+        },
+        USlider: {
+            props: { modelValue: Number, max: Number },
+            emits: ["update:modelValue"],
+            template:
+                "<input type='range' data-replay :max='max' :value='modelValue' @input=\"$emit('update:modelValue', Number($event.target.value))\" />",
+        },
         UIcon: true,
     },
 };
@@ -110,44 +120,77 @@ describe("workflow page", () => {
         expect(wrapper.text()).toContain("no cap: label");
     });
 
-    it("opens a block's details from its card on the map", async () => {
+    it("lights a block picked from What's left on its stage cards and on the graph", async () => {
+        const wrapper = await mountSuspended(Page, { global });
+
+        await wrapper
+            .findAll("button")
+            .find((button) => button.text().startsWith("Cutover"))
+            ?.trigger("click");
+
+        expect(wrapper.find("#stage-launch button[aria-pressed='true']").text()).toContain(
+            "Cutover",
+        );
+        expect(wrapper.find("[data-node='cutover']").attributes("aria-pressed")).toBe("true");
+        expect(wrapper.find("[data-node='comments']").text()).toContain("needed");
+    });
+
+    it("opens the selected block's details only when asked", async () => {
         const wrapper = await mountSuspended(Page, { global });
 
         expect(wrapper.find("aside").exists()).toBe(false);
 
-        await wrapper.find("[data-capability='comments']").trigger("click");
-
-        expect(wrapper.find("aside").text()).toContain("Planned");
-        expect(wrapper.find("aside").text()).toContain("Moderate comments");
-    });
-
-    it("puts a block one column right of the block it needs, whatever its stage", async () => {
-        const wrapper = await mountSuspended(Page, { global });
-
-        expect(wrapper.find("[data-wave='0'] [data-capability='comments']").exists()).toBe(true);
-        expect(wrapper.find("[data-wave='1'] [data-capability='cutover']").exists()).toBe(true);
-    });
-
-    it("lists an unblocked open ticket as ready and opens its block from there", async () => {
-        const wrapper = await mountSuspended(Page, { global });
-        const ready = wrapper.find("[data-column='ready']");
-
-        expect(ready.text()).toContain("Moderate comments");
-
-        await ready
+        await wrapper
             .findAll("button")
-            .find((button) => button.text() === "Comments")
+            .find((button) => button.text() === "Details")
             ?.trigger("click");
 
         expect(wrapper.find("aside").text()).toContain("Moderate comments");
     });
 
-    it("says how to file a block when nothing in the milestone is open", async () => {
-        state.data = workflows(PROJECT, []);
+    it("replays an earlier day, showing work in flight that is done today", async () => {
+        state.data = workflows(PROJECT, [
+            {
+                ...issue,
+                number: 13,
+                title: "Moderate comments",
+                caps: ["comments"],
+                state: "closed",
+                reason: "completed",
+                createdAt: "2026-11-01T09:00:00Z",
+                closedAt: "2026-11-05T09:00:00Z",
+                activity: ["2026-11-02"],
+            },
+        ]);
+        const wrapper = await mountSuspended(Page, { global });
+        const comments = () => wrapper.find("[data-node='comments']").text();
+
+        expect(comments()).toContain("Done");
+
+        await wrapper.find("[data-replay]").setValue("0");
+
+        expect(comments()).toContain("In flight");
+        expect(wrapper.text()).toContain("2 Nov");
+    });
+
+    it("keeps features in a modal, switching one only under pnpm dev", async () => {
+        state.editable = true;
         const wrapper = await mountSuspended(Page, { global });
 
-        expect(wrapper.text()).toContain("pnpm workflow:file blog");
-        expect(wrapper.text()).not.toContain("Approve");
+        expect(wrapper.find("dialog").exists()).toBe(false);
+
+        await wrapper
+            .findAll("button")
+            .find((button) => button.text() === "Features")
+            ?.trigger("click");
+        await wrapper.find("dialog [role='switch']").trigger("click");
+
+        expect(state.edit).toHaveBeenCalledWith({
+            action: "switch",
+            project: "blog",
+            capability: "comments",
+            on: false,
+        });
     });
 
     it("says so when the project doesn't exist instead of rendering an empty pipeline", async () => {
