@@ -1,15 +1,8 @@
 import { describe, expect, it } from "vitest";
-import {
-    assembleWorkflows,
-    dependencyCycle,
-    issueAsOf,
-    projectView,
-    readProject,
-    readTemplate,
-    replayRange,
-    ticketStatus,
-    type SnapshotIssue,
-} from "./workflows.ts";
+import { readProject } from "./project.ts";
+import { projectView } from "./projectView.ts";
+import { readTemplate } from "./template.ts";
+import type { SnapshotIssue } from "./types.ts";
 
 const TEMPLATE = {
     id: "website-rebuild",
@@ -272,126 +265,6 @@ describe("projectView", () => {
     });
 });
 
-describe("assembleWorkflows", () => {
-    const parsed = (file: string, value: unknown) => ({ file, ok: true as const, value });
-
-    it("reports a project naming a missing template instead of dropping it silently", () => {
-        const { projects, problems } = assembleWorkflows(
-            [parsed("website-rebuild.yaml", TEMPLATE)],
-            [parsed("site.yaml", { ...PROJECT, template: "other" })],
-            {},
-        );
-
-        expect(projects).toEqual([]);
-        expect(problems).toEqual([
-            { file: "projects/site.yaml", message: "`template: other` names no template" },
-        ]);
-    });
-
-    it("rejects a switch on a required capability, which would read as opting out of it", () => {
-        const { problems } = assembleWorkflows(
-            [parsed("website-rebuild.yaml", TEMPLATE)],
-            [parsed("site.yaml", { ...PROJECT, switches: { "article-page": false } })],
-            {},
-        );
-
-        expect(problems.map((problem) => problem.message)).toEqual([
-            "switch `article-page` is on a required capability",
-        ]);
-    });
-
-    it("raises no problem for a need switched off, since the map routes round it", () => {
-        const template = {
-            ...TEMPLATE,
-            capabilities: [
-                ...TEMPLATE.capabilities,
-                { id: "newsletter", stage: "build", title: "Newsletter", dependsOn: ["search"] },
-            ],
-        };
-        const { problems } = assembleWorkflows(
-            [parsed("website-rebuild.yaml", template)],
-            [parsed("site.yaml", { ...PROJECT, switches: { search: false } })],
-            {},
-        );
-
-        expect(problems).toEqual([]);
-    });
-
-    it("reports a malformed snapshot and still renders the project", () => {
-        const { projects, problems } = assembleWorkflows(
-            [parsed("website-rebuild.yaml", TEMPLATE)],
-            [parsed("site.yaml", PROJECT)],
-            {
-                site: parsed("site.snapshot.json", {
-                    syncedAt: "2026-11-09T00:00:00Z",
-                    milestone: "Site",
-                    issues: [{ number: 3, state: "open" }, { title: "no number" }],
-                }),
-            },
-        );
-
-        expect(projects[0]?.unsorted.map(({ issue: { number } }) => number)).toEqual([3]);
-        expect(problems).toEqual([
-            {
-                file: "projects/site.snapshot.json",
-                message: "`issues` holds an issue without a number",
-            },
-        ]);
-    });
-
-    it("keeps rendering the other files when one doesn't parse", () => {
-        const { projects, problems } = assembleWorkflows(
-            [parsed("website-rebuild.yaml", TEMPLATE)],
-            [{ file: "broken.yaml", ok: false, error: "bad indent" }, parsed("site.yaml", PROJECT)],
-            {},
-        );
-
-        expect(projects.map(({ project }) => project.id)).toEqual(["site"]);
-        expect(problems).toEqual([{ file: "projects/broken.yaml", message: "bad indent" }]);
-    });
-});
-
-describe("readTemplate", () => {
-    it("catches a capability on a stage the template never declares", () => {
-        const { problems } = readTemplate({
-            ...TEMPLATE,
-            capabilities: [{ id: "x", stage: "launch", title: "X" }],
-        });
-
-        expect(problems).toEqual([
-            "capability `x` names stage `launch`, which the template doesn't have",
-        ]);
-    });
-
-    it("catches a loop of dependsOn links, which no order could ever satisfy", () => {
-        const { problems } = readTemplate({
-            ...TEMPLATE,
-            capabilities: [
-                { id: "a", stage: "build", title: "A", dependsOn: ["c"] },
-                { id: "b", stage: "build", title: "B", dependsOn: ["a"] },
-                { id: "c", stage: "build", title: "C", dependsOn: ["b"] },
-            ],
-        });
-
-        expect(problems).toEqual(["`dependsOn` goes round in a loop: a → c → b → a"]);
-    });
-
-    it("refuses a kind outside build, spike and owner", () => {
-        const { problems } = readTemplate({
-            ...TEMPLATE,
-            capabilities: [{ id: "x", stage: "build", title: "X", kind: "epic" }],
-        });
-
-        expect(problems).toEqual(["capability `x`: `kind: epic` isn't one of build, spike, owner"]);
-    });
-
-    it("points a leftover gates: block at the owner block that replaced it", () => {
-        expect(readProject({ ...PROJECT, gates: { discovery: "2026-09-30" } }).problems).toEqual([
-            "`gates:` is gone: a gate is an `owner` block now, approved by closing its ticket or settling it as done",
-        ]);
-    });
-});
-
 describe("groups", () => {
     const GROUPED = {
         ...TEMPLATE,
@@ -445,71 +318,6 @@ describe("groups", () => {
             "blog is a group; label one of its capabilities instead",
         ]);
     });
-
-    it("accepts a switch on an optional group and refuses one on a required group", () => {
-        const required = {
-            ...GROUPED,
-            groups: [{ id: "blog", title: "Blog" }],
-        };
-        const parsed = (file: string, value: unknown) => ({ file, ok: true as const, value });
-
-        const optional = assembleWorkflows(
-            [parsed("website-rebuild.yaml", GROUPED)],
-            [parsed("site.yaml", { ...PROJECT, switches: { blog: false } })],
-            {},
-        );
-        const refused = assembleWorkflows(
-            [parsed("website-rebuild.yaml", required)],
-            [parsed("site.yaml", { ...PROJECT, switches: { blog: false } })],
-            {},
-        );
-
-        expect(optional.problems).toEqual([]);
-        expect(refused.problems.map(({ message }) => message)).toEqual([
-            "switch `blog` is on a required group",
-        ]);
-    });
-
-    it("catches a capability in an undeclared group, and a group sharing a capability's id", () => {
-        const { problems } = readTemplate({
-            ...TEMPLATE,
-            groups: [{ id: "search", title: "Search" }],
-            capabilities: [
-                ...TEMPLATE.capabilities,
-                { id: "feeds", stage: "build", title: "Feeds", group: "blog" },
-            ],
-        });
-
-        expect(problems).toEqual([
-            "group `search` shares its id with a capability, so a switch can't tell them apart",
-            "capability `feeds` names group `blog`, which the template doesn't have",
-        ]);
-    });
-});
-
-describe("ticketStatus", () => {
-    it.each([
-        ["closed as completed", issue(1, []), "done"],
-        ["closed as not planned", issue(1, [], { reason: "not_planned" }), "dropped"],
-        [
-            "open on a linked branch, even if blocked",
-            open(1, [], { branch: true, blockedBy: [{ number: 2, open: true, closedAt: null }] }),
-            "in-flight",
-        ],
-        [
-            "open behind an open blocker",
-            open(1, [], { blockedBy: [{ number: 2, open: true, closedAt: null }] }),
-            "blocked",
-        ],
-        [
-            "open behind closed blockers only",
-            open(1, [], { blockedBy: [{ number: 2, open: false, closedAt: null }] }),
-            "ready",
-        ],
-        ["open, unblocked and the owner's", open(1, [], { owner: true }), "waiting-on-you"],
-    ] as const)("reads a ticket %s as %s", (_, subject, expected) => {
-        expect(ticketStatus(subject)).toBe(expected);
-    });
 });
 
 describe("replay", () => {
@@ -556,57 +364,5 @@ describe("replay", () => {
         expect(capabilityOf(view(project, [], [], REPLAYED, "2026-10-15"), "sign-off")?.state).toBe(
             "done",
         );
-    });
-
-    it("reopens a blocker that closed after the day replayed, and drops a branch only the sync saw", () => {
-        const replayed = issueAsOf(
-            open(5, [], {
-                branch: true,
-                blockedBy: [{ number: 4, open: false, closedAt: "2026-10-20T00:00:00Z" }],
-            }),
-            "2026-10-10",
-            "2026-11-09",
-        );
-
-        expect(replayed?.blockedBy[0]?.open).toBe(true);
-        expect(replayed?.branch).toBe(false);
-        expect(
-            issueAsOf(open(6, [], { createdAt: "2026-10-11T00:00:00Z" }), "2026-10-10", null),
-        ).toBeNull();
-    });
-
-    it("runs from the first commit on a ticket to the day of the sync", () => {
-        expect(
-            replayRange({
-                syncedAt: "2026-11-09T10:00:00Z",
-                milestone: "Site",
-                issues: HISTORY,
-                noMilestone: [],
-            }),
-        ).toEqual({ first: "2026-10-05", last: "2026-11-09" });
-        expect(
-            replayRange({
-                syncedAt: "2026-11-09T10:00:00Z",
-                milestone: "Site",
-                issues: [],
-                noMilestone: [],
-            }),
-        ).toBeNull();
-    });
-});
-
-describe("dependencyCycle", () => {
-    it("finds no loop in a chain that only runs one way", () => {
-        expect(
-            dependencyCycle(
-                readTemplate({
-                    ...TEMPLATE,
-                    capabilities: [
-                        { id: "a", stage: "build", title: "A" },
-                        { id: "b", stage: "build", title: "B", dependsOn: ["a"] },
-                    ],
-                }).template.capabilities,
-            ),
-        ).toBeNull();
     });
 });

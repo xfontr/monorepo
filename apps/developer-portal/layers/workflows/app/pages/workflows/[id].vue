@@ -253,10 +253,8 @@
 
 <script setup lang="ts">
 import { projectActivity } from "#layers/workflows/shared/workflowActivity.ts";
-import { projectView, replayRange } from "#layers/workflows/shared/workflows.ts";
 
 const LEFT_LIMIT = 10;
-const DAY_MS = 86_400_000;
 
 const route = useRoute();
 const id = computed(() => String(route.params.id));
@@ -277,38 +275,7 @@ const problems = computed(() =>
         .map(({ file, message }) => `${file}: ${message}`),
 );
 
-// ── Replay ────────────────────────────────────────────────────────────────────────────────────────
-
-const range = computed(() => replayRange(base.value?.snapshot ?? null));
-const days = computed(() => {
-    if (!range.value) return [];
-
-    const first = Date.parse(`${range.value.first}T00:00:00Z`);
-    const last = Date.parse(`${range.value.last}T00:00:00Z`);
-
-    return Array.from({ length: Math.round((last - first) / DAY_MS) + 1 }, (_, index) =>
-        new Date(first + index * DAY_MS).toISOString().slice(0, 10),
-    );
-});
-const dayIndex = ref(Number.MAX_SAFE_INTEGER);
-watch(days, (list) => (dayIndex.value = Math.min(dayIndex.value, list.length - 1)), {
-    immediate: true,
-});
-const isLatest = computed(() => dayIndex.value >= days.value.length - 1);
-const dayLabel = computed(() => {
-    const day = days.value[dayIndex.value];
-    return day ? `${calendarDay(day)}${isLatest.value ? " · today" : ""}` : "";
-});
-
-const view = computed(() => {
-    const synced = base.value;
-    const day = days.value[dayIndex.value];
-    if (!synced || isLatest.value || !day) return synced;
-
-    return projectView(synced.project, synced.template, synced.snapshot, day);
-});
-
-// ── Selection: one block, picked anywhere, drives the cards, the skyline and the graph ──────────
+const { range, days, dayIndex, isLatest, dayLabel, view } = useProjectReplay(base);
 
 const counts = computed(() =>
     (["waiting-on-you", "ready", "in-flight", "blocked", "can-file"] as const).map((state) => ({
@@ -339,40 +306,8 @@ const leftChips = computed(() =>
     })),
 );
 
-const chosenId = ref<string | null>(null);
-/** What was picked, else what needs doing first, else the last block on the map. */
-const selectedId = computed(() => {
-    const capabilities = view.value?.capabilities ?? [];
-    const isOn = (capabilityId: string | null) =>
-        capabilities.some(({ id: other, state }) => other === capabilityId && state !== "off");
-
-    if (isOn(chosenId.value)) return chosenId.value;
-    return (
-        view.value?.left[0]?.id ?? capabilities.findLast(({ state }) => state !== "off")?.id ?? null
-    );
-});
-const selected = computed(() =>
-    view.value?.capabilities.find((capability) => capability.id === selectedId.value),
-);
-
-const stageId = ref<string | null>(null);
-const activeIndex = computed(() => {
-    const stages = view.value?.stages ?? [];
-    const wanted = stageId.value ?? selected.value?.stage;
-    return Math.max(
-        stages.findIndex((stage) => stage.id === wanted),
-        0,
-    );
-});
-const activeStage = computed(() => view.value?.stages[activeIndex.value]);
-const selectedStage = computed(
-    () => view.value?.stages.find((stage) => stage.id === selected.value?.stage)?.title,
-);
-
-const select = (capabilityId: string) => {
-    chosenId.value = capabilityId;
-    stageId.value = null;
-};
+const { selectedId, selected, stageId, activeIndex, activeStage, selectedStage, select } =
+    useCapabilitySelection(view);
 
 const graphNote = computed(() => {
     const current = selected.value;
