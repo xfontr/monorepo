@@ -17,7 +17,6 @@
     "docs:drift": "node --disable-warning=ExperimentalWarning src/drift/index.ts",
     "docs:map": "node --disable-warning=ExperimentalWarning src/map/index.ts",
     "package:check": "node --disable-warning=ExperimentalWarning src/package-contracts/index.ts",
-    "review:version": "node --disable-warning=ExperimentalWarning src/review-version/index.ts",
     "usage:flush": "node --disable-warning=ExperimentalWarning src/usage/index.ts",
     "env:sync": "node --disable-warning=ExperimentalWarning src/env-sync/index.ts",
     "workflow:sync": "node --disable-warning=ExperimentalWarning src/workflow/index.ts sync",

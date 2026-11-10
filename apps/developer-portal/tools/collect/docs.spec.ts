@@ -161,7 +161,6 @@ describe("collectDocs", () => {
             ["CLAUDE.md", "## Agent guidance\n"],
             [".claude/skills/example/SKILL.md", "# Skill\n"],
             ["packages/ui/CHANGELOG.md", "# Changelog\n"],
-            ["docs/reviews/2026-09-20-abc123.md", "# Review\n"],
             ["docs/decisions/0001-first.md", "# Decision\n"],
             ["docs/guides/no-heading.md", "word word\n"],
             ["docs/README.md", "# Docs\n"],
@@ -191,9 +190,6 @@ describe("collectDocs", () => {
         expect(result.pages.find((page) => page.path === "packages/ui/CHANGELOG.md")).toMatchObject(
             { kind: "changelog" },
         );
-        expect(
-            result.pages.find((page) => page.path === "docs/reviews/2026-09-20-abc123.md"),
-        ).toMatchObject({ kind: "review" });
         expect(
             result.pages.find((page) => page.path === "docs/decisions/0001-first.md"),
         ).toMatchObject({ kind: "decision" });

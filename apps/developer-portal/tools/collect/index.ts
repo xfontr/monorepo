@@ -6,7 +6,6 @@ import { collectDeps } from "./deps.ts";
 import { collectDocs } from "./docs.ts";
 import { collectGraph } from "./graph.ts";
 import { collectMetrics } from "./metrics.ts";
-import { collectScorecards } from "./scorecards.ts";
 import { collectUsage } from "./usage.ts";
 import { SCHEMA_VERSION, SNAPSHOT_DIR } from "../lib/paths.ts";
 import { git, tryRun } from "../lib/run.ts";
@@ -116,19 +115,6 @@ const main = async (): Promise<void> => {
     } else {
         artifacts.docs = { generatedAt, ok: false, error: docs.error };
         printError(`✗ docs — ${docs.error}`);
-    }
-
-    const scorecards = await tryRun(() => collectScorecards(generatedAt));
-
-    if (scorecards.ok) {
-        await write("scorecards", scorecards.value);
-        artifacts.scorecards = { generatedAt, ok: true };
-
-        const unparsed = scorecards.value.reviews.filter((review) => review.parseError).length;
-        print(`✓ scorecards — ${scorecards.value.reviews.length} reviews, ${unparsed} unparsed`);
-    } else {
-        artifacts.scorecards = { generatedAt, ok: false, error: scorecards.error };
-        printError(`✗ scorecards — ${scorecards.error}`);
     }
 
     const usage = await tryRun(() => collectUsage(generatedAt));

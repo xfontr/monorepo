@@ -26,7 +26,6 @@ around.
 | [`guides/`](./guides/README.md) | Task-shaped, cross-project, procedural walkthroughs |
 | [`decisions/`](./decisions/README.md) | The answer once an architectural spike issue gets one |
 | [`audits/`](./audits/README.md) | A dated, numbered list of what one project gets wrong, worked down one finding at a time |
-| [`reviews/`](./reviews/README.md) | A dated, scored read of the whole repo against a fixed rubric |
 
 `FEATURES.md` is the only generated file — it stays a pure index (what invokes a capability, where
 it's declared, which doc explains it) so there's no hand-written column for the next render to

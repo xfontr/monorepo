@@ -8,7 +8,7 @@ export const REPO_SCHEME = "repo:";
 
 const ABSOLUTE = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 
-/** The reviews cite evidence as `file.ts:91-94`; it narrows a file, it does not name a different one. */
+/** A `file.ts:91-94` link narrows a file to its lines; it does not name a different one. */
 const LINE_RANGE = /:\d+(?:-\d+)?$/;
 
 const segmentsOf = (path: string): string[] =>
@@ -25,7 +25,7 @@ const resolveAgainst = (base: string[], path: string): string => {
     return out.join("/");
 };
 
-/** `docs/reviews/TEMPLATE.md` is meant to be copied, so its `<file>` is an instruction, not a target. */
+/** A `<file>` in a link is an instruction to whoever copies the doc, not a target. */
 export const isPlaceholder = (href: string): boolean => href.includes("<");
 
 /**

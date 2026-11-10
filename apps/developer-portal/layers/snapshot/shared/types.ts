@@ -97,11 +97,10 @@ export interface DocLink {
 }
 
 /**
- * `doc`, `review`, `decision` and `audit` are the ones that live under `docs/`, which is where anything
+ * `doc`, `decision` and `audit` are the ones that live under `docs/`, which is where anything
  * spanning more than one project belongs. The rest are colocated with the code they describe.
  */
-export type DocKind =
-    "readme" | "agent" | "changelog" | "skill" | "doc" | "review" | "decision" | "audit";
+export type DocKind = "readme" | "agent" | "changelog" | "skill" | "doc" | "decision" | "audit";
 
 /** Both derive from the value lists in `shared/decisions.ts`, which is also what the CI check reads — so there is no second copy to keep in step. */
 export type { DecisionOutcome, DecisionStatus };
@@ -133,34 +132,6 @@ export interface DocsArtifact {
     generatedAt: string;
     pages: DocPage[];
     brokenLinkCount: number;
-}
-
-export interface ScoreRow {
-    card: string;
-    score: number;
-    delta: string;
-    verdict: string;
-}
-
-export interface ReviewScorecard {
-    /** `docs/reviews/<file>`, so a row can link straight to the review the `reviews` page renders. */
-    path: string;
-    date: string;
-    commit: string;
-    cards: ScoreRow[];
-    total: number;
-    totalDelta: string;
-    /**
-     * Set when the file's `## 🧮 Scores` table doesn't match `SCORECARDS.md`'s seven cards, in
-     * order — `cards` still holds whatever rows were readable, never a guess at the rest.
-     */
-    parseError: string | null;
-}
-
-export interface ScorecardsArtifact {
-    generatedAt: string;
-    /** Most recent review first. */
-    reviews: ReviewScorecard[];
 }
 
 export interface VulnerabilityAdvisory {

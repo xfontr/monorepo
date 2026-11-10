@@ -42,9 +42,8 @@ what the agent dispatches on.
 
 ## 📄 Picking the doc
 
-Every markdown file in the tree is a candidate except three kinds, each of which would produce a
-match that isn't an answer: a generated `CHANGELOG.md`, anything under `docs/reviews/` (a review
-names a capability to score it, not to explain it), and the map itself. A capability's own source
+Every markdown file in the tree is a candidate except two kinds, each of which would produce a
+match that isn't an answer: a generated `CHANGELOG.md` and the map itself. A capability's own source
 file is excluded as well — otherwise every skill would cite its own `SKILL.md` and the column would
 be uniformly full and worthless.
 

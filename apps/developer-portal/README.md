@@ -4,7 +4,7 @@ A read-only portal for exploring the monorepo's projects, documentation, archite
 health. It gives newcomers a clear starting point while keeping deeper developer views close by.
 
 It renders every markdown file in the workspace as a wiki — READMEs, `CLAUDE.md`s, the
-[`docs/`](../../docs/README.md) tree, reviews and changelogs — beside the things that are not written
+[`docs/`](../../docs/README.md) tree and changelogs — beside the things that are not written
 down anywhere: coverage, the project graph, open GitHub issues and which two files have stopped agreeing.
 
 It runs two ways. `pnpm dev developer-portal`, from the workspace root, reads the working tree and shells out to `git`, so it shows
@@ -24,7 +24,7 @@ terms.
 | Run or contribute | The first-hour guide and the repository documentation |
 
 Engineering health remains available after that introduction: the homepage places it below the featured
-projects, and the sidebar keeps it as the final group. Coverage, dependencies, reviews, scorecards and
+projects, and the sidebar keeps it as the final group. Coverage, dependencies and
 work in progress remain directly addressable without creating a second application or navigation tree.
 
 ## 🗂 Structure
@@ -33,7 +33,7 @@ work in progress remain directly addressable without creating a second applicati
 | --- | --- |
 | `app/` | The shell: the layout and its sidebar, the Overview page, and the parts every layer draws with — `StatTile`, `StatusPill`, `toneClass` and the date helpers |
 | `layers/` | One Nuxt layer per capability — see [🧱 Layers](#-layers) |
-| `tools/collect/` | Builds the derived snapshot: graph, coverage, metrics, docs, scorecards, usage |
+| `tools/collect/` | Builds the derived snapshot: graph, coverage, metrics, docs, usage |
 | `tools/lib/` | Node-only helpers — paths, the `git` allowlist, the invariant checks, and the remark plugin that rewrites a doc's links as it is parsed |
 
 ## 🧱 Layers
@@ -49,7 +49,7 @@ domain logic, its own config, or is something you'd switch off whole.
 | `design` | Capability | Every token and shared class, and the Nuxt UI theme — see [🎨 Design system](#-design-system) |
 | `docs` | Capability | The link rewriting every rendered markdown page gets, `ProseA`, and the title and path helpers in `shared/docPages.ts` |
 | `github` | Capability | The two reads the browser makes of GitHub, issues and deployments, and their rules |
-| `decisions`, `audits`, `reviews` | Feature | Each record's pages, its list logic and its labels |
+| `decisions`, `audits` | Feature | Each record's pages, its list logic and its labels |
 | `projects` | Feature | Projects, Architecture and What's new |
 | `health` | Feature | Work in progress and its row, Coverage and Dependencies |
 | `telemetry` | Feature | The Telemetry page and the usage rules the collector shares |
@@ -60,7 +60,7 @@ The rules are [`apps/huella-legal`](../huella-legal/README.md#-structure)'s. The
 `app/components/` and `app/utils/`, and uses only itself. The core and each capability use
 themselves and the kit. A feature also uses the core and the capabilities, never another feature,
 so each one comes out alone. Only the shell uses everything: the Overview and the sidebar's badges
-read issues, reviews and the snapshot. `eslint.layerBoundaries` in
+read issues and the snapshot. `eslint.layerBoundaries` in
 [`eslint.config.ts`](./eslint.config.ts) enforces this, auto-imports included.
 
 Any import into another layer, from `app/`, `shared/`, `server/` or `tools/`, reads
@@ -84,7 +84,6 @@ the collector holds for it, since `tools/` is one program outside Nuxt:
 | `workflows` | [`tools/lib/workflows.ts`](./tools/lib/workflows.ts) and its call in [`invariants.ts`](./tools/lib/invariants.ts), the `docs/workflows` line under `namedInputs` in [`package.json`](./package.json), and `@dagrejs/dagre` |
 | `telemetry` | [`tools/collect/usage.ts`](./tools/collect/usage.ts), [`tools/lib/lintRules.ts`](./tools/lib/lintRules.ts), the `usage` step in [`tools/collect/index.ts`](./tools/collect/index.ts), and the `usage` reader and types in `snapshot` |
 | `decisions`, `audits` | Nothing to delete, but the collector still parses both into `docs.json` and checks their shape |
-| `reviews` | [`tools/collect/scorecards.ts`](./tools/collect/scorecards.ts) and its step, and the layout's review badge |
 | `health` | The Overview tiles and the sidebar badge that read them |
 
 ## 🚀 Development
@@ -92,7 +91,7 @@ the collector holds for it, since `tools/` is one program outside Nuxt:
 | Command | What it does |
 | --- | --- |
 | `pnpm dev developer-portal` | Start the portal, from the workspace root |
-| `pnpm exec nx collect @monorepo/developer-portal` | Rebuild the snapshot — graph, coverage, metrics, docs, scorecards |
+| `pnpm exec nx collect @monorepo/developer-portal` | Rebuild the snapshot — graph, coverage, metrics, docs |
 | `pnpm exec nx nuxt-prepare @monorepo/developer-portal` | Regenerates `.nuxt` (`nuxi prepare`) — [`nx.json`](../../nx.json) already runs it before `lint`/`typecheck`/`test`/`build`, so this is only for calling it by hand |
 | `pnpm exec nx build-static @monorepo/developer-portal` | `nuxt build --prerender` — the build the deploy publishes, and the only one that renders every route |
 
@@ -126,11 +125,10 @@ that.
 | Projects | The collected Nx graph joined to collect-time project metrics, with deployment state read live |
 | Decisions | `docs/decisions/NNNN-<slug>.md` — the files the `decision-report` skill writes, see [🔬 Decisions are their own section](#-decisions-are-their-own-section) |
 | Audits | `docs/audits/YYYY-MM-DD-<scope>.md` — the files the `audit-report` skill writes, see [🔎 Audits count findings, not files](#-audits-count-findings-not-files) |
-| Reviews | `docs/reviews/YYYY-MM-DD-<sha>.md` — the files the `repo-review` skill writes |
 | Workflows | `docs/workflows/` templates, projects and their synced snapshots, read in place on every request rather than collected — see [`docs/workflows/README.md`](../../docs/workflows/README.md). Under `pnpm dev` its Features modal also switches features, and the index page creates projects. The page's graph is laid out with `@dagrejs/dagre` |
 | Work in progress | Open issues read from GitHub in the browser |
 | What's new | Every `CHANGELOG.md`, beside its unreleased-commit count, plus any project in `nx.json`'s `release.projects` that has commits and no release yet |
-| Engineering health | Coverage, dependencies, reviews, scorecards and collected repository findings |
+| Engineering health | Coverage, dependencies and collected repository findings |
 | Telemetry | Every CSV under `.telemetry/`, beside the list of script folders, the rules each project's ESLint config enables and the `eslint-disable` comments in tracked files — see [📊 Telemetry](#-telemetry) |
 
 `@nuxt/content` lower-cases every route, so `packages/ui/README.md` is served at
@@ -170,15 +168,6 @@ to a *missing* file is still a real defect, and
 It never fails a build. Link syntax inside a code span or a fenced sample is skipped, because the
 parser never turns it into a link either.
 
-A review's markdown is rendered as-is here, exactly like every other doc — nothing about it is
-recomputed. **Scorecards** is the one exception, and a narrow one: `tools/collect/scorecards.ts`
-parses each review's own `## 🧮 Scores` table and shows the numbers as tiles and a table
-instead of a raw markdown table, but every figure is copied verbatim out of the file `repo-review`
-already wrote — nothing here re-scores or re-derives a total. That only stays honest because the
-table has one shape across every review: the seven cards `SCORECARDS.md` lists, in that order, each
-`n/5`. The `repo-review` skill is told to keep it that way, and
-[`compareScorecardShape`](./tools/lib/invariants.ts) is what notices the day a review doesn't.
-
 ## 📚 Documentation is a wiki
 
 The docs half is a wiki, not a file listing: a tree on the left that stays put while you read, a
@@ -190,14 +179,14 @@ doc added anywhere appears in the nav on the next reload instead.
 | Section | What lands in it |
 | --- | --- |
 | Workspace | The two files at the root, plus the generated `docs/FEATURES.md` |
-| Docs | `docs/`, grouped by subdirectory: concepts, guides, the decision, audit and review rubrics |
+| Docs | `docs/`, grouped by subdirectory: concepts, guides, the decision and audit rubrics |
 | Projects | One group per project, holding its README, its `CLAUDE.md` and its nested READMEs |
 | Agent setup | `.claude/skills/` and `.claude/agents/` |
 
-Four things are deliberately **not** in the tree: `CHANGELOG.md`s, the dated reviews, the dated
-audits and the numbered decision reports. Each already has a page of its own here, and a wiki that also lists them is a
+Three things are deliberately **not** in the tree: `CHANGELOG.md`s, the dated audits and the
+numbered decision reports. Each already has a page of its own here, and a wiki that also lists them is a
 second route to the same file that ages differently. The `README.md` beside each of those — the
-review rubric, the decision template's rules — stays, because a doc about how a record is written is
+audit rubric, the decision template's rules — stays, because a doc about how a record is written is
 not one of the records.
 
 Labels are the one thing not taken verbatim: under a group already called `packages/ui`, a README
@@ -330,10 +319,10 @@ Vite base from Pages' derived path. Each card links to its own without a stored 
 
 ## 💾 One store, and it is disposable
 
-`.report/` holds the collected snapshot — coverage, metrics, docs, the graph, the scorecards — is
+`.report/` holds the collected snapshot — coverage, metrics, docs, the graph — is
 gitignored, and is rebuilt by `pnpm exec nx collect @monorepo/developer-portal` in seconds. A snapshot that
-gets committed is a report that goes stale silently. Nothing else here is stored at all: the docs,
-the reviews and the changelogs are files in the tree read where they live, and the issues are read
+gets committed is a report that goes stale silently. Nothing else here is stored at all: the docs
+and the changelogs are files in the tree read where they live, and the issues are read
 live off GitHub. If you delete every derived file in this project, one command puts it back.
 
 The one committed snapshot is `docs/workflows/projects/*.snapshot.json`, and it is the exception on
@@ -387,7 +376,7 @@ fetches them. Workflows are older still: as old as the last committed `pnpm work
 
 `tools/lib/invariants.ts` re-runs the cross-file rules
 [`check-invariants.sh`](../../.claude/hooks/check-invariants.sh) enforces on edit: the tag table
-written twice, the workspace-layout block, a review with no row in the history table. The hook only
+written twice and the workspace-layout block. The hook only
 fires while an agent is editing a file; these run over the whole tree on every collect and show up
 as findings on the Overview. Nothing in CI runs them, so drift introduced by hand is reported here
 and blocks nothing — [`0025`](../../docs/decisions/0025-check-docs-removal.md) records why.
@@ -401,11 +390,10 @@ dashboard shows correctly. The split is deliberate: the vocabulary is
 `DecisionOutcome` from and which client code can import; the parsing lives in `tools/` so a node-only
 dependency never reaches the browser bundle.
 
-Four checks here have no shell-hook twin, and each guards a shape a page's parser depends on:
+Three checks here have no shell-hook twin, and each guards a shape a page's parser depends on:
 
 | Check | Flags |
 | --- | --- |
-| `compareScorecardShape` | A review whose `## 🧮 Scores` table doesn't match `SCORECARDS.md`'s seven cards, in order, each `n/5` |
 | `compareAuditShape` | An audit with a bad filename, missing frontmatter, a reused ID or an unknown status |
 | `compareDecisionShape` | A decision report with a bad filename, a reused number, an unknown `status:`/`decision:`, no `issue:` or a dangling `supersededBy:` |
 | `compareWorkflowShape` | A workflow template, project or snapshot that breaks a rule in [`docs/workflows/README.md`](../../docs/workflows/README.md), or a `reuse.from` path that doesn't exist |
@@ -449,7 +437,6 @@ nothing and so violates nothing.
 
 | Later need | What changes |
 | --- | --- |
-| A time-series chart of review totals | The scorecards page already lists every review's total, newest first, parsed straight from each review file rather than from the hand-edited history table — so the objection that used to block this (a hand-edited row becoming a rendering bug) no longer applies. A chart still needs six or seven rows before it says anything a column of numbers doesn't |
 | Writing to GitHub from here — closing an issue, moving a card | Every write needs a credential, which the browser-side read deliberately removed, plus an undo story, an optimistic-update story and a permission story. Reading is the whole value; `pnpm issue:add` and `pnpm issue:pick` already cover filing and starting |
 | A decision's `issue:` shown beside it, or filtered on | The collector parses that field already and keeps only `status`, `decision` and `supersededBy`; carrying it would be one more field on `DocPage` and a link out to GitHub. Every report states its issue in its own Context section, and two reports may share one — so it sorts and groups worse than the number the list already uses |
 | Closed issues, or issues from another repo | `state=open` on the repo `NUXT_PUBLIC_REPO_URL` names. Both are one parameter; neither has a question this page is asked yet, and each doubles the requests against a 60-an-hour limit |
