@@ -8,6 +8,8 @@ export default [
         kit: ["app/components/", "app/utils/"],
     }),
     {
+        // The plugin is only registered for these, so a rule set outside them fails on any `.js`.
+        files: ["**/*.vue", "**/*.ts"],
         rules: {
             // Plain CSS classes from main.css and the hooks a component's scoped style hangs off
             "better-tailwindcss/no-unknown-classes": [

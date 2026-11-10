@@ -8,3 +8,4 @@ at,script,command,target,flags,area,caller,tty,exit,ms
 2026-11-10,map,,,check,repo,claude-code,0,0,140
 2026-11-10,map,,,check,repo,claude-code,0,0,128
 2026-11-10,issue,pick,,title,repo,claude-code,0,0,12880
+2026-11-10,map,,,check,repo,claude-code,0,0,125
