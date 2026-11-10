@@ -1,0 +1,93 @@
+<template>
+    <UDashboardPanel id="audit">
+        <template #header>
+            <UDashboardNavbar :title="report?.title ?? page?.title ?? 'Not found'">
+                <template #leading>
+                    <UDashboardSidebarCollapse />
+                </template>
+                <template #right>
+                    <StatusPill v-if="state" :label="state.label" :tone="state.tone" />
+                    <span v-if="report?.commit" class="text-xs text-muted"
+                        >read at <code class="font-mono">{{ report.commit }}</code></span
+                    >
+                    <code class="font-mono text-xs text-dimmed">{{ source }}</code>
+                </template>
+            </UDashboardNavbar>
+        </template>
+
+        <template #body>
+            <div class="flex items-start gap-6">
+                <div class="flex min-w-0 flex-1 flex-col gap-4">
+                    <UBreadcrumb :items="crumbs" />
+
+                    <UAlert
+                        v-if="!page"
+                        color="neutral"
+                        variant="subtle"
+                        icon="i-lucide-file-question"
+                        title="No such audit"
+                        :description="`Nothing under docs/audits/ matches ${id}.`"
+                    />
+
+                    <template v-else>
+                        <div v-if="report" class="grid grid-cols-3 gap-3">
+                            <StatTile
+                                v-for="status in FINDING_STATUSES"
+                                :key="status"
+                                :label="findingStatusLabel(status)"
+                                :value="report.counts[status]"
+                                :tone="findingStatusTone(status)"
+                            />
+                        </div>
+
+                        <UPageBody class="mt-0">
+                            <ContentRenderer :value="page" />
+                        </UPageBody>
+                    </template>
+                </div>
+
+                <aside
+                    v-if="page?.body?.toc?.links?.length"
+                    class="sticky top-0 hidden w-56 shrink-0 xl:block"
+                >
+                    <UContentToc :links="page.body.toc.links" highlight class="bg-transparent" />
+                </aside>
+            </div>
+        </template>
+    </UDashboardPanel>
+</template>
+
+<script setup lang="ts">
+import type { BreadcrumbItem } from "@nuxt/ui";
+import { FINDING_STATUSES } from "#layers/snapshot/shared/audits.ts";
+
+const route = useRoute();
+
+const reports = useAuditReports();
+
+const id = computed(() => (route.params.id as string | undefined) ?? "");
+const path = computed(() => `/docs/audits/${id.value}`);
+
+const { data: page } = await useAsyncData(
+    () => `audit-${id.value}`,
+    () => queryCollection("docs").path(path.value).first(),
+    { watch: [path] },
+);
+
+const report = computed(() => reports.value.find((candidate) => candidate.id === id.value) ?? null);
+
+const state = computed(
+    () =>
+        report.value && {
+            label: auditStateLabel(report.value.state),
+            tone: auditStateTone(report.value.state),
+        },
+);
+
+const source = computed(() => report.value?.path ?? `${path.value.slice(1)}.md`);
+
+const crumbs = computed<BreadcrumbItem[]>(() => [
+    { label: "Audits", to: "/audits", icon: "i-lucide-scan-search" },
+    { label: report.value?.date ?? id.value, class: "font-mono" },
+]);
+</script>
