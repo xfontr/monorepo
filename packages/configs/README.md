@@ -241,8 +241,10 @@ Node types even in a package that otherwise doesn't.
   `eslint.layerBoundaries({ cores: [...] })`, naming its core layers. Every other folder under
   `layers/` is a feature, so a new layer is covered without editing a list. A feature may import a
   core, never another feature, and a core never imports a feature, so each feature can be deleted
-  alone. Both `#layers/<name>/…` and relative paths are checked. Nuxt's auto-imports never appear as
-  an import, so review still catches those. Both apps opt in
+  alone. Both `#layers/<name>/…` and relative paths are checked, and so are auto-imports, placed
+  through the maps `nuxi prepare` writes into `.nuxt/`. The one exception is a feature's
+  `app/pages/`, which may render another feature's components, since a page composes a screen.
+  Both apps opt in
 - `monorepo/disable-needs-reason` and `reportUnusedDisableDirectives: "error"`, from
   [`lib/disableReasons.ts`](./src/eslint/lib/disableReasons.ts) — every `eslint-disable` names the
   rules it silences and ends in `-- <why>`, a block `eslint-disable` is closed with `eslint-enable`,

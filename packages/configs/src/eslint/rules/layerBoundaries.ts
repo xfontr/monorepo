@@ -12,7 +12,10 @@ interface TemplateContainer {
     references: { id: { name: string; loc: Rule.Node["loc"] } }[];
 }
 interface TemplateVisitor {
-    defineTemplateBodyVisitor?: (visitor: Record<string, (node: never) => void>) => object;
+    defineTemplateBodyVisitor?: (
+        templateVisitor: Record<string, (node: never) => void>,
+        scriptVisitor: Rule.RuleListener,
+    ) => Rule.RuleListener;
 }
 
 const LAYERS = "/layers/";
@@ -79,7 +82,7 @@ const layerBoundaries: Rule.RuleModule = {
         type: "problem",
         docs: {
             description:
-                "Keep Nuxt layers apart, auto-imports included: a feature uses only cores, and a core never uses a feature.",
+                "Keep Nuxt layers apart, auto-imports included: a feature uses only cores, a core never uses a feature, and only a feature's pages render another feature's components.",
         },
         schema: [
             {
@@ -109,6 +112,8 @@ const layerBoundaries: Rule.RuleModule = {
         const layer = layerAfter(layersRoot, filename);
         const fromDir = posix.dirname(filename);
         const inLayer = filename.slice(layersRoot.length);
+        const featurePage =
+            !cores.includes(layer ?? "") && inLayer.startsWith(`${layer}/app/pages/`);
 
         const report = (loc: Rule.Node["loc"], target: string | undefined) => {
             if (!target || target === layer || cores.includes(target) || !loc) return;
@@ -136,6 +141,7 @@ const layerBoundaries: Rule.RuleModule = {
         const declaredAtTop = new Set<string>();
         const templateVisitor = {
             VElement: (node: TemplateElement) => {
+                if (featurePage) return;
                 report(node.loc, origin(components, toPascal(node.rawName)));
             },
             VExpressionContainer: (node: TemplateContainer) => {
@@ -147,10 +153,8 @@ const layerBoundaries: Rule.RuleModule = {
             },
         };
         const parserServices = context.sourceCode.parserServices as TemplateVisitor | undefined;
-        const visitor = parserServices?.defineTemplateBodyVisitor?.(templateVisitor) ?? {};
 
-        return {
-            ...visitor,
+        const scriptVisitor: Rule.RuleListener = {
             "ImportDeclaration, ExportNamedDeclaration, ExportAllDeclaration, ImportExpression": (
                 node: Rule.Node,
             ) => {
@@ -176,6 +180,12 @@ const layerBoundaries: Rule.RuleModule = {
                 }
             },
         };
+
+        // The parser walks the template from this visitor's own `Program:exit`, so it must wrap it.
+        return (
+            parserServices?.defineTemplateBodyVisitor?.(templateVisitor, scriptVisitor) ??
+            scriptVisitor
+        );
     },
 };
 
