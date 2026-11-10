@@ -1,7 +1,12 @@
 import monorepo from "../rules/index.ts";
+import type { LayerBoundariesOptions } from "../rules/layerBoundaries.ts";
 
-const layerBoundaries = (options: { cores: string[] }): object => ({
-    files: ["**/layers/**/*.ts", "**/layers/**/*.vue"],
+const layerBoundaries = (options: LayerBoundariesOptions): object => ({
+    files: [
+        "**/layers/**/*.ts",
+        "**/layers/**/*.vue",
+        ...options.kit.flatMap((path) => [`${path}**/*.ts`, `${path}**/*.vue`]),
+    ],
     plugins: { monorepo },
     rules: {
         "monorepo/layer-boundaries": ["error", options],

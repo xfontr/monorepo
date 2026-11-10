@@ -1,0 +1,10 @@
+at,script,command,target,flags,area,caller,tty,exit,ms
+2026-11-10,ci-failures,,,,developer-portal,claude-code,0,1,5085
+2026-11-10,dev,,developer-portal,,repo,human,1,0,110178
+2026-11-10,issue,pick,,,repo,human,1,1,990
+2026-11-10,issue,pick,,,huella-legal,human,1,0,31500
+2026-11-10,issue,brief,,,huella-legal,claude-code,0,0,1382
+2026-11-10,map,,,check,huella-legal,claude-code,0,0,133
+2026-11-10,review-version,,,check,huella-legal,claude-code,0,0,25
+2026-11-10,map,,,check,huella-legal,claude-code,0,0,118
+2026-11-10,review-version,,,check,huella-legal,claude-code,0,0,21
