@@ -50,9 +50,8 @@ domain logic, its own config, or is something you'd switch off whole.
 | `docs` | Core | The wiki pages and nav, the link rewriting, and the path helpers every markdown-backed page uses |
 | `github` | Core | The two reads the browser makes of GitHub, issues and deployments, and their rules |
 | `decisions`, `audits`, `reviews` | Feature | Each record's pages, its list logic and its labels |
-| `issues` | Feature | The Work in progress page and its row |
 | `projects` | Feature | Projects, Architecture and What's new |
-| `health` | Feature | Coverage and Dependencies |
+| `health` | Feature | Work in progress and its row, Coverage and Dependencies |
 | `telemetry` | Feature | The Telemetry page and the usage rules the collector shares |
 | `workflows` | Feature | The Workflows pages, their components, routes, config and colours |
 
@@ -80,7 +79,7 @@ the collector holds for it, since `tools/` is one program outside Nuxt:
 | `telemetry` | [`tools/collect/usage.ts`](./tools/collect/usage.ts), [`tools/lib/lintRules.ts`](./tools/lib/lintRules.ts), the `usage` step in [`tools/collect/index.ts`](./tools/collect/index.ts), and the `usage` reader and types in `snapshot` |
 | `decisions`, `audits` | Nothing to delete, but the collector still parses both into `docs.json` and checks their shape |
 | `reviews` | [`tools/collect/scorecards.ts`](./tools/collect/scorecards.ts) and its step, and the layout's review badge |
-| `issues`, `health` | The Overview tiles and the sidebar badge that read them |
+| `health` | The Overview tiles and the sidebar badge that read them |
 
 ## 🚀 Development
 
