@@ -31,12 +31,59 @@ work in progress remain directly addressable without creating a second applicati
 
 | Path | What lives there |
 | --- | --- |
-| `app/` | The Nuxt UI dashboard — pages and components |
-| `server/api/` | `badges.get.ts` for the navigation badge counts, `snapshot/[artifact].get.ts` for one collected artifact by name, and `workflows/` — the workflow files read in place, plus a write route that only answers under `nuxt dev`. The issues come straight from GitHub to the browser |
-| `server/utils/` | `store.ts`, which reads a `.report/` artifact and returns `null` rather than throwing when it was never collected; `workflowFiles.ts`, which parses `docs/workflows` and is the one file `tools/` imports from here; and `workflows.ts`, which assembles and edits it |
-| `shared/` | Pure logic — the wiki's shape, the issue rules, the decision and audit vocabularies, the findings-table parser, both lists' own filtering and counting, and where a doc's link points. Imported by app, server and tools alike |
-| `tools/collect/` | Builds the derived snapshot: graph, coverage, metrics, docs, scorecards |
+| `app/` | The shell: the layout and its sidebar, the Overview page, and the parts every layer draws with — `StatTile`, `StatusPill`, `toneClass` and the date helpers |
+| `layers/` | One Nuxt layer per capability — see [🧱 Layers](#-layers) |
+| `tools/collect/` | Builds the derived snapshot: graph, coverage, metrics, docs, scorecards, usage |
 | `tools/lib/` | Node-only helpers — paths, the `git` allowlist, the invariant checks, and the remark plugin that rewrites a doc's links as it is parsed |
+
+## 🧱 Layers
+
+Nuxt registers every directory under `layers/` by itself, and each one repeats the app's own
+layout: `app/`, `server/`, `shared/` and a `nuxt.config.ts`, which a layer needs even when it is
+empty. The split follows [`apps/huella-legal`](../huella-legal/CLAUDE.md): a layer has its own
+domain logic, its own config, or is something you'd switch off whole.
+
+| Layer | Kind | What it owns |
+| --- | --- | --- |
+| `design` | Core | Every token and shared class, and the Nuxt UI theme — see [🎨 Design system](#-design-system) |
+| `snapshot` | Core | The `.report/` store, the snapshot and badge routes, the artifact types, `useSnapshot` and `SnapshotAge` |
+| `docs` | Core | The wiki pages and nav, the link rewriting, and the path helpers every markdown-backed page uses |
+| `github` | Core | The two reads the browser makes of GitHub, issues and deployments, and their rules |
+| `decisions`, `audits`, `reviews` | Feature | Each record's pages, its list logic and its labels |
+| `projects` | Feature | Projects, Architecture and What's new |
+| `health` | Feature | Work in progress and its row, Coverage and Dependencies |
+| `telemetry` | Feature | The Telemetry page and the usage rules the collector shares |
+| `workflows` | Feature | The Workflows pages, their components, routes, config and colours |
+
+A feature uses the cores and the shell's parts, never another feature, so each one comes out alone.
+Only the shell uses everything: the Overview and the sidebar's badges read issues, reviews and the
+snapshot. [`eslint.config.ts`](./eslint.config.ts) names the cores for `eslint.layerBoundaries`,
+which rejects a written import that breaks this, but auto-imports never appear as an import, so
+review still catches the rest.
+
+Any import into another layer, from `app/`, `shared/`, `server/` or `tools/`, reads
+`#layers/<name>/…`. Nuxt resolves it as its own alias; the collector and the `node` test project run
+outside Nuxt and resolve the same string through the `imports` field in
+[`package.json`](./package.json). An import within one layer, or within `tools/`, stays relative.
+A root-level `shared/` is gone on purpose:
+a relative import into it is what broke the prerendered build in
+[`0014`](../../docs/decisions/0014-developer-portal-deployment.md).
+
+Each layer lists its sidebar links under `nav` in its `app/app.config.ts`, and
+[`default.vue`](./app/layouts/default.vue) only arranges those keys, skipping one no layer declares.
+
+### Removing a feature
+
+Deleting the folder removes the pages, the routes and the sidebar entry. What is left is whatever
+the collector holds for it, since `tools/` is one program outside Nuxt:
+
+| Feature | Besides `layers/<name>/` |
+| --- | --- |
+| `workflows` | [`tools/lib/workflows.ts`](./tools/lib/workflows.ts) and its call in [`invariants.ts`](./tools/lib/invariants.ts), the `docs/workflows` line under `namedInputs` in [`package.json`](./package.json), and `@dagrejs/dagre` |
+| `telemetry` | [`tools/collect/usage.ts`](./tools/collect/usage.ts), [`tools/lib/lintRules.ts`](./tools/lib/lintRules.ts), the `usage` step in [`tools/collect/index.ts`](./tools/collect/index.ts), and the `usage` reader and types in `snapshot` |
+| `decisions`, `audits` | Nothing to delete, but the collector still parses both into `docs.json` and checks their shape |
+| `reviews` | [`tools/collect/scorecards.ts`](./tools/collect/scorecards.ts) and its step, and the layout's review badge |
+| `health` | The Overview tiles and the sidebar badge that read them |
 
 ## 🚀 Development
 
@@ -87,7 +134,7 @@ that.
 `@nuxt/content` lower-cases every route, so `packages/ui/README.md` is served at
 `/packages/ui/readme` while the collector keys the same file as `packages/ui/README.md`. Anything
 joining the two — a broken-link warning, an "updated 3 days ago" — goes through
-[`toCollectionPath`](./shared/wiki.ts) first. A hand-written `/docs/…/README` link matches nothing
+[`toCollectionPath`](./layers/docs/shared/wiki.ts) first. A hand-written `/docs/…/README` link matches nothing
 and fails silently, which is exactly how it went unnoticed the first time.
 
 The links *inside* a doc are written for GitHub and point at files, not routes — `./.husky/pre-push`,
@@ -99,7 +146,7 @@ the markdown, because on GitHub they are already correct.
 [`remarkDocLinks`](./tools/lib/remarkDocLinks.ts) rewrites each one **while the file is parsed**,
 which is the only moment both things it needs are in reach: the source file's own path, and a
 filesystem to ask. A target that is markdown on disk becomes a route; everything else becomes
-`repo:`, which [`ProseA`](./app/components/content/ProseA.vue) turns into a link to the forge once
+`repo:`, which [`ProseA`](./layers/docs/app/components/content/ProseA.vue) turns into a link to the forge once
 `NUXT_PUBLIC_REPO_URL` — runtime config, and so unknowable at parse time — is in hand.
 
 | The link says | It renders as | Because |
@@ -133,7 +180,7 @@ table has one shape across every review: the seven cards `SCORECARDS.md` lists, 
 ## 📚 Documentation is a wiki
 
 The docs half is a wiki, not a file listing: a tree on the left that stays put while you read, a
-breadcrumb, and prev/next within the group you are in. [`shared/wiki.ts`](./shared/wiki.ts) derives
+breadcrumb, and prev/next within the group you are in. [`layers/docs/shared/wiki.ts`](./layers/docs/shared/wiki.ts) derives
 that shape from nothing but the paths the collection found, which is the whole point — a
 hand-written table of contents would be a fifth copy of the workspace layout to keep in step, and a
 doc added anywhere appears in the nav on the next reload instead.
@@ -167,13 +214,13 @@ spinner while it arrives.
 
 The wiki nav is derived from paths alone, so the one question a reader brings to a list of decisions —
 which of these decisions have actually landed — is the one thing it cannot answer, and it gets worse
-with every report filed. [`/decisions`](./app/pages/decisions/index.vue) answers it instead: the counts per
+with every report filed. [`/decisions`](./layers/decisions/app/pages/decisions/index.vue) answers it instead: the counts per
 `status:`, filters over both frontmatter axes, and a sort by number, by last commit or by status.
 
 | Fact | Where it comes from |
 | --- | --- |
 | The `status:` and `decision:` values | Each report's own frontmatter, parsed by the collector into `docs.json` — never re-derived here |
-| The counts, the filters, the ordering | [`shared/decisionReports.ts`](./shared/decisionReports.ts), pure and specced beside itself |
+| The counts, the filters, the ordering | [`layers/decisions/shared/decisionReports.ts`](./layers/decisions/shared/decisionReports.ts), pure and specced beside itself |
 | Newest first | A string compare on the number, which the four-digit padding in [`docs/decisions/README.md`](../../docs/decisions/README.md#-numbering) makes a numeric one |
 | Prev/next on a report | The number again, so one report reads on to the next decision made rather than the next row of whatever sort was left on |
 
@@ -186,23 +233,23 @@ list — which is the same staleness every other page here has, shown by the sam
 ## 🔎 Audits count findings, not files
 
 An audit is worked down one finding at a time, so the question a reader brings to
-[`/audits`](./app/pages/audits/index.vue) is how much of each one is still owed. The collector
+[`/audits`](./layers/audits/app/pages/audits/index.vue) is how much of each one is still owed. The collector
 parses every table carrying both an `ID` and a `Status` header into `docs.json`; everything on the
 page is derived from those rows.
 
 | Fact | Where it comes from |
 | --- | --- |
-| Each finding's status | Its `Status` cell, parsed by [`parseFindings`](./shared/audits.ts) — a value outside the vocabulary counts as open |
+| Each finding's status | Its `Status` cell, parsed by [`parseFindings`](./layers/snapshot/shared/audits.ts) — a value outside the vocabulary counts as open |
 | The audit's state | Derived by `auditStateOf`: open, in progress, or closed once nothing is open. Never written in the file |
-| Progress, counts, filters, ordering | [`shared/auditReports.ts`](./shared/auditReports.ts), pure and specced beside itself |
+| Progress, counts, filters, ordering | [`layers/audits/shared/auditReports.ts`](./layers/audits/shared/auditReports.ts), pure and specced beside itself |
 | A malformed audit | [`tools/lib/audits.ts`](./tools/lib/audits.ts), surfaced as an `audit-shape-mismatch` invariant on the Overview |
 
 ## 📊 Telemetry
 
-[`/telemetry`](./app/pages/telemetry.vue) shows how the repo's own tooling is used. `collect` reads
+[`/telemetry`](./layers/telemetry/app/pages/telemetry.vue) shows how the repo's own tooling is used. `collect` reads
 the raw rows every commit carries into `.telemetry/` (what a row holds and why is in
 [`usage/`](../../infrastructure/scripts/src/usage/README.md)) and sums them in
-[`shared/usage.ts`](./shared/usage.ts) and [`shared/lintUsage.ts`](./shared/lintUsage.ts). The rows
+[`layers/telemetry/shared/usage.ts`](./layers/telemetry/shared/usage.ts) and [`layers/telemetry/shared/lintUsage.ts`](./layers/telemetry/shared/lintUsage.ts). The rows
 stay raw on purpose: a new question is a new function over the same files, not a migration of a
 tally.
 
@@ -232,7 +279,7 @@ reads as never fired. The page says so above the numbers.
 | Noisy | One rule is 30% or more of recent hits, with at least five |
 | Always auto-fixed | Five or more hits, every one settled by `--fix` |
 
-The thresholds are constants in the two `shared/` files. No pattern alert fires under five runs or
+The thresholds are constants in the layer's two `shared/` files. No pattern alert fires under five runs or
 hits, since one is always 100% of itself.
 
 ## 🐙 Work in progress comes from GitHub, not from here
@@ -245,10 +292,10 @@ todo list that was exactly that mistake.
 | Decision | Why |
 | --- | --- |
 | `fetch` in the browser, never `gh` on a server | The repo is public, so unauthenticated REST needs no credential — and a page that reads GitHub itself is a page that can be served as static files. A server existed only to hold the CLI's token |
-| The endpoint is derived from `NUXT_PUBLIC_REPO_URL` | GitHub's REST host is the repo's own with `api.` in front, so [`issuesApiUrl`](./shared/issues.ts) computes it and no vendor endpoint is written into this repo |
+| The endpoint is derived from `NUXT_PUBLIC_REPO_URL` | GitHub's REST host is the repo's own with `api.` in front, so [`issuesApiUrl`](./layers/github/shared/issues.ts) computes it and no vendor endpoint is written into this repo |
 | A failure is rendered, not thrown | No network and a spent rate limit are facts about the reader, not about the repo. The page shows GitHub's own message, which explains itself better than anything written here |
-| Pull requests are dropped | The REST issues endpoint returns both, so [`toIssues`](./shared/issues.ts) filters on the `pull_request` key that only a PR carries |
-| Label names without their colours | GitHub's label palette is arbitrary and this app's is [three validated status roles](#-colour). Rendering one beside the other is how a page stops meaning anything |
+| Pull requests are dropped | The REST issues endpoint returns both, so [`toIssues`](./layers/github/shared/issues.ts) filters on the `pull_request` key that only a PR carries |
+| Label names without their colours | GitHub's label palette is arbitrary and this app's is [three validated status roles](#-design-system). Rendering one beside the other is how a page stops meaning anything |
 
 **The board a card sits on is gone, and is not coming back without a token.** `projectItems` is a
 GraphQL field, and GraphQL answers `403` unauthenticated — REST carries nothing about GitHub
@@ -348,7 +395,7 @@ the entire reason they exist as pure functions rather than more shell.
 The rules parse with `yaml` rather than a regex, because `@nuxt/content` reads these same bytes as
 YAML to render the page — a checker that disagreed with it about what parses would fail reports the
 dashboard shows correctly. The split is deliberate: the vocabulary is
-[`shared/decisions.ts`](./shared/decisions.ts), which `shared/types.ts` derives `DecisionStatus` and
+[`layers/snapshot/shared/decisions.ts`](./layers/snapshot/shared/decisions.ts), which `layers/snapshot/shared/types.ts` derives `DecisionStatus` and
 `DecisionOutcome` from and which client code can import; the parsing lives in `tools/` so a node-only
 dependency never reaches the browser bundle.
 
@@ -361,16 +408,31 @@ Four checks here have no shell-hook twin, and each guards a shape a page's parse
 | `compareDecisionShape` | A decision report with a bad filename, a reused number, an unknown `status:`/`decision:`, no `issue:` or a dangling `supersededBy:` |
 | `compareWorkflowShape` | A workflow template, project or snapshot that breaks a rule in [`docs/workflows/README.md`](../../docs/workflows/README.md), or a `reuse.from` path that doesn't exist |
 
-## 📊 Colour
+## 🎨 Design system
 
-Three status colours, validated as a set against both the light and the dark surface — lightness
-band, chroma floor, colourblind separation, normal-vision separation, contrast. Five bands were
-tried first and failed: an orange and a red land 7.1 apart on the normal-vision scale, which no
+The [`design`](./layers/design) layer is the only place a value is chosen. Components use Nuxt UI's
+semantic roles (`text-muted`, `border-default`, `bg-elevated`) and Tailwind's scale, and ESLint
+rejects a bracketed value such as `text-[11px]` and any class Tailwind doesn't know.
+
+| Piece | Where | What it is |
+| --- | --- | --- |
+| `--tone-good`, `-warn`, `-bad` | [`main.css`](./layers/design/app/assets/main.css) | The three status colours, with a `.tone-*` class each. [`toneClass`](./app/utils/format.ts) maps a `Tone` to its class, so no class name is built from a string |
+| `text-2xs` | `main.css` | The one type step under `text-xs`, for timestamps and tags |
+| `.data-table`, `.numeric` | `main.css` | Every table: header, row rule, hover and cell padding, with `numeric` for a right-aligned figure |
+| `.embedded-report` | `main.css` | The white frame the vendored coverage report and Nx graph render in |
+| `variant="flush"` on `UCard` | [`app.config.ts`](./layers/design/app/app.config.ts) | A card with no body padding, for a table or a list of rows |
+| `--state-*`, `--stage-*` | [`workflows.css`](./layers/workflows/app/assets/workflows.css) | One colour per block state and per stage, read through `stateColor` and `stageColor`. They live with the feature so they leave with it |
+
+A hover or resting tint is `bg-elevated/50` and a selected row is `bg-elevated`. A colour that
+depends on data reaches the template as a CSS variable, as in `text-(--state)`, never as a literal.
+Layout that only one component needs, such as the skyline's grid, stays in that component's scoped
+style, and the classes it hangs off are listed in [`eslint.config.ts`](./eslint.config.ts).
+
+The three status colours were validated as a set against both the light and the dark surface —
+lightness band, chroma floor, colourblind separation, normal-vision separation, contrast. Five bands
+were tried first and failed: an orange and a red land 7.1 apart on the normal-vision scale, which no
 amount of good intent fixes. Three pass, and every one of them sits beside the number it describes.
-Nothing here is ever a colour alone.
-
-The values live in [`app/assets/css/main.css`](./app/assets/css/main.css). Re-run the validator in
-the `dataviz` skill before changing one.
+Nothing here is ever a colour alone. Re-run the validator in the `dataviz` skill before changing one.
 
 ## 📐 Boundaries
 

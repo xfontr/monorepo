@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ProjectNode } from "../../shared/types.ts";
+import type { ProjectNode } from "#layers/snapshot/shared/types.ts";
 
 const fs = vi.hoisted(() => ({
     access: vi.fn(),

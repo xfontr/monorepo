@@ -1,4 +1,4 @@
-import type { ScoreRow } from "../../shared/types.ts";
+import type { ScoreRow } from "#layers/snapshot/shared/types.ts";
 
 /** The seven cards every review's `## 🧮 Scores` table must have, in this order — `compareScorecardShape` in `invariants.ts` catches drift. */
 export const SCORE_CARDS = [

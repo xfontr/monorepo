@@ -1,6 +1,6 @@
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ref, type Ref } from "vue";
+import { h, ref, type Ref } from "vue";
 import ArticleView from "./View.vue";
 
 const ARTICLE: Article = {
@@ -71,6 +71,24 @@ describe("article view", () => {
         const wrapper = await mountSuspended(ArticleView);
 
         expect(wrapper.find('a[href$="#comentarios"]').exists()).toBe(true);
+    });
+
+    it("hands the article and its thread to the page's comments slot", async () => {
+        nuxt.comments = ref({ open: true, count: 3, threads: [] });
+
+        const wrapper = await mountSuspended(ArticleView, {
+            slots: {
+                comments: ({
+                    article,
+                    comments,
+                }: {
+                    article: Article;
+                    comments?: ArticleComments;
+                }) => h("p", { id: "thread" }, `${article.slug} ${comments?.count}`),
+            },
+        });
+
+        expect(wrapper.find("#thread").text()).toBe("la-culpa 3");
     });
 
     it("renders nothing rather than an empty article while there is no post", async () => {

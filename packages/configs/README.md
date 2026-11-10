@@ -236,6 +236,15 @@ Node types even in a package that otherwise doesn't.
   object literal holding `tags` and `summary`, since without one the route still appears in
   Nitro's OpenAPI document, untagged and undescribed. The call sits after the `export default`
   handler, so a route reads handler first. `apps/huella-legal` opts in
+- `monorepo/layer-boundaries`, from [`lib/layerBoundaries.ts`](./src/eslint/lib/layerBoundaries.ts) —
+  in no factory; a Nuxt app split into layers opts in with
+  `eslint.layerBoundaries({ cores: [...] })`, naming its core layers. Every other folder under
+  `layers/` is a feature, so a new layer is covered without editing a list. A feature may import a
+  core, never another feature, and a core never imports a feature, so each feature can be deleted
+  alone. Both `#layers/<name>/…` and relative paths are checked, and so are auto-imports, placed
+  through the maps `nuxi prepare` writes into `.nuxt/`. The one exception is a feature's
+  `app/pages/`, which may render another feature's components, since a page composes a screen.
+  Both apps opt in
 - `monorepo/disable-needs-reason` and `reportUnusedDisableDirectives: "error"`, from
   [`lib/disableReasons.ts`](./src/eslint/lib/disableReasons.ts) — every `eslint-disable` names the
   rules it silences and ends in `-- <why>`, a block `eslint-disable` is closed with `eslint-enable`,

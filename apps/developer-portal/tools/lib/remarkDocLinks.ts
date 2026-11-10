@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { relative, resolve } from "node:path";
-import { isPlaceholder, resolveDocLink } from "../../shared/docLinks.ts";
+import { isPlaceholder, resolveDocLink } from "#layers/docs/shared/docLinks.ts";
 import { WORKSPACE_ROOT } from "./paths.ts";
 
 interface MarkdownNode {

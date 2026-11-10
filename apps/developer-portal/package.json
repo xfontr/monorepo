@@ -3,6 +3,9 @@
   "description": "Internal developer portal over the workspace",
   "private": true,
   "type": "module",
+  "imports": {
+    "#layers/*": "./layers/*"
+  },
   "scripts": {
     "build": "nx build-static",
     "dev": "nuxt dev",
@@ -50,6 +53,7 @@
     "@vue/test-utils": "^2.4.11",
     "eslint": "catalog:",
     "happy-dom": "^21.0.1",
+    "tailwindcss": "^4.3.3",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"

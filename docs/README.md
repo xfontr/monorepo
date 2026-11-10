@@ -14,7 +14,7 @@ would fix.
 These files are read on GitHub first. [`@monorepo/developer-portal`](../apps/developer-portal/README.md) also
 renders them — in place under `pnpm dev developer-portal`, and as a snapshot on the site it publishes from
 `master` — so a link here has to stay correct in both places, which is
-[`resolveDocLink`](../apps/developer-portal/shared/docLinks.ts)'s whole job rather than something to write
+[`resolveDocLink`](../apps/developer-portal/layers/docs/shared/docLinks.ts)'s whole job rather than something to write
 around.
 
 ## 🗂 Structure

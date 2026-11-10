@@ -1,0 +1,139 @@
+<template>
+    <UDashboardPanel id="coverage">
+        <template #header>
+            <UDashboardNavbar title="Coverage">
+                <template #leading>
+                    <UDashboardSidebarCollapse />
+                </template>
+                <template #right>
+                    <SnapshotAge :manifest="snapshot?.manifest ?? null" artifact="coverage" />
+                </template>
+            </UDashboardNavbar>
+        </template>
+
+        <template #body>
+            <div class="flex flex-col gap-4">
+                <div v-if="coverage?.totals" class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                    <StatTile
+                        v-for="metric in metrics"
+                        :key="metric"
+                        :label="metric"
+                        :value="`${coverage.totals[metric]}%`"
+                        hint="weighted across collected projects"
+                        :tone="coverageTone(coverage.totals[metric])"
+                    />
+                </div>
+
+                <UCard variant="flush">
+                    <template #header>
+                        <div>
+                            <h2 class="font-semibold">By project</h2>
+                            <p class="text-xs text-muted">
+                                The workspace figure is weighted by size, not averaged across
+                                projects — an average lets one large well-tested package hide a
+                                small untested one.
+                            </p>
+                        </div>
+                    </template>
+
+                    <div class="overflow-x-auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Project</th>
+                                    <th v-for="metric in metrics" :key="metric" class="numeric">
+                                        {{ metric }}
+                                    </th>
+                                    <th class="numeric">Files</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="project in projects" :key="project.name">
+                                    <td>
+                                        {{ project.name }}
+                                    </td>
+
+                                    <template v-if="project.collected">
+                                        <td
+                                            v-for="metric in metrics"
+                                            :key="metric"
+                                            class="numeric"
+                                            :class="toneClass(coverageTone(project[metric]?.pct))"
+                                        >
+                                            {{ project[metric]?.pct ?? "—" }}%
+                                        </td>
+                                    </template>
+
+                                    <!-- Absent is its own state. Not 0%, and certainly not 100%. -->
+                                    <td
+                                        v-else
+                                        colspan="4"
+                                        class="numeric text-xs text-dimmed italic"
+                                    >
+                                        not collected
+                                    </td>
+
+                                    <td class="numeric text-muted">
+                                        {{ project.collected ? project.files : "—" }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </UCard>
+
+                <UCard v-if="coverage?.report" variant="flush">
+                    <template #header>
+                        <div class="flex items-center justify-between gap-4">
+                            <div>
+                                <h2 class="font-semibold">Line-by-line report</h2>
+                                <p class="text-xs text-muted">
+                                    The merged report
+                                    <code class="font-mono">pnpm test:coverage</code> already
+                                    renders, copied in by the collector — not redrawn.
+                                </p>
+                            </div>
+
+                            <UButton
+                                :to="coverageEmbed"
+                                target="_blank"
+                                external
+                                label="Open full"
+                                icon="i-lucide-external-link"
+                                color="neutral"
+                                variant="subtle"
+                                size="xs"
+                            />
+                        </div>
+                    </template>
+
+                    <iframe
+                        :src="coverageEmbed"
+                        class="embedded-report h-160"
+                        title="Coverage report"
+                    />
+                </UCard>
+
+                <UAlert
+                    v-else
+                    color="neutral"
+                    variant="subtle"
+                    icon="i-lucide-info"
+                    title="No HTML report copied in"
+                    description="Run pnpm test:coverage from the workspace root, then pnpm exec nx collect @monorepo/developer-portal."
+                />
+            </div>
+        </template>
+    </UDashboardPanel>
+</template>
+
+<script setup lang="ts">
+const { data: snapshot } = await useSnapshot("coverage");
+
+const coverage = computed(() => snapshot.value?.coverage ?? null);
+const projects = computed(() => coverage.value?.projects ?? []);
+
+const metrics = ["lines", "statements", "functions", "branches"] as const;
+
+const coverageEmbed = embedUrl("/embed/coverage/index.html");
+</script>

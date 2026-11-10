@@ -5,8 +5,9 @@ them in two arrays: `shared`, which [`node.ts`](../node.ts) and [`vue.ts`](../vu
 and `vueOnly`, which only `vue.ts` adds. A rule belongs in this folder when it
 applies to **every** project the package touches; a rule for one flavour goes in the factory that
 composes it instead — see the [package README](../../../README.md#-what-the-eslint-factories-bundle).
-`routeMeta.ts` and `tailwind.ts` are composed by no factory: a project opts in by appending
-`eslint.routeMeta` or `eslint.tailwind(entryPoint)` after its factory.
+`routeMeta.ts`, `tailwind.ts` and `layerBoundaries.ts` are composed by no factory: a project opts in
+by appending `eslint.routeMeta`, `eslint.tailwind(entryPoint)` or `eslint.layerBoundaries({ cores })`
+after its factory.
 
 A rule no plugin ships lives in [`../rules`](../rules) as a `monorepo/<name>` rule with a
 `RuleTester` spec beside it, and a file here switches it on. Every file registers the same plugin
@@ -42,6 +43,7 @@ different objects under one name meet on a file.
 | [`disableReasons.ts`](./disableReasons.ts) | `monorepo/disable-needs-reason` and `reportUnusedDisableDirectives: "error"`: `disableReasons` for scripts and `disableReasonsVue` for `**/*.vue` (Vue configs only). Every `eslint-disable` names its rules and ends in `-- <why>`, a block disable is closed, and a disable that hides nothing fails |
 | [`defaultExports.ts`](./defaultExports.ts) | `monorepo/named-default-export`: `defaultExports` for scripts and `defaultExportsVue` for `**/*.vue` (Vue configs only). A default-exported function or class has a name; calls and literals are left alone |
 | [`routeMeta.ts`](./routeMeta.ts) | `monorepo/require-route-meta` under `server/api/` and `server/routes/`: a top-level `defineRouteMeta` whose `openAPI` object literal has `tags` and `summary`, placed after the `export default` handler. Opt-in, for a Nitro app with `experimental.openAPI` on |
+| [`layerBoundaries.ts`](./layerBoundaries.ts) | `monorepo/layer-boundaries` under `layers/`: no import, written or auto-imported, runs from one feature layer into another or from a core into a feature, except that a feature's `app/pages/` may render another feature's components. Every layer not named in `cores` is a feature. Opt-in, for a Nuxt app split into layers |
 | [`tailwind.ts`](./tailwind.ts) | `eslint-plugin-better-tailwindcss`'s `recommended-error` rules under `**/*.vue` and `**/*.ts`, minus `enforce-consistent-line-wrapping`, which fights Prettier. Opt-in: a project with Tailwind spreads `eslint.tailwind(entryPoint)`, naming its CSS entry point |
 | [`vitest.ts`](./vitest.ts) | `@vitest/eslint-plugin`'s `recommended` rules, globals and `typecheck: true`, scoped to `**/*.spec.ts` |
 

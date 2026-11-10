@@ -16,7 +16,9 @@
         </UContainer>
 
         <UContainer class="grid grid-cols-1 pb-16 lg:grid-cols-12 lg:gap-x-8 lg:pb-20">
-            <CommentsSection :article :comments class="min-w-0 lg:col-span-9 lg:col-start-4" />
+            <div class="min-w-0 lg:col-span-9 lg:col-start-4">
+                <slot name="comments" :article :comments />
+            </div>
         </UContainer>
 
         <ArticleRelated v-if="article.category" :category="article.category" :articles="related" />

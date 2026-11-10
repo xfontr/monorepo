@@ -1,0 +1,197 @@
+<template>
+    <UDashboardPanel id="scorecards">
+        <template #header>
+            <UDashboardNavbar title="Scorecards">
+                <template #leading>
+                    <UDashboardSidebarCollapse />
+                </template>
+                <template #right>
+                    <UButton
+                        to="/docs/docs/reviews/scorecards"
+                        label="The rubric"
+                        icon="i-lucide-ruler"
+                        color="neutral"
+                        variant="ghost"
+                        size="xs"
+                    />
+                    <SnapshotAge :manifest="snapshot?.manifest ?? null" artifact="scorecards" />
+                </template>
+            </UDashboardNavbar>
+        </template>
+
+        <template #body>
+            <div v-if="!latest" class="p-12 text-center">
+                <UIcon name="i-lucide-target" class="mx-auto mb-2 size-8 text-dimmed" />
+                <p class="text-sm text-muted">
+                    No review under <code class="font-mono">docs/reviews/</code> yet.
+                </p>
+                <p class="mt-1 text-xs text-dimmed">
+                    The <code class="font-mono">repo-review</code> skill writes them, one dated file
+                    per review.
+                </p>
+            </div>
+
+            <div v-else class="flex flex-col gap-4">
+                <p class="max-w-3xl text-sm text-muted">
+                    Scorecards summarize dated repository reviews as transparent engineering
+                    assessments, not live product ratings. Their values come from the review files
+                    and are not recomputed in the browser.
+                </p>
+
+                <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                    <StatTile
+                        label="Total"
+                        :value="`${latest.total}/5`"
+                        :hint="
+                            latest.totalDelta === '—' || latest.totalDelta === ''
+                                ? 'first review'
+                                : `${latest.totalDelta} since the previous one`
+                        "
+                        :tone="totalTone"
+                    />
+                    <StatTile
+                        label="Latest review"
+                        :value="latest.date"
+                        :hint="`commit ${latest.commit}`"
+                        icon="i-lucide-clipboard-check"
+                        :to="latestLink"
+                    />
+                    <StatTile
+                        label="Reviews collected"
+                        :value="reviews.length"
+                        hint="one dated file per review"
+                        icon="i-lucide-history"
+                        to="/reviews"
+                    />
+                    <StatTile
+                        label="Weakest card"
+                        :value="weakest ? weakest.card : '—'"
+                        :hint="weakest ? `${weakest.score}/5` : 'nothing parsed'"
+                        :tone="weakestTone"
+                    />
+                </div>
+
+                <UAlert
+                    v-if="latest.parseError"
+                    color="warning"
+                    variant="subtle"
+                    icon="i-lucide-triangle-alert"
+                    title="This review's Scores table didn't fully parse"
+                    :description="latest.parseError"
+                />
+
+                <UCard variant="flush">
+                    <template #header>
+                        <div>
+                            <h2 class="font-semibold">By card — {{ latest.date }}</h2>
+                            <p class="text-xs text-muted">
+                                Copied from the review's own
+                                <code class="font-mono">## 🧮 Scores</code> table, not recomputed —
+                                the total and the verdicts are exactly what
+                                <code class="font-mono">repo-review</code> wrote.
+                            </p>
+                        </div>
+                    </template>
+
+                    <div class="overflow-x-auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Card</th>
+                                    <th class="numeric">Score</th>
+                                    <th class="numeric">Δ</th>
+                                    <th>Verdict</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="card in latest.cards" :key="card.card">
+                                    <td class="whitespace-nowrap">
+                                        {{ card.card }}
+                                    </td>
+                                    <td class="numeric" :class="toneClass(scoreTone(card.score))">
+                                        {{ card.score }}/5
+                                    </td>
+                                    <td class="numeric text-muted">
+                                        {{ card.delta }}
+                                    </td>
+                                    <td class="text-muted">
+                                        {{ card.verdict }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </UCard>
+
+                <UCard v-if="reviews.length > 1" variant="flush">
+                    <template #header>
+                        <div class="flex items-center justify-between gap-4">
+                            <div>
+                                <h2 class="font-semibold">History</h2>
+                                <p class="text-xs text-muted">
+                                    Every review the collector could read, newest first.
+                                </p>
+                            </div>
+
+                            <UButton
+                                to="/docs/docs/reviews/readme"
+                                label="Full history table"
+                                icon="i-lucide-table"
+                                color="neutral"
+                                variant="subtle"
+                                size="xs"
+                            />
+                        </div>
+                    </template>
+
+                    <div class="divide-y divide-default">
+                        <NuxtLink
+                            v-for="review in reviews"
+                            :key="review.path"
+                            :to="`/reviews/${idOf(review.path)}`"
+                            class="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-elevated/50"
+                        >
+                            <span class="font-mono text-sm">{{ review.date }}</span>
+                            <span class="font-mono text-xs text-dimmed">{{ review.commit }}</span>
+
+                            <span class="flex-1" />
+
+                            <span v-if="review.parseError" class="text-xs text-dimmed italic"
+                                >couldn't parse</span
+                            >
+                            <span
+                                v-else
+                                class="text-sm font-semibold tabular-nums"
+                                :class="toneClass(scoreTone(review.total))"
+                                >{{ review.total }}/5</span
+                            >
+                        </NuxtLink>
+                    </div>
+                </UCard>
+            </div>
+        </template>
+    </UDashboardPanel>
+</template>
+
+<script setup lang="ts">
+import { toCollectionPath } from "#layers/docs/shared/wiki.ts";
+
+const { data: snapshot } = await useSnapshot("scorecards");
+
+const reviews = computed(() => snapshot.value?.scorecards?.reviews ?? []);
+const latest = computed(() => reviews.value[0] ?? null);
+
+const weakest = computed(() => {
+    if (!latest.value || latest.value.cards.length === 0) return null;
+
+    return latest.value.cards.reduce((worst, card) => (card.score < worst.score ? card : worst));
+});
+
+const idOf = (path: string): string => toCollectionPath(path).split("/").at(-1) ?? path;
+
+const totalTone = computed(() => scoreTone(latest.value?.total));
+const latestLink = computed(() =>
+    latest.value ? `/reviews/${idOf(latest.value.path)}` : "/reviews",
+);
+const weakestTone = computed(() => (weakest.value ? scoreTone(weakest.value.score) : "neutral"));
+</script>

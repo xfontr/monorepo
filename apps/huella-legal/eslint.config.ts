@@ -4,6 +4,7 @@ export default [
     ...eslint.createNuxtConfig(),
     eslint.routeMeta,
     eslint.tailwind("layers/design/app/assets/main.css"),
+    eslint.layerBoundaries({ cores: ["articles", "forms", "design"] }),
     {
         // Plain CSS classes from the prose stylesheets and a spec hook, not Tailwind utilities.
         rules: {
