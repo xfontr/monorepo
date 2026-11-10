@@ -1,4 +1,4 @@
-import { FINDING_STATUSES, parseFindings } from "../../shared/audits.ts";
+import { FINDING_STATUSES, parseFindings } from "../../layers/snapshot/shared/audits.ts";
 import { frontmatterFields } from "./decisions.ts";
 
 export interface AuditProblem {

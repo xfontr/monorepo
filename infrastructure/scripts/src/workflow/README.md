@@ -42,7 +42,7 @@ domain/filing.ts       the map read from a template and project, and what filing
 ```
 
 `domain/queue.ts` and the derived view in the portal's
-[`shared/workflows.ts`](../../../../apps/developer-portal/shared/workflows.ts) compute a ticket's
+[`shared/workflows.ts`](../../../../apps/developer-portal/layers/workflows/shared/workflows.ts) compute a ticket's
 status the same way. The portal can't import this package and this package can't import an app, so
 the rule is written twice and both specs pin it.
 

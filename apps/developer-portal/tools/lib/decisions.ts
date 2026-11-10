@@ -1,5 +1,5 @@
 import { parse } from "yaml";
-import { DECISION_OUTCOMES, DECISION_STATUSES } from "../../shared/decisions.ts";
+import { DECISION_OUTCOMES, DECISION_STATUSES } from "../../layers/snapshot/shared/decisions.ts";
 
 export interface DecisionProblem {
     file: string;

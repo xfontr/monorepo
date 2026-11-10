@@ -1,7 +1,7 @@
-/** Mirrors `CAPABILITY_LABEL_PREFIX` in apps/developer-portal/shared/workflows.ts. */
+/** Mirrors `CAPABILITY_LABEL_PREFIX` in apps/developer-portal/layers/workflows/shared/workflows.ts. */
 export const CAPABILITY_LABEL_PREFIX = "cap:";
 
-/** Mirrors `OWNER_LABEL` in apps/developer-portal/shared/workflows.ts. */
+/** Mirrors `OWNER_LABEL` in apps/developer-portal/layers/workflows/shared/workflows.ts. */
 export const OWNER_LABEL = "owner";
 
 /** One issue as `adapters/gh.ts` hands it over, its GraphQL connections already flattened. */
@@ -36,7 +36,7 @@ export interface SnapshotIssue {
     owner: boolean;
 }
 
-/** Read back by `readSnapshot` in apps/developer-portal/shared/workflows.ts; change both together. */
+/** Read back by `readSnapshot` in apps/developer-portal/layers/workflows/shared/workflows.ts; change both together. */
 export interface Snapshot {
     syncedAt: string;
     milestone: string;

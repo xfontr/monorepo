@@ -5,7 +5,7 @@ import type {
     MetricsArtifact,
     ProjectMetrics,
     ProjectNode,
-} from "../../shared/types.ts";
+} from "../../layers/snapshot/shared/types.ts";
 import { collectInvariants } from "../lib/invariants.ts";
 import { WORKSPACE_ROOT } from "../lib/paths.ts";
 import { git, tryRun } from "../lib/run.ts";

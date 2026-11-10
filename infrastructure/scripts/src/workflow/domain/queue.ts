@@ -1,6 +1,6 @@
 import type { SnapshotIssue } from "./snapshot.ts";
 
-/** Mirrors `TicketStatus` and `ticketStatus` in apps/developer-portal/shared/workflows.ts; change both together. */
+/** Mirrors `TicketStatus` and `ticketStatus` in apps/developer-portal/layers/workflows/shared/workflows.ts; change both together. */
 export type TicketStatus =
     "waiting-on-you" | "ready" | "in-flight" | "blocked" | "done" | "dropped";
 
