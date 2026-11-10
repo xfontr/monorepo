@@ -81,6 +81,7 @@ describe("default layout", () => {
             ["Workflows", "/workflows"],
             ["Work in progress", "/issues"],
             ["Coverage", "/coverage"],
+            ["Telemetry", "/telemetry"],
             ["Dependencies", "/deps"],
             ["Reviews", "/reviews"],
             ["Scorecards", "/scorecards"],

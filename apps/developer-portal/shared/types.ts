@@ -200,3 +200,54 @@ export interface DepsArtifact {
     /** Null when `pnpm outdated` itself failed to run — distinct from an empty array, which means nothing is outdated. */
     outdated: OutdatedPackage[] | null;
 }
+
+/** One script's runs, summed from the rows in `.telemetry/scripts/*.csv`. */
+export interface ScriptUsage {
+    runs: number;
+    /** Runs inside the last `UsageArtifact.windowDays`, so a script busy a year ago doesn't read as busy. */
+    recent: number;
+    /** Non-zero exits other than Ctrl+C. */
+    failures: number;
+    /** Runs with no terminal: piped, or run by an agent. */
+    headless: number;
+    totalMs: number;
+    first: string;
+    last: string;
+    /** `human`, or the agent's name, e.g. `claude-code`. */
+    callers: Record<string, number>;
+    commands: Record<string, number>;
+    /** Projects named on the command line, e.g. `pnpm dev huella-legal`. */
+    targets: Record<string, number>;
+    /** The `<area>` segment of the branch each run happened on, or `repo`. */
+    areas: Record<string, number>;
+    flags: Record<string, number>;
+}
+
+/** One ESLint rule, from `.telemetry/lint/*.csv`. Only edits made by an agent are ever linted there. */
+export interface LintRuleUsage {
+    /** Switched on in at least one project's config. */
+    enabled: boolean;
+    /** Problems reported, counted again on every edit to a file that still has them. */
+    hits: number;
+    recent: number;
+    fixable: number;
+    last: string | null;
+    projects: Record<string, number>;
+    /** `eslint-disable` comments naming it in the committed code. */
+    disabled: number;
+}
+
+export interface LintUsage {
+    /** The day of the oldest recorded hit, so "never fired" can be read against how long it's been watched. */
+    since: string | null;
+    rules: Record<string, LintRuleUsage>;
+}
+
+export interface UsageArtifact {
+    generatedAt: string;
+    windowDays: number;
+    /** Every script folder, so one that was never run can be told apart from one nobody listed. */
+    known: string[];
+    scripts: Record<string, ScriptUsage>;
+    lint: LintUsage;
+}

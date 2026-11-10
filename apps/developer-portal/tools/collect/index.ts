@@ -7,6 +7,7 @@ import { collectDocs } from "./docs.ts";
 import { collectGraph } from "./graph.ts";
 import { collectMetrics } from "./metrics.ts";
 import { collectScorecards } from "./scorecards.ts";
+import { collectUsage } from "./usage.ts";
 import { SCHEMA_VERSION, SNAPSHOT_DIR } from "../lib/paths.ts";
 import { git, tryRun } from "../lib/run.ts";
 
@@ -128,6 +129,18 @@ const main = async (): Promise<void> => {
     } else {
         artifacts.scorecards = { generatedAt, ok: false, error: scorecards.error };
         printError(`✗ scorecards — ${scorecards.error}`);
+    }
+
+    const usage = await tryRun(() => collectUsage(generatedAt));
+
+    if (usage.ok) {
+        await write("usage", usage.value);
+        artifacts.usage = { generatedAt, ok: true };
+        const runs = Object.values(usage.value.scripts).reduce((sum, item) => sum + item.runs, 0);
+        print(`✓ usage — ${runs} runs across ${Object.keys(usage.value.scripts).length} scripts`);
+    } else {
+        artifacts.usage = { generatedAt, ok: false, error: usage.error };
+        printError(`✗ usage — ${usage.error}`);
     }
 
     // Written last so its presence means the run finished, however many collectors failed.

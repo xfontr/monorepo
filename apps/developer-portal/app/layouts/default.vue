@@ -102,6 +102,7 @@ const navGroups = computed<{ label: string; items: NavigationMenuItem[] }[]>(() 
                 badge: open.value === 0 ? undefined : String(open.value),
             },
             { label: "Coverage", icon: "i-lucide-shield-check", to: "/coverage" },
+            { label: "Telemetry", icon: "i-lucide-activity", to: "/telemetry" },
             {
                 label: "Dependencies",
                 icon: "i-lucide-shield-alert",

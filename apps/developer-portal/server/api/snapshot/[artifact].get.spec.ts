@@ -22,7 +22,7 @@ beforeEach(() => {
 });
 
 describe("snapshot artifact route", () => {
-    it.each(["projects", "coverage", "metrics", "deps", "docs", "scorecards"])(
+    it.each(["projects", "coverage", "metrics", "deps", "docs", "scorecards", "usage"])(
         "reads the manifest and only the requested %s artifact under its matching response key",
         async (artifact) => {
             h3.getRouterParam.mockReturnValue(artifact);

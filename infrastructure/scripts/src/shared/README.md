@@ -18,8 +18,10 @@ point stands on, and the rest is sorted by whether it can reach the outside worl
 | [`adapters/exec.ts`](./adapters/exec.ts) | subprocesses — `run` for one that answers a question, `capture` for one whose non-zero exit is the answer, `inherit` for one that owns the terminal, and the `assertNotFlagLike` guard for values that would otherwise read as flags |
 | [`adapters/git.ts`](./adapters/git.ts) | `git` itself, plus `repoRoot()` and `at()` for resolving against the repo rather than cwd |
 | [`adapters/gh.ts`](./adapters/gh.ts) | `gh`, and `createIssue` on top of it |
+| [`adapters/usage.ts`](./adapters/usage.ts) | `appendUsage`, the one write `run()` makes after every command, Ctrl+C included — to a buffer inside `.git`, failing open |
 | [`adapters/cache.ts`](./adapters/cache.ts) | the file cache under `node_modules/.cache/@monorepo/scripts` |
 | [`adapters/prompts.ts`](./adapters/prompts.ts) | `orExit`, so a cancelled prompt anywhere unwinds to `run` |
+| [`domain/usage.ts`](./domain/usage.ts) | what a recorded run is: the CSV columns, which flags keep their value, the caller, the target and the area. Read by [`usage/`](../usage/README.md) |
 | [`domain/layout.ts`](./domain/layout.ts) | `PROJECT_ROOTS` — repo layout as data, with no way to read the repo |
 | [`domain/logs.ts`](./domain/logs.ts) | `stripAnsi` and `excerpt`: a tool log cut to its error lines, shared by `ci-failures` and `worktree` |
 
