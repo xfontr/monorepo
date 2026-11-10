@@ -200,7 +200,6 @@ const projectLinks: Record<
         apiDocs?: string;
     }
 > = {
-    "@monorepo/ui": { storybook: embedUrl("/storybook/") },
     "@monorepo/huella-legal": {
         storybook: embedUrl("/huella-legal-storybook/"),
         deploys: `${repoUrl}/actions/workflows/netlify-deployment.yml`,

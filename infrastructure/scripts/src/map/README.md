@@ -51,7 +51,7 @@ Candidates are ranked by **audience** first, then nearness: `README.md`, then an
 `CLAUDE.md`, then `SKILL.md`. Audience has to win, and that ordering is the one real bug this had —
 ranking by nearness first made every skill cite whichever *other* skill mentioned it, because two
 shared segments under `.claude/skills/` beat the root `CLAUDE.md` table that actually indexes them.
-Within one audience, nearness keeps a `packages/ui` command pointing at `packages/ui/README.md`
+Within one audience, nearness keeps a `packages/content` command pointing at `packages/content/README.md`
 rather than at the root README.
 
 A token has to stand alone to count, so a doc covering `release:dry` does not answer for

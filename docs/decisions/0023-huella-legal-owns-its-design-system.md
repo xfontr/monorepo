@@ -1,6 +1,6 @@
 ---
 issue: 26
-status: to-implement
+status: implemented
 decision: accepted
 ---
 

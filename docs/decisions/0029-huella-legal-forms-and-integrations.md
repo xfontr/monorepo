@@ -1,6 +1,6 @@
 ---
 issue: 187
-status: to-implement
+status: implemented
 decision: accepted
 ---
 

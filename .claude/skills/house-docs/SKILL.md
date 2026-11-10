@@ -10,8 +10,7 @@ breaks if it's undone, which is exactly what an agent writing docs unprompted do
 them.
 
 Read the neighbouring README before writing one.
-[`packages/content/README.md`](../../../packages/content/README.md) is the fullest example;
-[`packages/ui/README.md`](../../../packages/ui/README.md) shows how short a good one can be.
+[`packages/content/README.md`](../../../packages/content/README.md) is the fullest example.
 
 ## Shape
 

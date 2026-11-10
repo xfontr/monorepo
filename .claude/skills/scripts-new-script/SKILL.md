@@ -55,7 +55,7 @@ a folder that skips a layer because it only needed one file breaks exactly that.
    git checkout, which is why neither had a spec.
 
 4. **cwd is this package's directory, not the repo root.** `pnpm --filter` changes into it first, so
-   a relative path like `packages/ui` resolves against `infrastructure/scripts/packages/ui` and
+   a relative path like `packages/content` resolves against `infrastructure/scripts/packages/content` and
    matches nothing. Build every path with `at()` from
    [`shared/adapters/git.ts`](../../../infrastructure/scripts/src/shared/adapters/git.ts).
 

@@ -116,6 +116,8 @@ const { data: page } = await useAsyncData(
     { watch: [path] },
 );
 
+if (!page.value) setResponseStatus(404);
+
 const here = computed(() => locate(sections.value, path.value));
 
 const crumbs = computed<BreadcrumbItem[]>(() => [

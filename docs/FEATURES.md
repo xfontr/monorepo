@@ -40,7 +40,6 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm workflow:file` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm release` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm release:dry` | [`package.json`](../package.json) | [`README.md`](../README.md) |
-| `pnpm exec nx build:storybook @monorepo/ui` | [`packages/ui/package.json`](../packages/ui/package.json) | [`packages/ui/README.md`](../packages/ui/README.md) |
 | `pnpm exec nx nuxt-prepare @monorepo/developer-portal` | [`apps/developer-portal/package.json`](../apps/developer-portal/package.json) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
 | `pnpm exec nx collect @monorepo/developer-portal` | [`apps/developer-portal/package.json`](../apps/developer-portal/package.json) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |
 | `pnpm exec nx build:storybook @monorepo/huella-legal` | [`apps/huella-legal/package.json`](../apps/huella-legal/package.json) | [`apps/huella-legal/README.md`](../apps/huella-legal/README.md) |
@@ -110,6 +109,5 @@ shortest statement of how a task is meant to go here.
 | `/project-workflow` | [`.claude/skills/project-workflow/SKILL.md`](../.claude/skills/project-workflow/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/scripts-new-script` | [`.claude/skills/scripts-new-script/SKILL.md`](../.claude/skills/scripts-new-script/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/start-issue` | [`.claude/skills/start-issue/SKILL.md`](../.claude/skills/start-issue/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
-| `/ui-new-component` | [`.claude/skills/ui-new-component/SKILL.md`](../.claude/skills/ui-new-component/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/wp-bulk-edit` | [`.claude/skills/wp-bulk-edit/SKILL.md`](../.claude/skills/wp-bulk-edit/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/writing-tests` | [`.claude/skills/writing-tests/SKILL.md`](../.claude/skills/writing-tests/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |

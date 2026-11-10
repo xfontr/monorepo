@@ -6,7 +6,7 @@ folder, and a sign a file belongs in `concepts/` instead.
 
 Same [ownership rule](../README.md) as the rest of `docs/`: a subject enters only if no single
 project owns it. A task that lives entirely inside one project's README — running its dev server,
-adding a component to `@monorepo/ui` — has an owner already and doesn't belong here even if it's
+adding a vendor to `@monorepo/content` — has an owner already and doesn't belong here even if it's
 tempting to collect it for convenience. What earns a spot is a task whose steps genuinely span more
 than one project's README, the way [`change-lifecycle.md`](./change-lifecycle.md) spans `.husky/`, a
 GitHub workflow and the root README's versioning section with no single one of them telling the

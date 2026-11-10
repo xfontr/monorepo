@@ -1,6 +1,6 @@
 ---
 issue: 38
-status: to-implement
+status: wont-implement
 decision: accepted
 ---
 

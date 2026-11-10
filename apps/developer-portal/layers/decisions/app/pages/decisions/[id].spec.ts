@@ -11,6 +11,8 @@ const state = vi.hoisted(() => ({
 mockNuxtImport("useDecisionReports", () => () => state.reports);
 mockNuxtImport("useRoute", () => () => state.route);
 mockNuxtImport("useAsyncData", () => () => ({ data: state.page }));
+const setStatus = vi.hoisted(() => vi.fn());
+mockNuxtImport("setResponseStatus", () => setStatus);
 
 const global = {
     stubs: {
@@ -59,9 +61,21 @@ beforeEach(() => {
     ]);
     state.route = reactive({ params: { id: "0002-second" } });
     state.page = ref({ title: "Decision page", body: { toc: { links: [{ id: "one" }] } } });
+    setStatus.mockClear();
 });
 
 describe("decision detail page", () => {
+    it("answers a missing report with a 404 so the prerender crawler fails on a dead link", async () => {
+        state.page = ref(null);
+        await mountSuspended(Page, { global });
+        expect(setStatus).toHaveBeenCalledWith(404);
+    });
+
+    it("leaves a found report on 200", async () => {
+        await mountSuspended(Page, { global });
+        expect(setStatus).not.toHaveBeenCalled();
+    });
+
     it("renders status, superseded replacement and both neighbours in decision order", async () => {
         const wrapper = await mountSuspended(Page, { global });
         expect(wrapper.text()).toContain("Decision page");

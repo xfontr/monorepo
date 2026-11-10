@@ -10,7 +10,6 @@
 /packages/content/         @xfontr
 /packages/i18n/            @xfontr
 /packages/observability/   @xfontr
-/packages/ui/              @xfontr
 
 /infrastructure/translations/  @xfontr
 /infrastructure/scripts/       @xfontr
