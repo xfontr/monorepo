@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@monorepo/configs/playwright/test";
 import type { Page } from "@playwright/test";
+import { answerWith, expectEmptyFormRefused } from "./forms.ts";
 import { TURNSTILE_SCRIPT, TURNSTILE_SCRIPT_PATTERN } from "./vendors.ts";
 
 const WCAG_AA = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
@@ -9,11 +10,7 @@ const PATH = "/publicar/";
 
 const SUMMARY = "La admisibilidad de los mensajes de WhatsApp como prueba.";
 
-// The route's own behaviour is its spec's, so the browser's request is answered here
-const answerWith = (page: Page, status: number, body?: unknown) =>
-    page.route("**/api/submissions", (route) =>
-        route.fulfill(body ? { status, json: body } : { status }),
-    );
+const ENDPOINT = "/api/submissions";
 
 const send = async (page: Page, settled: () => Promise<void>) => {
     // CI's runner can type before hydration, which a server-rendered form then drops on submit
@@ -62,7 +59,7 @@ test("keeps the editorial inbox as a mailto for an author who'd rather write", a
 test("sends a proposal with its draft and confirms it in place of the form", async ({ page }) => {
     let body = "";
 
-    await page.route("**/api/submissions", async (route) => {
+    await page.route(`**${ENDPOINT}`, async (route) => {
         body = route.request().postData() ?? "";
         await route.fulfill({ status: 204 });
     });
@@ -78,33 +75,12 @@ test("sends a proposal with its draft and confirms it in place of the form", asy
 });
 
 test("refuses an empty form without sending it, naming each field", async ({ page }) => {
-    let sent = false;
-
-    page.on("request", (request) => {
-        if (request.url().endsWith("/api/submissions")) sent = true;
+    await expectEmptyFormRefused(page, {
+        path: PATH,
+        endpoint: "/api/submissions",
+        button: "Enviar propuesta",
+        fields: ["Nombre", "Correo electrónico", "Resumen", "Consentimiento"],
     });
-
-    await page.goto(PATH);
-
-    const summary = page.getByRole("alert");
-
-    await expect(async () => {
-        await page.getByRole("button", { name: "Enviar propuesta" }).click();
-
-        await expect(summary).toBeVisible({ timeout: 500 });
-    }).toPass();
-
-    await expect(summary.getByRole("link")).toHaveText([
-        "Nombre",
-        "Correo electrónico",
-        "Resumen",
-        "Consentimiento",
-    ]);
-    expect(sent).toBe(false);
-
-    const { violations } = await new AxeBuilder({ page }).withTags(WCAG_AA).analyze();
-
-    expect(violations).toEqual([]);
 });
 
 test.describe("a refused send", () => {
@@ -112,7 +88,7 @@ test.describe("a refused send", () => {
     test.use({ allowedConsole: [/the server responded with a status of (422|502)\b/] });
 
     test("puts the server's refusal of the file on the file field", async ({ page }) => {
-        await answerWith(page, 422, {
+        await answerWith(page, ENDPOINT, 422, {
             statusCode: 422,
             statusMessage: "Invalid form",
             data: [{ name: "file", message: "fileType" }],
@@ -127,7 +103,7 @@ test.describe("a refused send", () => {
     });
 
     test("announces a failed send and keeps what the author wrote", async ({ page }) => {
-        await answerWith(page, 502, { statusCode: 502, statusMessage: "Bad Gateway" });
+        await answerWith(page, ENDPOINT, 502, { statusCode: 502, statusMessage: "Bad Gateway" });
         await page.goto(PATH);
 
         const alert = page.getByRole("alert");
