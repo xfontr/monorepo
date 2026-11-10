@@ -9,6 +9,7 @@ const open = (number: number, overrides: Partial<SnapshotIssue> = {}): SnapshotI
     state: "open",
     reason: null,
     caps: ["search"],
+    createdAt: "2026-10-01T00:00:00Z",
     closedAt: null,
     activity: [],
     blockedBy: [],
@@ -21,11 +22,15 @@ describe("ticketStatus", () => {
     it.each([
         [
             "a linked branch, even behind an open blocker",
-            { branch: true, blockedBy: [{ number: 2, open: true }] },
+            { branch: true, blockedBy: [{ number: 2, open: true, closedAt: null }] },
             "in-flight",
         ],
-        ["an open blocker", { blockedBy: [{ number: 2, open: true }] }, "blocked"],
-        ["only closed blockers", { blockedBy: [{ number: 2, open: false }] }, "ready"],
+        ["an open blocker", { blockedBy: [{ number: 2, open: true, closedAt: null }] }, "blocked"],
+        [
+            "only closed blockers",
+            { blockedBy: [{ number: 2, open: false, closedAt: null }] },
+            "ready",
+        ],
         ["the owner label and nothing in the way", { owner: true }, "waiting-on-you"],
         ["a not-planned close", { state: "closed", reason: "not_planned" }, "dropped"],
     ] as const)("reads a ticket with %s as %s", (_, overrides, expected) => {
@@ -37,11 +42,11 @@ describe("unblockCounts", () => {
     it("counts a ticket reached through two paths once", () => {
         const counts = unblockCounts([
             open(1),
-            open(2, { blockedBy: [{ number: 1, open: true }] }),
+            open(2, { blockedBy: [{ number: 1, open: true, closedAt: null }] }),
             open(3, {
                 blockedBy: [
-                    { number: 1, open: true },
-                    { number: 2, open: true },
+                    { number: 1, open: true, closedAt: null },
+                    { number: 2, open: true, closedAt: null },
                 ],
             }),
         ]);
@@ -55,7 +60,7 @@ describe("describeQueue", () => {
         const lines = describeQueue([
             open(4),
             open(5),
-            open(6, { blockedBy: [{ number: 5, open: true }] }),
+            open(6, { blockedBy: [{ number: 5, open: true, closedAt: null }] }),
             open(7, { owner: true, caps: [] }),
         ]);
 

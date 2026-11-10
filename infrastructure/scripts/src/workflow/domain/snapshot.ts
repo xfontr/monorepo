@@ -12,8 +12,9 @@ export interface GhIssue {
     state: string;
     stateReason: string;
     labels: { name: string }[];
+    createdAt: string;
     closedAt: string | null;
-    blockedBy: { number: number; state: string }[];
+    blockedBy: { number: number; state: string; closedAt: string | null }[];
     /** Branches linked on the issue's Development panel. */
     branches: number;
 }
@@ -25,10 +26,12 @@ export interface SnapshotIssue {
     state: "open" | "closed";
     reason: "completed" | "not_planned" | null;
     caps: string[];
+    createdAt: string;
     closedAt: string | null;
     /** The author date of every commit whose subject names this issue as `[#N]`, ascending. */
     activity: string[];
-    blockedBy: { number: number; open: boolean }[];
+    /** Each blocker's close date too, so the portal can replay a past day. */
+    blockedBy: { number: number; open: boolean; closedAt: string | null }[];
     branch: boolean;
     owner: boolean;
 }
@@ -79,10 +82,11 @@ const toIssue = (issue: GhIssue, activity: Map<number, string[]>): SnapshotIssue
         .filter((name) => name.startsWith(CAPABILITY_LABEL_PREFIX))
         .map((name) => name.slice(CAPABILITY_LABEL_PREFIX.length))
         .sort((a, b) => a.localeCompare(b)),
+    createdAt: issue.createdAt,
     closedAt: issue.closedAt || null,
     activity: activity.get(issue.number) ?? [],
     blockedBy: issue.blockedBy
-        .map(({ number, state }) => ({ number, open: state === "OPEN" }))
+        .map(({ number, state, closedAt }) => ({ number, open: state === "OPEN", closedAt }))
         .sort((a, b) => a.number - b.number),
     branch: issue.branches > 0,
     owner: issue.labels.some(({ name }) => name === OWNER_LABEL),

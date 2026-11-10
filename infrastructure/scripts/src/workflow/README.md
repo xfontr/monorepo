@@ -15,8 +15,8 @@ pnpm workflow:file huella-legal search --yes
 
 | Command | Reads | Writes |
 | --- | --- | --- |
-| `sync` | Every milestone issue with its labels, blocked-by links and linked branches, in one paginated GraphQL query; open area-label issues with no milestone; the local `git log` | `<project>.snapshot.json`, only when the issues or commits changed, so running it costs no diff |
-| `next` | The same milestone query, live | Nothing |
+| `sync` | Every milestone issue with its labels, open and close dates, blocked-by links with each blocker's close date, and linked branches, in one paginated GraphQL query; open area-label issues with no milestone; the local `git log`. The dates are what let the portal replay any past day | `<project>.snapshot.json`, only when the issues or commits changed, so running it costs no diff |
+| `next` | The same milestone query and `git log`, live; a ticket a commit names counts as in flight, as on the portal | Nothing |
 | `file` | The template, the project file and the milestone | With `--yes`, one GitHub issue per suggested ticket |
 
 `file` refuses a block that is off, settled, already filed, or still waiting. A block waits while a

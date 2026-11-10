@@ -9,15 +9,16 @@ interface GraphIssue {
     url: string;
     state: string;
     stateReason: string | null;
+    createdAt: string;
     closedAt: string | null;
     labels: { nodes: { name: string }[] };
-    blockedBy: { nodes: { number: number; state: string }[] };
+    blockedBy: { nodes: { number: number; state: string; closedAt?: string | null }[] };
     linkedBranches?: { totalCount: number };
 }
 
-const ISSUE_FIELDS = `number title url state stateReason closedAt
+const ISSUE_FIELDS = `number title url state stateReason createdAt closedAt
     labels(first: 50) { nodes { name } }
-    blockedBy(first: 50) { nodes { number state } }`;
+    blockedBy(first: 50) { nodes { number state closedAt } }`;
 
 const MILESTONE_QUERY = `query($owner: String!, $name: String!, $number: Int!, $endCursor: String) {
   repository(owner: $owner, name: $name) {
@@ -36,9 +37,14 @@ const toGhIssue = (issue: GraphIssue): GhIssue => ({
     url: issue.url,
     state: issue.state,
     stateReason: issue.stateReason ?? "",
+    createdAt: issue.createdAt,
     closedAt: issue.closedAt,
     labels: issue.labels.nodes,
-    blockedBy: issue.blockedBy.nodes,
+    blockedBy: issue.blockedBy.nodes.map(({ number, state, closedAt }) => ({
+        number,
+        state,
+        closedAt: closedAt ?? null,
+    })),
     branches: issue.linkedBranches?.totalCount ?? 0,
 });
 
@@ -90,7 +96,7 @@ export const areaIssuesWithoutMilestone = (area: string): GhIssue[] =>
                 "--limit",
                 "1000",
                 "--json",
-                "number,title,url,state,stateReason,labels,closedAt,blockedBy",
+                "number,title,url,state,stateReason,labels,createdAt,closedAt,blockedBy",
             ),
         ) as (Omit<GraphIssue, "labels"> & { labels: { name: string }[] })[]
     ).map((issue) => toGhIssue({ ...issue, labels: { nodes: issue.labels } }));

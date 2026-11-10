@@ -15,6 +15,7 @@ const issue = (overrides: Partial<GhIssue>): GhIssue => ({
     state: "OPEN",
     stateReason: "",
     labels: [],
+    createdAt: "2026-10-01T00:00:00Z",
     closedAt: null,
     blockedBy: [],
     branches: 0,
@@ -77,8 +78,8 @@ describe("toSnapshot", () => {
                 issue({
                     labels: [{ name: "owner" }],
                     blockedBy: [
-                        { number: 9, state: "CLOSED" },
-                        { number: 4, state: "OPEN" },
+                        { number: 9, state: "CLOSED", closedAt: "2026-10-02T00:00:00Z" },
+                        { number: 4, state: "OPEN", closedAt: null },
                     ],
                     branches: 1,
                 }),
@@ -90,8 +91,8 @@ describe("toSnapshot", () => {
 
         expect(issues[0]).toMatchObject({
             blockedBy: [
-                { number: 4, open: true },
-                { number: 9, open: false },
+                { number: 4, open: true, closedAt: null },
+                { number: 9, open: false, closedAt: "2026-10-02T00:00:00Z" },
             ],
             branch: true,
             owner: true,

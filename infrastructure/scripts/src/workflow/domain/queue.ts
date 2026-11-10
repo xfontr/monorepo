@@ -6,7 +6,7 @@ export type TicketStatus =
 
 export const ticketStatus = (issue: SnapshotIssue): TicketStatus => {
     if (issue.state === "closed") return issue.reason === "not_planned" ? "dropped" : "done";
-    if (issue.branch) return "in-flight";
+    if (issue.branch || issue.activity.length > 0) return "in-flight";
     if (issue.blockedBy.some(({ open }) => open)) return "blocked";
     return issue.owner ? "waiting-on-you" : "ready";
 };

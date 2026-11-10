@@ -2,9 +2,10 @@ import { out } from "../shared/adapters/io.ts";
 import type { Args } from "../shared/cli.ts";
 import { ExpectedError } from "../shared/errors.ts";
 import { milestoneIssues } from "./adapters/gh.ts";
+import { commitLog } from "./adapters/git.ts";
 import { oneProject, readProject } from "./adapters/files.ts";
 import { describeQueue } from "./domain/queue.ts";
-import { syncTargetOf, toSnapshot } from "./domain/snapshot.ts";
+import { activityByIssue, syncTargetOf, toSnapshot } from "./domain/snapshot.ts";
 
 /** What can be taken now, read live from GitHub rather than from the last snapshot. */
 export const next = ({ positionals }: Args): void => {
@@ -17,7 +18,7 @@ export const next = ({ positionals }: Args): void => {
         read.milestone,
         milestoneIssues(read.milestone),
         [],
-        new Map(),
+        activityByIssue(commitLog()),
         "",
     );
     const lines = describeQueue(issues);

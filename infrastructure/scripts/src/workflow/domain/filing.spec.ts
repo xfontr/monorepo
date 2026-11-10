@@ -39,6 +39,7 @@ const ticket = (
     state: "open",
     reason: null,
     caps: [cap],
+    createdAt: "2026-10-01T00:00:00Z",
     closedAt: null,
     activity: [],
     blockedBy: [],
