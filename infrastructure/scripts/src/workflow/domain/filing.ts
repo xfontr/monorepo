@@ -96,16 +96,17 @@ export type Filing = { ok: true; tickets: PlannedTicket[] } | { ok: false; reaso
 
 const KIND_LABELS = { build: "enhancement", spike: "spike", owner: OWNER_LABEL } as const;
 
-const bodyOf = (block: Block, criteria: string[]): string =>
-    [
+const bodyOf = (block: Block, criteria: string[]): string => {
+    const checklist = criteria.map((line) => `- [ ] ${line}`).join("\n");
+
+    return [
         block.summary,
-        criteria.length > 0
-            ? `**Acceptance criteria:**\n\n${criteria.map((line) => `- [ ] ${line}`).join("\n")}`
-            : "",
+        criteria.length > 0 ? `**Acceptance criteria:**\n\n${checklist}` : "",
         `Filed from the workflow map, block \`${block.id}\`.`,
     ]
         .filter(Boolean)
         .join("\n\n");
+};
 
 const numbers = (issues: SnapshotIssue[]): string =>
     issues.map(({ number }) => `#${number}`).join(" ");

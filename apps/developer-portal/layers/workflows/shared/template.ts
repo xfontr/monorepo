@@ -1,11 +1,38 @@
 import { cycleProblem, readCapability } from "./capability.ts";
 import { isRecord, Reader } from "./reader.ts";
-import type { Template } from "./types.ts";
+import type { Capability, Template } from "./types.ts";
 
 const duplicates = (ids: string[]): string[] =>
     [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))].sort((a, b) =>
         a.localeCompare(b),
     );
+
+const referenceProblems = (
+    capability: Capability,
+    known: { stageIds: Set<string>; groupIds: Set<string>; capabilityIds: Set<string> },
+): string[] => {
+    const problems: string[] = [];
+
+    if (capability.stage && !known.stageIds.has(capability.stage)) {
+        problems.push(
+            `capability \`${capability.id}\` names stage \`${capability.stage}\`, which the template doesn't have`,
+        );
+    }
+
+    if (capability.group && !known.groupIds.has(capability.group)) {
+        problems.push(
+            `capability \`${capability.id}\` names group \`${capability.group}\`, which the template doesn't have`,
+        );
+    }
+
+    for (const dependency of capability.dependsOn.filter((id) => !known.capabilityIds.has(id))) {
+        problems.push(
+            `capability \`${capability.id}\` depends on \`${dependency}\`, which the template doesn't have`,
+        );
+    }
+
+    return problems;
+};
 
 const templateRuleProblems = ({ stages, groups, capabilities }: Template): string[] => {
     const problems: string[] = [];
@@ -33,29 +60,13 @@ const templateRuleProblems = ({ stages, groups, capabilities }: Template): strin
         problems.push(`capability \`${id}\` is declared twice`);
     }
 
-    for (const capability of capabilities) {
-        if (capability.stage && !stageIds.has(capability.stage)) {
-            problems.push(
-                `capability \`${capability.id}\` names stage \`${capability.stage}\`, which the template doesn't have`,
-            );
-        }
+    const known = { stageIds, groupIds, capabilityIds };
 
-        if (capability.group && !groupIds.has(capability.group)) {
-            problems.push(
-                `capability \`${capability.id}\` names group \`${capability.group}\`, which the template doesn't have`,
-            );
-        }
-
-        for (const dependency of capability.dependsOn) {
-            if (!capabilityIds.has(dependency)) {
-                problems.push(
-                    `capability \`${capability.id}\` depends on \`${dependency}\`, which the template doesn't have`,
-                );
-            }
-        }
-    }
-
-    return [...problems, ...cycleProblem(capabilities)];
+    return [
+        ...problems,
+        ...capabilities.flatMap((capability) => referenceProblems(capability, known)),
+        ...cycleProblem(capabilities),
+    ];
 };
 
 /** A template read from parsed YAML, and everything about it that breaks the rules. */

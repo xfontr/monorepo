@@ -23,7 +23,9 @@ export const useProjectReplay = (base: ComputedRef<ProjectView | undefined>) => 
     const isLatest = computed(() => dayIndex.value >= days.value.length - 1);
     const dayLabel = computed(() => {
         const day = days.value[dayIndex.value];
-        return day ? `${calendarDay(day)}${isLatest.value ? " · today" : ""}` : "";
+        if (!day) return "";
+
+        return isLatest.value ? `${calendarDay(day)} · today` : calendarDay(day);
     });
 
     const view = computed(() => {

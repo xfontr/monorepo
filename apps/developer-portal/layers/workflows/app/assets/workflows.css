@@ -10,10 +10,8 @@
     --state-dropped: var(--ui-text-dimmed);
     --state-skipped: var(--ui-text-dimmed);
     --state-off: var(--ui-text-dimmed);
-}
 
-/* One hue per stage; decoration only, so a stage is never told apart by its hue alone. */
-:root {
+    /* One hue per stage; decoration only, so a stage is never told apart by its hue alone. */
     --stage-1: oklch(0.72 0.18 5);
     --stage-2: oklch(0.72 0.18 50);
     --stage-3: oklch(0.72 0.18 95);

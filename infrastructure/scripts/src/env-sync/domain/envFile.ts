@@ -61,12 +61,15 @@ export const parseEnv = (text: string): Parsed => {
     const lines: EnvLine[] = [];
     const seen = new Set<string>();
 
-    for (let index = 0; index < raw.length; index++) {
+    let index = 0;
+
+    while (index < raw.length) {
         const line = raw[index] ?? "";
         const other = classify(line);
 
         if (other) {
             lines.push(other);
+            index += 1;
             continue;
         }
 
@@ -83,7 +86,7 @@ export const parseEnv = (text: string): Parsed => {
         if (typeof end === "string") return { problem: end };
 
         lines.push({ kind: "entry", key, lines: raw.slice(index, end + 1) });
-        index = end;
+        index = end + 1;
     }
 
     return { lines };
