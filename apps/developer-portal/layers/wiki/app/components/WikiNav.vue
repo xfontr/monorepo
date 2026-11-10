@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import type { WikiGroup, WikiSection } from "#layers/docs/shared/wiki.ts";
+import type { WikiGroup, WikiSection } from "#layers/wiki/shared/wiki.ts";
 
 interface Props {
     sections: WikiSection[];

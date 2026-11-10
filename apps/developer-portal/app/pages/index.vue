@@ -307,7 +307,7 @@
 
 <script setup lang="ts">
 import { sortIssues } from "#layers/github/shared/issues.ts";
-import { toCollectionPath } from "#layers/docs/shared/wiki.ts";
+import { toCollectionPath } from "#layers/docs/shared/docPages.ts";
 import type { ProjectNode } from "#layers/snapshot/shared/types.ts";
 
 const [

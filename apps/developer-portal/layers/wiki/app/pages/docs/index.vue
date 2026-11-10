@@ -122,7 +122,7 @@
 </template>
 
 <script setup lang="ts">
-import { toCollectionPath } from "#layers/docs/shared/wiki.ts";
+import { toCollectionPath } from "#layers/docs/shared/docPages.ts";
 
 const { data: snapshot } = await useSnapshot("docs");
 const { data: sections } = await useWiki();

@@ -1,4 +1,4 @@
-import { toCollectionPath } from "./wiki.ts";
+import { toCollectionPath } from "./docPages.ts";
 
 // A link in these docs points at a file and is correct on GitHub, which reads them first — so it is
 // fixed here rather than in the markdown.
