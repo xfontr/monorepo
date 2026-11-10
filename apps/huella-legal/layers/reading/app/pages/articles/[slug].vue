@@ -1,7 +1,11 @@
 <template>
     <PageView v-if="isPage" />
     <div v-else>
-        <ArticleView />
+        <ArticleView>
+            <template #comments="{ article, comments }">
+                <CommentsSection :article :comments />
+            </template>
+        </ArticleView>
         <NewsletterBand class="print:hidden" />
     </div>
 </template>
