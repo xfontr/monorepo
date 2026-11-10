@@ -37,6 +37,12 @@ describe("issue options", () => {
         expect(issueOptionMatches(back, back, "bug")).toBe(false);
         expect(issueOptionMatches(back, ISSUE, "bug")).toBe(true);
     });
+
+    it("drops the way back when there is only one board to go back to", () => {
+        expect(issueOptions(undefined, [ISSUE]).map(({ label }) => label)).toEqual([
+            `#${ISSUE.number} ${ISSUE.title}`,
+        ]);
+    });
 });
 
 describe("issue selection", () => {

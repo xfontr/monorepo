@@ -1,17 +1,16 @@
 import { readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import type { InvariantFinding } from "../../shared/types.ts";
+import type { InvariantFinding } from "#layers/snapshot/shared/types.ts";
 import { auditProblems } from "./audits.ts";
 import { decisionProblems } from "./decisions.ts";
 import { WORKSPACE_ROOT } from "./paths.ts";
-import { parseScoresTable, scorecardShapeProblems } from "./scorecards.ts";
+import { workflowProblems } from "./workflows.ts";
 
 const BOUNDARIES_PATH = "packages/configs/src/eslint/lib/boundaries.ts";
 const README_PATH = "README.md";
-const REVIEWS_DIR = "docs/reviews";
-const REVIEWS_README_PATH = `${REVIEWS_DIR}/README.md`;
 const AUDITS_DIR = "docs/audits";
 const DECISIONS_DIR = "docs/decisions";
+const WORKFLOWS_DIR = "docs/workflows";
 
 /**
  * Duplicated from `.claude/hooks/check-invariants.sh` rather than shelled out to it: that hook reads
@@ -85,58 +84,6 @@ export const compareLayoutBlock = (readme: string, projectRoots: string[]): Inva
     ];
 };
 
-/**
- * A review whose row never lands in the history table is a review nobody will ever compare against,
- * which is the one thing `docs/reviews/README.md` exists to make possible.
- */
-export const compareReviewHistory = (
-    historyReadme: string,
-    reviewFiles: string[],
-): InvariantFinding[] => {
-    const missing = reviewFiles.filter((file) => !historyReadme.includes(file));
-
-    if (missing.length === 0) return [];
-
-    return [
-        {
-            id: "review-history-incomplete",
-            title: "A review is missing from the history table",
-            detail: `${missing.join(", ")} exists under ${REVIEWS_DIR}/ with no row in the history table, so its scores compare against nothing.`,
-            evidence: [REVIEWS_README_PATH],
-        },
-    ];
-};
-
-/** Dated reviews only — `README.md`, `TEMPLATE.md` and `SCORECARDS.md` are the furniture around them. */
-export const listReviewFiles = async (): Promise<string[]> => {
-    const entries = await readdir(resolve(WORKSPACE_ROOT, REVIEWS_DIR)).catch(() => [] as string[]);
-
-    return entries
-        .filter((entry) => /^\d{4}-\d{2}-\d{2}-.+\.md$/.test(entry))
-        .sort((a, b) => a.localeCompare(b));
-};
-
-/**
- * The dashboard's scorecards page parses this same table (`tools/lib/scorecards.ts`) to show the
- * cards without redrawing them, and that only stays honest if every review keeps the shape
- * `TEMPLATE.md` defines. `repo-review`'s own instructions ask for this; this is what notices when a
- * review didn't follow them.
- */
-export const compareScorecardShape = (file: string, markdown: string): InvariantFinding[] => {
-    const problems = scorecardShapeProblems(parseScoresTable(markdown));
-
-    if (problems.length === 0) return [];
-
-    return [
-        {
-            id: "scorecard-shape-mismatch",
-            title: "A review's Scores table doesn't match the template",
-            detail: `${file}: ${problems.join("; ")}.`,
-            evidence: [`${REVIEWS_DIR}/${file}`, `${REVIEWS_DIR}/TEMPLATE.md`],
-        },
-    ];
-};
-
 /** Dated audits only — `README.md` and `TEMPLATE.md` are the furniture around them. */
 export const listAuditFiles = async (): Promise<string[]> => {
     const entries = await readdir(resolve(WORKSPACE_ROOT, AUDITS_DIR)).catch(() => [] as string[]);
@@ -176,25 +123,28 @@ export const compareDecisionShape = (
         evidence: [`${DECISIONS_DIR}/${file}`, `${DECISIONS_DIR}/README.md`],
     }));
 
+/** The workflows page renders a broken file as a gap, so this is what says which file and why. */
+export const compareWorkflowShape = (
+    problems: { file: string; message: string }[],
+): InvariantFinding[] =>
+    problems.map(({ file, message }) => ({
+        id: "workflow-shape-mismatch",
+        title: "A workflow file breaks the rules",
+        detail: `${file}: ${message}.`,
+        evidence: [`${WORKFLOWS_DIR}/${file}`, `${WORKFLOWS_DIR}/README.md`],
+    }));
+
 export const collectInvariants = async (
     projectRoots: string[] = [],
 ): Promise<InvariantFinding[]> => {
-    const [boundaries, readme, history, reviewFiles, auditFiles, decisionFiles] = await Promise.all(
-        [
-            readFile(resolve(WORKSPACE_ROOT, BOUNDARIES_PATH), "utf8"),
-            readFile(resolve(WORKSPACE_ROOT, README_PATH), "utf8"),
-            readFile(resolve(WORKSPACE_ROOT, REVIEWS_README_PATH), "utf8").catch(() => ""),
-            listReviewFiles(),
-            listAuditFiles(),
-            listDecisionFiles(),
-        ],
-    );
+    const [boundaries, readme, auditFiles, decisionFiles, workflows] = await Promise.all([
+        readFile(resolve(WORKSPACE_ROOT, BOUNDARIES_PATH), "utf8"),
+        readFile(resolve(WORKSPACE_ROOT, README_PATH), "utf8"),
+        listAuditFiles(),
+        listDecisionFiles(),
+        workflowProblems(resolve(WORKSPACE_ROOT, WORKFLOWS_DIR), WORKSPACE_ROOT),
+    ]);
 
-    const reviewBodies = await Promise.all(
-        reviewFiles.map((file) =>
-            readFile(resolve(WORKSPACE_ROOT, REVIEWS_DIR, file), "utf8").catch(() => ""),
-        ),
-    );
     const audits = await Promise.all(
         auditFiles.map(async (file) => ({
             file,
@@ -211,11 +161,8 @@ export const collectInvariants = async (
     return [
         ...compareTagTables(boundaries, readme),
         ...compareLayoutBlock(readme, projectRoots),
-        ...compareReviewHistory(history, reviewFiles),
-        ...reviewFiles.flatMap((file, index) =>
-            compareScorecardShape(file, reviewBodies[index] ?? ""),
-        ),
         ...compareAuditShape(audits),
         ...compareDecisionShape(decisions),
+        ...compareWorkflowShape(workflows),
     ];
 };

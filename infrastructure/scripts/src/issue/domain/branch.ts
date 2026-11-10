@@ -12,23 +12,31 @@ export const slugify = (title: string): string =>
         .replace(/^-/, "")
         .replace(/-$/, "");
 
-/** The project slug stays one path segment so `.husky/pre-push` accepts real board names. */
-export const branchName = (
-    type: BranchType,
-    project: string,
-    issue: number,
-    title: string,
-): string => `${type}/${slugify(project)}/${issue}-${slugify(title)}`;
+/** What an issue with no `app:`, `package:` or `infra:` label is about: the repo as a whole. */
+export const REPO_AREA = "repo";
+
+const AREA_PREFIXES = ["app", "package", "infra"] as const;
+
+/** The folder the first area label names, so `app:huella-legal` becomes `huella-legal`. */
+export const areaFor = (labels: string[]): string => {
+    for (const prefix of AREA_PREFIXES) {
+        const label = labels.find((name) => name.startsWith(`${prefix}:`));
+        if (label) return label.slice(prefix.length + 1);
+    }
+    return REPO_AREA;
+};
+
+export const branchName = (type: BranchType, area: string, issue: number, title: string): string =>
+    `${type}/${slugify(area)}/${issue}-${slugify(title)}`;
 
 export interface BranchIssue {
-    board: string;
+    area: string;
     number: number;
 }
 
-/** The inverse of `branchName`; the board segment is the slug, not the board's title. */
 export const issueFromBranch = (branch: string): BranchIssue | undefined => {
     const match = /^[^/]+\/([^/]+)\/(\d+)-/.exec(branch);
-    return match?.[1] && match[2] ? { board: match[1], number: Number(match[2]) } : undefined;
+    return match?.[1] && match[2] ? { area: match[1], number: Number(match[2]) } : undefined;
 };
 
 const LABEL_TYPES: Record<string, BranchType> = { enhancement: "feature", bug: "fix" };

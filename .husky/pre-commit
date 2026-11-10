@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Scripts record a usage row unless this is set; a hook running them is not anyone choosing to.
+export MONOREPO_GIT_HOOK=1
+
 # Colors
 RED="\033[0;31m"
 GREEN="\033[0;32m"
@@ -25,19 +28,21 @@ pnpm docs:map --check
 echo ""
 success "Generated docs are up to date"
 
-echo ""
-info "Checking review method version..."
-pnpm review:version --check
-
-echo ""
-success "Review method version is up to date"
-
 # A gitignored .env can't make a commit wrong, so a failed sync only reports.
 if [ -n "$(git diff --cached --name-only -- ':(glob)**/.env.example')" ]; then
     echo ""
     info "Syncing .env files with the staged .env.example changes..."
     pnpm env:sync || error "Some .env files were left untouched — see above."
 fi
+
+# Usage rows sit in .git until here, so a script run never dirties the working tree; a commit
+# carries them in its branch's own file, which no other branch writes to.
+# `git commit -- <paths>` commits from a temporary next-index, and a file staged into it is left
+# modified in the real index afterwards, so those commits leave the rows for the next one.
+case "$GIT_INDEX_FILE" in
+  *next-index*) ;;
+  *) pnpm --silent usage:flush && git add -- .telemetry 2>/dev/null || true ;;
+esac
 
 echo ""
 success "All pre-commit checks passed ✨"

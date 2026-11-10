@@ -35,9 +35,12 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   domain logic, or to be something you'd switch off whole; a page that only renders a core model
   joins the feature whose task it serves.
   **Only the shell may use anything:** the kit (`app/components/base`, `app/components/listing`,
-  `app/types`, `app/utils`, `app/composables`) uses only itself, the core and `forms` use
-  themselves and the kit, a feature also uses the core and `forms`, and only a feature's
-  `app/pages/` may render another feature's auto-registered components. Nothing checks this but review, since auto-imports hide every edge from the linter.
+  `app/types`, `app/utils`, `app/composables`, `i18n`) uses only itself, the core and each
+  capability use themselves and the kit, a feature also uses the core and the capabilities, and only
+  a feature's `app/pages/` may render another feature's auto-registered components.
+  `eslint.layerBoundaries` in [`eslint.config.ts`](./eslint.config.ts) rejects every other edge,
+  auto-imports included, so a component that needs another feature's component takes it through a
+  slot its page fills, and a kit composable that needs a layer takes it as an argument.
 - Typechecking runs on build (`typescript.typeCheck: "build"`), so `pnpm build` is slow and already
   covers what `pnpm typecheck` would.
 - [`tsconfig.json`](./tsconfig.json) only references `./.nuxt/tsconfig.*.json`, which `nuxi
@@ -66,9 +69,9 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
 - **`vitest.config.ts` and `playwright.config.ts` are wrappers over `@monorepo/configs`.** A setting
   every Nuxt app would want goes in the preset; only this app's specifics are passed as options.
   Don't lower a threshold to get green; write the spec.
-- `e2e/` holds the Playwright specs, `server.ts` (the MSW preload), `fakes.ts` (its data) and
-  `vendors.ts` (handlers for the vendors with no package), the workspace's exception to "beside its
-  subject" and "no fixtures". A packaged vendor's wire format belongs in that package's `testing`
+- `e2e/` holds the Playwright specs, `server.ts` (the MSW preload), `fakes.ts` (its data),
+  `vendors.ts` (handlers for the vendors with no package) and `forms.ts` (the steps every form spec
+  shares), the workspace's exception to "beside its subject" and "no fixtures". A packaged vendor's wire format belongs in that package's `testing`
   entry, never here. Test-only code never goes under `layers/`, `app/` or `server/`.
 - `mocks/` is dev's MSW preload and its fake WordPress, never read by a spec. `pnpm dev` must
   not reach huellalegal.com, so a new WordPress route needs a handler before dev can show it.

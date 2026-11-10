@@ -3,18 +3,18 @@
         :is="to ? NuxtLink : 'div'"
         :to
         class="flex flex-col gap-1 rounded-lg border border-default bg-default p-4"
-        :class="to && 'hover:bg-elevated/50 transition-colors'"
+        :class="to && 'transition-colors hover:bg-elevated/50'"
     >
         <div class="flex items-center gap-1.5 text-xs text-muted">
             <UIcon v-if="icon" :name="icon" class="size-3.5" />
             {{ label }}
         </div>
 
-        <div class="text-2xl font-semibold tabular-nums" :class="toneClass">
+        <div class="text-2xl font-semibold tabular-nums" :class="colorClass">
             {{ value }}
         </div>
 
-        <div v-if="hint" class="text-xs text-dimmed truncate">
+        <div v-if="hint" class="truncate text-xs text-dimmed">
             {{ hint }}
         </div>
     </component>
@@ -35,5 +35,5 @@ interface Props {
 
 const { label, value, hint, icon, tone = "neutral", to } = defineProps<Props>();
 
-const toneClass = computed(() => (tone === "neutral" ? "" : `tone-${tone}`));
+const colorClass = computed(() => toneClass(tone));
 </script>

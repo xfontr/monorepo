@@ -168,3 +168,11 @@ export const viewThread = (issue: number): IssueThread => {
 
 export const issueStatus = (issue: number): IssueStatus =>
     JSON.parse(gh("issue", "view", String(issue), "--json", "number,title,state")) as IssueStatus;
+
+/** Every blocked-by link on the issue, read live so a pick never trusts a stale snapshot. */
+export const blockedBy = (issue: number): IssueStatus[] =>
+    (
+        JSON.parse(gh("issue", "view", String(issue), "--json", "blockedBy")) as {
+            blockedBy: { nodes: IssueStatus[] };
+        }
+    ).blockedBy.nodes.map(({ number, title, state }) => ({ number, title, state }));

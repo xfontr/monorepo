@@ -172,7 +172,7 @@ than flipping.** Verified per change:
    [`docs/decisions/README.md`](./README.md#-superseding-a-decision) — not a prose line.
 6. All twelve reports carry the frontmatter template. The vocabulary they're checked against is
    `DECISION_STATUSES`/`DECISION_OUTCOMES` in
-   [`shared/decisions.ts`](../../apps/developer-portal/shared/decisions.ts), which the dashboard's own types
+   [`shared/decisions.ts`](../../apps/developer-portal/layers/snapshot/shared/decisions.ts), which the dashboard's own types
    derive from — so a widened vocabulary can't reach one reader and not the other.
 7. **Not done, and not yet filed.** `apps/developer-portal` is not deployed; its four blockers are
    unaddressed. Deliberately kept out of this pass rather than attempted alongside it — no issue

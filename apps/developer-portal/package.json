@@ -3,6 +3,9 @@
   "description": "Internal developer portal over the workspace",
   "private": true,
   "type": "module",
+  "imports": {
+    "#layers/*": "./layers/*"
+  },
   "scripts": {
     "build": "nx build-static",
     "dev": "nuxt dev",
@@ -26,6 +29,7 @@
         "!{projectRoot}/**/*.test.ts",
         "!{projectRoot}/vitest.config.ts",
         "{workspaceRoot}/**/*.md",
+        "{workspaceRoot}/docs/workflows/**/*",
         {
           "runtime": "node apps/developer-portal/tools/lib/snapshotStamp.ts"
         }
@@ -33,6 +37,7 @@
     }
   },
   "dependencies": {
+    "@dagrejs/dagre": "^3.1.3",
     "@iconify-json/lucide": "^1.2.128",
     "@nuxt/content": "^3.16.0",
     "@nuxt/ui": "^4.11.0",
@@ -48,6 +53,7 @@
     "@vue/test-utils": "^2.4.11",
     "eslint": "catalog:",
     "happy-dom": "^21.0.1",
+    "tailwindcss": "^4.3.3",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"

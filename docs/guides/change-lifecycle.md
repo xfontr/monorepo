@@ -11,20 +11,23 @@ and each step below links to the hook, script or workflow that does it.
 pnpm issue:pick
 ```
 
-Walks a project board, lists its open issues, and — once you pick one — creates
-`<type>/<project>/<issue number>-<slug>`, checks it out, and assigns you the issue. `<type>` is one
+Lists the open issues on the `Monorepo` board and — once you pick one — creates
+`<type>/<area>/<issue number>-<slug>`, checks it out, and assigns you the issue. `<type>` is one
 of `hotfix`/`fix`/`feature`/`release`, the only prefixes the push gate in step 3 accepts, and
-`<project>` is the slugified title of the board you just walked. Everything downstream reads the
+`<area>` is the folder the issue's `app:`, `package:` or `infra:` label names, or `repo` without
+one. Everything downstream reads the
 issue number back out of this branch name, so a branch made by hand without one of these prefixes,
-a project segment and a following number opts out of steps 2 and 5 silently rather than failing
+an area segment and a following number opts out of steps 2 and 5 silently rather than failing
 loudly.
 
 ## 2. Commit
 
-The [`pre-commit`](../../.husky/pre-commit) hook runs `pnpm docs:map --check` and
-`pnpm review:version --check`. A stale generated feature map or an unrecorded review-method change
-blocks the commit. When the commit stages a `.env.example`, it also runs
-[`pnpm env:sync`](../../infrastructure/scripts/src/env-sync/README.md), which never blocks.
+The [`pre-commit`](../../.husky/pre-commit) hook runs `pnpm docs:map --check`, so a stale generated
+feature map blocks the commit. When the commit stages a `.env.example`, it also runs
+[`pnpm env:sync`](../../infrastructure/scripts/src/env-sync/README.md), which never blocks. Last, it
+runs [`pnpm usage:flush`](../../infrastructure/scripts/src/usage/README.md) and stages its output, so
+the commit carries a row for every script run and every lint hit on an agent's edit since the
+previous one, in `.telemetry/<log>/<branch>.csv`.
 
 The [`commit-msg`](../../.husky/commit-msg) hook runs before `commitlint` sees your message. It
 reads the issue number out of the current branch name and rewrites the subject to carry it —
@@ -83,7 +86,6 @@ Every PR, and every push to `master`, runs [`ci.yml`](../../.github/workflows/ci
 | Step | Runs on | Pre-push ran it? |
 | --- | --- | --- |
 | `pnpm docs:map --check` | The whole workspace | No — pre-commit did |
-| `pnpm review:version --check` | The whole workspace | No — pre-commit did |
 | `lint`, `typecheck`, `test` | Affected projects | Yes |
 | `build` | Affected projects | No |
 | `actions/dependency-review-action` | The PR's own diff, `warn-only` | No — the local stand-in is `pnpm audit` |

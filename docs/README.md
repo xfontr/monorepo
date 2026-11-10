@@ -14,7 +14,7 @@ would fix.
 These files are read on GitHub first. [`@monorepo/developer-portal`](../apps/developer-portal/README.md) also
 renders them — in place under `pnpm dev developer-portal`, and as a snapshot on the site it publishes from
 `master` — so a link here has to stay correct in both places, which is
-[`resolveDocLink`](../apps/developer-portal/shared/docLinks.ts)'s whole job rather than something to write
+[`resolveDocLink`](../apps/developer-portal/layers/docs/shared/docLinks.ts)'s whole job rather than something to write
 around.
 
 ## 🗂 Structure
@@ -26,7 +26,6 @@ around.
 | [`guides/`](./guides/README.md) | Task-shaped, cross-project, procedural walkthroughs |
 | [`decisions/`](./decisions/README.md) | The answer once an architectural spike issue gets one |
 | [`audits/`](./audits/README.md) | A dated, numbered list of what one project gets wrong, worked down one finding at a time |
-| [`reviews/`](./reviews/README.md) | A dated, scored read of the whole repo against a fixed rubric |
 
 `FEATURES.md` is the only generated file — it stays a pure index (what invokes a capability, where
 it's declared, which doc explains it) so there's no hand-written column for the next render to

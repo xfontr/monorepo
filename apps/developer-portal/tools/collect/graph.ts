@@ -1,6 +1,6 @@
 import { mkdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import type { ProjectNode, ProjectsArtifact } from "../../shared/types.ts";
+import type { ProjectNode, ProjectsArtifact } from "#layers/snapshot/shared/types.ts";
 import { GRAPH_DIR, SNAPSHOT_DIR } from "../lib/paths.ts";
 import { run } from "../lib/run.ts";
 

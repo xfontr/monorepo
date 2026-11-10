@@ -23,8 +23,9 @@ export const projectLoad = (live: ProjectSummary[], online: boolean): ProjectSou
     return online ? "empty" : "cache";
 };
 
-export const issueOptions = <T>(back: T, issues: PickIssue[]): IssueOption<T>[] => [
-    { value: back, label: "← Back to project list" },
+/** No `back` means a single board, where going back would only reopen the same list. */
+export const issueOptions = <T>(back: T | undefined, issues: PickIssue[]): IssueOption<T>[] => [
+    ...(back === undefined ? [] : [{ value: back, label: "← Back to project list" }]),
     ...issues.map((issue) => ({
         value: issue,
         label: `#${issue.number} ${issue.title}`,
@@ -72,3 +73,16 @@ export const selectedProject = (
     projects: ProjectSummary[],
     title: string,
 ): ProjectSummary | undefined => projects.find((project) => project.title === title);
+
+/** Why a pick is refused, or null when every blocked-by link is closed; `--force` skips the check. */
+export const blockedPickMessage = (
+    issue: number,
+    blockers: { number: number; title: string; state: string }[],
+): string | null => {
+    const open = blockers.filter(({ state }) => state === "OPEN");
+
+    if (open.length === 0) return null;
+
+    const list = open.map(({ number, title }) => `#${number} ${title}`).join(", ");
+    return `#${issue} is blocked by ${list}. Take one of those first, or pass --force.`;
+};

@@ -1,12 +1,12 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import type { ArtifactStatus, Manifest } from "../../shared/types.ts";
+import type { ArtifactStatus, Manifest } from "#layers/snapshot/shared/types.ts";
 import { collectCoverage } from "./coverage.ts";
 import { collectDeps } from "./deps.ts";
 import { collectDocs } from "./docs.ts";
 import { collectGraph } from "./graph.ts";
 import { collectMetrics } from "./metrics.ts";
-import { collectScorecards } from "./scorecards.ts";
+import { collectUsage } from "./usage.ts";
 import { SCHEMA_VERSION, SNAPSHOT_DIR } from "../lib/paths.ts";
 import { git, tryRun } from "../lib/run.ts";
 
@@ -117,17 +117,16 @@ const main = async (): Promise<void> => {
         printError(`✗ docs — ${docs.error}`);
     }
 
-    const scorecards = await tryRun(() => collectScorecards(generatedAt));
+    const usage = await tryRun(() => collectUsage(generatedAt));
 
-    if (scorecards.ok) {
-        await write("scorecards", scorecards.value);
-        artifacts.scorecards = { generatedAt, ok: true };
-
-        const unparsed = scorecards.value.reviews.filter((review) => review.parseError).length;
-        print(`✓ scorecards — ${scorecards.value.reviews.length} reviews, ${unparsed} unparsed`);
+    if (usage.ok) {
+        await write("usage", usage.value);
+        artifacts.usage = { generatedAt, ok: true };
+        const runs = Object.values(usage.value.scripts).reduce((sum, item) => sum + item.runs, 0);
+        print(`✓ usage — ${runs} runs across ${Object.keys(usage.value.scripts).length} scripts`);
     } else {
-        artifacts.scorecards = { generatedAt, ok: false, error: scorecards.error };
-        printError(`✗ scorecards — ${scorecards.error}`);
+        artifacts.usage = { generatedAt, ok: false, error: usage.error };
+        printError(`✗ usage — ${usage.error}`);
     }
 
     // Written last so its presence means the run finished, however many collectors failed.

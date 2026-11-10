@@ -44,8 +44,6 @@ procedures, first hour in the repo included.
 issue is where the question lived, not where the outcome should have to survive.
 [`docs/audits/`](./docs/audits/README.md) holds what a static read of one project found wrong, each
 finding numbered and carrying its own status, so the backlog outlives the session that found it.
-[`docs/reviews/`](./docs/reviews/README.md) scores the whole tree against a fixed rubric, one dated
-file per review, so that "is this getting better" has an answer that isn't a feeling.
 
 ## 🧱 Architecture & boundaries
 
@@ -116,7 +114,7 @@ simply never fire, while the portal has no current coverage or derived docs to s
 [`apps/huella-legal`](./apps/huella-legal/README.md) for the env vars it reads.
 
 The everyday commands. [`docs/FEATURES.md`](./docs/FEATURES.md) lists every other one — the
-`issue:*` scripts, `docs:drift`, `review:version`, `package:check` — with the doc that explains it.
+`issue:*` scripts, `docs:drift`, `package:check` — with the doc that explains it.
 The ones that take a target run against **affected** projects only (what changed since `master`),
 which is also what CI runs, except `pnpm test:coverage`. For the whole workspace instead, use
 `pnpm exec nx run-many -t <target>`.
@@ -146,8 +144,8 @@ checks, is in [`docs/guides/change-lifecycle.md`](./docs/guides/change-lifecycle
   commitlint through [`commitlint.config.mjs`](./commitlint.config.mjs). The
   [`commit-msg`](./.husky/commit-msg) hook tags the subject with the branch's issue number
   (`feat: [#50] add thing`), which is why the log here is number-first without anyone typing it.
-- [`pre-commit`](./.husky/pre-commit) blocks a commit while `docs/FEATURES.md` or the review
-  method version is stale.
+- [`pre-commit`](./.husky/pre-commit) blocks a commit while `docs/FEATURES.md` is stale, then stages the script runs and agent lint hits recorded since the last commit into
+  `.telemetry/` ([`pnpm usage:flush`](./infrastructure/scripts/src/usage/README.md)).
 - [`pre-push`](./.husky/pre-push) rejects a bad branch name or an added `TODO`/`FIXME` comment,
   then runs lint, test and typecheck on affected projects. File a flagged comment with
   [`pnpm issue:add`](./infrastructure/scripts/src/issue/README.md) and delete it.
@@ -166,6 +164,10 @@ checks, is in [`docs/guides/change-lifecycle.md`](./docs/guides/change-lifecycle
   `post-merge` when one changed. None of them blocks on it.
 - [`pnpm docs:drift`](./infrastructure/scripts/src/drift/README.md) is a manual check for a range
   whose project docs may have gone stale. No hook runs it.
+- [`pnpm workflow:sync`](./infrastructure/scripts/src/workflow/README.md) copies each project's
+  GitHub issues, their blocked-by links and their tagged commits into the snapshot the portal's
+  Workflows page reads. `pnpm workflow:next` lists what can be taken now, and `pnpm workflow:file`
+  files a block of the map as linked tickets. No hook runs any of them.
 - Four workflows need secrets nothing provisions — `PROJECTS_TOKEN`, `NX_CLOUD_ACCESS_TOKEN`,
   `RELEASE_TOKEN` and `COPILOT_GITHUB_TOKEN`. [`docs/guides/repo-secrets.md`](./docs/guides/repo-secrets.md)
   has what each one is for and how a missing one shows up.

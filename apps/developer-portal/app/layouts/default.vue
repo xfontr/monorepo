@@ -9,9 +9,9 @@
             :max-size="22"
         >
             <template #header="{ collapsed }">
-                <NuxtLink to="/" class="flex items-center gap-2 min-w-0">
+                <NuxtLink to="/" class="flex min-w-0 items-center gap-2">
                     <UIcon name="i-lucide-activity" class="size-5 shrink-0 text-primary" />
-                    <span v-if="!collapsed" class="font-semibold truncate">Monorepo</span>
+                    <span v-if="!collapsed" class="truncate font-semibold">Monorepo</span>
                 </NuxtLink>
             </template>
 
@@ -27,7 +27,7 @@
             </template>
 
             <template #footer="{ collapsed }">
-                <div class="flex items-center gap-1.5 w-full">
+                <div class="flex w-full items-center gap-1.5">
                     <UColorModeButton
                         :block="!collapsed"
                         :label="collapsed ? undefined : 'Theme'"
@@ -64,7 +64,6 @@
 import type { NavigationMenuItem } from "@nuxt/ui";
 
 const { data: issues } = useIssues();
-const { data: reviews } = await useReviewPages();
 const { data: badges } = await useFetch<{ advisories: number }>("/api/badges", { key: "badges" });
 const {
     public: { repoUrl },
@@ -73,50 +72,40 @@ const {
 const open = computed(() => issues.value.issues.length);
 const advisories = computed(() => badges.value?.advisories ?? 0);
 
-const navGroups = computed<{ label: string; items: NavigationMenuItem[] }[]>(() => [
-    {
-        label: "Explore",
-        items: [
-            { label: "Overview", icon: "i-lucide-layout-dashboard", to: "/" },
-            { label: "Projects", icon: "i-lucide-boxes", to: "/projects" },
-            { label: "What's new", icon: "i-lucide-tag", to: "/changelog" },
-        ],
-    },
-    {
-        label: "Build",
-        items: [
-            { label: "Documentation", icon: "i-lucide-library", to: "/docs" },
-            { label: "Architecture", icon: "i-lucide-git-fork", to: "/graph" },
-            { label: "Decisions", icon: "i-lucide-compass", to: "/decisions" },
-            { label: "Audits", icon: "i-lucide-scan-search", to: "/audits" },
-        ],
-    },
+interface NavLink {
+    label: string;
+    icon: string;
+    to: string;
+}
+
+/** A key no layer declares is skipped, so removing a layer drops its entry. */
+const GROUPS = [
+    { label: "Explore", items: ["overview", "projects", "changelog"] },
+    { label: "Build", items: ["docs", "graph", "decisions", "audits", "workflows"] },
     {
         label: "Engineering health",
-        items: [
-            {
-                label: "Work in progress",
-                icon: "i-lucide-circle-dot",
-                to: "/issues",
-                badge: open.value === 0 ? undefined : String(open.value),
-            },
-            { label: "Coverage", icon: "i-lucide-shield-check", to: "/coverage" },
-            {
-                label: "Dependencies",
-                icon: "i-lucide-shield-alert",
-                to: "/deps",
-                badge: advisories.value === 0 ? undefined : String(advisories.value),
-            },
-            {
-                label: "Reviews",
-                icon: "i-lucide-clipboard-check",
-                to: "/reviews",
-                badge: reviews.value.length === 0 ? undefined : String(reviews.value.length),
-            },
-            { label: "Scorecards", icon: "i-lucide-target", to: "/scorecards" },
-        ],
+        items: ["issues", "coverage", "telemetry", "deps"],
     },
-]);
+];
+
+const { nav }: { nav: Record<string, NavLink | undefined> } = useAppConfig();
+
+const counts = computed<Record<string, number>>(() => ({
+    issues: open.value,
+    deps: advisories.value,
+}));
+
+const navGroups = computed<{ label: string; items: NavigationMenuItem[] }[]>(() =>
+    GROUPS.map(({ label, items }) => ({
+        label,
+        items: items.flatMap((key) => {
+            const link = nav[key];
+            const count = counts.value[key] ?? 0;
+
+            return link ? [{ ...link, badge: count === 0 ? undefined : String(count) }] : [];
+        }),
+    })),
+);
 
 const searchOpen = ref(false);
 

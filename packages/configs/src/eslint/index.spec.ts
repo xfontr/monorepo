@@ -5,6 +5,7 @@ import {
     createNodeConfig,
     createNuxtConfig,
     createVueConfig,
+    layerBoundaries,
     routeMeta,
     tailwind,
 } from "./index.ts";
@@ -132,5 +133,30 @@ describe("eslint factories", () => {
 
         expect(severity(rules?.["better-tailwindcss/no-unknown-classes"])).toBe(2);
         expect(severity(rules?.["better-tailwindcss/enforce-consistent-line-wrapping"])).toBe(0);
+    });
+
+    it("scopes layer boundaries to layers/ and leaves the tools/ ban in place there", async () => {
+        const config = [
+            ...createNuxtConfig(),
+            layerBoundaries({ cores: ["design"], kit: ["app/utils/"] }),
+        ];
+        const layer = await resolve(config, "layers/audits/app/utils/format.ts");
+        const shell = await resolve(config, "app/pages/index.vue");
+
+        expect(severity(layer?.["monorepo/layer-boundaries"])).toBe(2);
+        expect(await importBans(config, "layers/audits/app/utils/format.ts")).toContain("tools");
+        expect(shell?.["monorepo/layer-boundaries"]).toBeUndefined();
+    });
+
+    it("lints the kit paths an app names and still leaves the rest of the shell alone", async () => {
+        const config = [
+            ...createNuxtConfig(),
+            layerBoundaries({ cores: ["design"], kit: ["app/composables/"] }),
+        ];
+        const kit = await resolve(config, "app/composables/useTrack.ts");
+        const shell = await resolve(config, "app/layouts/default.vue");
+
+        expect(severity(kit?.["monorepo/layer-boundaries"])).toBe(2);
+        expect(shell?.["monorepo/layer-boundaries"]).toBeUndefined();
     });
 });

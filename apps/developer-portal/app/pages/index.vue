@@ -18,7 +18,7 @@
                         <h1 class="text-2xl font-semibold">
                             {{ repositoryReadme?.title ?? "Monorepo" }}
                         </h1>
-                        <p class="text-sm text-muted mt-1">
+                        <p class="mt-1 text-sm text-muted">
                             {{
                                 repositoryReadme?.description ??
                                 "The repository summary is not available yet."
@@ -29,31 +29,31 @@
                     <div class="grid gap-3 md:grid-cols-3">
                         <NuxtLink
                             to="/projects"
-                            class="rounded-lg border border-default bg-default p-4 hover:bg-elevated/50 transition-colors"
+                            class="rounded-lg border border-default bg-default p-4 transition-colors hover:bg-elevated/50"
                         >
                             <UIcon name="i-lucide-boxes" class="size-5 text-primary" />
                             <h2 class="mt-3 font-semibold">Explore what exists</h2>
-                            <p class="text-sm text-muted mt-1">
+                            <p class="mt-1 text-sm text-muted">
                                 Browse the applications, building blocks, and tooling.
                             </p>
                         </NuxtLink>
                         <NuxtLink
                             to="/graph"
-                            class="rounded-lg border border-default bg-default p-4 hover:bg-elevated/50 transition-colors"
+                            class="rounded-lg border border-default bg-default p-4 transition-colors hover:bg-elevated/50"
                         >
                             <UIcon name="i-lucide-git-fork" class="size-5 text-primary" />
                             <h2 class="mt-3 font-semibold">Understand how it works</h2>
-                            <p class="text-sm text-muted mt-1">
+                            <p class="mt-1 text-sm text-muted">
                                 See how projects fit together and share responsibilities.
                             </p>
                         </NuxtLink>
                         <NuxtLink
                             to="/docs/docs/guides/first-hour"
-                            class="rounded-lg border border-default bg-default p-4 hover:bg-elevated/50 transition-colors"
+                            class="rounded-lg border border-default bg-default p-4 transition-colors hover:bg-elevated/50"
                         >
                             <UIcon name="i-lucide-play" class="size-5 text-primary" />
                             <h2 class="mt-3 font-semibold">Run or contribute</h2>
-                            <p class="text-sm text-muted mt-1">
+                            <p class="mt-1 text-sm text-muted">
                                 Get a working checkout and find your first useful step.
                             </p>
                         </NuxtLink>
@@ -64,7 +64,7 @@
                     <div class="flex items-center justify-between gap-3">
                         <div>
                             <h2 class="text-xl font-semibold">Featured projects</h2>
-                            <p class="text-sm text-muted mt-1">
+                            <p class="mt-1 text-sm text-muted">
                                 Applications that show what this repository produces.
                             </p>
                         </div>
@@ -94,7 +94,7 @@
                                         <h3 class="font-semibold">
                                             {{ readmeFor(project)?.title ?? project.name }}
                                         </h3>
-                                        <p class="line-clamp-3 text-sm text-muted mt-1">
+                                        <p class="mt-1 line-clamp-3 text-sm text-muted">
                                             {{
                                                 readmeFor(project)?.description ??
                                                 "No project description is available yet."
@@ -105,7 +105,7 @@
                                 </div>
                             </template>
                             <div class="flex items-center justify-between gap-3">
-                                <span class="font-mono text-xs text-dimmed truncate">{{
+                                <span class="truncate font-mono text-xs text-dimmed">{{
                                     project.root
                                 }}</span>
                                 <UButton
@@ -123,12 +123,12 @@
                 <section class="flex flex-col gap-4">
                     <div>
                         <h2 class="text-xl font-semibold">Engineering health</h2>
-                        <p class="text-sm text-muted mt-1">
+                        <p class="mt-1 text-sm text-muted">
                             Collected repository signals and live work in progress.
                         </p>
                     </div>
 
-                    <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+                    <div class="grid grid-cols-2 gap-3 lg:grid-cols-5">
                         <StatTile
                             label="Docs"
                             :value="docs?.pages.length ?? '—'"
@@ -212,93 +212,43 @@
                             v-for="page in broken"
                             :key="page.path"
                             :to="`/docs${toCollectionPath(page.path)}`"
-                            class="flex items-center gap-3 text-sm hover:bg-elevated/40 rounded-md px-2 py-1.5 transition-colors"
+                            class="flex items-center gap-3 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-elevated/50"
                         >
-                            <UIcon name="i-lucide-link-2-off" class="size-4 text-dimmed shrink-0" />
-                            <span class="font-mono text-xs truncate">{{ page.path }}</span>
-                            <span class="text-xs text-muted truncate">
+                            <UIcon name="i-lucide-link-2-off" class="size-4 shrink-0 text-dimmed" />
+                            <span class="truncate font-mono text-xs">{{ page.path }}</span>
+                            <span class="truncate text-xs text-muted">
                                 {{ page.brokenLinks.map((link) => link.href).join(", ") }}
                             </span>
                         </NuxtLink>
                     </UCard>
 
-                    <div class="grid lg:grid-cols-3 gap-4">
-                        <UCard class="lg:col-span-2" :ui="{ body: 'p-0 sm:p-0' }">
-                            <template #header>
-                                <div class="flex items-center justify-between">
-                                    <h3 class="font-semibold">Work in progress</h3>
-                                    <UButton
-                                        to="/issues"
-                                        label="All issues"
-                                        size="xs"
-                                        variant="ghost"
-                                        color="neutral"
-                                        trailing-icon="i-lucide-arrow-right"
-                                    />
-                                </div>
-                            </template>
-
-                            <div
-                                v-if="next.length === 0"
-                                class="p-8 text-center text-sm text-muted"
-                            >
-                                {{
-                                    issues.error
-                                        ? "GitHub could not be read from this browser."
-                                        : "No open issues."
-                                }}
-                            </div>
-
-                            <div v-else class="divide-y divide-default">
-                                <IssueRow
-                                    v-for="issue in next"
-                                    :key="issue.number"
-                                    :issue
-                                    compact
+                    <UCard variant="flush">
+                        <template #header>
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-semibold">Work in progress</h3>
+                                <UButton
+                                    to="/issues"
+                                    label="All issues"
+                                    size="xs"
+                                    variant="ghost"
+                                    color="neutral"
+                                    trailing-icon="i-lucide-arrow-right"
                                 />
                             </div>
-                        </UCard>
+                        </template>
 
-                        <UCard class="self-start" :ui="{ body: 'p-0 sm:p-0' }">
-                            <template #header>
-                                <div class="flex items-center justify-between">
-                                    <h3 class="font-semibold">Reviews</h3>
-                                    <UButton
-                                        to="/reviews"
-                                        label="All"
-                                        size="xs"
-                                        variant="ghost"
-                                        color="neutral"
-                                        trailing-icon="i-lucide-arrow-right"
-                                    />
-                                </div>
-                            </template>
+                        <div v-if="next.length === 0" class="p-8 text-center text-sm text-muted">
+                            {{
+                                issues.error
+                                    ? "GitHub could not be read from this browser."
+                                    : "No open issues."
+                            }}
+                        </div>
 
-                            <div
-                                v-if="reviews.length === 0"
-                                class="p-8 text-center text-sm text-muted"
-                            >
-                                No review written yet.
-                            </div>
-
-                            <div v-else class="divide-y divide-default">
-                                <NuxtLink
-                                    v-for="review in recentReviews"
-                                    :key="review.path"
-                                    :to="`/reviews/${review.path.split('/').at(-1)}`"
-                                    class="flex items-center gap-3 px-4 py-2.5 hover:bg-elevated/40 transition-colors"
-                                >
-                                    <UIcon
-                                        name="i-lucide-clipboard-check"
-                                        class="size-4 text-dimmed shrink-0"
-                                    />
-                                    <span class="text-sm font-mono truncate">{{
-                                        review.path.split("/").at(-1)
-                                    }}</span>
-                                </NuxtLink>
-                            </div>
-                        </UCard>
-                    </div>
+                        <div v-else class="divide-y divide-default">
+                            <IssueRow v-for="issue in next" :key="issue.number" :issue compact />
+                        </div>
+                    </UCard>
                 </section>
             </div>
         </template>
@@ -306,9 +256,9 @@
 </template>
 
 <script setup lang="ts">
-import { sortIssues } from "#shared/issues.ts";
-import { toCollectionPath } from "#shared/wiki.ts";
-import type { ProjectNode } from "#shared/types.ts";
+import { sortIssues } from "#layers/github/shared/issues.ts";
+import { toCollectionPath } from "#layers/docs/shared/docPages.ts";
+import type { ProjectNode } from "#layers/snapshot/shared/types.ts";
 
 const [
     { data: projectsSnapshot },
@@ -324,13 +274,11 @@ const [
     useSnapshot("metrics"),
 ]);
 const { data: issues } = useIssues();
-const { data: reviews } = await useReviewPages();
 
 const open = computed(() => issues.value.issues.length);
 const issuesRead = computed(() =>
     issues.value.fetchedAt ? `read ${relativeTime(issues.value.fetchedAt)}` : "reading…",
 );
-const recentReviews = computed(() => reviews.value.slice(0, 5));
 
 const coverage = computed(() => coverageSnapshot.value?.coverage?.totals?.lines ?? null);
 const coverageTileTone = computed(() => coverageTone(coverage.value));

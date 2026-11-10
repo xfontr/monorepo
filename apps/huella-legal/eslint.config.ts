@@ -4,8 +4,20 @@ export default [
     ...eslint.createNuxtConfig(),
     eslint.routeMeta,
     eslint.tailwind("layers/design/app/assets/main.css"),
+    eslint.layerBoundaries({
+        cores: ["articles", "forms", "design"],
+        kit: [
+            "app/components/base/",
+            "app/components/listing/",
+            "app/types/",
+            "app/utils/",
+            "app/composables/",
+            "i18n/",
+        ],
+    }),
     {
         // Plain CSS classes from the prose stylesheets and a spec hook, not Tailwind utilities.
+        files: ["**/*.vue", "**/*.ts"],
         rules: {
             "better-tailwindcss/no-unknown-classes": [
                 "error",

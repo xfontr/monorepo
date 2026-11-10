@@ -6,14 +6,12 @@ import Page from "./index.vue";
 const state = vi.hoisted(() => ({
     snapshots: {} as Record<string, { value: unknown }>,
     issues: null as { value: unknown } | null,
-    reviews: null as unknown,
     readmes: [] as unknown[],
     asyncData: vi.fn(),
     query: vi.fn(),
 }));
 mockNuxtImport("useSnapshot", () => (name: string) => ({ data: state.snapshots[name] }));
 mockNuxtImport("useIssues", () => () => ({ data: state.issues }));
-mockNuxtImport("useReviewPages", () => () => ({ data: state.reviews }));
 mockNuxtImport("useAsyncData", () => state.asyncData);
 mockNuxtImport("queryCollection", () => state.query);
 
@@ -76,7 +74,6 @@ beforeEach(() => {
         metrics: ref({ metrics: { invariantFindings: [] } }),
     };
     state.issues = ref({ issues: [], error: null, fetchedAt: "" });
-    state.reviews = ref([]);
 });
 
 describe("overview page", () => {
@@ -172,7 +169,6 @@ describe("overview page", () => {
             error: "GitHub offline",
             fetchedAt: "",
         };
-        state.reviews = ref([{ path: "/docs/reviews/2026.md" }]);
         const wrapper = await mountSuspended(Page, { global });
 
         expect(wrapper.text()).toContain("82%");
@@ -180,6 +176,5 @@ describe("overview page", () => {
         expect(wrapper.text()).toContain("GitHub could not be read");
         expect(wrapper.text()).toContain("Open issue");
         expect(wrapper.find("a[href='/docs/docs/a']").exists()).toBe(true);
-        expect(wrapper.find("a[href='/reviews/2026.md']").exists()).toBe(true);
     });
 });

@@ -101,15 +101,10 @@ const walkMarkdown = (dir: string, found: string[] = []): string[] => {
 
 export const MAP_PATH = "docs/FEATURES.md";
 
-/** Three deliberate exclusions from the markdown scan — see ./README.md#-picking-the-doc. */
+/** Two deliberate exclusions from the markdown scan — see ./README.md#-picking-the-doc. */
 export const docs = (): Doc[] =>
     walkMarkdown(repoRoot())
-        .filter(
-            (path) =>
-                !path.endsWith("CHANGELOG.md") &&
-                !path.startsWith("docs/reviews/") &&
-                path !== MAP_PATH,
-        )
+        .filter((path) => !path.endsWith("CHANGELOG.md") && path !== MAP_PATH)
         .map((path) => ({ path, text: read(at(path)) }));
 
 export const readMap = (): string => {

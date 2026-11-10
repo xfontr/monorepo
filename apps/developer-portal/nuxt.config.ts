@@ -10,23 +10,11 @@ export default defineNuxtConfig({
     ssr: true,
     devtools: false,
 
-    css: ["~/assets/css/main.css"],
-
     typescript: {
         typeCheck: false,
     },
 
     content: {
-        build: {
-            markdown: {
-                // Keyed by an absolute path because `@nuxt/content` `import()`s the key verbatim,
-                // resolving neither a Nuxt alias nor a path relative to itself.
-                remarkPlugins: {
-                    [resolve(import.meta.dirname, "tools/lib/remarkDocLinks.ts")]: {},
-                },
-            },
-        },
-
         experimental: {
             sqliteConnector: "native",
         },
@@ -54,21 +42,7 @@ export default defineNuxtConfig({
         },
     },
 
-    ui: {
-        theme: {
-            colors: ["primary", "secondary", "success", "info", "warning", "error", "neutral"],
-        },
-    },
-
-    colorMode: {
-        preference: "system",
-        fallback: "dark",
-    },
-
     runtimeConfig: {
-        // Absolute, because the server that reads it is bundled somewhere else entirely.
-        snapshotDir: resolve(import.meta.dirname, ".report"),
-
         public: {
             repoUrl: "",
         },

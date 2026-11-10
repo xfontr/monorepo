@@ -19,14 +19,20 @@ mockNuxtImport("useSiteNav", () => () => ({
     sections: ref([]),
     columns: ref([]),
     social: ref([]),
-    issn: "2696-7618",
 }));
+mockNuxtImport("useCookiePreferences", () => () => ({ enabled: false, open: vi.fn() }));
 
 const global = {
     mocks: { $t: (key: string) => `t(${key})` },
     stubs: {
-        ShellSiteHeader: { template: "<header data-shell='header' />" },
-        ShellSiteFooter: { template: "<footer data-shell='footer' />" },
+        ShellSiteHeader: {
+            props: ["issn"],
+            template: "<header data-shell='header' :data-issn='issn' />",
+        },
+        ShellSiteFooter: {
+            props: ["issn"],
+            template: "<footer data-shell='footer' :data-issn='issn' />",
+        },
     },
 };
 
@@ -48,6 +54,15 @@ describe("default layout", () => {
         expect(order).toEqual(["header", "main", "footer"]);
         expect(wrapper.findAll("main")).toHaveLength(1);
         expect(wrapper.find("main").text()).toBe("Article body");
+    });
+
+    it("hands the header and the footer the same ISSN, the journal's own", async () => {
+        const wrapper = mountLayout();
+        await vi.dynamicImportSettled();
+
+        const printed = wrapper.findAll("[data-shell]").map((node) => node.attributes("data-issn"));
+
+        expect(printed).toEqual(["2696-7618", "2696-7618"]);
     });
 
     it("starts with a skip link that lands on the main landmark", () => {

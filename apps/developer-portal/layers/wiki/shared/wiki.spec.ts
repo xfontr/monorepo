@@ -1,0 +1,121 @@
+import { describe, expect, it } from "vitest";
+import { buildWiki, locate } from "./wiki.ts";
+
+const PAGES = [
+    { path: "/readme", title: "Monorepo" },
+    { path: "/agents", title: "🤖 Working in this repo" },
+    { path: "/docs/readme", title: "🗂 Docs" },
+    { path: "/docs/features", title: "🗺 Features" },
+    { path: "/docs/guides/first-hour", title: "🌱 First hour in this repo" },
+    { path: "/docs/concepts/readme", title: "🧠 Concepts" },
+    { path: "/docs/concepts/boundaries", title: "🧱 Why the boundary system exists" },
+    { path: "/docs/decisions/readme", title: "🧭 Decisions" },
+    { path: "/docs/decisions/template", title: "🧭" },
+    {
+        path: "/docs/decisions/0001-feature-discoverability",
+        title: "🧭 Making the repo's feature surface discoverable",
+    },
+    { path: "/packages/ui/readme", title: "📦 @monorepo/ui" },
+    { path: "/packages/ui/agents", title: "🤖 @monorepo/ui" },
+    { path: "/packages/ui/changelog", title: "CHANGELOG" },
+    { path: "/.claude/skills/ui-new-component/skill", title: "Adding a UI component" },
+    { path: "/packages/content/src/nuxt/readme", title: "🟢 @monorepo/content/nuxt" },
+    { path: "/.claude/skills/house-docs/skill", title: "Writing docs here" },
+];
+
+const sectionOf = (id: string) => buildWiki(PAGES).find((section) => section.id === id);
+
+const labelsIn = (id: string, group: string): string[] =>
+    sectionOf(id)
+        ?.groups.find((entry) => entry.key === group)
+        ?.entries.map((entry) => entry.label) ?? [];
+
+describe("buildWiki", () => {
+    it("files a project's nested README under the project, not as a project of its own", () => {
+        expect(labelsIn("packages", "content")).toEqual(["nuxt"]);
+    });
+
+    it("drops the src/ prefix from a nested README's label, which names an implementation detail rather than a topic", () => {
+        const PAGES_WITH_SCRIPT = [
+            ...PAGES,
+            { path: "/infrastructure/scripts/src/drift/readme", title: "📚 drift" },
+        ];
+
+        expect(
+            buildWiki(PAGES_WITH_SCRIPT)
+                .find((section) => section.id === "infrastructure")
+                ?.groups.find((group) => group.key === "scripts")
+                ?.entries.map((entry) => entry.label),
+        ).toEqual(["drift"]);
+    });
+
+    it("labels a project's own README 'Overview', because the group already carries the package name", () => {
+        expect(labelsIn("packages", "ui")).toEqual(["Overview", "Agent notes"]);
+    });
+
+    it("keeps every root-scoped skill in the shared agent setup", () => {
+        expect(labelsIn("agents", "skills")).toEqual([
+            "Adding a UI component",
+            "Writing docs here",
+        ]);
+    });
+
+    it("drops the changelogs and the decision reports, which have pages of their own in this app", () => {
+        const paths = buildWiki(PAGES).flatMap((section) =>
+            section.groups.flatMap((group) => group.entries.map((entry) => entry.path)),
+        );
+
+        expect(paths).not.toContain("/packages/ui/changelog");
+        expect(paths).not.toContain("/docs/decisions/0001-feature-discoverability");
+    });
+
+    it("drops a TEMPLATE, whose placeholder heading survives @nuxt/content as a blank or truncated title", () => {
+        const paths = buildWiki(PAGES).flatMap((section) =>
+            section.groups.flatMap((group) => group.entries.map((entry) => entry.path)),
+        );
+
+        expect(paths).not.toContain("/docs/decisions/template");
+    });
+
+    it("sorts the docs tree's own pages above its subdirectories, so the map comes before the territory", () => {
+        expect(sectionOf("docs")?.groups.map((group) => group.key)).toEqual([
+            "docs",
+            "concepts",
+            "guides",
+            "decisions",
+        ]);
+    });
+
+    it("files a package under its own 'Packages' section, not a shared 'Projects' one", () => {
+        expect(sectionOf("packages")?.groups.map((group) => group.key)).toEqual(["content", "ui"]);
+    });
+
+    it("labels a project group with its title-cased name, not its raw folder path", () => {
+        expect(sectionOf("packages")?.groups.map((group) => group.label)).toEqual([
+            "Content",
+            "UI",
+        ]);
+    });
+
+    it("drops a section nothing landed in instead of rendering an empty heading", () => {
+        expect(
+            buildWiki([{ path: "/readme", title: "Monorepo" }]).map((section) => section.id),
+        ).toEqual(["workspace"]);
+    });
+
+    it("keeps the decisions rubric, which is a doc about how a report is written rather than a report", () => {
+        expect(labelsIn("docs", "decisions")).toEqual(["Overview"]);
+    });
+});
+
+describe("locate", () => {
+    it("finds the section and group a page sits in, which is the breadcrumb above it", () => {
+        const found = locate(buildWiki(PAGES), "/docs/concepts/boundaries");
+
+        expect([found?.section.id, found?.group.key]).toEqual(["docs", "concepts"]);
+    });
+
+    it("returns null for a path no section claims, so a stale link renders a not-found instead of throwing", () => {
+        expect(locate(buildWiki(PAGES), "/nope")).toBeNull();
+    });
+});

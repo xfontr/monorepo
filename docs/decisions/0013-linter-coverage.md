@@ -43,7 +43,7 @@ For `security`, 63 of 68 come from its two rules with a documented false-positiv
 useful three (`detect-unsafe-regex`) are a strict subset of what `eslint-plugin-regexp` reports.
 
 **2. The one real defect found in the whole sweep is already covered by a rule this repo owns.**
-[`useIssues.ts:17`](../../apps/developer-portal/app/composables/useIssues.ts) spreads an awaitable
+[`useIssues.ts:17`](../../apps/developer-portal/layers/github/app/composables/useIssues.ts) spreads an awaitable
 `AsyncData` into an object literal, which silently drops the object's `await`ability.
 `no-misused-promises` catches it and is in `recommendedTypeChecked` — the preset
 [`node.ts`](../../packages/configs/src/eslint/node.ts) already applies. It does not fire because

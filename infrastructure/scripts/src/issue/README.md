@@ -1,7 +1,7 @@
 # 📝 issue
 
 Three subcommands over `gh`, around the same tracker: `add` files an issue from the terminal,
-`pick` takes one off a project board and puts you on a branch for it — and, once `add` succeeds from
+`pick` takes one off the project board and puts you on a branch for it — and, once `add` succeeds from
 `master`, calls `pick` directly instead of telling you to run it separately. `brief` prints an
 issue with everything it points at, for whoever is about to implement it. They live in one folder
 because they share the project prompt, the cancel handling, and now that direct call between them —
@@ -54,7 +54,7 @@ GitHub afterwards.
 
 | Step | What it does |
 | --- | --- |
-| Project | `gh project list` for the repo's owner, open projects only, plus a *none* option |
+| Project | `gh project list` for the repo's owner, open projects only, plus a *none* option. With exactly one open board there's nothing to choose, so it's used without asking |
 | Label | `gh label list`, plus a *none* option — searchable by name *or* description |
 | Title | Free text, required |
 | Description | Free text, required — one line, becomes the whole issue body |
@@ -88,12 +88,18 @@ number and hand-type a branch name.
 
 | Step | What it does |
 | --- | --- |
-| Project | `gh project list`, open projects only — no *none* here, the board is what's being read |
+| Project | `gh project list`, open projects only — no *none* here, the board is what's being read. Skipped with exactly one open board, which also drops the *back* row from the next prompt |
 | Issue | The project's **open** issues, `#number title` with the labels and the URL as a hint — searchable by number, title or label |
 | Resume | Only if a branch for that issue already exists — *yes* checks it out and stops here |
 | Branch type | `feature`, `fix`, `hotfix`, `release` |
 | Branch title | Free text, pre-filled with the issue title; slugified, so edit it down to something short |
-| — | `gh issue develop <number> --name <type>/<project-slug>/<number>-<slug> --checkout`, then `gh issue edit --add-assignee @me`, then `gh project item-edit --field Status --value "In Progress"` |
+| — | `gh issue develop <number> --name <type>/<area>/<number>-<slug> --checkout`, then `gh issue edit --add-assignee @me`, then `gh project item-edit --field Status --value "In Progress"` |
+
+Before the branch, `pick` reads the issue's blocked-by links live and stops while any is open,
+naming each one; `--force` skips the check. A resumed branch isn't checked, since the work already
+started. The links are GitHub's own, written by `pnpm workflow:file` or by hand on the issue, so an
+agent can't start on a ticket a stale snapshot showed as ready. `pnpm issue:brief` lists the same
+links under *Blockers*, beside any older `**Blocked by:**` line in the body.
 
 `gh issue develop` over `git checkout -b`: the branch it creates is linked on the issue's
 Development panel, the same link the "Create a branch" button on the issue would give you, and a
@@ -112,10 +118,12 @@ Every answer the prompts would collect comes off the issue or a flag:
 
 | Answer | From |
 | --- | --- |
-| Board | `--project=<board title>`, else the issue's first board. A new branch for an issue on none fails and names the flag; a resumed one just skips the board move |
+| Board | `--project=<board title>`, else the issue's first board. Only the *In Progress* move uses it, so an issue on no board just skips that move |
+| Area | The issue's area label, as in [the branch name](#-why-the-area-sits-between-the-type-and-the-number) |
 | Branch type | `--type=<feature\|fix\|hotfix\|release>`, else the label: `enhancement` is `feature`, `bug` is `fix`. A `spike`, or both labels, fails and names the flag |
 | Branch title | `--title=<text>`, else the issue title. One that slugs to nothing fails, as the prompt's validation does |
 | Resume | An existing branch for the number is checked out, without asking |
+| Blocked | `--force` branches off an issue with an open blocker; without it the pick stops |
 
 Flags take the `--name=value` form only. `run` parses argv into a set of flags and a list of
 positionals, so `--type fix` would read `fix` as a second positional.
@@ -129,7 +137,7 @@ The line isn't the widget, it's the list:
 | --- | --- |
 | Issue — searchable | A board grows without anyone deciding to grow it. Typing `63`, a word from the title, or `spike` beats arrowing through twenty rows, and `#` is optional because the picker prints it and nobody types it |
 | Label — searchable | Thirteen and counting, and you always know the one you want. The description is searched too: `wontfix` and `good first issue` are remembered by meaning, not spelling |
-| Project — plain | Four boards, and a fifth is a year away. A search box over four rows is an affordance that costs a keystroke and saves none |
+| Project — plain | One board, so it's usually skipped altogether. A search box over a handful of rows would cost a keystroke and save none |
 | Branch type — plain | Four values, fixed by the branch-name rule. Typing `fix` there would match `hotfix` too, so searching is worse than pointing |
 
 The predicates live in [`domain/search.ts`](./domain/search.ts) rather than inline in the prompt,
@@ -153,13 +161,16 @@ assignment still go over the network same as ever, so an offline pick gets you a
 branch name and then fails there if `gh` is still unreachable — the fallback is for browsing, not
 for filing offline.
 
-### 🔢 Why the project slug sits between the type and the number
+### 🔢 Why the area sits between the type and the number
 
-`feature/website/28-set-up-main-layouts`. The prefix satisfies the
+`feature/huella-legal/28-set-up-main-layouts`. The prefix satisfies the
 `^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+` gate in
-[`.husky/pre-push`](../../../../.husky/pre-push). The project slug is `slugify`'d from the same
-board title the Project prompt above already picked — see [`domain/branch.ts`](./domain/branch.ts)
-— and the number right after it is what `branchForIssue` in `git.ts` matches on. That lookup is why
+[`.husky/pre-push`](../../../../.husky/pre-push). The area comes from the issue's labels, through
+`areaFor` in [`domain/branch.ts`](./domain/branch.ts): the first `app:`, then `package:`, then
+`infra:` label, minus its prefix, so it names the folder the work lives in. An issue with none of
+those is about the repo as a whole and gets `repo`, which keeps every issue branchable without a
+mandatory label prompt. The number right after it is what `branchForIssue` in `git.ts`
+matches on. That lookup is why
 picking the same issue twice offers the existing branch instead of dying on `gh issue develop`'s
 "branch already exists". Renaming a branch by hand to drop either segment costs you the resume,
 nothing else.
@@ -208,14 +219,14 @@ sections that are each a lookup the reader would otherwise run.
 | --- | --- |
 | Blockers | Every `#n` on a `Blocked by` line, each fetched for its title and state |
 | Decisions | `docs/decisions/*.md` whose frontmatter `issue:` is this issue or any issue the thread mentions, plus any `ADR 0028`-style mention. Matched on frontmatter, since a decision's file number is its own |
-| Projects | `app:` and `package:` labels, the branch's board segment, and project paths in the text, each with its `CLAUDE.md` |
+| Projects | `app:`, `package:` and `infra:` labels, the branch's area, and project paths in the text, each with its `CLAUDE.md` |
 | Docs mentioned | Paths under `docs/` or `.claude/` that the thread names and that exist |
 
 Comments aren't capped. Threads here are short, and the decision often sits in the comment a cap
 would cut.
 
 With no number it reads the one in the current branch name, through `issueFromBranch` in
-[`domain/branch.ts`](./domain/branch.ts). The board segment only counts toward Projects when the
+[`domain/branch.ts`](./domain/branch.ts). The area only counts toward Projects when the
 branch is the issue's own.
 
 ## 🗄 Caching projects, labels and issues

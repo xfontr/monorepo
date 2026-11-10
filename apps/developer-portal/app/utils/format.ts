@@ -1,105 +1,24 @@
-import type { AuditState, FindingStatus } from "#shared/audits.ts";
-import type { DecisionOutcome, DecisionStatus } from "#shared/types.ts";
-
-/** The palette behind these three classes lives in `assets/css/main.css` and is shown beside the figure it describes, never instead of it. */
+/** The palette behind these three classes lives in the design layer's `main.css` and is shown beside the figure it describes, never instead of it. */
 export type Tone = "good" | "warn" | "bad" | "neutral";
 
-/** The one threshold pair in the app, so the overview tile and the coverage table cannot disagree. */
-export const coverageTone = (pct: number | null | undefined): Tone => {
-    if (pct === null || pct === undefined) return "neutral";
-    if (pct >= 80) return "good";
-    if (pct >= 60) return "warn";
+const TONE_CLASSES = {
+    good: "tone-good",
+    warn: "tone-warn",
+    bad: "tone-bad",
+    neutral: "",
+} as const satisfies Record<Tone, string>;
 
-    return "bad";
-};
+/** Empty for `neutral`, which takes whatever colour its surroundings already have. */
+export const toneClass = (tone: Tone): string => TONE_CLASSES[tone];
 
-/** SCORECARDS.md's own scale: 4-5 is sound or better, 3 is mixed, 1-2 is costing something now. */
-export const scoreTone = (score: number | null | undefined): Tone => {
-    if (score === null || score === undefined) return "neutral";
-    if (score >= 4) return "good";
-    if (score >= 3) return "warn";
-
-    return "bad";
-};
-
-/** `pnpm audit`'s own five-band scale, collapsed to the app's three tones. */
-export const severityTone = (severity: "info" | "low" | "moderate" | "high" | "critical"): Tone => {
-    if (severity === "critical" || severity === "high") return "bad";
-    if (severity === "moderate") return "warn";
-
-    return "neutral";
-};
-
-const KIND_ICONS: Record<string, string> = {
-    readme: "i-lucide-file-text",
-    agent: "i-lucide-bot",
-    changelog: "i-lucide-tag",
-    skill: "i-lucide-wand-sparkles",
-    doc: "i-lucide-book-open",
-    review: "i-lucide-clipboard-check",
-    decision: "i-lucide-compass",
-    audit: "i-lucide-scan-search",
-};
-
-export const kindIcon = (kind: string): string => KIND_ICONS[kind] ?? "i-lucide-file-text";
-
-const DECISION_STATUS_LABELS = {
-    "to-implement": "To implement",
-    implemented: "Implemented",
-    "wont-implement": "Won't implement",
-} as const satisfies Record<DecisionStatus, string>;
-
-export const decisionStatusLabel = (status: DecisionStatus): string =>
-    DECISION_STATUS_LABELS[status];
-
-/** Reuses the same validated three-tone palette everything else on this page uses for a verdict. */
-const DECISION_STATUS_TONES = {
-    "to-implement": "warn",
-    implemented: "good",
-    "wont-implement": "neutral",
-} as const satisfies Record<DecisionStatus, Tone>;
-
-export const decisionStatusTone = (status: DecisionStatus): Tone => DECISION_STATUS_TONES[status];
-
-const DECISION_OUTCOME_LABELS = {
-    accepted: "Accepted",
-    superseded: "Superseded",
-} as const satisfies Record<DecisionOutcome, string>;
-
-export const decisionOutcomeLabel = (decision: DecisionOutcome): string =>
-    DECISION_OUTCOME_LABELS[decision];
-
-const FINDING_STATUS_LABELS = {
-    open: "Open",
-    fixed: "Fixed",
-    "wont-fix": "Won't fix",
-} as const satisfies Record<FindingStatus, string>;
-
-export const findingStatusLabel = (status: FindingStatus): string => FINDING_STATUS_LABELS[status];
-
-const FINDING_STATUS_TONES = {
-    open: "warn",
-    fixed: "good",
-    "wont-fix": "neutral",
-} as const satisfies Record<FindingStatus, Tone>;
-
-export const findingStatusTone = (status: FindingStatus): Tone => FINDING_STATUS_TONES[status];
-
-const AUDIT_STATE_LABELS = {
-    open: "Open",
-    "in-progress": "In progress",
-    closed: "Closed",
-} as const satisfies Record<AuditState, string>;
-
-export const auditStateLabel = (state: AuditState): string => AUDIT_STATE_LABELS[state];
-
-const AUDIT_STATE_TONES = {
-    open: "warn",
-    "in-progress": "warn",
-    closed: "good",
-} as const satisfies Record<AuditState, Tone>;
-
-export const auditStateTone = (state: AuditState): Tone => AUDIT_STATE_TONES[state];
+/** A `YYYY-MM-DD` calendar day as "6 Oct", read in UTC so the server and the browser agree. */
+export const calendarDay = (day: string, month: "short" | "only" = "short"): string =>
+    new Date(`${day}T00:00:00Z`).toLocaleDateString(
+        "en-GB",
+        month === "only"
+            ? { timeZone: "UTC", month: "short" }
+            : { timeZone: "UTC", day: "numeric", month: "short" },
+    );
 
 /** "3 hours ago" beats a timestamp for the one question a report page has to answer. */
 export const relativeTime = (iso: string | null | undefined): string => {

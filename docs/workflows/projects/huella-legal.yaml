@@ -1,0 +1,76 @@
+id: huella-legal
+title: Huella Legal
+template: website-rebuild
+area: app:huella-legal
+milestone: Huella Legal
+summary: huellalegal.com, a WordPress legal blog for students and general
+  readers, rebuilt as a Nuxt app.
+
+switches:
+  storybook: true
+  comments: true
+  editorial-tooling: true
+  i18n: false
+  blog: true
+
+settled:
+  ci-deploy:
+    status: done
+    on: 2026-10-01
+    note: Preview deploys worked from early October; its tickets are later deploy work.
+  scope-signoff:
+    status: done
+    on: 2026-09-30
+    note: Approved 2026-09-30 when the spikes merged, before owner blocks had
+      tickets.
+  design-approval:
+    status: done
+    on: 2026-09-30
+    note: Design D chosen on 2026-09-30 in #208.
+  go-live:
+    status: done
+    on: 2026-11-04
+    note: Approved for the cutover on 2026-11-04.
+  feature-inventory:
+    status: skipped
+    note: Never done; comments, the about page and the confirmation page were found
+      late.
+  brand-extraction:
+    status: done
+    on: 2026-09-29
+    note: Transcribed by hand from a Penpot sheet, before the lab existed.
+  component-inventory:
+    status: done
+    on: 2026-10-02
+    note: The kits the approved lab pages rendered, listed in the old implementation
+      plan.
+  app-scaffold:
+    status: done
+    on: 2026-09-04
+    note: Renamed from apps/external on 2026-09-04.
+  spam-protection:
+    status: done
+    on: 2026-10-29
+    note: Turnstile and the honeypot landed inside the newsletter and contact
+      tickets.
+  accessibility:
+    status: done
+    on: 2026-11-04
+    note: Axe runs in every e2e page spec; the fixes came through the component
+      review.
+  legacy-redirects:
+    status: done
+    on: 2026-11-04
+    note: The redirect map landed inside the cutover ticket.
+
+extras:
+  - id: interest-calculator
+    stage: build
+    title: Interest calculator
+    dependsOn: [ component-kit, ci-deploy ]
+    summary: A legal-interest calculator page.
+  - id: publish-form
+    stage: build
+    title: Publish proposal form
+    dependsOn: [ component-kit, ci-deploy ]
+    summary: The page and form for proposing an article, with a .docx upload.

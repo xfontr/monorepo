@@ -1,0 +1,3 @@
+at,rule,project,severity,fixable,caller
+2026-11-10,format/prettier,configs,error,1,claude-code
+2026-11-10,format/prettier,configs,error,1,claude-code

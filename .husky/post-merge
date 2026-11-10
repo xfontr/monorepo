@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Scripts record a usage row unless this is set; a hook running them is not anyone choosing to.
+export MONOREPO_GIT_HOOK=1
+
 YELLOW="\033[1;33m"
 NC="\033[0m"
 

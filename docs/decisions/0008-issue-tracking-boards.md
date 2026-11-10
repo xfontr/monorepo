@@ -1,7 +1,8 @@
 ---
 issue: 72
 status: wont-implement
-decision: accepted
+decision: superseded
+supersededBy: 0035-one-board-area-labels.md
 ---
 
 # 🧭 One board per app, not one board with labels

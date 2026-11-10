@@ -11,6 +11,7 @@ const prompts = vi.hoisted(() => ({
 const state = vi.hoisted(() => ({ cancel: Symbol("cancel") }));
 const gh = vi.hoisted(() => ({
     assignToMe: vi.fn(),
+    blockedBy: vi.fn(),
     developBranch: vi.fn(),
     isOnline: vi.fn(),
     listIssues: vi.fn(),
@@ -46,13 +47,19 @@ vi.mock("../shared/adapters/prompts.ts", () => ({
 import { pick } from "./pick.ts";
 
 const PROJECT = { title: "Roadmap", number: 7, url: "project" };
-const ISSUE = { number: 42, title: "Fix picker", url: "issue", labels: ["bug"] };
+const OTHER = { title: "Archive", number: 8, url: "archive" };
+const ISSUE = {
+    number: 42,
+    title: "Fix picker",
+    url: "issue",
+    labels: ["bug", "app:huella-legal"],
+};
 const originalExitCode = process.exitCode;
 
 beforeEach(() => {
     vi.resetAllMocks();
     process.exitCode = undefined;
-    gh.listProjects.mockReturnValue([PROJECT]);
+    gh.listProjects.mockReturnValue([PROJECT, OTHER]);
     gh.isOnline.mockReturnValue(true);
     gh.listIssues.mockReturnValue([ISSUE]);
     prompts.select.mockResolvedValueOnce("Roadmap").mockResolvedValueOnce("feature");
@@ -60,6 +67,7 @@ beforeEach(() => {
     prompts.text.mockResolvedValue("Fix picker");
     prompts.confirm.mockResolvedValue(true);
     git.branchForIssue.mockReturnValue(undefined);
+    gh.blockedBy.mockReturnValue([]);
 });
 
 afterEach(() => {
@@ -70,14 +78,29 @@ describe("issue pick", () => {
     it("selects a live issue, creates its linked branch, assigns it and moves it on the board", async () => {
         await pick();
 
-        expect(gh.developBranch).toHaveBeenCalledWith(42, "feature/roadmap/42-fix-picker");
+        expect(gh.developBranch).toHaveBeenCalledWith(42, "feature/huella-legal/42-fix-picker");
         expect(gh.assignToMe).toHaveBeenCalledWith(42);
         expect(gh.moveToInProgress).toHaveBeenCalledWith(PROJECT, ISSUE);
-        expect(io.out.end).toHaveBeenCalledWith("feature/roadmap/42-fix-picker");
+        expect(io.out.end).toHaveBeenCalledWith("feature/huella-legal/42-fix-picker");
+    });
+
+    it("skips the board prompt and the way back to it when only one board is open", async () => {
+        gh.listProjects.mockReturnValue([PROJECT]);
+        prompts.select.mockReset();
+        prompts.select.mockResolvedValue("feature");
+
+        await pick();
+
+        const issuePrompt = prompts.autocomplete.mock.calls[0]?.[0] as {
+            options: { value: unknown }[];
+        };
+        expect(prompts.select).toHaveBeenCalledOnce();
+        expect(issuePrompt.options.map(({ value }) => value)).toEqual([ISSUE]);
+        expect(gh.developBranch).toHaveBeenCalledWith(42, "feature/huella-legal/42-fix-picker");
     });
 
     it("uses cached projects and issues when gh is offline", async () => {
-        gh.listProjects.mockReturnValueOnce([]).mockReturnValueOnce([PROJECT]);
+        gh.listProjects.mockReturnValueOnce([]).mockReturnValueOnce([PROJECT, OTHER]);
         gh.isOnline.mockReturnValue(false);
 
         await pick();
@@ -195,7 +218,7 @@ describe("issue pick", () => {
         );
 
         vi.clearAllMocks();
-        gh.listProjects.mockReturnValue([PROJECT]);
+        gh.listProjects.mockReturnValue([PROJECT, OTHER]);
         prompts.select.mockResolvedValue("Roadmap");
         prompts.autocomplete.mockResolvedValue(state.cancel);
         await expect(pick()).rejects.toThrow(
@@ -222,19 +245,60 @@ describe("issue pick <number>", () => {
     it("branches, assigns and moves the issue without a single prompt", async () => {
         await pick(args("42"));
 
-        expect(gh.developBranch).toHaveBeenCalledWith(42, "fix/roadmap/42-fix-picker");
+        expect(gh.developBranch).toHaveBeenCalledWith(42, "fix/huella-legal/42-fix-picker");
         expect(gh.assignToMe).toHaveBeenCalledWith(42);
         expect(gh.moveToInProgress).toHaveBeenCalledWith(PROJECT, ISSUE);
         expect(io.requireTerminal).not.toHaveBeenCalled();
         expect(prompts.select).not.toHaveBeenCalled();
     });
 
+    it("refuses to branch off an issue whose blocker is still open, naming the blocker", async () => {
+        gh.blockedBy.mockReturnValue([
+            { number: 40, title: "Approve design", state: "OPEN" },
+            { number: 41, title: "Old spike", state: "CLOSED" },
+        ]);
+
+        await expect(pick(args("42"))).rejects.toThrow(
+            "#42 is blocked by #40 Approve design. Take one of those first, or pass --force.",
+        );
+        expect(gh.developBranch).not.toHaveBeenCalled();
+    });
+
+    it("branches off a blocked issue when --force says so, without asking GitHub", async () => {
+        gh.blockedBy.mockReturnValue([{ number: 40, title: "Approve design", state: "OPEN" }]);
+
+        await pick(args("42", "--force"));
+
+        expect(gh.blockedBy).not.toHaveBeenCalled();
+        expect(gh.developBranch).toHaveBeenCalledWith(42, "fix/huella-legal/42-fix-picker");
+    });
+
+    it("resumes an existing branch on a blocked issue, since the work already started", async () => {
+        git.branchForIssue.mockReturnValue("fix/huella-legal/42-fix-picker");
+        gh.blockedBy.mockReturnValue([{ number: 40, title: "Approve design", state: "OPEN" }]);
+
+        await pick(args("42"));
+
+        expect(git.checkout).toHaveBeenCalledWith("fix/huella-legal/42-fix-picker");
+        expect(gh.blockedBy).not.toHaveBeenCalled();
+    });
+
     it("lets the flags override the label, the board and the branch title", async () => {
-        gh.listProjects.mockReturnValue([{ ...PROJECT, title: "DX" }]);
+        const dx = { ...PROJECT, title: "DX" };
+        gh.listProjects.mockReturnValue([dx]);
 
         await pick(args("#42", "--type=hotfix", "--project=DX", "--title=Short"));
 
-        expect(gh.developBranch).toHaveBeenCalledWith(42, "hotfix/dx/42-short");
+        expect(gh.developBranch).toHaveBeenCalledWith(42, "hotfix/huella-legal/42-short");
+        expect(gh.moveToInProgress).toHaveBeenCalledWith(dx, ISSUE);
+    });
+
+    it("branches an issue with no area label under repo, so cross-cutting work stays pickable", async () => {
+        gh.viewThread.mockReturnValue({ ...THREAD, labels: ["bug"] });
+
+        await pick(args("42"));
+
+        expect(gh.developBranch).toHaveBeenCalledWith(42, "fix/repo/42-fix-picker");
     });
 
     it("refuses to guess a branch type for a spike, and names the flag that settles it", async () => {
@@ -264,15 +328,18 @@ describe("issue pick <number>", () => {
     it("still branches when --project names no open board, leaving the board column alone", async () => {
         await pick(args("42", "--project=Archived"));
 
-        expect(gh.developBranch).toHaveBeenCalledWith(42, "fix/archived/42-fix-picker");
+        expect(gh.developBranch).toHaveBeenCalledWith(42, "fix/huella-legal/42-fix-picker");
         expect(gh.moveToInProgress).not.toHaveBeenCalled();
         expect(io.out.warn).toHaveBeenCalledWith(expect.stringContaining('"Archived"'));
     });
 
-    it("asks for --project when the issue is on no board, since the branch name needs one", async () => {
+    it("branches an issue on no board and only skips the board move", async () => {
         gh.viewThread.mockReturnValue({ ...THREAD, boards: [] });
 
-        await expect(pick(args("42"))).rejects.toThrow("--project=<board title>");
+        await pick(args("42"));
+
+        expect(gh.developBranch).toHaveBeenCalledWith(42, "fix/huella-legal/42-fix-picker");
+        expect(gh.moveToInProgress).not.toHaveBeenCalled();
     });
 
     it("checks out an existing branch for the issue instead of creating a second one", async () => {

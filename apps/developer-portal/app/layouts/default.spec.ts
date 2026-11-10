@@ -5,13 +5,11 @@ import Layout from "./default.vue";
 
 const state = vi.hoisted(() => ({
     issues: null as unknown,
-    reviews: null as unknown,
     badges: null as unknown,
     sections: null as unknown,
     execute: vi.fn(),
 }));
 mockNuxtImport("useIssues", () => () => ({ data: state.issues }));
-mockNuxtImport("useReviewPages", () => () => ({ data: state.reviews }));
 mockNuxtImport("useFetch", () => () => ({ data: state.badges }));
 mockNuxtImport("useAsyncData", () => () => ({
     data: state.sections,
@@ -53,7 +51,6 @@ const global = {
 
 beforeEach(() => {
     state.issues = ref({ issues: [], error: null });
-    state.reviews = ref([]);
     state.badges = ref({ advisories: 0 });
     state.sections = ref([]);
     state.execute.mockClear();
@@ -78,17 +75,16 @@ describe("default layout", () => {
             ["Architecture", "/graph"],
             ["Decisions", "/decisions"],
             ["Audits", "/audits"],
+            ["Workflows", "/workflows"],
             ["Work in progress", "/issues"],
             ["Coverage", "/coverage"],
+            ["Telemetry", "/telemetry"],
             ["Dependencies", "/deps"],
-            ["Reviews", "/reviews"],
-            ["Scorecards", "/scorecards"],
         ]);
     });
 
     it("renders non-zero badges, uses the repository source link, and defers search data", async () => {
         state.issues = ref({ issues: [{ number: 1 }], error: null });
-        state.reviews = ref([{ path: "docs/reviews/2026.md" }]);
         state.badges = ref({ advisories: 3 });
         const wrapper = await mountSuspended(Layout, { global });
         expect(wrapper.text()).toContain("3");

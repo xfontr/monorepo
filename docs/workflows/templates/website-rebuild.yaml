@@ -1,0 +1,621 @@
+# Rebuilding an existing site (WordPress or similar) as a Nuxt app, distilled from Huella Legal's
+# issues #26–#402. Shape, rules and the GitHub contract: docs/workflows/README.md.
+id: website-rebuild
+title: Website rebuild
+summary: >-
+  An existing site, usually WordPress, rebuilt as a Nuxt app on the same brand. Three owner sign-offs
+  — scope, design, go-live — hold back only the blocks that need them; everything else flows.
+
+stages:
+  - id: discovery
+    title: Discovery
+    goal: Know what the old site really holds and which outside services the new one will lean on.
+
+  - id: design
+    title: Design
+    goal: One approved direction for every page the feature inventory lists, drawn on real content.
+
+  - id: foundations
+    title: Foundations
+    goal: An app that builds, tests, reads its content and deploys a preview before any page exists.
+
+  - id: build
+    title: Build
+    goal: Every page and feature the inventory lists, on the approved components.
+
+  - id: hardening
+    title: Hardening
+    goal: Fast, accessible, secure and findable, measured rather than assumed.
+
+  - id: launch
+    title: Launch
+    goal: The domain points at the new app and no old URL breaks.
+
+  - id: after-launch
+    title: After launch
+    goal: Close the effort; what is left is ordinary maintenance.
+
+groups:
+  - id: blog
+    title: Blog
+    optional: true
+    default: true
+    summary: Posts, their listings and what readers do on them.
+
+capabilities:
+  # ── Discovery ──────────────────────────────────────────────────────────────────────────────────
+  - id: content-audit
+    stage: discovery
+    title: Content audit
+    kind: spike
+    summary: Probe the live content and count what is really used before anything is drawn.
+    reuse: { plan: method, from: docs/decisions/0027-huella-legal-content-model.md }
+    doneWhen:
+      - Every content type, taxonomy and plugin field has a count and a keep or drop call.
+      - Body hazards (inline styles, scripts, builder markup) are listed for the sanitiser.
+    lessons:
+      - text: Design D replaced three earlier directions because of data — footnotes in 4 of 105 posts, no series — not taste.
+        issues: [185, 208]
+    tickets:
+      - title: "[SPIKE] Content probe and content model"
+        criteria:
+          - A field table maps each design need to a source with real counts.
+          - Builder-composed pages are told apart from plain posts.
+
+  - id: url-inventory
+    stage: discovery
+    title: URL inventory
+    kind: spike
+    summary: Every URL the old site answers, from the sitemap and the API, with what each becomes.
+    reuse: { plan: method, from: docs/decisions/0028-huella-legal-urls-and-cutover.md }
+    doneWhen:
+      - An old-to-new table covers every URL family with counts and how each is handled.
+    lessons:
+      - text: Renamed URLs were only redirected inside the cutover PR itself.
+        issues: [188, 251]
+    tickets:
+      - title: "[SPIKE] URLs, SEO and cutover"
+        criteria:
+          - Sitemap and API agree on the inventory, noindex items included.
+
+  - id: feature-inventory
+    stage: discovery
+    title: Feature inventory
+    kind: spike
+    summary: Every surface of the old site — pages, landing pages, widgets, hidden taxonomies, links.
+    reuse: { plan: new }
+    doneWhen:
+      - A list of every page and feature the old site shows, each marked keep, drop or replace.
+    lessons:
+      - text: Comments, the about page, the subscription-confirmed page and hidden categories were all found late, some after launch.
+        issues: [324, 328, 400, 392]
+    tickets:
+      - title: "[SPIKE] Inventory every page and feature of the old site"
+        criteria:
+          - Each item is marked keep, drop or replace, and every kept one maps to a capability.
+
+  - id: integrations-inventory
+    stage: discovery
+    title: Forms, integrations and providers
+    kind: spike
+    summary: Every form, plugin and outside service, and the provider that replaces each.
+    reuse: { plan: method, from: docs/decisions/0029-huella-legal-forms-and-integrations.md }
+    doneWhen:
+      - Each form and integration names its replacement provider, chosen once.
+    lessons:
+      - text: The newsletter moved from Mailchimp to Kit five days after it was wired; a form first shipped as a mailto link.
+        issues: [187, 299, 301]
+      - text: A translations vendor was set up and then dropped for in-app copy.
+        issues: [193, 252]
+    tickets:
+      - title: "[SPIKE] Forms and integrations"
+        criteria:
+          - Newsletter, email, captcha, analytics and comments each have one named provider or are dropped.
+
+  - id: hosting-prototype
+    stage: discovery
+    title: Hosting prototype
+    kind: spike
+    summary: Deploy a hello-world on the chosen host with the chosen rendering mode, and measure it.
+    reuse: { plan: method, from: docs/decisions/0033-huella-legal-hybrid-prerender.md }
+    doneWhen:
+      - A cold request from the readers' region is measured on the real host, not on paper.
+    lessons:
+      - text: Hosting was decided on paper and superseded twice — Google Cloud, Netlify, Cloudflare Workers, then Netlify again.
+        issues: [186, 244, 377]
+    tickets:
+      - title: "[SPIKE] Rendering, hosting and cost, with a deployed prototype"
+        criteria:
+          - Cold and warm TTFB from the readers' region are recorded for the prototype.
+
+  - id: scope-signoff
+    stage: discovery
+    title: Scope, providers and host sign-off
+    kind: owner
+    dependsOn: [feature-inventory, integrations-inventory, hosting-prototype]
+    summary: You switch every optional block on or off and name one provider per integration and one host, from what the spikes found.
+    reuse: { plan: new }
+    doneWhen:
+      - Every optional capability is switched on or off in the project file.
+      - Each integration that is on, and the host, names one provider, chosen once.
+    lessons:
+      - text: Providers were swapped after they were wired — Mailchimp to Kit, a mailto to a form, a search page to a dialog.
+        issues: [242, 299, 243, 301, 248, 316]
+      - text: A host move went in under a lint ticket and was reverted two days later; a host or provider change is its own spike and sign-off.
+        issues: [231, 370, 377, 378]
+    tickets:
+      - title: "[OWNER] Sign off scope, providers and host"
+        criteria:
+          - The project file's switches match the feature inventory's keep and drop calls.
+          - Every integration spike's lean is accepted or replaced in a comment.
+
+  # ── Design ─────────────────────────────────────────────────────────────────────────────────────
+  - id: brand-extraction
+    stage: design
+    title: Brand extraction
+    summary: Colours, type and radii read from the live site's computed styles, not transcribed by hand.
+    reuse: { plan: new }
+    doneWhen:
+      - A brand table (paper, ink, primary, accent, type, tone) matches what the live site shows.
+    lessons:
+      - text: Tokens came from a design-tool sheet made outside git, and the design tool itself was dropped within a week.
+        issues: [27]
+
+  - id: design-tokens
+    stage: design
+    title: Design tokens
+    dependsOn: [brand-extraction]
+    summary: Semantic colour roles, a type scale and a contrast table, with raw palette classes banned from day one.
+    reuse: { plan: copy, from: apps/huella-legal/layers/design }
+    doneWhen:
+      - Every text-on-surface pair has a contrast ratio in the app's DESIGN.md.
+      - The app's eslint config bans raw palette steps.
+    lessons:
+      - text: Semantic roles and the raw-palette ban only arrived after launch, and the theme file reached 260 lines before it was split.
+        issues: [371, 286]
+      - text: A headless shared UI package was weighed and dropped; each app owns its design system.
+        issues: [26]
+
+  - id: design-lab
+    stage: design
+    title: Design lab
+    dependsOn: [design-tokens, content-audit, feature-inventory]
+    summary: Two or three directions as dev-only lab pages on real content, reviewed as screenshots at three widths.
+    reuse: { plan: method, from: apps/huella-legal/DESIGN.md }
+    doneWhen:
+      - One direction is approved for every page in the feature inventory.
+    lessons:
+      - text: Figma, then Penpot, then code — three tools in a week. Design in code from the start.
+        issues: [27]
+
+  - id: design-approval
+    stage: design
+    title: Design approval
+    kind: owner
+    dependsOn: [design-lab]
+    summary: You pick one direction per page, from lab screenshots at 390, 768 and 1280 px.
+    reuse: { plan: new }
+    doneWhen:
+      - Every page in the feature inventory has an approved direction at 390, 768 and 1280 px.
+    lessons:
+      - text: Build tickets for the first direction were filed the night before the final one existed.
+        issues: [208]
+    tickets:
+      - title: "[OWNER] Approve the design direction"
+        criteria:
+          - One lab direction is named per page, and the others are marked for removal.
+
+  - id: component-inventory
+    stage: design
+    title: Component inventory
+    dependsOn: [design-approval]
+    summary: The component list taken from what the approved pages actually render.
+    reuse: { plan: new }
+    doneWhen:
+      - Every component on the list appears on at least one approved page.
+    lessons:
+      - text: Kits were trimmed and unused surface deleted during review, after they were built.
+        issues: [223, 234]
+
+  # ── Foundations ────────────────────────────────────────────────────────────────────────────────
+  - id: app-scaffold
+    stage: foundations
+    title: App scaffold
+    summary: The Nuxt app, its area label and its milestone.
+    reuse: { plan: method, from: .claude/skills/new-package/SKILL.md }
+    doneWhen:
+      - The app lints, typechecks and tests in CI, with an area label and a milestone on GitHub.
+
+  - id: test-harness
+    stage: foundations
+    title: Test harness and fake content
+    dependsOn: [app-scaffold]
+    summary: Vitest, Playwright at 390/768/1280 and a fake content source for e2e and local dev.
+    reuse: { plan: copy, from: apps/huella-legal/e2e }
+    doneWhen:
+      - E2E runs against the fake content source, and local dev never touches the live site.
+    lessons:
+      - text: A local fake of the CMS only came when the live host started blocking the dev machine.
+        issues: [192, 337]
+
+  - id: storybook
+    stage: foundations
+    title: Storybook
+    dependsOn: [app-scaffold]
+    summary: Components in light and dark, published beside the developer portal.
+    optional: true
+    default: false
+    reuse: { plan: copy, from: apps/huella-legal/.storybook }
+    lessons:
+      - text: Storybook broke on layer imports and broke the portal deploy once each.
+        issues: [219, 274, 330]
+
+  - id: env-discipline
+    stage: foundations
+    title: Environment discipline
+    dependsOn: [app-scaffold]
+    summary: Every host and key from env vars, checked at startup.
+    reuse: { plan: copy, from: apps/huella-legal/modules/requiredEnv.ts }
+    doneWhen:
+      - The app refuses to start with a required variable missing, and no host is a literal.
+    lessons:
+      - text: The CMS host was hard-coded until after launch.
+        issues: [284, 380]
+
+  - id: content-source
+    stage: foundations
+    title: Content source
+    dependsOn: [app-scaffold, content-audit]
+    summary: Read the content — a CMS through @monorepo/content, or Markdown through Nuxt Content.
+    reuse: { plan: package, from: packages/content }
+    doneWhen:
+      - Articles, pages, taxonomies and authors render from the real source, with errors handled.
+    lessons:
+      - text: Crashes on a non-JSON upstream answer and a second-site readiness gap were found late.
+        issues: [194, 195, 375, 258]
+
+  - id: content-migration
+    stage: foundations
+    title: Content migration
+    dependsOn: [content-audit, scope-signoff]
+    summary: Export the old CMS's posts, pages and media to Markdown for Nuxt Content, when the content leaves the CMS.
+    optional: true
+    default: false
+    reuse: { plan: new }
+    doneWhen:
+      - Every kept post and page is a Markdown file with its frontmatter, and its media is in the repo or on the CDN.
+      - Page-builder markup and shortcodes are converted or listed, and internal links point at the new URLs.
+      - The export re-runs from a script, so a late edit on the old site is one command away.
+
+  - id: rendering-strategy
+    stage: foundations
+    title: Rendering and caching
+    dependsOn: [ci-deploy]
+    summary: Which routes prerender, which cache at the edge, and how an edit reaches readers.
+    reuse: { plan: copy, from: apps/huella-legal/modules/rendering.ts }
+    doneWhen:
+      - Every route has a rendering rule, and an edit's path to readers is written down.
+    lessons:
+      - text: The app was fully server-rendered with no route rules until a week before launch.
+        issues: [302, 304, 308, 236]
+
+  - id: ci-deploy
+    stage: foundations
+    title: CI build and preview deploys
+    dependsOn: [content-source, scope-signoff]
+    summary: Build in CI, deploy previews per branch, production from master.
+    reuse: { plan: copy, from: .github/workflows }
+    doneWhen:
+      - Every PR gets a preview URL.
+      - A preview deploy renders one real article from the real content source, before any page is built.
+    lessons:
+      - text: Builds moved to GitHub Actions late to save host build minutes.
+        issues: [383, 373]
+      - text: Deploy fixes only showed on the real deploy, so deploy work is done on a preview, not on a green local check.
+        issues: [382, 387, 388, 395]
+
+  - id: staging-gate
+    stage: foundations
+    title: Preview login gate
+    dependsOn: [ci-deploy]
+    summary: Previews behind a login so they aren't indexed or shared.
+    optional: true
+    default: true
+    reuse: { plan: copy, from: apps/huella-legal/modules/stagingGate.ts }
+    lessons:
+      - text: The gate ran on production hosts too and cost article TTFB until it was scoped.
+        issues: [385, 402]
+
+  # ── Build ──────────────────────────────────────────────────────────────────────────────────────
+  - id: component-kit
+    stage: build
+    title: Component kit
+    dependsOn: [component-inventory, test-harness, content-source]
+    summary: The approved components built on Nuxt UI, with specs and stories.
+    reuse: { plan: new }
+    doneWhen:
+      - Every component on the inventory exists and has been reviewed once.
+    lessons:
+      - text: Review rounds were added as their own tickets mid-stream and found a11y bugs.
+        issues: [196, 197, 198, 199, 200, 201, 223, 234]
+
+  - id: article-page
+    stage: build
+    group: blog
+    title: Article page
+    dependsOn: [component-kit, ci-deploy]
+    summary: The page most readers land on, built first.
+    reuse: { plan: copy, from: apps/huella-legal/layers/articles }
+    lessons:
+      - text: Built first, at 390 px first, because readers arrive from search.
+        issues: [240]
+
+  - id: listing-pages
+    stage: build
+    group: blog
+    title: Listings and archives
+    dependsOn: [component-kit, ci-deploy]
+    summary: Category, tag, author and date listings.
+    reuse: { plan: copy, from: apps/huella-legal/layers/archive }
+    lessons:
+      - issues: [241, 247, 253]
+        text: Taxonomy routes changed during the build, after the design had them.
+
+  - id: standard-pages
+    stage: build
+    title: Standard pages
+    dependsOn: [component-kit, ci-deploy]
+    summary: CMS pages at their slug, the about page, error pages and confirmation landings.
+    reuse: { plan: copy, from: apps/huella-legal/layers/reading }
+    lessons:
+      - text: The about page and the newsletter confirmation page were not in the plan.
+        issues: [249, 328, 400]
+
+  - id: home-page
+    stage: build
+    title: Home page
+    dependsOn: [article-page, listing-pages, standard-pages]
+    summary: Built last of the core pages, once its building blocks exist.
+    reuse: { plan: new }
+    lessons:
+      - issues: [246]
+        text: Built after the article and listings, from their parts.
+
+  - id: navigation-shell
+    stage: build
+    title: Header, footer and navigation
+    dependsOn: [component-kit]
+    summary: The shell every page sits in.
+    reuse: { plan: method, from: docs/decisions/0034-huella-legal-header-navigation.md }
+    lessons:
+      - issues: [343, 348]
+        text: The header menu needed its own decision for hydration cost.
+
+  - id: search
+    stage: build
+    title: Search
+    dependsOn: [listing-pages]
+    optional: true
+    default: true
+    summary: Site search, as a page or a dialog.
+    reuse: { plan: copy, from: apps/huella-legal/layers/search }
+    lessons:
+      - text: A search page was replaced by a header dialog the day after it shipped.
+        issues: [248, 316]
+
+  - id: newsletter
+    stage: build
+    title: Newsletter signup
+    dependsOn: [spam-protection]
+    optional: true
+    default: true
+    summary: Signup form, provider adapter and the confirmation landing.
+    reuse: { plan: copy, from: apps/huella-legal/layers/newsletter }
+    lessons:
+      - text: The provider changed after it was wired.
+        issues: [242, 299]
+
+  - id: contact-form
+    stage: build
+    title: Contact form
+    dependsOn: [spam-protection]
+    optional: true
+    default: true
+    summary: A contact form that sends email, with consent and clear errors.
+    reuse: { plan: copy, from: apps/huella-legal/layers/contact }
+    lessons:
+      - issues: [311, 313, 390]
+        text: A slow-reply notice was added after launch.
+
+  - id: spam-protection
+    stage: build
+    title: Captcha and honeypot
+    dependsOn: [scope-signoff, component-kit]
+    optional: true
+    default: true
+    summary: Turnstile and a honeypot behind every public form.
+    reuse: { plan: copy, from: apps/huella-legal/layers/forms }
+    lessons:
+      - text: It landed inside the first form's ticket rather than on its own.
+        issues: [242, 313]
+
+  - id: comments
+    stage: build
+    group: blog
+    title: Comments
+    dependsOn: [spam-protection, article-page]
+    optional: true
+    default: false
+    summary: Read and post comments, moderation staying in the CMS.
+    reuse: { plan: copy, from: apps/huella-legal/layers/comments }
+    lessons:
+      - text: Not in the plan or any spike; filed four days before cutover with an empty body.
+        issues: [324]
+
+  - id: consent-analytics
+    stage: build
+    title: Cookie consent and analytics
+    dependsOn: [scope-signoff, component-kit]
+    optional: true
+    default: true
+    summary: A consent banner, trackers loaded only after consent, typed events.
+    reuse: { plan: copy, from: apps/huella-legal/layers/tracking }
+    lessons:
+      - text: Filed three days before cutover; two overlapping tickets.
+        issues: [336, 337, 360]
+
+  - id: images
+    stage: build
+    title: Images
+    dependsOn: [content-source, scope-signoff]
+    summary: Responsive images through Nuxt Image and a CDN.
+    reuse: { plan: copy, from: apps/huella-legal/server/plugins/cdn.ts }
+    lessons:
+      - issues: [312]
+        text: The image provider changed with the host.
+
+  - id: i18n
+    stage: build
+    title: Translations
+    dependsOn: [app-scaffold]
+    optional: true
+    default: false
+    summary: More than one language, or copy managed outside the code.
+    reuse: { plan: package, from: packages/i18n }
+    lessons:
+      - text: A translations vendor was adopted and dropped for in-app copy on a one-language site.
+        issues: [193, 252, 349]
+
+  - id: editorial-tooling
+    stage: build
+    title: Editorial tooling
+    dependsOn: [content-source]
+    optional: true
+    default: false
+    summary: Tools and guides for whoever edits the content.
+    reuse: { plan: method, from: apps/wp-editor }
+    lessons:
+      - issues: [340, 344, 361]
+        text: The bulk editor and the editing guide arrived at launch.
+
+  # ── Hardening ──────────────────────────────────────────────────────────────────────────────────
+  - id: performance
+    stage: hardening
+    title: Performance
+    dependsOn: [rendering-strategy, home-page]
+    summary: Mobile performance and real-user TTFB from the readers' region, not only Lighthouse.
+    reuse: { plan: method, from: apps/huella-legal/README.md }
+    doneWhen:
+      - Field p75 TTFB and LCP from the readers' region are within budget.
+    lessons:
+      - text: Lighthouse hit warm edges and missed a 2.8 s p75 TTFB that real readers saw.
+        issues: [341, 350, 402]
+
+  - id: accessibility
+    stage: hardening
+    title: Accessibility
+    dependsOn: [component-kit]
+    summary: Axe on every page in e2e, keyboard paths and 44 px targets.
+    reuse: { plan: copy, from: apps/huella-legal/e2e }
+    doneWhen:
+      - Axe is clean on every page at 390 and 1280 px.
+    lessons:
+      - text: A11y bugs surfaced in a component review, not in a planned pass.
+        issues: [234]
+
+  - id: security
+    stage: hardening
+    title: Security hardening
+    dependsOn: [ci-deploy]
+    summary: Field caps, security headers, rate limits, crawler rules, dependency and secret scans.
+    reuse: { plan: copy, from: apps/huella-legal/e2e/security.spec.ts }
+    lessons:
+      - text: All of it came as one ticket on cutover day.
+        issues: [362]
+
+  - id: seo
+    stage: hardening
+    title: SEO and feeds
+    dependsOn: [home-page]
+    summary: Canonicals, sitemap, robots, structured data, RSS and llms.txt.
+    reuse: { plan: copy, from: apps/huella-legal/nuxt.config.ts }
+    lessons:
+      - issues: [250]
+        text: Landed three days before cutover.
+
+  - id: observability
+    stage: hardening
+    title: Observability
+    dependsOn: [ci-deploy]
+    summary: Front-end and server telemetry with source maps and no reader data.
+    reuse: { plan: package, from: packages/observability }
+    lessons:
+      - text: Opened at the start and closed only after launch.
+        issues: [212, 280]
+
+  - id: quality-sweep
+    stage: hardening
+    title: Quality sweep
+    dependsOn: [home-page]
+    summary: Lint, static analysis and an audit of the app before it goes live.
+    reuse: { plan: method, from: .claude/skills/audit-report/SKILL.md }
+    lessons:
+      - issues: [231, 232]
+        text: Lint and SonarQube findings were worked down across the launch.
+
+  # ── Launch ─────────────────────────────────────────────────────────────────────────────────────
+  - id: legacy-redirects
+    stage: launch
+    title: Legacy redirects
+    dependsOn: [url-inventory, seo]
+    summary: 301s for every old URL family, walked by an e2e spec — server routes, or the host's redirect file on a static site.
+    reuse: { plan: copy, from: apps/huella-legal/layers/legacy }
+    doneWhen:
+      - The e2e walk passes one URL per family on a preview deploy.
+
+  - id: go-live
+    stage: launch
+    title: Go-live approval
+    kind: owner
+    dependsOn: [seo, performance, security, accessibility, legacy-redirects, quality-sweep]
+    summary: You approve the cutover once a preview deploy passes the field performance, axe, security-header and SEO checks.
+    reuse: { plan: new }
+    doneWhen:
+      - Field performance, axe, security headers and SEO checks all pass on a preview deploy.
+    tickets:
+      - title: "[OWNER] Approve go-live"
+        criteria:
+          - The preview's check results are linked in a comment, and the cutover date is set.
+
+  - id: cutover
+    stage: launch
+    title: Domain cutover
+    dependsOn: [go-live]
+    summary: The runbook — CMS host, env vars, DNS, the old host's redirect, Search Console.
+    reuse: { plan: method, from: docs/decisions/0028-huella-legal-urls-and-cutover.md }
+    doneWhen:
+      - Every old URL family answers 200 or a 301, and the sitemap is submitted.
+    lessons:
+      - issues: [251]
+        text: Steps owned by people (DNS, hosting) belong in the runbook, not in code.
+
+  - id: post-launch-check
+    stage: launch
+    title: Post-launch check
+    dependsOn: [cutover]
+    summary: Walk the live site for content that shouldn't be public and details missed on preview.
+    reuse: { plan: new }
+    lessons:
+      - text: Hidden categories showed up on the live site after launch.
+        issues: [392]
+
+  # ── After launch ───────────────────────────────────────────────────────────────────────────────
+  - id: cleanup
+    stage: after-launch
+    title: Cleanup
+    dependsOn: [post-launch-check]
+    summary: Remove scaffolding, settle open decisions and audits, close the milestone.
+    reuse: { plan: new }
+    lessons:
+      - issues: [252]
+        text: The lab and an unused vendor were removed after launch.

@@ -11,7 +11,7 @@ the thing instead of guessing at it.
 ## 1. Find the issue
 
 **Already on a branch for it.** Branch names from `pnpm issue:pick` (or step 2 below) look like
-`feature/website/46-offline-issue-picker` — `<type>/<project>/<number>-<slug>`. Read the number off
+`feature/scripts/46-offline-issue-picker` — `<type>/<area>/<number>-<slug>`. Read the number off
 `git branch --show-current` and confirm it with `gh issue view <number>` rather than trusting the
 slug; slugs get hand-edited, numbers don't.
 
@@ -30,17 +30,17 @@ the wrong issue is expensive to notice later. Don't guess past one weak match.
 Skip this if step 1 already found you standing on the issue's branch.
 
 Otherwise run `pnpm issue:pick` with the number. It asks nothing, and does what the interactive
-pick does: builds `<type>/<project>/<number>-<slug>`, runs `gh issue develop --checkout` so the
+pick does: builds `<type>/<area>/<number>-<slug>`, the area being the issue's area label, runs `gh issue develop --checkout` so the
 branch is linked on the issue, self-assigns, and moves the issue to *In Progress*.
 
 ```sh
-pnpm issue:pick <number>                                 # type from the label, board from the issue
+pnpm issue:pick <number>                                 # type and area from the labels
 pnpm issue:pick <number> --type=feature --title="Short"  # when the label or the title won't do
 ```
 
-- **It fails rather than guessing** on a `spike` or an unmapped label (pass `--type=`) and on an
-  issue with no board (pass `--project=<board title>`, after asking which). Ask the user when the
-  message names a choice you can't settle from the issue.
+- **It fails rather than guessing** on a `spike` or an unmapped label (pass `--type=`). Ask the user
+  when the message names a choice you can't settle from the issue. An issue with no area label
+  branches as `repo`.
 - **The title becomes the slug**, so pass a shorter `--title=` when the issue title is long.
 - **An existing branch for the number is checked out** instead of creating a second one, so
   resuming is the same command.

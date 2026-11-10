@@ -9,15 +9,15 @@ An audit exists so the findings survive the session that produced them. A plan i
 moment the conversation ends, and an audit of thirty findings is never the next PR. It is the
 backlog one project owes. The GitHub board holds work someone has picked up.
 
-## 🧭 Audit, decision or review
+## 🧭 Audit or decision
 
-| | [Decision](../decisions/README.md) | [Review](../reviews/README.md) | Audit |
-| --- | --- | --- | --- |
-| Answers | Which way do we go? | How good is the whole repo, scored? | What is wrong with *this project* right now? |
-| Scope | One architectural fork | The whole tree, seven cards | One project or directory |
-| Anchored to | The issue that raised it | A commit | A commit |
-| Body | Context, Result, Options, Consequences, Confirmation | A scores table and its evidence | Numbered findings tables |
-| What changes after filing | `status:` for the whole file | Nothing | The `Status` cell of each finding |
+| | [Decision](../decisions/README.md) | Audit |
+| --- | --- | --- |
+| Answers | Which way do we go? | What is wrong with *this project* right now? |
+| Scope | One architectural fork | One project or directory |
+| Anchored to | The issue that raised it | A commit |
+| Body | Context, Result, Options, Consequences, Confirmation | Numbered findings tables |
+| What changes after filing | `status:` for the whole file | The `Status` cell of each finding |
 
 A finding that turns out to be a real fork — two designs, and a reason one loses — graduates into a
 decision report, and its row reads `wont-fix` with the report as its reference.

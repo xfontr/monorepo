@@ -40,7 +40,10 @@ import { add } from "./add.ts";
 
 beforeEach(() => {
     vi.clearAllMocks();
-    gh.listProjects.mockReturnValue([{ title: "Roadmap", number: 1, url: "project" }]);
+    gh.listProjects.mockReturnValue([
+        { title: "Roadmap", number: 1, url: "project" },
+        { title: "Archive", number: 2, url: "archive" },
+    ]);
     gh.listLabels.mockReturnValue([{ name: "bug", description: "Broken" }]);
     prompts.select.mockResolvedValue("Roadmap");
     prompts.autocomplete.mockResolvedValue("bug");
@@ -105,6 +108,17 @@ describe("issue add", () => {
             label: "bug",
             project: "Roadmap",
         });
+    });
+
+    it("files onto the only open board without asking, since there is nothing to choose", async () => {
+        gh.listProjects.mockReturnValue([{ title: "Roadmap", number: 1, url: "project" }]);
+
+        await add();
+
+        expect(prompts.select).not.toHaveBeenCalled();
+        expect(sharedGh.createIssue).toHaveBeenCalledWith(
+            expect.objectContaining({ project: "Roadmap" }),
+        );
     });
 
     it("does not create an issue after confirmation is rejected", async () => {

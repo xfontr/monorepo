@@ -21,10 +21,11 @@ src/
   ci-failures/      pnpm ci:failures — a PR's failed checks, cut down to their error lines
   env-sync/         pnpm env:sync — lay every .env out like its .env.example, never losing a value
   worktree/         pnpm worktree:prepare — copy env files into a linked worktree and install it
+  workflow/         pnpm workflow:sync | workflow:next | workflow:file — snapshot, list what's ready, file a block
   drift/            pnpm docs:drift — warn when a project's docs may be stale, offer to file an issue
   map/              pnpm docs:map — render docs/FEATURES.md, the index of everything this repo can do
   package-contracts/ pnpm package:check — validate package metadata and raw-source export contracts
-  review-version/   pnpm review:version — fingerprint the four artifacts that decide a repo review's score
+  usage/            pnpm usage:flush — move recorded script runs into .telemetry/scripts/, the committed log
   coverage-report/  pnpm test:coverage (root) — merge every project's coverage-final.json into one report
   shared/           whatever more than one script needs, laid out the same way
 ```
@@ -48,10 +49,11 @@ domain/      pure functions and their types. No fs, no subprocess, no clack, no 
 | [`ci-failures`](./src/ci-failures/README.md) | `pnpm ci:failures` | Reporting a PR's failed checks, each Actions job cut to its error lines |
 | [`worktree`](./src/worktree/README.md) | `pnpm worktree:prepare` | Copying env files into a linked worktree and installing it the way CI does |
 | [`env-sync`](./src/env-sync/README.md) | `pnpm env:sync` | Keeping each `.env` in its `.env.example`'s order and comments, creating missing ones |
+| [`workflow`](./src/workflow/README.md) | `pnpm workflow:sync`, `workflow:next`, `workflow:file` | Snapshotting a workflow project's milestone issues with their blocked-by links and tagged commits, listing what is ready to take, and filing a block of the map as linked tickets |
 | [`drift`](./src/drift/README.md) | `pnpm docs:drift` | Warning when a changed project's docs look stale, and offering to file it |
 | [`map`](./src/map/README.md) | `pnpm docs:map` | Rendering the feature index, and asserting in CI that it's current |
 | [`package-contracts`](./src/package-contracts/README.md) | `pnpm package:check` | Validating package metadata, export targets and peer metadata without packing |
-| [`review-version`](./src/review-version/README.md) | `pnpm review:version` | Versioning the repo-review method, and asserting in CI that the version moved with it |
+| [`usage`](./src/usage/README.md) | `pnpm usage:flush` | Moving the runs every script records into the committed log; the pre-commit hook runs it |
 | [`coverage-report`](./src/coverage-report/README.md) | `pnpm test:coverage` (root) | Merging every project's coverage into one browsable HTML report |
 
 ## 🤖 Run by agents, not only by people
@@ -152,7 +154,7 @@ everywhere in the workspace.
 
 `gh` installed and authenticated (`gh auth status`) for `issue/`, `ship/` and `drift/`. They shell
 out to it rather than calling the GitHub API, so they inherit whatever account is already logged in
-instead of needing a token. `map/` and `review-version/` need neither, which is why they're the two that run in CI. `ship/`
+instead of needing a token. `map/` needs neither, which is why it's the one that runs in CI. `ship/`
 additionally needs the repo's *Allow auto-merge* setting on — without it, `gh pr merge --auto` fails
 and the branch is left pushed with a PR open but nothing armed to merge it.
 

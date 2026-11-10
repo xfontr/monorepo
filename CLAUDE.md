@@ -67,12 +67,6 @@ far outside that is worth opening. The `comment-cleanup` skill runs the pass.
   to fill the cell in.
 - **Never hand-edit a `CHANGELOG.md` or a `version`.** `nx release` derives both from Conventional
   Commit messages. Releases run from the **Release** workflow (`workflow_dispatch`), never locally.
-- **Never hand-edit the version line or the digest rows in
-  [`docs/reviews/METHOD.md`](./docs/reviews/METHOD.md).** `pnpm review:version` writes both, and it
-  bumps the version precisely because the person changing the review method is the one least likely
-  to notice they owe a bump. Editing a digest to match a file you just changed silences the check
-  rather than satisfying it — and it makes every score in the history table a claim about a method
-  that didn't produce it. The prose around the tables is yours to edit.
 - **Never write a secret, or a value that changes per environment, into the repo.** Tokens, API
   keys, the user half of a credential, and anything that differs between dev, preview and
   production — or that switches a feature off when unset — are env vars with no default;
@@ -114,7 +108,7 @@ changed since `master`, same as CI and the pre-push hook.
 
 | Need | Command |
 | --- | --- |
-| Is my change green? | `pnpm check` — lint, typecheck and test on affected projects with failing output inline, then both `--check`s |
+| Is my change green? | `pnpm check` — lint, typecheck and test on affected projects with failing output inline, then `docs:map --check` |
 | What an issue says and points at | `pnpm issue:brief [number]` — no number reads it off the branch |
 | Why CI is red on a PR | `pnpm ci:failures [pr]` — no PR means the current branch's |
 | Branch off an issue | `pnpm issue:pick <number> [--type=…] [--project=…] [--title=…]` — only when asked |
@@ -136,8 +130,9 @@ The rest of this section is reference for when the user asks for it, not licence
 the traps in it.
 
 - Branches must match `^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+`, and `master` is not
-  pushable. `pnpm issue:pick` builds `<type>/<project>/<issue number>-<slug>`, `<project>` being the
-  slugified title of the gh Project board the issue came from.
+  pushable. `pnpm issue:pick` builds `<type>/<area>/<issue number>-<slug>`, `<area>` being the
+  folder the issue's `app:`/`package:`/`infra:` label names, or `repo` without one. There is one gh
+  Project board, `Monorepo`; a finite effort is a milestone, not a new board.
 - [`commitlint.config.mjs`](./commitlint.config.mjs) just extends `@commitlint/config-conventional`
   with no overrides, and two of that preset's rules aren't obvious from a rejection message: the
   **type is lower-case** and the **subject is not** sentence-case, start-case, Pascal-case or
@@ -145,9 +140,9 @@ the traps in it.
   the next version.
 - Pre-push runs lint, test and typecheck **in the working tree**, not the pushed commits, so an
   uncommitted fix can pass a push whose commits are red. Only the `TODO`/`FIXME` scan is range-based.
-- CI runs those three **plus `build`**, `pnpm docs:map --check` and `pnpm review:version --check`,
-  so a green push is not yet a green pipeline — `apps/huella-legal` typechecks on build, which is
-  where most of that difference shows up. The two `--check`s also run in pre-commit.
+- CI runs those three **plus `build`** and `pnpm docs:map --check`, so a green push is not yet a
+  green pipeline — `apps/huella-legal` typechecks on build, which is where most of that difference
+  shows up. The `--check` also runs in pre-commit.
 - A fresh clone gets no hooks until `pnpm quick-start` runs, because lifecycle scripts are banned
   and `husky` has no `prepare` script to install itself.
 
@@ -157,8 +152,7 @@ The Nx tag table is written twice: the enforced copy in
 [`boundaries.ts`](./packages/configs/src/eslint/lib/boundaries.ts) and the readable copy in the
 [root README](./README.md#-architecture--boundaries). Changing one without the other is the
 standing failure mode in this repo. Same for the workspace-layout block in the root README when a
-project is added, and for a new file under [`docs/reviews/`](./docs/reviews/README.md) and the
-history table in that directory's README.
+project is added.
 
 A Nuxt app's `tsconfig.json` is `files: []` plus references into `.nuxt/`, so anything that opens it
 fails while that directory is missing. Two mechanisms cover it. In [`nx.json`](./nx.json), `lint`,
@@ -186,10 +180,10 @@ the symptom is `lint` failing to parse every file rather than anything mentionin
 | `start-issue` | Starting work on a specific issue — from the branch you're on, or from a number, link or description |
 | `decision-report` | "Do a spike on this" — research an architectural question and write the answer to `docs/decisions/`. Filing the *issue* is `github-issue` |
 | `audit-report` | "Audit X", "static analysis of X" — a numbered findings list for one project, filed to `docs/audits/` and worked down finding by finding |
-| `repo-review` | Rating, scoring or reviewing the repo as a whole: a macro judgement against the seven cards in [`docs/reviews/SCORECARDS.md`](./docs/reviews/SCORECARDS.md). Not the current diff, and not a bug hunt (that's `audit-report`) |
 | `content-new-vendor` | Adding a CMS vendor to `@monorepo/content` |
 | `i18n-new-vendor` | Adding a TMS vendor to `@monorepo/i18n` |
 | `scripts-new-script` | Adding a repo-local CLI under `infrastructure/scripts` |
 | `configs-new-rule` | Adding, changing or scoping a lint rule in `@monorepo/configs`, or turning a review finding into one |
 | `wp-bulk-edit` | A site-wide content pass on the blog through `@monorepo/wp-editor`: open a changeset, write proposals in batches, validate |
+| `project-workflow` | Starting, ticketing, organising or reporting on an effort tracked in [`docs/workflows/`](./docs/workflows/README.md) — a site rebuild, a launch |
 | `ship-issue` | Taking issues to merged PRs unattended, as `/ship-issue <numbers>`. A saved workflow in [`.claude/workflows/`](./.claude/workflows/ship-issue.js), not a skill; see [agent setup](./docs/concepts/agent-setup.md#-the-ship-issue-pipeline) |

@@ -1,0 +1,22 @@
+/* One hue per block and ticket state; each reads on both themes. */
+:root {
+    --state-waiting-on-you: #8b5cf6;
+    --state-ready: #0ea5e9;
+    --state-in-flight: #f59e0b;
+    --state-blocked: #64748b;
+    --state-can-file: #14b8a6;
+    --state-waits: #94a3b8;
+    --state-done: var(--tone-good);
+    --state-dropped: var(--ui-text-dimmed);
+    --state-skipped: var(--ui-text-dimmed);
+    --state-off: var(--ui-text-dimmed);
+
+    /* One hue per stage; decoration only, so a stage is never told apart by its hue alone. */
+    --stage-1: oklch(0.72 0.18 5);
+    --stage-2: oklch(0.72 0.18 50);
+    --stage-3: oklch(0.72 0.18 95);
+    --stage-4: oklch(0.72 0.18 160);
+    --stage-5: oklch(0.72 0.18 235);
+    --stage-6: oklch(0.72 0.18 275);
+    --stage-7: oklch(0.72 0.18 315);
+}
