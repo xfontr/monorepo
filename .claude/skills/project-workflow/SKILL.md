@@ -22,12 +22,12 @@ hundred.
 ## 1. Starting a project
 
 1. Ask for what the code can't tell you: the audience, the page readers land on first, and which
-   optional blocks are wanted. Each optional block's `summary` and `lessons` in the template is the
-   question to ask, in plain words.
+   features are wanted. Ask about every feature the same way, the blog no differently from
+   storybook; each one's `summary` and `lessons` in the template is the question, in plain words.
 2. Write `docs/workflows/projects/<id>.yaml` by copying [`huella-legal.yaml`](../../../docs/workflows/projects/huella-legal.yaml).
-   Set `switches` only where the answer differs from the template's default; a group's id switches
-   every block in it, so a site with no blog is `blog: false`. Put features only this project has
-   under `extras`, each with its `dependsOn`.
+   Set `switches` only where the answer differs from the template's default; a site with no blog is
+   `blog: false`. Features are set once; the portal's Features modal is for the rare change after.
+   Put features only this project has under `extras`, each with its `dependsOn`.
 3. GitHub side, after the user confirms. Each step writes to GitHub:
    - create the milestone, `gh api repos/{owner}/{repo}/milestones -f title=<Milestone>`;
    - create the area label if the app is new;
@@ -68,8 +68,9 @@ template. Say which.
 
 - An `owner` block is the user's call, never yours. It is approved by closing its ticket on GitHub.
   Never close one yourself.
-- Use `settled` with a one-line note when a block was done or deliberately skipped without a ticket
-  of its own. Never settle something only to raise the %.
+- Use `settled` with a one-line note and an `on:` date when a block was done or deliberately
+  skipped without a ticket of its own, so the replay counts it from that day. Never settle
+  something only to raise the %.
 
 ## 5. Feeding the template
 

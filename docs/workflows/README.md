@@ -2,9 +2,9 @@
 
 What a kind of project needs from start to launch, which part needs which, and how far each project
 of that kind has got. A **template** is a map of blocks learned from the projects already shipped. A
-**project** picks a template, switches its optional blocks on or off, and files them as GitHub
-tickets. From then on GitHub is the record and the developer portal's **Workflows** page draws it:
-what is waiting on you, what is ready, what is in flight, and the map behind it.
+**project** picks a template, chooses its features once, and files the blocks as GitHub tickets.
+From then on GitHub is the record and the developer portal's **Workflows** page draws it: what is
+left, each stage's blocks, and the map of what blocks what, on any day since the first commit.
 
 The map replaces a linear stage-gate plan. Huella Legal never moved stage by stage. The build gate
 passed while discovery items were still arriving (#324, #328, #392), hardening ran alongside the
@@ -26,7 +26,7 @@ docs/workflows/
 | Block | One thing the project needs — a content audit, comments, a cutover, a sign-off. Required, or optional with a default. The code calls it a capability | The template, or a project's `extras` for something only it has |
 | Need | A `dependsOn` link from one block to another it can't start without | The block |
 | Stage | A colour and a label for a family of blocks — discovery, design, launch. It orders nothing | The template |
-| Group | A switchable bundle of blocks, such as a blog. Switching it off switches off everything in it, and blocks that needed one of them simply stop waiting on it | The template |
+| Feature | One switch in the plan: an optional block such as storybook, or a `groups` entry bundling several, such as the blog. None is special; switching one off takes its blocks out of the map, and whatever needed them waits on what they needed instead | The template's `optional` blocks and `groups`; the project's `switches` |
 | Ticket | A GitHub issue in the project's milestone with a `cap:<block>` label | GitHub |
 
 ## 🧱 Three kinds of block
@@ -83,21 +83,39 @@ A ticket's status comes from GitHub alone, so it never needs updating by hand.
 | Ready | Open, unblocked, and not the owner's |
 | Done / Dropped | Closed as completed / as not planned |
 
-A block's state comes from its switch, the project file and its tickets.
+A ticket also counts as in flight once a commit names it as `[#N]`, which is the only way to tell
+on a day before the sync, since GitHub keeps no history of linked branches.
+
+A block's state comes from its switch, the project file and its tickets, in this order.
 
 | Block state | When |
 | --- | --- |
-| Off | Switched off, or in a group switched off |
-| Skipped | Settled in the project file as skipped, with a note |
-| Waits | On, nothing filed, and a need still holds it back under the rule above |
-| Can file now | On, nothing filed, and nothing it needs holds it back |
-| Planned | Tickets filed, none delivered |
-| In progress | Some delivered, some open |
-| Done | Every live ticket delivered, or settled as done with a note |
+| Off | Its feature is switched off |
+| Skipped / Done | Settled in the project file, with a note; from its `on:` date when it has one |
+| Done | Every live ticket delivered |
+| Waits on a decision | Nothing filed, and a need still holds it back under the rule above |
+| Can file now | Nothing filed, and nothing it needs holds it back |
+| Waiting on you | An `owner` block with nothing in its way, or an open ticket labelled `owner` |
+| In flight | An open ticket is in flight |
+| Blocked | Open tickets, while a block it needs is unfinished or every ticket's GitHub blockers are open |
+| Ready | Open tickets and nothing in the way |
+
+A block is blocked by the map as well as by GitHub's links, so a project filed before its tickets
+had links, as Huella was, still shows its real order.
 
 **Progress** is done blocks over blocks that are on and not skipped, so opting out of a feature
-never drags the number. The **map** puts each block in a wave, one column right of the latest block
-it needs, so a column is what can run side by side.
+never drags the number. **What's left** lists unfinished blocks with the owner's first, then by how
+many unfinished blocks wait behind each one. The **longest chain left** is the run of unfinished
+blocks that decides when the project can finish.
+
+## 🗺️ The page
+
+| Part | Does |
+| --- | --- |
+| Replay | A slider over every day from the first commit on a ticket to the last sync. Each day is rebuilt from the snapshot: tickets not yet filed, closes and blocker closes not yet happened, and settlements before their `on:` date are left out |
+| What's left, the skyline, the stage cards | Pick one block anywhere and the rest of the page follows it. Stages group the blocks; they order nothing |
+| What blocks what | Every block in the project on one graph laid out by dagre. The selected block's whole path, before and after it, stays lit and the rest greys out, and the view fits that path. Drag to move, pinch or ctrl-scroll to zoom; a plain scroll still scrolls the page |
+| Features | A modal, since the plan is set once and almost never changed. It switches under `pnpm dev` and only reads on the deployed site |
 
 ## 🏷️ How a ticket finds its place
 
@@ -105,7 +123,7 @@ it needs, so a column is what can run side by side.
 | --- | --- |
 | The milestone and `cap:comments` | Under the Comments block |
 | The milestone and no `cap:` label | Under **To organise** |
-| A `cap:` label naming no block, naming a group, or, while open, one switched off | Under **To organise**, with the reason |
+| A `cap:` label naming no block, naming a feature that bundles blocks, or, while open, one switched off | Under **To organise**, with the reason |
 | The area label, no milestone, and open | Under **To organise** while any block that is on is unfinished, then nowhere: from there on it is maintenance |
 | Neither the milestone nor the area label | Nowhere: it isn't part of the effort |
 
@@ -120,7 +138,7 @@ last.
 
 | Where | Shows |
 | --- | --- |
-| The strip under the map | Blocks with a commit, per day, coloured by stage |
+| The strip under the skyline | Blocks with a commit, per day, coloured by stage |
 | The line on a card | Days with a commit, per week, on one scale shared by every card |
 
 It says when work happened, not how long it took: five minutes and a whole day are both one day with
@@ -134,8 +152,8 @@ a commit. A commit without `[#N]` counts nowhere, and neither does work that lef
 | What can be taken now, live from GitHub | `pnpm workflow:next <id>` |
 | See what filing a block would create | `pnpm workflow:file <id> <block>` |
 | File it | `pnpm workflow:file <id> <block> --yes` |
-| Switch a block or a group, create a project | The Workflows page under `pnpm dev developer-portal`, which writes the project file keeping its comments. The deployed portal is read-only |
-| Settle a block without a ticket, add an extra | Edit `projects/<id>.yaml` |
+| Switch a feature, create a project | The Workflows page under `pnpm dev developer-portal` — the Features modal, and *New project* — which writes the project file keeping its comments. The deployed portal is read-only |
+| Settle a block without a ticket, add an extra | Edit `projects/<id>.yaml`; give a settlement `on: YYYY-MM-DD` so the replay counts it from that day |
 | Change the generic map | Edit the template. Every block names the issues its lessons came from |
 
 `workflow:file` uses the block's suggested `tickets`, or one ticket from its title and `doneWhen`
@@ -153,3 +171,5 @@ every id, stage and switch has to resolve, and `dependsOn` may not loop.
 | `/ship-issue` taking the top of the ready list itself | The workflow's Pick phase would call `workflow:next` before `issue:pick` |
 | Backfilling Huella's links on GitHub | Huella shows its order from the template's links, plus the nine native ones it had (#192–#201) |
 | Weighting blocks by size | Progress counts each block once, since weighting by ticket count would reward splitting tickets |
+| Replaying a linked branch | GitHub keeps no history of them, so a past day knows a ticket was started only from a commit naming it |
+| Showing switched-off blocks on the graph | They aren't part of the project; the Features modal is where they are |
