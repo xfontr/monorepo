@@ -3,6 +3,7 @@ import { eslint } from "@monorepo/configs";
 export default [
     ...eslint.createNuxtConfig(),
     eslint.tailwind("layers/design/app/assets/main.css"),
+    eslint.layerBoundaries({ cores: ["design", "snapshot", "docs", "github"] }),
     {
         rules: {
             // Plain CSS classes from main.css and the hooks a component's scoped style hangs off

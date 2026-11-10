@@ -37,7 +37,9 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
   **Only the shell may use anything:** the kit (`app/components/base`, `app/components/listing`,
   `app/types`, `app/utils`, `app/composables`) uses only itself, the core and `forms` use
   themselves and the kit, a feature also uses the core and `forms`, and only a feature's
-  `app/pages/` may render another feature's auto-registered components. Nothing checks this but review, since auto-imports hide every edge from the linter.
+  `app/pages/` may render another feature's auto-registered components. `eslint.layerBoundaries` in
+  [`eslint.config.ts`](./eslint.config.ts) rejects a written import from one feature into another
+  or from a core into a feature; review checks every other edge, since auto-imports hide them.
 - Typechecking runs on build (`typescript.typeCheck: "build"`), so `pnpm build` is slow and already
   covers what `pnpm typecheck` would.
 - [`tsconfig.json`](./tsconfig.json) only references `./.nuxt/tsconfig.*.json`, which `nuxi

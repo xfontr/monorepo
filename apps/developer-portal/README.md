@@ -57,7 +57,9 @@ domain logic, its own config, or is something you'd switch off whole.
 
 A feature uses the cores and the shell's parts, never another feature, so each one comes out alone.
 Only the shell uses everything: the Overview and the sidebar's badges read issues, reviews and the
-snapshot. Nothing checks this but review, since auto-imports hide every edge from the linter.
+snapshot. [`eslint.config.ts`](./eslint.config.ts) names the cores for `eslint.layerBoundaries`,
+which rejects a written import that breaks this, but auto-imports never appear as an import, so
+review still catches the rest.
 
 Any import into another layer, from `app/`, `shared/`, `server/` or `tools/`, reads
 `#layers/<name>/…`. Nuxt resolves it as its own alias; the collector and the `node` test project run

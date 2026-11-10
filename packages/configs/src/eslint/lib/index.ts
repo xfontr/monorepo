@@ -7,6 +7,7 @@ import vitestConfig from "./vitest.ts";
 import baseIgnores from "./ignores.ts";
 import coreIsolation from "./coreIsolation.ts";
 import layerIsolation from "./layerIsolation.ts";
+import layerBoundaries from "./layerBoundaries.ts";
 import { constTables, constTablesVue } from "./constTables.ts";
 import propsInterface from "./propsInterface.ts";
 import { disableReasons, disableReasonsVue } from "./disableReasons.ts";
@@ -60,4 +61,4 @@ const vueOnly: object[] = [
     defaultExportsVue,
 ];
 
-export { shared, vueOnly, vitestConfig, baseIgnores, routeMeta, tailwind };
+export { shared, vueOnly, vitestConfig, baseIgnores, routeMeta, tailwind, layerBoundaries };
