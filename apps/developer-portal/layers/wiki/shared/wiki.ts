@@ -1,4 +1,5 @@
 import type { DocKind } from "#layers/snapshot/shared/types.ts";
+import { stripLeadingEmoji, toTitleCase } from "#layers/docs/shared/docPages.ts";
 
 /** Nothing below may compare against a capitalised path — `@nuxt/content` lower-cases every path it finds. */
 
@@ -85,21 +86,6 @@ const SECTIONS = {
 /** Ordered where the order carries meaning; anything new falls through to alphabetical. */
 const DOCS_GROUPS = ["concepts", "guides", "decisions", "audits", "reviews"];
 
-/** A folder name is what the workspace calls a project; a reader wants its name, not its slug. */
-const NAME_OVERRIDES: Record<string, string> = {
-    ui: "UI",
-    i18n: "i18n",
-};
-
-export const toTitleCase = (name: string): string => {
-    if (NAME_OVERRIDES[name]) return NAME_OVERRIDES[name];
-
-    return name
-        .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-};
-
 const GROUP_LABELS: Record<string, string> = {
     concepts: "Concepts",
     guides: "Guides",
@@ -111,10 +97,6 @@ const GROUP_LABELS: Record<string, string> = {
 };
 
 const segmentsOf = (path: string): string[] => path.split("/").filter(Boolean);
-
-/** Titles here open with an emoji by house style; in a dense nav it is noise twice over. */
-export const stripLeadingEmoji = (title: string): string =>
-    title.replace(/^[^\p{L}\p{N}`@]+/u, "").trim();
 
 const kindOf = (path: string): DocKind => {
     if (path.endsWith("/skill")) return "skill";
@@ -244,10 +226,6 @@ export const buildWiki = (pages: WikiPage[]): WikiSection[] => {
         return { id, ...SECTIONS[id], groups };
     }).filter((section) => section.groups.length > 0);
 };
-
-/** `@nuxt/content` keys a page by a lower-cased, extension-less route; the collector keys it by the real repo path — anything joining the two must cross here first. */
-export const toCollectionPath = (repoPath: string): string =>
-    `/${repoPath.replace(/\.mdx?$/i, "").toLowerCase()}`;
 
 /** The section and group a path sits in, for the breadcrumb above a page. */
 export const locate = (

@@ -7,12 +7,18 @@ import layerBoundaries from "./layerBoundaries.ts";
 // What `nuxi prepare` writes into /repo/app/.nuxt, which the rule reads to place each auto-import.
 const nuxt = vi.hoisted(() => {
     const files: Record<string, string> = {
-        "/repo/app/.nuxt/types/imports.d.ts":
+        "/repo/app/.nuxt/types/imports.d.ts": [
             "  const useWorkflows: typeof import('../../layers/workflows/app/composables/useWorkflows').useWorkflows",
+            "  const useFormPost: typeof import('../../layers/forms/app/composables/useFormPost').useFormPost",
+            "  const useTrack: typeof import('../../app/composables/useTrack').useTrack",
+        ].join("\n"),
         "/repo/app/.nuxt/types/nitro-imports.d.ts": "",
         "/repo/app/.nuxt/types/shared-imports.d.ts": "",
-        "/repo/app/.nuxt/components.d.ts":
+        "/repo/app/.nuxt/components.d.ts": [
             "export const WorkflowsGraph: typeof import(\"../layers/workflows/app/components/WorkflowsGraph.vue\")['default']",
+            "export const BaseCard: typeof import(\"../app/components/base/Card.vue\")['default']",
+            "export const ShellSiteHeader: typeof import(\"../app/components/shell/SiteHeader.vue\")['default']",
+        ].join("\n"),
     };
     return { files };
 });
@@ -28,10 +34,14 @@ RuleTester.itOnly = it.only;
 
 const ruleTester = new RuleTester({ languageOptions: { parser: tseslint.parser } });
 
-const OPTIONS = [{ cores: ["design", "snapshot"] }];
+const KIT_PATHS = "app/components/base/, app/composables/";
+const OPTIONS = [{ cores: ["design", "snapshot"], kit: KIT_PATHS.split(", ") }];
 const FEATURE = "/repo/app/layers/audits/app/utils/format.ts";
-const CORE = "/repo/app/layers/docs/shared/wiki.ts";
-const CORES = [{ cores: ["design", "docs", "snapshot"] }];
+const CORE = "/repo/app/layers/docs/shared/docPages.ts";
+const CORES = [{ cores: ["design", "docs", "snapshot"], kit: KIT_PATHS.split(", ") }];
+const KIT = [{ cores: ["articles", "forms"], kit: KIT_PATHS.split(", ") }];
+const ARTICLES = "/repo/app/layers/articles/app/utils/summary.ts";
+const IN_KIT = "/repo/app/app/composables/useListing.ts";
 
 ruleTester.run("layer-boundaries", layerBoundaries, {
     valid: [
@@ -51,11 +61,6 @@ ruleTester.run("layer-boundaries", layerBoundaries, {
             options: OPTIONS,
         },
         {
-            code: 'import { a } from "#layers/snapshot/shared/types.ts";',
-            filename: CORE,
-            options: CORES,
-        },
-        {
             code: 'import { a } from "#layers/workflows/shared/workflows.ts";',
             filename: "/repo/app/app/pages/index.ts",
             options: OPTIONS,
@@ -65,6 +70,11 @@ ruleTester.run("layer-boundaries", layerBoundaries, {
             filename: FEATURE,
             options: OPTIONS,
         },
+        { code: "useFormPost();", filename: FEATURE, options: KIT },
+        { code: 'import { a } from "~/composables/useTrack";', filename: FEATURE, options: KIT },
+        { code: "useTrack();", filename: ARTICLES, options: KIT },
+        { code: "useTrack();", filename: IN_KIT, options: KIT },
+        { code: 'import { ref } from "vue";', filename: IN_KIT, options: KIT },
     ],
     invalid: [
         {
@@ -74,7 +84,7 @@ ruleTester.run("layer-boundaries", layerBoundaries, {
             errors: [
                 {
                     messageId: "featureToFeature",
-                    data: { target: "workflows", cores: "design, snapshot" },
+                    data: { target: "workflows", cores: "design, snapshot", kit: KIT_PATHS },
                 },
             ],
         },
@@ -103,7 +113,7 @@ ruleTester.run("layer-boundaries", layerBoundaries, {
             errors: [
                 {
                     messageId: "featureToFeature",
-                    data: { target: "workflows", cores: "design, snapshot" },
+                    data: { target: "workflows", cores: "design, snapshot", kit: KIT_PATHS },
                 },
             ],
         },
@@ -120,9 +130,45 @@ ruleTester.run("layer-boundaries", layerBoundaries, {
             errors: [
                 {
                     messageId: "coreToFeature",
-                    data: { target: "audits", cores: "design, docs, snapshot" },
+                    data: { target: "audits", cores: "design, docs, snapshot", kit: KIT_PATHS },
                 },
             ],
+        },
+        {
+            code: "useFormPost();",
+            filename: ARTICLES,
+            options: KIT,
+            errors: [{ messageId: "coreToCore", data: { target: "forms", kit: KIT_PATHS } }],
+        },
+        {
+            code: 'import { a } from "~/components/shell/SiteHeader.vue";',
+            filename: FEATURE,
+            options: KIT,
+            errors: [{ messageId: "layerToShell" }],
+        },
+        {
+            code: 'import { a } from "../../../../app/layouts/default.vue";',
+            filename: ARTICLES,
+            options: KIT,
+            errors: [{ messageId: "layerToShell" }],
+        },
+        {
+            code: "useWorkflows();",
+            filename: IN_KIT,
+            options: KIT,
+            errors: [{ messageId: "kitToOutside", data: { target: "workflows", kit: KIT_PATHS } }],
+        },
+        {
+            code: 'import { a } from "#layers/articles/shared/constants";',
+            filename: IN_KIT,
+            options: KIT,
+            errors: [{ messageId: "kitToOutside", data: { target: "articles", kit: KIT_PATHS } }],
+        },
+        {
+            code: 'import { a } from "../components/shell/SiteHeader.vue";',
+            filename: IN_KIT,
+            options: KIT,
+            errors: [{ messageId: "kitToOutside", data: { target: "shell", kit: KIT_PATHS } }],
         },
     ],
 });
@@ -145,6 +191,16 @@ vueTester.run("layer-boundaries in .vue", layerBoundaries, {
             filename: PAGE,
             options: OPTIONS,
         },
+        {
+            code: "<template><BaseCard /></template>",
+            filename: "/repo/app/layers/audits/app/components/AuditCard.vue",
+            options: KIT,
+        },
+        {
+            code: "<template><WorkflowsGraph /></template>",
+            filename: PAGE,
+            options: KIT,
+        },
     ],
     invalid: [
         {
@@ -154,7 +210,7 @@ vueTester.run("layer-boundaries in .vue", layerBoundaries, {
             errors: [
                 {
                     messageId: "featureToFeature",
-                    data: { target: "workflows", cores: "design, snapshot" },
+                    data: { target: "workflows", cores: "design, snapshot", kit: KIT_PATHS },
                 },
             ],
         },
@@ -175,6 +231,18 @@ vueTester.run("layer-boundaries in .vue", layerBoundaries, {
             filename: PAGE,
             options: OPTIONS,
             errors: [{ messageId: "featureToFeature" }],
+        },
+        {
+            code: "<template><ShellSiteHeader /></template>",
+            filename: PAGE,
+            options: KIT,
+            errors: [{ messageId: "layerToShell" }],
+        },
+        {
+            code: "<template><WorkflowsGraph /></template>",
+            filename: "/repo/app/app/components/base/Card.vue",
+            options: KIT,
+            errors: [{ messageId: "kitToOutside", data: { target: "workflows", kit: KIT_PATHS } }],
         },
     ],
 });

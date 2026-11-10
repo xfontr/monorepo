@@ -1,7 +1,7 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { describe, expect, it } from "vitest";
 import WikiNav from "./WikiNav.vue";
-import type { WikiSection } from "#layers/docs/shared/wiki.ts";
+import type { WikiSection } from "#layers/wiki/shared/wiki.ts";
 
 const sections: WikiSection[] = [
     {

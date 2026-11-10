@@ -45,21 +45,23 @@ domain logic, its own config, or is something you'd switch off whole.
 
 | Layer | Kind | What it owns |
 | --- | --- | --- |
-| `design` | Core | Every token and shared class, and the Nuxt UI theme — see [🎨 Design system](#-design-system) |
 | `snapshot` | Core | The `.report/` store, the snapshot and badge routes, the artifact types, `useSnapshot` and `SnapshotAge` |
-| `docs` | Core | The wiki pages and nav, the link rewriting, and the path helpers every markdown-backed page uses |
-| `github` | Core | The two reads the browser makes of GitHub, issues and deployments, and their rules |
+| `design` | Capability | Every token and shared class, and the Nuxt UI theme — see [🎨 Design system](#-design-system) |
+| `docs` | Capability | The link rewriting every rendered markdown page gets, `ProseA`, and the title and path helpers in `shared/docPages.ts` |
+| `github` | Capability | The two reads the browser makes of GitHub, issues and deployments, and their rules |
 | `decisions`, `audits`, `reviews` | Feature | Each record's pages, its list logic and its labels |
 | `projects` | Feature | Projects, Architecture and What's new |
 | `health` | Feature | Work in progress and its row, Coverage and Dependencies |
 | `telemetry` | Feature | The Telemetry page and the usage rules the collector shares |
 | `workflows` | Feature | The Workflows pages, their components, routes, config and colours |
+| `wiki` | Feature | The Documentation pages, `WikiNav` and the tree `shared/wiki.ts` builds |
 
-A feature uses the cores and the shell's parts, never another feature, so each one comes out alone.
-Only the shell uses everything: the Overview and the sidebar's badges read issues, reviews and the
-snapshot. [`eslint.config.ts`](./eslint.config.ts) names the cores for `eslint.layerBoundaries`,
-which rejects a written import that breaks this, but auto-imports never appear as an import, so
-review still catches the rest.
+The rules are [`apps/huella-legal`](../huella-legal/README.md#-structure)'s. The kit is
+`app/components/` and `app/utils/`, and uses only itself. The core and each capability use
+themselves and the kit. A feature also uses the core and the capabilities, never another feature,
+so each one comes out alone. Only the shell uses everything: the Overview and the sidebar's badges
+read issues, reviews and the snapshot. `eslint.layerBoundaries` in
+[`eslint.config.ts`](./eslint.config.ts) enforces this, auto-imports included.
 
 Any import into another layer, from `app/`, `shared/`, `server/` or `tools/`, reads
 `#layers/<name>/…`. Nuxt resolves it as its own alias; the collector and the `node` test project run
@@ -134,7 +136,7 @@ that.
 `@nuxt/content` lower-cases every route, so `packages/ui/README.md` is served at
 `/packages/ui/readme` while the collector keys the same file as `packages/ui/README.md`. Anything
 joining the two — a broken-link warning, an "updated 3 days ago" — goes through
-[`toCollectionPath`](./layers/docs/shared/wiki.ts) first. A hand-written `/docs/…/README` link matches nothing
+[`toCollectionPath`](./layers/docs/shared/docPages.ts) first. A hand-written `/docs/…/README` link matches nothing
 and fails silently, which is exactly how it went unnoticed the first time.
 
 The links *inside* a doc are written for GitHub and point at files, not routes — `./.husky/pre-push`,
@@ -180,7 +182,7 @@ table has one shape across every review: the seven cards `SCORECARDS.md` lists, 
 ## 📚 Documentation is a wiki
 
 The docs half is a wiki, not a file listing: a tree on the left that stays put while you read, a
-breadcrumb, and prev/next within the group you are in. [`layers/docs/shared/wiki.ts`](./layers/docs/shared/wiki.ts) derives
+breadcrumb, and prev/next within the group you are in. [`layers/wiki/shared/wiki.ts`](./layers/wiki/shared/wiki.ts) derives
 that shape from nothing but the paths the collection found, which is the whole point — a
 hand-written table of contents would be a fifth copy of the workspace layout to keep in step, and a
 doc added anywhere appears in the nav on the next reload instead.

@@ -11,7 +11,6 @@ const social = vi.hoisted(() => ({ profiles: {} as Record<string, string> }));
 const cookies = vi.hoisted(() => ({ enabled: false, open: vi.fn() }));
 
 mockNuxtImport("useI18n", () => () => ({ t: translate }));
-mockNuxtImport("useCookiePreferences", () => () => cookies);
 mockNuxtImport("useRuntimeConfig", (original) => () => {
     const config = original();
 
@@ -25,7 +24,7 @@ const navAt = async (route: string) => {
     await mountSuspended(
         defineComponent({
             setup: () => {
-                nav = useSiteNav();
+                nav = useSiteNav(cookies);
                 const router = useRouter();
                 href = (to) => router.resolve(to).href;
                 return () => null;
@@ -146,12 +145,6 @@ describe("useSiteNav", () => {
             ?.children?.find(({ label }) => label === "t(app.footer.links.cookieSettings)");
 
         expect(settings).toMatchObject({ onClick: cookies.open });
-    });
-
-    it("takes the ISSN from app config, so the header and footer print the same one", async () => {
-        const nav = await navAt("/");
-
-        expect(nav.issn).toBe("2696-7618");
     });
 
     it("leaves out every profile that is not configured", async () => {

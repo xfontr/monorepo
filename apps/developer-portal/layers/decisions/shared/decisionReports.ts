@@ -1,6 +1,6 @@
 import type { DecisionOutcome, DecisionStatus, DocPage } from "#layers/snapshot/shared/types.ts";
 import { DECISION_STATUSES } from "#layers/snapshot/shared/decisions.ts";
-import { stripLeadingEmoji } from "#layers/docs/shared/wiki.ts";
+import { stripLeadingEmoji } from "#layers/docs/shared/docPages.ts";
 
 export interface DecisionReport {
     /** The repo path, `docs/decisions/0009-comment-discipline.md`. */

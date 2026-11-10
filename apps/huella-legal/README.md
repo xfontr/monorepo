@@ -401,7 +401,7 @@ production build.
 | Piece | What it holds |
 | --- | --- |
 | [`layouts/default.vue`](./app/layouts/default.vue) | The skip link, `SiteHeader`, the one `<main id="contenido">` and `SiteFooter`, fed by `useSiteNav`. A page never renders its own `<main>`. A client-side page change is a native View Transition, Nuxt's `experimental.viewTransition`: a short fade and slide in the [`design`](./layers/design) layer's `main.css`, CSS only, skipped under reduced motion and on a query-only change, with `SiteHeader` held still by its own `view-transition-name` |
-| [`composables/useSiteNav.ts`](./app/composables/useSiteNav.ts) | The shell's arrangement of links: which `nav` keys the header, its *Revista* group and each footer column show and in what order, with `aria-current`, plus the configured social profiles and the ISSN. Each layer declares where its own keys go under `nav` in its `app/app.config.ts`, so the shell never names a route. The layout calls it and hands the results to the shell |
+| [`composables/useSiteNav.ts`](./app/composables/useSiteNav.ts) | The shell's arrangement of links: which `nav` keys the header, its *Revista* group and each footer column show and in what order, with `aria-current`, plus the configured social profiles. It sits in the kit, so the layout passes it the `tracking` feature's `useCookiePreferences`, and prints the core's ISSN itself. Each layer declares where its own keys go under `nav` in its `app/app.config.ts`, so the shell never names a route. The layout calls it and hands the results to the shell |
 | [`components/shell/`](./app/components/shell) | `SiteHeader` (`UHeader` with a slideover menu below `lg`, and dropdowns above it whose *Publicaciones* and *Áreas* panels are the archive layer's `NavPublicationsPanel` and `NavSubjectsPanel`) and `SiteFooter` (`UFooter` + `UFooterColumns`), both props-in. Every link is a [route name](#-links). WordPress pages such as `aviso-legal` are `article` slugs, and the privacy and cookies links are anchors on `aviso-legal`, per [0028](../../docs/decisions/0028-huella-legal-urls-and-cutover.md) |
 | [`types/`](./app/types) | The vocabulary kits share across layers: `LinkAction`, the `{ label, to }` every link and action prop takes, and `Tone`, the `paper` or `slate` surface a component renders on. [`AnalyticsEvent.ts`](./app/types/AnalyticsEvent.ts) is the one map of analytics event names to their params, which carry names, counts and buckets, never what a reader typed |
 | [`composables/useTrack.ts`](./app/composables/useTrack.ts) | `useTrack()` returns a `track(name, params)` typed by that map. It only raises the `analytics:event` Nuxt hook, so `forms` and the core can report without depending on the `tracking` feature, and with no tracker configured nothing listens. Call it in `setup`, since the hook is taken from the Nuxt app there |
@@ -423,17 +423,20 @@ something the tree enforces:
 
 | Owner | Paths | May use |
 | --- | --- | --- |
-| Shell | Everything else under `app/` and `server/` | Anything |
-| Kit | `app/components/base/`, `app/components/listing/`, `app/types/`, `app/utils/`, `app/composables/` | The kit |
+| Shell | Everything else outside `layers/`: the rest of `app/` and `server/`, and `modules/` | Anything |
+| Kit | `app/components/base/`, `app/components/listing/`, `app/types/`, `app/utils/`, `app/composables/`, `i18n/` | The kit |
 | Core | `layers/articles/` | Itself and the kit |
 | Capability | `layers/forms/`, `layers/design/` | Itself and the kit |
 | Feature | Every other `layers/<name>/` | Itself, the kit, the core and the capabilities. Its `app/pages/` may also render another feature's auto-registered components, which is how the article pages place `NewsletterBand` |
 
 A path import of another feature's component breaks the rule even from a page, so a component a
-layer keeps out of auto-registration, like `NewsletterForm`, stays private. Review is what holds the
-table: the linter sees no edge an auto-import makes. `checkUnknownComponents` in `nuxt.config.ts`
-covers the one breakage that would otherwise pass every check, making typecheck fail on a tag that
-resolves to nothing, so deleting a layer can't leave its components named on another layer's pages.
+layer keeps out of auto-registration, like `NewsletterForm`, stays private. `eslint.layerBoundaries`
+in [`eslint.config.ts`](./eslint.config.ts) enforces the table on `layers/` and the kit, placing each
+auto-imported component, composable and util through the maps `nuxi prepare` writes into `.nuxt/`.
+Specs and stories get no allowance: they follow the rules of the layer they sit in, since they use
+only what their subject does. `checkUnknownComponents` in `nuxt.config.ts` covers the one breakage
+that would otherwise pass every check, making typecheck fail on a tag that resolves to nothing, so
+deleting a layer can't leave its components named on another layer's pages.
 
 | Layer | `shared/` | `app/components/` | `server/` |
 | --- | --- | --- | --- |
