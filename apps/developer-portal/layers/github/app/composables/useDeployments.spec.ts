@@ -1,0 +1,125 @@
+import { mount, type VueWrapper } from "@vue/test-utils";
+import { mockNuxtImport } from "@nuxt/test-utils/runtime";
+import { defineComponent, ref } from "vue";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useDeployments } from "./useDeployments.ts";
+
+const fetch = vi.hoisted(() => vi.fn());
+const asyncData = vi.hoisted(() => ({ useAsyncData: vi.fn() }));
+mockNuxtImport("$fetch", () => fetch);
+mockNuxtImport("useAsyncData", () => asyncData.useAsyncData);
+const Harness = defineComponent({
+    props: { repoUrl: { type: String, default: "" } },
+    setup: (props) => {
+        useRuntimeConfig().public.repoUrl = props.repoUrl;
+        return useDeployments();
+    },
+    template: "<div />",
+});
+
+beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubGlobal("$fetch", fetch);
+    useRuntimeConfig().public.repoUrl = "";
+    asyncData.useAsyncData.mockImplementation(
+        (_key: string, handler: () => Promise<unknown>, options: { default: () => unknown }) => ({
+            data: ref(options.default()),
+            handler,
+            refresh: vi.fn(),
+        }),
+    );
+});
+
+afterEach(() => vi.unstubAllGlobals());
+
+describe("useDeployments", () => {
+    const execute = async (wrapper: VueWrapper<InstanceType<typeof Harness>>) => {
+        const state = wrapper.vm as unknown as {
+            data: { value: { deployments: unknown[]; error: string | null } };
+            handler: () => Promise<unknown>;
+        };
+        state.data.value = (await state.handler()) as typeof state.data.value;
+
+        return state.data.value;
+    };
+
+    it("returns the repository configuration error before attempting GitHub", async () => {
+        const wrapper = mount(Harness, { props: { repoUrl: "" } });
+
+        expect((await execute(wrapper)).error).toContain("does not name a repository");
+        expect(fetch).not.toHaveBeenCalled();
+    });
+
+    it("reads statuses only for the newest deployment in each environment", async () => {
+        fetch
+            .mockResolvedValueOnce([
+                { id: 3, environment: "production" },
+                { id: 2, environment: "production" },
+                { id: 4, environment: "preview" },
+            ])
+            .mockResolvedValueOnce([
+                {
+                    state: "success",
+                    environment_url: "https://prod.example",
+                    created_at: "2026-09-20",
+                },
+            ])
+            .mockResolvedValueOnce([
+                { state: "failure", environment_url: null, created_at: "2026-09-19" },
+            ]);
+        const wrapper = mount(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
+        const result = await execute(wrapper);
+
+        expect(fetch.mock.calls[0]).toEqual(["https://api.github.com/repos/acme/repo/deployments"]);
+        expect(fetch.mock.calls.map(([url]) => url)).toEqual([
+            "https://api.github.com/repos/acme/repo/deployments",
+            "https://api.github.com/repos/acme/repo/deployments/3/statuses",
+            "https://api.github.com/repos/acme/repo/deployments/4/statuses",
+        ]);
+        expect(result.deployments).toEqual([
+            { environment: "preview", state: "failure", url: null, updatedAt: "2026-09-19" },
+            {
+                environment: "production",
+                state: "success",
+                url: "https://prod.example",
+                updatedAt: "2026-09-20",
+            },
+        ]);
+    });
+
+    it.each([
+        [new Error("GitHub down"), "GitHub down"],
+        ["offline", "GitHub deployments could not be read."],
+    ])("exposes a useful deployment error for %s failures", async (cause, message) => {
+        fetch.mockRejectedValue(cause);
+        const wrapper = mount(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
+        const result = await execute(wrapper);
+
+        expect(result.error).toBe(message);
+        expect(result.deployments).toEqual([]);
+    });
+
+    it("shows GitHub's rate-limit message rather than the fetch client's 403 status line", async () => {
+        fetch.mockRejectedValue(
+            Object.assign(
+                new Error(
+                    '[GET] "https://api.github.com/repos/acme/repo/deployments": 403 Forbidden',
+                ),
+                {
+                    data: { message: "API rate limit exceeded for 203.0.113.7." },
+                },
+            ),
+        );
+        const wrapper = mount(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
+
+        expect((await execute(wrapper)).error).toBe("API rate limit exceeded for 203.0.113.7.");
+    });
+
+    it("uses the empty client-only default before a deployment read completes", () => {
+        const wrapper = mount(Harness, { props: { repoUrl: "https://github.com/acme/repo" } });
+
+        expect(wrapper.vm.data?.deployments).toEqual([]);
+        expect(wrapper.vm.data?.error).toBeNull();
+        expect(asyncData.useAsyncData.mock.calls[0]?.[2]).toMatchObject({ server: false });
+    });
+});

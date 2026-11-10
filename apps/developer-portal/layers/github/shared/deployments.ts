@@ -1,0 +1,55 @@
+import { repoApiUrl } from "./github.ts";
+
+export interface Deployment {
+    id: number;
+    environment: string;
+}
+
+export interface DeploymentStatus {
+    state: "error" | "failure" | "inactive" | "in_progress" | "pending" | "queued" | "success";
+    environment_url: string | null;
+    created_at: string;
+}
+
+export interface EnvironmentDeployment {
+    environment: string;
+    state: DeploymentStatus["state"];
+    url: string | null;
+    updatedAt: string;
+}
+
+export const deploymentUrlFor = (
+    deployments: EnvironmentDeployment[],
+    environment: string,
+): string | undefined =>
+    deployments.find((deployment) => deployment.environment === environment && deployment.url)
+        ?.url ?? undefined;
+
+/** The deployments endpoint shares the issues page's unauthenticated, browser-side GitHub read. */
+export const deploymentsApiUrl = (repoUrl: string): string | null =>
+    repoApiUrl(repoUrl, "deployments");
+
+/** GitHub returns newest first; one current status per environment prevents stale deploys winning. */
+export const latestDeployments = (
+    deployments: Deployment[],
+    statuses: Map<number, DeploymentStatus[]>,
+): EnvironmentDeployment[] => {
+    const environments = new Map<string, EnvironmentDeployment>();
+
+    for (const deployment of deployments) {
+        if (environments.has(deployment.environment)) continue;
+
+        const [status] = statuses.get(deployment.id) ?? [];
+
+        if (!status) continue;
+
+        environments.set(deployment.environment, {
+            environment: deployment.environment,
+            state: status.state,
+            url: status.environment_url,
+            updatedAt: status.created_at,
+        });
+    }
+
+    return [...environments.values()].sort((a, b) => a.environment.localeCompare(b.environment));
+};
