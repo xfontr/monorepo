@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import type { ReviewScorecard, ScorecardsArtifact } from "../../layers/snapshot/shared/types.ts";
+import type { ReviewScorecard, ScorecardsArtifact } from "#layers/snapshot/shared/types.ts";
 import { listReviewFiles } from "../lib/invariants.ts";
 import { WORKSPACE_ROOT } from "../lib/paths.ts";
 import { parseScoresTable, scorecardShapeProblems } from "../lib/scorecards.ts";

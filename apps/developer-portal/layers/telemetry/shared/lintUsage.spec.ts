@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { lintAlerts, neverFired, parseDisables, summarizeLint } from "./lintUsage.ts";
-import type { LintRuleUsage, LintUsage } from "../../snapshot/shared/types.ts";
+import type { LintRuleUsage, LintUsage } from "#layers/snapshot/shared/types.ts";
 import type { UsageRecord } from "./usage.ts";
 
 const SINCE = "2026-08-11";

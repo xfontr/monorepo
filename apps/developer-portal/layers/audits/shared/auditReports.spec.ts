@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { AuditFinding } from "../../snapshot/shared/audits.ts";
-import type { DocPage } from "../../snapshot/shared/types.ts";
+import type { AuditFinding } from "#layers/snapshot/shared/audits.ts";
+import type { DocPage } from "#layers/snapshot/shared/types.ts";
 import { countAll, filterAudits, scopesOf, sortAudits, toAuditReports } from "./auditReports.ts";
 
 const row = (id: string, status: AuditFinding["status"]): AuditFinding => ({

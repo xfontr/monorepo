@@ -1,4 +1,4 @@
-import type { ScriptUsage, UsageArtifact } from "../../snapshot/shared/types.ts";
+import type { ScriptUsage, UsageArtifact } from "#layers/snapshot/shared/types.ts";
 
 export type AlertKind =
     "never-run" | "stale" | "heavy" | "one-project" | "one-flag" | "agents-only" | "failing";

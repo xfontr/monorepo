@@ -3,7 +3,7 @@ import type {
     DepsArtifact,
     OutdatedPackage,
     VulnerabilityAdvisory,
-} from "../../layers/snapshot/shared/types.ts";
+} from "#layers/snapshot/shared/types.ts";
 import { WORKSPACE_ROOT } from "../lib/paths.ts";
 import { runAllowFailure, tryRun } from "../lib/run.ts";
 

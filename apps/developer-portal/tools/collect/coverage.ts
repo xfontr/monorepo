@@ -5,7 +5,7 @@ import type {
     CoverageMetric,
     ProjectCoverage,
     ProjectNode,
-} from "../../layers/snapshot/shared/types.ts";
+} from "#layers/snapshot/shared/types.ts";
 import { COVERAGE_DIR, MERGED_COVERAGE_DIR, WORKSPACE_ROOT } from "../lib/paths.ts";
 
 interface RawSummary {

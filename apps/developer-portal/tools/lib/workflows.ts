@@ -1,11 +1,11 @@
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { readWorkflowFiles } from "../../layers/workflows/server/utils/workflowFiles.ts";
+import { readWorkflowFiles } from "#layers/workflows/server/utils/workflowFiles.ts";
 import {
     assembleWorkflows,
     type Template,
     type WorkflowProblem,
-} from "../../layers/workflows/shared/workflows.ts";
+} from "#layers/workflows/shared/workflows.ts";
 
 /** Paths a capability's `reuse.from` points at that don't exist, relative to the workspace root. */
 export const missingReusePaths = (

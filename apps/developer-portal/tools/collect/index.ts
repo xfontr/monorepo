@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import type { ArtifactStatus, Manifest } from "../../layers/snapshot/shared/types.ts";
+import type { ArtifactStatus, Manifest } from "#layers/snapshot/shared/types.ts";
 import { collectCoverage } from "./coverage.ts";
 import { collectDeps } from "./deps.ts";
 import { collectDocs } from "./docs.ts";

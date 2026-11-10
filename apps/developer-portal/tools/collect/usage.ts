@@ -1,8 +1,8 @@
 import { readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { parseDisables, summarizeLint } from "../../layers/telemetry/shared/lintUsage.ts";
-import type { UsageArtifact } from "../../layers/snapshot/shared/types.ts";
-import { parseLog, summarize, windowStart } from "../../layers/telemetry/shared/usage.ts";
+import { parseDisables, summarizeLint } from "#layers/telemetry/shared/lintUsage.ts";
+import type { UsageArtifact } from "#layers/snapshot/shared/types.ts";
+import { parseLog, summarize, windowStart } from "#layers/telemetry/shared/usage.ts";
 import { enabledRules } from "../lib/lintRules.ts";
 import { WORKSPACE_ROOT } from "../lib/paths.ts";
 import { git } from "../lib/run.ts";

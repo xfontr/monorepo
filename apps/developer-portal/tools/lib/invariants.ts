@@ -1,6 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import type { InvariantFinding } from "../../layers/snapshot/shared/types.ts";
+import type { InvariantFinding } from "#layers/snapshot/shared/types.ts";
 import { auditProblems } from "./audits.ts";
 import { decisionProblems } from "./decisions.ts";
 import { WORKSPACE_ROOT } from "./paths.ts";

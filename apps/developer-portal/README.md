@@ -59,9 +59,11 @@ A feature uses the cores and the shell's parts, never another feature, so each o
 Only the shell uses everything: the Overview and the sidebar's badges read issues, reviews and the
 snapshot. Nothing checks this but review, since auto-imports hide every edge from the linter.
 
-Code under `app/` imports another layer's `shared/` through Nuxt's `#layers/<name>/…` alias. A
-`shared/`, `server/` or `tools/` file uses a relative path instead, because the collector and the
-`node` test project run outside Nuxt and have no alias. A root-level `shared/` is gone on purpose:
+Any import into another layer, from `app/`, `shared/`, `server/` or `tools/`, reads
+`#layers/<name>/…`. Nuxt resolves it as its own alias; the collector and the `node` test project run
+outside Nuxt and resolve the same string through the `imports` field in
+[`package.json`](./package.json). An import within one layer, or within `tools/`, stays relative.
+A root-level `shared/` is gone on purpose:
 a relative import into it is what broke the prerendered build in
 [`0014`](../../docs/decisions/0014-developer-portal-deployment.md).
 

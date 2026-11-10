@@ -1,4 +1,4 @@
-import type { DocKind } from "../../snapshot/shared/types.ts";
+import type { DocKind } from "#layers/snapshot/shared/types.ts";
 
 /** Nothing below may compare against a capitalised path — `@nuxt/content` lower-cases every path it finds. */
 

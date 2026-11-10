@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { CoverageArtifact, ProjectNode } from "../../layers/snapshot/shared/types.ts";
+import type { CoverageArtifact, ProjectNode } from "#layers/snapshot/shared/types.ts";
 import { collectMetrics } from "./metrics.ts";
 
 const state = vi.hoisted(() => ({

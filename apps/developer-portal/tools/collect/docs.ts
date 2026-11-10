@@ -8,9 +8,9 @@ import type {
     DocLink,
     DocPage,
     DocsArtifact,
-} from "../../layers/snapshot/shared/types.ts";
-import { parseFindings } from "../../layers/snapshot/shared/audits.ts";
-import { DECISION_OUTCOMES, DECISION_STATUSES } from "../../layers/snapshot/shared/decisions.ts";
+} from "#layers/snapshot/shared/types.ts";
+import { parseFindings } from "#layers/snapshot/shared/audits.ts";
+import { DECISION_OUTCOMES, DECISION_STATUSES } from "#layers/snapshot/shared/decisions.ts";
 import { frontmatterFields } from "../lib/decisions.ts";
 import { WORKSPACE_ROOT } from "../lib/paths.ts";
 import { git } from "../lib/run.ts";

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ScriptUsage, UsageArtifact } from "../../snapshot/shared/types.ts";
+import type { ScriptUsage, UsageArtifact } from "#layers/snapshot/shared/types.ts";
 import { parseLog, summarize, usageAlerts, type UsageRecord } from "./usage.ts";
 
 const NOW = "2026-11-09T00:00:00.000Z";

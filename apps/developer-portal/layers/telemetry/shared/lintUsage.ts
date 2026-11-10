@@ -1,4 +1,4 @@
-import type { LintRuleUsage, LintUsage } from "../../snapshot/shared/types.ts";
+import type { LintRuleUsage, LintUsage } from "#layers/snapshot/shared/types.ts";
 import type { UsageRecord } from "./usage.ts";
 
 export type LintAlertKind = "fought" | "noisy" | "always-fixed";

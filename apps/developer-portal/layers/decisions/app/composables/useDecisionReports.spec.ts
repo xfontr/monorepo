@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useDecisionReports } from "./useDecisionReports.ts";
 
 const state = vi.hoisted(() => ({ snapshot: null as { value: unknown } | null }));
-vi.mock("../../../snapshot/app/composables/useSnapshot.ts", () => ({
+vi.mock("#layers/snapshot/app/composables/useSnapshot.ts", () => ({
     useSnapshot: () => ({ data: state.snapshot }),
 }));
 state.snapshot = ref(null);
