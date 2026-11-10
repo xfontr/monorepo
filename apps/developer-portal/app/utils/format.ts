@@ -1,4 +1,5 @@
 import type { AuditState, FindingStatus } from "#shared/audits.ts";
+import type { CapabilityState, Kind, ReusePlan, TicketStatus } from "#shared/workflows.ts";
 import type { DecisionOutcome, DecisionStatus } from "#shared/types.ts";
 
 /** The palette behind these three classes lives in `assets/css/main.css` and is shown beside the figure it describes, never instead of it. */
@@ -100,6 +101,100 @@ const AUDIT_STATE_TONES = {
 } as const satisfies Record<AuditState, Tone>;
 
 export const auditStateTone = (state: AuditState): Tone => AUDIT_STATE_TONES[state];
+
+/** One hue per state, shared by blocks and tickets; each reads on both themes. */
+const STATE_COLORS = {
+    "waiting-on-you": "#8b5cf6",
+    ready: "#0ea5e9",
+    "in-flight": "#f59e0b",
+    blocked: "#64748b",
+    "can-file": "#14b8a6",
+    waits: "#94a3b8",
+    done: "var(--tone-good)",
+    dropped: "var(--ui-text-dimmed)",
+    skipped: "var(--ui-text-dimmed)",
+    off: "var(--ui-text-dimmed)",
+} as const satisfies Record<CapabilityState | TicketStatus, string>;
+
+const CAPABILITY_STATES = {
+    off: { label: "Off", tone: "neutral" },
+    skipped: { label: "Skipped", tone: "neutral" },
+    waits: { label: "Waits on a decision", tone: "neutral" },
+    "can-file": { label: "Can file now", tone: "neutral" },
+    blocked: { label: "Blocked", tone: "neutral" },
+    "waiting-on-you": { label: "Waiting on you", tone: "warn" },
+    ready: { label: "Ready", tone: "neutral" },
+    "in-flight": { label: "In flight", tone: "warn" },
+    done: { label: "Done", tone: "good" },
+} as const satisfies Record<CapabilityState, { label: string; tone: Tone }>;
+
+export const capabilityStateLabel = (state: CapabilityState): string =>
+    CAPABILITY_STATES[state].label;
+
+export const capabilityStateTone = (state: CapabilityState): Tone => CAPABILITY_STATES[state].tone;
+
+const TICKET_STATUSES = {
+    "waiting-on-you": { label: "Waiting on you", tone: "warn" },
+    ready: { label: "Ready", tone: "neutral" },
+    "in-flight": { label: "In flight", tone: "warn" },
+    blocked: { label: "Blocked", tone: "neutral" },
+    done: { label: "Done", tone: "good" },
+    dropped: { label: "Dropped", tone: "neutral" },
+} as const satisfies Record<TicketStatus, { label: string; tone: Tone }>;
+
+export const ticketStatusLabel = (status: TicketStatus): string => TICKET_STATUSES[status].label;
+
+export const ticketStatusTone = (status: TicketStatus): Tone => TICKET_STATUSES[status].tone;
+
+export const stateColor = (state: CapabilityState | TicketStatus): string => STATE_COLORS[state];
+
+const BLOCK_KINDS = {
+    build: { label: "Build", icon: null },
+    spike: { label: "Spike — answers a question", icon: "i-lucide-flask-conical" },
+    owner: { label: "Yours — only you can close it", icon: "i-lucide-user-round" },
+} as const satisfies Record<Kind, { label: string; icon: string | null }>;
+
+export const blockKindLabel = (kind: Kind): string => BLOCK_KINDS[kind].label;
+
+export const blockKindIcon = (kind: Kind): string | null => BLOCK_KINDS[kind].icon;
+
+/** OKLCH hues, one per stage; decoration only, so a stage is never told apart by its hue alone. */
+const STAGE_HUES = [5, 50, 95, 160, 235, 275, 315] as const;
+
+export const stageColor = (index: number): string =>
+    `oklch(0.72 0.18 ${STAGE_HUES[index % STAGE_HUES.length]})`;
+
+export const capabilityColor = (state: CapabilityState): string => STATE_COLORS[state];
+
+/** Hollow for a block nobody can work on yet, so its state survives without its colour. */
+export const capabilityFilled = (state: CapabilityState): boolean =>
+    ["done", "in-flight", "ready", "waiting-on-you", "skipped"].includes(state);
+
+const REUSE_PLAN_LABELS = {
+    package: "Import the package",
+    extract: "Extract to a package",
+    copy: "Copy and adapt",
+    method: "Follow the method",
+    new: "Build new",
+} as const satisfies Record<ReusePlan, string>;
+
+export const reusePlanLabel = (plan: ReusePlan): string => REUSE_PLAN_LABELS[plan];
+
+export const progressTone = (percent: number): Tone => {
+    if (percent >= 100) return "good";
+    if (percent >= 50) return "warn";
+
+    return "neutral";
+};
+
+/** A `YYYY-MM-DD` calendar day as "6 Oct", read in UTC so the server and the browser agree. */
+export const calendarDay = (day: string, month: "short" | "only" = "short"): string =>
+    new Date(`${day}T00:00:00Z`).toLocaleDateString(
+        "en-GB",
+        month === "only"
+            ? { timeZone: "UTC", month: "short" }
+            : { timeZone: "UTC", day: "numeric", month: "short" },
+    );
 
 /** "3 hours ago" beats a timestamp for the one question a report page has to answer. */
 export const relativeTime = (iso: string | null | undefined): string => {

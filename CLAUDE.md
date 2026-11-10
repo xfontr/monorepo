@@ -136,8 +136,9 @@ The rest of this section is reference for when the user asks for it, not licence
 the traps in it.
 
 - Branches must match `^(hotfix|fix|feature|release)/[^/]+/[0-9]+-.+`, and `master` is not
-  pushable. `pnpm issue:pick` builds `<type>/<project>/<issue number>-<slug>`, `<project>` being the
-  slugified title of the gh Project board the issue came from.
+  pushable. `pnpm issue:pick` builds `<type>/<area>/<issue number>-<slug>`, `<area>` being the
+  folder the issue's `app:`/`package:`/`infra:` label names, or `repo` without one. There is one gh
+  Project board, `Monorepo`; a finite effort is a milestone, not a new board.
 - [`commitlint.config.mjs`](./commitlint.config.mjs) just extends `@commitlint/config-conventional`
   with no overrides, and two of that preset's rules aren't obvious from a rejection message: the
   **type is lower-case** and the **subject is not** sentence-case, start-case, Pascal-case or
@@ -193,4 +194,5 @@ the symptom is `lint` failing to parse every file rather than anything mentionin
 | `configs-new-rule` | Adding, changing or scoping a lint rule in `@monorepo/configs`, or turning a review finding into one |
 | `ui-new-component` | Adding a component to `@monorepo/ui` |
 | `wp-bulk-edit` | A site-wide content pass on the blog through `@monorepo/wp-editor`: open a changeset, write proposals in batches, validate |
+| `project-workflow` | Starting, ticketing, organising or reporting on an effort tracked in [`docs/workflows/`](./docs/workflows/README.md) — a site rebuild, a launch |
 | `ship-issue` | Taking issues to merged PRs unattended, as `/ship-issue <numbers>`. A saved workflow in [`.claude/workflows/`](./.claude/workflows/ship-issue.js), not a skill; see [agent setup](./docs/concepts/agent-setup.md#-the-ship-issue-pipeline) |

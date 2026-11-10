@@ -1,7 +1,7 @@
 # 🤖 The agent setup as one inspectable system
 
 The repository's agent guidance is Claude Code's native layout: `CLAUDE.md` files for always-on
-guidance, seventeen skills under [`.claude/skills/`](../../.claude/skills/) for task-specific
+guidance, eighteen skills under [`.claude/skills/`](../../.claude/skills/) for task-specific
 procedures, and settings, hooks and subagents beside them under `.claude/`. Every one of them is
 tracked and edited in place.
 

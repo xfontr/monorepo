@@ -5,6 +5,7 @@ import { auditProblems } from "./audits.ts";
 import { decisionProblems } from "./decisions.ts";
 import { WORKSPACE_ROOT } from "./paths.ts";
 import { parseScoresTable, scorecardShapeProblems } from "./scorecards.ts";
+import { workflowProblems } from "./workflows.ts";
 
 const BOUNDARIES_PATH = "packages/configs/src/eslint/lib/boundaries.ts";
 const README_PATH = "README.md";
@@ -12,6 +13,7 @@ const REVIEWS_DIR = "docs/reviews";
 const REVIEWS_README_PATH = `${REVIEWS_DIR}/README.md`;
 const AUDITS_DIR = "docs/audits";
 const DECISIONS_DIR = "docs/decisions";
+const WORKFLOWS_DIR = "docs/workflows";
 
 /**
  * Duplicated from `.claude/hooks/check-invariants.sh` rather than shelled out to it: that hook reads
@@ -176,19 +178,30 @@ export const compareDecisionShape = (
         evidence: [`${DECISIONS_DIR}/${file}`, `${DECISIONS_DIR}/README.md`],
     }));
 
+/** The workflows page renders a broken file as a gap, so this is what says which file and why. */
+export const compareWorkflowShape = (
+    problems: { file: string; message: string }[],
+): InvariantFinding[] =>
+    problems.map(({ file, message }) => ({
+        id: "workflow-shape-mismatch",
+        title: "A workflow file breaks the rules",
+        detail: `${file}: ${message}.`,
+        evidence: [`${WORKFLOWS_DIR}/${file}`, `${WORKFLOWS_DIR}/README.md`],
+    }));
+
 export const collectInvariants = async (
     projectRoots: string[] = [],
 ): Promise<InvariantFinding[]> => {
-    const [boundaries, readme, history, reviewFiles, auditFiles, decisionFiles] = await Promise.all(
-        [
+    const [boundaries, readme, history, reviewFiles, auditFiles, decisionFiles, workflows] =
+        await Promise.all([
             readFile(resolve(WORKSPACE_ROOT, BOUNDARIES_PATH), "utf8"),
             readFile(resolve(WORKSPACE_ROOT, README_PATH), "utf8"),
             readFile(resolve(WORKSPACE_ROOT, REVIEWS_README_PATH), "utf8").catch(() => ""),
             listReviewFiles(),
             listAuditFiles(),
             listDecisionFiles(),
-        ],
-    );
+            workflowProblems(resolve(WORKSPACE_ROOT, WORKFLOWS_DIR), WORKSPACE_ROOT),
+        ]);
 
     const reviewBodies = await Promise.all(
         reviewFiles.map((file) =>
@@ -217,5 +230,6 @@ export const collectInvariants = async (
         ),
         ...compareAuditShape(audits),
         ...compareDecisionShape(decisions),
+        ...compareWorkflowShape(workflows),
     ];
 };

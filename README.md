@@ -168,6 +168,10 @@ checks, is in [`docs/guides/change-lifecycle.md`](./docs/guides/change-lifecycle
   `post-merge` when one changed. None of them blocks on it.
 - [`pnpm docs:drift`](./infrastructure/scripts/src/drift/README.md) is a manual check for a range
   whose project docs may have gone stale. No hook runs it.
+- [`pnpm workflow:sync`](./infrastructure/scripts/src/workflow/README.md) copies each project's
+  GitHub issues, their blocked-by links and their tagged commits into the snapshot the portal's
+  Workflows page reads. `pnpm workflow:next` lists what can be taken now, and `pnpm workflow:file`
+  files a block of the map as linked tickets. No hook runs any of them.
 - Four workflows need secrets nothing provisions — `PROJECTS_TOKEN`, `NX_CLOUD_ACCESS_TOKEN`,
   `RELEASE_TOKEN` and `COPILOT_GITHUB_TOKEN`. [`docs/guides/repo-secrets.md`](./docs/guides/repo-secrets.md)
   has what each one is for and how a missing one shows up.

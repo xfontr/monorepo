@@ -35,6 +35,9 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm package:check` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm review:version` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm env:sync` | [`package.json`](../package.json) | [`README.md`](../README.md) |
+| `pnpm workflow:sync` | [`package.json`](../package.json) | [`README.md`](../README.md) |
+| `pnpm workflow:next` | [`package.json`](../package.json) | [`README.md`](../README.md) |
+| `pnpm workflow:file` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm release` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm release:dry` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm exec nx build:storybook @monorepo/ui` | [`packages/ui/package.json`](../packages/ui/package.json) | [`packages/ui/README.md`](../packages/ui/README.md) |
@@ -104,6 +107,7 @@ shortest statement of how a task is meant to go here.
 | `/i18n-new-vendor` | [`.claude/skills/i18n-new-vendor/SKILL.md`](../.claude/skills/i18n-new-vendor/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/new-package` | [`.claude/skills/new-package/SKILL.md`](../.claude/skills/new-package/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/nuxt-module-route` | [`.claude/skills/nuxt-module-route/SKILL.md`](../.claude/skills/nuxt-module-route/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
+| `/project-workflow` | [`.claude/skills/project-workflow/SKILL.md`](../.claude/skills/project-workflow/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/repo-review` | [`.claude/skills/repo-review/SKILL.md`](../.claude/skills/repo-review/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/scripts-new-script` | [`.claude/skills/scripts-new-script/SKILL.md`](../.claude/skills/scripts-new-script/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |
 | `/start-issue` | [`.claude/skills/start-issue/SKILL.md`](../.claude/skills/start-issue/SKILL.md) | [`CLAUDE.md`](../CLAUDE.md) |

@@ -9,7 +9,9 @@ See [README.md](./README.md) for what each page reads, the snapshot and the depl
   clone's state. [`server/utils/store.ts`](./server/utils/store.ts) returns `null` for a missing
   artifact; keep that rather than throwing.
 - **`shared/` is pure and imported by `app/`, `server/` and `tools/` alike.** Anything node-only —
-  `yaml`, `node:fs`, `git` — lives in `tools/`, so it never reaches the browser bundle.
+  `yaml`, `node:fs`, `git` — lives in `tools/` or `server/`, so it never reaches the browser bundle.
+  `tools/` may import a `server/utils/` file that uses no Nitro auto-import, as it does
+  `workflowFiles.ts`; the reverse is a lint error.
 - **`tools/lib/invariants.ts` mirrors [`check-invariants.sh`](../../.claude/hooks/check-invariants.sh).**
   Changing a rule in one means changing the other, and
   [`invariants.spec.ts`](./tools/lib/invariants.spec.ts) is what keeps the two honest.

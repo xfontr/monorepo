@@ -69,6 +69,7 @@ export default defineNuxtConfig({
     runtimeConfig: {
         // Absolute, because the server that reads it is bundled somewhere else entirely.
         snapshotDir: resolve(import.meta.dirname, ".report"),
+        workflowsDir: resolve(WORKSPACE_ROOT, "docs/workflows"),
 
         public: {
             repoUrl: "",

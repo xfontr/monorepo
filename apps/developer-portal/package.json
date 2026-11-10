@@ -26,6 +26,7 @@
         "!{projectRoot}/**/*.test.ts",
         "!{projectRoot}/vitest.config.ts",
         "{workspaceRoot}/**/*.md",
+        "{workspaceRoot}/docs/workflows/**/*",
         {
           "runtime": "node apps/developer-portal/tools/lib/snapshotStamp.ts"
         }
@@ -33,6 +34,7 @@
     }
   },
   "dependencies": {
+    "@dagrejs/dagre": "^3.1.3",
     "@iconify-json/lucide": "^1.2.128",
     "@nuxt/content": "^3.16.0",
     "@nuxt/ui": "^4.11.0",

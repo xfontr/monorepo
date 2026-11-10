@@ -31,7 +31,11 @@ export interface Brief {
     docs: string[];
 }
 
-const LABEL_ROOTS: Record<string, string> = { app: "apps", package: "packages" };
+const LABEL_ROOTS: Record<string, string> = {
+    app: "apps",
+    package: "packages",
+    infra: "infrastructure",
+};
 
 const unique = <T>(values: T[]): T[] => [...new Set(values)];
 
@@ -90,7 +94,7 @@ export const relevantDecisions = (
 
 export const projectsFor = (
     thread: IssueThread,
-    boardSlug: string | undefined,
+    branchArea: string | undefined,
     dirs: string[],
 ): string[] => {
     const fromLabels = thread.labels.flatMap((label) => {
@@ -98,12 +102,12 @@ export const projectsFor = (
         const root = kind ? LABEL_ROOTS[kind] : undefined;
         return root && name ? [`${root}/${name}`] : [];
     });
-    const fromBoard = boardSlug ? dirs.filter((dir) => dir.endsWith(`/${boardSlug}`)) : [];
+    const fromBranch = branchArea ? dirs.filter((dir) => dir.endsWith(`/${branchArea}`)) : [];
     const fromText = [
         ...threadText(thread).matchAll(/\b(?:apps|packages|infrastructure)\/[\w-]+/g),
     ].map(([path]) => path);
 
-    return unique([...fromLabels, ...fromBoard, ...fromText]).filter((dir) => dirs.includes(dir));
+    return unique([...fromLabels, ...fromBranch, ...fromText]).filter((dir) => dirs.includes(dir));
 };
 
 export const docsIn = (text: string, exists: (path: string) => boolean): string[] =>
