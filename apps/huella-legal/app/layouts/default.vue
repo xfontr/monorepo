@@ -19,7 +19,8 @@
 <script setup lang="ts">
 import { JOURNAL } from "../../layers/articles/shared/constants";
 const { t, localeProperties } = useI18n();
-const { sections, columns, social, issn } = useSiteNav();
+const { sections, columns, social } = useSiteNav(useCookiePreferences());
+const { issn } = JOURNAL;
 const {
     public: { site },
 } = useRuntimeConfig();

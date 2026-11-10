@@ -1,7 +1,6 @@
 import type { FooterColumn, NavigationMenuItem } from "@nuxt/ui";
 import type { AppConfig } from "nuxt/schema";
 import type { RouteLocationRaw } from "vue-router";
-import { JOURNAL } from "../../layers/articles/shared/constants";
 
 type NavKey = keyof AppConfig["nav"];
 type Current = "page" | "true" | undefined;
@@ -45,6 +44,11 @@ const SOCIAL = [
     { key: "x", icon: "i-lucide-twitter" },
 ] as const;
 
+export interface CookiePreferences {
+    enabled: boolean;
+    open: () => unknown;
+}
+
 export interface SocialLink {
     key: string;
     icon: string;
@@ -54,7 +58,7 @@ export interface SocialLink {
 
 const withTrailingSlash = (path: string): string => (path.endsWith("/") ? path : `${path}/`);
 
-export const useSiteNav = () => {
+export const useSiteNav = (cookiePreferences: CookiePreferences) => {
     const { t } = useI18n();
     const route = useRoute();
     const router = useRouter();
@@ -62,7 +66,6 @@ export const useSiteNav = () => {
     const {
         public: { social: profiles },
     } = useRuntimeConfig();
-    const cookiePreferences = useCookiePreferences();
 
     const sections = computed<NavigationMenuItem[]>(() => {
         const here = withTrailingSlash(route.path);
@@ -129,5 +132,5 @@ export const useSiteNav = () => {
         })),
     );
 
-    return { sections, columns, social, issn: JOURNAL.issn };
+    return { sections, columns, social };
 };
