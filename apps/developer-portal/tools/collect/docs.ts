@@ -49,8 +49,7 @@ const AUDIT_PATH = /^docs\/audits\/\d{4}-/;
 
 /**
  * Anchors and external links are somebody else's problem; only repo-relative paths are resolvable.
- * A `<placeholder>` in a template is not a link at all — `docs/reviews/TEMPLATE.md` is meant to be
- * copied, so flagging its own instructions would make the count permanently non-zero.
+ * A `<placeholder>` is an instruction to whoever copies the doc, not a link, so it is never flagged.
  */
 const isRepoRelative = (href: string): boolean =>
     !/^(?:[a-z]+:|\/\/|#)/i.test(href) && !href.includes("<");
@@ -71,8 +70,7 @@ const exists = async (path: string): Promise<boolean> => {
  * valid there, and only a missing target is a real defect.
  */
 const checkLink = async (fromFile: string, href: string): Promise<DocLink | null> => {
-    // `#anchor` is one way to point inside a file; `:91-94` is the other, and the reviews cite
-    // evidence that way throughout. Neither says anything about whether the file itself exists.
+    // `#anchor` and `:91-94` both point inside a file; neither says whether the file itself exists.
     const [target] = href.split("#");
     const path = target?.replace(/:\d+(?:-\d+)?$/, "");
 
@@ -89,7 +87,6 @@ const checkLink = async (fromFile: string, href: string): Promise<DocLink | null
 };
 
 const kindOf = (path: string): DocKind => {
-    if (/^docs\/reviews\/\d{4}-/.test(path)) return "review";
     if (DECISION_PATH.test(path)) return "decision";
     if (AUDIT_PATH.test(path)) return "audit";
     if (path.endsWith("CHANGELOG.md")) return "changelog";

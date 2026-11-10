@@ -6,7 +6,6 @@ import type {
     Manifest,
     MetricsArtifact,
     ProjectsArtifact,
-    ScorecardsArtifact,
     UsageArtifact,
 } from "../../../shared/types.ts";
 import { readArtifact } from "../../utils/store.ts";
@@ -18,7 +17,6 @@ export interface SnapshotResponse {
     metrics?: MetricsArtifact | null;
     deps?: DepsArtifact | null;
     docs?: DocsArtifact | null;
-    scorecards?: ScorecardsArtifact | null;
     usage?: UsageArtifact | null;
 }
 
@@ -28,7 +26,6 @@ const readers = {
     metrics: () => readArtifact<MetricsArtifact>("metrics"),
     deps: () => readArtifact<DepsArtifact>("deps"),
     docs: () => readArtifact<DocsArtifact>("docs"),
-    scorecards: () => readArtifact<ScorecardsArtifact>("scorecards"),
     usage: () => readArtifact<UsageArtifact>("usage"),
 };
 

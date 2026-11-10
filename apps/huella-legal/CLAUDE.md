@@ -69,9 +69,9 @@ See [README.md](./README.md) for the env vars, the i18n wiring and the telemetry
 - **`vitest.config.ts` and `playwright.config.ts` are wrappers over `@monorepo/configs`.** A setting
   every Nuxt app would want goes in the preset; only this app's specifics are passed as options.
   Don't lower a threshold to get green; write the spec.
-- `e2e/` holds the Playwright specs, `server.ts` (the MSW preload), `fakes.ts` (its data) and
-  `vendors.ts` (handlers for the vendors with no package), the workspace's exception to "beside its
-  subject" and "no fixtures". A packaged vendor's wire format belongs in that package's `testing`
+- `e2e/` holds the Playwright specs, `server.ts` (the MSW preload), `fakes.ts` (its data),
+  `vendors.ts` (handlers for the vendors with no package) and `forms.ts` (the steps every form spec
+  shares), the workspace's exception to "beside its subject" and "no fixtures". A packaged vendor's wire format belongs in that package's `testing`
   entry, never here. Test-only code never goes under `layers/`, `app/` or `server/`.
 - `mocks/` is dev's MSW preload and its fake WordPress, never read by a spec. `pnpm dev` must
   not reach huellalegal.com, so a new WordPress route needs a handler before dev can show it.

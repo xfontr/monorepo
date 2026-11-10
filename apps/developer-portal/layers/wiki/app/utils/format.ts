@@ -4,7 +4,6 @@ const KIND_ICONS: Record<string, string> = {
     changelog: "i-lucide-tag",
     skill: "i-lucide-wand-sparkles",
     doc: "i-lucide-book-open",
-    review: "i-lucide-clipboard-check",
     decision: "i-lucide-compass",
     audit: "i-lucide-scan-search",
 };

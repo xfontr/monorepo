@@ -46,6 +46,36 @@ const sorted = (counts: Record<string, number>): Record<string, number> =>
 export const windowStart = (generatedAt: string): string =>
     new Date(Date.parse(generatedAt) - WINDOW_DAYS * DAY_MS).toISOString().slice(0, 10);
 
+const emptyUsage = (at: string): ScriptUsage => ({
+    runs: 0,
+    recent: 0,
+    failures: 0,
+    headless: 0,
+    totalMs: 0,
+    first: at,
+    last: at,
+    callers: {},
+    commands: {},
+    targets: {},
+    areas: {},
+    flags: {},
+});
+
+const tally = (usage: ScriptUsage, record: UsageRecord, at: string, since: string): void => {
+    usage.runs += 1;
+    if (at >= since) usage.recent += 1;
+    if (record.exit !== "0" && record.exit !== INTERRUPTED) usage.failures += 1;
+    if (record.tty === "0") usage.headless += 1;
+    usage.totalMs += Number(record.ms) || 0;
+    if (at < usage.first) usage.first = at;
+    if (at > usage.last) usage.last = at;
+    bump(usage.callers, record.caller);
+    bump(usage.commands, record.command);
+    bump(usage.targets, record.target);
+    bump(usage.areas, record.area);
+    for (const flag of record.flags?.split(";") ?? []) bump(usage.flags, flag);
+};
+
 export const summarize = (
     records: UsageRecord[],
     known: string[],
@@ -57,33 +87,7 @@ export const summarize = (
     for (const record of records) {
         const { at, script } = record;
         if (!at || !script) continue;
-        const usage = (scripts[script] ??= {
-            runs: 0,
-            recent: 0,
-            failures: 0,
-            headless: 0,
-            totalMs: 0,
-            first: at,
-            last: at,
-            callers: {},
-            commands: {},
-            targets: {},
-            areas: {},
-            flags: {},
-        });
-
-        usage.runs += 1;
-        if (at >= since) usage.recent += 1;
-        if (record.exit !== "0" && record.exit !== INTERRUPTED) usage.failures += 1;
-        if (record.tty === "0") usage.headless += 1;
-        usage.totalMs += Number(record.ms) || 0;
-        if (at < usage.first) usage.first = at;
-        if (at > usage.last) usage.last = at;
-        bump(usage.callers, record.caller);
-        bump(usage.commands, record.command);
-        bump(usage.targets, record.target);
-        bump(usage.areas, record.area);
-        for (const flag of record.flags?.split(";") ?? []) bump(usage.flags, flag);
+        tally((scripts[script] ??= emptyUsage(at)), record, at, since);
     }
 
     for (const usage of Object.values(scripts)) {

@@ -1,6 +1,6 @@
 ---
 name: audit-report
-description: Statically read one project or directory for bugs, duplication and weak code, and file the findings as a dated audit under docs/audits/ — then, on later turns, flip a finding's Status as it gets fixed. Use on "audit X", "do a static analysis of X", "static review of X", "find the bugs in X", "what's wrong with X", or "fix B3 from the X audit". Scoring the whole repo is `repo-review`; answering an architectural question is `decision-report`.
+description: Statically read one project or directory for bugs, duplication and weak code, and file the findings as a dated audit under docs/audits/ — then, on later turns, flip a finding's Status as it gets fixed. Use on "audit X", "do a static analysis of X", "static review of X", "find the bugs in X", "what's wrong with X", or "fix B3 from the X audit". Answering an architectural question is `decision-report`.
 ---
 
 # Writing an audit

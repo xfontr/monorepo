@@ -222,83 +222,33 @@
                         </NuxtLink>
                     </UCard>
 
-                    <div class="grid gap-4 lg:grid-cols-3">
-                        <UCard class="lg:col-span-2" variant="flush">
-                            <template #header>
-                                <div class="flex items-center justify-between">
-                                    <h3 class="font-semibold">Work in progress</h3>
-                                    <UButton
-                                        to="/issues"
-                                        label="All issues"
-                                        size="xs"
-                                        variant="ghost"
-                                        color="neutral"
-                                        trailing-icon="i-lucide-arrow-right"
-                                    />
-                                </div>
-                            </template>
-
-                            <div
-                                v-if="next.length === 0"
-                                class="p-8 text-center text-sm text-muted"
-                            >
-                                {{
-                                    issues.error
-                                        ? "GitHub could not be read from this browser."
-                                        : "No open issues."
-                                }}
-                            </div>
-
-                            <div v-else class="divide-y divide-default">
-                                <IssueRow
-                                    v-for="issue in next"
-                                    :key="issue.number"
-                                    :issue
-                                    compact
+                    <UCard variant="flush">
+                        <template #header>
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-semibold">Work in progress</h3>
+                                <UButton
+                                    to="/issues"
+                                    label="All issues"
+                                    size="xs"
+                                    variant="ghost"
+                                    color="neutral"
+                                    trailing-icon="i-lucide-arrow-right"
                                 />
                             </div>
-                        </UCard>
+                        </template>
 
-                        <UCard class="self-start" variant="flush">
-                            <template #header>
-                                <div class="flex items-center justify-between">
-                                    <h3 class="font-semibold">Reviews</h3>
-                                    <UButton
-                                        to="/reviews"
-                                        label="All"
-                                        size="xs"
-                                        variant="ghost"
-                                        color="neutral"
-                                        trailing-icon="i-lucide-arrow-right"
-                                    />
-                                </div>
-                            </template>
+                        <div v-if="next.length === 0" class="p-8 text-center text-sm text-muted">
+                            {{
+                                issues.error
+                                    ? "GitHub could not be read from this browser."
+                                    : "No open issues."
+                            }}
+                        </div>
 
-                            <div
-                                v-if="reviews.length === 0"
-                                class="p-8 text-center text-sm text-muted"
-                            >
-                                No review written yet.
-                            </div>
-
-                            <div v-else class="divide-y divide-default">
-                                <NuxtLink
-                                    v-for="review in recentReviews"
-                                    :key="review.path"
-                                    :to="`/reviews/${review.path.split('/').at(-1)}`"
-                                    class="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-elevated/50"
-                                >
-                                    <UIcon
-                                        name="i-lucide-clipboard-check"
-                                        class="size-4 shrink-0 text-dimmed"
-                                    />
-                                    <span class="truncate font-mono text-sm">{{
-                                        review.path.split("/").at(-1)
-                                    }}</span>
-                                </NuxtLink>
-                            </div>
-                        </UCard>
-                    </div>
+                        <div v-else class="divide-y divide-default">
+                            <IssueRow v-for="issue in next" :key="issue.number" :issue compact />
+                        </div>
+                    </UCard>
                 </section>
             </div>
         </template>
@@ -324,13 +274,11 @@ const [
     useSnapshot("metrics"),
 ]);
 const { data: issues } = useIssues();
-const { data: reviews } = await useReviewPages();
 
 const open = computed(() => issues.value.issues.length);
 const issuesRead = computed(() =>
     issues.value.fetchedAt ? `read ${relativeTime(issues.value.fetchedAt)}` : "reading…",
 );
-const recentReviews = computed(() => reviews.value.slice(0, 5));
 
 const coverage = computed(() => coverageSnapshot.value?.coverage?.totals?.lines ?? null);
 const coverageTileTone = computed(() => coverageTone(coverage.value));

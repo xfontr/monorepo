@@ -18,8 +18,7 @@
             "Bash(gh issue list:*)",
             "Bash(pnpm check:*)",
             "Bash(pnpm issue:brief:*)",
-            "Bash(pnpm ci:failures:*)",
-            "Bash(.claude/skills/repo-review/collect-facts.sh:*)"
+            "Bash(pnpm ci:failures:*)"
         ],
         "deny": [
             "Edit(**/CHANGELOG.md)",

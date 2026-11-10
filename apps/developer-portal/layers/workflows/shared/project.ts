@@ -10,29 +10,18 @@ import {
     type Template,
 } from "./types.ts";
 
-/**
- * A project read from parsed YAML. Rules that need its template — a switch on a capability that
- * doesn't exist — live in `projectProblems`, because the template may be the broken file.
- */
-export const readProject = (raw: unknown): { project: Project; problems: string[] } => {
-    const reader = new Reader();
-    const source = isRecord(raw) ? raw : {};
-
-    if (!isRecord(raw)) reader.problems.push("the file isn't a mapping");
-
-    const switches: Record<string, boolean> = {};
+const readSwitches = (reader: Reader, source: Record<string, unknown>): Project["switches"] => {
+    const switches: Project["switches"] = {};
 
     for (const [id, value] of Object.entries(reader.record(source, "switches", "project"))) {
         if (typeof value === "boolean") switches[id] = value;
         else reader.problems.push(`switch \`${id}\` must be true or false`);
     }
 
-    if (source.gates !== undefined) {
-        reader.problems.push(
-            "`gates:` is gone: a gate is an `owner` block now, approved by closing its ticket or settling it as done",
-        );
-    }
+    return switches;
+};
 
+const readSettled = (reader: Reader, source: Record<string, unknown>): Project["settled"] => {
     const settled: Project["settled"] = {};
 
     for (const [id, value] of Object.entries(reader.record(source, "settled", "project"))) {
@@ -53,6 +42,28 @@ export const readProject = (raw: unknown): { project: Project; problems: string[
         }
     }
 
+    return settled;
+};
+
+/**
+ * A project read from parsed YAML. Rules that need its template — a switch on a capability that
+ * doesn't exist — live in `projectProblems`, because the template may be the broken file.
+ */
+export const readProject = (raw: unknown): { project: Project; problems: string[] } => {
+    const reader = new Reader();
+    const source = isRecord(raw) ? raw : {};
+
+    if (!isRecord(raw)) reader.problems.push("the file isn't a mapping");
+
+    const switches = readSwitches(reader, source);
+
+    if (source.gates !== undefined) {
+        reader.problems.push(
+            "`gates:` is gone: a gate is an `owner` block now, approved by closing its ticket or settling it as done",
+        );
+    }
+
+    const settled = readSettled(reader, source);
     const extras = reader
         .list(source, "extras", "project")
         .flatMap((capability, index) => readCapability(reader, capability, index) ?? []);
@@ -88,55 +99,50 @@ export const isGroupEnabled = (
 export const isEnabled = (capability: Capability, project: Project, template: Template): boolean =>
     isGroupEnabled(capability.group, project, template) && switchedOn(capability, project);
 
-/** What a project says about its template that the template doesn't back up. */
-export const projectProblems = (project: Project, template: Template): string[] => {
-    const problems: string[] = [];
-    const byId = new Map(template.capabilities.map((capability) => [capability.id, capability]));
-    const stageIds = new Set(template.stages.map((stage) => stage.id));
-
-    const groupsById = new Map(template.groups.map((group) => [group.id, group]));
-
-    for (const id of Object.keys(project.switches)) {
-        const switchable = byId.get(id) ?? groupsById.get(id);
+const switchProblems = (project: Project, template: Template): string[] =>
+    Object.keys(project.switches).flatMap((id) => {
+        const capability = template.capabilities.find((candidate) => candidate.id === id);
+        const switchable = capability ?? template.groups.find((group) => group.id === id);
 
         if (!switchable)
-            problems.push(`switch \`${id}\` names no capability or group in \`${template.id}\``);
-        else if (!switchable.optional)
-            problems.push(
-                `switch \`${id}\` is on a required ${byId.has(id) ? "capability" : "group"}`,
-            );
-    }
-
-    const extraIds = new Set(project.extras.map((extra) => extra.id));
-
-    for (const id of Object.keys(project.settled)) {
-        if (!byId.has(id) && !extraIds.has(id)) {
-            problems.push(`settled \`${id}\` names no capability`);
+            return [`switch \`${id}\` names no capability or group in \`${template.id}\``];
+        if (!switchable.optional) {
+            return [`switch \`${id}\` is on a required ${capability ? "capability" : "group"}`];
         }
+        return [];
+    });
+
+const extraProblems = (extra: Capability, template: Template, known: Set<string>): string[] => {
+    const problems: string[] = [];
+
+    if (template.capabilities.some((capability) => capability.id === extra.id)) {
+        problems.push(`extra \`${extra.id}\` reuses a template id`);
+    }
+    if (extra.group && !template.groups.some((group) => group.id === extra.group)) {
+        problems.push(`extra \`${extra.id}\` names group \`${extra.group}\`, which doesn't exist`);
+    }
+    if (!template.stages.some((stage) => stage.id === extra.stage)) {
+        problems.push(`extra \`${extra.id}\` names stage \`${extra.stage}\`, which doesn't exist`);
+    }
+    for (const dependency of extra.dependsOn.filter((id) => !known.has(id))) {
+        problems.push(`extra \`${extra.id}\` depends on \`${dependency}\`, which doesn't exist`);
     }
 
+    return problems;
+};
+
+/** What a project says about its template that the template doesn't back up. */
+export const projectProblems = (project: Project, template: Template): string[] => {
     const all = [...template.capabilities, ...project.extras];
+    const known = new Set(all.map((capability) => capability.id));
 
-    for (const extra of project.extras) {
-        if (byId.has(extra.id)) problems.push(`extra \`${extra.id}\` reuses a template id`);
-        if (extra.group && !groupsById.has(extra.group)) {
-            problems.push(
-                `extra \`${extra.id}\` names group \`${extra.group}\`, which doesn't exist`,
-            );
-        }
-        if (!stageIds.has(extra.stage)) {
-            problems.push(
-                `extra \`${extra.id}\` names stage \`${extra.stage}\`, which doesn't exist`,
-            );
-        }
-        for (const dependency of extra.dependsOn) {
-            if (!byId.has(dependency) && !extraIds.has(dependency)) {
-                problems.push(
-                    `extra \`${extra.id}\` depends on \`${dependency}\`, which doesn't exist`,
-                );
-            }
-        }
-    }
+    const problems = [
+        ...switchProblems(project, template),
+        ...Object.keys(project.settled)
+            .filter((id) => !known.has(id))
+            .map((id) => `settled \`${id}\` names no capability`),
+        ...project.extras.flatMap((extra) => extraProblems(extra, template, known)),
+    ];
 
     return project.extras.length > 0 ? [...problems, ...cycleProblem(all)] : problems;
 };

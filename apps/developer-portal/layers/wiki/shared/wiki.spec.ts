@@ -9,8 +9,6 @@ const PAGES = [
     { path: "/docs/guides/first-hour", title: "🌱 First hour in this repo" },
     { path: "/docs/concepts/readme", title: "🧠 Concepts" },
     { path: "/docs/concepts/boundaries", title: "🧱 Why the boundary system exists" },
-    { path: "/docs/reviews/scorecards", title: "🎯 Scorecards" },
-    { path: "/docs/reviews/2026-09-05-abcb17d", title: "📊 Review — 2026-09-05" },
     { path: "/docs/decisions/readme", title: "🧭 Decisions" },
     { path: "/docs/decisions/template", title: "🧭" },
     {
@@ -62,13 +60,12 @@ describe("buildWiki", () => {
         ]);
     });
 
-    it("drops the changelogs, the dated reviews and the decision reports, which have pages of their own in this app", () => {
+    it("drops the changelogs and the decision reports, which have pages of their own in this app", () => {
         const paths = buildWiki(PAGES).flatMap((section) =>
             section.groups.flatMap((group) => group.entries.map((entry) => entry.path)),
         );
 
         expect(paths).not.toContain("/packages/ui/changelog");
-        expect(paths).not.toContain("/docs/reviews/2026-09-05-abcb17d");
         expect(paths).not.toContain("/docs/decisions/0001-feature-discoverability");
     });
 
@@ -80,17 +77,12 @@ describe("buildWiki", () => {
         expect(paths).not.toContain("/docs/decisions/template");
     });
 
-    it("keeps the rubric, which is a doc about how a review is written rather than a review", () => {
-        expect(labelsIn("docs", "reviews")).toEqual(["Scorecards"]);
-    });
-
     it("sorts the docs tree's own pages above its subdirectories, so the map comes before the territory", () => {
         expect(sectionOf("docs")?.groups.map((group) => group.key)).toEqual([
             "docs",
             "concepts",
             "guides",
             "decisions",
-            "reviews",
         ]);
     });
 

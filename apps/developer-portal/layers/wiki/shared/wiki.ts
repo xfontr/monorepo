@@ -31,13 +31,12 @@ export interface WikiSection {
 }
 
 /**
- * The reviews, decisions and audits *rubrics* aren't excluded — they're docs about the process, not the
+ * The decisions and audits *rubrics* aren't excluded — they're docs about the process, not the
  * records. A `TEMPLATE.md`'s placeholder heading (`<Decision title>`) is markup `@nuxt/content`
  * treats as raw HTML and drops from the extracted title, so its nav entry would end up blank.
  */
 const EXCLUDED = [
     /\/changelog$/,
-    /^\/docs\/reviews\/\d{4}-/,
     /^\/docs\/decisions\/\d{4}-/,
     /^\/docs\/audits\/\d{4}-/,
     /\/template$/,
@@ -84,14 +83,13 @@ const SECTIONS = {
 } as const satisfies Record<SectionId, { label: string; icon: string; blurb: string }>;
 
 /** Ordered where the order carries meaning; anything new falls through to alphabetical. */
-const DOCS_GROUPS = ["concepts", "guides", "decisions", "audits", "reviews"];
+const DOCS_GROUPS = ["concepts", "guides", "decisions", "audits"];
 
 const GROUP_LABELS: Record<string, string> = {
     concepts: "Concepts",
     guides: "Guides",
     decisions: "Decisions",
     audits: "Audits",
-    reviews: "Reviews",
     skills: "Skills",
     agents: "Subagents",
 };

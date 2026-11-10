@@ -17,6 +17,7 @@ export default [
     }),
     {
         // Plain CSS classes from the prose stylesheets and a spec hook, not Tailwind utilities.
+        files: ["**/*.vue", "**/*.ts"],
         rules: {
             "better-tailwindcss/no-unknown-classes": [
                 "error",

@@ -1,17 +1,14 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@monorepo/configs/playwright/test";
 import type { Page } from "@playwright/test";
+import { answerWith, expectEmptyFormRefused } from "./forms.ts";
 import { TURNSTILE_SCRIPT, TURNSTILE_SCRIPT_PATTERN } from "./vendors.ts";
 
 const WCAG_AA = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
 const PATH = "/contacto/";
 
-// The route itself is #311's, so the browser's request is answered here and Resend never runs
-const answerWith = (page: Page, status: number, body?: unknown) =>
-    page.route("**/api/contact", (route) =>
-        route.fulfill(body ? { status, json: body } : { status }),
-    );
+const ENDPOINT = "/api/contact";
 
 const send = async (page: Page, settled: () => Promise<void>) => {
     // CI's runner can type before hydration, which a server-rendered form then drops on submit
@@ -53,7 +50,7 @@ test("the footer's contact link lands on the form", async ({ page }) => {
 });
 
 test("sends a message and confirms it in place of the form", async ({ page }) => {
-    await answerWith(page, 204);
+    await answerWith(page, ENDPOINT, 204);
     await page.goto(PATH);
 
     const confirmation = page.getByRole("heading", { name: "Mensaje enviado" });
@@ -65,33 +62,12 @@ test("sends a message and confirms it in place of the form", async ({ page }) =>
 });
 
 test("refuses an empty form without sending it, naming each field", async ({ page }) => {
-    let sent = false;
-
-    page.on("request", (request) => {
-        if (request.url().endsWith("/api/contact")) sent = true;
+    await expectEmptyFormRefused(page, {
+        path: PATH,
+        endpoint: "/api/contact",
+        button: "Enviar mensaje",
+        fields: ["Nombre", "Correo electrónico", "Mensaje", "Consentimiento"],
     });
-
-    await page.goto(PATH);
-
-    const summary = page.getByRole("alert");
-
-    await expect(async () => {
-        await page.getByRole("button", { name: "Enviar mensaje" }).click();
-
-        await expect(summary).toBeVisible({ timeout: 500 });
-    }).toPass();
-
-    await expect(summary.getByRole("link")).toHaveText([
-        "Nombre",
-        "Correo electrónico",
-        "Mensaje",
-        "Consentimiento",
-    ]);
-    expect(sent).toBe(false);
-
-    const { violations } = await new AxeBuilder({ page }).withTags(WCAG_AA).analyze();
-
-    expect(violations).toEqual([]);
 });
 
 test.describe("a refused send", () => {
@@ -99,7 +75,7 @@ test.describe("a refused send", () => {
     test.use({ allowedConsole: [/the server responded with a status of (422|502)\b/] });
 
     test("puts the server's refusal on the field it names", async ({ page }) => {
-        await answerWith(page, 422, {
+        await answerWith(page, ENDPOINT, 422, {
             statusCode: 422,
             statusMessage: "Invalid message",
             data: [{ name: "email", message: "invalid" }],
@@ -116,7 +92,7 @@ test.describe("a refused send", () => {
     });
 
     test("announces a failed send and keeps what the reader wrote", async ({ page }) => {
-        await answerWith(page, 502, { statusCode: 502, statusMessage: "Bad Gateway" });
+        await answerWith(page, ENDPOINT, 502, { statusCode: 502, statusMessage: "Bad Gateway" });
         await page.goto(PATH);
 
         const alert = page.getByRole("alert");

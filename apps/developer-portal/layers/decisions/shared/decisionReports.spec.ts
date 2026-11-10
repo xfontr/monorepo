@@ -92,40 +92,29 @@ describe("filterDecisions", () => {
 });
 
 describe("sortDecisions", () => {
-    it("puts the newest decision first by number, not by when the file was last touched", () => {
-        expect(numbersOf(sortDecisions(REPORTS, "newest"))).toEqual([
-            "0004",
-            "0003",
-            "0002",
-            "0001",
-        ]);
-    });
-
-    it("reads in the order the decisions were made when asked for oldest first", () => {
-        expect(numbersOf(sortDecisions(REPORTS, "oldest"))).toEqual([
-            "0001",
-            "0002",
-            "0003",
-            "0004",
-        ]);
-    });
-
-    it("sorts by last commit, so a report edited long after it was filed surfaces", () => {
-        expect(numbersOf(sortDecisions(REPORTS, "updated"))).toEqual([
-            "0002",
-            "0003",
-            "0001",
-            "0004",
-        ]);
-    });
-
-    it("groups by status in the order the vocabulary lists them, unparsed last rather than under a guess", () => {
-        expect(numbersOf(sortDecisions(REPORTS, "status"))).toEqual([
-            "0004",
-            "0001",
-            "0002",
-            "0003",
-        ]);
+    it.each([
+        {
+            title: "puts the newest decision first by number, not by when the file was last touched",
+            order: "newest",
+            expected: ["0004", "0003", "0002", "0001"],
+        },
+        {
+            title: "reads in the order the decisions were made when asked for oldest first",
+            order: "oldest",
+            expected: ["0001", "0002", "0003", "0004"],
+        },
+        {
+            title: "sorts by last commit, so a report edited long after it was filed surfaces",
+            order: "updated",
+            expected: ["0002", "0003", "0001", "0004"],
+        },
+        {
+            title: "groups by status in the order the vocabulary lists them, unparsed last rather than under a guess",
+            order: "status",
+            expected: ["0004", "0001", "0002", "0003"],
+        },
+    ] as const)("$title", ({ order, expected }) => {
+        expect(numbersOf(sortDecisions(REPORTS, order))).toEqual(expected);
     });
 
     it("leaves the reports it was handed untouched, so a sorted view never reorders the source", () => {

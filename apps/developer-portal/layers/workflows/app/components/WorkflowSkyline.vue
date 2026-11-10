@@ -93,7 +93,6 @@ const order = computed(
 
 .cell {
     border-color: var(--state);
-    transition: transform 0.15s;
 }
 
 .cell.done,
@@ -132,6 +131,10 @@ const order = computed(
 }
 
 @media (prefers-reduced-motion: no-preference) {
+    .cell {
+        transition: transform 0.15s;
+    }
+
     .cell.in-flight {
         animation: breathe 1.8s ease-in-out infinite;
     }

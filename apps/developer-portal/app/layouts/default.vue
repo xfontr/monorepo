@@ -64,7 +64,6 @@
 import type { NavigationMenuItem } from "@nuxt/ui";
 
 const { data: issues } = useIssues();
-const { data: reviews } = await useReviewPages();
 const { data: badges } = await useFetch<{ advisories: number }>("/api/badges", { key: "badges" });
 const {
     public: { repoUrl },
@@ -85,7 +84,7 @@ const GROUPS = [
     { label: "Build", items: ["docs", "graph", "decisions", "audits", "workflows"] },
     {
         label: "Engineering health",
-        items: ["issues", "coverage", "telemetry", "deps", "reviews", "scorecards"],
+        items: ["issues", "coverage", "telemetry", "deps"],
     },
 ];
 
@@ -94,7 +93,6 @@ const { nav }: { nav: Record<string, NavLink | undefined> } = useAppConfig();
 const counts = computed<Record<string, number>>(() => ({
     issues: open.value,
     deps: advisories.value,
-    reviews: reviews.value.length,
 }));
 
 const navGroups = computed<{ label: string; items: NavigationMenuItem[] }[]>(() =>

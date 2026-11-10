@@ -41,6 +41,14 @@ const emptyRule = (enabled: boolean): LintRuleUsage => ({
     disabled: 0,
 });
 
+const tally = (usage: LintRuleUsage, { at = "", project, fixable }: UsageRecord, since: string) => {
+    usage.hits += 1;
+    if (at >= since) usage.recent += 1;
+    if (fixable === "1") usage.fixable += 1;
+    if (!usage.last || at > usage.last) usage.last = at;
+    if (project) usage.projects[project] = (usage.projects[project] ?? 0) + 1;
+};
+
 /** `since` is the first day inside the window, as `YYYY-MM-DD`. */
 export const summarizeLint = (
     records: UsageRecord[],
@@ -52,15 +60,10 @@ export const summarizeLint = (
     for (const rule of enabled) rules[rule] = emptyRule(true);
 
     let first: string | null = null;
-    for (const { at, rule, project, fixable } of records) {
+    for (const record of records) {
+        const { at, rule } = record;
         if (!at || !rule) continue;
-        const usage = (rules[rule] ??= emptyRule(false));
-
-        usage.hits += 1;
-        if (at >= since) usage.recent += 1;
-        if (fixable === "1") usage.fixable += 1;
-        if (!usage.last || at > usage.last) usage.last = at;
-        if (project) usage.projects[project] = (usage.projects[project] ?? 0) + 1;
+        tally((rules[rule] ??= emptyRule(false)), record, since);
         if (!first || at < first) first = at;
     }
 

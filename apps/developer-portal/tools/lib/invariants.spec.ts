@@ -2,8 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
     compareDecisionShape,
     compareLayoutBlock,
-    compareReviewHistory,
-    compareScorecardShape,
     compareTagTables,
     projectsInLayoutBlock,
     tagsInBoundaries,
@@ -98,62 +96,6 @@ describe("compareLayoutBlock", () => {
         ]);
 
         expect(finding?.detail).toContain("developer-portal");
-    });
-});
-
-describe("compareReviewHistory", () => {
-    const HISTORY = `
-| Review | Commit | Total |
-| --- | --- | --- |
-| [2026-09-04](./2026-09-04-c1025f3.md) | \`c1025f3\` | 4.1 |
-`;
-
-    it("finds nothing when every review has a row", () => {
-        expect(compareReviewHistory(HISTORY, ["2026-09-04-c1025f3.md"])).toEqual([]);
-    });
-
-    it("names the review with no row, which is a review that compares against nothing", () => {
-        const [finding] = compareReviewHistory(HISTORY, [
-            "2026-09-04-c1025f3.md",
-            "2026-09-05-abcb17d.md",
-        ]);
-
-        expect(finding?.id).toBe("review-history-incomplete");
-        expect(finding?.detail).toContain("2026-09-05-abcb17d.md");
-    });
-});
-
-describe("compareScorecardShape", () => {
-    const REVIEW = `
-## 🧮 Scores
-
-| Card | Score | Δ | Verdict |
-| --- | --- | --- | --- |
-| 🧱 Architecture | 5/5 | ↑1 | fine |
-| 🧩 Implementation | 4/5 | = | fine |
-| 🧪 Testing | 4/5 | = | fine |
-| ⚙️ Tooling & DX | 4/5 | ↑1 | fine |
-| 📚 Documentation | 4/5 | ↑2 | fine |
-| 🤖 Agent setup | 3/5 | = | fine |
-| 📋 Process & delivery | 4/5 | = | fine |
-| **Total** | **4.1/5** | ↑0.5 | |
-
-## 🃏 Cards
-`;
-
-    it("finds nothing when the Scores table matches the template", () => {
-        expect(compareScorecardShape("2026-09-04-c1025f3.md", REVIEW)).toEqual([]);
-    });
-
-    it("names the file and the problem when a review's table doesn't parse", () => {
-        const [finding] = compareScorecardShape(
-            "2026-09-06-badbeef.md",
-            "## 🧮 Scores\n\nnot a table\n",
-        );
-
-        expect(finding?.id).toBe("scorecard-shape-mismatch");
-        expect(finding?.detail).toContain("2026-09-06-badbeef.md");
-        expect(finding?.evidence).toContain("docs/reviews/2026-09-06-badbeef.md");
     });
 });
 

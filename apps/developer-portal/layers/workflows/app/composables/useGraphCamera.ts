@@ -87,7 +87,7 @@ export const useGraphCamera = (
     };
 
     const move = (event: PointerEvent) => {
-        if (!pressed || event.pointerId !== pressed.id) return;
+        if (pressed?.id !== event.pointerId) return;
 
         const dx = event.clientX - pressed.x;
         const dy = event.clientY - pressed.y;

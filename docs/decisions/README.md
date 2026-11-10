@@ -44,9 +44,8 @@ exceptions, both about the container rather than the finding. A **labelled, whol
 migration** (every filed report moved to a new template shape in one dated change, this file's own
 history is the example) may touch every section, because nothing about any individual finding
 changes. A **citation repair** — a relative link gone stale because the file it pointed at moved or
-was renamed elsewhere in the repo — may be fixed in place, the same way a dated review's broken
-link gets fixed rather than left. Neither licenses rewriting one report's prose in isolation to say
-something different than what was originally found — the silent in-place rewrite of `0009` that
+was renamed elsewhere in the repo — may be fixed in place. Neither licenses rewriting one report's
+prose in isolation to say something different than what was originally found — the silent in-place rewrite of `0009` that
 [`0011`](./0011-docs-system-enforcement.md) records is the case this rule exists for.
 
 ## 🚦 Status and decision
