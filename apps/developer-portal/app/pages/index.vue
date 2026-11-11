@@ -120,6 +120,46 @@
                     </div>
                 </section>
 
+                <section class="flex flex-col gap-3">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <h2 class="text-xl font-semibold">Active workflows</h2>
+                            <p class="mt-1 text-sm text-muted">
+                                Projects still working through their workflow map.
+                            </p>
+                        </div>
+                        <UButton
+                            to="/workflows"
+                            label="All workflows"
+                            size="xs"
+                            variant="ghost"
+                            color="neutral"
+                            trailing-icon="i-lucide-arrow-right"
+                        />
+                    </div>
+
+                    <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                        <NuxtLink
+                            v-for="workflow in activeWorkflows"
+                            :key="workflow.id"
+                            :to="`/workflows/${workflow.id}`"
+                            class="flex items-center gap-4 rounded-lg border border-default bg-default p-4 transition-colors hover:bg-elevated/50"
+                        >
+                            <ProgressRing :percent="workflow.percent" :size="64" />
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate font-semibold">{{ workflow.title }}</p>
+                                <p class="truncate text-xs text-muted">
+                                    {{ workflow.templateTitle }}
+                                </p>
+                                <p class="mt-1 text-xs text-dimmed tabular-nums">
+                                    {{ workflow.now }}
+                                </p>
+                            </div>
+                        </NuxtLink>
+                        <NewProjectCard />
+                    </div>
+                </section>
+
                 <section class="flex flex-col gap-4">
                     <div>
                         <h2 class="text-xl font-semibold">Engineering health</h2>
@@ -295,7 +335,25 @@ const readmeByPath = computed(
 );
 const repositoryReadme = computed(() => readmeByPath.value.get("/readme"));
 const featuredProjects = computed(() =>
-    projectNodes.value.filter((project) => project.root.startsWith("apps/")),
+    projectNodes.value.filter((project) => project.root.startsWith("apps/")).slice(0, 2),
+);
+
+const { data: workflows } = await useWorkflows();
+
+const activeWorkflows = computed(() =>
+    workflows.value.projects
+        .filter(({ progress }) => progress.percent < 100)
+        .map(({ project, template, counts, progress }) => ({
+            id: project.id,
+            title: project.title,
+            templateTitle: template.title,
+            percent: progress.percent,
+            now: [
+                `${progress.done}/${progress.total} done`,
+                `${counts["waiting-on-you"]} waiting on you`,
+                `${counts.ready} ready`,
+            ].join(" · "),
+        })),
 );
 
 const readmeFor = (project: ProjectNode) =>

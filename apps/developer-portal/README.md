@@ -60,7 +60,7 @@ The rules are [`apps/huella-legal`](../huella-legal/README.md#-structure)'s. The
 `app/components/` and `app/utils/`, and uses only itself. The core and each capability use
 themselves and the kit. A feature also uses the core and the capabilities, never another feature,
 so each one comes out alone. Only the shell uses everything: the Overview and the sidebar's badges
-read issues and the snapshot. `eslint.layerBoundaries` in
+read issues, the snapshot and the active workflows. `eslint.layerBoundaries` in
 [`eslint.config.ts`](./eslint.config.ts) enforces this, auto-imports included.
 
 Any import into another layer, from `app/`, `shared/`, `server/` or `tools/`, reads

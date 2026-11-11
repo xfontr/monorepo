@@ -51,6 +51,7 @@ export default defineNuxtConfig({
     app: {
         head: {
             title: "Monorepo",
+            link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
         },
     },
 });

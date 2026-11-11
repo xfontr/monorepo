@@ -7,6 +7,7 @@ const state = vi.hoisted(() => ({
     snapshots: {} as Record<string, { value: unknown }>,
     issues: null as { value: unknown } | null,
     readmes: [] as unknown[],
+    workflows: { templates: [], projects: [] as unknown[], problems: [] },
     asyncData: vi.fn(),
     query: vi.fn(),
 }));
@@ -14,6 +15,7 @@ mockNuxtImport("useSnapshot", () => (name: string) => ({ data: state.snapshots[n
 mockNuxtImport("useIssues", () => () => ({ data: state.issues }));
 mockNuxtImport("useAsyncData", () => state.asyncData);
 mockNuxtImport("queryCollection", () => state.query);
+mockNuxtImport("useWorkflows", () => () => ({ data: ref(state.workflows) }));
 
 const Panel = { template: "<section><slot name='header' /><slot name='body' /></section>" };
 const Card = { template: "<article><slot name='header' /><slot /></article>" };
@@ -47,6 +49,7 @@ const global = {
         IssueRow: Issue,
         SnapshotAge: Snapshot,
         UIcon: true,
+        ProgressRing: true,
         UBadge: { props: { label: String }, template: "<span>{{ label }}</span>" },
         NuxtLink: Button,
     },
@@ -61,6 +64,7 @@ beforeEach(() => {
         data: ref(handler()),
     }));
     state.readmes = [];
+    state.workflows = { templates: [], projects: [], problems: [] };
     state.snapshots = {
         projects: ref({ projects: { projects: [] } }),
         coverage: ref({ coverage: { totals: { lines: 82 } } }),
@@ -176,5 +180,45 @@ describe("overview page", () => {
         expect(wrapper.text()).toContain("GitHub could not be read");
         expect(wrapper.text()).toContain("Open issue");
         expect(wrapper.find("a[href='/docs/docs/a']").exists()).toBe(true);
+    });
+
+    it("features at most two applications", async () => {
+        const app = (name: string) => ({
+            name: `@monorepo/${name}`,
+            root: `apps/${name}`,
+            tags: [],
+            dependsOn: [],
+            dependedOnBy: [],
+        });
+        state.snapshots.projects!.value = {
+            projects: { projects: [app("one"), app("two"), app("three")] },
+        };
+        const wrapper = await mountSuspended(Page, { global });
+
+        expect(wrapper.text()).toContain("@monorepo/two");
+        expect(wrapper.text()).not.toContain("@monorepo/three");
+    });
+
+    it("lists only unfinished workflows and always offers a new one", async () => {
+        const workflow = (id: string, percent: number) => ({
+            project: { id, title: `Project ${id}` },
+            template: { title: "Website" },
+            counts: { "waiting-on-you": 1, ready: 2 },
+            progress: { done: 1, total: 4, percent },
+        });
+        state.workflows.projects = [workflow("live", 25), workflow("shipped", 100)];
+        const wrapper = await mountSuspended(Page, { global });
+
+        expect(wrapper.find("a[href='/workflows/live']").exists()).toBe(true);
+        expect(wrapper.find("a[href='/workflows/shipped']").exists()).toBe(false);
+        expect(wrapper.find("a[href='/workflows/new']").exists()).toBe(true);
+    });
+
+    it("still offers a new workflow when none is in progress", async () => {
+        const wrapper = await mountSuspended(Page, { global });
+
+        expect(wrapper.find("a[href='/workflows/new']").attributes("aria-label")).toBe(
+            "New workflow",
+        );
     });
 });
