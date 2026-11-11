@@ -28,6 +28,18 @@ describe("readTemplate", () => {
         ]);
     });
 
+    it("rejects a complexity off the Fibonacci scale, which would make totals incomparable", () => {
+        const { template, problems } = readTemplate({
+            ...TEMPLATE,
+            capabilities: [{ id: "x", stage: "build", title: "X", complexity: 4 }],
+        });
+
+        expect(problems).toEqual([
+            "capability `x`: `complexity: 4` isn't one of 1, 2, 3, 5, 8, 13, 21",
+        ]);
+        expect(template.capabilities[0]?.complexity).toBeNull();
+    });
+
     it("catches a loop of dependsOn links, which no order could ever satisfy", () => {
         const { problems } = readTemplate({
             ...TEMPLATE,

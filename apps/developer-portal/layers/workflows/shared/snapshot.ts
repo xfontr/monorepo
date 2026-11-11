@@ -37,6 +37,7 @@ const readIssue = (reader: Reader, raw: unknown, where: string): SnapshotIssue |
         ),
         branch: raw.branch === true,
         owner: raw.owner === true,
+        complexity: typeof raw.complexity === "number" ? raw.complexity : null,
     };
 };
 

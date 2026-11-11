@@ -16,6 +16,7 @@ const issue = (number: number, caps: string[], overrides: Partial<SnapshotIssue>
         blockedBy: [],
         branch: false,
         owner: false,
+        complexity: null,
         ...overrides,
     }) satisfies SnapshotIssue;
 

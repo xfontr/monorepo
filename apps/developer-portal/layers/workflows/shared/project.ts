@@ -2,12 +2,14 @@ import { cycleProblem, readCapability } from "./capability.ts";
 import { asText, isRecord, Reader } from "./reader.ts";
 import {
     SETTLED_STATES,
+    TICKET_SIZES,
     type Capability,
     type Feature,
     type Group,
     type Project,
     type SettledState,
     type Template,
+    type TicketSize,
 } from "./types.ts";
 
 const readSwitches = (reader: Reader, source: Record<string, unknown>): Project["switches"] => {
@@ -45,6 +47,15 @@ const readSettled = (reader: Reader, source: Record<string, unknown>): Project["
     return settled;
 };
 
+const readTicketSize = (reader: Reader, source: Record<string, unknown>): TicketSize => {
+    const size = reader.text(source, "ticketSize", "project", "block");
+
+    if ((TICKET_SIZES as readonly string[]).includes(size)) return size as TicketSize;
+
+    reader.problems.push(`\`ticketSize: ${size}\` isn't one of ${TICKET_SIZES.join(", ")}`);
+    return "block";
+};
+
 /**
  * A project read from parsed YAML. Rules that need its template — a switch on a capability that
  * doesn't exist — live in `projectProblems`, because the template may be the broken file.
@@ -76,6 +87,7 @@ export const readProject = (raw: unknown): { project: Project; problems: string[
         milestone: reader.text(source, "milestone", "project"),
         summary: reader.text(source, "summary", "project", ""),
         switches,
+        ticketSize: readTicketSize(reader, source),
         settled,
         extras,
     };

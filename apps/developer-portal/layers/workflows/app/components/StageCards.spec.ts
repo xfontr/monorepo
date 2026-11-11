@@ -27,6 +27,7 @@ const ticket = (number: number, caps: string[]) => ({
     blockedBy: [],
     branch: false,
     owner: false,
+    complexity: null,
 });
 const view = projectView(project, template, {
     syncedAt: "2026-11-09T00:00:00Z",
@@ -48,6 +49,39 @@ describe("StageCards", () => {
 
         expect(page!.text()).toContain("waits on Kit");
         expect(kit!.text()).toContain("unblocks 1");
+    });
+
+    it("shows the SP each block spends, and none on a block nobody estimated", async () => {
+        const estimated = projectView(project, template, {
+            syncedAt: "2026-11-09T00:00:00Z",
+            milestone: "P",
+            issues: [{ ...ticket(1, ["kit"]), complexity: 5 }, ticket(2, ["page"])],
+            noMilestone: [],
+        });
+        const wrapper = await mountSuspended(StageCards, {
+            props: { stage: estimated.stages[0]!, index: 0 },
+            global: { stubs: { UIcon: true } },
+        });
+        const [kit, page] = wrapper.findAll("li button[aria-pressed]");
+
+        expect(kit!.text()).toContain("5 SP");
+        expect(page!.text()).not.toContain("SP");
+    });
+
+    it("stacks a block's ticket dots in two rows once it has more than five tickets", async () => {
+        const crowded = projectView(project, template, {
+            syncedAt: "2026-11-09T00:00:00Z",
+            milestone: "P",
+            issues: [1, 2, 3, 4, 5, 6].map((number) => ticket(number, ["kit"])),
+            noMilestone: [],
+        });
+        const wrapper = await mountSuspended(StageCards, {
+            props: { stage: crowded.stages[0]!, index: 0 },
+            global: { stubs: { UIcon: true } },
+        });
+        const [kit] = wrapper.findAll("[data-ticket-dots]");
+
+        expect(kit!.classes()).toContain("grid-rows-2");
     });
 
     it("gives a switched-off block no card, since it isn't part of the project", async () => {

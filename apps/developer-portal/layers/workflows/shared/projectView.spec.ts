@@ -40,6 +40,7 @@ const issue = (number: number, caps: string[], overrides: Partial<SnapshotIssue>
         blockedBy: [],
         branch: false,
         owner: false,
+        complexity: null,
         ...overrides,
     }) satisfies SnapshotIssue;
 
@@ -364,5 +365,58 @@ describe("replay", () => {
         expect(capabilityOf(view(project, [], [], REPLAYED, "2026-10-15"), "sign-off")?.state).toBe(
             "done",
         );
+    });
+});
+
+describe("complexity points", () => {
+    const ESTIMATED = {
+        ...TEMPLATE,
+        capabilities: [
+            { id: "content-audit", stage: "discovery", title: "Content audit", complexity: 5 },
+            { id: "article-page", stage: "build", title: "Article page", complexity: 8 },
+            { id: "comments", stage: "build", title: "Comments", optional: true, complexity: 8 },
+            { id: "search", stage: "build", title: "Search" },
+        ],
+    };
+
+    it("counts a block not yet filed at the template's estimate and a filed one at its tickets'", () => {
+        const result = view({}, [issue(1, ["content-audit"], { complexity: 3 })], [], ESTIMATED);
+
+        expect(capabilityOf(result, "content-audit")?.points).toEqual({
+            done: 3,
+            total: 3,
+            estimated: 0,
+            unestimated: 0,
+        });
+        expect(result.points).toEqual({ done: 3, total: 11, estimated: 8, unestimated: 1 });
+    });
+
+    it("leaves a switched-off or settled block out of the total instead of padding it", () => {
+        const result = view(
+            { settled: { "article-page": { status: "skipped", note: "Not needed." } } },
+            [],
+            [],
+            ESTIMATED,
+        );
+
+        expect(result.points.total).toBe(5);
+    });
+
+    it("splits a ticket shared by two blocks so the project total counts it once", () => {
+        const result = view(
+            {},
+            [open(1, ["content-audit", "article-page"], { complexity: 8 })],
+            [],
+            ESTIMATED,
+        );
+
+        expect(capabilityOf(result, "article-page")?.points.total).toBe(4);
+        expect(result.points.total).toBe(8);
+    });
+
+    it("counts an unestimated ticket rather than treating it as zero work silently", () => {
+        const result = view({}, [open(1, ["search"])], [], ESTIMATED);
+
+        expect(capabilityOf(result, "search")?.points.unestimated).toBe(1);
     });
 });

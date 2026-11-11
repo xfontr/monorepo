@@ -41,6 +41,7 @@ const capabilityWith = (issues: object[], optional = true): CapabilityView => {
             blockedBy: [],
             branch: false,
             owner: false,
+            complexity: null,
             ...issue,
         })) as never,
         noMilestone: [],

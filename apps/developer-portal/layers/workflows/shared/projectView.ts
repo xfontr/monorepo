@@ -1,11 +1,13 @@
 import { featuresOf, isEnabled, isGroupEnabled } from "./project.ts";
 import { day, issueAsOf, ticketStatus } from "./ticket.ts";
+import { ticketsToFile } from "./ticketSize.ts";
 import {
     CAPABILITY_LABEL_PREFIX,
     CAPABILITY_STATES,
     type Capability,
     type CapabilityState,
     type CapabilityView,
+    type Points,
     type Progress,
     type Project,
     type ProjectView,
@@ -27,6 +29,19 @@ const progressOf = (capabilities: CapabilityView[]): Progress => {
         percent: counted.length === 0 ? 0 : Math.round((done / counted.length) * 100),
     };
 };
+
+const NO_POINTS: Points = { done: 0, total: 0, estimated: 0, unestimated: 0 };
+
+const addPoints = (list: Points[]): Points =>
+    list.reduce(
+        (sum, points) => ({
+            done: sum.done + points.done,
+            total: sum.total + points.total,
+            estimated: sum.estimated + points.estimated,
+            unestimated: sum.unestimated + points.unestimated,
+        }),
+        NO_POINTS,
+    );
 
 /** What needs the owner first, then what an agent can take, then what can't move yet. */
 const LEFT_ORDER: CapabilityState[] = [
@@ -152,6 +167,34 @@ export const projectView = (
         return seen.size;
     };
 
+    // A ticket shared by several blocks splits its estimate between them, so totals never count it twice.
+    const pointsOf = (capability: Capability): Points => {
+        const tickets = live.get(capability.id) ?? [];
+
+        if (tickets.length > 0) {
+            return addPoints(
+                tickets.map((ticket) => {
+                    const share = (ticket.complexity ?? 0) / Math.max(1, ticket.caps.length);
+                    return {
+                        done: ticket.state === "closed" ? share : 0,
+                        total: share,
+                        estimated: 0,
+                        unestimated: ticket.complexity === null ? 1 : 0,
+                    };
+                }),
+            );
+        }
+
+        if (!enabled.get(capability.id) || settledFor(capability.id)) return NO_POINTS;
+
+        return {
+            done: 0,
+            total: capability.complexity ?? 0,
+            estimated: capability.complexity ?? 0,
+            unestimated: capability.complexity === null ? 1 : 0,
+        };
+    };
+
     const views: CapabilityView[] = all.map((capability) => ({
         ...capability,
         enabled: enabled.get(capability.id) ?? false,
@@ -165,6 +208,7 @@ export const projectView = (
             ? (needs.get(capability.id) ?? []).filter((need) => !isFinished(need))
             : [],
         unblockCount: unblockCount(capability.id),
+        points: pointsOf(capability),
     }));
     const viewById = new Map(views.map((view) => [view.id, view]));
 
@@ -190,7 +234,12 @@ export const projectView = (
 
     const stages: StageView[] = template.stages.map((stage) => {
         const capabilities = views.filter((capability) => capability.stage === stage.id);
-        return { ...stage, capabilities, progress: progressOf(capabilities) };
+        return {
+            ...stage,
+            capabilities,
+            progress: progressOf(capabilities),
+            points: addPoints(capabilities.map(({ points }) => points)),
+        };
     });
 
     const left = views
@@ -242,6 +291,15 @@ export const projectView = (
               }))
             : [];
 
+    const toFile = all.filter(
+        ({ id }) => enabled.get(id) && !settledFor(id) && (live.get(id) ?? []).length === 0,
+    );
+    const tickets = {
+        filed: issues.filter((issue) => issue.caps.length > 0 && issue.reason !== "not_planned")
+            .length,
+        toFile: ticketsToFile(toFile),
+    };
+
     return {
         project,
         template,
@@ -255,6 +313,8 @@ export const projectView = (
         critical,
         unsorted: [...unsorted, ...strays],
         progress: progressOf(views),
+        points: addPoints(views.map(({ points }) => points)),
+        tickets,
         syncedAt: snapshot?.syncedAt ?? null,
     };
 };

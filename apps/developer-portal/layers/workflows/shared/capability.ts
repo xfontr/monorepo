@@ -1,5 +1,12 @@
 import { asText, isRecord, type Reader } from "./reader.ts";
-import { KINDS, REUSE_PLANS, type Capability, type Kind, type ReusePlan } from "./types.ts";
+import {
+    COMPLEXITY_SCALE,
+    KINDS,
+    REUSE_PLANS,
+    type Capability,
+    type Kind,
+    type ReusePlan,
+} from "./types.ts";
 
 export const readCapability = (reader: Reader, raw: unknown, index: number): Capability | null => {
     if (!isRecord(raw)) {
@@ -24,6 +31,18 @@ export const readCapability = (reader: Reader, raw: unknown, index: number): Cap
                 `${where}: \`reuse.plan: ${plan || "(missing)"}\` isn't one of ${REUSE_PLANS.join(", ")}`,
             );
         }
+    }
+
+    const complexity =
+        typeof raw.complexity === "number" &&
+        (COMPLEXITY_SCALE as readonly number[]).includes(raw.complexity)
+            ? raw.complexity
+            : null;
+
+    if (raw.complexity !== undefined && complexity === null) {
+        reader.problems.push(
+            `${where}: \`complexity: ${JSON.stringify(raw.complexity)}\` isn't one of ${COMPLEXITY_SCALE.join(", ")}`,
+        );
     }
 
     const kind = asText(raw.kind) ?? "build";
@@ -66,6 +85,7 @@ export const readCapability = (reader: Reader, raw: unknown, index: number): Cap
                   ]
                 : [],
         ),
+        complexity,
     };
 };
 

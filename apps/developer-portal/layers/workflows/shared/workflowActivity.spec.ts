@@ -35,6 +35,7 @@ const issue = (
     blockedBy: [],
     branch: false,
     owner: false,
+    complexity: null,
 });
 
 const activityOf = (issues: SnapshotIssue[]) =>
