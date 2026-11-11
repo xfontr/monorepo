@@ -3,15 +3,20 @@ import { flag, type Args } from "../shared/cli.ts";
 import { ExpectedError } from "../shared/errors.ts";
 import { createTicket, milestoneIssues } from "./adapters/gh.ts";
 import { oneProject, readProject, readTemplate } from "./adapters/files.ts";
-import { planFiling, readMap } from "./domain/filing.ts";
+import { bundleFor, planFiling, readMap } from "./domain/filing.ts";
 import { toSnapshot } from "./domain/snapshot.ts";
 
-/** Turns one block of the map into GitHub tickets; a dry run unless `--yes`. */
+/**
+ * Turns a block of the map into GitHub tickets, together with the blocks the project's ticket size
+ * bundles it with, or exactly the blocks named; a dry run unless `--yes`.
+ */
 export const file = ({ positionals }: Args): void => {
     const [projectId, capability, ...rest] = positionals;
 
-    if (!capability || rest.length > 0) {
-        throw new ExpectedError("Usage: pnpm workflow:file <project> <capability> [--yes]");
+    if (!capability) {
+        throw new ExpectedError(
+            "Usage: pnpm workflow:file <project> <capability> [<capability>…] [--yes]",
+        );
     }
 
     const id = oneProject([projectId ?? ""]);
@@ -23,7 +28,11 @@ export const file = ({ positionals }: Args): void => {
 
     const map = readMap(template, project);
     const { issues } = toSnapshot(map.milestone, milestoneIssues(map.milestone), [], new Map(), "");
-    const filing = planFiling(map, issues, capability);
+    const { ids, later } =
+        rest.length > 0
+            ? { ids: [capability, ...rest], later: [] }
+            : bundleFor(map, issues, capability);
+    const filing = planFiling(map, issues, ids);
 
     if (!filing.ok) throw new ExpectedError(`Not filed: ${filing.reason}.`);
 
@@ -31,7 +40,9 @@ export const file = ({ positionals }: Args): void => {
 
     for (const ticket of filing.tickets) {
         const links = ticket.blockedBy.map((number) => `#${number}`).join(" ") || "nothing";
-        const summary = `${ticket.title}\n  labels ${ticket.labels.join(", ")} · milestone ${map.milestone} · blocked by ${links}`;
+        const points =
+            ticket.complexity === null ? "unestimated" : `complexity ${ticket.complexity}`;
+        const summary = `${ticket.title}\n  labels ${ticket.labels.join(", ")} · milestone ${map.milestone} · blocked by ${links} · ${points}`;
 
         if (!write) {
             out.info(summary);
@@ -41,5 +52,6 @@ export const file = ({ positionals }: Args): void => {
         out.success(`${createTicket({ ...ticket, milestone: map.milestone })}\n  ${ticket.title}`);
     }
 
+    for (const reason of later) out.note(`Left for a later ticket: ${reason}.`);
     if (!write) out.note("Nothing was filed. Run it again with --yes to create these tickets.");
 };

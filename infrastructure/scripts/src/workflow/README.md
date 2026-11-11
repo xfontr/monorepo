@@ -26,6 +26,14 @@ ticket. Each ticket gets the milestone, `cap:<block>`, the area label, and the l
 `enhancement`, `spike` or `owner`. The body is the block's summary and the ticket's criteria as a
 checklist.
 
+A project with a `ticketSize` other than `block` files a block together with the others its size
+bundles it with; [the workflows README](../../../../docs/workflows/README.md#-ticket-size) has the
+grouping. Members that still wait are left out and printed, and the one ticket carries every
+member's `cap:` label, with one section per block in its body. Naming several blocks merges exactly
+those instead. The portal's
+[`shared/ticketSize.ts`](../../../../apps/developer-portal/layers/workflows/shared/ticketSize.ts)
+groups the same way for its counts, written twice for the same reason as the ticket status below.
+
 ## 🗂 Structure
 
 ```

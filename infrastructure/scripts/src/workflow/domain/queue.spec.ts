@@ -15,6 +15,7 @@ const open = (number: number, overrides: Partial<SnapshotIssue> = {}): SnapshotI
     blockedBy: [],
     branch: false,
     owner: false,
+    complexity: null,
     ...overrides,
 });
 
