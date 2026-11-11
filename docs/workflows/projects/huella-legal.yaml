@@ -17,7 +17,8 @@ settled:
   ci-deploy:
     status: done
     on: 2026-10-01
-    note: Preview deploys worked from early October; its tickets are later deploy work.
+    note: Preview deploys worked from early October; its tickets are later deploy
+      work.
   scope-signoff:
     status: done
     on: 2026-09-30
@@ -74,3 +75,4 @@ extras:
     title: Publish proposal form
     dependsOn: [ component-kit, ci-deploy ]
     summary: The page and form for proposing an article, with a .docx upload.
+ticketSize: lean

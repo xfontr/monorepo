@@ -1,0 +1,342 @@
+# A site started from nothing, the rebuild map with everything that only an old site needs taken
+# out: no content or URL audit, no migration, no redirects, no cutover. Lessons from Huella Legal.
+id: new-website
+title: New website
+summary: >-
+  A site started from scratch as a Nuxt app, with Markdown or a CMS behind it. Three owner
+  sign-offs — scope, design, go-live — and nothing to migrate or redirect.
+
+stages:
+  - id: plan
+    title: Plan
+    goal: Which features, which providers and which host, decided once before anything is wired.
+
+  - id: design
+    title: Design
+    goal: One approved direction, drawn in code on sample content.
+
+  - id: foundations
+    title: Foundations
+    goal: An app that builds, tests, reads its content and deploys a preview before any page exists.
+
+  - id: build
+    title: Build
+    goal: Every page and feature switched on, on the approved components.
+
+  - id: hardening
+    title: Hardening
+    goal: Fast, accessible, secure and findable, measured on a preview.
+
+  - id: launch
+    title: Launch
+    goal: The domain answers with the new site.
+
+groups:
+  - id: blog
+    title: Blog
+    optional: true
+    default: true
+    summary: Posts and their listings.
+
+capabilities:
+  # ── Plan ───────────────────────────────────────────────────────────────────────────────────────
+  - id: scope-signoff
+    stage: plan
+    title: Scope, providers and host sign-off
+    complexity: 1
+    kind: owner
+    summary: You switch every optional block on or off and name one provider per integration and one host.
+    reuse: { plan: new }
+    doneWhen:
+      - Every optional capability is switched on or off in the project file.
+      - Each integration that is on, and the host, names one provider, chosen once.
+    lessons:
+      - text: Providers were swapped after they were wired — Mailchimp to Kit, a mailto to a form, a search page to a dialog.
+        issues: [242, 299, 243, 301, 248, 316]
+    tickets:
+      - title: "[OWNER] Sign off scope, providers and host"
+        criteria:
+          - The project file's switches are set, and the host and each provider are named in a comment.
+
+  # ── Design ─────────────────────────────────────────────────────────────────────────────────────
+  - id: design-tokens
+    stage: design
+    title: Design tokens
+    complexity: 8
+    summary: Semantic colour roles, a type scale and a contrast table, with raw palette classes banned from day one.
+    reuse: { plan: copy, from: apps/huella-legal/layers/design }
+    doneWhen:
+      - Every text-on-surface pair has a contrast ratio in the app's DESIGN.md.
+      - The app's eslint config bans raw palette steps.
+    lessons:
+      - text: Semantic roles and the raw-palette ban only arrived after launch, and the theme file reached 260 lines before it was split.
+        issues: [371, 286]
+
+  - id: design-lab
+    stage: design
+    title: Design lab
+    complexity: 13
+    dependsOn: [design-tokens]
+    summary: Two or three directions as dev-only lab pages on sample content, reviewed as screenshots at three widths.
+    reuse: { plan: method, from: apps/huella-legal/DESIGN.md }
+    doneWhen:
+      - Every page the site will have is drawn in each direction at 390, 768 and 1280 px.
+    lessons:
+      - text: Figma, then Penpot, then code — three tools in a week. Design in code from the start.
+        issues: [27]
+
+  - id: design-approval
+    stage: design
+    title: Design approval
+    complexity: 1
+    kind: owner
+    dependsOn: [design-lab]
+    summary: You pick one direction per page, from lab screenshots at 390, 768 and 1280 px.
+    reuse: { plan: new }
+    doneWhen:
+      - Every page has an approved direction, and the component list is what those pages render.
+    lessons:
+      - text: Build tickets for the first direction were filed the night before the final one existed.
+        issues: [208]
+    tickets:
+      - title: "[OWNER] Approve the design direction"
+        criteria:
+          - One lab direction is named per page, and the others are marked for removal.
+
+  # ── Foundations ────────────────────────────────────────────────────────────────────────────────
+  - id: app-scaffold
+    stage: foundations
+    title: App scaffold
+    complexity: 2
+    summary: The Nuxt app, its area label and milestone, and every host and key read from env vars.
+    reuse: { plan: method, from: .claude/skills/new-package/SKILL.md }
+    doneWhen:
+      - The app lints, typechecks and tests in CI, with an area label and a milestone on GitHub.
+      - The app refuses to start with a required variable missing, and no host is a literal.
+    lessons:
+      - text: The CMS host was hard-coded until after launch.
+        issues: [284, 380]
+
+  - id: test-harness
+    stage: foundations
+    title: Test harness
+    complexity: 8
+    dependsOn: [app-scaffold]
+    summary: Vitest, Playwright at 390/768/1280 and fixture content for e2e.
+    reuse: { plan: copy, from: apps/huella-legal/e2e }
+    doneWhen:
+      - E2E runs against fixture content at three widths.
+
+  - id: storybook
+    stage: foundations
+    title: Storybook
+    complexity: 8
+    dependsOn: [app-scaffold]
+    summary: Components in light and dark, published beside the developer portal.
+    optional: true
+    default: false
+    reuse: { plan: copy, from: apps/huella-legal/.storybook }
+
+  - id: content-source
+    stage: foundations
+    title: Content source
+    complexity: 8
+    dependsOn: [app-scaffold]
+    summary: Markdown through Nuxt Content, or a CMS through @monorepo/content, with images through Nuxt Image.
+    reuse: { plan: package, from: packages/content }
+    doneWhen:
+      - Posts and pages render from the real source, with a missing one answering 404.
+      - Images are responsive and served at the size they render.
+
+  - id: ci-deploy
+    stage: foundations
+    title: CI build, rendering and preview deploys
+    complexity: 8
+    dependsOn: [content-source, scope-signoff]
+    summary: Build in CI, prerender what can be, preview per branch, production from master.
+    reuse: { plan: copy, from: .github/workflows }
+    doneWhen:
+      - Every PR gets a preview URL that renders one real post.
+      - Every route has a rendering rule, and how an edit reaches readers is written down.
+    lessons:
+      - text: Deploy fixes only showed on the real deploy, so deploy work is done on a preview, not on a green local check.
+        issues: [382, 387, 388, 395]
+      - text: The app was fully server-rendered with no route rules until a week before launch.
+        issues: [302, 304, 308]
+
+  # ── Build ──────────────────────────────────────────────────────────────────────────────────────
+  - id: component-kit
+    stage: build
+    title: Components and the page shell
+    complexity: 13
+    dependsOn: [design-approval, test-harness, content-source]
+    summary: The approved components on Nuxt UI, and the header, footer and navigation every page sits in.
+    reuse: { plan: new }
+    doneWhen:
+      - Every component an approved page renders exists, with a spec.
+
+  - id: article-page
+    stage: build
+    group: blog
+    title: Post page
+    complexity: 8
+    dependsOn: [component-kit, ci-deploy]
+    summary: The page most readers land on, built first and at 390 px first.
+    reuse: { plan: copy, from: apps/huella-legal/layers/articles }
+
+  - id: listing-pages
+    stage: build
+    group: blog
+    title: Listings
+    complexity: 8
+    dependsOn: [component-kit, ci-deploy]
+    summary: The post index and its category or tag listings.
+    reuse: { plan: copy, from: apps/huella-legal/layers/archive }
+
+  - id: standard-pages
+    stage: build
+    title: Standard pages
+    complexity: 5
+    dependsOn: [component-kit, ci-deploy]
+    summary: The about page, the error pages and any landing a form sends readers to.
+    reuse: { plan: copy, from: apps/huella-legal/layers/reading }
+    lessons:
+      - text: The about page and the newsletter confirmation page were not in the plan.
+        issues: [249, 328, 400]
+
+  - id: home-page
+    stage: build
+    title: Home page
+    complexity: 3
+    dependsOn: [article-page, listing-pages, standard-pages]
+    summary: Built last of the core pages, from their parts.
+    reuse: { plan: new }
+
+  - id: spam-protection
+    stage: build
+    title: Captcha and honeypot
+    complexity: 2
+    dependsOn: [scope-signoff, component-kit]
+    optional: true
+    default: false
+    summary: Turnstile and a honeypot behind every public form.
+    reuse: { plan: copy, from: apps/huella-legal/layers/forms }
+
+  - id: contact-form
+    stage: build
+    title: Contact form
+    complexity: 8
+    dependsOn: [spam-protection]
+    optional: true
+    default: false
+    summary: A contact form that sends email, with consent and clear errors.
+    reuse: { plan: copy, from: apps/huella-legal/layers/contact }
+
+  - id: newsletter
+    stage: build
+    title: Newsletter signup
+    complexity: 5
+    dependsOn: [spam-protection]
+    optional: true
+    default: false
+    summary: Signup form, provider adapter and the confirmation landing.
+    reuse: { plan: copy, from: apps/huella-legal/layers/newsletter }
+
+  - id: search
+    stage: build
+    title: Search
+    complexity: 8
+    dependsOn: [listing-pages]
+    optional: true
+    default: false
+    summary: Site search, as a page or a dialog.
+    reuse: { plan: copy, from: apps/huella-legal/layers/search }
+
+  - id: comments
+    stage: build
+    group: blog
+    title: Comments
+    complexity: 8
+    dependsOn: [spam-protection, article-page]
+    optional: true
+    default: false
+    summary: Read and post comments, with moderation.
+    reuse: { plan: copy, from: apps/huella-legal/layers/comments }
+
+  - id: consent-analytics
+    stage: build
+    title: Cookie consent and analytics
+    complexity: 8
+    dependsOn: [scope-signoff, component-kit]
+    optional: true
+    default: false
+    summary: A consent banner, trackers loaded only after consent, typed events.
+    reuse: { plan: copy, from: apps/huella-legal/layers/tracking }
+
+  - id: i18n
+    stage: build
+    title: Translations
+    complexity: 2
+    dependsOn: [app-scaffold]
+    optional: true
+    default: false
+    summary: More than one language.
+    reuse: { plan: package, from: packages/i18n }
+
+  # ── Hardening ──────────────────────────────────────────────────────────────────────────────────
+  - id: seo
+    stage: hardening
+    title: SEO and feeds
+    complexity: 5
+    dependsOn: [home-page]
+    summary: Canonicals, sitemap, robots, structured data and RSS.
+    reuse: { plan: copy, from: apps/huella-legal/nuxt.config.ts }
+
+  - id: launch-checks
+    stage: hardening
+    title: Performance, accessibility and security
+    complexity: 8
+    dependsOn: [home-page]
+    summary: Axe on every page in e2e, security headers, and real-user TTFB from the readers' region.
+    reuse: { plan: copy, from: apps/huella-legal/e2e }
+    doneWhen:
+      - Axe is clean on every page at 390 and 1280 px.
+      - Security headers are pinned by an e2e spec.
+      - Field p75 TTFB and LCP on a preview are within budget.
+    lessons:
+      - text: Lighthouse hit warm edges and missed a 2.8 s p75 TTFB that real readers saw.
+        issues: [341, 350, 402]
+
+  - id: observability
+    stage: hardening
+    title: Observability
+    complexity: 8
+    dependsOn: [ci-deploy]
+    optional: true
+    default: false
+    summary: Front-end and server telemetry with source maps and no reader data.
+    reuse: { plan: package, from: packages/observability }
+
+  # ── Launch ─────────────────────────────────────────────────────────────────────────────────────
+  - id: go-live
+    stage: launch
+    title: Go-live approval
+    complexity: 1
+    kind: owner
+    dependsOn: [seo, launch-checks]
+    summary: You approve going live once a preview passes the performance, axe, security-header and SEO checks.
+    reuse: { plan: new }
+    tickets:
+      - title: "[OWNER] Approve go-live"
+        criteria:
+          - The preview's check results are linked in a comment.
+
+  - id: domain
+    stage: launch
+    title: Domain
+    complexity: 3
+    dependsOn: [go-live]
+    summary: Production env vars, DNS, the sitemap submitted to Search Console, and a walk of the live site.
+    reuse: { plan: new }
+    doneWhen:
+      - The domain serves the site over HTTPS, and the sitemap is submitted.

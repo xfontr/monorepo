@@ -47,6 +47,7 @@ capabilities:
   - id: content-audit
     stage: discovery
     title: Content audit
+    complexity: 5
     kind: spike
     summary: Probe the live content and count what is really used before anything is drawn.
     reuse: { plan: method, from: docs/decisions/0027-huella-legal-content-model.md }
@@ -65,6 +66,7 @@ capabilities:
   - id: url-inventory
     stage: discovery
     title: URL inventory
+    complexity: 3
     kind: spike
     summary: Every URL the old site answers, from the sitemap and the API, with what each becomes.
     reuse: { plan: method, from: docs/decisions/0028-huella-legal-urls-and-cutover.md }
@@ -81,6 +83,7 @@ capabilities:
   - id: feature-inventory
     stage: discovery
     title: Feature inventory
+    complexity: 3
     kind: spike
     summary: Every surface of the old site — pages, landing pages, widgets, hidden taxonomies, links.
     reuse: { plan: new }
@@ -97,6 +100,7 @@ capabilities:
   - id: integrations-inventory
     stage: discovery
     title: Forms, integrations and providers
+    complexity: 3
     kind: spike
     summary: Every form, plugin and outside service, and the provider that replaces each.
     reuse: { plan: method, from: docs/decisions/0029-huella-legal-forms-and-integrations.md }
@@ -115,6 +119,7 @@ capabilities:
   - id: hosting-prototype
     stage: discovery
     title: Hosting prototype
+    complexity: 5
     kind: spike
     summary: Deploy a hello-world on the chosen host with the chosen rendering mode, and measure it.
     reuse: { plan: method, from: docs/decisions/0033-huella-legal-hybrid-prerender.md }
@@ -131,6 +136,7 @@ capabilities:
   - id: scope-signoff
     stage: discovery
     title: Scope, providers and host sign-off
+    complexity: 1
     kind: owner
     dependsOn: [feature-inventory, integrations-inventory, hosting-prototype]
     summary: You switch every optional block on or off and name one provider per integration and one host, from what the spikes found.
@@ -153,6 +159,7 @@ capabilities:
   - id: brand-extraction
     stage: design
     title: Brand extraction
+    complexity: 2
     summary: Colours, type and radii read from the live site's computed styles, not transcribed by hand.
     reuse: { plan: new }
     doneWhen:
@@ -164,6 +171,7 @@ capabilities:
   - id: design-tokens
     stage: design
     title: Design tokens
+    complexity: 8
     dependsOn: [brand-extraction]
     summary: Semantic colour roles, a type scale and a contrast table, with raw palette classes banned from day one.
     reuse: { plan: copy, from: apps/huella-legal/layers/design }
@@ -179,6 +187,7 @@ capabilities:
   - id: design-lab
     stage: design
     title: Design lab
+    complexity: 13
     dependsOn: [design-tokens, content-audit, feature-inventory]
     summary: Two or three directions as dev-only lab pages on real content, reviewed as screenshots at three widths.
     reuse: { plan: method, from: apps/huella-legal/DESIGN.md }
@@ -191,6 +200,7 @@ capabilities:
   - id: design-approval
     stage: design
     title: Design approval
+    complexity: 1
     kind: owner
     dependsOn: [design-lab]
     summary: You pick one direction per page, from lab screenshots at 390, 768 and 1280 px.
@@ -208,6 +218,7 @@ capabilities:
   - id: component-inventory
     stage: design
     title: Component inventory
+    complexity: 2
     dependsOn: [design-approval]
     summary: The component list taken from what the approved pages actually render.
     reuse: { plan: new }
@@ -221,6 +232,7 @@ capabilities:
   - id: app-scaffold
     stage: foundations
     title: App scaffold
+    complexity: 2
     summary: The Nuxt app, its area label and its milestone.
     reuse: { plan: method, from: .claude/skills/new-package/SKILL.md }
     doneWhen:
@@ -229,6 +241,7 @@ capabilities:
   - id: test-harness
     stage: foundations
     title: Test harness and fake content
+    complexity: 8
     dependsOn: [app-scaffold]
     summary: Vitest, Playwright at 390/768/1280 and a fake content source for e2e and local dev.
     reuse: { plan: copy, from: apps/huella-legal/e2e }
@@ -241,6 +254,7 @@ capabilities:
   - id: storybook
     stage: foundations
     title: Storybook
+    complexity: 8
     dependsOn: [app-scaffold]
     summary: Components in light and dark, published beside the developer portal.
     optional: true
@@ -253,6 +267,7 @@ capabilities:
   - id: env-discipline
     stage: foundations
     title: Environment discipline
+    complexity: 8
     dependsOn: [app-scaffold]
     summary: Every host and key from env vars, checked at startup.
     reuse: { plan: copy, from: apps/huella-legal/modules/requiredEnv.ts }
@@ -265,6 +280,7 @@ capabilities:
   - id: content-source
     stage: foundations
     title: Content source
+    complexity: 13
     dependsOn: [app-scaffold, content-audit]
     summary: Read the content — a CMS through @monorepo/content, or Markdown through Nuxt Content.
     reuse: { plan: package, from: packages/content }
@@ -277,6 +293,7 @@ capabilities:
   - id: content-migration
     stage: foundations
     title: Content migration
+    complexity: 5
     dependsOn: [content-audit, scope-signoff]
     summary: Export the old CMS's posts, pages and media to Markdown for Nuxt Content, when the content leaves the CMS.
     optional: true
@@ -290,6 +307,7 @@ capabilities:
   - id: rendering-strategy
     stage: foundations
     title: Rendering and caching
+    complexity: 13
     dependsOn: [ci-deploy]
     summary: Which routes prerender, which cache at the edge, and how an edit reaches readers.
     reuse: { plan: copy, from: apps/huella-legal/modules/rendering.ts }
@@ -302,6 +320,7 @@ capabilities:
   - id: ci-deploy
     stage: foundations
     title: CI build and preview deploys
+    complexity: 8
     dependsOn: [content-source, scope-signoff]
     summary: Build in CI, deploy previews per branch, production from master.
     reuse: { plan: copy, from: .github/workflows }
@@ -317,6 +336,7 @@ capabilities:
   - id: staging-gate
     stage: foundations
     title: Preview login gate
+    complexity: 2
     dependsOn: [ci-deploy]
     summary: Previews behind a login so they aren't indexed or shared.
     optional: true
@@ -330,6 +350,7 @@ capabilities:
   - id: component-kit
     stage: build
     title: Component kit
+    complexity: 21
     dependsOn: [component-inventory, test-harness, content-source]
     summary: The approved components built on Nuxt UI, with specs and stories.
     reuse: { plan: new }
@@ -343,6 +364,7 @@ capabilities:
     stage: build
     group: blog
     title: Article page
+    complexity: 8
     dependsOn: [component-kit, ci-deploy]
     summary: The page most readers land on, built first.
     reuse: { plan: copy, from: apps/huella-legal/layers/articles }
@@ -354,6 +376,7 @@ capabilities:
     stage: build
     group: blog
     title: Listings and archives
+    complexity: 8
     dependsOn: [component-kit, ci-deploy]
     summary: Category, tag, author and date listings.
     reuse: { plan: copy, from: apps/huella-legal/layers/archive }
@@ -364,6 +387,7 @@ capabilities:
   - id: standard-pages
     stage: build
     title: Standard pages
+    complexity: 5
     dependsOn: [component-kit, ci-deploy]
     summary: CMS pages at their slug, the about page, error pages and confirmation landings.
     reuse: { plan: copy, from: apps/huella-legal/layers/reading }
@@ -374,6 +398,7 @@ capabilities:
   - id: home-page
     stage: build
     title: Home page
+    complexity: 3
     dependsOn: [article-page, listing-pages, standard-pages]
     summary: Built last of the core pages, once its building blocks exist.
     reuse: { plan: new }
@@ -384,6 +409,7 @@ capabilities:
   - id: navigation-shell
     stage: build
     title: Header, footer and navigation
+    complexity: 5
     dependsOn: [component-kit]
     summary: The shell every page sits in.
     reuse: { plan: method, from: docs/decisions/0034-huella-legal-header-navigation.md }
@@ -394,6 +420,7 @@ capabilities:
   - id: search
     stage: build
     title: Search
+    complexity: 8
     dependsOn: [listing-pages]
     optional: true
     default: true
@@ -406,6 +433,7 @@ capabilities:
   - id: newsletter
     stage: build
     title: Newsletter signup
+    complexity: 5
     dependsOn: [spam-protection]
     optional: true
     default: true
@@ -418,6 +446,7 @@ capabilities:
   - id: contact-form
     stage: build
     title: Contact form
+    complexity: 8
     dependsOn: [spam-protection]
     optional: true
     default: true
@@ -430,6 +459,7 @@ capabilities:
   - id: spam-protection
     stage: build
     title: Captcha and honeypot
+    complexity: 2
     dependsOn: [scope-signoff, component-kit]
     optional: true
     default: true
@@ -443,6 +473,7 @@ capabilities:
     stage: build
     group: blog
     title: Comments
+    complexity: 8
     dependsOn: [spam-protection, article-page]
     optional: true
     default: false
@@ -455,6 +486,7 @@ capabilities:
   - id: consent-analytics
     stage: build
     title: Cookie consent and analytics
+    complexity: 8
     dependsOn: [scope-signoff, component-kit]
     optional: true
     default: true
@@ -467,6 +499,7 @@ capabilities:
   - id: images
     stage: build
     title: Images
+    complexity: 5
     dependsOn: [content-source, scope-signoff]
     summary: Responsive images through Nuxt Image and a CDN.
     reuse: { plan: copy, from: apps/huella-legal/server/plugins/cdn.ts }
@@ -477,6 +510,7 @@ capabilities:
   - id: i18n
     stage: build
     title: Translations
+    complexity: 2
     dependsOn: [app-scaffold]
     optional: true
     default: false
@@ -489,6 +523,7 @@ capabilities:
   - id: editorial-tooling
     stage: build
     title: Editorial tooling
+    complexity: 21
     dependsOn: [content-source]
     optional: true
     default: false
@@ -502,6 +537,7 @@ capabilities:
   - id: performance
     stage: hardening
     title: Performance
+    complexity: 13
     dependsOn: [rendering-strategy, home-page]
     summary: Mobile performance and real-user TTFB from the readers' region, not only Lighthouse.
     reuse: { plan: method, from: apps/huella-legal/README.md }
@@ -514,6 +550,7 @@ capabilities:
   - id: accessibility
     stage: hardening
     title: Accessibility
+    complexity: 5
     dependsOn: [component-kit]
     summary: Axe on every page in e2e, keyboard paths and 44 px targets.
     reuse: { plan: copy, from: apps/huella-legal/e2e }
@@ -526,6 +563,7 @@ capabilities:
   - id: security
     stage: hardening
     title: Security hardening
+    complexity: 8
     dependsOn: [ci-deploy]
     summary: Field caps, security headers, rate limits, crawler rules, dependency and secret scans.
     reuse: { plan: copy, from: apps/huella-legal/e2e/security.spec.ts }
@@ -536,6 +574,7 @@ capabilities:
   - id: seo
     stage: hardening
     title: SEO and feeds
+    complexity: 5
     dependsOn: [home-page]
     summary: Canonicals, sitemap, robots, structured data, RSS and llms.txt.
     reuse: { plan: copy, from: apps/huella-legal/nuxt.config.ts }
@@ -546,6 +585,7 @@ capabilities:
   - id: observability
     stage: hardening
     title: Observability
+    complexity: 8
     dependsOn: [ci-deploy]
     summary: Front-end and server telemetry with source maps and no reader data.
     reuse: { plan: package, from: packages/observability }
@@ -556,6 +596,7 @@ capabilities:
   - id: quality-sweep
     stage: hardening
     title: Quality sweep
+    complexity: 13
     dependsOn: [home-page]
     summary: Lint, static analysis and an audit of the app before it goes live.
     reuse: { plan: method, from: .claude/skills/audit-report/SKILL.md }
@@ -567,6 +608,7 @@ capabilities:
   - id: legacy-redirects
     stage: launch
     title: Legacy redirects
+    complexity: 3
     dependsOn: [url-inventory, seo]
     summary: 301s for every old URL family, walked by an e2e spec — server routes, or the host's redirect file on a static site.
     reuse: { plan: copy, from: apps/huella-legal/layers/legacy }
@@ -576,6 +618,7 @@ capabilities:
   - id: go-live
     stage: launch
     title: Go-live approval
+    complexity: 1
     kind: owner
     dependsOn: [seo, performance, security, accessibility, legacy-redirects, quality-sweep]
     summary: You approve the cutover once a preview deploy passes the field performance, axe, security-header and SEO checks.
@@ -590,6 +633,7 @@ capabilities:
   - id: cutover
     stage: launch
     title: Domain cutover
+    complexity: 5
     dependsOn: [go-live]
     summary: The runbook — CMS host, env vars, DNS, the old host's redirect, Search Console.
     reuse: { plan: method, from: docs/decisions/0028-huella-legal-urls-and-cutover.md }
@@ -602,6 +646,7 @@ capabilities:
   - id: post-launch-check
     stage: launch
     title: Post-launch check
+    complexity: 3
     dependsOn: [cutover]
     summary: Walk the live site for content that shouldn't be public and details missed on preview.
     reuse: { plan: new }
@@ -613,6 +658,7 @@ capabilities:
   - id: cleanup
     stage: after-launch
     title: Cleanup
+    complexity: 2
     dependsOn: [post-launch-check]
     summary: Remove scaffolding, settle open decisions and audits, close the milestone.
     reuse: { plan: new }

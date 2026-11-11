@@ -17,7 +17,7 @@ blocks, and once filed, links between tickets that GitHub itself holds.
 ```
 docs/workflows/
   templates/<id>.yaml              the blocks, what each needs, its lessons and reuse plan
-  projects/<id>.yaml               which template, which milestone, switches, settled blocks, extras
+  projects/<id>.yaml               which template, which milestone, switches, ticket size, settled blocks, extras
   projects/<id>.snapshot.json      written by `pnpm workflow:sync`, never by hand
 ```
 
@@ -27,7 +27,16 @@ docs/workflows/
 | Need | A `dependsOn` link from one block to another it can't start without | The block |
 | Stage | A colour and a label for a family of blocks — discovery, design, launch. It orders nothing | The template |
 | Feature | One switch in the plan: an optional block such as storybook, or a `groups` entry bundling several, such as the blog. None is special; switching one off takes its blocks out of the map, and whatever needed them waits on what they needed instead | The template's `optional` blocks and `groups`; the project's `switches` |
-| Ticket | A GitHub issue in the project's milestone with a `cap:<block>` label | GitHub |
+| Ticket | A GitHub issue in the project's milestone with a `cap:<block>` label, or several when blocks share it | GitHub |
+| Ticket size | How many blocks share a ticket when filed: `block`, `stage` or `lean` | The project's `ticketSize` |
+| Complexity | A Fibonacci estimate of how much a person has to understand, decide and check, whoever writes the code | The template's `complexity` per block; the board's `Complexity` field per ticket |
+
+## 🧩 Templates
+
+| Template | For | Blocks with defaults on |
+| --- | --- | --- |
+| [`website-rebuild`](./templates/website-rebuild.yaml) | An existing site, usually WordPress, rebuilt on the same brand: discovery spikes, migration, redirects and a domain cutover | 41 |
+| [`new-website`](./templates/new-website.yaml) | A site started from nothing: the same map with everything only an old site needs taken out, and a few blocks folded together | 17 |
 
 ## 🧱 Three kinds of block
 
@@ -54,6 +63,59 @@ dependency on the issue, never in the file.
 | `spike` block | Its tickets carry the `spike` label |
 | Someone is on it | A branch linked on the issue, which `pnpm issue:pick` makes through `gh issue develop` |
 | Done or dropped | Closed as completed, or closed as not planned |
+
+## 🎟 Ticket size
+
+A small site still has 17 blocks, and a rebuild 41. Filing one ticket each is the right grain for
+agents working in parallel, and too fine for one person who would rather ship six blocks in a PR.
+The project's `ticketSize` changes how many tickets filing creates, never the map: a ticket with
+several `cap:` labels counts under each of those blocks, and closing it finishes all of them.
+The size is fixed once the milestone holds one ticket with a `cap:` label, so every block filed
+later, a feature switched on midway included, is grouped the same way; a ticket added by hand
+doesn't count.
+
+| `ticketSize` | One ticket per | `new-website` | `website-rebuild` |
+| --- | --- | --- | --- |
+| `block` (the default) | Block, or each of its suggested tickets | 17 | 41 |
+| `stage` | Stage, for its build blocks; each spike and owner block stays its own | 8 | 16 |
+| `lean` | The same, with every spike in one ticket | 8 | 12 |
+
+Counts are with each template's defaults switched on. Merging never breaks a rule below:
+
+- **Only build blocks share a ticket**, and spikes only with spikes. A spike's answer reshapes later
+  tickets, and an owner block is closed by the owner, so neither hides inside build work.
+- **A stage splits where an owner or spike block inside it sits between its build blocks.** In
+  `website-rebuild`, the design lab and the component inventory are two tickets, because design
+  approval comes between them.
+- **A block still waiting is left out** and files later in a ticket of its own stage. That is why
+  the portal's counts say *about*.
+- **Needs inside the ticket are dropped; needs outside it become its blocked-by links.**
+
+`pnpm workflow:file <id> <a> <b> <c>` merges exactly the blocks named, under the same rules, for a
+one-off without changing the project's size.
+
+## 🧮 Complexity
+
+Points measure the problem, not the typing. A block a few prompts produced can still be an 8 if
+it carries many decisions; how much of it AI wrote changes how fast points close, never the points.
+
+| Points | Looks like |
+| --- | --- |
+| 1–2 | Copies a pattern in one project; nothing to decide |
+| 3 | One project, a known library, a decision or two |
+| 5 | Several projects or a boundary to check, or a spike with real research |
+| 8 | A new vendor, shared packages or live content at risk, review that finds things |
+| 13–21 | A new system with no precedent, or a block that should become several tickets |
+
+| Where | Figure |
+| --- | --- |
+| A block not filed yet | The template's `complexity`, from what Huella's tickets for it added up to |
+| A filed ticket | The `Complexity` field on the `Monorepo` board; filing sets it from the template, a bundle to the sum of its blocks, and a block with several suggested tickets leaves it blank |
+| A ticket under several blocks | Split evenly between them, so a project total counts it once |
+| A settled or switched-off block | Nothing |
+
+The page shows points done over points in total, and how much of that total is still the
+template's guess.
 
 ## 📏 The rules
 
@@ -165,11 +227,12 @@ every id, stage and switch has to resolve, and `dependsOn` may not loop.
 
 | Later need | What changes |
 | --- | --- |
-| A template other than `website-rebuild` | A new file under `templates/`; nothing in the code knows any template by name |
-| Board Status (Todo / In Progress) | Reading `projectItems` needs a token with the `read:project` scope; a linked branch already says a ticket is taken |
+| A third template, such as a landing page or a docs site | A new file under `templates/`; nothing in the code knows any template by name |
+| A ticket size between `block` and `stage`, or set per block | A `bundle:` key on template blocks naming the ticket each joins; the stage split already covers the cases met so far |
+| Board Status (Todo / In Progress) | The sync already reads the board for `Complexity`; a linked branch already says a ticket is taken |
 | Sub-issues per block | Most blocks hold one or two tickets, so a parent issue each is noise; the `cap:` label already groups them |
 | `/ship-issue` taking the top of the ready list itself | The workflow's Pick phase would call `workflow:next` before `issue:pick` |
 | Backfilling Huella's links on GitHub | Huella shows its order from the template's links, plus the nine native ones it had (#192–#201) |
 | Weighting blocks by size | Progress counts each block once, since weighting by ticket count would reward splitting tickets |
 | Replaying a linked branch | GitHub keeps no history of them, so a past day knows a ticket was started only from a commit naming it |
-| Showing switched-off blocks on the graph | They aren't part of the project; the Features modal is where they are |
+| Showing switched-off blocks on the graph | They aren't part of the project; its Settings page is where they are |

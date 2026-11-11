@@ -1,5 +1,5 @@
 {
-    "syncedAt": "2026-11-09T16:13:55.604Z",
+    "syncedAt": "2026-11-11T07:08:35.188Z",
     "milestone": "Huella Legal",
     "issues": [
         {
@@ -16,7 +16,8 @@
             "activity": [],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 27,
@@ -32,7 +33,8 @@
             "activity": [],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 8
         },
         {
             "number": 185,
@@ -50,7 +52,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 186,
@@ -69,7 +72,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 187,
@@ -87,7 +91,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 188,
@@ -105,7 +110,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 189,
@@ -121,7 +127,8 @@
             "activity": [],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 2
         },
         {
             "number": 192,
@@ -152,7 +159,8 @@
                 }
             ],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 193,
@@ -168,7 +176,8 @@
             "activity": [],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 2
         },
         {
             "number": 194,
@@ -195,7 +204,8 @@
                 }
             ],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 195,
@@ -225,7 +235,8 @@
                 }
             ],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 196,
@@ -255,7 +266,8 @@
                 }
             ],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 197,
@@ -297,7 +309,8 @@
                 }
             ],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 198,
@@ -327,7 +340,8 @@
                 }
             ],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 199,
@@ -360,7 +374,8 @@
                 }
             ],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 200,
@@ -401,7 +416,8 @@
                 }
             ],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 201,
@@ -441,7 +457,8 @@
                 }
             ],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 208,
@@ -460,7 +477,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 212,
@@ -479,7 +497,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 8
         },
         {
             "number": 219,
@@ -503,7 +522,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 223,
@@ -525,7 +545,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 231,
@@ -550,7 +571,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 8
         },
         {
             "number": 232,
@@ -576,7 +598,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 234,
@@ -604,7 +627,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 236,
@@ -620,7 +644,8 @@
             "activity": [],
             "blockedBy": [],
             "branch": true,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 240,
@@ -651,7 +676,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 8
         },
         {
             "number": 241,
@@ -676,7 +702,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 242,
@@ -703,7 +730,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 243,
@@ -721,7 +749,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 244,
@@ -737,7 +766,8 @@
             "activity": [],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 245,
@@ -756,7 +786,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 246,
@@ -776,7 +807,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 247,
@@ -797,7 +829,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 248,
@@ -820,7 +853,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 249,
@@ -841,7 +875,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 250,
@@ -864,7 +899,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 251,
@@ -882,7 +918,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 252,
@@ -902,7 +939,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 2
         },
         {
             "number": 253,
@@ -922,7 +960,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 2
         },
         {
             "number": 274,
@@ -940,7 +979,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 2
         },
         {
             "number": 280,
@@ -956,7 +996,8 @@
             "activity": [],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 283,
@@ -978,7 +1019,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 8
         },
         {
             "number": 284,
@@ -994,7 +1036,8 @@
             "activity": [],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 8
         },
         {
             "number": 286,
@@ -1012,7 +1055,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 1
         },
         {
             "number": 299,
@@ -1031,7 +1075,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 301,
@@ -1054,7 +1099,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 302,
@@ -1074,7 +1120,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 8
         },
         {
             "number": 304,
@@ -1094,7 +1141,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 308,
@@ -1117,7 +1165,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 311,
@@ -1139,7 +1188,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 312,
@@ -1161,7 +1211,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 313,
@@ -1181,7 +1232,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 316,
@@ -1205,7 +1257,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 324,
@@ -1233,7 +1286,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 8
         },
         {
             "number": 328,
@@ -1253,7 +1307,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 2
         },
         {
             "number": 330,
@@ -1273,7 +1328,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 2
         },
         {
             "number": 331,
@@ -1289,7 +1345,8 @@
             "activity": [],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 336,
@@ -1305,7 +1362,8 @@
             "activity": [],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 2
         },
         {
             "number": 337,
@@ -1327,7 +1385,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 340,
@@ -1355,7 +1414,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 13
         },
         {
             "number": 341,
@@ -1380,7 +1440,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 343,
@@ -1413,7 +1474,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 344,
@@ -1432,7 +1494,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 2
         },
         {
             "number": 346,
@@ -1448,7 +1511,8 @@
             "activity": [],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 348,
@@ -1468,7 +1532,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 1
         },
         {
             "number": 349,
@@ -1484,7 +1549,8 @@
             "activity": [],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 2
         },
         {
             "number": 350,
@@ -1502,7 +1568,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 360,
@@ -1522,7 +1589,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 361,
@@ -1542,7 +1610,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 2
         },
         {
             "number": 362,
@@ -1565,7 +1634,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 8
         },
         {
             "number": 371,
@@ -1587,7 +1657,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 373,
@@ -1605,7 +1676,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 1
         },
         {
             "number": 375,
@@ -1623,7 +1695,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 2
         },
         {
             "number": 377,
@@ -1646,7 +1719,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 380,
@@ -1667,7 +1741,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 2
         },
         {
             "number": 383,
@@ -1690,7 +1765,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
         },
         {
             "number": 385,
@@ -1709,7 +1785,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 2
         },
         {
             "number": 390,
@@ -1727,7 +1804,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 2
         },
         {
             "number": 392,
@@ -1748,7 +1826,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 3
         },
         {
             "number": 400,
@@ -1766,7 +1845,8 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 1
         },
         {
             "number": 402,
@@ -1784,7 +1864,25 @@
             ],
             "blockedBy": [],
             "branch": false,
-            "owner": false
+            "owner": false,
+            "complexity": 5
+        },
+        {
+            "number": 412,
+            "title": "Give Netlify and WordPress one seam each and unify the two searches",
+            "url": "https://github.com/xfontr/monorepo/issues/412",
+            "state": "open",
+            "reason": null,
+            "caps": [
+                "quality-sweep"
+            ],
+            "createdAt": "2026-11-10T08:44:09Z",
+            "closedAt": null,
+            "activity": [],
+            "blockedBy": [],
+            "branch": false,
+            "owner": false,
+            "complexity": 8
         }
     ],
     "noMilestone": []
