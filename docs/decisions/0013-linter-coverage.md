@@ -32,7 +32,7 @@ false positives on the same construct:
 | `eslint-plugin-vuejs-accessibility` | 2 | both `aria-props` on `aria-current-value` — false positives |
 | `eslint-plugin-security` | 68 | `detect-non-literal-fs-filename` 32, `detect-object-injection` 31, `detect-unsafe-regex` 3, `detect-non-literal-regexp` 2 |
 
-`aria-current-value` in [`articles/index.vue`](../../apps/huella-legal/app/pages/articles/index.vue)
+`aria-current-value` in `articles/index.vue`
 is not an ARIA attribute — it is `RouterLink`'s `ariaCurrentValue` prop, which `vue-router` renders
 as `aria-current` only when the link is exact-active. The rule pattern-matches `aria-*` and cannot
 see a component's props. The code is correct, already carries a comment saying why, and the
