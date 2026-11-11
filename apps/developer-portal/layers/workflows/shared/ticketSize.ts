@@ -1,3 +1,4 @@
+import { complexityOf } from "./complexity.ts";
 import { isEnabled } from "./project.ts";
 import {
     TICKET_SIZES,
@@ -7,11 +8,7 @@ import {
     type TicketSize,
 } from "./types.ts";
 
-/**
- * The capabilities a ticket size files as one ticket, in map order. Build blocks share a ticket per
- * stage, split where a spike or owner block inside the stage sits between them; `lean` also puts
- * every spike in one ticket. `workflow:file`'s `domain/filing.ts` groups the same way.
- */
+/** Mirrors `bundlesOf` in the scripts' `domain/filing.ts`; change both together. */
 export const bundlesOf = (capabilities: Capability[], size: TicketSize): Capability[][] => {
     if (size === "block") return capabilities.map((capability) => [capability]);
 
@@ -98,6 +95,12 @@ export const blocksOn = (
     template.capabilities.filter((capability) =>
         isEnabled(capability, draftProject(template, switches), template),
     );
+
+/** What a template files with its defaults on: blocks, tickets at each size, and points. */
+export const templateEstimate = (template: Template) => {
+    const blocks = blocksOn(template);
+    return { blocks: blocks.length, tickets: ticketsToFile(blocks), points: complexityOf(blocks) };
+};
 
 export const TICKET_SIZE_LABELS = {
     block: {

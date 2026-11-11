@@ -34,6 +34,7 @@ const issue = (
     activity,
     blockedBy: [],
     branch: false,
+    pr: false,
     owner: false,
     complexity: null,
 });

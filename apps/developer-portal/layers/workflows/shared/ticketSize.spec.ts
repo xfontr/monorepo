@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readTemplate } from "./template.ts";
-import { bundlesOf, blocksOn, ticketsToFile } from "./ticketSize.ts";
+import { bundlesOf, blocksOn, templateEstimate, ticketsToFile } from "./ticketSize.ts";
 
 const { template } = readTemplate({
     id: "site",
@@ -33,20 +33,82 @@ const { template } = readTemplate({
 
 const ids = (bundles: { id: string }[][]) => bundles.map((bundle) => bundle.map(({ id }) => id));
 
-describe("bundlesOf", () => {
-    it("splits a stage where an owner block inside it sits between its build blocks", () => {
-        expect(ids(bundlesOf(blocksOn(template), "stage"))).toEqual([
-            ["audit"],
-            ["hosting"],
-            ["tokens", "lab"],
-            ["approval"],
-            ["inventory"],
-            ["article", "home"],
-        ]);
-    });
+/** The scripts' `STAGED` map from `domain/filing.spec.ts`; both copies of `bundlesOf` must agree on it. */
+const { template: staged } = readTemplate({
+    id: "staged",
+    title: "Staged",
+    stages: [
+        { id: "discovery", title: "Discovery" },
+        { id: "design", title: "Design" },
+        { id: "foundations", title: "Foundations" },
+    ],
+    capabilities: [
+        { id: "audit", stage: "discovery", title: "Audit", kind: "spike" },
+        { id: "hosting", stage: "discovery", title: "Hosting", kind: "spike" },
+        {
+            id: "signoff",
+            stage: "discovery",
+            title: "Sign-off",
+            kind: "owner",
+            dependsOn: ["audit"],
+        },
+        { id: "tokens", stage: "design", title: "Tokens" },
+        { id: "lab", stage: "design", title: "Lab", dependsOn: ["tokens"] },
+        { id: "approval", stage: "design", title: "Approval", kind: "owner", dependsOn: ["lab"] },
+        { id: "inventory", stage: "design", title: "Inventory", dependsOn: ["approval"] },
+        { id: "scaffold", stage: "foundations", title: "Scaffold", complexity: 2 },
+        {
+            id: "deploy",
+            stage: "foundations",
+            title: "Deploy",
+            dependsOn: ["scaffold", "signoff", "tokens"],
+            complexity: 3,
+        },
+    ],
+});
 
-    it("puts every spike in one ticket only when the size is lean", () => {
-        expect(ids(bundlesOf(blocksOn(template), "lean"))[0]).toEqual(["audit", "hosting"]);
+/** Identical to `STAGED_BUNDLES` in the scripts' `domain/filing.spec.ts`. */
+const STAGED_BUNDLES = {
+    block: [
+        ["audit"],
+        ["hosting"],
+        ["signoff"],
+        ["tokens"],
+        ["lab"],
+        ["approval"],
+        ["inventory"],
+        ["scaffold"],
+        ["deploy"],
+    ],
+    stage: [
+        ["audit"],
+        ["hosting"],
+        ["signoff"],
+        ["tokens", "lab"],
+        ["approval"],
+        ["inventory"],
+        ["scaffold", "deploy"],
+    ],
+    lean: [
+        ["audit", "hosting"],
+        ["signoff"],
+        ["tokens", "lab"],
+        ["approval"],
+        ["inventory"],
+        ["scaffold", "deploy"],
+    ],
+};
+
+describe("bundlesOf", () => {
+    it.each(["block", "stage", "lean"] as const)(
+        "groups the staged map into the %s bundles workflow:file files",
+        (size) => {
+            expect(ids(bundlesOf(blocksOn(staged), size))).toEqual(STAGED_BUNDLES[size]);
+        },
+    );
+
+    it("keeps a block with suggested tickets beside its stage's other build blocks", () => {
+        expect(ids(bundlesOf(blocksOn(template), "stage")).at(-1)).toEqual(["article", "home"]);
     });
 });
 
@@ -54,8 +116,20 @@ describe("ticketsToFile", () => {
     it("counts a block filed alone as its suggested tickets, and a bundle as one", () => {
         expect(ticketsToFile(blocksOn(template))).toEqual({ block: 9, stage: 6, lean: 5 });
     });
+});
 
+describe("blocksOn", () => {
     it("leaves out an optional block that is off by default", () => {
         expect(blocksOn(template).map(({ id }) => id)).not.toContain("search");
+    });
+});
+
+describe("templateEstimate", () => {
+    it("prices the staged map's defaults in blocks, tickets at each size and points", () => {
+        expect(templateEstimate(staged)).toEqual({
+            blocks: 9,
+            tickets: { block: 9, stage: 7, lean: 6 },
+            points: 5,
+        });
     });
 });

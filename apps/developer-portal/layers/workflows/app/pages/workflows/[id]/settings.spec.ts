@@ -53,8 +53,30 @@ const global = {
 const button = (wrapper: VueWrapper, label: string) =>
     wrapper.findAll("button").find((candidate) => candidate.text() === label);
 
+const withIssues = (issues: object[]) =>
+    ref(
+        assembleWorkflows(
+            [{ file: "site.yaml", ok: true, value: TEMPLATE }],
+            [
+                {
+                    file: "blog.yaml",
+                    ok: true,
+                    value: { id: "blog", title: "Blog", template: "site", milestone: "Blog" },
+                },
+            ],
+            {
+                blog: {
+                    file: "blog.snapshot.json",
+                    ok: true,
+                    value: { syncedAt: "2026-11-09T00:00:00Z", milestone: "Blog", issues },
+                },
+            },
+        ),
+    );
+
 beforeEach(() => {
     vi.clearAllMocks();
+    state.leaveGuard = null;
     state.editable = true;
     state.edit.mockResolvedValue(true);
     state.data = ref(
@@ -93,15 +115,16 @@ describe("project settings", () => {
 
         await button(wrapper, "Save")?.trigger("click");
 
-        expect(state.edit).toHaveBeenCalledWith(
-            expect.objectContaining({
-                action: "settings",
-                project: "blog",
-                title: "Blog",
-                switches: { search: true },
-                ticketSize: "block",
-            }),
-        );
+        expect(state.edit).toHaveBeenCalledWith({
+            action: "settings",
+            project: "blog",
+            title: "Blog",
+            summary: "",
+            milestone: "Blog",
+            area: "",
+            switches: { search: true },
+            ticketSize: "block",
+        });
     });
 
     it("holds a navigation away from unsaved changes until the user leaves anyway", async () => {
@@ -116,43 +139,34 @@ describe("project settings", () => {
 
         expect(state.navigateTo).toHaveBeenCalledWith("/workflows");
         expect(state.edit).not.toHaveBeenCalled();
+        expect(state.leaveGuard?.({ fullPath: "/workflows" })).toBe(true);
+    });
+
+    it("locks every ticket size once a labelled ticket is in the milestone", async () => {
+        state.data = withIssues([{ number: 1, state: "open", caps: ["search"] }]);
+        const wrapper = await mountSuspended(Page, { global });
+        const sizes = wrapper.find("[aria-label='Ticket size']").findAll("[role='radio']");
+
+        expect(sizes).toHaveLength(3);
+        expect(sizes.every((size) => size.attributes("disabled") !== undefined)).toBe(true);
     });
 
     it("points at workflow:drop before deleting, since the drop needs the project file", async () => {
-        state.data = ref(
-            assembleWorkflows(
-                [{ file: "site.yaml", ok: true, value: TEMPLATE }],
-                [
-                    {
-                        file: "blog.yaml",
-                        ok: true,
-                        value: { id: "blog", title: "Blog", template: "site", milestone: "Blog" },
-                    },
-                ],
-                {
-                    blog: {
-                        file: "blog.snapshot.json",
-                        ok: true,
-                        value: {
-                            syncedAt: "2026-11-09T00:00:00Z",
-                            milestone: "Blog",
-                            issues: [
-                                { number: 1, state: "open" },
-                                { number: 2, state: "open" },
-                                { number: 3, state: "open", branch: true },
-                                { number: 4, state: "closed", reason: "completed" },
-                            ],
-                        },
-                    },
-                },
-            ),
-        );
+        state.data = withIssues([
+            { number: 1, state: "open" },
+            { number: 2, state: "open", blockedBy: [{ number: 1, open: true }] },
+            { number: 3, state: "open", owner: true },
+            { number: 4, state: "open", branch: true },
+            { number: 5, state: "open", pr: true },
+            { number: 6, state: "closed", reason: "completed" },
+            { number: 7, state: "closed", reason: "not_planned" },
+        ]);
         const wrapper = await mountSuspended(Page, { global });
 
         await button(wrapper, "Delete project…")?.trigger("click");
 
         expect(wrapper.find("dialog").text()).toContain(
-            "2 tickets are untouched and 2 already started or closed",
+            "3 tickets are untouched and 4 already started or closed",
         );
         expect(wrapper.find("dialog").text()).toContain("pnpm workflow:drop blog --yes");
     });

@@ -48,7 +48,7 @@
                             capabilityStateLabel(capability.state)
                         }}</span>
                         <span v-if="capability.points.total > 0" class="text-muted tabular-nums">
-                            · {{ Math.round(capability.points.total) }} SP
+                            · {{ formatPoints(capability.points.total) }} SP
                         </span>
                     </span>
                     <span v-if="waiting[capability.id]" class="text-xs text-muted">
@@ -64,7 +64,8 @@
                     <span class="mt-auto -mr-5 flex flex-wrap items-end gap-1.5 pt-2">
                         <span
                             v-if="capability.issues.length > 0"
-                            data-ticket-dots
+                            role="img"
+                            :aria-label="ticketSummary(capability.issues)"
                             class="gap-1.5"
                             :class="
                                 capability.issues.length > TWO_ROWS_FROM
@@ -109,7 +110,12 @@
 
 <script setup lang="ts">
 import type { CapabilityActivity } from "#layers/workflows/shared/workflowActivity.ts";
-import { ticketStatus, type StageView } from "#layers/workflows/shared/workflows.ts";
+import {
+    formatPoints,
+    ticketStatus,
+    type SnapshotIssue,
+    type StageView,
+} from "#layers/workflows/shared/workflows.ts";
 
 interface Props {
     stage: StageView;
@@ -139,8 +145,18 @@ const TWO_ROWS_FROM = 5;
 
 const color = computed(() => stageColor(index));
 const pointsText = computed(
-    () => `${Math.round(stage.points.done)}/${Math.round(stage.points.total)} SP`,
+    () => `${formatPoints(stage.points.done)}/${formatPoints(stage.points.total)} SP`,
 );
+
+/** The dots' colours as words, so their meaning isn't left to hovering each one. */
+const ticketSummary = (issues: SnapshotIssue[]): string => {
+    const counts = new Map<string, number>();
+    for (const issue of issues) {
+        const label = ticketStatusLabel(ticketStatus(issue));
+        counts.set(label, (counts.get(label) ?? 0) + 1);
+    }
+    return [...counts].map(([label, count]) => `${count} ${label.toLowerCase()}`).join(", ");
+};
 
 /** A switched-off block isn't part of this project, so it has no card. */
 const shown = computed(() => stage.capabilities.filter(({ state }) => state !== "off"));

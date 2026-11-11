@@ -167,25 +167,29 @@ export const projectView = (
         return seen.size;
     };
 
+    const scores = (id: string) => byId.has(id) && enabled.get(id) === true && !settledFor(id);
+
     // A ticket shared by several blocks splits its estimate between them, so totals never count it twice.
     const pointsOf = (capability: Capability): Points => {
+        if (!scores(capability.id)) return NO_POINTS;
+
         const tickets = live.get(capability.id) ?? [];
 
         if (tickets.length > 0) {
             return addPoints(
                 tickets.map((ticket) => {
-                    const share = (ticket.complexity ?? 0) / Math.max(1, ticket.caps.length);
+                    const sharers = ticket.caps.filter(scores);
+                    const share = (ticket.complexity ?? 0) / sharers.length;
                     return {
                         done: ticket.state === "closed" ? share : 0,
                         total: share,
                         estimated: 0,
-                        unestimated: ticket.complexity === null ? 1 : 0,
+                        unestimated:
+                            ticket.complexity === null && sharers[0] === capability.id ? 1 : 0,
                     };
                 }),
             );
         }
-
-        if (!enabled.get(capability.id) || settledFor(capability.id)) return NO_POINTS;
 
         return {
             done: 0,

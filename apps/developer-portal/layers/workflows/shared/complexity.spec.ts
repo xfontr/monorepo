@@ -11,9 +11,12 @@ describe("complexityOf", () => {
 });
 
 describe("pointsLine", () => {
-    it("rounds a split ticket's share so the page never shows 2.6666 SP", () => {
+    it("keeps one decimal of a split ticket's share, so halves still add up to the whole", () => {
+        expect(pointsLine({ done: 10.5, total: 21, estimated: 0, unestimated: 0 })).toBe(
+            "10.5 of 21 SP done",
+        );
         expect(pointsLine({ done: 2.6666, total: 8, estimated: 0, unestimated: 0 })).toBe(
-            "3 of 8 SP done",
+            "2.7 of 8 SP done",
         );
     });
 

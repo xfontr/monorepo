@@ -97,6 +97,7 @@
                         <TicketSizePicker
                             v-else-if="section.id === 'tickets'"
                             v-model="draft.ticketSize"
+                            :counts="base.tickets.toFile"
                             :editable="editable && !sizeFixed"
                         />
                     </div>
@@ -199,7 +200,7 @@
 </template>
 
 <script setup lang="ts">
-import { featuresOf, ticketStatus, type TicketSize } from "#layers/workflows/shared/workflows.ts";
+import { dropPlan, featuresOf, type TicketSize } from "#layers/workflows/shared/workflows.ts";
 
 const SECTIONS = [
     {
@@ -250,7 +251,7 @@ const saved = computed(() => {
 const discard = () => Object.assign(draft, saved.value, { switches: {} });
 watch(saved, discard, { immediate: true });
 
-/** Only tickets filed from the map count; ones added by hand never fix the size. */
+/** Any live milestone ticket with a `cap:` label fixes the size, whether filed by script or by hand. */
 const sizeFixed = computed(() => (base.value?.tickets.filed ?? 0) > 0);
 
 const features = computed(() => {
@@ -286,13 +287,9 @@ const save = async () => {
 
 const { leaving, leave } = useLeaveGuard(() => changed.value, discard);
 
-/** Mirrors `dropPlan` in infrastructure/scripts/src/workflow/domain/queue.ts; change both together. */
 const dropping = computed(() => {
-    const statuses = (base.value?.snapshot?.issues ?? []).map(ticketStatus);
-    const close = statuses.filter((status) =>
-        ["ready", "blocked", "waiting-on-you"].includes(status),
-    ).length;
-    return { close, keep: statuses.length - close };
+    const { close, keep } = dropPlan(base.value?.snapshot?.issues ?? []);
+    return { close: close.length, keep: keep.length };
 });
 
 const deleting = ref(false);

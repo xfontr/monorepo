@@ -4,13 +4,14 @@ import type { Capability, Points } from "./types.ts";
 export const complexityOf = (capabilities: Capability[]): number =>
     capabilities.reduce((sum, { complexity }) => sum + (complexity ?? 0), 0);
 
-/** A shared ticket splits its points between blocks, so a block's share can be fractional. */
-const whole = (value: number): number => Math.round(value);
+/** A shared ticket splits its points between blocks, so a share keeps one decimal to still add up. */
+export const formatPoints = (value: number): string =>
+    Number.isInteger(value) ? String(value) : value.toFixed(1);
 
 export const pointsLine = ({ done, total, estimated, unestimated }: Points): string =>
     [
-        `${whole(done)} of ${whole(total)} SP done`,
-        estimated > 0 ? `${whole(estimated)} still template estimates` : "",
+        `${formatPoints(done)} of ${formatPoints(total)} SP done`,
+        estimated > 0 ? `${formatPoints(estimated)} still template estimates` : "",
         unestimated > 0 ? `${unestimated} unestimated` : "",
     ]
         .filter(Boolean)

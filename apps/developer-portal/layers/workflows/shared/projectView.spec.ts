@@ -39,6 +39,7 @@ const issue = (number: number, caps: string[], overrides: Partial<SnapshotIssue>
         activity: [],
         blockedBy: [],
         branch: false,
+        pr: false,
         owner: false,
         complexity: null,
         ...overrides,
@@ -418,5 +419,51 @@ describe("complexity points", () => {
         const result = view({}, [open(1, ["search"])], [], ESTIMATED);
 
         expect(capabilityOf(result, "search")?.points.unestimated).toBe(1);
+    });
+
+    it("counts nothing for a settled block even when it has tickets", () => {
+        const result = view(
+            { settled: { "content-audit": { status: "done", note: "Done before the map." } } },
+            [issue(1, ["content-audit"], { complexity: 3 })],
+            [],
+            ESTIMATED,
+        );
+
+        expect(capabilityOf(result, "content-audit")?.points.total).toBe(0);
+        expect(result.points.total).toBe(8);
+    });
+
+    it("gives a shared ticket's whole estimate to the blocks it names, not to a group label", () => {
+        const result = view(
+            {},
+            [open(1, ["article-page", "blog"], { complexity: 8 })],
+            [],
+            ESTIMATED,
+        );
+
+        expect(capabilityOf(result, "article-page")?.points.total).toBe(8);
+    });
+
+    it("counts an unestimated ticket shared by two blocks once, not once per block", () => {
+        const result = view({}, [open(1, ["content-audit", "search"])], [], ESTIMATED);
+
+        expect(result.points.unestimated).toBe(1);
+    });
+});
+
+describe("tickets to file", () => {
+    it("counts only labelled, live tickets as filed and prices the rest at every size", () => {
+        const result = view(
+            {},
+            [
+                open(1, ["content-audit"]),
+                issue(2, ["article-page"], { reason: "not_planned" }),
+                open(3, []),
+            ],
+            [],
+        );
+
+        expect(result.tickets.filed).toBe(1);
+        expect(result.tickets.toFile).toEqual({ block: 2, stage: 1, lean: 1 });
     });
 });

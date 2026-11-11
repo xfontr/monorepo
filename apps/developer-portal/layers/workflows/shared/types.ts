@@ -125,6 +125,8 @@ export interface SnapshotIssue {
     blockedBy: { number: number; open: boolean; closedAt: string | null }[];
     /** A branch is linked on the issue, which is how `pnpm issue:pick` marks it as taken. */
     branch: boolean;
+    /** An open pull request would close it, so work started even without a linked branch. */
+    pr: boolean;
     owner: boolean;
     /** The board's Complexity field; null when nobody estimated it. */
     complexity: number | null;

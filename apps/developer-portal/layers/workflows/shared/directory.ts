@@ -14,11 +14,7 @@ export interface Workflows {
     problems: WorkflowProblem[];
 }
 
-/**
- * Every template and project, each project laid over its template and snapshot, keyed by project
- * id. The caller reads and parses the files; a broken one becomes a problem rather than a throw, so
- * one bad edit never blanks the page.
- */
+/** A broken file becomes a problem rather than a throw, so one bad edit never blanks the page. */
 export const assembleWorkflows = (
     templateFiles: ParsedFile[],
     projectFiles: ParsedFile[],

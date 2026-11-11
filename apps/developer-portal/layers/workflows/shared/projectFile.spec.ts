@@ -1,6 +1,6 @@
 import { parse } from "yaml";
 import { describe, expect, it } from "vitest";
-import { projectYaml, type NewProject } from "./projectFile.ts";
+import { PROJECT_ID, projectSlug, projectYaml, type NewProject } from "./projectFile.ts";
 
 const PROJECT: NewProject = {
     id: "harbour-notes",
@@ -40,5 +40,16 @@ describe("projectYaml", () => {
 
     it("writes an empty switch map rather than a key with no value", () => {
         expect(parse(projectYaml({ ...PROJECT, switches: {} })).switches).toEqual({});
+    });
+});
+
+describe("projectSlug", () => {
+    it.each([
+        ["Diseño Web", "diseno-web"],
+        ["Pérez & Asociados", "perez-asociados"],
+        ["  Harbour Notes! ", "harbour-notes"],
+    ])("turns %j into an id the file name can take", (title, id) => {
+        expect(projectSlug(title)).toBe(id);
+        expect(PROJECT_ID.test(projectSlug(title))).toBe(true);
     });
 });

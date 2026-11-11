@@ -11,6 +11,18 @@ export interface NewProject {
     ticketSize: TicketSize;
 }
 
+/** Also the file name, so nothing that could climb out of `projects/` gets through. */
+export const PROJECT_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+/** A title as a project id: accents dropped, anything else between words a dash. */
+export const projectSlug = (title: string): string =>
+    title
+        .normalize("NFD")
+        .replace(/\p{M}/gu, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+
 const PLAIN = /^[A-Z][\w.,()/-]*(?:[ :][\w.,()/-]+)*$/i;
 
 // YAML 1.1 readers still turn these into booleans or null when they're left unquoted.

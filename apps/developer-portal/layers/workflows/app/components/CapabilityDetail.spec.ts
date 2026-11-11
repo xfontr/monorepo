@@ -40,6 +40,7 @@ const capabilityWith = (issues: object[], optional = true): CapabilityView => {
             activity: [],
             blockedBy: [],
             branch: false,
+            pr: false,
             owner: false,
             complexity: null,
             ...issue,

@@ -26,6 +26,7 @@ const ticket = (number: number, caps: string[]) => ({
     activity: [],
     blockedBy: [],
     branch: false,
+    pr: false,
     owner: false,
     complexity: null,
 });
@@ -68,20 +69,24 @@ describe("StageCards", () => {
         expect(page!.text()).not.toContain("SP");
     });
 
-    it("stacks a block's ticket dots in two rows once it has more than five tickets", async () => {
+    it.each([
+        [5, false],
+        [6, true],
+    ])("stacks %i ticket dots in two rows: %s", async (count, stacked) => {
         const crowded = projectView(project, template, {
             syncedAt: "2026-11-09T00:00:00Z",
             milestone: "P",
-            issues: [1, 2, 3, 4, 5, 6].map((number) => ticket(number, ["kit"])),
+            issues: Array.from({ length: count }, (_, index) => ticket(index + 1, ["kit"])),
             noMilestone: [],
         });
         const wrapper = await mountSuspended(StageCards, {
             props: { stage: crowded.stages[0]!, index: 0 },
             global: { stubs: { UIcon: true } },
         });
-        const [kit] = wrapper.findAll("[data-ticket-dots]");
+        const dots = wrapper.find("[role='img']");
 
-        expect(kit!.classes()).toContain("grid-rows-2");
+        expect(dots.attributes("aria-label")).toMatch(new RegExp(`^${count} `));
+        expect(dots.classes().includes("grid-rows-2")).toBe(stacked);
     });
 
     it("gives a switched-off block no card, since it isn't part of the project", async () => {
