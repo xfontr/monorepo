@@ -172,6 +172,14 @@ export interface DepsArtifact {
     outdated: OutdatedPackage[] | null;
 }
 
+/** One script's runs on one calendar day. */
+export interface DayUsage {
+    runs: number;
+    /** Runs whose caller is not `human`. */
+    agent: number;
+    failures: number;
+}
+
 /** One script's runs, summed from the rows in `.telemetry/scripts/*.csv`. */
 export interface ScriptUsage {
     runs: number;
@@ -192,6 +200,11 @@ export interface ScriptUsage {
     /** The `<area>` segment of the branch each run happened on, or `repo`. */
     areas: Record<string, number>;
     flags: Record<string, number>;
+    /**
+     * Keyed by `YYYY-MM-DD`, holding only days inside the window that had a run. Missing from a
+     * snapshot collected before per-day counts were kept.
+     */
+    days?: Record<string, DayUsage>;
 }
 
 /** One ESLint rule, from `.telemetry/lint/*.csv`. Only edits made by an agent are ever linted there. */

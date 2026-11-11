@@ -23,7 +23,8 @@ const global = {
             props: { title: String, description: String },
             template: "<div class='empty'>{{ title }} {{ description }}</div>",
         },
-        UIcon: true,
+        ScriptActivity: true,
+        UsageTriage: true,
         LintUsage: true,
     },
 };
@@ -34,14 +35,26 @@ const tally = (overrides: Record<string, unknown> = {}) => ({
     failures: 1,
     headless: 0,
     totalMs: 100,
-    first: "2026-11-01T00:00:00.000Z",
-    last: "2026-11-08T00:00:00.000Z",
+    first: "2026-11-01",
+    last: "2026-11-08",
     callers: { "claude-code": 4, human: 6 },
     commands: {},
     targets: {},
     areas: { content: 6, repo: 4 },
     flags: { check: 3 },
+    days: { "2026-11-08": { runs: 10, agent: 4, failures: 1 } },
     ...overrides,
+});
+
+const artifact = (scripts: Record<string, unknown>, known = Object.keys(scripts)) => ({
+    manifest: null,
+    usage: {
+        generatedAt: "2026-11-09T00:00:00.000Z",
+        windowDays: 90,
+        lint: { since: null, rules: {} },
+        known,
+        scripts,
+    },
 });
 
 beforeEach(() => {
@@ -49,54 +62,29 @@ beforeEach(() => {
 });
 
 describe("telemetry page", () => {
-    it("says nothing has been folded yet instead of showing an empty table as a result", async () => {
+    it("says nothing has been folded yet instead of showing an empty matrix as a result", async () => {
         const wrapper = await mountSuspended(Page, { global });
 
         expect(wrapper.find(".empty").text()).toContain("No runs committed yet");
     });
 
-    it("totals runs and the agent and failure shares across scripts, busiest script first", async () => {
-        state.snapshot!.value = {
-            manifest: null,
-            usage: {
-                generatedAt: "2026-11-09T00:00:00.000Z",
-                windowDays: 90,
-                lint: { since: null, rules: {} },
-                known: ["drift", "map"],
-                scripts: {
-                    drift: tally({ runs: 10 }),
-                    map: tally({ runs: 30, recent: 30, callers: { human: 30 } }),
-                },
+    it("totals the window's runs, agent and failure shares, and counts a script with none as idle", async () => {
+        state.snapshot!.value = artifact(
+            {
+                drift: tally(),
+                map: tally({
+                    runs: 500,
+                    days: { "2026-11-08": { runs: 30, agent: 0, failures: 1 } },
+                }),
             },
-        };
+            ["drift", "map", "ship"],
+        );
 
         const wrapper = await mountSuspended(Page, { global });
 
         expect(wrapper.text()).toContain("Runs 40");
         expect(wrapper.text()).toContain("Run by an agent 10%");
         expect(wrapper.text()).toContain("Failed 5%");
-        expect(wrapper.findAll("tbody tr").map((row) => row.find("td").text())).toEqual([
-            "map",
-            "drift",
-        ]);
-    });
-
-    it("lists a script that was never run among the things worth a look", async () => {
-        state.snapshot!.value = {
-            manifest: null,
-            usage: {
-                generatedAt: "2026-11-09T00:00:00.000Z",
-                windowDays: 90,
-                lint: { since: null, rules: {} },
-                known: ["drift", "map"],
-                scripts: { drift: tally() },
-            },
-        };
-
-        const wrapper = await mountSuspended(Page, { global });
-
-        expect(wrapper.text()).toContain("Worth a look");
-        expect(wrapper.text()).toContain("map");
-        expect(wrapper.text()).toContain("Nothing recorded");
+        expect(wrapper.text()).toContain("Idle scripts 1/3");
     });
 });

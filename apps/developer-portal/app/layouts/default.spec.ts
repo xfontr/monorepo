@@ -78,7 +78,7 @@ describe("default layout", () => {
             ["Workflows", "/workflows"],
             ["Work in progress", "/issues"],
             ["Coverage", "/coverage"],
-            ["Telemetry", "/telemetry"],
+            ["Tooling usage", "/telemetry"],
             ["Dependencies", "/deps"],
         ]);
     });

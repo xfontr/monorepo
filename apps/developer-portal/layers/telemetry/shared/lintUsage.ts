@@ -1,15 +1,6 @@
 import type { LintRuleUsage, LintUsage } from "#layers/snapshot/shared/types.ts";
 import type { UsageRecord } from "./usage.ts";
 
-export type LintAlertKind = "fought" | "noisy" | "always-fixed";
-
-export interface LintAlert {
-    rule: string;
-    kind: LintAlertKind;
-    message: string;
-}
-
-export const MIN_HITS = 5;
 export const FOUGHT_DISABLES = 3;
 export const NOISY_SHARE = 0.3;
 
@@ -82,33 +73,3 @@ export const neverFired = (lint: LintUsage): string[] =>
         .filter(([, usage]) => usage.enabled && usage.recent === 0 && usage.disabled === 0)
         .map(([rule]) => rule)
         .sort((a, b) => a.localeCompare(b));
-
-export const lintAlerts = (lint: LintUsage): LintAlert[] => {
-    const recentTotal = Object.values(lint.rules).reduce((sum, usage) => sum + usage.recent, 0);
-    const alerts: LintAlert[] = [];
-
-    for (const [rule, usage] of Object.entries(lint.rules)) {
-        if (usage.disabled >= FOUGHT_DISABLES)
-            alerts.push({
-                rule,
-                kind: "fought",
-                message: `Disabled inline ${usage.disabled} times. Either the rule or the code it keeps catching is wrong.`,
-            });
-
-        if (usage.recent >= MIN_HITS && usage.recent / recentTotal >= NOISY_SHARE)
-            alerts.push({
-                rule,
-                kind: "noisy",
-                message: `${Math.round((usage.recent / recentTotal) * 100)}% of recent hits. Worth saying in a CLAUDE.md, or a sign the rule is too broad.`,
-            });
-
-        if (usage.hits >= MIN_HITS && usage.fixable === usage.hits)
-            alerts.push({
-                rule,
-                kind: "always-fixed",
-                message: "Every hit was auto-fixed, so it costs agents nothing.",
-            });
-    }
-
-    return alerts;
-};

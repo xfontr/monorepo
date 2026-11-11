@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { lintAlerts, neverFired, parseDisables, summarizeLint } from "./lintUsage.ts";
+import { neverFired, parseDisables, summarizeLint } from "./lintUsage.ts";
 import type { LintRuleUsage, LintUsage } from "#layers/snapshot/shared/types.ts";
 import type { UsageRecord } from "./usage.ts";
 
@@ -27,9 +27,6 @@ const rule = (overrides: Partial<LintRuleUsage> = {}): LintRuleUsage => ({
 });
 
 const lint = (rules: Record<string, LintRuleUsage>): LintUsage => ({ since: "2026-11-01", rules });
-
-const kinds = (rules: Record<string, LintRuleUsage>): string[] =>
-    lintAlerts(lint(rules)).map((alert) => `${alert.rule}:${alert.kind}`);
 
 describe("parseDisables", () => {
     it("reads every rule a line, next-line or block directive names, without its reason", () => {
@@ -102,27 +99,5 @@ describe("neverFired", () => {
 
     it("lists a rule whose only hits fell out of the window", () => {
         expect(neverFired(lint({ old: rule({ hits: 9, recent: 0 }) }))).toEqual(["old"]);
-    });
-});
-
-describe("lintAlerts", () => {
-    it("flags a rule disabled inline again and again", () => {
-        expect(kinds({ "no-console": rule({ disabled: 3 }) })).toEqual(["no-console:fought"]);
-    });
-
-    it("flags the rule behind most recent hits, but not below five", () => {
-        expect(kinds({ a: rule({ hits: 8, recent: 8 }), b: rule({ hits: 2, recent: 2 }) })).toEqual(
-            ["a:noisy"],
-        );
-        expect(kinds({ a: rule({ hits: 4, recent: 4 }) })).toEqual([]);
-    });
-
-    it("says a rule costs nothing only when every hit was auto-fixed", () => {
-        const found = kinds({
-            fixed: rule({ hits: 5, fixable: 5 }),
-            mixed: rule({ hits: 5, fixable: 4 }),
-        });
-
-        expect(found).toEqual(["fixed:always-fixed"]);
     });
 });

@@ -52,7 +52,7 @@ domain logic, its own config, or is something you'd switch off whole.
 | `decisions`, `audits` | Feature | Each record's pages, its list logic and its labels |
 | `projects` | Feature | Projects, Architecture and What's new |
 | `health` | Feature | Work in progress and its row, Coverage and Dependencies |
-| `telemetry` | Feature | The Telemetry page and the usage rules the collector shares |
+| `telemetry` | Feature | The Tooling usage page and the usage rules the collector shares |
 | `workflows` | Feature | The Workflows pages, their components, routes, config and colours |
 | `wiki` | Feature | The Documentation pages, `WikiNav` and the tree `shared/wiki.ts` builds |
 
@@ -235,7 +235,7 @@ page is derived from those rows.
 | Progress, counts, filters, ordering | [`layers/audits/shared/auditReports.ts`](./layers/audits/shared/auditReports.ts), pure and specced beside itself |
 | A malformed audit | [`tools/lib/audits.ts`](./tools/lib/audits.ts), surfaced as an `audit-shape-mismatch` invariant on the Overview |
 
-## 📊 Telemetry
+## 📊 Tooling usage
 
 [`/telemetry`](./layers/telemetry/app/pages/telemetry.vue) shows how the repo's own tooling is used. `collect` reads
 the raw rows every commit carries into `.telemetry/` (what a row holds and why is in
@@ -245,17 +245,8 @@ stay raw on purpose: a new question is a new function over the same files, not a
 tally.
 
 **Scripts.** Runs, how many came from an agent, failures, and the projects and flags each is called
-with, beside every script folder so one nobody has run is visible as such.
-
-| Alert | Fires when |
-| --- | --- |
-| Never run | A script folder has no recorded run |
-| Stale | The last run was 90 or more days before the snapshot |
-| Heavy | One script is 40% or more of the runs in the last 90 days |
-| One project | Every run named the same project, or, when runs name none, happened on one branch area other than `repo` |
-| One flag | 90% or more of runs pass the same flag |
-| Agents only | No person has ever run it, which may mean the scripts README doesn't say when to |
-| Failing | A quarter or more of runs exit non-zero; Ctrl+C doesn't count |
+with, beside every script folder so one nobody has run is visible as such. Runs, agent runs and
+failures are also kept per day inside the 90-day window.
 
 **Lint rules.** Hits on files an agent edited, the `eslint-disable` comments naming each rule, and
 every rule some project's config switches on, read through ESLint's own `calculateConfigForFile`
@@ -263,15 +254,17 @@ in [`tools/lib/lintRules.ts`](./tools/lib/lintRules.ts). **Only agent edits are 
 own are fixed by the editor on save and never recorded, so a rule that only ever catches people
 reads as never fired. The page says so above the numbers.
 
-| Signal | Shows when |
-| --- | --- |
-| Never fired | Enabled, no hit in the last 90 days and never disabled inline, listed against the day recording began |
-| Fought | Disabled inline three or more times |
-| Noisy | One rule is 30% or more of recent hits, with at least five |
-| Always auto-fixed | Five or more hits, every one settled by `--fix` |
+[`layers/telemetry/shared/usageView.ts`](./layers/telemetry/shared/usageView.ts) shapes what the
+page draws, all of it over the 90-day window:
 
-The thresholds are constants in the layer's two `shared/` files. No pattern alert fires under five runs or
-hits, since one is always 100% of itself.
+| View | Shows |
+| --- | --- |
+| Script activity | One row of day cells per script, shaded by runs, a red base on a day with a failed run, and idle scripts kept as empty rows |
+| Scripts quadrant | Runs against failure rate, split at 5 runs and 25% failing; idle scripts listed under it |
+| Lint rules quadrant | Hits against inline disables, split at 3 disables and 30% of all hits |
+| Lint rules × projects | Hits per project for every rule that fired or is disabled inline, plus the never-fired list |
+
+The thresholds are constants in the layer's two `shared/` files. Ctrl+C never counts as a failure.
 
 ## 🐙 Work in progress comes from GitHub, not from here
 

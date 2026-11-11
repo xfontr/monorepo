@@ -1,0 +1,18 @@
+/* Callers keep one hue each across the page; runs and lint hits are one-hue scales of their own. */
+:root {
+    --usage-agent: #2a78d6;
+    --usage-person: #eb6834;
+    --usage-both: #1baf7a;
+    --usage-rule: #6250d6;
+    --usage-runs: #2a78d6;
+    --usage-hits: #eb6834;
+}
+
+.dark {
+    --usage-agent: #3987e5;
+    --usage-person: #d95926;
+    --usage-both: #199e70;
+    --usage-rule: #9085e9;
+    --usage-runs: #3987e5;
+    --usage-hits: #d95926;
+}

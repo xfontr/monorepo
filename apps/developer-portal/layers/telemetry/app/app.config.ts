@@ -1,5 +1,5 @@
 export default defineAppConfig({
     nav: {
-        telemetry: { label: "Telemetry", icon: "i-lucide-activity", to: "/telemetry" },
+        telemetry: { label: "Tooling usage", icon: "i-lucide-wrench", to: "/telemetry" },
     },
 });
