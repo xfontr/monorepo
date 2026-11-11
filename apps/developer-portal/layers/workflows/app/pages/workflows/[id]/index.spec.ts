@@ -124,23 +124,26 @@ describe("workflow page", () => {
     it("lists every unfinished block under its state, not just the first few", async () => {
         const wrapper = await mountSuspended(Page, { global });
 
-        expect(wrapper.find("[data-state-list='ready']").text()).toContain("Comments");
-        expect(wrapper.find("[data-state-list='can-file']").text()).toContain("Cutover");
+        expect(wrapper.find("ul[aria-label='ready blocks']").text()).toContain("Comments");
+        expect(wrapper.find("ul[aria-label='can file now blocks']").text()).toContain("Cutover");
     });
 
     it("lights a block picked from its state's list on its stage cards and on the graph", async () => {
         const wrapper = await mountSuspended(Page, { global });
 
         await wrapper
-            .findAll("[data-state-list] button")
+            .findAll("ul[aria-label$=' blocks'] button")
             .find((button) => button.text().startsWith("Cutover"))
             ?.trigger("click");
 
         expect(wrapper.find("#stage-launch button[aria-pressed='true']").text()).toContain(
             "Cutover",
         );
-        expect(wrapper.find("[data-node='cutover']").attributes("aria-pressed")).toBe("true");
-        expect(wrapper.find("[data-node='comments']").text()).toContain("needed");
+        const graph = wrapper.findComponent({ name: "WorkflowGraph" });
+        expect(graph.find("button[aria-label^='Cutover,']").attributes("aria-pressed")).toBe(
+            "true",
+        );
+        expect(graph.find("button[aria-label^='Comments,']").text()).toContain("needed");
     });
 
     it("opens a block's details from its info button, selecting it on the way", async () => {
@@ -168,14 +171,18 @@ describe("workflow page", () => {
             },
         ]);
         const wrapper = await mountSuspended(Page, { global });
-        const comments = () => wrapper.find("[data-node='comments']").text();
+        const comments = () =>
+            wrapper
+                .findComponent({ name: "WorkflowGraph" })
+                .find("button[aria-label^='Comments,']")
+                .text();
 
         expect(comments()).toContain("Done");
 
         await wrapper.find("[data-replay]").setValue("0");
 
         expect(comments()).toContain("In flight");
-        expect(wrapper.text()).toContain("2 Nov");
+        expect(wrapper.find("output").text()).toContain("2 Nov");
     });
 
     it("keeps features, ticket size and deleting behind Settings rather than on the page", async () => {
@@ -184,8 +191,7 @@ describe("workflow page", () => {
         const labels = wrapper.findAll("button").map((button) => button.text());
 
         expect(labels).toContain("Settings");
-        expect(labels).not.toContain("Delete");
-        expect(labels).not.toContain("Features");
+        expect(labels.filter((label) => /delete|features|ticket size/i.test(label))).toEqual([]);
     });
 
     it("says so when the project doesn't exist instead of rendering an empty pipeline", async () => {

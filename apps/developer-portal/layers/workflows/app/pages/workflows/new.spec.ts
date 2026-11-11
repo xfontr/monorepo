@@ -1,6 +1,7 @@
 import { mountSuspended, mockNuxtImport } from "@nuxt/test-utils/runtime";
 import type { VueWrapper } from "@vue/test-utils";
 import { nextTick, ref } from "vue";
+import { parse } from "yaml";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { assembleWorkflows } from "#layers/workflows/shared/workflows.ts";
 import Page from "./new.vue";
@@ -76,7 +77,11 @@ describe("new project wizard", () => {
             .findAll("[role='switch']")
             .find((card) => card.text().includes("Search"))
             ?.trigger("click");
-        await wrapper.findAll("[role='radio']")[2]?.trigger("click");
+        await wrapper
+            .find("[aria-label='Ticket size']")
+            .findAll("[role='radio']")
+            .find((option) => option.text().startsWith("Lean"))
+            ?.trigger("click");
         await button(wrapper, "Next")?.trigger("click");
         await button(wrapper, "Create project")?.trigger("click");
 
@@ -112,9 +117,14 @@ describe("new project wizard", () => {
 
     it("keeps the ticket size in view on every step, priced for the features picked so far", async () => {
         const wrapper = await mountSuspended(Page, { global });
-        const lean = () => wrapper.findAll("[role='radio']")[2]?.text();
+        const size = (title: string) =>
+            wrapper
+                .find("[aria-label='Ticket size']")
+                .findAll("[role='radio']")
+                .find((option) => option.text().startsWith(title))
+                ?.text();
 
-        expect(lean()).toMatch(/1$/);
+        expect(size("Lean")).toMatch(/\D1$/);
 
         await button(wrapper, "Next")?.trigger("click");
         await wrapper.find("input").setValue("Harbour Notes");
@@ -124,26 +134,25 @@ describe("new project wizard", () => {
             .find((card) => card.text().includes("Search"))
             ?.trigger("click");
 
-        expect(lean()).toMatch(/1$/);
-        expect(wrapper.findAll("[role='radio']")[0]?.text()).toMatch(/2$/);
+        expect(size("Lean")).toMatch(/\D1$/);
+        expect(size("One per block")).toMatch(/\D2$/);
     });
 
     it("maps only the blocks the picked features switch on, on the review step", async () => {
         const wrapper = await mountSuspended(Page, { global });
         const mapped = () =>
             wrapper
-                .find("[data-preview-graph]")
-                .findAll("[data-node]")
-                .map((block) => block.attributes("data-node"));
+                .findAll("button[aria-pressed]")
+                .map((block) => block.attributes("aria-label")?.split(",")[0]);
 
-        expect(wrapper.find("[data-preview-graph]").exists()).toBe(false);
+        expect(wrapper.text()).not.toContain("Dependency graph");
 
         await button(wrapper, "Next")?.trigger("click");
         await wrapper.find("input").setValue("Harbour Notes");
         await button(wrapper, "Next")?.trigger("click");
         await button(wrapper, "Next")?.trigger("click");
 
-        expect(mapped()).toEqual(["post-page"]);
+        expect(mapped()).toEqual(["Post page"]);
     });
 
     it("won't move past the details until the project has a title", async () => {
@@ -184,12 +193,44 @@ describe("new project wizard", () => {
         await button(wrapper, "Next")?.trigger("click");
         await wrapper.find("input").setValue("Harbour Notes");
         await button(wrapper, "Next")?.trigger("click");
+        await wrapper
+            .findAll("[role='switch']")
+            .find((card) => card.text().includes("Search"))
+            ?.trigger("click");
+        await wrapper
+            .find("[aria-label='Ticket size']")
+            .findAll("[role='radio']")
+            .find((option) => option.text().startsWith("Lean"))
+            ?.trigger("click");
         await button(wrapper, "Next")?.trigger("click");
         await button(wrapper, "Download YAML")?.trigger("click");
 
         expect((click.mock.contexts[0] as HTMLAnchorElement | undefined)?.download).toBe(
             "harbour-notes.yaml",
         );
-        expect(await blobs[0]?.text()).toContain("id: harbour-notes\ntitle: Harbour Notes\n");
+        expect(parse((await blobs[0]?.text()) ?? "")).toEqual({
+            id: "harbour-notes",
+            title: "Harbour Notes",
+            template: "new-website",
+            area: "app:harbour-notes",
+            milestone: "Harbour Notes",
+            summary: "",
+            switches: { search: true },
+            ticketSize: "lean",
+        });
+    });
+
+    it("stays on the wizard when the server refuses the project", async () => {
+        state.edit.mockResolvedValue(false);
+        const wrapper = await mountSuspended(Page, { global });
+
+        await button(wrapper, "Next")?.trigger("click");
+        await wrapper.find("input").setValue("Harbour Notes");
+        await button(wrapper, "Next")?.trigger("click");
+        await button(wrapper, "Next")?.trigger("click");
+        await button(wrapper, "Create project")?.trigger("click");
+
+        expect(state.edit).toHaveBeenCalled();
+        expect(state.navigateTo).not.toHaveBeenCalled();
     });
 });

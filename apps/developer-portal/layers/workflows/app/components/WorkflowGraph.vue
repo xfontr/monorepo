@@ -75,7 +75,6 @@
             >
                 <button
                     type="button"
-                    :data-node="node.id"
                     class="relative flex flex-1 flex-col justify-center gap-0.5 overflow-hidden rounded-xl border bg-default py-2 pr-9 pl-4 text-left"
                     :class="
                         node.id === selected

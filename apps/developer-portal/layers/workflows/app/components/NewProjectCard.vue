@@ -18,5 +18,5 @@ interface Props {
     label?: string;
 }
 
-const { label = "New workflow" } = defineProps<Props>();
+const { label = "New project" } = defineProps<Props>();
 </script>

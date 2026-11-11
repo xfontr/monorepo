@@ -49,7 +49,10 @@ const global = {
         IssueRow: Issue,
         SnapshotAge: Snapshot,
         UIcon: true,
-        ProgressRing: true,
+        WorkflowCard: {
+            props: { project: Object },
+            template: '<a :href="`/workflows/${project.project.id}`" />',
+        },
         UBadge: { props: { label: String }, template: "<span>{{ label }}</span>" },
         NuxtLink: Button,
     },
@@ -214,11 +217,11 @@ describe("overview page", () => {
         expect(wrapper.find("a[href='/workflows/new']").exists()).toBe(true);
     });
 
-    it("still offers a new workflow when none is in progress", async () => {
+    it("still offers a new project when none is in progress", async () => {
         const wrapper = await mountSuspended(Page, { global });
 
         expect(wrapper.find("a[href='/workflows/new']").attributes("aria-label")).toBe(
-            "New workflow",
+            "New project",
         );
     });
 });

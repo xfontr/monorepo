@@ -1,4 +1,3 @@
-/** The palette behind these three classes lives in the design layer's `main.css` and is shown beside the figure it describes, never instead of it. */
 export type Tone = "good" | "warn" | "bad" | "neutral";
 
 const TONE_CLASSES = {

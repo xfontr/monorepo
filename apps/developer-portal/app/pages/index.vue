@@ -139,23 +139,11 @@
                     </div>
 
                     <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                        <NuxtLink
-                            v-for="workflow in activeWorkflows"
-                            :key="workflow.id"
-                            :to="`/workflows/${workflow.id}`"
-                            class="flex items-center gap-4 rounded-lg border border-default bg-default p-4 transition-colors hover:bg-elevated/50"
-                        >
-                            <ProgressRing :percent="workflow.percent" :size="64" />
-                            <div class="min-w-0 flex-1">
-                                <p class="truncate font-semibold">{{ workflow.title }}</p>
-                                <p class="truncate text-xs text-muted">
-                                    {{ workflow.templateTitle }}
-                                </p>
-                                <p class="mt-1 text-xs text-dimmed tabular-nums">
-                                    {{ workflow.now }}
-                                </p>
-                            </div>
-                        </NuxtLink>
+                        <WorkflowCard
+                            v-for="view in activeWorkflows"
+                            :key="view.project.id"
+                            :project="view"
+                        />
                         <NewProjectCard />
                     </div>
                 </section>
@@ -281,7 +269,9 @@
                             {{
                                 issues.error
                                     ? "GitHub could not be read from this browser."
-                                    : "No open issues."
+                                    : issues.fetchedAt
+                                      ? "No open issues."
+                                      : "Reading open issues…"
                             }}
                         </div>
 
@@ -299,6 +289,7 @@
 import { sortIssues } from "#layers/github/shared/issues.ts";
 import { toCollectionPath } from "#layers/docs/shared/docPages.ts";
 import type { ProjectNode } from "#layers/snapshot/shared/types.ts";
+import { activeProjects } from "#layers/workflows/shared/workflows.ts";
 
 const [
     { data: projectsSnapshot },
@@ -313,7 +304,13 @@ const [
     useSnapshot("deps"),
     useSnapshot("metrics"),
 ]);
-const { data: issues } = useIssues();
+const { data: read } = useIssues();
+const mounted = ref(false);
+onMounted(() => (mounted.value = true));
+// The server never reads GitHub, so until hydration ends every client render must match "reading".
+const issues = computed(() =>
+    mounted.value ? read.value : { fetchedAt: "", error: null, issues: [] },
+);
 
 const open = computed(() => issues.value.issues.length);
 const issuesRead = computed(() =>
@@ -340,21 +337,7 @@ const featuredProjects = computed(() =>
 
 const { data: workflows } = await useWorkflows();
 
-const activeWorkflows = computed(() =>
-    workflows.value.projects
-        .filter(({ progress }) => progress.percent < 100)
-        .map(({ project, template, counts, progress }) => ({
-            id: project.id,
-            title: project.title,
-            templateTitle: template.title,
-            percent: progress.percent,
-            now: [
-                `${progress.done}/${progress.total} done`,
-                `${counts["waiting-on-you"]} waiting on you`,
-                `${counts.ready} ready`,
-            ].join(" · "),
-        })),
-);
+const activeWorkflows = computed(() => activeProjects(workflows.value.projects));
 
 const readmeFor = (project: ProjectNode) =>
     readmeByPath.value.get(`/${project.root.toLowerCase()}/readme`);

@@ -70,7 +70,7 @@
                                 <template #content>
                                     <ul
                                         class="flex max-h-80 w-72 flex-col overflow-y-auto p-1"
-                                        :data-state-list="group.state"
+                                        :aria-label="`${group.label} blocks`"
                                     >
                                         <li v-for="block in group.blocks" :key="block.id">
                                             <button
@@ -110,7 +110,7 @@
                         class="min-w-48 flex-1"
                         aria-label="Day to replay"
                     />
-                    <span class="w-28 text-sm font-medium tabular-nums">{{ dayLabel }}</span>
+                    <output class="w-28 text-sm font-medium tabular-nums">{{ dayLabel }}</output>
                     <UButton
                         label="Today"
                         color="neutral"

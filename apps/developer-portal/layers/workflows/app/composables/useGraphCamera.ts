@@ -2,6 +2,8 @@ import type { Ref } from "vue";
 
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 1.25;
+/** Below this a node's text is too small to read, so framing stops shrinking and pans instead. */
+const READABLE_ZOOM = 0.75;
 /** A press that moves further than this is a drag, and doesn't select what it started on. */
 const DRAG_THRESHOLD = 4;
 
@@ -22,7 +24,7 @@ export const useGraphCamera = (
         if (animate) easeTimer = setTimeout(() => (easing.value = false), 500);
     };
 
-    /** Frames exactly the lit blocks: the selected path, or the whole map with nothing selected. */
+    /** Centres the lit blocks, the selected path or the whole map, as large as fits but never unreadable. */
     const fit = (animate: boolean) => {
         const box = viewport.value?.getBoundingClientRect();
         const nodes = lit();
@@ -33,9 +35,12 @@ export const useGraphCamera = (
         const right = Math.max(...nodes.map(({ x }) => x + NODE_WIDTH));
         const bottom = Math.max(...nodes.map(({ y }) => y + NODE_HEIGHT));
         const k = clampZoom(
-            Math.min(
-                (box.width - PADDING * 2) / (right - left),
-                (box.height - PADDING * 2) / (bottom - top),
+            Math.max(
+                READABLE_ZOOM,
+                Math.min(
+                    (box.width - PADDING * 2) / (right - left),
+                    (box.height - PADDING * 2) / (bottom - top),
+                ),
             ),
         );
 

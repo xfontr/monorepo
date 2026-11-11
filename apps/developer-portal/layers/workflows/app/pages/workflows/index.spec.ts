@@ -54,33 +54,57 @@ beforeEach(() => {
 });
 
 describe("workflows page", () => {
-    it("shows each project's progress and what can be taken now", async () => {
+    it("puts each count on the project's own card, never swapped or summed", async () => {
+        const ticket = { title: "T", url: "", reason: null, closedAt: null, activity: [] };
         state.data = ref(
-            workflows([
-                { id: "p0", title: "Blog", template: "website-rebuild", milestone: "Blog" },
-            ]),
+            workflows(
+                [
+                    {
+                        id: "p0",
+                        title: "Blog",
+                        template: "website-rebuild",
+                        milestone: "Blog",
+                        ticketSize: "lean",
+                        switches: { comments: true },
+                    },
+                ],
+                {
+                    p0: {
+                        file: "p0.snapshot.json",
+                        ok: true,
+                        value: {
+                            syncedAt: "2026-11-09T00:00:00Z",
+                            milestone: "Blog",
+                            issues: [
+                                { ...ticket, number: 1, state: "open", caps: ["content-audit"] },
+                                {
+                                    ...ticket,
+                                    number: 2,
+                                    state: "open",
+                                    caps: ["comments"],
+                                    branch: true,
+                                },
+                            ],
+                        },
+                    },
+                },
+            ),
         );
 
-        const wrapper = await mountSuspended(Page, { global });
+        const card = (await mountSuspended(Page, { global })).find("a[href='/workflows/p0']");
 
-        expect(wrapper.text()).toContain("Blog");
-        expect(wrapper.text()).toContain("0%");
-        expect(wrapper.text()).toContain(
-            "Now: 0 waiting on you · 0 ready · 0 in flight · 0 blocked",
-        );
-        expect(wrapper.text()).toContain("Content audit");
+        expect(card.text()).toContain("Now: 0 waiting on you · 1 ready · 1 in flight · 0 blocked");
+        expect(card.text()).toContain("0/2 capabilities · 2 tickets filed, 0 to file");
     });
 
-    it("hides project creation on the static site, which has no server to write through", async () => {
+    it("offers a new project on the static site too, where the wizard ends in a download", async () => {
         state.data = ref(workflows([]));
 
         const wrapper = await mountSuspended(Page, { global });
 
-        expect(wrapper.find("a[href='/workflows/new']").exists()).toBe(false);
-
-        state.editable = true;
-        const editable = await mountSuspended(Page, { global });
-        expect(editable.find("a[href='/workflows/new']").exists()).toBe(true);
+        expect(wrapper.find("a[href='/workflows/new']").attributes("aria-label")).toBe(
+            "New project",
+        );
     });
 
     it("lists file problems so a broken project never just disappears", async () => {

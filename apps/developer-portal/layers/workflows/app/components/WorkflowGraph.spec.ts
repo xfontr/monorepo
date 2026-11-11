@@ -1,4 +1,5 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
+import type { VueWrapper } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { projectView, readProject, readTemplate } from "#layers/workflows/shared/workflows.ts";
 import WorkflowGraph from "./WorkflowGraph.vue";
@@ -23,28 +24,31 @@ const mount = (selected: string | null) =>
         global: { stubs: { UIcon: true } },
     });
 
+const node = (wrapper: VueWrapper, title: string) =>
+    wrapper.find(`button[aria-label^='${title},']`);
+
 describe("WorkflowGraph", () => {
     it("shows every block but greys out the ones off the selected path", async () => {
         const wrapper = await mount("page");
 
-        expect(wrapper.find("[data-node='kit']").text()).toContain("needed");
-        const block = (id: string) => wrapper.find(`[data-node='${id}']`).element.parentElement!;
-        expect(block("kit").classList).not.toContain("opacity-25");
-        expect(block("search").classList).toContain("opacity-25");
+        expect(node(wrapper, "Kit").text()).toContain("needed");
+        const block = (title: string) => node(wrapper, title).element.parentElement!;
+        expect(block("Kit").classList).not.toContain("opacity-25");
+        expect(block("Search").classList).toContain("opacity-25");
     });
 
     it("leaves a switched-off block off the map instead of greying it", async () => {
         const wrapper = await mount(null);
 
-        expect(wrapper.find("[data-node='comments']").exists()).toBe(false);
+        expect(node(wrapper, "Comments").exists()).toBe(false);
     });
 
     it("selects a block on a plain click but not at the end of a drag across it", async () => {
         const wrapper = await mount(null);
-        const node = wrapper.find("[data-node='search']");
+        const search = node(wrapper, "Search");
         const viewport = wrapper.find("div");
 
-        await node.trigger("click");
+        await search.trigger("click");
         expect(wrapper.emitted("select")).toEqual([["search"]]);
 
         await viewport.trigger("pointerdown", {
@@ -54,7 +58,7 @@ describe("WorkflowGraph", () => {
             pointerId: 1,
         });
         await viewport.trigger("pointermove", { clientX: 60, clientY: 40, pointerId: 1 });
-        await node.trigger("click");
+        await search.trigger("click");
         await viewport.trigger("pointerup", { pointerId: 1 });
 
         expect(wrapper.emitted("select")).toEqual([["search"]]);
@@ -85,7 +89,8 @@ describe("WorkflowGraph", () => {
         const wrapper = await mount(null);
         const viewport = wrapper.find("div");
         const layer = () =>
-            wrapper.find("[data-node]").element.parentElement?.parentElement?.style.transform;
+            wrapper.find("button[aria-pressed]").element.parentElement?.parentElement?.style
+                .transform;
 
         const plain = new WheelEvent("wheel", { deltaY: -100, cancelable: true });
         viewport.element.dispatchEvent(plain);

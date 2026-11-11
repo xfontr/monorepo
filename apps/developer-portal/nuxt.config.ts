@@ -12,6 +12,8 @@ export default defineNuxtConfig({
 
     typescript: {
         typeCheck: false,
+        // A component left behind by a removed layer then fails typecheck instead of rendering nothing.
+        tsConfig: { vueCompilerOptions: { checkUnknownComponents: true } },
     },
 
     content: {

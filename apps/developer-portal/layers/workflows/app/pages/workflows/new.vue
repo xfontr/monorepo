@@ -28,64 +28,12 @@
                             <p class="text-sm text-muted">{{ current.hint }}</p>
                         </header>
 
-                        <div
+                        <TemplatePicker
                             v-if="current.id === 'template'"
-                            role="radiogroup"
-                            aria-label="Template"
-                            class="flex flex-col gap-3"
-                        >
-                            <button
-                                v-for="card in templateCards"
-                                :key="card.id"
-                                type="button"
-                                role="radio"
-                                :aria-checked="card.id === draft.template"
-                                class="flex cursor-pointer flex-col gap-3 rounded-xl border p-5 text-left transition-colors hover:bg-elevated/50"
-                                :class="
-                                    card.id === draft.template
-                                        ? 'border-primary bg-primary/5'
-                                        : 'border-default bg-default'
-                                "
-                                @click="pickTemplate(card.id)"
-                            >
-                                <span class="flex items-start justify-between gap-3">
-                                    <span>
-                                        <span class="block text-base font-semibold">{{
-                                            card.title
-                                        }}</span>
-                                        <span class="block text-sm text-muted">{{
-                                            card.summary
-                                        }}</span>
-                                    </span>
-                                    <UIcon
-                                        :name="
-                                            card.id === draft.template
-                                                ? 'i-lucide-circle-check'
-                                                : 'i-lucide-circle'
-                                        "
-                                        class="size-5 shrink-0"
-                                        :class="
-                                            card.id === draft.template
-                                                ? 'text-primary'
-                                                : 'text-dimmed'
-                                        "
-                                    />
-                                </span>
-                                <span class="flex flex-wrap gap-1.5">
-                                    <span
-                                        v-for="stage in card.stages"
-                                        :key="stage.title"
-                                        class="rounded-full border border-(--stage)/40 bg-(--stage)/12 px-2 py-0.5 text-xs"
-                                        :style="{ '--stage': stage.color }"
-                                    >
-                                        {{ stage.title }}
-                                    </span>
-                                </span>
-                                <span class="text-xs text-dimmed tabular-nums">{{
-                                    card.counts
-                                }}</span>
-                            </button>
-                        </div>
+                            :templates="data.templates"
+                            :model-value="draft.template"
+                            @update:model-value="pickTemplate"
+                        />
 
                         <form
                             v-else-if="current.id === 'details'"
@@ -147,11 +95,7 @@
                                 </div>
                             </dl>
 
-                            <section
-                                v-if="preview"
-                                class="rounded-2xl border border-default"
-                                data-preview-graph
-                            >
+                            <section v-if="preview" class="rounded-2xl border border-default">
                                 <header class="border-b border-default px-4 py-3">
                                     <h2 class="text-sm font-semibold">Dependency graph</h2>
                                 </header>
@@ -288,6 +232,8 @@ import {
     complexityOf,
     draftProject,
     featuresOf,
+    PROJECT_ID,
+    projectSlug,
     projectView,
     projectYaml,
     TICKET_SIZE_LABELS,
@@ -343,13 +289,6 @@ const draft = reactive({
     ticketSize: "block" as TicketSize,
 });
 
-const slug = (text: string) =>
-    text
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "");
-
 /** A field follows the title until someone types in it. */
 const derived = <T extends string>(from: () => T) => {
     const typed = ref<string | null>(null);
@@ -361,33 +300,15 @@ const derived = <T extends string>(from: () => T) => {
     });
 };
 
-const id = derived(() => slug(draft.title));
+const id = derived(() => projectSlug(draft.title));
 const milestone = derived(() => draft.title.trim());
 const area = derived(() => (id.value ? `app:${id.value}` : ""));
 
 const idError = computed(() =>
-    id.value && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id.value)
-        ? "Lower case, digits and dashes"
-        : undefined,
+    id.value && !PROJECT_ID.test(id.value) ? "Lower case, digits and dashes" : undefined,
 );
 
 const template = computed(() => data.value.templates.find(({ id }) => id === draft.template));
-
-const templateCards = computed(() =>
-    data.value.templates.map((candidate) => {
-        const counts = ticketsToFile(blocksOn(candidate));
-        return {
-            id: candidate.id,
-            title: candidate.title,
-            summary: candidate.summary,
-            stages: candidate.stages.map((stage, index) => ({
-                title: stage.title,
-                color: stageColor(index),
-            })),
-            counts: `${blocksOn(candidate).length} blocks by default · ${counts.lean}–${counts.block} tickets · ${complexityOf(blocksOn(candidate))} SP`,
-        };
-    }),
-);
 
 const pickTemplate = (templateId: string) => {
     if (templateId !== draft.template) draft.switches = {};
@@ -492,6 +413,6 @@ const download = () => {
     link.href = URL.createObjectURL(blob);
     link.download = `${id.value}.yaml`;
     link.click();
-    URL.revokeObjectURL(link.href);
+    setTimeout(() => URL.revokeObjectURL(link.href), 0);
 };
 </script>

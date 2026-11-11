@@ -50,44 +50,18 @@
                 <section class="flex flex-col gap-3">
                     <h2 class="font-semibold">Projects</h2>
 
-                    <div
-                        v-if="data.projects.length === 0 && !editable"
-                        class="rounded-lg border border-dashed border-default p-8 text-center text-sm text-muted"
-                    >
+                    <p v-if="data.projects.length === 0" class="text-sm text-muted">
                         No project under
                         <code class="font-mono">data/workflows/projects/</code> yet.
-                    </div>
+                    </p>
 
-                    <div v-else class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                        <NuxtLink
-                            v-for="card in projectCards"
-                            :key="card.id"
-                            :to="`/workflows/${card.id}`"
-                            class="flex items-center gap-4 rounded-lg border border-default bg-default p-4 transition-colors hover:bg-elevated/50"
-                        >
-                            <ProgressRing :percent="card.percent" :size="64" />
-                            <div class="min-w-0 flex-1">
-                                <p class="truncate font-semibold">{{ card.title }}</p>
-                                <p class="truncate text-xs text-muted">{{ card.templateTitle }}</p>
-                                <p class="mt-1 text-xs tabular-nums">
-                                    <span class="text-dimmed">Now:</span> {{ card.now }}
-                                </p>
-                                <p class="text-xs text-dimmed tabular-nums">
-                                    {{ card.points }}
-                                </p>
-                                <p class="text-xs text-dimmed tabular-nums">
-                                    {{ card.done }}/{{ card.total }} capabilities ·
-                                    {{ card.tickets }}
-                                    <template v-if="card.unsorted > 0">
-                                        ·
-                                        <span class="tone-warn"
-                                            >{{ card.unsorted }} to organise</span
-                                        >
-                                    </template>
-                                </p>
-                            </div>
-                        </NuxtLink>
-                        <NewProjectCard v-if="editable" label="New project" />
+                    <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                        <WorkflowCard
+                            v-for="view in data.projects"
+                            :key="view.project.id"
+                            :project="view"
+                        />
+                        <NewProjectCard />
                     </div>
                 </section>
 
@@ -141,54 +115,19 @@
 </template>
 
 <script setup lang="ts">
-import {
-    blocksOn,
-    complexityOf,
-    pointsLine,
-    ticketsToFile,
-    type Template,
-} from "#layers/workflows/shared/workflows.ts";
+import { templateEstimate, type Template } from "#layers/workflows/shared/workflows.ts";
 
 useHead({ title: "Workflows" });
 
 const { data } = await useWorkflows();
-const { editable } = useWorkflowEdit();
-
-const projectCards = computed(() =>
-    data.value.projects.map(
-        ({ project, template, counts, progress, points, unsorted, tickets }) => ({
-            id: project.id,
-            title: project.title,
-            templateTitle: template.title,
-            percent: progress.percent,
-            done: progress.done,
-            total: progress.total,
-            points: pointsLine(points),
-            unsorted: unsorted.length,
-            tickets: `${tickets.filed} tickets filed, ${tickets.toFile[project.ticketSize]} to file`,
-            now: [
-                `${counts["waiting-on-you"]} waiting on you`,
-                `${counts.ready} ready`,
-                `${counts["in-flight"]} in flight`,
-                `${counts.blocked} blocked`,
-            ].join(" · "),
-        }),
-    ),
-);
 
 const capabilitiesOf = (template: Template, stage: string) =>
     template.capabilities.filter((capability) => capability.stage === stage);
 
-/** What a template files with its defaults on, at the biggest and smallest ticket size. */
-const estimateOf = (template: Template | undefined) => {
-    const blocks = template ? blocksOn(template) : [];
-    return { blocks: blocks.length, tickets: ticketsToFile(blocks), points: complexityOf(blocks) };
-};
-
 const templateCounts = computed(() =>
     Object.fromEntries(
         data.value.templates.map((template) => {
-            const { blocks, tickets, points } = estimateOf(template);
+            const { blocks, tickets, points } = templateEstimate(template);
             return [
                 template.id,
                 `${blocks} blocks by default · ${points} SP · ${tickets.block} tickets one per block, ${tickets.lean} lean`,

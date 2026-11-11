@@ -11,7 +11,7 @@
             class="group flex flex-col gap-3 rounded-xl border p-4 text-left transition-colors enabled:cursor-pointer enabled:hover:bg-elevated/50 disabled:cursor-default"
             :class="[
                 card.enabled ? 'border-primary bg-primary/5' : 'border-default bg-default',
-                card.within ? 'sm:col-span-2 sm:ml-8' : '',
+                card.within ? 'sm:col-span-2 sm:ml-8' : card.parent ? 'sm:col-span-2' : '',
                 card.needs ? 'opacity-50' : '',
             ]"
             @click="emit('toggle', card.id, !card.enabled)"
@@ -61,7 +61,7 @@ interface Props {
 const { features, editable = false } = defineProps<Props>();
 const emit = defineEmits<{ toggle: [feature: string, on: boolean] }>();
 
-/** A feature inside another, such as comments in the blog, follows its parent's card. */
+/** A feature inside another, such as comments in the blog, follows its parent's full-width card. */
 const cards = computed(() =>
     features
         .filter((feature) => feature.within === null)
@@ -74,6 +74,7 @@ const cards = computed(() =>
             return {
                 ...feature,
                 needs,
+                parent: features.some(({ within }) => within === feature.id),
                 icon: count > 1 ? "i-lucide-layers" : "i-lucide-puzzle",
                 note: needs
                     ? `Needs ${needs}`
