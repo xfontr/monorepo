@@ -11,6 +11,16 @@ export const ticketStatus = (issue: SnapshotIssue): TicketStatus => {
     return issue.owner ? "waiting-on-you" : "ready";
 };
 
+const UNTOUCHED: ReadonlySet<TicketStatus> = new Set(["ready", "blocked", "waiting-on-you"]);
+
+/** The tickets a dropped project closes, and the ones it leaves because work on them started or ended. */
+export const dropPlan = (
+    issues: SnapshotIssue[],
+): { close: SnapshotIssue[]; keep: SnapshotIssue[] } => ({
+    close: issues.filter((issue) => UNTOUCHED.has(ticketStatus(issue))),
+    keep: issues.filter((issue) => !UNTOUCHED.has(ticketStatus(issue))),
+});
+
 /** How many open tickets wait on each one, directly or through a chain of blocked-by links. */
 export const unblockCounts = (issues: SnapshotIssue[]): Map<number, number> => {
     const waiting = new Map<number, number[]>();

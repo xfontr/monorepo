@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { describeQueue, ticketStatus, unblockCounts } from "./queue.ts";
+import { describeQueue, dropPlan, ticketStatus, unblockCounts } from "./queue.ts";
 import type { SnapshotIssue } from "./snapshot.ts";
 
 const open = (number: number, overrides: Partial<SnapshotIssue> = {}): SnapshotIssue => ({
@@ -36,6 +36,23 @@ describe("ticketStatus", () => {
         ["a not-planned close", { state: "closed", reason: "not_planned" }, "dropped"],
     ] as const)("reads a ticket with %s as %s", (_, overrides, expected) => {
         expect(ticketStatus(open(1, overrides as Partial<SnapshotIssue>))).toBe(expected);
+    });
+});
+
+describe("dropPlan", () => {
+    it("closes only the tickets nobody started, so dropping a project never discards work", () => {
+        const { close, keep } = dropPlan([
+            open(1),
+            open(2, { blockedBy: [{ number: 1, open: true, closedAt: null }] }),
+            open(3, { owner: true }),
+            open(4, { branch: true }),
+            open(5, { activity: ["2026-10-02"] }),
+            open(6, { state: "closed", reason: "completed" }),
+            open(7, { state: "closed", reason: "not_planned" }),
+        ]);
+
+        expect(close.map(({ number }) => number)).toEqual([1, 2, 3]);
+        expect(keep.map(({ number }) => number)).toEqual([4, 5, 6, 7]);
     });
 });
 

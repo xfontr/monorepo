@@ -32,6 +32,7 @@
         "workflow:sync": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/workflow/index.ts sync",
         "workflow:next": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/workflow/index.ts next",
         "workflow:file": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/workflow/index.ts file",
+        "workflow:drop": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/workflow/index.ts drop",
         "release": "nx release --skip-publish",
         "release:dry": "nx release --skip-publish --dry-run"
     },

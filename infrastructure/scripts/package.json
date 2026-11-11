@@ -22,6 +22,7 @@
     "workflow:sync": "node --disable-warning=ExperimentalWarning src/workflow/index.ts sync",
     "workflow:next": "node --disable-warning=ExperimentalWarning src/workflow/index.ts next",
     "workflow:file": "node --disable-warning=ExperimentalWarning src/workflow/index.ts file",
+    "workflow:drop": "node --disable-warning=ExperimentalWarning src/workflow/index.ts drop",
     "coverage": "node --disable-warning=ExperimentalWarning src/coverage-report/index.ts",
     "lint": "nx eslint:lint",
     "typecheck": "tsc --noEmit",
