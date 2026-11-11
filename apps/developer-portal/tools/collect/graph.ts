@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import type { ProjectNode, ProjectsArtifact } from "#layers/snapshot/shared/types.ts";
 import { GRAPH_DIR, SNAPSHOT_DIR } from "../lib/paths.ts";
 import { run } from "../lib/run.ts";
+import { collectRetired } from "./retired.ts";
 
 interface RawGraph {
     graph: {
@@ -18,9 +19,13 @@ interface RawGraph {
 }
 
 /** Nx auto-adds `npm:private`; the tag table only ever talks about `type:` and `scope:`. */
-const isDeclaredTag = (tag: string): boolean => tag.startsWith("type:") || tag.startsWith("scope:");
+export const isDeclaredTag = (tag: string): boolean =>
+    tag.startsWith("type:") || tag.startsWith("scope:");
 
-export const normalizeGraph = (raw: RawGraph, generatedAt: string): ProjectsArtifact => {
+export const normalizeGraph = (
+    raw: RawGraph,
+    generatedAt: string,
+): Omit<ProjectsArtifact, "retired"> => {
     const edges = Object.values(raw.graph.dependencies)
         .flat()
         .filter((edge) => edge.target in raw.graph.nodes);
@@ -58,5 +63,10 @@ export const collectGraph = async (generatedAt: string): Promise<ProjectsArtifac
     await mkdir(GRAPH_DIR, { recursive: true });
     await run("pnpm", ["exec", "nx", "graph", "--file", resolve(GRAPH_DIR, "index.html")]);
 
-    return normalizeGraph(JSON.parse(await readFile(jsonPath, "utf8")) as RawGraph, generatedAt);
+    const graph = normalizeGraph(
+        JSON.parse(await readFile(jsonPath, "utf8")) as RawGraph,
+        generatedAt,
+    );
+
+    return { ...graph, retired: await collectRetired(graph.projects) };
 };

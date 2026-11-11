@@ -297,6 +297,11 @@ and coverage. `git rev-list` counts the project's history; `git log --since=2 we
 commit count, so the browser never spends one GitHub request per project for data already present in the
 checkout.
 
+A deleted project stays on the page as a dimmed **Retired** card, always after the live ones. `git log --diff-filter=D -p`
+finds every deleted `package.json` under `apps/`, `packages/` and `infrastructure/`, and the patch
+carries its name and tags. A name that is live again is skipped, since a moved project reads as a
+delete plus an add. Its README went with it, so the card shows the deleting commit instead.
+
 Deployments are the exception because they can change after the static site ships. The browser reads
 GitHub's unauthenticated `deployments` endpoint once, then the newest status for each environment;
 the production URL travels in that status. Today those deployments belong to `huella-legal`, so its
