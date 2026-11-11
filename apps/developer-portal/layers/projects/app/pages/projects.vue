@@ -157,7 +157,7 @@
                         v-for="project in retired"
                         :key="project.name"
                         :ui="{
-                            root: 'h-full flex flex-col',
+                            root: 'h-full flex flex-col opacity-70',
                             body: 'flex-1 flex flex-col gap-4',
                         }"
                     >
@@ -178,7 +178,7 @@
                         </p>
 
                         <div class="mt-auto flex flex-col gap-3">
-                            <div class="flex flex-wrap gap-2">
+                            <div v-if="repoUrl" class="flex flex-wrap gap-2">
                                 <UButton
                                     :to="`${repoUrl}/commit/${project.commit}`"
                                     label="Deleting commit"
@@ -191,7 +191,9 @@
 
                             <div class="border-t border-default pt-3 text-sm text-muted">
                                 <p class="text-xs text-dimmed">Commits</p>
-                                <p class="font-semibold">{{ project.commits }}</p>
+                                <p class="font-semibold" aria-label="Commits">
+                                    {{ project.commits }}
+                                </p>
                             </div>
                         </div>
                     </UCard>

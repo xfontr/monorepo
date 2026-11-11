@@ -73,6 +73,12 @@ export const collectRetired = async (live: ProjectNode[]): Promise<RetiredProjec
         "log",
         "--diff-filter=D",
         "-p",
+        // A user's diff config would otherwise decide what counts as deleted and how the patch reads.
+        "--find-renames",
+        "--no-ext-diff",
+        "--no-color",
+        "--src-prefix=a/",
+        "--dst-prefix=b/",
         "--format=%x00%H%x09%cs%x09%s",
         "--",
         ...MANIFESTS,

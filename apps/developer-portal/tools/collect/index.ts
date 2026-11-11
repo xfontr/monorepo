@@ -6,6 +6,7 @@ import { collectDeps } from "./deps.ts";
 import { collectDocs } from "./docs.ts";
 import { collectGraph } from "./graph.ts";
 import { collectMetrics } from "./metrics.ts";
+import { collectRetired } from "./retired.ts";
 import { collectUsage } from "./usage.ts";
 import { SCHEMA_VERSION, SNAPSHOT_DIR } from "../lib/paths.ts";
 import { git, tryRun } from "../lib/run.ts";
@@ -54,7 +55,11 @@ const main = async (): Promise<void> => {
         return;
     }
 
-    await write("projects", graph.value);
+    // Deleted projects are history the page can do without, so a git failure here only empties them.
+    const retired = await tryRun(() => collectRetired(graph.value.projects));
+    if (!retired.ok) printError(`✗ retired projects — ${retired.error}`);
+
+    await write("projects", { ...graph.value, retired: retired.ok ? retired.value : [] });
     artifacts.projects = { generatedAt, ok: true };
     print(`✓ projects — ${graph.value.projects.length} projects`);
 

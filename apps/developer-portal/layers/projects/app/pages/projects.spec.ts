@@ -184,7 +184,9 @@ describe("projects page", () => {
             },
             manifest: {},
         });
+        useRuntimeConfig().public.repoUrl = "https://github.com/acme/repo";
         const wrapper = await mountSuspended(Page, { global });
+        useRuntimeConfig().public.repoUrl = "";
         const cards = wrapper.findAll("article");
         const card = cards.at(-1)!;
 
@@ -194,7 +196,7 @@ describe("projects page", () => {
         ]);
         expect(card.text()).toContain("Retired");
         expect(card.text()).toContain("Deleted 2026-11-08 · chore: delete the old package");
-        expect(card.text()).toContain("12");
+        expect(card.find("[aria-label='Commits']").text()).toBe("12");
         expect(card.find("a[href$='/commit/abc123']").exists()).toBe(true);
         expect(card.find("a[href='/docs/packages/old/readme']").exists()).toBe(false);
     });

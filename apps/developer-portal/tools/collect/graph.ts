@@ -3,7 +3,6 @@ import { resolve } from "node:path";
 import type { ProjectNode, ProjectsArtifact } from "#layers/snapshot/shared/types.ts";
 import { GRAPH_DIR, SNAPSHOT_DIR } from "../lib/paths.ts";
 import { run } from "../lib/run.ts";
-import { collectRetired } from "./retired.ts";
 
 interface RawGraph {
     graph: {
@@ -51,7 +50,9 @@ export const normalizeGraph = (
     return { generatedAt, projects };
 };
 
-export const collectGraph = async (generatedAt: string): Promise<ProjectsArtifact> => {
+export const collectGraph = async (
+    generatedAt: string,
+): Promise<Omit<ProjectsArtifact, "retired">> => {
     const jsonPath = resolve(SNAPSHOT_DIR, "nx-graph.raw.json");
 
     // `nx graph --file` resolves a relative path against the workspace root, not cwd, and the JSON
@@ -63,10 +64,5 @@ export const collectGraph = async (generatedAt: string): Promise<ProjectsArtifac
     await mkdir(GRAPH_DIR, { recursive: true });
     await run("pnpm", ["exec", "nx", "graph", "--file", resolve(GRAPH_DIR, "index.html")]);
 
-    const graph = normalizeGraph(
-        JSON.parse(await readFile(jsonPath, "utf8")) as RawGraph,
-        generatedAt,
-    );
-
-    return { ...graph, retired: await collectRetired(graph.projects) };
+    return normalizeGraph(JSON.parse(await readFile(jsonPath, "utf8")) as RawGraph, generatedAt);
 };

@@ -1,6 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { ProjectNode } from "#layers/snapshot/shared/types.ts";
-import { parseDeletions } from "./retired.ts";
+import { collectRetired, parseDeletions } from "./retired.ts";
+
+const run = vi.hoisted(() => ({ git: vi.fn() }));
+vi.mock("../lib/run.ts", () => run);
 
 const deletion = (path: string, manifest: object): string =>
     [
@@ -103,5 +106,23 @@ describe("parseDeletions", () => {
         );
 
         expect(parseDeletions(log, [])).toEqual([]);
+    });
+});
+
+describe("collectRetired", () => {
+    it("pins rename detection and the patch format instead of trusting the user's git config", async () => {
+        run.git.mockResolvedValue("");
+
+        await collectRetired([]);
+
+        expect(run.git.mock.calls[0]?.[0]).toEqual(
+            expect.arrayContaining([
+                "--find-renames",
+                "--no-ext-diff",
+                "--no-color",
+                "--src-prefix=a/",
+                "--dst-prefix=b/",
+            ]),
+        );
     });
 });
