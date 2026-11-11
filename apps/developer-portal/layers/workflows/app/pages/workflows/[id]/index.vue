@@ -16,12 +16,12 @@
                     </span>
                     <UButton
                         v-if="base"
-                        label="Features"
+                        :to="`/workflows/${id}/settings`"
+                        label="Settings"
                         icon="i-lucide-settings"
                         color="neutral"
                         variant="outline"
                         size="sm"
-                        @click="featuresOpen = true"
                     />
                 </template>
             </UDashboardNavbar>
@@ -41,27 +41,61 @@
                             <p class="text-lg font-semibold">
                                 {{ view.progress.done }} of {{ view.progress.total }} done
                             </p>
+                            <p class="text-sm tabular-nums">{{ pointsText }}</p>
                             <p class="text-sm text-muted">{{ view.project.summary }}</p>
                             <p class="mt-0.5 flex flex-wrap gap-x-3 text-xs text-dimmed">
                                 <span>{{ view.template.title }}</span>
                                 <span>Milestone {{ view.project.milestone }}</span>
+                                <span class="tabular-nums">{{ ticketLine }}</span>
                                 <code v-if="view.project.area" class="font-mono">{{
                                     view.project.area
                                 }}</code>
                             </p>
                         </div>
                     </div>
-                    <ul class="flex flex-wrap gap-2 text-sm tabular-nums">
-                        <li
-                            v-for="count in counts"
-                            :key="count.state"
-                            class="flex items-center gap-1.5 rounded-full border border-(--state)/40 bg-(--state)/12 px-2.5 py-0.5"
-                            :style="{ '--state': count.color }"
-                        >
-                            <span class="font-semibold text-(--state)">{{ count.value }}</span>
-                            {{ count.label }}
+                    <ul v-if="leftByState.length > 0" class="flex flex-wrap gap-2 text-sm">
+                        <li v-for="group in leftByState" :key="group.state">
+                            <UPopover v-model:open="openStates[group.state]">
+                                <button
+                                    type="button"
+                                    class="flex items-center gap-1.5 rounded-full border border-(--state)/40 bg-(--state)/12 px-2.5 py-0.5 tabular-nums transition hover:bg-(--state)/24"
+                                    :style="{ '--state': group.color }"
+                                >
+                                    <span class="font-semibold text-(--state)">{{
+                                        group.blocks.length
+                                    }}</span>
+                                    {{ group.label }}
+                                    <UIcon name="i-lucide-chevron-down" class="size-3.5" />
+                                </button>
+                                <template #content>
+                                    <ul
+                                        class="flex max-h-80 w-72 flex-col overflow-y-auto p-1"
+                                        :data-state-list="group.state"
+                                    >
+                                        <li v-for="block in group.blocks" :key="block.id">
+                                            <button
+                                                type="button"
+                                                class="flex w-full items-baseline gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-elevated"
+                                                :class="block.id === selectedId && 'font-semibold'"
+                                                @click="pick(group.state, block.id)"
+                                            >
+                                                <span class="min-w-0 flex-1 truncate">{{
+                                                    block.title
+                                                }}</span>
+                                                <span
+                                                    v-if="block.unblockCount > 0"
+                                                    class="shrink-0 text-xs text-muted tabular-nums"
+                                                >
+                                                    unblocks {{ block.unblockCount }}
+                                                </span>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </template>
+                            </UPopover>
                         </li>
                     </ul>
+                    <p v-else class="text-sm text-muted">Everything switched on is done.</p>
                 </div>
 
                 <div
@@ -136,42 +170,6 @@
                     </template>
                 </UAlert>
 
-                <section class="flex flex-col gap-2">
-                    <h2 class="text-sm font-semibold">
-                        What's left
-                        <span class="font-normal text-muted tabular-nums">{{
-                            view.left.length
-                        }}</span>
-                    </h2>
-                    <ul v-if="view.left.length > 0" class="flex flex-wrap gap-2">
-                        <li v-for="chip in leftChips" :key="chip.id">
-                            <button
-                                type="button"
-                                class="flex items-center gap-2 rounded-2xl border px-3 py-1 text-left text-sm transition hover:bg-elevated"
-                                :class="
-                                    chip.id === selectedId ? 'border-inverted' : 'border-default'
-                                "
-                                @click="select(chip.id)"
-                            >
-                                <span
-                                    class="size-2.5 shrink-0 rounded-full"
-                                    :style="{ background: chip.color }"
-                                    aria-hidden="true"
-                                />
-                                <span class="font-medium">{{ chip.title }}</span>
-                                <span class="text-xs text-muted">{{ chip.note }}</span>
-                            </button>
-                        </li>
-                        <li
-                            v-if="view.left.length > leftChips.length"
-                            class="self-center text-xs text-muted"
-                        >
-                            and {{ view.left.length - leftChips.length }} more
-                        </li>
-                    </ul>
-                    <p v-else class="text-sm text-muted">Everything switched on is done.</p>
-                </section>
-
                 <div class="rounded-2xl border border-default bg-elevated/50 p-3 sm:p-6">
                     <WorkflowSkyline
                         :stages="view.stages"
@@ -180,11 +178,25 @@
                         @select-stage="(stage) => (stageId = stage)"
                         @select="select"
                     />
+                    <button
+                        v-if="selected && selectedLabel"
+                        type="button"
+                        class="mt-3 flex max-w-full items-center gap-2 rounded-md px-1.5 py-0.5 text-left text-xs text-muted transition hover:bg-elevated hover:text-default"
+                        :style="{ '--state': selectedLabel.color }"
+                        @click="scrollToBlock(selected.id)"
+                    >
+                        <span class="size-2 shrink-0 rounded-xs bg-(--state)" aria-hidden="true" />
+                        <span class="truncate font-semibold text-default">{{
+                            selected.title
+                        }}</span>
+                        <span class="shrink-0">{{ selectedLabel.state }}</span>
+                        <UIcon name="i-lucide-arrow-down" class="size-3.5 shrink-0" />
+                    </button>
                     <ActivityStrip
                         v-if="activity"
                         :activity
                         :stages="base.stages"
-                        class="mt-6 border-t border-default pt-4"
+                        class="mt-4 border-t border-default pt-3"
                     />
                 </div>
 
@@ -206,7 +218,7 @@
                     >
                         <div class="min-w-0 flex-1">
                             <h2 class="text-sm font-semibold">
-                                What blocks what<template v-if="selected">
+                                Dependency graph<template v-if="selected">
                                     · {{ selected.title }}</template
                                 >
                             </h2>
@@ -239,28 +251,22 @@
                     />
                 </template>
             </USlideover>
-
-            <FeaturesModal
-                v-if="base"
-                v-model:open="featuresOpen"
-                :features="base.features"
-                :editable
-                @toggle="toggle"
-            />
         </template>
     </UDashboardPanel>
 </template>
 
 <script setup lang="ts">
+import {
+    pointsLine,
+    type CapabilityState,
+    type CapabilityView,
+} from "#layers/workflows/shared/workflows.ts";
 import { projectActivity } from "#layers/workflows/shared/workflowActivity.ts";
-
-const LEFT_LIMIT = 10;
 
 const route = useRoute();
 const id = computed(() => String(route.params.id));
 
 const { data } = await useWorkflows();
-const { editable, edit } = useWorkflowEdit();
 
 /** The project as synced; the replay lays the same files over an earlier day. */
 const base = computed(() => data.value.projects.find(({ project }) => project.id === id.value));
@@ -277,14 +283,20 @@ const problems = computed(() =>
 
 const { range, days, dayIndex, isLatest, dayLabel, view } = useProjectReplay(base);
 
-const counts = computed(() =>
-    (["waiting-on-you", "ready", "in-flight", "blocked", "can-file"] as const).map((state) => ({
+/** Every unfinished block under its state, in the order `left` already ranks them. */
+const leftByState = computed(() => {
+    const groups = new Map<CapabilityState, CapabilityView[]>();
+    for (const block of view.value?.left ?? []) {
+        groups.set(block.state, [...(groups.get(block.state) ?? []), block]);
+    }
+
+    return [...groups].map(([state, blocks]) => ({
         state,
+        blocks,
         color: capabilityColor(state),
-        value: view.value?.counts[state] ?? 0,
         label: capabilityStateLabel(state).toLowerCase(),
-    })),
-);
+    }));
+});
 
 const titles = computed(() =>
     Object.fromEntries(
@@ -292,22 +304,14 @@ const titles = computed(() =>
     ),
 );
 
-const leftChips = computed(() =>
-    (view.value?.left ?? []).slice(0, LEFT_LIMIT).map((capability) => ({
-        id: capability.id,
-        title: capability.title,
-        color: capabilityColor(capability.state),
-        note: [
-            capabilityStateLabel(capability.state),
-            capability.unblockCount > 0 ? `unblocks ${capability.unblockCount}` : "",
-        ]
-            .filter(Boolean)
-            .join(" · "),
-    })),
-);
-
 const { selectedId, selected, stageId, activeIndex, activeStage, selectedStage, select } =
     useCapabilitySelection(view);
+
+const openStates = ref<Partial<Record<CapabilityState, boolean>>>({});
+const pick = (state: CapabilityState, capabilityId: string) => {
+    openStates.value[state] = false;
+    select(capabilityId);
+};
 
 const graphNote = computed(() => {
     const current = selected.value;
@@ -319,13 +323,39 @@ const graphNote = computed(() => {
     return chain ? `${status} Longest chain left: ${chain}.` : status;
 });
 
+const selectedLabel = computed(() =>
+    selected.value
+        ? {
+              color: capabilityColor(selected.value.state),
+              state: capabilityStateLabel(selected.value.state),
+          }
+        : null,
+);
+
+const flash = [
+    { boxShadow: "0 0 0 0 var(--ui-text-highlighted)" },
+    { boxShadow: "0 0 0 3px var(--ui-text-highlighted)" },
+    { boxShadow: "0 0 0 0 var(--ui-text-highlighted)" },
+];
+
+const scrollToBlock = (capabilityId: string) => {
+    const card = document.getElementById(`block-${capabilityId}`);
+    card?.scrollIntoView({ behavior: "smooth", block: "center" });
+    card?.animate(flash, { duration: 500, delay: 350, iterations: 2, easing: "ease-in-out" });
+};
+
 const detailsOpen = ref(false);
 const openDetails = (capabilityId: string) => {
     select(capabilityId);
     detailsOpen.value = true;
 };
-const featuresOpen = ref(false);
 
-const toggle = (capability: string, on: boolean) =>
-    edit({ action: "switch", project: id.value, capability, on });
+const pointsText = computed(() => (view.value ? pointsLine(view.value.points) : ""));
+
+const ticketLine = computed(() => {
+    if (!view.value) return "";
+
+    const { progress, tickets, project } = view.value;
+    return `${progress.total} blocks · ${tickets.filed} tickets filed · ${tickets.toFile[project.ticketSize]} to file`;
+});
 </script>

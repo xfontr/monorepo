@@ -6,7 +6,7 @@ const NONE: Workflows = { templates: [], projects: [], problems: [] };
 export const useWorkflows = () =>
     useFetch<Workflows>("/api/workflows", { key: "workflows", default: () => NONE });
 
-/** Only `nuxt dev` has a server to write through, so the static build never shows a control that can't work. */
+/** Only `nuxt dev` has a server to write through; the static build offers the file as a download. */
 export const useWorkflowEdit = () => {
     const { refresh } = useWorkflows();
     const toast = useToast();

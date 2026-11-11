@@ -122,14 +122,14 @@ that.
 | --- | --- |
 | Documentation | Every non-ignored `*.md`, arranged as a tree — see [🧭 Documentation is a wiki](#-documentation-is-a-wiki) |
 | Architecture | The collected Nx graph, its plain-language relationships and the detailed graph `collect` writes to the gitignored `public/embed/graph/` |
-| Projects | The collected Nx graph joined to collect-time project metrics, with deployment state read live |
+| Projects | The collected Nx graph joined to collect-time project metrics, with deployment state read live, plus every deleted project read back from `git log` |
 | Decisions | `docs/decisions/NNNN-<slug>.md` — the files the `decision-report` skill writes, see [🔬 Decisions are their own section](#-decisions-are-their-own-section) |
 | Audits | `docs/audits/YYYY-MM-DD-<scope>.md` — the files the `audit-report` skill writes, see [🔎 Audits count findings, not files](#-audits-count-findings-not-files) |
-| Workflows | `docs/workflows/` templates, projects and their synced snapshots, read in place on every request rather than collected — see [`docs/workflows/README.md`](../../docs/workflows/README.md). Under `pnpm dev` its Features modal also switches features, and the index page creates projects. The page's graph is laid out with `@dagrejs/dagre` |
+| Workflows | `docs/workflows/` templates, projects and their synced snapshots, read in place on every request rather than collected — see [`docs/workflows/README.md`](../../docs/workflows/README.md). Under `pnpm dev` the new-project wizard, behind a plus card after the projects, creates them; the deployed site runs the same wizard but only offers its file as a download. Under `pnpm dev` each project's Settings page switches features, sets the ticket size, edits its details and deletes it, all in the project file only. The page's graph is laid out with `@dagrejs/dagre` |
 | Work in progress | Open issues read from GitHub in the browser |
 | What's new | Every `CHANGELOG.md`, beside its unreleased-commit count, plus any project in `nx.json`'s `release.projects` that has commits and no release yet |
 | Engineering health | Coverage, dependencies and collected repository findings |
-| Telemetry | Every CSV under `.telemetry/`, beside the list of script folders, the rules each project's ESLint config enables and the `eslint-disable` comments in tracked files — see [📊 Telemetry](#-telemetry) |
+| Tooling usage | Every CSV under `.telemetry/`, beside the list of script folders, the rules each project's ESLint config enables and the `eslint-disable` comments in tracked files — see [📊 Tooling usage](#-tooling-usage) |
 
 `@nuxt/content` lower-cases every route, so `packages/ui/README.md` is served at
 `/packages/ui/readme` while the collector keys the same file as `packages/ui/README.md`. Anything

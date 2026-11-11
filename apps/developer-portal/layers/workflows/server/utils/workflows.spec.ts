@@ -49,11 +49,22 @@ afterEach(async () => {
 
 const projectFile = () => readFile(join(dir, "projects", "blog.yaml"), "utf8");
 
+/** The settings page sends every field at once, as saved unless overridden. */
+const settings = (overrides: Record<string, unknown> = {}) => ({
+    action: "settings",
+    project: "blog",
+    title: "Blog",
+    summary: "",
+    milestone: "Blog",
+    area: "",
+    switches: {},
+    ticketSize: "block",
+    ...overrides,
+});
+
 describe("applyEdit", () => {
     it("flips a switch without losing the comments a person wrote", async () => {
-        await expect(
-            applyEdit({ action: "switch", project: "blog", capability: "comments", on: true }),
-        ).resolves.toBeNull();
+        await expect(applyEdit(settings({ switches: { comments: true } }))).resolves.toBeNull();
 
         const written = await projectFile();
         expect(written).toContain("# Kept: a person wrote this.");
@@ -61,9 +72,7 @@ describe("applyEdit", () => {
     });
 
     it("switches a whole group off with one line beside the capabilities' own switches", async () => {
-        await expect(
-            applyEdit({ action: "switch", project: "blog", capability: "posts", on: false }),
-        ).resolves.toBeNull();
+        await expect(applyEdit(settings({ switches: { posts: false } }))).resolves.toBeNull();
 
         expect(await projectFile()).toContain("posts: false");
         expect(await projectFile()).toContain("comments: false # opted out for now");
@@ -122,7 +131,7 @@ describe("applyEdit", () => {
         [{ action: "create" }, "`` isn't a kebab-case project id"],
         [null, "`` isn't a kebab-case project id"],
         [
-            { action: "switch", project: "blog", capability: "nope", on: true },
+            settings({ switches: { nope: true } }),
             "`nope` isn't an optional capability or group of site",
         ],
         [
@@ -130,9 +139,90 @@ describe("applyEdit", () => {
             "`gate` isn't an edit",
         ],
         [{ action: "rename", project: "blog" }, "`rename` isn't an edit"],
+        [settings({ title: "" }), "a project needs a title"],
+        [settings({ ticketSize: "huge" }), "`huge` isn't a ticket size"],
     ])("refuses %j before writing anything", async (body, problem) => {
         await expect(applyEdit(body)).resolves.toBe(problem);
         expect(await projectFile()).toBe(PROJECT);
+    });
+});
+
+describe("applyEdit create", () => {
+    it("writes the features and ticket size chosen in the wizard into the new file", async () => {
+        await expect(
+            applyEdit({
+                action: "create",
+                project: "shop",
+                title: "Shop",
+                template: "site",
+                area: "app:shop",
+                milestone: "Shop",
+                summary: "A small shop.",
+                switches: { posts: false },
+                ticketSize: "lean",
+            }),
+        ).resolves.toBeNull();
+
+        const { projects, problems } = await loadWorkflows();
+        const shop = projects.find(({ project }) => project.id === "shop")?.project;
+
+        expect(problems).toEqual([]);
+        expect(shop).toMatchObject({
+            summary: "A small shop.",
+            switches: { posts: false },
+            ticketSize: "lean",
+        });
+    });
+
+    it("refuses a switch on a block the template doesn't let a project turn off", async () => {
+        await expect(
+            applyEdit({
+                action: "create",
+                project: "shop",
+                title: "Shop",
+                template: "site",
+                milestone: "Shop",
+                switches: { nope: true },
+            }),
+        ).resolves.toBe("`nope` isn't an optional capability or group of site");
+    });
+});
+
+describe("applyEdit settings and delete", () => {
+    it("rewrites the details without losing the comments a person wrote", async () => {
+        await expect(
+            applyEdit(
+                settings({
+                    title: "Harbour Notes",
+                    summary: "A sailing blog.",
+                    milestone: "Harbour",
+                    area: "app:harbour",
+                }),
+            ),
+        ).resolves.toBeNull();
+
+        const written = await projectFile();
+        expect(written).toContain("# Kept: a person wrote this.");
+        expect(written).toContain("title: Harbour Notes");
+        expect(written).toContain("milestone: Harbour");
+        expect(written).toContain("template: site");
+    });
+
+    it("deletes the project file and its snapshot, and nothing else", async () => {
+        const snapshot = join(dir, "projects", "blog.snapshot.json");
+        await writeFile(snapshot, "{}");
+
+        await expect(applyEdit({ action: "delete", project: "blog" })).resolves.toBeNull();
+
+        await expect(readFile(join(dir, "projects", "blog.yaml"))).rejects.toThrow();
+        await expect(readFile(snapshot)).rejects.toThrow();
+        await expect(readFile(join(dir, "templates", "site.yaml"), "utf8")).resolves.toBe(TEMPLATE);
+    });
+
+    it("deletes a project whose template is gone, so a broken file can still be cleared", async () => {
+        await writeFile(join(dir, "projects", "blog.yaml"), PROJECT.replace("site", "missing"));
+
+        await expect(applyEdit({ action: "delete", project: "blog" })).resolves.toBeNull();
     });
 });
 
@@ -171,5 +261,44 @@ describe("loadWorkflows", () => {
 
         expect(projects.map(({ project }) => project.id)).toEqual(["blog"]);
         expect(problems.map(({ file }) => file)).toEqual(["projects/blog.snapshot.json"]);
+    });
+});
+
+describe("applyEdit ticket size", () => {
+    it("writes the size without losing the comments a person wrote", async () => {
+        await expect(applyEdit(settings({ ticketSize: "stage" }))).resolves.toBeNull();
+
+        const written = await projectFile();
+        expect(written).toContain("# Kept: a person wrote this.");
+        expect(written).toContain("ticketSize: stage");
+    });
+
+    it.each([
+        [[], null],
+        [["comments"], "the ticket size is fixed once a ticket is filed"],
+    ])("with a filed ticket carrying %j, a size change answers %j", async (caps, problem) => {
+        const issue = {
+            number: 7,
+            title: "One",
+            url: "",
+            state: "open",
+            reason: null,
+            closedAt: null,
+        };
+        await writeFile(
+            join(dir, "projects", "blog.snapshot.json"),
+            JSON.stringify({
+                syncedAt: "2026-11-09T00:00:00Z",
+                milestone: "Blog",
+                issues: [{ ...issue, caps }],
+            }),
+        );
+
+        await expect(applyEdit(settings({ ticketSize: "stage" }))).resolves.toBe(problem);
+    });
+
+    it("leaves the size out of the file while it stays the default", async () => {
+        await expect(applyEdit(settings())).resolves.toBeNull();
+        expect(await projectFile()).not.toContain("ticketSize");
     });
 });

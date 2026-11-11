@@ -177,7 +177,7 @@ blocks that decides when the project can finish.
 | Replay | A slider over every day from the first commit on a ticket to the last sync. Each day is rebuilt from the snapshot: tickets not yet filed, closes and blocker closes not yet happened, and settlements before their `on:` date are left out |
 | What's left, the skyline, the stage cards | Pick one block anywhere and the rest of the page follows it. Stages group the blocks; they order nothing |
 | What blocks what | Every block in the project on one graph laid out by dagre. The selected block's whole path, before and after it, stays lit and the rest greys out, and the view fits that path. Drag to move, pinch or ctrl-scroll to zoom; a plain scroll still scrolls the page |
-| Features | A modal, since the plan is set once and almost never changed. It switches under `pnpm dev` and only reads on the deployed site |
+| Settings | Its own page, since the plan is set once and almost never changed: the details, the features as cards, the ticket size priced in tickets and locked once one is filed, and deleting at the very bottom. It writes under `pnpm dev` and only reads on the deployed site |
 
 ## 🏷️ How a ticket finds its place
 
@@ -212,9 +212,12 @@ a commit. A commit without `[#N]` counts nowhere, and neither does work that lef
 | --- | --- |
 | Refresh the snapshot the portal draws | `pnpm workflow:sync [<id>]` |
 | What can be taken now, live from GitHub | `pnpm workflow:next <id>` |
-| See what filing a block would create | `pnpm workflow:file <id> <block>` |
+| See what filing a block would create, with the blocks its ticket size bundles it with | `pnpm workflow:file <id> <block>` |
 | File it | `pnpm workflow:file <id> <block> --yes` |
-| Switch a feature, create a project | The Workflows page under `pnpm dev developer-portal` — the Features modal, and *New project* — which writes the project file keeping its comments. The deployed portal is read-only |
+| Put exactly these blocks in one ticket | `pnpm workflow:file <id> <a> <b> <c> --yes` |
+| Abandon a project's tickets: close every untouched one as not planned, keep anything started or closed | `pnpm workflow:drop <id>` to see it, `--yes` to do it, then delete the project |
+| Create a project | The plus card after the projects on the Workflows page under `pnpm dev developer-portal`, or after the workflows on the dashboard: a wizard through the template, the details and the features, with the blocks every project gets listed beside them and the ticket size in a side panel that prices each size as you switch. It writes the project file and nothing else; on the deployed portal Create is locked and the same file comes as a download to add in a PR. Tickets are filed with `workflow:file` |
+| Switch a feature, set the ticket size, edit or delete a project | The project's **Settings** page under `pnpm dev`, which writes the project file keeping its comments. Deleting sits at the bottom behind typing the id, and removes the project file and its snapshot; nothing on GitHub changes, so run `workflow:drop` first when the tickets should go too. The template can't change, since the switches and settled blocks belong to it. The deployed portal shows Settings read-only |
 | Settle a block without a ticket, add an extra | Edit `projects/<id>.yaml`; give a settlement `on: YYYY-MM-DD` so the replay counts it from that day |
 | Change the generic map | Edit the template. Every block names the issues its lessons came from |
 

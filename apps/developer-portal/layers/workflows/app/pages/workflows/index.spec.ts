@@ -76,10 +76,11 @@ describe("workflows page", () => {
 
         const wrapper = await mountSuspended(Page, { global });
 
-        expect(wrapper.text()).not.toContain("New project");
+        expect(wrapper.find("a[href='/workflows/new']").exists()).toBe(false);
 
         state.editable = true;
-        expect((await mountSuspended(Page, { global })).text()).toContain("New project");
+        const editable = await mountSuspended(Page, { global });
+        expect(editable.find("a[href='/workflows/new']").exists()).toBe(true);
     });
 
     it("lists file problems so a broken project never just disappears", async () => {

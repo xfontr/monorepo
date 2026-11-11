@@ -1,6 +1,6 @@
 ---
 name: project-workflow
-description: Run a multi-ticket effort (a site rebuild, a launch) through docs/workflows — start a project from a template, file a block of the map as GitHub tickets with blocked-by links once nothing it needs is undecided, place unsorted tickets, sync, and answer "where are we" or "what can I take". Use when asked to start, plan, ticket, organise or report on a project tracked on the portal's Workflows page, or to redesign or rebuild an existing website.
+description: Run a multi-ticket effort (a site rebuild, a new site, a launch) through docs/workflows — start a project from a template, file a block of the map as GitHub tickets with blocked-by links once nothing it needs is undecided, place unsorted tickets, sync, and answer "where are we" or "what can I take". Use when asked to start, plan, ticket, organise or report on a project tracked on the portal's Workflows page, or to build a new website or redesign or rebuild an existing one.
 ---
 
 # Running a project through a workflow
@@ -21,13 +21,17 @@ hundred.
 
 ## 1. Starting a project
 
-1. Ask for what the code can't tell you: the audience, the page readers land on first, and which
-   features are wanted. Ask about every feature the same way, the blog no differently from
+1. Pick the template: `new-website` for a site started from nothing, `website-rebuild` when an
+   old site's content and URLs come along. Then ask for what the code can't tell you: the
+   audience, the page readers land on first, which features are wanted, and the ticket size —
+   `block` for agents in parallel, `stage` or `lean` for someone who wants few, big tickets. Ask about every feature the same way, the blog no differently from
    storybook; each one's `summary` and `lessons` in the template is the question, in plain words.
 2. Write `docs/workflows/projects/<id>.yaml` by copying [`huella-legal.yaml`](../../../docs/workflows/projects/huella-legal.yaml).
    Set `switches` only where the answer differs from the template's default; a site with no blog is
-   `blog: false`. Features are set once; the portal's Features modal is for the rare change after.
-   Put features only this project has under `extras`, each with its `dependsOn`.
+   `blog: false`. Features are set once; the project's Settings page in the portal is for the rare change after. Under `pnpm dev` the
+   portal's new-project wizard, behind the plus card on the Workflows page, writes this same file, if the user would rather click through it.
+   Put features only this project has under `extras`, each with its `dependsOn`. Set
+   `ticketSize` unless it is `block`.
 3. GitHub side, after the user confirms. Each step writes to GitHub:
    - create the milestone, `gh api repos/{owner}/{repo}/milestones -f title=<Milestone>`;
    - create the area label if the app is new;
@@ -42,7 +46,8 @@ File what the map says can be filed, not a stage. In the portal a block that can
 *Can file now*; one that can't reads *Waits* and names what it waits on.
 
 1. `pnpm workflow:file <id> <block>` prints the tickets, their labels and their blocked-by links
-   without writing anything. It refuses a block still waiting on an open `spike` or `owner` block,
+   without writing anything. Under a `ticketSize` other than `block` it is one ticket for the
+   block and the others its size bundles it with, and it names any member left for later. It refuses a block still waiting on an open `spike` or `owner` block,
    because that decision can still change what the tickets say (#208, #242 → #299).
 2. When a block has no suggested `tickets` in the template, the command drafts one from its title
    and `doneWhen`. If that would be too thin for an agent to act on, add `tickets` to the template
@@ -78,6 +83,13 @@ When a project finds something the template didn't ask for (a late feature, a pr
 redo, a dependency nobody drew), add it to the template as a block, a `dependsOn` link or a
 `lessons` entry with the issue numbers. The next project learns it up front. That is the template's
 whole point.
+
+## 6. Abandoning a project
+
+When the user drops a project, run `pnpm workflow:drop <id>` and show them what closes and what
+stays. Only on their go, add `--yes`, then delete the project from its Settings page. In that order,
+because `drop` reads the milestone from the project file. It closes as not planned and never deletes;
+anything started or closed stays.
 
 ## 🎨 The design stage of a website rebuild
 

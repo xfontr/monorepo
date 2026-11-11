@@ -2,7 +2,7 @@ import { mountSuspended, mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { assembleWorkflows } from "#layers/workflows/shared/workflows.ts";
-import Page from "./[id].vue";
+import Page from "./index.vue";
 
 const state = vi.hoisted(() => ({
     data: null as unknown,
@@ -81,6 +81,7 @@ const global = {
             template:
                 "<input type='range' data-replay :max='max' :value='modelValue' @input=\"$emit('update:modelValue', Number($event.target.value))\" />",
         },
+        UPopover: { template: "<div><slot /><slot name='content' /></div>" },
         UIcon: true,
     },
 };
@@ -120,11 +121,18 @@ describe("workflow page", () => {
         expect(wrapper.text()).toContain("no cap: label");
     });
 
-    it("lights a block picked from What's left on its stage cards and on the graph", async () => {
+    it("lists every unfinished block under its state, not just the first few", async () => {
+        const wrapper = await mountSuspended(Page, { global });
+
+        expect(wrapper.find("[data-state-list='ready']").text()).toContain("Comments");
+        expect(wrapper.find("[data-state-list='can-file']").text()).toContain("Cutover");
+    });
+
+    it("lights a block picked from its state's list on its stage cards and on the graph", async () => {
         const wrapper = await mountSuspended(Page, { global });
 
         await wrapper
-            .findAll("button")
+            .findAll("[data-state-list] button")
             .find((button) => button.text().startsWith("Cutover"))
             ?.trigger("click");
 
@@ -170,24 +178,14 @@ describe("workflow page", () => {
         expect(wrapper.text()).toContain("2 Nov");
     });
 
-    it("keeps features in a modal, switching one only under pnpm dev", async () => {
+    it("keeps features, ticket size and deleting behind Settings rather than on the page", async () => {
         state.editable = true;
         const wrapper = await mountSuspended(Page, { global });
+        const labels = wrapper.findAll("button").map((button) => button.text());
 
-        expect(wrapper.find("dialog").exists()).toBe(false);
-
-        await wrapper
-            .findAll("button")
-            .find((button) => button.text() === "Features")
-            ?.trigger("click");
-        await wrapper.find("dialog [role='switch']").trigger("click");
-
-        expect(state.edit).toHaveBeenCalledWith({
-            action: "switch",
-            project: "blog",
-            capability: "comments",
-            on: false,
-        });
+        expect(labels).toContain("Settings");
+        expect(labels).not.toContain("Delete");
+        expect(labels).not.toContain("Features");
     });
 
     it("says so when the project doesn't exist instead of rendering an empty pipeline", async () => {
