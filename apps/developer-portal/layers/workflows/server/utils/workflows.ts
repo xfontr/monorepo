@@ -1,11 +1,13 @@
 import { existsSync } from "node:fs";
 import { readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { parseDocument } from "yaml";
+import { isMap, parseDocument } from "yaml";
 import {
     assembleWorkflows,
+    PROJECT_ID,
     projectYaml,
     TICKET_SIZES,
+    type Template,
     type TicketSize,
     type Workflows,
 } from "../../shared/workflows.ts";
@@ -22,12 +24,33 @@ export const loadWorkflows = async (): Promise<Workflows> => {
 /** The project fields the page edits; the template stays, since its switches and settled blocks belong to it. */
 const DETAILS = ["title", "summary", "milestone", "area"] as const;
 
-const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     value !== null && typeof value === "object" && !Array.isArray(value);
 
 const textOf = (value: unknown): string => (typeof value === "string" ? value.trim() : "");
+
+const switchProblem = (template: Template, switches: Record<string, unknown>): string | null => {
+    for (const [key, on] of Object.entries(switches)) {
+        const switchable = [...template.capabilities, ...template.groups].find(
+            (candidate) => candidate.id === key,
+        );
+
+        if (!switchable?.optional) {
+            return `\`${key}\` isn't an optional capability or group of ${template.id}`;
+        }
+        if (typeof on !== "boolean") return "a switch is on or off";
+    }
+
+    return null;
+};
+
+const milestoneProblem = (workflows: Workflows, id: string, milestone: string): string | null => {
+    const owner = workflows.projects.find(
+        ({ project }) => project.id !== id && project.milestone === milestone,
+    );
+
+    return owner ? `\`${milestone}\` is already ${owner.project.id}'s milestone` : null;
+};
 
 const createProject = async (
     edit: Record<string, unknown>,
@@ -54,19 +77,10 @@ const createProject = async (
         return `\`${ticketSize}\` isn't a ticket size`;
     }
 
-    const switches: Record<string, boolean> = {};
-    const optional = new Set(
-        [...template.capabilities, ...template.groups]
-            .filter((switchable) => switchable.optional)
-            .map((switchable) => switchable.id),
-    );
+    const switches = isRecord(edit.switches) ? edit.switches : {};
+    const problem = switchProblem(template, switches) ?? milestoneProblem(workflows, id, milestone);
 
-    for (const [key, on] of Object.entries(isRecord(edit.switches) ? edit.switches : {})) {
-        if (!optional.has(key))
-            return `\`${key}\` isn't an optional capability or group of ${template.id}`;
-        if (typeof on !== "boolean") return "a switch is on or off";
-        switches[key] = on;
-    }
+    if (problem) return problem;
 
     const project = {
         id,
@@ -75,14 +89,18 @@ const createProject = async (
         area: area ?? "",
         milestone,
         summary: summary ?? "",
-        switches,
+        switches: switches as Record<string, boolean>,
     };
 
-    await writeFile(
-        path,
-        projectYaml({ ...project, ticketSize: ticketSize as TicketSize }),
-        "utf8",
-    );
+    try {
+        await writeFile(path, projectYaml({ ...project, ticketSize: ticketSize as TicketSize }), {
+            encoding: "utf8",
+            flag: "wx",
+        });
+    } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === "EEXIST") return `${id} already exists`;
+        throw error;
+    }
     return null;
 };
 
@@ -94,7 +112,7 @@ export const applyEdit = async (body: unknown): Promise<string | null> => {
     const edit = body !== null && typeof body === "object" ? (body as Record<string, unknown>) : {};
     const id = textOf(edit.project);
 
-    if (!SLUG.test(id)) return `\`${id}\` isn't a kebab-case project id`;
+    if (!PROJECT_ID.test(id)) return `\`${id}\` isn't a kebab-case project id`;
 
     const path = resolve(workflowsDir(), "projects", `${id}.yaml`);
     const workflows = await loadWorkflows();
@@ -125,17 +143,11 @@ export const applyEdit = async (body: unknown): Promise<string | null> => {
     if (!details.milestone) return "a project needs a milestone";
 
     const switches = isRecord(edit.switches) ? edit.switches : {};
+    const problem =
+        switchProblem(view.template, switches) ??
+        milestoneProblem(workflows, id, details.milestone ?? "");
 
-    for (const [key, on] of Object.entries(switches)) {
-        const switchable = [...view.template.capabilities, ...view.template.groups].find(
-            (candidate) => candidate.id === key,
-        );
-
-        if (!switchable?.optional) {
-            return `\`${key}\` isn't an optional capability or group of ${view.template.id}`;
-        }
-        if (typeof on !== "boolean") return "a switch is on or off";
-    }
+    if (problem) return problem;
 
     const size = textOf(edit.ticketSize);
 
@@ -146,9 +158,12 @@ export const applyEdit = async (body: unknown): Promise<string | null> => {
     }
 
     for (const [key, value] of Object.entries(details)) document.set(key, value);
+    if (Object.keys(switches).length > 0 && !isMap(document.get("switches"))) {
+        document.set("switches", document.createNode({}));
+    }
     for (const [key, on] of Object.entries(switches)) document.setIn(["switches", key], on);
     if (size !== view.project.ticketSize) document.set("ticketSize", size);
 
-    await writeFile(path, document.toString(), "utf8");
+    await writeFile(path, document.toString({ lineWidth: 0 }), "utf8");
     return null;
 };

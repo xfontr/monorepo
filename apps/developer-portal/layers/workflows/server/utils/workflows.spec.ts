@@ -78,10 +78,32 @@ describe("applyEdit", () => {
         expect(await projectFile()).toContain("comments: false # opted out for now");
     });
 
-    it("refuses an id that could climb out of the projects directory", async () => {
-        await expect(
-            applyEdit({ action: "switch", project: "../evil", capability: "comments", on: true }),
-        ).resolves.toMatch(/kebab-case/);
+    it.each(["create", "settings", "delete"])(
+        "refuses a %s on an id that could climb out of the projects directory",
+        async (action) => {
+            await expect(
+                applyEdit(settings({ action, project: "../templates/site", template: "site" })),
+            ).resolves.toMatch(/kebab-case/);
+            expect(await readFile(join(dir, "templates", "site.yaml"), "utf8")).toBe(TEMPLATE);
+        },
+    );
+
+    it("keeps a long line whole instead of folding it at 80 columns", async () => {
+        const note = `note: ${"a long sentence a person wrote ".repeat(4).trim()}`;
+        await writeFile(join(dir, "projects", "blog.yaml"), `${PROJECT}${note}\n`);
+
+        await expect(applyEdit(settings({ title: "Blog two" }))).resolves.toBeNull();
+        expect(await projectFile()).toContain(note);
+    });
+
+    it("switches a feature on in a file whose switches block is empty", async () => {
+        await writeFile(
+            join(dir, "projects", "blog.yaml"),
+            PROJECT.replace("  comments: false # opted out for now\n", ""),
+        );
+
+        await expect(applyEdit(settings({ switches: { comments: true } }))).resolves.toBeNull();
+        expect(await projectFile()).toContain("comments: true");
     });
 
     it("refuses to create over an existing project", async () => {
@@ -140,6 +162,29 @@ describe("applyEdit", () => {
         ],
         [{ action: "rename", project: "blog" }, "`rename` isn't an edit"],
         [settings({ title: "" }), "a project needs a title"],
+        [settings({ milestone: "" }), "a project needs a milestone"],
+        [settings({ project: "gone" }), "gone doesn't exist"],
+        [{ action: "delete", project: "gone" }, "gone doesn't exist"],
+        [
+            {
+                action: "create",
+                project: "other",
+                title: "Other",
+                template: "site",
+                milestone: "",
+            },
+            "a project needs a milestone",
+        ],
+        [
+            {
+                action: "create",
+                project: "other",
+                title: "Other",
+                template: "site",
+                milestone: "Blog",
+            },
+            "`Blog` is already blog's milestone",
+        ],
         [settings({ ticketSize: "huge" }), "`huge` isn't a ticket size"],
     ])("refuses %j before writing anything", async (body, problem) => {
         await expect(applyEdit(body)).resolves.toBe(problem);
@@ -274,9 +319,15 @@ describe("applyEdit ticket size", () => {
     });
 
     it.each([
-        [[], null],
-        [["comments"], "the ticket size is fixed once a ticket is filed"],
-    ])("with a filed ticket carrying %j, a size change answers %j", async (caps, problem) => {
+        ["an unlabelled ticket doesn't lock the size", [], "stage", null],
+        [
+            "a labelled ticket locks the size",
+            ["comments"],
+            "stage",
+            "the ticket size is fixed once a ticket is filed",
+        ],
+        ["a locked size still lets the rest be saved", ["comments"], "block", null],
+    ])("%s", async (_case, caps, ticketSize, problem) => {
         const issue = {
             number: 7,
             title: "One",
@@ -294,7 +345,7 @@ describe("applyEdit ticket size", () => {
             }),
         );
 
-        await expect(applyEdit(settings({ ticketSize: "stage" }))).resolves.toBe(problem);
+        await expect(applyEdit(settings({ title: "Renamed", ticketSize }))).resolves.toBe(problem);
     });
 
     it("leaves the size out of the file while it stays the default", async () => {

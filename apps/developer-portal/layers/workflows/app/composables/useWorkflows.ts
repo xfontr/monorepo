@@ -8,7 +8,6 @@ export const useWorkflows = () =>
 
 /** Only `nuxt dev` has a server to write through; the static build offers the file as a download. */
 export const useWorkflowEdit = () => {
-    const { refresh } = useWorkflows();
     const toast = useToast();
 
     const editable = import.meta.dev;
@@ -16,7 +15,7 @@ export const useWorkflowEdit = () => {
     const edit = async (body: Record<string, unknown>): Promise<boolean> => {
         try {
             await $fetch("/api/workflows/edit", { method: "POST", body });
-            await refresh();
+            await refreshNuxtData("workflows");
             return true;
         } catch (cause) {
             const message =
