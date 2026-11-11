@@ -44,6 +44,16 @@ describe("parseDisables", () => {
         ]);
     });
 
+    it("reads a Vue template comment and ignores a directive quoted inside a string", () => {
+        const source = [
+            "<!-- eslint-disable-next-line vue/no-v-html -->",
+            'const fixture = "// eslint-disable-next-line no-console";',
+            'const quip = "it\'s"; // eslint-disable-line no-eval',
+        ].join("\n");
+
+        expect(parseDisables(source)).toEqual(["vue/no-v-html", "no-eval"]);
+    });
+
     it("counts nothing for a bare directive or prose that mentions one", () => {
         expect(parseDisables("/* eslint-disable */\n// see eslint-disable rules")).toEqual([]);
     });
@@ -57,9 +67,9 @@ describe("summarizeLint", () => {
         });
     });
 
-    it("counts hits, recent hits, fixes and projects, and dates the first hit", () => {
+    it("counts fixes and projects only inside the window, and dates the first hit ever", () => {
         const { since, rules } = summarizeLint(
-            [hit(), hit({ fixable: "1", project: "ui" }), hit({ at: "2026-01-01" })],
+            [hit(), hit({ fixable: "1", project: "ui" }), hit({ at: "2026-01-01", fixable: "1" })],
             ["no-console"],
             {},
             SINCE,
@@ -71,7 +81,7 @@ describe("summarizeLint", () => {
             recent: 2,
             fixable: 1,
             last: "2026-11-08",
-            projects: { scripts: 2, ui: 1 },
+            projects: { scripts: 1, ui: 1 },
         });
     });
 

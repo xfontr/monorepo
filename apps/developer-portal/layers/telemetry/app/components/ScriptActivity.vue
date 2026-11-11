@@ -5,8 +5,9 @@
                 <div>
                     <h2 class="font-semibold">Script activity</h2>
                     <p class="text-xs text-muted">
-                        One cell per day. Darker means more runs; a red base means a run failed that
-                        day. No free text is recorded: no titles, paths or issue numbers.
+                        One cell per day from the first recorded run, darker for more runs, a red
+                        base when one failed. The bar splits runs by who ran them. No free text is
+                        recorded: no titles, paths or issue numbers.
                     </p>
                 </div>
 
@@ -24,7 +25,7 @@
                 <thead>
                     <tr>
                         <th>Script</th>
-                        <th class="w-full">
+                        <th class="hidden w-full md:table-cell">
                             <ol class="flex min-w-xl" aria-hidden="true">
                                 <li
                                     v-for="column in months"
@@ -46,7 +47,7 @@
                 <tbody>
                     <tr v-for="row in rows" :key="row.name">
                         <td class="font-mono text-xs whitespace-nowrap">{{ row.name }}</td>
-                        <td>
+                        <td class="hidden md:table-cell">
                             <DayStrip :days :usage="row.days" :busiest />
                         </td>
                         <td class="numeric font-semibold">{{ row.runs }}</td>
@@ -67,7 +68,7 @@
                 <tfoot class="border-t border-default">
                     <tr>
                         <th scope="row" class="text-xs whitespace-nowrap">All scripts</th>
-                        <td>
+                        <td class="hidden md:table-cell">
                             <DayStrip :days :usage="totals" :busiest="busiestTotal" />
                         </td>
                         <td class="numeric font-semibold">{{ total.runs }}</td>
@@ -85,12 +86,7 @@
 
 <script setup lang="ts">
 import type { DayUsage, UsageArtifact } from "#layers/snapshot/shared/types.ts";
-import {
-    dailyTotals,
-    scriptRows,
-    sumDays,
-    windowDays,
-} from "#layers/telemetry/shared/usageView.ts";
+import { dailyTotals, scriptRows, shownDays, sumDays } from "#layers/telemetry/shared/usageView.ts";
 
 interface Props {
     usage: Omit<UsageArtifact, "lint">;
@@ -99,6 +95,7 @@ interface Props {
 const { usage } = defineProps<Props>();
 
 const legend = [
+    { label: "Runs that day", style: { background: "var(--usage-runs)" } },
     { label: "Agent", style: { background: "var(--usage-agent)" } },
     { label: "Person", style: { background: "var(--usage-person)" } },
     { label: "A run failed", style: { boxShadow: FAILED_MARK } },
@@ -107,7 +104,7 @@ const legend = [
 const failedShare = ({ runs, failures }: DayUsage): string =>
     runs ? `${percentOf(failures, runs)}%` : "—";
 
-const days = computed(() => windowDays(usage.generatedAt));
+const days = computed(() => shownDays(usage));
 const scripts = computed(() => scriptRows(usage));
 
 const rows = computed(() =>

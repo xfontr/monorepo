@@ -42,6 +42,23 @@ export const windowDays = (generatedAt: string): string[] => {
     return days;
 };
 
+/** The fewest days a strip shows, so a log a day old still reads as a timeline. */
+const MIN_SHOWN_DAYS = 14;
+
+/** The window's days from the first with a run, so a young log isn't drawn as months of nothing. */
+export const shownDays = ({
+    generatedAt,
+    scripts,
+}: Pick<UsageArtifact, "generatedAt" | "scripts">): string[] => {
+    const days = windowDays(generatedAt);
+    const first = Object.values(scripts)
+        .flatMap((usage) => Object.keys(usage.days ?? {}))
+        .sort((a, b) => a.localeCompare(b))[0];
+    const from = first ? Math.max(0, days.indexOf(first)) : 0;
+
+    return days.slice(Math.max(0, Math.min(from, days.length - MIN_SHOWN_DAYS)));
+};
+
 export const sumDays = (days: DayUsage[]): DayUsage =>
     days.reduce(
         (total, day) => ({
@@ -61,14 +78,16 @@ export const scriptRows = ({
     known,
     scripts,
 }: Omit<UsageArtifact, "lint">): ScriptRow[] => {
-    const days = windowDays(generatedAt);
+    const days = shownDays({ generatedAt, scripts });
     const names = [...new Set([...known, ...Object.keys(scripts)])];
 
     return names
         .map((name) => {
             const usage = scripts[name];
             const daily = days.map((day) => usage?.days?.[day] ?? EMPTY_DAY);
-            const total = sumDays(daily);
+            // A snapshot collected before per-day counts still knows how many runs fell in the window.
+            const total =
+                usage && !usage.days ? { ...EMPTY_DAY, runs: usage.recent } : sumDays(daily);
 
             return {
                 name,
@@ -95,8 +114,8 @@ export const dailyTotals = (rows: ScriptRow[]): DayUsage[] =>
 /** Rules that fired or are disabled inline, against every project any of them fired in. */
 export const lintTable = (lint: LintUsage): LintTable => {
     const shown = Object.entries(lint.rules)
-        .filter(([, usage]) => usage.hits > 0 || usage.disabled > 0)
-        .sort(([, a], [, b]) => b.hits - a.hits || b.disabled - a.disabled);
+        .filter(([, usage]) => usage.recent > 0 || usage.disabled > 0)
+        .sort(([, a], [, b]) => b.recent - a.recent || b.disabled - a.disabled);
 
     const totals: Record<string, number> = {};
     for (const [, usage] of shown)
@@ -111,7 +130,7 @@ export const lintTable = (lint: LintUsage): LintTable => {
         projects,
         rows: shown.map(([rule, usage]) => ({
             rule,
-            hits: usage.hits,
+            hits: usage.recent,
             fixable: usage.fixable,
             disabled: usage.disabled,
             projects: projects.map((project) => usage.projects[project] ?? 0),
@@ -153,16 +172,16 @@ export interface Quadrants<Kind extends string> {
 }
 
 /** Keeps zero off the log scale's first decade, so a count of 1 isn't drawn on the axis. */
-const ZERO_BAND = 6;
+const ZERO_BAND = 8;
 
 const decadesFor = (max: number): number => Math.max(1, Math.ceil(Math.log10(Math.max(10, max))));
 
-/** Percent along a log axis of `decades` powers of ten, zero pinned to the axis itself. */
+/** Percent along a log axis of `decades` powers of ten; zero gets a lane of its own off the axis. */
 const logAt = (value: number, decades: number): number =>
-    value <= 0 ? 0 : ZERO_BAND + ((100 - ZERO_BAND) * Math.log10(value)) / decades;
+    value <= 0 ? ZERO_BAND / 2 : ZERO_BAND + ((100 - ZERO_BAND) * Math.log10(value)) / decades;
 
 const logTicks = (decades: number): Tick[] => [
-    { at: 0, label: "0" },
+    { at: ZERO_BAND / 2, label: "0" },
     ...Array.from({ length: decades + 1 }, (_, power) => ({
         at: logAt(10 ** power, decades),
         label: String(10 ** power),
@@ -224,10 +243,11 @@ export const ruleQuadrants = (lint: LintUsage): Quadrants<FixKind> => {
         .sort(([, a], [, b]) => b.recent - a.recent || b.disabled - a.disabled);
     const decades = decadesFor(Math.max(noisyAt, ...shown.map(([, usage]) => usage.recent)));
     const topDisabled = Math.max(FOUGHT_DISABLES * 2, ...shown.map(([, usage]) => usage.disabled));
-    const yMax = Math.ceil(topDisabled / 5) * 5;
+    // Four steps of a whole number each, so every tick is an integer.
+    const yMax = Math.ceil(topDisabled / 4) * 4;
 
     return {
-        x: { ticks: logTicks(decades), threshold: logAt(noisyAt, decades) },
+        x: { ticks: logTicks(decades), threshold: logAt(Math.max(1, noisyAt), decades) },
         y: {
             ticks: linearTicks(yMax, (value) => String(Math.round(value))),
             threshold: (FOUGHT_DISABLES / yMax) * 100,
@@ -236,7 +256,7 @@ export const ruleQuadrants = (lint: LintUsage): Quadrants<FixKind> => {
             name,
             x: logAt(usage.recent, decades),
             y: (usage.disabled / yMax) * 100,
-            kind: usage.hits > 0 && usage.fixable === usage.hits ? "auto" : "manual",
+            kind: usage.recent > 0 && usage.fixable === usage.recent ? "auto" : "manual",
             title: `${name} · ${usage.recent} hits · ${usage.fixable} auto-fixed · disabled ${usage.disabled}×`,
             labelled:
                 index < NAMED_BUSIEST ||

@@ -32,8 +32,9 @@ const sorted = (counts: Record<string, number>): Record<string, number> =>
     Object.fromEntries(Object.entries(counts).sort(([, a], [, b]) => b - a));
 
 /** The first day inside the window, as `YYYY-MM-DD` like every recorded row. */
+/** The window counts the snapshot's own day, so it starts `WINDOW_DAYS - 1` days before it. */
 export const windowStart = (generatedAt: string): string =>
-    new Date(Date.parse(generatedAt) - WINDOW_DAYS * DAY_MS).toISOString().slice(0, 10);
+    new Date(Date.parse(generatedAt) - (WINDOW_DAYS - 1) * DAY_MS).toISOString().slice(0, 10);
 
 const emptyUsage = (at: string): ScriptUsage => ({
     runs: 0,

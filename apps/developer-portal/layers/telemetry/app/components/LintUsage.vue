@@ -13,8 +13,8 @@
                 <div>
                     <h2 class="font-semibold">Lint rules × projects</h2>
                     <p class="text-xs text-muted">
-                        Hits per project. Darker means more; the last two columns say whether the
-                        rule costs anything.
+                        Hits per project in the last 90 days, darker for more; the last two columns
+                        say whether the rule costs anything.
                     </p>
                 </div>
             </template>
@@ -27,7 +27,7 @@
                             <th
                                 v-for="project in table.projects"
                                 :key="project"
-                                class="w-32 min-w-32 text-center whitespace-nowrap"
+                                class="hidden w-32 min-w-32 text-center whitespace-nowrap md:table-cell"
                             >
                                 {{ project }}
                             </th>
@@ -42,7 +42,7 @@
                             <td
                                 v-for="cell in row.cells"
                                 :key="cell.project"
-                                class="w-32 min-w-32 p-0.5"
+                                class="hidden w-32 min-w-32 p-0.5 md:table-cell"
                             >
                                 <div
                                     class="flex h-8 items-center justify-center rounded-xs text-xs tabular-nums"

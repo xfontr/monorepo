@@ -1,7 +1,7 @@
 <template>
     <UDashboardPanel id="telemetry">
         <template #header>
-            <UDashboardNavbar title="Telemetry">
+            <UDashboardNavbar title="Tooling usage">
                 <template #leading>
                     <UDashboardSidebarCollapse />
                 </template>
@@ -29,11 +29,16 @@
                             :value="totals.runs"
                             :hint="`Last ${usage.windowDays} days`"
                         />
-                        <StatTile label="Run by an agent" :value="`${totals.agentShare}%`" />
+                        <StatTile
+                            label="Run by an agent"
+                            :value="`${totals.agentShare}%`"
+                            :hint="`Last ${usage.windowDays} days`"
+                        />
                         <StatTile
                             label="Failed"
                             :value="`${totals.failureRate}%`"
-                            :tone="totals.failureRate >= 25 ? 'warn' : 'neutral'"
+                            :hint="`Alert from ${MIN_RUNS} runs at ${FAILING_RATE * 100}%`"
+                            :tone="totals.failing ? 'warn' : 'neutral'"
                         />
                         <StatTile
                             label="Idle scripts"
@@ -54,7 +59,8 @@
 </template>
 
 <script setup lang="ts">
-import { scriptRows, sumDays } from "#layers/telemetry/shared/usageView.ts";
+import { FAILING_RATE, MIN_RUNS } from "#layers/telemetry/shared/usage.ts";
+import { isFailing, scriptRows, sumDays } from "#layers/telemetry/shared/usageView.ts";
 
 const { data: snapshot } = await useSnapshot("usage");
 
@@ -71,6 +77,7 @@ const totals = computed(() => {
         runs: sum.runs,
         agentShare: percentOf(sum.agent, sum.runs),
         failureRate: percentOf(sum.failures, sum.runs),
+        failing: isFailing(sum),
         idle: rows.value.filter((row) => row.runs === 0).length,
     };
 });

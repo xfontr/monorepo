@@ -4,13 +4,29 @@ import type { UsageRecord } from "./usage.ts";
 export const FOUGHT_DISABLES = 3;
 export const NOISY_SHARE = 0.3;
 
-const DIRECTIVE = /(?:\/\/|\/\*)\s*eslint-disable(?:-next-line|-line)?\s/;
+const DIRECTIVE = /(?:\/\/|\/\*|<!--)\s*eslint-disable(?:-next-line|-line)?\s/g;
 const RULE_ID = /^@?[\w-]+(?:\/[\w-]+)*$/;
+
+/** Whether the line's text up to here is still inside a string, where a `//` is only text. */
+const insideString = (before: string): boolean => {
+    let quote: string | null = null;
+
+    for (let index = 0; index < before.length; index += 1) {
+        const char = before[index]!;
+        if (char === "\\") index += 1;
+        else if (quote === char) quote = null;
+        else if (quote === null && (char === '"' || char === "'" || char === "`")) quote = char;
+    }
+
+    return quote !== null;
+};
 
 /** The rule IDs each `eslint-disable` comment in a file names; a bare directive names none. */
 export const parseDisables = (source: string): string[] =>
     source.split("\n").flatMap((line) => {
-        const match = DIRECTIVE.exec(line);
+        const match = [...line.matchAll(DIRECTIVE)].find(
+            ({ index }) => !insideString(line.slice(0, index)),
+        );
         if (!match) return [];
 
         const rest = line.slice(match.index + match[0].length);
@@ -34,9 +50,11 @@ const emptyRule = (enabled: boolean): LintRuleUsage => ({
 
 const tally = (usage: LintRuleUsage, { at = "", project, fixable }: UsageRecord, since: string) => {
     usage.hits += 1;
-    if (at >= since) usage.recent += 1;
-    if (fixable === "1") usage.fixable += 1;
     if (!usage.last || at > usage.last) usage.last = at;
+    if (at < since) return;
+
+    usage.recent += 1;
+    if (fixable === "1") usage.fixable += 1;
     if (project) usage.projects[project] = (usage.projects[project] ?? 0) + 1;
 };
 

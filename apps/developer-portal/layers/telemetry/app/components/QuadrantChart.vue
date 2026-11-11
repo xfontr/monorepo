@@ -47,7 +47,8 @@
             <span
                 v-for="quadrant in quadrants"
                 :key="quadrant.label"
-                class="absolute max-w-1/2 text-2xs font-semibold tracking-wide uppercase"
+                class="absolute max-w-2/5 truncate rounded-xs bg-default/85 px-1 text-2xs font-semibold tracking-wide uppercase"
+                :title="quadrant.label"
                 :class="[CORNERS[quadrant.corner], quadrant.bad ? 'tone-bad' : 'text-muted']"
             >
                 {{ quadrant.label }}
@@ -55,14 +56,15 @@
 
             <template v-for="point in dots" :key="point.name">
                 <span
-                    class="absolute size-3 -translate-x-1/2 translate-y-1/2 rounded-full"
+                    class="absolute z-10 size-3 -translate-x-1/2 translate-y-1/2 rounded-full"
                     :style="point.dot"
                     :title="point.title"
                 />
                 <span
                     v-if="point.labelled"
-                    class="absolute translate-y-1/2 rounded-xs bg-default/80 px-0.5 font-mono text-2xs whitespace-nowrap"
+                    class="absolute z-10 max-w-40 translate-y-1/2 truncate rounded-xs bg-default/85 px-0.5 font-mono text-2xs whitespace-nowrap"
                     :style="point.label"
+                    :title="point.title"
                 >
                     {{ point.name }}
                 </span>
@@ -90,7 +92,11 @@ interface Props {
 const { chart, kinds, quadrants, xLabel, yLabel } = defineProps<Props>();
 
 /** Past this share of the width a point's name goes on its left, so it never runs off the plot. */
-const LABEL_FLIP = 70;
+const LABEL_FLIP = 60;
+
+/** Clamped to the plot, and rounded so the server and the browser print the same style. */
+const pct = (value: number): string =>
+    `${Math.round(Math.min(100, Math.max(0, value)) * 1000) / 1000}%`;
 
 const CORNERS = {
     "top-left": "top-2 left-2",
@@ -113,16 +119,16 @@ const legendItems = computed(() =>
 );
 
 const yTicks = computed(() =>
-    chart.y.ticks.map((tick) => ({ label: tick.label, style: { bottom: `${tick.at}%` } })),
+    chart.y.ticks.map((tick) => ({ label: tick.label, style: { bottom: pct(tick.at) } })),
 );
 
 const xTicks = computed(() =>
-    chart.x.ticks.map((tick) => ({ label: tick.label, style: { left: `${tick.at}%` } })),
+    chart.x.ticks.map((tick) => ({ label: tick.label, style: { left: pct(tick.at) } })),
 );
 
 const thresholds = computed(() => ({
-    x: { left: `${chart.x.threshold}%` },
-    y: { bottom: `${chart.y.threshold}%` },
+    x: { left: pct(chart.x.threshold) },
+    y: { bottom: pct(chart.y.threshold) },
 }));
 
 const dots = computed(() =>
@@ -130,11 +136,11 @@ const dots = computed(() =>
         name: point.name,
         title: point.title,
         labelled: point.labelled,
-        dot: { left: `${point.x}%`, bottom: `${point.y}%`, ...fill(kinds[point.kind]) },
+        dot: { left: pct(point.x), bottom: pct(point.y), ...fill(kinds[point.kind]) },
         label:
             point.x > LABEL_FLIP
-                ? { right: `calc(${100 - point.x}% + 0.625rem)`, bottom: `${point.y}%` }
-                : { left: `calc(${point.x}% + 0.625rem)`, bottom: `${point.y}%` },
+                ? { right: `calc(${pct(100 - point.x)} + 0.625rem)`, bottom: pct(point.y) }
+                : { left: `calc(${pct(point.x)} + 0.625rem)`, bottom: pct(point.y) },
     })),
 );
 </script>

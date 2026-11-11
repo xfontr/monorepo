@@ -62,15 +62,20 @@ describe("summarize", () => {
         expect(summarize([record({ exit: "130" })], [], NOW).scripts.issue?.failures).toBe(0);
     });
 
-    it("counts a run older than the window in the total but not in recent, and the first day in both", () => {
+    it("counts a run a day before the window in the total only, and the window's first day in both", () => {
         const { scripts } = summarize(
-            [record(), record({ at: "2026-01-01" }), record({ at: "2026-08-11" })],
+            [
+                record(),
+                record({ at: "2026-01-01" }),
+                record({ at: "2026-08-11" }),
+                record({ at: "2026-08-12" }),
+            ],
             [],
             NOW,
         );
 
         expect(scripts.issue).toMatchObject({
-            runs: 3,
+            runs: 4,
             recent: 2,
             first: "2026-01-01",
         });

@@ -1,11 +1,11 @@
-/* Callers keep one hue each across the page; runs and lint hits are one-hue scales of their own. */
+/* Callers keep one hue each; runs shade in neutral slate and lint hits in the rules' violet. */
 :root {
     --usage-agent: #2a78d6;
     --usage-person: #eb6834;
     --usage-both: #1baf7a;
     --usage-rule: #6250d6;
-    --usage-runs: #2a78d6;
-    --usage-hits: #eb6834;
+    --usage-runs: #475569;
+    --usage-hits: #6250d6;
 }
 
 .dark {
@@ -13,6 +13,6 @@
     --usage-person: #d95926;
     --usage-both: #199e70;
     --usage-rule: #9085e9;
-    --usage-runs: #3987e5;
-    --usage-hits: #d95926;
+    --usage-runs: #94a3b8;
+    --usage-hits: #9085e9;
 }

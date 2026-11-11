@@ -226,6 +226,7 @@ export interface LintRuleUsage {
     enabled: boolean;
     /** Problems reported, counted again on every edit to a file that still has them. */
     hits: number;
+    /** Hits inside the window; `fixable` and `projects` count only these. */
     recent: number;
     fixable: number;
     last: string | null;
