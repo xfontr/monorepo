@@ -19,6 +19,7 @@ const issue = (overrides: Partial<GhIssue>): GhIssue => ({
     closedAt: null,
     blockedBy: [],
     branches: 0,
+    pullRequests: 0,
     complexity: null,
     ...overrides,
 });
@@ -83,6 +84,7 @@ describe("toSnapshot", () => {
                         { number: 4, state: "OPEN", closedAt: null },
                     ],
                     branches: 1,
+                    pullRequests: 1,
                 }),
             ],
             [],
@@ -96,6 +98,7 @@ describe("toSnapshot", () => {
                 { number: 9, open: false, closedAt: "2026-10-02T00:00:00Z" },
             ],
             branch: true,
+            pr: true,
             owner: true,
         });
     });

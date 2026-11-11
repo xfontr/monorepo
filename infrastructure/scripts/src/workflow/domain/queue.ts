@@ -1,12 +1,12 @@
 import type { SnapshotIssue } from "./snapshot.ts";
 
-/** Mirrors `TicketStatus` and `ticketStatus` in apps/developer-portal/layers/workflows/shared/workflows.ts; change both together. */
+/** Mirrors `ticketStatus` and `dropPlan` in apps/developer-portal/layers/workflows/shared/ticket.ts; change both together. */
 export type TicketStatus =
     "waiting-on-you" | "ready" | "in-flight" | "blocked" | "done" | "dropped";
 
 export const ticketStatus = (issue: SnapshotIssue): TicketStatus => {
     if (issue.state === "closed") return issue.reason === "not_planned" ? "dropped" : "done";
-    if (issue.branch || issue.activity.length > 0) return "in-flight";
+    if (issue.branch || issue.pr || issue.activity.length > 0) return "in-flight";
     if (issue.blockedBy.some(({ open }) => open)) return "blocked";
     return issue.owner ? "waiting-on-you" : "ready";
 };

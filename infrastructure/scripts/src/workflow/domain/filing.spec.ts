@@ -23,6 +23,20 @@ const TEMPLATE = {
             dependsOn: ["article-page"],
             tickets: [{ title: "Build comments", criteria: ["Readers can post."] }],
         },
+        {
+            id: "spam-protection",
+            title: "Spam protection",
+            optional: true,
+            default: false,
+            dependsOn: ["design-approval", "component-kit"],
+        },
+        {
+            id: "contact-form",
+            title: "Contact form",
+            optional: true,
+            default: false,
+            dependsOn: ["spam-protection"],
+        },
     ],
 };
 
@@ -44,6 +58,7 @@ const ticket = (
     activity: [],
     blockedBy: [],
     branch: false,
+    pr: false,
     owner: false,
     complexity: null,
     ...overrides,
@@ -110,14 +125,37 @@ describe("planFiling", () => {
         ]);
     });
 
-    it("drops a need switched off with its group instead of waiting on it forever", () => {
+    it("waits on what a need switched off with its group needed, instead of skipping the chain", () => {
         const map = readMap(TEMPLATE, { ...PROJECT, switches: { blog: false, comments: true } });
 
-        expect(planFiling(map, [], ["comments"])).toMatchObject({ ok: true });
+        expect(planFiling(map, [], ["comments"])).toEqual({
+            ok: false,
+            reason: "`comments` waits on component-kit (nothing filed yet)",
+        });
+        expect(planFiling(map, [ticket(4, "component-kit")], ["comments"])).toMatchObject({
+            ok: true,
+            tickets: [{ blockedBy: [4] }],
+        });
         expect(planFiling(map, [], ["article-page"])).toEqual({
             ok: false,
             reason: "`article-page` is switched off",
         });
+    });
+
+    it("holds a block behind the open decision a switched-off need of it needed", () => {
+        const map = readMap(TEMPLATE, { ...PROJECT, switches: { "contact-form": true } });
+
+        expect(planFiling(map, [ticket(1, "design-approval")], ["contact-form"])).toEqual({
+            ok: false,
+            reason: "`contact-form` waits on design-approval (owner, open: #1); component-kit (nothing filed yet)",
+        });
+        expect(
+            planFiling(
+                map,
+                [closed(1, "design-approval"), ticket(4, "component-kit")],
+                ["contact-form"],
+            ),
+        ).toMatchObject({ ok: true, tickets: [{ blockedBy: [4] }] });
     });
 
     it("refuses to file a block twice", () => {
@@ -169,33 +207,53 @@ const STAGED = {
     ],
 };
 
+const STAGED_BUNDLES = {
+    block: [
+        ["audit"],
+        ["hosting"],
+        ["signoff"],
+        ["tokens"],
+        ["lab"],
+        ["approval"],
+        ["inventory"],
+        ["scaffold"],
+        ["deploy"],
+    ],
+    stage: [
+        ["audit"],
+        ["hosting"],
+        ["signoff"],
+        ["tokens", "lab"],
+        ["approval"],
+        ["inventory"],
+        ["scaffold", "deploy"],
+    ],
+    lean: [
+        ["audit", "hosting"],
+        ["signoff"],
+        ["tokens", "lab"],
+        ["approval"],
+        ["inventory"],
+        ["scaffold", "deploy"],
+    ],
+};
+
 const staged = (ticketSize: string) => readMap(STAGED, { ...PROJECT, ticketSize });
 
 describe("bundlesOf", () => {
-    it("splits a stage's build blocks where an owner block inside the stage sits between them", () => {
-        const map = staged("stage");
+    it.each(["block", "stage", "lean"] as const)(
+        "groups the staged map into the %s bundles the portal counts",
+        (size) => {
+            const map = staged(size);
 
-        expect(bundlesOf(toFile(map, []), map.ticketSize)).toEqual([
-            ["audit"],
-            ["hosting"],
-            ["signoff"],
-            ["tokens", "lab"],
-            ["approval"],
-            ["inventory"],
-            ["scaffold", "deploy"],
-        ]);
-    });
-
-    it("puts every spike in one ticket only when the size is lean", () => {
-        const map = staged("lean");
-
-        expect(bundlesOf(toFile(map, []), map.ticketSize)[0]).toEqual(["audit", "hosting"]);
-    });
+            expect(bundlesOf(toFile(map, []), map.ticketSize)).toEqual(STAGED_BUNDLES[size]);
+        },
+    );
 
     it("keeps one ticket per block when the project sets no size", () => {
         const map = readMap(STAGED, PROJECT);
 
-        expect(bundlesOf(toFile(map, []), map.ticketSize)).toHaveLength(9);
+        expect(bundlesOf(toFile(map, []), map.ticketSize)).toEqual(STAGED_BUNDLES.block);
     });
 });
 

@@ -14,6 +14,7 @@ interface GraphIssue {
     labels: { nodes: { name: string }[] };
     blockedBy: { nodes: { number: number; state: string; closedAt?: string | null }[] };
     linkedBranches?: { totalCount: number };
+    closedByPullRequestsReferences?: { totalCount: number };
     projectItems?: {
         nodes: { project: { title: string }; complexity: { number?: number } | null }[];
     };
@@ -34,7 +35,7 @@ const MILESTONE_QUERY = `query($owner: String!, $name: String!, $number: Int!, $
     milestone(number: $number) {
       issues(first: 100, after: $endCursor, states: [OPEN, CLOSED]) {
         pageInfo { hasNextPage endCursor }
-        nodes { ${ISSUE_FIELDS} linkedBranches(first: 1) { totalCount } }
+        nodes { ${ISSUE_FIELDS} linkedBranches(first: 1) { totalCount } closedByPullRequestsReferences(first: 1, includeClosedPrs: false) { totalCount } }
       }
     }
   }
@@ -55,6 +56,7 @@ const toGhIssue = (issue: GraphIssue): GhIssue => ({
         closedAt: closedAt ?? null,
     })),
     branches: issue.linkedBranches?.totalCount ?? 0,
+    pullRequests: issue.closedByPullRequestsReferences?.totalCount ?? 0,
     complexity:
         issue.projectItems?.nodes.find(({ project }) => project.title === BOARD)?.complexity
             ?.number ?? null,

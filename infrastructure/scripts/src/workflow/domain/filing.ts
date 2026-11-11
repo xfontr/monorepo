@@ -141,6 +141,20 @@ const liveTickets = (issues: SnapshotIssue[], cap: string) =>
 
 type Check = { ok: true; blockedBy: number[] } | { ok: false; reason: string };
 
+/** The switched-on blocks `block` needs, reading through each switched-off one to what it needed. */
+const needsOf = (map: WorkflowMap, block: Block, seen: Set<string>): Block[] => [
+    ...new Set(
+        block.dependsOn.flatMap((need) => {
+            const dependency = map.blocks.find((candidate) => candidate.id === need);
+            if (!dependency || seen.has(need)) return [];
+
+            return map.isOn(dependency)
+                ? [dependency]
+                : needsOf(map, dependency, new Set([...seen, need]));
+        }),
+    ),
+];
+
 /** Whether one block can be filed alongside `inside`, whose members it needs nothing from GitHub for. */
 const checkBlock = (
     map: WorkflowMap,
@@ -161,12 +175,9 @@ const checkBlock = (
     const blockedBy: number[] = [];
     const waits: string[] = [];
 
-    for (const need of block.dependsOn) {
-        const dependency = map.blocks.find((candidate) => candidate.id === need);
-
-        if (inside.has(need) || !dependency || !map.isOn(dependency) || map.settled.has(need)) {
-            continue;
-        }
+    for (const dependency of needsOf(map, block, new Set([id]))) {
+        const need = dependency.id;
+        if (inside.has(need) || map.settled.has(need)) continue;
 
         const tickets = liveTickets(issues, need);
         const open = tickets.filter(({ state }) => state === "open");
@@ -253,11 +264,7 @@ export const planFiling = (map: WorkflowMap, issues: SnapshotIssue[], ids: strin
     };
 };
 
-/**
- * The blocks a ticket size puts in one ticket, as lists of ids in map order. Build blocks share a
- * ticket per stage, split where a spike or owner block inside the stage sits between them; `lean`
- * also puts every spike in one ticket. The portal's `shared/ticketSize.ts` groups the same way.
- */
+/** Mirrored by `bundlesOf` in the portal's `shared/ticketSize.ts`; change both together. */
 export const bundlesOf = (blocks: Block[], size: TicketSize): string[][] => {
     if (size === "block") return blocks.map(({ id }) => [id]);
 

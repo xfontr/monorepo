@@ -4,7 +4,7 @@ The GitHub side of each project under
 [`data/workflows/projects/`](../../../../docs/workflows/README.md): snapshot it for the portal, list
 what can be taken now, file a block of the map as tickets, and drop the untouched ones when a project
 is abandoned. GitHub is the record once a block is
-filed, so all three read it rather than trusting the project file.
+filed, so all four read it rather than trusting the project file.
 
 ```sh
 pnpm workflow:sync                       # every project
@@ -19,9 +19,9 @@ pnpm workflow:drop harbour-notes --yes
 
 | Command | Reads | Writes |
 | --- | --- | --- |
-| `sync` | Every milestone issue with its labels, open and close dates, blocked-by links with each blocker's close date, linked branches, and its `Complexity` on the `Monorepo` board, in one paginated GraphQL query; open area-label issues with no milestone; the local `git log`. The dates are what let the portal replay any past day | `<project>.snapshot.json`, only when the issues or commits changed, so running it costs no diff |
-| `next` | The same milestone query and `git log`, live; a ticket a commit names counts as in flight, as on the portal | Nothing |
-| `file` | The template, the project file and the milestone | With `--yes`, one GitHub issue per suggested ticket, or one for the whole bundle, put on the `Monorepo` board with its `Complexity` set |
+| `sync` | Every milestone issue with its labels, open and close dates, blocked-by links with each blocker's close date, linked branches, open pull requests that would close it, and its `Complexity` on the `Monorepo` board, in one paginated GraphQL query; open area-label issues with no milestone; the local `git log`. The dates are what let the portal replay any past day | `<project>.snapshot.json`, only when the issues or commits changed, so running it costs no diff |
+| `next` | The same milestone query and `git log`, live; a ticket with a linked branch, an open pull request or a commit naming it counts as in flight, as on the portal | Nothing |
+| `file` | The template, the project file and the milestone | With `--yes`, one GitHub issue per suggested ticket, or one for the whole bundle, put on the `Monorepo` board with its `Complexity` set, then the project re-synced so the portal's size lock sees them |
 | `drop` | The same milestone query and `git log`, live | With `--yes`, closes as not planned every open ticket that is ready, blocked or waiting on you, and the milestone once nothing in it is left open |
 
 `drop` keeps anything in flight, done or already dropped, so abandoning a project never throws away
@@ -42,12 +42,12 @@ grouping. Members that still wait are left out and printed, and the one ticket c
 member's `cap:` label, with one section per block in its body. Naming several blocks merges exactly
 those instead. The portal's
 [`shared/ticketSize.ts`](../../../../apps/developer-portal/layers/workflows/shared/ticketSize.ts)
-groups the same way for its counts, written twice for the same reason as the ticket status below.
+groups the same way for its counts; the table below lists every rule written twice.
 
 ## 🗂 Structure
 
 ```
-index.ts               hands { sync, next, file } to run(), which dispatches on the first argument
+index.ts               hands { sync, next, file, drop } to run(), which dispatches on the first argument
 sync.ts                the per-project loop: read the milestone and area, list their issues, write the snapshot
 next.ts                one project's open tickets, grouped by what can happen to them next
 file.ts                one block's tickets, printed or created
@@ -60,10 +60,14 @@ domain/queue.ts        a ticket's status, how many tickets wait behind each one,
 domain/filing.ts       the map read from a template and project, the ticket-size bundles, and what filing them would create
 ```
 
-`domain/queue.ts` and the derived view in the portal's
-[`shared/workflows.ts`](../../../../apps/developer-portal/layers/workflows/shared/workflows.ts) compute a ticket's
-status the same way, and the portal's settings page counts a drop by the same rule. The portal can't import this package and this package can't import an app, so
-the rule is written twice and both specs pin it.
+The portal can't import this package and this package can't import an app, so these rules are
+written twice. Each pair's specs share one table of cases, so changing one copy fails a spec.
+
+| Here | In the portal's `layers/workflows/shared/` | Shared cases |
+| --- | --- | --- |
+| `ticketStatus`, `dropPlan` in `domain/queue.ts` | [`ticket.ts`](../../../../apps/developer-portal/layers/workflows/shared/ticket.ts) | `STATUSES` |
+| `bundlesOf` in `domain/filing.ts` | [`ticketSize.ts`](../../../../apps/developer-portal/layers/workflows/shared/ticketSize.ts) | `STAGED`, `STAGED_BUNDLES` |
+| `isOn`, `toFile`, needs through switched-off blocks in `domain/filing.ts` | [`project.ts`](../../../../apps/developer-portal/layers/workflows/shared/project.ts), [`projectView.ts`](../../../../apps/developer-portal/layers/workflows/shared/projectView.ts) | — |
 
 ## 🧭 Deliberately deferred
 

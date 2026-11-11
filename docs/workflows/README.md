@@ -73,9 +73,9 @@ A small site still has 17 blocks, and a rebuild 41. Filing one ticket each is th
 agents working in parallel, and too fine for one person who would rather ship six blocks in a PR.
 The project's `ticketSize` changes how many tickets filing creates, never the map: a ticket with
 several `cap:` labels counts under each of those blocks, and closing it finishes all of them.
-The size is fixed once the milestone holds one ticket with a `cap:` label, so every block filed
-later, a feature switched on midway included, is grouped the same way; a ticket added by hand
-doesn't count.
+The size is fixed once the milestone holds one live ticket with a `cap:` label, however it was
+filed, so every block filed later, a feature switched on midway included, is grouped the same way.
+`workflow:file --yes` re-syncs the snapshot straight after, so the portal locks the size at once.
 
 | `ticketSize` | One ticket per | `new-website` | `website-rebuild` |
 | --- | --- | --- | --- |
@@ -148,8 +148,9 @@ A ticket's status comes from GitHub alone, so it never needs updating by hand.
 | Ready | Open, unblocked, and not the owner's |
 | Done / Dropped | Closed as completed / as not planned |
 
-A ticket also counts as in flight once a commit names it as `[#N]`, which is the only way to tell
-on a day before the sync, since GitHub keeps no history of linked branches.
+A ticket also counts as in flight once an open pull request would close it, or a commit names it as
+`[#N]`. The commit is the only way to tell on a day before the sync, since GitHub keeps no history of
+linked branches or pull requests.
 
 A block's state comes from its switch, the project file and its tickets, in this order.
 

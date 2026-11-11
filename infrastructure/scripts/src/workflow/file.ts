@@ -5,6 +5,7 @@ import { createTicket, milestoneIssues } from "./adapters/gh.ts";
 import { oneProject, readProject, readTemplate } from "./adapters/files.ts";
 import { bundleFor, planFiling, readMap } from "./domain/filing.ts";
 import { toSnapshot } from "./domain/snapshot.ts";
+import { sync } from "./sync.ts";
 
 /**
  * Turns a block of the map into GitHub tickets, together with the blocks the project's ticket size
@@ -53,5 +54,11 @@ export const file = ({ positionals }: Args): void => {
     }
 
     for (const reason of later) out.note(`Left for a later ticket: ${reason}.`);
-    if (!write) out.note("Nothing was filed. Run it again with --yes to create these tickets.");
+    if (!write) {
+        out.note("Nothing was filed. Run it again with --yes to create these tickets.");
+        return;
+    }
+
+    // The portal locks the ticket size from the snapshot, so it has to see these tickets now.
+    sync({ positionals: [id], flags: new Set() });
 };
