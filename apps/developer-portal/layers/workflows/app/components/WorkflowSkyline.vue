@@ -3,11 +3,11 @@
         <li
             v-for="(stage, index) in stages"
             :key="stage.id"
-            class="flex min-w-0 flex-col gap-2.5"
+            class="flex min-w-0 flex-col gap-2"
             :style="{ '--hue': stageColor(index) }"
         >
             <div
-                class="tower relative grid cursor-pointer content-end justify-center rounded-xl p-1 transition-colors sm:p-2"
+                class="tower flex cursor-pointer flex-wrap-reverse gap-0.75 rounded-lg p-1 transition-colors sm:p-1.5"
                 :class="{ 'is-selected': stage.id === selected }"
                 @click="emit('select-stage', stage.id)"
             >
@@ -15,20 +15,17 @@
                     v-for="capability in stage.capabilities"
                     :key="capability.id"
                     type="button"
-                    class="cell aspect-square rounded-sm border-2"
+                    class="cell size-3 rounded-xs border sm:size-3.5"
                     :class="[capability.state, capability.id === highlight && 'is-highlighted']"
                     :aria-pressed="capability.id === highlight"
-                    :style="{
-                        '--state': capabilityColor(capability.state),
-                        '--order': order.get(capability.id),
-                    }"
+                    :style="{ '--state': capabilityColor(capability.state) }"
                     :title="`${capability.title} · ${capabilityStateLabel(capability.state)}`"
                     :aria-label="`${capability.title}, ${capabilityStateLabel(capability.state)}`"
                     @click.stop="(emit('select-stage', stage.id), emit('select', capability.id))"
                 />
             </div>
 
-            <span class="h-1 rounded-full bg-(--hue) opacity-85" aria-hidden="true" />
+            <span class="h-0.5 rounded-full bg-(--hue) opacity-70" aria-hidden="true" />
 
             <button
                 type="button"
@@ -66,15 +63,6 @@ const emit = defineEmits<{
     "select-stage": [stage: string];
     select: [capability: string];
 }>();
-
-const order = computed(
-    () =>
-        new Map(
-            stages
-                .flatMap((stage) => stage.capabilities)
-                .map((capability, index) => [capability.id, index]),
-        ),
-);
 </script>
 
 <style scoped>
@@ -82,13 +70,8 @@ const order = computed(
     gap: clamp(0.375rem, 2vw, 1.5rem);
 }
 
-.tower {
-    grid-template-columns: repeat(3, minmax(0, 1.625rem));
-    gap: clamp(2px, 0.6vw, 5px);
-}
-
 .tower.is-selected {
-    background: color-mix(in oklab, var(--hue) 16%, transparent);
+    background: color-mix(in oklab, var(--hue) 10%, transparent);
 }
 
 .cell {
@@ -103,14 +86,6 @@ const order = computed(
     background: var(--state);
 }
 
-.cell.done {
-    box-shadow: 0 0 10px color-mix(in oklab, var(--state) 45%, transparent);
-}
-
-.cell.in-flight {
-    box-shadow: 0 0 12px color-mix(in oklab, var(--state) 60%, transparent);
-}
-
 .cell.off {
     border-style: dashed;
     opacity: 0.45;
@@ -120,14 +95,14 @@ const order = computed(
     opacity: 0.6;
 }
 
-.cell:hover {
-    transform: scale(1.3);
+.cell:hover,
+.cell.is-highlighted {
+    transform: scale(1.35);
 }
 
 .cell.is-highlighted {
-    transform: scale(1.3);
     outline: 2px solid var(--ui-text-highlighted);
-    outline-offset: 2px;
+    outline-offset: 1px;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -136,24 +111,13 @@ const order = computed(
     }
 
     .cell.in-flight {
-        animation: breathe 1.8s ease-in-out infinite;
-    }
-
-    .cell.done {
-        animation: light 0.5s ease-out both;
-        animation-delay: calc(var(--order) * 18ms);
+        animation: breathe 2.4s ease-in-out infinite;
     }
 }
 
 @keyframes breathe {
     50% {
-        box-shadow: 0 0 22px color-mix(in oklab, var(--state) 85%, transparent);
-    }
-}
-
-@keyframes light {
-    from {
-        filter: brightness(1.8) saturate(0.4);
+        opacity: 0.55;
     }
 }
 </style>
