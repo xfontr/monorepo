@@ -1,7 +1,7 @@
 # 📦 @monorepo/developer-portal
 
-A read-only portal for exploring the monorepo's projects, documentation, architecture and engineering
-health. It gives newcomers a clear starting point while keeping deeper developer views close by.
+A portal for exploring the monorepo's projects, documentation, architecture and engineering
+health, read-only once deployed; under `pnpm dev` the Workflows pages also write their own project files. It gives newcomers a clear starting point while keeping deeper developer views close by.
 
 It renders every markdown file in the workspace as a wiki — READMEs, `CLAUDE.md`s, the
 [`docs/`](../../docs/README.md) tree and changelogs — beside the things that are not written
@@ -46,9 +46,9 @@ domain logic, its own config, or is something you'd switch off whole.
 | Layer | Kind | What it owns |
 | --- | --- | --- |
 | `snapshot` | Core | The `.report/` store, the snapshot and badge routes, the artifact types, `useSnapshot` and `SnapshotAge` |
-| `design` | Capability | Every token and shared class, and the Nuxt UI theme — see [🎨 Design system](#-design-system) |
-| `docs` | Capability | The link rewriting every rendered markdown page gets, `ProseA`, and the title and path helpers in `shared/docPages.ts` |
-| `github` | Capability | The two reads the browser makes of GitHub, issues and deployments, and their rules |
+| `design` | Core | Every token and shared class, and the Nuxt UI theme — see [🎨 Design system](#-design-system) |
+| `docs` | Core | The link rewriting every rendered markdown page gets, `ProseA`, and the title and path helpers in `shared/docPages.ts` |
+| `github` | Core | The two reads the browser makes of GitHub, issues and deployments, and their rules |
 | `decisions`, `audits` | Feature | Each record's pages, its list logic and its labels |
 | `projects` | Feature | Projects, Architecture and What's new |
 | `health` | Feature | Work in progress and its row, Coverage and Dependencies |
@@ -57,8 +57,8 @@ domain logic, its own config, or is something you'd switch off whole.
 | `wiki` | Feature | The Documentation pages, `WikiNav` and the tree `shared/wiki.ts` builds |
 
 The rules are [`apps/huella-legal`](../huella-legal/README.md#-structure)'s. The kit is
-`app/components/` and `app/utils/`, and uses only itself. The core and each capability use
-themselves and the kit. A feature also uses the core and the capabilities, never another feature,
+`app/components/` and `app/utils/`, and uses only itself. Each core uses itself and the kit. A
+feature also uses the cores, never another feature,
 so each one comes out alone. Only the shell uses everything: the Overview and the sidebar's badges
 read issues, the snapshot and the active workflows. `eslint.layerBoundaries` in
 [`eslint.config.ts`](./eslint.config.ts) enforces this, auto-imports included.
@@ -66,7 +66,8 @@ read issues, the snapshot and the active workflows. `eslint.layerBoundaries` in
 Any import into another layer, from `app/`, `shared/`, `server/` or `tools/`, reads
 `#layers/<name>/…`. Nuxt resolves it as its own alias; the collector and the `node` test project run
 outside Nuxt and resolve the same string through the `imports` field in
-[`package.json`](./package.json). An import within one layer, or within `tools/`, stays relative.
+[`package.json`](./package.json). Inside one layer, `app/` reaches its own `shared/` through the
+same alias, while `server/`, `shared/` and `tools/` import within themselves relatively.
 A root-level `shared/` is gone on purpose:
 a relative import into it is what broke the prerendered build in
 [`0014`](../../docs/decisions/0014-developer-portal-deployment.md).
@@ -81,7 +82,8 @@ the collector holds for it, since `tools/` is one program outside Nuxt:
 
 | Feature | Besides `layers/<name>/` |
 | --- | --- |
-| `workflows` | [`tools/lib/workflows.ts`](./tools/lib/workflows.ts) and its call in [`invariants.ts`](./tools/lib/invariants.ts), the `data/workflows` line under `namedInputs` in [`package.json`](./package.json), and `@dagrejs/dagre` |
+| `workflows` | [`tools/lib/workflows.ts`](./tools/lib/workflows.ts) and its call in [`invariants.ts`](./tools/lib/invariants.ts), the `data/workflows` line under `namedInputs` in [`package.json`](./package.json), `@dagrejs/dagre`, and the Overview's Active workflows section |
+| `projects` | [`tools/collect/retired.ts`](./tools/collect/retired.ts) and its step in [`tools/collect/index.ts`](./tools/collect/index.ts), and `RetiredProject` in `snapshot` |
 | `telemetry` | [`tools/collect/usage.ts`](./tools/collect/usage.ts), [`tools/lib/lintRules.ts`](./tools/lib/lintRules.ts), the `usage` step in [`tools/collect/index.ts`](./tools/collect/index.ts), and the `usage` reader and types in `snapshot` |
 | `decisions`, `audits` | Nothing to delete, but the collector still parses both into `docs.json` and checks their shape |
 | `health` | The Overview tiles and the sidebar badge that read them |
@@ -125,7 +127,7 @@ that.
 | Projects | The collected Nx graph joined to collect-time project metrics, with deployment state read live, plus every deleted project read back from `git log` |
 | Decisions | `docs/decisions/NNNN-<slug>.md` — the files the `decision-report` skill writes, see [🔬 Decisions are their own section](#-decisions-are-their-own-section) |
 | Audits | `docs/audits/YYYY-MM-DD-<scope>.md` — the files the `audit-report` skill writes, see [🔎 Audits count findings, not files](#-audits-count-findings-not-files) |
-| Workflows | `data/workflows/` templates, projects and their synced snapshots, read in place on every request rather than collected — see [`docs/workflows/README.md`](../../docs/workflows/README.md). Under `pnpm dev` the new-project wizard, behind a plus card after the projects, creates them; the deployed site runs the same wizard but only offers its file as a download. Under `pnpm dev` each project's Settings page switches features, sets the ticket size, edits its details and deletes it, all in the project file only. The page's graph is laid out with `@dagrejs/dagre` |
+| Workflows | `data/workflows/` templates, projects and their synced snapshots, read in place on every request rather than collected — see [`docs/workflows/README.md`](../../docs/workflows/README.md). Under `pnpm dev` the new-project wizard, behind a plus card after the projects, creates them; the deployed site runs the same wizard but only offers its file as a download. Under `pnpm dev` each project's Settings page switches features, sets the ticket size, edits its details and deletes it, all in the project file only. The edit route refuses anything but a same-origin JSON request, so another site's form can't post to it. The page's graph is laid out with `@dagrejs/dagre` and never opens zoomed out past readable |
 | Work in progress | Open issues read from GitHub in the browser |
 | What's new | Every `CHANGELOG.md`, beside its unreleased-commit count, plus any project in `nx.json`'s `release.projects` that has commits and no release yet |
 | Engineering health | Coverage, dependencies and collected repository findings |
@@ -255,16 +257,20 @@ own are fixed by the editor on save and never recorded, so a rule that only ever
 reads as never fired. The page says so above the numbers.
 
 [`layers/telemetry/shared/usageView.ts`](./layers/telemetry/shared/usageView.ts) shapes what the
-page draws, all of it over the 90-day window:
+page draws, all of it over the 90-day window, the snapshot's own day included. The day strips start
+at the first recorded run, two weeks at least, so a young log isn't drawn as months of nothing. On a
+phone the tables drop the strips and project columns and keep the numbers.
 
 | View | Shows |
 | --- | --- |
-| Script activity | One row of day cells per script, shaded by runs, a red base on a day with a failed run, and idle scripts kept as empty rows |
+| Script activity | One row of day cells per script, shaded slate by runs, a red base on a day with a failed run, and idle scripts kept as empty rows |
 | Scripts quadrant | Runs against failure rate, split at 5 runs and 25% failing; idle scripts listed under it |
 | Lint rules quadrant | Hits against inline disables, split at 3 disables and 30% of all hits |
-| Lint rules × projects | Hits per project for every rule that fired or is disabled inline, plus the never-fired list |
+| Lint rules × projects | Hits per project for every rule that fired in the window or is disabled inline, plus the never-fired list |
 
 The thresholds are constants in the layer's two `shared/` files. Ctrl+C never counts as a failure.
+`eslint-disable` comments are counted outside specs, whose fixtures quote them, and include Vue's
+`<!-- eslint-disable -->`.
 
 ## 🐙 Work in progress comes from GitHub, not from here
 
@@ -299,7 +305,8 @@ checkout.
 
 A deleted project stays on the page as a dimmed **Retired** card, always after the live ones. `git log --diff-filter=D -p`
 finds every deleted `package.json` under `apps/`, `packages/` and `infrastructure/`, and the patch
-carries its name and tags. A name that is live again is skipped, since a moved project reads as a
+carries its name and tags. The call pins rename detection and the patch format, so a user's git
+config can't change the list, and a git failure leaves the list empty without failing `projects`. A name that is live again is skipped, since a moved project reads as a
 delete plus an add. Its README went with it, so the card shows the deleting commit instead.
 
 Deployments are the exception because they can change after the static site ships. The browser reads
@@ -410,6 +417,7 @@ rejects a bracketed value such as `text-[11px]` and any class Tailwind doesn't k
 | `.embedded-report` | `main.css` | The white frame the vendored coverage report and Nx graph render in |
 | `variant="flush"` on `UCard` | [`app.config.ts`](./layers/design/app/app.config.ts) | A card with no body padding, for a table or a list of rows |
 | `--state-*`, `--stage-*` | [`workflows.css`](./layers/workflows/app/assets/workflows.css) | One colour per block state and per stage, read through `stateColor` and `stageColor`. They live with the feature so they leave with it |
+| `--usage-*` | [`telemetry.css`](./layers/telemetry/app/assets/telemetry.css) | One hue per caller (agent, person, both), the rules' violet, and the run and hit scales; with the feature for the same reason |
 
 A hover or resting tint is `bg-elevated/50` and a selected row is `bg-elevated`. A colour that
 depends on data reaches the template as a CSS variable, as in `text-(--state)`, never as a literal.
