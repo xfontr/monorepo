@@ -12,7 +12,7 @@ import process from "node:process";
 import { at } from "../../shared/adapters/git.ts";
 import { usageBufferPath } from "../../shared/adapters/usage.ts";
 
-const LOG_ROOT = ".telemetry";
+const LOG_ROOT = "data/telemetry";
 
 const FLUSHING = /\.(\d+)\.flushing$/;
 

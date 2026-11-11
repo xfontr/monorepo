@@ -25,7 +25,7 @@ src/
   drift/            pnpm docs:drift — warn when a project's docs may be stale, offer to file an issue
   map/              pnpm docs:map — render docs/FEATURES.md, the index of everything this repo can do
   package-contracts/ pnpm package:check — validate package metadata and raw-source export contracts
-  usage/            pnpm usage:flush — move recorded script runs into .telemetry/scripts/, the committed log
+  usage/            pnpm usage:flush — move recorded script runs into data/telemetry/, the committed logs
   coverage-report/  pnpm test:coverage (root) — merge every project's coverage-final.json into one report
   shared/           whatever more than one script needs, laid out the same way
 ```

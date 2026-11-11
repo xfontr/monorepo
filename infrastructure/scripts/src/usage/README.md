@@ -3,7 +3,7 @@
 Answers "which of these scripts does anyone run, how, and who runs them", and "which lint rules
 do agents trip". Every script that goes through [`run()`](../shared/cli.ts), and every edit an agent
 makes, writes CSV rows to a buffer inside `.git`; `pnpm usage:flush` moves them into committed files
-under `.telemetry/`, and the developer portal's Telemetry page reads every file there.
+under `data/telemetry/`, and the developer portal's Telemetry page reads every file there.
 
 | Log | Written by | Sees |
 | --- | --- | --- |
@@ -19,7 +19,7 @@ pnpm usage:flush     # what .husky/pre-commit runs before every commit — rarel
 ```
 index.ts             hands main to run()
 main.ts              for each log: take its buffer, append the complete rows to this branch's file
-adapters/files.ts    renames a buffer before reading it; appends to .telemetry/<log>/<branch>.csv
+adapters/files.ts    renames a buffer before reading it; appends to data/telemetry/<log>/<branch>.csv
 ```
 
 The recorder itself sits in [`shared/`](../shared/README.md) because `run()` is what calls it:
@@ -61,12 +61,12 @@ library. It reads columns by header name, so adding one is backwards compatible.
 | Thing | Where | Committed |
 | --- | --- | --- |
 | The buffers | `<git common dir>/telemetry/<log>.csv` | No: inside `.git`, shared by every worktree |
-| The logs | `.telemetry/<log>/<branch>.csv`, one file per branch | Yes, by the commit that flushed it |
+| The logs | `data/telemetry/<log>/<branch>.csv`, one file per branch | Yes, by the commit that flushed it |
 
 Writing to `.git` first is what keeps a script run from dirtying the working tree, which would
 block `git pull` and checkouts and stop the `ship-issue` workflow at its clean-tree check. One
 file per branch is what keeps two PRs from conflicting: no branch ever appends to another's file.
-`.telemetry/` sits outside every Nx project, so a flushed row makes nothing affected.
+`data/telemetry/` sits outside every Nx project, so a flushed row makes nothing affected.
 
 ## 🙈 What is never recorded
 

@@ -19,7 +19,7 @@ export type UsageRow = Record<(typeof COLUMNS)[number], string>;
 /** `.claude/hooks/eslint-fix.sh` writes these in this order, so a change here changes it too. */
 export const LINT_COLUMNS = ["at", "rule", "project", "severity", "fixable", "caller"] as const;
 
-/** Each log is buffered in `.git/telemetry/<name>.csv` and flushed to `.telemetry/<name>/`. */
+/** Each log is buffered in `.git/telemetry/<name>.csv` and flushed to `data/telemetry/<name>/`. */
 export const LOGS: readonly { name: string; columns: readonly string[] }[] = [
     { name: "scripts", columns: COLUMNS },
     { name: "lint", columns: LINT_COLUMNS },

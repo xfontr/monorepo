@@ -30,7 +30,7 @@
         <template #body>
             <div v-if="!base || !view" class="p-12 text-center text-sm text-muted">
                 No project <code class="font-mono">{{ id }}</code> under
-                <code class="font-mono">docs/workflows/projects/</code>.
+                <code class="font-mono">data/workflows/projects/</code>.
             </div>
 
             <div v-else class="flex flex-col gap-6">

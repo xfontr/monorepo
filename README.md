@@ -44,6 +44,8 @@ procedures, first hour in the repo included.
 issue is where the question lived, not where the outcome should have to survive.
 [`docs/audits/`](./docs/audits/README.md) holds what a static read of one project found wrong, each
 finding numbered and carrying its own status, so the backlog outlives the session that found it.
+[`data/`](./data/README.md) holds what the repo's own tooling reads and writes and commits — the
+telemetry logs and the workflow templates, projects and snapshots — so `docs/` is only prose.
 
 ## 🧱 Architecture & boundaries
 
@@ -145,7 +147,7 @@ checks, is in [`docs/guides/change-lifecycle.md`](./docs/guides/change-lifecycle
   [`commit-msg`](./.husky/commit-msg) hook tags the subject with the branch's issue number
   (`feat: [#50] add thing`), which is why the log here is number-first without anyone typing it.
 - [`pre-commit`](./.husky/pre-commit) blocks a commit while `docs/FEATURES.md` is stale, then stages the script runs and agent lint hits recorded since the last commit into
-  `.telemetry/` ([`pnpm usage:flush`](./infrastructure/scripts/src/usage/README.md)).
+  `data/telemetry/` ([`pnpm usage:flush`](./infrastructure/scripts/src/usage/README.md)).
 - [`pre-push`](./.husky/pre-push) rejects a bad branch name or an added `TODO`/`FIXME` comment,
   then runs lint, test and typecheck on affected projects. File a flagged comment with
   [`pnpm issue:add`](./infrastructure/scripts/src/issue/README.md) and delete it.

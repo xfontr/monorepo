@@ -193,7 +193,7 @@ export interface DayUsage {
     failures: number;
 }
 
-/** One script's runs, summed from the rows in `.telemetry/scripts/*.csv`. */
+/** One script's runs, summed from the rows in `data/telemetry/scripts/*.csv`. */
 export interface ScriptUsage {
     runs: number;
     /** Runs inside the last `UsageArtifact.windowDays`, so a script busy a year ago doesn't read as busy. */
@@ -220,7 +220,7 @@ export interface ScriptUsage {
     days?: Record<string, DayUsage>;
 }
 
-/** One ESLint rule, from `.telemetry/lint/*.csv`. Only edits made by an agent are ever linted there. */
+/** One ESLint rule, from `data/telemetry/lint/*.csv`. Only edits made by an agent are ever linted there. */
 export interface LintRuleUsage {
     /** Switched on in at least one project's config. */
     enabled: boolean;

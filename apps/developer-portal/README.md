@@ -81,7 +81,7 @@ the collector holds for it, since `tools/` is one program outside Nuxt:
 
 | Feature | Besides `layers/<name>/` |
 | --- | --- |
-| `workflows` | [`tools/lib/workflows.ts`](./tools/lib/workflows.ts) and its call in [`invariants.ts`](./tools/lib/invariants.ts), the `docs/workflows` line under `namedInputs` in [`package.json`](./package.json), and `@dagrejs/dagre` |
+| `workflows` | [`tools/lib/workflows.ts`](./tools/lib/workflows.ts) and its call in [`invariants.ts`](./tools/lib/invariants.ts), the `data/workflows` line under `namedInputs` in [`package.json`](./package.json), and `@dagrejs/dagre` |
 | `telemetry` | [`tools/collect/usage.ts`](./tools/collect/usage.ts), [`tools/lib/lintRules.ts`](./tools/lib/lintRules.ts), the `usage` step in [`tools/collect/index.ts`](./tools/collect/index.ts), and the `usage` reader and types in `snapshot` |
 | `decisions`, `audits` | Nothing to delete, but the collector still parses both into `docs.json` and checks their shape |
 | `health` | The Overview tiles and the sidebar badge that read them |
@@ -125,11 +125,11 @@ that.
 | Projects | The collected Nx graph joined to collect-time project metrics, with deployment state read live, plus every deleted project read back from `git log` |
 | Decisions | `docs/decisions/NNNN-<slug>.md` — the files the `decision-report` skill writes, see [🔬 Decisions are their own section](#-decisions-are-their-own-section) |
 | Audits | `docs/audits/YYYY-MM-DD-<scope>.md` — the files the `audit-report` skill writes, see [🔎 Audits count findings, not files](#-audits-count-findings-not-files) |
-| Workflows | `docs/workflows/` templates, projects and their synced snapshots, read in place on every request rather than collected — see [`docs/workflows/README.md`](../../docs/workflows/README.md). Under `pnpm dev` the new-project wizard, behind a plus card after the projects, creates them; the deployed site runs the same wizard but only offers its file as a download. Under `pnpm dev` each project's Settings page switches features, sets the ticket size, edits its details and deletes it, all in the project file only. The page's graph is laid out with `@dagrejs/dagre` |
+| Workflows | `data/workflows/` templates, projects and their synced snapshots, read in place on every request rather than collected — see [`docs/workflows/README.md`](../../docs/workflows/README.md). Under `pnpm dev` the new-project wizard, behind a plus card after the projects, creates them; the deployed site runs the same wizard but only offers its file as a download. Under `pnpm dev` each project's Settings page switches features, sets the ticket size, edits its details and deletes it, all in the project file only. The page's graph is laid out with `@dagrejs/dagre` |
 | Work in progress | Open issues read from GitHub in the browser |
 | What's new | Every `CHANGELOG.md`, beside its unreleased-commit count, plus any project in `nx.json`'s `release.projects` that has commits and no release yet |
 | Engineering health | Coverage, dependencies and collected repository findings |
-| Tooling usage | Every CSV under `.telemetry/`, beside the list of script folders, the rules each project's ESLint config enables and the `eslint-disable` comments in tracked files — see [📊 Tooling usage](#-tooling-usage) |
+| Tooling usage | Every CSV under `data/telemetry/`, beside the list of script folders, the rules each project's ESLint config enables and the `eslint-disable` comments in tracked files — see [📊 Tooling usage](#-tooling-usage) |
 
 `@nuxt/content` lower-cases every route, so `packages/ui/README.md` is served at
 `/packages/ui/readme` while the collector keys the same file as `packages/ui/README.md`. Anything
@@ -238,7 +238,7 @@ page is derived from those rows.
 ## 📊 Tooling usage
 
 [`/telemetry`](./layers/telemetry/app/pages/telemetry.vue) shows how the repo's own tooling is used. `collect` reads
-the raw rows every commit carries into `.telemetry/` (what a row holds and why is in
+the raw rows every commit carries into `data/telemetry/` (what a row holds and why is in
 [`usage/`](../../infrastructure/scripts/src/usage/README.md)) and sums them in
 [`layers/telemetry/shared/usage.ts`](./layers/telemetry/shared/usage.ts) and [`layers/telemetry/shared/lintUsage.ts`](./layers/telemetry/shared/lintUsage.ts). The rows
 stay raw on purpose: a new question is a new function over the same files, not a migration of a
@@ -323,7 +323,7 @@ gets committed is a report that goes stale silently. Nothing else here is stored
 and the changelogs are files in the tree read where they live, and the issues are read
 live off GitHub. If you delete every derived file in this project, one command puts it back.
 
-The one committed snapshot is `docs/workflows/projects/*.snapshot.json`, and it is the exception on
+The one committed snapshot is `data/workflows/projects/*.snapshot.json`, and it is the exception on
 purpose: a project's progress has to render on the deployed site, which has no token to ask GitHub
 for closed issues and blocked-by links, and no history to read commit activity from. `pnpm workflow:sync` rewrites it, the page prints when it last
 changed, and a malformed one shows as a file problem rather than blanking the page.
@@ -355,7 +355,7 @@ override adds three entries.
 | Addition | What it buys |
 | --- | --- |
 | `{workspaceRoot}/**/*.md` | A doc anywhere is a build input, **and** it is what makes `nx affected` name this project for a file that belongs to none — no `implicitDependencies` entry needed |
-| `{workspaceRoot}/docs/workflows/**/*` | The same for the workflow YAML and snapshots, which aren't markdown and so slipped past the line above |
+| `{workspaceRoot}/data/workflows/**/*` | The same for the workflow YAML and snapshots, which aren't markdown and so slipped past the line above |
 | A `runtime` input running [`snapshotStamp.ts`](./tools/lib/snapshotStamp.ts) | `.report/` is gitignored, so it is absent from Nx's file map and a file input over it hashes *nothing* — a re-collected snapshot still replayed a cached `.output`. Stdout is hashed instead |
 
 Two values are baked in at build time, because a static site keeps no server to read runtime config

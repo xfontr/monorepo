@@ -19,7 +19,7 @@
                     variant="subtle"
                     icon="i-lucide-info"
                     title="No runs committed yet"
-                    description="Scripts record each run into .git, and the next commit carries the rows into .telemetry/scripts. Commit, then run pnpm exec nx collect @monorepo/developer-portal."
+                    description="Scripts record each run into .git, and the next commit carries the rows into data/telemetry/scripts. Commit, then run pnpm exec nx collect @monorepo/developer-portal."
                 />
 
                 <template v-if="usage">

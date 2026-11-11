@@ -23,7 +23,7 @@ export const sync = ({ positionals }: Args): void => {
     const known = projectIds();
     const ids = positionals.length > 0 ? positionals : known;
 
-    if (ids.length === 0) throw new ExpectedError("No project under docs/workflows/projects/ yet.");
+    if (ids.length === 0) throw new ExpectedError("No project under data/workflows/projects/ yet.");
 
     const unknown = ids.filter((id) => !known.includes(id));
     if (unknown.length > 0) {

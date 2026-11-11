@@ -10,7 +10,8 @@ const BOUNDARIES_PATH = "packages/configs/src/eslint/lib/boundaries.ts";
 const README_PATH = "README.md";
 const AUDITS_DIR = "docs/audits";
 const DECISIONS_DIR = "docs/decisions";
-const WORKFLOWS_DIR = "docs/workflows";
+const WORKFLOWS_DIR = "data/workflows";
+const WORKFLOWS_README = "docs/workflows/README.md";
 
 /**
  * Duplicated from `.claude/hooks/check-invariants.sh` rather than shelled out to it: that hook reads
@@ -131,7 +132,7 @@ export const compareWorkflowShape = (
         id: "workflow-shape-mismatch",
         title: "A workflow file breaks the rules",
         detail: `${file}: ${message}.`,
-        evidence: [`${WORKFLOWS_DIR}/${file}`, `${WORKFLOWS_DIR}/README.md`],
+        evidence: [`${WORKFLOWS_DIR}/${file}`, WORKFLOWS_README],
     }));
 
 export const collectInvariants = async (

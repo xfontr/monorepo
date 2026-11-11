@@ -28,7 +28,7 @@ const parseFile = async (
 };
 
 /**
- * Every file under `docs/workflows`, parsed but not yet checked. Node-only and free of Nitro
+ * Every file under `data/workflows`, parsed but not yet checked. Node-only and free of Nitro
  * globals, because the server route and the `tools/` invariant pass both read through it.
  */
 export const readWorkflowFiles = async (dir: string): Promise<WorkflowFiles> => {

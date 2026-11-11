@@ -14,8 +14,11 @@ blocks, and once filed, links between tickets that GitHub itself holds.
 
 ## 🗂 Structure
 
+This page is the rules; the files live in [`data/workflows/`](../../data/README.md), which the
+scripts and the portal read.
+
 ```
-docs/workflows/
+data/workflows/
   templates/<id>.yaml              the blocks, what each needs, its lessons and reuse plan
   projects/<id>.yaml               which template, which milestone, switches, ticket size, settled blocks, extras
   projects/<id>.snapshot.json      written by `pnpm workflow:sync`, never by hand
@@ -35,8 +38,8 @@ docs/workflows/
 
 | Template | For | Blocks with defaults on |
 | --- | --- | --- |
-| [`website-rebuild`](./templates/website-rebuild.yaml) | An existing site, usually WordPress, rebuilt on the same brand: discovery spikes, migration, redirects and a domain cutover | 41 |
-| [`new-website`](./templates/new-website.yaml) | A site started from nothing: the same map with everything only an old site needs taken out, and a few blocks folded together | 17 |
+| [`website-rebuild`](../../data/workflows/templates/website-rebuild.yaml) | An existing site, usually WordPress, rebuilt on the same brand: discovery spikes, migration, redirects and a domain cutover | 41 |
+| [`new-website`](../../data/workflows/templates/new-website.yaml) | A site started from nothing: the same map with everything only an old site needs taken out, and a few blocks folded together | 17 |
 
 ## 🧱 Three kinds of block
 

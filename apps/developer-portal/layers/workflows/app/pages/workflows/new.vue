@@ -215,7 +215,7 @@
                             variant="subtle"
                             icon="i-lucide-lock"
                             :title="LOCKED"
-                            :description="`This portal is a read-only snapshot. Download the file and add it to docs/workflows/projects/${id}.yaml in a pull request.`"
+                            :description="`This portal is a read-only snapshot. Download the file and add it to data/workflows/projects/${id}.yaml in a pull request.`"
                         />
                     </section>
 

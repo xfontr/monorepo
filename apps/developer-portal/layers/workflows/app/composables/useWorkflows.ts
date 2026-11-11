@@ -2,7 +2,7 @@ import type { Workflows } from "#layers/workflows/shared/workflows.ts";
 
 const NONE: Workflows = { templates: [], projects: [], problems: [] };
 
-/** Baked at build like every server route here; under `nuxt dev` it re-reads `docs/workflows` on refresh. */
+/** Baked at build like every server route here; under `nuxt dev` it re-reads `data/workflows` on refresh. */
 export const useWorkflows = () =>
     useFetch<Workflows>("/api/workflows", { key: "workflows", default: () => NONE });
 

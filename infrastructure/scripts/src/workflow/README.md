@@ -1,7 +1,7 @@
 # 🧭 workflow
 
 The GitHub side of each project under
-[`docs/workflows/projects/`](../../../../docs/workflows/README.md): snapshot it for the portal, list
+[`data/workflows/projects/`](../../../../docs/workflows/README.md): snapshot it for the portal, list
 what can be taken now, file a block of the map as tickets, and drop the untouched ones when a project
 is abandoned. GitHub is the record once a block is
 filed, so all three read it rather than trusting the project file.

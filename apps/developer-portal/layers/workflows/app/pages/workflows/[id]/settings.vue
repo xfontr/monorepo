@@ -21,7 +21,7 @@
         <template #body>
             <div v-if="!base" class="p-12 text-center text-sm text-muted">
                 No project <code class="font-mono">{{ id }}</code> under
-                <code class="font-mono">docs/workflows/projects/</code>.
+                <code class="font-mono">data/workflows/projects/</code>.
             </div>
 
             <div v-else class="mx-auto flex w-full max-w-4xl flex-col gap-10">

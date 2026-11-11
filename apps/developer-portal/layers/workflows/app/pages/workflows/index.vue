@@ -55,7 +55,7 @@
                         class="rounded-lg border border-dashed border-default p-8 text-center text-sm text-muted"
                     >
                         No project under
-                        <code class="font-mono">docs/workflows/projects/</code> yet.
+                        <code class="font-mono">data/workflows/projects/</code> yet.
                     </div>
 
                     <div v-else class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
