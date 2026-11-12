@@ -29,6 +29,7 @@
         "package:check": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/package-contracts/index.ts",
         "usage:flush": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/usage/index.ts",
         "env:sync": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/env-sync/index.ts",
+        "workflow:setup": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/workflow/index.ts setup",
         "workflow:sync": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/workflow/index.ts sync",
         "workflow:next": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/workflow/index.ts next",
         "workflow:file": "pnpm --dir infrastructure/scripts exec node --disable-warning=ExperimentalWarning src/workflow/index.ts file",

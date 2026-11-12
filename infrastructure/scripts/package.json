@@ -19,6 +19,7 @@
     "package:check": "node --disable-warning=ExperimentalWarning src/package-contracts/index.ts",
     "usage:flush": "node --disable-warning=ExperimentalWarning src/usage/index.ts",
     "env:sync": "node --disable-warning=ExperimentalWarning src/env-sync/index.ts",
+    "workflow:setup": "node --disable-warning=ExperimentalWarning src/workflow/index.ts setup",
     "workflow:sync": "node --disable-warning=ExperimentalWarning src/workflow/index.ts sync",
     "workflow:next": "node --disable-warning=ExperimentalWarning src/workflow/index.ts next",
     "workflow:file": "node --disable-warning=ExperimentalWarning src/workflow/index.ts file",

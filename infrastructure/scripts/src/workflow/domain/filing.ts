@@ -20,6 +20,8 @@ export interface Block {
     tickets: { title: string; criteria: string[] }[];
     /** The template's Fibonacci estimate for the whole block. */
     complexity: number | null;
+    reuse: { plan: string; from: string | null } | null;
+    lessons: { text: string; issues: number[] }[];
 }
 
 export interface WorkflowMap {
@@ -61,6 +63,19 @@ const toBlock = (raw: unknown): Block => {
             criteria: texts(record(ticket).criteria),
         })),
         complexity: typeof block.complexity === "number" ? block.complexity : null,
+        reuse:
+            block.reuse === undefined
+                ? null
+                : {
+                      plan: text(record(block.reuse).plan),
+                      from: text(record(block.reuse).from) || null,
+                  },
+        lessons: list(block.lessons).map((lesson) => ({
+            text: text(record(lesson).text),
+            issues: list(record(lesson).issues).filter(
+                (issue): issue is number => typeof issue === "number",
+            ),
+        })),
     };
 };
 
@@ -108,15 +123,48 @@ export interface PlannedTicket {
 
 export type Filing = { ok: true; tickets: PlannedTicket[] } | { ok: false; reason: string };
 
-const KIND_LABELS = { build: "enhancement", spike: "spike", owner: OWNER_LABEL } as const;
+export const KIND_LABELS = { build: "enhancement", spike: "spike", owner: OWNER_LABEL } as const;
 
 const checklist = (criteria: string[]): string =>
     criteria.length > 0
         ? `**Acceptance criteria:**\n\n${criteria.map((line) => `- [ ] ${line}`).join("\n")}`
         : "";
 
+// The same words as the portal's block panel, which a reader sees before the ticket.
+const REUSE_LABELS: Record<string, string> = {
+    package: "Import the package",
+    extract: "Extract to a package",
+    copy: "Copy and adapt",
+    method: "Follow the method",
+};
+
+const startFrom = ({ reuse }: Block): string => {
+    const label = reuse ? REUSE_LABELS[reuse.plan] : undefined;
+    if (!label) return "";
+    return `**Start from:** ${label}${reuse?.from ? ` \`${reuse.from}\`` : ""}.`;
+};
+
+const lessonsOf = ({ lessons }: Block): string =>
+    lessons.length > 0
+        ? `**Lessons from earlier projects:**\n\n${lessons
+              .map(({ text, issues }) =>
+                  issues.length > 0
+                      ? `- ${text} (${issues.map((issue) => `#${issue}`).join(", ")})`
+                      : `- ${text}`,
+              )
+              .join("\n")}`
+        : "";
+
+/** What an agent needs to start without opening the template: the ask, the bar, the precedent, the traps. */
+const detailsOf = (block: Block, criteria: string[]): string[] => [
+    block.summary,
+    checklist(criteria),
+    startFrom(block),
+    lessonsOf(block),
+];
+
 const bodyOf = (block: Block, criteria: string[]): string =>
-    [block.summary, checklist(criteria), `Filed from the workflow map, block \`${block.id}\`.`]
+    [...detailsOf(block, criteria), `Filed from the workflow map, block \`${block.id}\`.`]
         .filter(Boolean)
         .join("\n\n");
 
@@ -126,7 +174,7 @@ const criteriaOf = (block: Block): string[] =>
 const bundleBodyOf = (blocks: Block[]): string =>
     [
         ...blocks.map((block) =>
-            [`### ${block.title}`, block.summary, checklist(criteriaOf(block))]
+            [`### ${block.title}`, ...detailsOf(block, criteriaOf(block))]
                 .filter(Boolean)
                 .join("\n\n"),
         ),

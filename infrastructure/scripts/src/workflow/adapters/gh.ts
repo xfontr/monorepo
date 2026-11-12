@@ -62,16 +62,42 @@ const toGhIssue = (issue: GraphIssue): GhIssue => ({
             ?.number ?? null,
 });
 
-const milestoneNumber = (title: string): number => {
+const findMilestone = (title: string): number | null => {
     const found = gh(
         "api",
+        "--paginate",
         "repos/{owner}/{repo}/milestones?state=all&per_page=100",
         "--jq",
         `.[] | select(.title == ${JSON.stringify(title)}) | .number`,
     ).trim();
 
-    if (!found) throw new ExpectedError(`No milestone called "${title}" on GitHub.`);
-    return Number(found);
+    return found ? Number(found.split("\n")[0]) : null;
+};
+
+const milestoneNumber = (title: string): number => {
+    const found = findMilestone(title);
+
+    if (found === null) {
+        throw new ExpectedError(
+            `No milestone called "${title}" on GitHub; \`pnpm workflow:setup\` creates it.`,
+        );
+    }
+    return found;
+};
+
+export const milestoneExists = (title: string): boolean => findMilestone(title) !== null;
+
+export const createMilestone = (title: string): void => {
+    gh("api", "repos/{owner}/{repo}/milestones", "-f", `title=${title}`);
+};
+
+export const labelNames = (): string[] =>
+    gh("label", "list", "--limit", "1000", "--json", "name", "--jq", ".[].name")
+        .split("\n")
+        .filter((name) => name.trim() !== "");
+
+export const createLabel = (name: string): void => {
+    gh("label", "create", assertNotFlagLike(name, "label"));
 };
 
 /** Every issue in the milestone with its blockers and linked branches, one paginated GraphQL read. */

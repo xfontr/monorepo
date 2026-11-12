@@ -115,6 +115,26 @@ describe("planFiling", () => {
         });
     });
 
+    it("carries the template's precedent and lessons into the ticket, where the agent reads them", () => {
+        const template = {
+            capabilities: [
+                {
+                    id: "design-tokens",
+                    title: "Design tokens",
+                    reuse: { plan: "copy", from: "apps/huella-legal/layers/design" },
+                    lessons: [{ text: "The raw-palette ban came after launch.", issues: [371] }],
+                },
+            ],
+        };
+        const filing = planFiling(readMap(template, PROJECT), [], ["design-tokens"]);
+
+        expect(filing.ok && filing.tickets[0]?.body).toBe(
+            "**Start from:** Copy and adapt `apps/huella-legal/layers/design`.\n\n" +
+                "**Lessons from earlier projects:**\n\n- The raw-palette ban came after launch. (#371)\n\n" +
+                "Filed from the workflow map, block `design-tokens`.",
+        );
+    });
+
     it("labels an owner block's ticket so it lands under Waiting on you", () => {
         const filing = planFiling(readMap(TEMPLATE, PROJECT), [], ["design-approval"]);
 

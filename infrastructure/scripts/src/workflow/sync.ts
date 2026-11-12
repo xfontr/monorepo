@@ -34,15 +34,28 @@ export const sync = ({ positionals }: Args): void => {
 
     const activity = activityByIssue(commitLog());
 
+    const failed: string[] = [];
+
     for (const id of ids) {
         const read = syncTargetOf(readProject(id));
 
         if ("problem" in read)
             throw new ExpectedError(`${id}.yaml can't be synced: ${read.problem}.`);
 
+        let issues: ReturnType<typeof milestoneIssues>;
+        try {
+            issues = milestoneIssues(read.milestone);
+        } catch (error) {
+            // A project created before its milestone mustn't stop the others from syncing.
+            if (!(error instanceof ExpectedError)) throw error;
+            out.warn(`${id}: ${error.message}`);
+            failed.push(id);
+            continue;
+        }
+
         const snapshot = toSnapshot(
             read.milestone,
-            milestoneIssues(read.milestone),
+            issues,
             read.area ? areaIssuesWithoutMilestone(read.area) : [],
             activity,
             new Date().toISOString(),
@@ -56,4 +69,6 @@ export const sync = ({ positionals }: Args): void => {
         writeSnapshot(id, snapshot);
         out.success(`${id}: wrote ${snapshotPath(id)} — ${describeSnapshot(snapshot)}.`);
     }
+
+    if (failed.length > 0) throw new ExpectedError(`Not synced: ${failed.join(", ")}.`);
 };
