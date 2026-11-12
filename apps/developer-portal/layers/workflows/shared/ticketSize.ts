@@ -8,6 +8,45 @@ import {
     type TicketSize,
 } from "./types.ts";
 
+/** The points a shared ticket holds before the next block wraps onto a new one. */
+export const TICKET_WIDTH = { supervised: 13, fast: 21 } as const;
+
+/** Puts each block after the ones it needs from the same group, keeping template order otherwise. */
+const inDependencyOrder = (group: Capability[]): Capability[] => {
+    const left = [...group];
+    const order: Capability[] = [];
+
+    while (left.length > 0) {
+        const ready = left.findIndex(({ dependsOn }) =>
+            dependsOn.every((need) => !left.some(({ id }) => id === need)),
+        );
+        order.push(...left.splice(Math.max(0, ready), 1));
+    }
+
+    return order;
+};
+
+/** Fills a ticket with blocks until the next one would pass `width`, then starts another. */
+const wrap = (group: Capability[], width: number): Capability[][] => {
+    const lines: Capability[][] = [];
+    let points = 0;
+
+    for (const capability of inDependencyOrder(group)) {
+        const weight = capability.complexity ?? 0;
+        const line = lines.at(-1);
+
+        if (line && points + weight <= width) {
+            line.push(capability);
+            points += weight;
+        } else {
+            lines.push([capability]);
+            points = weight;
+        }
+    }
+
+    return lines;
+};
+
 /** Mirrors `bundlesOf` in the scripts' `domain/filing.ts`; change both together. */
 export const bundlesOf = (capabilities: Capability[], size: TicketSize): Capability[][] => {
     if (size === "block") return capabilities.map((capability) => [capability]);
@@ -43,7 +82,7 @@ export const bundlesOf = (capabilities: Capability[], size: TicketSize): Capabil
     const keyOf = (capability: Capability): string => {
         if (capability.kind === "owner") return `owner:${capability.id}`;
         if (capability.kind === "spike")
-            return size === "lean" ? "spike" : `spike:${capability.id}`;
+            return size === "fast" ? "spike" : `spike:${capability.id}`;
         return `build:${capability.stage}:${levelOf(capability, new Set([capability.id]))}`;
     };
 
@@ -53,7 +92,7 @@ export const bundlesOf = (capabilities: Capability[], size: TicketSize): Capabil
         bundles.set(key, [...(bundles.get(key) ?? []), capability]);
     }
 
-    return [...bundles.values()];
+    return [...bundles.values()].flatMap((group) => wrap(group, TICKET_WIDTH[size]));
 };
 
 /** A block filed alone becomes its suggested tickets; a bundle becomes one. */
@@ -104,12 +143,20 @@ export const templateEstimate = (template: Template) => {
 
 export const TICKET_SIZE_LABELS = {
     block: {
-        title: "One per block",
-        summary: "Each block is its own ticket, or its suggested ones",
+        title: "Reviewed",
+        summary: "One ticket per block, or its suggested ones, each PR reviewed by hand",
+        warning: null,
     },
-    stage: {
-        title: "One per stage",
-        summary: "A stage's build blocks share a ticket; spikes and sign-offs stay apart",
+    supervised: {
+        title: "Supervised",
+        summary: `A stage's build blocks share tickets of up to ${TICKET_WIDTH.supervised} SP; spikes and sign-offs stay apart`,
+        warning:
+            "Meant for AI-run projects: a ticket bundles several blocks, so no one reviews each block's code by hand.",
     },
-    lean: { title: "Lean", summary: "One per stage, and every spike in one ticket" },
-} as const satisfies Record<TicketSize, { title: string; summary: string }>;
+    fast: {
+        title: "Fast",
+        summary: `Tickets of up to ${TICKET_WIDTH.fast} SP, and the spikes together; sign-offs stay apart`,
+        warning:
+            "Meant for AI-run projects, putting speed over code quality: for internal tools and experiments.",
+    },
+} as const satisfies Record<TicketSize, { title: string; summary: string; warning: string | null }>;

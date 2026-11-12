@@ -204,7 +204,7 @@ describe("applyEdit create", () => {
                 milestone: "Shop",
                 summary: "A small shop.",
                 switches: { posts: false },
-                ticketSize: "lean",
+                ticketSize: "fast",
             }),
         ).resolves.toBeNull();
 
@@ -215,7 +215,7 @@ describe("applyEdit create", () => {
         expect(shop).toMatchObject({
             summary: "A small shop.",
             switches: { posts: false },
-            ticketSize: "lean",
+            ticketSize: "fast",
         });
     });
 
@@ -311,19 +311,19 @@ describe("loadWorkflows", () => {
 
 describe("applyEdit ticket size", () => {
     it("writes the size without losing the comments a person wrote", async () => {
-        await expect(applyEdit(settings({ ticketSize: "stage" }))).resolves.toBeNull();
+        await expect(applyEdit(settings({ ticketSize: "supervised" }))).resolves.toBeNull();
 
         const written = await projectFile();
         expect(written).toContain("# Kept: a person wrote this.");
-        expect(written).toContain("ticketSize: stage");
+        expect(written).toContain("ticketSize: supervised");
     });
 
     it.each([
-        ["an unlabelled ticket doesn't lock the size", [], "stage", null],
+        ["an unlabelled ticket doesn't lock the size", [], "supervised", null],
         [
             "a labelled ticket locks the size",
             ["comments"],
-            "stage",
+            "supervised",
             "the ticket size is fixed once a ticket is filed",
         ],
         ["a locked size still lets the rest be saved", ["comments"], "block", null],

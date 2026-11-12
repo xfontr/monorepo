@@ -2,8 +2,8 @@
 export const REUSE_PLANS = ["package", "extract", "copy", "method", "new"] as const;
 export const KINDS = ["build", "spike", "owner"] as const;
 export const SETTLED_STATES = ["done", "skipped"] as const;
-/** How many blocks share a ticket when filed: one each, one per stage, or that plus one for every spike. */
-export const TICKET_SIZES = ["block", "stage", "lean"] as const;
+/** How much a person oversees the code, which sets how many points a filed ticket may hold. */
+export const TICKET_SIZES = ["block", "supervised", "fast"] as const;
 export const CAPABILITY_STATES = [
     "off",
     "skipped",

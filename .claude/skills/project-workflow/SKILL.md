@@ -26,7 +26,7 @@ hundred.
    package, an internal feature — and then draft its map under
    [Drafting a map](#15-drafting-a-map-for-a-custom-project). Then ask for what the code can't tell you: the
    audience, the page readers land on first, which features are wanted, and the ticket size —
-   `block` for agents in parallel, `stage` or `lean` for someone who wants few, big tickets. Ask about every feature the same way, the blog no differently from
+   `block` when a person reviews every PR, `supervised` when AI builds it under a review pipeline, `fast` for an internal tool or experiment nobody will review. Ask about every feature the same way, the blog no differently from
    storybook; each one's `summary` and `lessons` in the template is the question, in plain words.
 2. Write `data/workflows/projects/<id>.yaml` by copying [`huella-legal.yaml`](../../../data/workflows/projects/huella-legal.yaml).
    Set `switches` only where the answer differs from the template's default; a site with no blog is

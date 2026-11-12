@@ -198,12 +198,6 @@
                                     compact
                                 />
                             </div>
-                            <p class="mt-4 text-xs text-muted">
-                                Creating writes
-                                <code class="font-mono">projects/{{ id || "…" }}.yaml</code> and
-                                nothing else. Tickets are filed later, one block at a time, with
-                                <code class="font-mono">pnpm workflow:file</code>.
-                            </p>
                         </UCard>
                     </aside>
                 </div>

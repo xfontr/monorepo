@@ -64,7 +64,7 @@ describe("workflows page", () => {
                         title: "Blog",
                         template: "website-rebuild",
                         milestone: "Blog",
-                        ticketSize: "lean",
+                        ticketSize: "fast",
                         switches: { comments: true },
                     },
                 ],

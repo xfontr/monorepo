@@ -60,7 +60,7 @@ const cards = computed(() =>
                 title: stage.title,
                 color: stageColor(index),
             })),
-            counts: `${blocks} blocks by default · ${tickets.lean}–${tickets.block} tickets · ${points} SP`,
+            counts: `${blocks} blocks by default · ${tickets.fast}–${tickets.block} tickets · ${points} SP`,
         };
     }),
 );

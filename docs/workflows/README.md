@@ -31,7 +31,7 @@ data/workflows/
 | Stage | A colour and a label for a family of blocks — discovery, design, launch. It orders nothing | The template |
 | Feature | One switch in the plan: an optional block such as storybook, or a `groups` entry bundling several, such as the blog. None is special; switching one off takes its blocks out of the map, and whatever needed them waits on what they needed instead | The template's `optional` blocks and `groups`; the project's `switches` |
 | Ticket | A GitHub issue in the project's milestone with a `cap:<block>` label, or several when blocks share it | GitHub |
-| Ticket size | How many blocks share a ticket when filed: `block`, `stage` or `lean` | The project's `ticketSize` |
+| Ticket size | How closely a person oversees the code, which sets how many points a filed ticket holds: `block`, `supervised` or `fast` | The project's `ticketSize` |
 | Complexity | A Fibonacci estimate of how much a person has to understand, decide and check, whoever writes the code | The template's `complexity` per block; the board's `Complexity` field per ticket |
 
 ## 🧩 Templates
@@ -70,19 +70,24 @@ dependency on the issue, never in the file.
 
 ## 🎟 Ticket size
 
-A new site has 33 blocks, and a rebuild 41. Filing one ticket each is the right grain for
-agents working in parallel, and too fine for one person who would rather ship six blocks in a PR.
+A new site has 33 blocks, and a rebuild 41. Filing one ticket each is the right grain when a person
+reviews every PR, and too fine when AI builds the project in big chunks. Shared tickets fill like a
+wrapping flex row: blocks go in, each after the ones it needs, until the next would pass the size's
+width in points, and then a new ticket starts. A block wider than the line is a ticket alone.
 The project's `ticketSize` changes how many tickets filing creates, never the map: a ticket with
 several `cap:` labels counts under each of those blocks, and closing it finishes all of them.
 The size is fixed once the milestone holds one live ticket with a `cap:` label, however it was
 filed, so every block filed later, a feature switched on midway included, is grouped the same way.
 `workflow:file --yes` re-syncs the snapshot straight after, so the portal locks the size at once.
 
-| `ticketSize` | One ticket per | `new-website` | `website-rebuild` |
-| --- | --- | --- | --- |
-| `block` (the default) | Block, or each of its suggested tickets | 35 | 43 |
-| `stage` | Stage, for its build blocks; each spike and owner block stays its own | 15 | 16 |
-| `lean` | The same, with every spike in one ticket | 14 | 12 |
+| `ticketSize` | Who checks the code | A ticket holds | `new-website` | `website-rebuild` |
+| --- | --- | --- | --- | --- |
+| `block` (the default) | A person reviews every PR | One block, or each of its suggested tickets | 35 | 43 |
+| `supervised` | AI builds it; each ticket runs plan, checks and adversarial review | A stage's build blocks, up to 13 SP | 30 | 33 |
+| `fast` | Nobody closely; internal tools and experiments | Up to 21 SP, with the spikes together | 23 | 23 |
+
+The portal warns when `supervised` or `fast` is picked, since neither puts a person on each block.
+The widths are `TICKET_WIDTH` in both copies of `bundlesOf`.
 
 Counts are with each template's defaults switched on. Merging never breaks a rule below:
 
@@ -237,7 +242,6 @@ every id, stage and switch has to resolve, and `dependsOn` may not loop.
 | Later need | What changes |
 | --- | --- |
 | Another template, such as a landing page or a docs site | A new file under `templates/`; nothing in the code knows any template by name |
-| A ticket size between `block` and `stage`, or set per block | A `bundle:` key on template blocks naming the ticket each joins; the stage split already covers the cases met so far |
 | Board Status (Todo / In Progress) | The sync already reads the board for `Complexity`; a linked branch already says a ticket is taken |
 | Sub-issues per block | Most blocks hold one or two tickets, so a parent issue each is noise; the `cap:` label already groups them |
 | `/ship-issue` taking the top of the ready list itself | The workflow's Pick phase would call `workflow:next` before `issue:pick` |

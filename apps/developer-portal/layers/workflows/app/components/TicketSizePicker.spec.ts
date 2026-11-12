@@ -4,7 +4,11 @@ import TicketSizePicker from "./TicketSizePicker.vue";
 
 const mount = () =>
     mountSuspended(TicketSizePicker, {
-        props: { modelValue: "block", counts: { block: 17, stage: 8, lean: 7 }, editable: true },
+        props: {
+            modelValue: "block",
+            counts: { block: 17, supervised: 8, fast: 7 },
+            editable: true,
+        },
     });
 
 describe("TicketSizePicker", () => {
@@ -17,13 +21,20 @@ describe("TicketSizePicker", () => {
 
     it("shows no ticket count when given none, as settings does once the size is chosen", async () => {
         const wrapper = await mountSuspended(TicketSizePicker, {
-            props: { modelValue: "lean" },
+            props: { modelValue: "block" },
         });
 
         const options = wrapper.findAll("[role='radio']").map((option) => option.text());
 
-        expect(options[0]).toMatch(/^One per block/);
-        expect(options[2]).toMatch(/^Lean/);
+        expect(options[0]).toMatch(/^Reviewed/);
+        expect(options[2]).toMatch(/^Fast/);
+    });
+
+    it("warns that a size bundling blocks is for AI-run projects, and stays quiet for one per block", async () => {
+        expect((await mount()).text()).not.toContain("Meant for AI-run projects");
+
+        const wrapper = await mountSuspended(TicketSizePicker, { props: { modelValue: "fast" } });
+        expect(wrapper.text()).toContain("Meant for AI-run projects");
     });
 
     it("marks only the current size as chosen and reports the one clicked", async () => {
@@ -37,6 +48,6 @@ describe("TicketSizePicker", () => {
         ]);
 
         await options[1]?.trigger("click");
-        expect(wrapper.emitted("update:modelValue")).toEqual([["stage"]]);
+        expect(wrapper.emitted("update:modelValue")).toEqual([["supervised"]]);
     });
 });

@@ -130,7 +130,7 @@ const templateCounts = computed(() =>
             const { blocks, tickets, points } = templateEstimate(template);
             return [
                 template.id,
-                `${blocks} blocks by default · ${points} SP · ${tickets.block} tickets one per block, ${tickets.lean} lean`,
+                `${blocks} blocks by default · ${points} SP · ${tickets.block} tickets one per block, ${tickets.fast} fast`,
             ];
         }),
     ),

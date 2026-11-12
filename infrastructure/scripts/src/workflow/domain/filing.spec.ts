@@ -239,7 +239,7 @@ const STAGED_BUNDLES = {
         ["scaffold"],
         ["deploy"],
     ],
-    stage: [
+    supervised: [
         ["audit"],
         ["hosting"],
         ["signoff"],
@@ -248,7 +248,7 @@ const STAGED_BUNDLES = {
         ["inventory"],
         ["scaffold", "deploy"],
     ],
-    lean: [
+    fast: [
         ["audit", "hosting"],
         ["signoff"],
         ["tokens", "lab"],
@@ -261,7 +261,7 @@ const STAGED_BUNDLES = {
 const staged = (ticketSize: string) => readMap(STAGED, { ...PROJECT, ticketSize });
 
 describe("bundlesOf", () => {
-    it.each(["block", "stage", "lean"] as const)(
+    it.each(["block", "supervised", "fast"] as const)(
         "groups the staged map into the %s bundles the portal counts",
         (size) => {
             const map = staged(size);
@@ -277,10 +277,29 @@ describe("bundlesOf", () => {
     });
 });
 
+describe("bundlesOf widths", () => {
+    const HEAVY = {
+        capabilities: [
+            { id: "kit", stage: "build", title: "Kit", complexity: 8 },
+            { id: "home", stage: "build", title: "Home", complexity: 8, dependsOn: ["post"] },
+            { id: "post", stage: "build", title: "Post", complexity: 5 },
+        ],
+    };
+    const heavy = (ticketSize: string) => {
+        const map = readMap(HEAVY, { ...PROJECT, ticketSize });
+        return bundlesOf(toFile(map, []), map.ticketSize);
+    };
+
+    it("wraps onto a new ticket at the size's width, each block after the ones it needs", () => {
+        expect(heavy("supervised")).toEqual([["kit", "post"], ["home"]]);
+        expect(heavy("fast")).toEqual([["kit", "post", "home"]]);
+    });
+});
+
 describe("planFiling several blocks", () => {
     it("drops a need filed in the same ticket and links only the ones outside it", () => {
         const filing = planFiling(
-            staged("stage"),
+            staged("supervised"),
             [closed(1, "signoff"), ticket(7, "tokens")],
             ["scaffold", "deploy"],
         );
@@ -310,7 +329,7 @@ describe("planFiling several blocks", () => {
     });
 
     it("refuses to put a spike in the same ticket as build work", () => {
-        expect(planFiling(staged("stage"), [], ["audit", "tokens"])).toEqual({
+        expect(planFiling(staged("supervised"), [], ["audit", "tokens"])).toEqual({
             ok: false,
             reason: "only build blocks share a ticket with each other, and spikes with spikes",
         });
@@ -319,7 +338,7 @@ describe("planFiling several blocks", () => {
 
 describe("bundleFor", () => {
     it("leaves a member out while the decision it needs is open, instead of refusing the bundle", () => {
-        expect(bundleFor(staged("stage"), [ticket(1, "signoff")], "scaffold")).toEqual({
+        expect(bundleFor(staged("supervised"), [ticket(1, "signoff")], "scaffold")).toEqual({
             ids: ["scaffold"],
             later: ["`deploy` waits on signoff (owner, open: #1); tokens (nothing filed yet)"],
         });

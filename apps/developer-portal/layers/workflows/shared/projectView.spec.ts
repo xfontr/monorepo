@@ -464,6 +464,6 @@ describe("tickets to file", () => {
         );
 
         expect(result.tickets.filed).toBe(1);
-        expect(result.tickets.toFile).toEqual({ block: 2, stage: 1, lean: 1 });
+        expect(result.tickets.toFile).toEqual({ block: 2, supervised: 1, fast: 1 });
     });
 });

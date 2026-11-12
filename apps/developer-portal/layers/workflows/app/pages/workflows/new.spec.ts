@@ -80,7 +80,7 @@ describe("new project wizard", () => {
         await wrapper
             .find("[aria-label='Ticket size']")
             .findAll("[role='radio']")
-            .find((option) => option.text().startsWith("Lean"))
+            .find((option) => option.text().startsWith("Fast"))
             ?.trigger("click");
         await button(wrapper, "Next")?.trigger("click");
         await button(wrapper, "Create project")?.trigger("click");
@@ -94,7 +94,7 @@ describe("new project wizard", () => {
             milestone: "Harbour Notes",
             area: "app:harbour-notes",
             switches: { search: true },
-            ticketSize: "lean",
+            ticketSize: "fast",
         });
         expect(state.navigateTo).toHaveBeenCalledWith("/workflows/harbour-notes");
         expect(state.leaveGuard?.({ fullPath: "/workflows/harbour-notes" })).toBe(true);
@@ -124,7 +124,7 @@ describe("new project wizard", () => {
                 .find((option) => option.text().startsWith(title))
                 ?.text();
 
-        expect(size("Lean")).toMatch(/\D1$/);
+        expect(size("Fast")).toMatch(/\D1$/);
 
         await button(wrapper, "Next")?.trigger("click");
         await wrapper.find("input").setValue("Harbour Notes");
@@ -134,8 +134,8 @@ describe("new project wizard", () => {
             .find((card) => card.text().includes("Search"))
             ?.trigger("click");
 
-        expect(size("Lean")).toMatch(/\D1$/);
-        expect(size("One per block")).toMatch(/\D2$/);
+        expect(size("Fast")).toMatch(/\D1$/);
+        expect(size("Reviewed")).toMatch(/\D2$/);
     });
 
     it("maps only the blocks the picked features switch on, on the review step", async () => {
@@ -264,7 +264,7 @@ describe("new project wizard", () => {
         await wrapper
             .find("[aria-label='Ticket size']")
             .findAll("[role='radio']")
-            .find((option) => option.text().startsWith("Lean"))
+            .find((option) => option.text().startsWith("Fast"))
             ?.trigger("click");
         await button(wrapper, "Next")?.trigger("click");
         await button(wrapper, "Download YAML")?.trigger("click");
@@ -280,7 +280,7 @@ describe("new project wizard", () => {
             milestone: "Harbour Notes",
             summary: "",
             switches: { search: true },
-            ticketSize: "lean",
+            ticketSize: "fast",
         });
     });
 

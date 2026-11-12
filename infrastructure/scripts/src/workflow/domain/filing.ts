@@ -2,7 +2,7 @@ import { CAPABILITY_LABEL_PREFIX, OWNER_LABEL, type SnapshotIssue } from "./snap
 
 type Kind = "build" | "spike" | "owner";
 
-export const TICKET_SIZES = ["block", "stage", "lean"] as const;
+export const TICKET_SIZES = ["block", "supervised", "fast"] as const;
 export type TicketSize = (typeof TICKET_SIZES)[number];
 
 /** The part of a template or extra capability filing reads; the portal's invariants validate the rest. */
@@ -312,6 +312,45 @@ export const planFiling = (map: WorkflowMap, issues: SnapshotIssue[], ids: strin
     };
 };
 
+/** The points a shared ticket holds before the next block wraps onto a new one. */
+export const TICKET_WIDTH = { supervised: 13, fast: 21 } as const;
+
+/** Puts each block after the ones it needs from the same group, keeping template order otherwise. */
+const inDependencyOrder = (group: Block[]): Block[] => {
+    const left = [...group];
+    const order: Block[] = [];
+
+    while (left.length > 0) {
+        const ready = left.findIndex(({ dependsOn }) =>
+            dependsOn.every((need) => !left.some(({ id }) => id === need)),
+        );
+        order.push(...left.splice(Math.max(0, ready), 1));
+    }
+
+    return order;
+};
+
+/** Fills a ticket with blocks until the next one would pass `width`, then starts another. */
+const wrap = (group: Block[], width: number): string[][] => {
+    const lines: string[][] = [];
+    let points = 0;
+
+    for (const block of inDependencyOrder(group)) {
+        const weight = block.complexity ?? 0;
+        const line = lines.at(-1);
+
+        if (line && points + weight <= width) {
+            line.push(block.id);
+            points += weight;
+        } else {
+            lines.push([block.id]);
+            points = weight;
+        }
+    }
+
+    return lines;
+};
+
 /** Mirrored by `bundlesOf` in the portal's `shared/ticketSize.ts`; change both together. */
 export const bundlesOf = (blocks: Block[], size: TicketSize): string[][] => {
     if (size === "block") return blocks.map(({ id }) => [id]);
@@ -345,17 +384,17 @@ export const bundlesOf = (blocks: Block[], size: TicketSize): string[][] => {
 
     const keyOf = (block: Block): string => {
         if (block.kind === "owner") return `owner:${block.id}`;
-        if (block.kind === "spike") return size === "lean" ? "spike" : `spike:${block.id}`;
+        if (block.kind === "spike") return size === "fast" ? "spike" : `spike:${block.id}`;
         return `build:${block.stage}:${levelOf(block.id, new Set([block.id]))}`;
     };
 
-    const bundles = new Map<string, string[]>();
+    const bundles = new Map<string, Block[]>();
     for (const block of blocks) {
         const key = keyOf(block);
-        bundles.set(key, [...(bundles.get(key) ?? []), block.id]);
+        bundles.set(key, [...(bundles.get(key) ?? []), block]);
     }
 
-    return [...bundles.values()];
+    return [...bundles.values()].flatMap((group) => wrap(group, TICKET_WIDTH[size]));
 };
 
 /** The blocks of the map still to file: on, unsettled and with no live ticket. */

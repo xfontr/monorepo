@@ -10,7 +10,7 @@ const PROJECT: NewProject = {
     milestone: "Harbour Notes",
     summary: "",
     switches: { search: true, blog: false },
-    ticketSize: "lean",
+    ticketSize: "fast",
 };
 
 describe("projectYaml", () => {
