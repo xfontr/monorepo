@@ -260,6 +260,9 @@ capabilities:
     optional: true
     default: false
     reuse: { plan: copy, from: apps/huella-legal/.storybook }
+    doneWhen:
+      - Every component in the kit has a story in light and dark.
+      - The Storybook build runs in CI and publishes beside the developer portal without breaking its deploy.
     lessons:
       - text: Storybook broke on layer imports and broke the portal deploy once each.
         issues: [219, 274, 330]
@@ -342,6 +345,9 @@ capabilities:
     optional: true
     default: true
     reuse: { plan: copy, from: apps/huella-legal/modules/stagingGate.ts }
+    doneWhen:
+      - A preview URL asks for a login and sends noindex.
+      - Production hosts never ask for the login.
     lessons:
       - text: The gate ran on production hosts too and cost article TTFB until it was scoped.
         issues: [385, 402]
@@ -359,6 +365,19 @@ capabilities:
     lessons:
       - text: Review rounds were added as their own tickets mid-stream and found a11y bugs.
         issues: [196, 197, 198, 199, 200, 201, 223, 234]
+    tickets:
+      - title: "Build the content components on Nuxt UI"
+        criteria:
+          - Every component the article, listing and standard pages render exists, with a spec and a story.
+          - Each one reads design tokens only, with no raw palette class.
+      - title: "Build the interactive components on Nuxt UI"
+        criteria:
+          - Every form, menu and dialog component on the inventory exists, with a spec.
+          - Each works by keyboard, with 44 px targets.
+      - title: "Review the component kit"
+        criteria:
+          - Every component was reviewed once for accessibility and unused surface.
+          - Each finding is fixed or filed.
 
   - id: article-page
     stage: build
@@ -368,6 +387,9 @@ capabilities:
     dependsOn: [component-kit, ci-deploy]
     summary: The page most readers land on, built first.
     reuse: { plan: copy, from: apps/huella-legal/layers/articles }
+    doneWhen:
+      - A real article renders on a preview deploy at 390, 768 and 1280 px, from the real content source.
+      - Every body hazard the content audit listed renders safely or is sanitised.
     lessons:
       - text: Built first, at 390 px first, because readers arrive from search.
         issues: [240]
@@ -380,6 +402,9 @@ capabilities:
     dependsOn: [component-kit, ci-deploy]
     summary: Category, tag, author and date listings.
     reuse: { plan: copy, from: apps/huella-legal/layers/archive }
+    doneWhen:
+      - Category, tag, author and date listings paginate over real content at the URLs the URL inventory names.
+      - An unknown taxonomy answers 404, not an empty listing.
     lessons:
       - issues: [241, 247, 253]
         text: Taxonomy routes changed during the build, after the design had them.
@@ -391,6 +416,9 @@ capabilities:
     dependsOn: [component-kit, ci-deploy]
     summary: CMS pages at their slug, the about page, error pages and confirmation landings.
     reuse: { plan: copy, from: apps/huella-legal/layers/reading }
+    doneWhen:
+      - Every page the feature inventory keeps renders at its slug, confirmation landings included.
+      - The 404 and error pages render inside the shell.
     lessons:
       - text: The about page and the newsletter confirmation page were not in the plan.
         issues: [249, 328, 400]
@@ -399,9 +427,12 @@ capabilities:
     stage: build
     title: Home page
     complexity: 3
-    dependsOn: [article-page, listing-pages, standard-pages]
+    dependsOn: [article-page, listing-pages, standard-pages, navigation-shell]
     summary: Built last of the core pages, once its building blocks exist.
     reuse: { plan: new }
+    doneWhen:
+      - Every section of the approved home design renders from real content.
+      - It is built from the article and listing components, with none of its own that repeats one.
     lessons:
       - issues: [246]
         text: Built after the article and listings, from their parts.
@@ -413,6 +444,9 @@ capabilities:
     dependsOn: [component-kit]
     summary: The shell every page sits in.
     reuse: { plan: method, from: docs/decisions/0034-huella-legal-header-navigation.md }
+    doneWhen:
+      - The header, footer and menu render on every page at 390, 768 and 1280 px.
+      - The menu works by keyboard, and its hydration cost is measured.
     lessons:
       - issues: [343, 348]
         text: The header menu needed its own decision for hydration cost.
@@ -426,6 +460,9 @@ capabilities:
     default: true
     summary: Site search, as a page or a dialog.
     reuse: { plan: copy, from: apps/huella-legal/layers/search }
+    doneWhen:
+      - A query returns real results from the content source, with an empty state.
+      - Only the approved form, a page or a dialog, ships.
     lessons:
       - text: A search page was replaced by a header dialog the day after it shipped.
         issues: [248, 316]
@@ -439,6 +476,9 @@ capabilities:
     default: true
     summary: Signup form, provider adapter and the confirmation landing.
     reuse: { plan: copy, from: apps/huella-legal/layers/newsletter }
+    doneWhen:
+      - A signup reaches the provider named at sign-off, and the confirmation landing exists.
+      - Every failure is shown to the reader in plain words.
     lessons:
       - text: The provider changed after it was wired.
         issues: [242, 299]
@@ -452,6 +492,9 @@ capabilities:
     default: true
     summary: A contact form that sends email, with consent and clear errors.
     reuse: { plan: copy, from: apps/huella-legal/layers/contact }
+    doneWhen:
+      - A submission arrives as email at the address the owner named, with consent recorded.
+      - Failure and slow-reply states are shown to the reader.
     lessons:
       - issues: [311, 313, 390]
         text: A slow-reply notice was added after launch.
@@ -465,6 +508,9 @@ capabilities:
     default: true
     summary: Turnstile and a honeypot behind every public form.
     reuse: { plan: copy, from: apps/huella-legal/layers/forms }
+    doneWhen:
+      - Every public form checks the captcha on the server and rejects a filled honeypot.
+      - It ships as its own ticket, before the first form.
     lessons:
       - text: It landed inside the first form's ticket rather than on its own.
         issues: [242, 313]
@@ -479,6 +525,9 @@ capabilities:
     default: false
     summary: Read and post comments, moderation staying in the CMS.
     reuse: { plan: copy, from: apps/huella-legal/layers/comments }
+    doneWhen:
+      - Readers can read and post comments on an article, and a new comment waits for moderation in the CMS.
+      - Posting goes through the captcha and the honeypot.
     lessons:
       - text: Not in the plan or any spike; filed four days before cutover with an empty body.
         issues: [324]
@@ -492,6 +541,9 @@ capabilities:
     default: true
     summary: A consent banner, trackers loaded only after consent, typed events.
     reuse: { plan: copy, from: apps/huella-legal/layers/tracking }
+    doneWhen:
+      - No tracker loads before consent, pinned by an e2e spec.
+      - Declining is one click, as accepting is, and every tracked event has a typed name.
     lessons:
       - text: Filed three days before cutover; two overlapping tickets.
         issues: [336, 337, 360]
@@ -503,6 +555,9 @@ capabilities:
     dependsOn: [content-source, scope-signoff]
     summary: Responsive images through Nuxt Image and a CDN.
     reuse: { plan: copy, from: apps/huella-legal/server/plugins/cdn.ts }
+    doneWhen:
+      - Content images are served responsive through the CDN, with width and height set.
+      - The image provider matches the host signed off in scope.
     lessons:
       - issues: [312]
         text: The image provider changed with the host.
@@ -516,6 +571,8 @@ capabilities:
     default: false
     summary: More than one language, or copy managed outside the code.
     reuse: { plan: package, from: packages/i18n }
+    doneWhen:
+      - Every visible string comes from the translation source, and each locale has its own URL.
     lessons:
       - text: A translations vendor was adopted and dropped for in-app copy on a one-language site.
         issues: [193, 252, 349]
@@ -529,9 +586,19 @@ capabilities:
     default: false
     summary: Tools and guides for whoever edits the content.
     reuse: { plan: method, from: apps/wp-editor }
+    doneWhen:
+      - Editors have a written guide for the tasks they do every week.
+      - A site-wide edit runs as a reviewed changeset, never straight against the live site.
     lessons:
       - issues: [340, 344, 361]
         text: The bulk editor and the editing guide arrived at launch.
+    tickets:
+      - title: "Set up bulk content editing"
+        criteria:
+          - A site-wide edit runs as a reviewed changeset, never straight against the live site.
+      - title: "Write the editing guide"
+        criteria:
+          - Editors have a written guide for the tasks they do every week.
 
   # ── Hardening ──────────────────────────────────────────────────────────────────────────────────
   - id: performance
@@ -567,6 +634,9 @@ capabilities:
     dependsOn: [ci-deploy]
     summary: Field caps, security headers, rate limits, crawler rules, dependency and secret scans.
     reuse: { plan: copy, from: apps/huella-legal/e2e/security.spec.ts }
+    doneWhen:
+      - Security headers are pinned by an e2e spec on a preview deploy, and every form field has a length cap.
+      - Public endpoints are rate limited, and the dependency and secret scans are clean in CI.
     lessons:
       - text: All of it came as one ticket on cutover day.
         issues: [362]
@@ -578,6 +648,9 @@ capabilities:
     dependsOn: [home-page]
     summary: Canonicals, sitemap, robots, structured data, RSS and llms.txt.
     reuse: { plan: copy, from: apps/huella-legal/nuxt.config.ts }
+    doneWhen:
+      - Every page has a canonical URL and structured data that validates.
+      - The sitemap, robots.txt, RSS feed and llms.txt answer on a preview deploy.
     lessons:
       - issues: [250]
         text: Landed three days before cutover.
@@ -589,6 +662,9 @@ capabilities:
     dependsOn: [ci-deploy]
     summary: Front-end and server telemetry with source maps and no reader data.
     reuse: { plan: package, from: packages/observability }
+    doneWhen:
+      - An error thrown on a preview shows in telemetry with a source-mapped stack.
+      - No reader's personal data is sent.
     lessons:
       - text: Opened at the start and closed only after launch.
         issues: [212, 280]
@@ -600,6 +676,9 @@ capabilities:
     dependsOn: [home-page]
     summary: Lint, static analysis and an audit of the app before it goes live.
     reuse: { plan: method, from: .claude/skills/audit-report/SKILL.md }
+    doneWhen:
+      - Lint and static analysis are clean for the app, or each finding is filed.
+      - An audit report of the app exists, and its high findings are fixed.
     lessons:
       - issues: [231, 232]
         text: Lint and SonarQube findings were worked down across the launch.
@@ -620,10 +699,11 @@ capabilities:
     title: Go-live approval
     complexity: 1
     kind: owner
-    dependsOn: [seo, performance, security, accessibility, legacy-redirects, quality-sweep]
-    summary: You approve the cutover once a preview deploy passes the field performance, axe, security-header and SEO checks.
+    dependsOn: [seo, performance, security, accessibility, legacy-redirects, quality-sweep, env-discipline, images, observability, content-migration, search, newsletter, contact-form, comments, consent-analytics, i18n]
+    summary: You approve the cutover once every switched-on feature is done and a preview deploy passes the field performance, axe, security-header and SEO checks.
     reuse: { plan: new }
     doneWhen:
+      - Every switched-on feature is done.
       - Field performance, axe, security headers and SEO checks all pass on a preview deploy.
     tickets:
       - title: "[OWNER] Approve go-live"
@@ -650,6 +730,9 @@ capabilities:
     dependsOn: [cutover]
     summary: Walk the live site for content that shouldn't be public and details missed on preview.
     reuse: { plan: new }
+    doneWhen:
+      - The live site was walked page by page within a day of cutover, and nothing private is public.
+      - Every finding is fixed or filed.
     lessons:
       - text: Hidden categories showed up on the live site after launch.
         issues: [392]
@@ -662,6 +745,9 @@ capabilities:
     dependsOn: [post-launch-check]
     summary: Remove scaffolding, settle open decisions and audits, close the milestone.
     reuse: { plan: new }
+    doneWhen:
+      - The lab pages, unused vendors and scaffolding are removed.
+      - Open decisions and audits are settled, and the milestone is closed.
     lessons:
       - issues: [252]
         text: The lab and an unused vendor were removed after launch.

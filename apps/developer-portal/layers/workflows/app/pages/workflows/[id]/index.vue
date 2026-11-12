@@ -11,6 +11,8 @@
                         <template v-if="base?.syncedAt">Snapshot updated {{ synced }}</template>
                         <template v-else>
                             Never synced — run
+                            <code class="font-mono text-default">pnpm workflow:setup {{ id }}</code>
+                            then
                             <code class="font-mono text-default">pnpm workflow:sync {{ id }}</code>
                         </template>
                     </span>
@@ -95,31 +97,24 @@
                             </UPopover>
                         </li>
                     </ul>
+                    <p v-else-if="blank" class="text-sm text-muted">No blocks yet.</p>
                     <p v-else class="text-sm text-muted">Everything switched on is done.</p>
                 </div>
 
-                <div
-                    v-if="range"
-                    class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-default px-4 py-2.5"
+                <UAlert
+                    v-if="blank"
+                    color="info"
+                    variant="subtle"
+                    icon="i-lucide-map"
+                    title="This project has no blocks yet"
                 >
-                    <span class="text-sm font-semibold">Replay</span>
-                    <USlider
-                        v-model="dayIndex"
-                        :min="0"
-                        :max="days.length - 1"
-                        class="min-w-48 flex-1"
-                        aria-label="Day to replay"
-                    />
-                    <output class="w-28 text-sm font-medium tabular-nums">{{ dayLabel }}</output>
-                    <UButton
-                        label="Today"
-                        color="neutral"
-                        variant="outline"
-                        size="xs"
-                        :disabled="isLatest"
-                        @click="dayIndex = days.length - 1"
-                    />
-                </div>
+                    <template #description>
+                        Ask Claude to draft its map: it asks what the project is, writes the blocks
+                        under <code class="font-mono">extras</code> in
+                        <code class="font-mono">data/workflows/projects/{{ id }}.yaml</code>, and
+                        they show here for you to check before anything is filed.
+                    </template>
+                </UAlert>
 
                 <UAlert
                     v-if="problems.length > 0"
@@ -192,12 +187,43 @@
                         <span class="shrink-0">{{ selectedLabel.state }}</span>
                         <UIcon name="i-lucide-arrow-down" class="size-3.5 shrink-0" />
                     </button>
-                    <ActivityStrip
-                        v-if="activity"
-                        :activity
-                        :stages="base.stages"
-                        class="mt-4 border-t border-default pt-3"
-                    />
+                    <div
+                        v-if="activity || range"
+                        class="mt-4 flex flex-wrap items-start gap-x-8 gap-y-3 border-t border-default pt-3"
+                    >
+                        <ActivityStrip
+                            v-if="activity"
+                            :activity
+                            :stages="base.stages"
+                            class="w-full shrink-0 sm:w-80"
+                        />
+                        <div v-if="range" class="flex min-w-48 flex-1 flex-col gap-1">
+                            <span
+                                class="flex items-baseline justify-between gap-x-4 text-2xs text-dimmed"
+                            >
+                                <span class="font-semibold text-muted">Replay</span>
+                                <output class="tabular-nums">{{ dayLabel }}</output>
+                            </span>
+                            <span class="flex h-6 items-center gap-2">
+                                <USlider
+                                    v-model="dayIndex"
+                                    :min="0"
+                                    :max="days.length - 1"
+                                    size="xs"
+                                    class="flex-1"
+                                    aria-label="Day to replay"
+                                />
+                                <UButton
+                                    label="Today"
+                                    color="neutral"
+                                    variant="ghost"
+                                    size="xs"
+                                    :disabled="isLatest"
+                                    @click="dayIndex = days.length - 1"
+                                />
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 <StageCards
@@ -245,6 +271,7 @@
                     <CapabilityDetail
                         v-if="selected"
                         :capability="selected"
+                        :project="id"
                         :titles
                         :activity="activity?.capabilities[selected.id]"
                         @select="select"
@@ -270,7 +297,6 @@ const { data } = await useWorkflows();
 
 /** The project as synced; the replay lays the same files over an earlier day. */
 const base = computed(() => data.value.projects.find(({ project }) => project.id === id.value));
-const activity = computed(() => (base.value ? projectActivity(base.value) : null));
 
 useHead({ title: () => base.value?.project.title ?? "Workflow" });
 
@@ -282,6 +308,12 @@ const problems = computed(() =>
 );
 
 const { range, days, dayIndex, isLatest, dayLabel, view } = useProjectReplay(base);
+const syncedActivity = computed(() => (base.value ? projectActivity(base.value) : null));
+const activity = computed(() =>
+    view.value && syncedActivity.value ? projectActivity(view.value, syncedActivity.value) : null,
+);
+
+const blank = computed(() => view.value?.capabilities.every(({ enabled }) => !enabled) ?? false);
 
 /** Every unfinished block under its state, in the order `left` already ranks them. */
 const leftByState = computed(() => {

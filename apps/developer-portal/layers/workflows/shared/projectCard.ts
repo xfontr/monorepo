@@ -1,5 +1,14 @@
 import { pointsLine } from "./complexity.ts";
-import type { ProjectView } from "./types.ts";
+import type { CapabilityState, ProjectView } from "./types.ts";
+
+/** What can move now first; a fresh project is mostly blocks to file, so those have to show. */
+const NOW: [CapabilityState, string][] = [
+    ["waiting-on-you", "waiting on you"],
+    ["ready", "ready"],
+    ["can-file", "to file"],
+    ["in-flight", "in flight"],
+    ["blocked", "blocked"],
+];
 
 export interface ProjectCard {
     id: string;
@@ -16,6 +25,7 @@ export interface ProjectCard {
 export const projectCard = ({
     project,
     template,
+    capabilities,
     counts,
     progress,
     points,
@@ -26,12 +36,11 @@ export const projectCard = ({
     title: project.title,
     templateTitle: template.title,
     percent: progress.percent,
-    now: [
-        `${counts["waiting-on-you"]} waiting on you`,
-        `${counts.ready} ready`,
-        `${counts["in-flight"]} in flight`,
-        `${counts.blocked} blocked`,
-    ].join(" · "),
+    now: capabilities.every(({ enabled }) => !enabled)
+        ? "no blocks yet"
+        : NOW.filter(([state]) => counts[state] > 0)
+              .map(([state, label]) => `${counts[state]} ${label}`)
+              .join(" · ") || "nothing left",
     points: pointsLine(points),
     progress: `${progress.done}/${progress.total} capabilities · ${tickets.filed} tickets filed, ${tickets.toFile[project.ticketSize]} to file`,
     unsorted: unsorted.length,

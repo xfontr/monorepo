@@ -121,6 +121,36 @@ describe("workflow page", () => {
         expect(wrapper.text()).toContain("no cap: label");
     });
 
+    it("asks for a map on a project with no blocks, instead of calling it done", async () => {
+        state.data = ref(
+            assembleWorkflows(
+                [
+                    {
+                        file: "custom.yaml",
+                        ok: true,
+                        value: {
+                            id: "custom",
+                            title: "Custom",
+                            stages: [{ id: "build", title: "Build" }],
+                        },
+                    },
+                ],
+                [
+                    {
+                        file: "blog.yaml",
+                        ok: true,
+                        value: { ...PROJECT, template: "custom", switches: {} },
+                    },
+                ],
+                {},
+            ),
+        );
+        const wrapper = await mountSuspended(Page, { global });
+
+        expect(wrapper.text()).toContain("This project has no blocks yet");
+        expect(wrapper.text()).not.toContain("Everything switched on is done");
+    });
+
     it("lists every unfinished block under its state, not just the first few", async () => {
         const wrapper = await mountSuspended(Page, { global });
 

@@ -39,7 +39,8 @@ data/workflows/
 | Template | For | Blocks with defaults on |
 | --- | --- | --- |
 | [`website-rebuild`](../../data/workflows/templates/website-rebuild.yaml) | An existing site, usually WordPress, rebuilt on the same brand: discovery spikes, migration, redirects and a domain cutover | 41 |
-| [`new-website`](../../data/workflows/templates/new-website.yaml) | A site started from nothing: the same map with everything only an old site needs taken out, and a few blocks folded together | 17 |
+| [`new-website`](../../data/workflows/templates/new-website.yaml) | A site started from nothing: no audit, migration, redirects or cutover, but a brand, a content model and the launch copy to create | 33 |
+| [`custom`](../../data/workflows/templates/custom.yaml) | Anything no template fits, such as a developer tool, a package or an internal feature: three stages and no blocks, so the project's `extras` are its whole map, drafted with the `project-workflow` skill | 0 |
 
 ## 🧱 Three kinds of block
 
@@ -69,7 +70,7 @@ dependency on the issue, never in the file.
 
 ## 🎟 Ticket size
 
-A small site still has 17 blocks, and a rebuild 41. Filing one ticket each is the right grain for
+A new site has 33 blocks, and a rebuild 41. Filing one ticket each is the right grain for
 agents working in parallel, and too fine for one person who would rather ship six blocks in a PR.
 The project's `ticketSize` changes how many tickets filing creates, never the map: a ticket with
 several `cap:` labels counts under each of those blocks, and closing it finishes all of them.
@@ -79,9 +80,9 @@ filed, so every block filed later, a feature switched on midway included, is gro
 
 | `ticketSize` | One ticket per | `new-website` | `website-rebuild` |
 | --- | --- | --- | --- |
-| `block` (the default) | Block, or each of its suggested tickets | 17 | 41 |
-| `stage` | Stage, for its build blocks; each spike and owner block stays its own | 8 | 16 |
-| `lean` | The same, with every spike in one ticket | 8 | 12 |
+| `block` (the default) | Block, or each of its suggested tickets | 35 | 43 |
+| `stage` | Stage, for its build blocks; each spike and owner block stays its own | 15 | 16 |
+| `lean` | The same, with every spike in one ticket | 14 | 12 |
 
 Counts are with each template's defaults switched on. Merging never breaks a rule below:
 
@@ -214,6 +215,7 @@ a commit. A commit without `[#N]` counts nowhere, and neither does work that lef
 
 | Need | How |
 | --- | --- |
+| Create a new project's milestone and the labels its tickets need, before the first sync | `pnpm workflow:setup <id>` to see it, `--yes` to do it |
 | Refresh the snapshot the portal draws | `pnpm workflow:sync [<id>]` |
 | What can be taken now, live from GitHub | `pnpm workflow:next <id>` |
 | See what filing a block would create, with the blocks its ticket size bundles it with | `pnpm workflow:file <id> <block>` |
@@ -234,7 +236,7 @@ every id, stage and switch has to resolve, and `dependsOn` may not loop.
 
 | Later need | What changes |
 | --- | --- |
-| A third template, such as a landing page or a docs site | A new file under `templates/`; nothing in the code knows any template by name |
+| Another template, such as a landing page or a docs site | A new file under `templates/`; nothing in the code knows any template by name |
 | A ticket size between `block` and `stage`, or set per block | A `bundle:` key on template blocks naming the ticket each joins; the stage split already covers the cases met so far |
 | Board Status (Todo / In Progress) | The sync already reads the board for `Complexity`; a linked branch already says a ticket is taken |
 | Sub-issues per block | Most blocks hold one or two tickets, so a parent issue each is noise; the `cap:` label already groups them |

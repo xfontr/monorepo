@@ -63,7 +63,11 @@
                                 >
                                     <UInput v-model="id" class="w-full" />
                                 </UFormField>
-                                <UFormField label="Milestone" help="Its tickets live here">
+                                <UFormField
+                                    label="Milestone"
+                                    help="Its tickets live here"
+                                    :error="milestoneError"
+                                >
                                     <UInput v-model="milestone" class="w-full" />
                                 </UFormField>
                                 <UFormField label="Area label" help="Where its code lives">
@@ -282,20 +286,25 @@ const step = ref(0);
 const current = computed(() => STEPS[step.value] ?? STEPS[0]);
 
 const draft = reactive({
-    template: data.value.templates[0]?.id ?? "",
+    // Files load in name order, so a blank template such as `custom` would otherwise come first.
+    template:
+        (
+            data.value.templates.find(({ capabilities }) => capabilities.length > 0) ??
+            data.value.templates[0]
+        )?.id ?? "",
     title: "",
     summary: "",
     switches: {} as Record<string, boolean>,
     ticketSize: "block" as TicketSize,
 });
 
-/** A field follows the title until someone types in it. */
+/** A field follows the title until someone types in it, and again once it is cleared. */
 const derived = <T extends string>(from: () => T) => {
     const typed = ref<string | null>(null);
     return computed({
         get: () => typed.value ?? from(),
         set: (value: string) => {
-            typed.value = value;
+            typed.value = value || null;
         },
     });
 };
@@ -304,9 +313,17 @@ const id = derived(() => projectSlug(draft.title));
 const milestone = derived(() => draft.title.trim());
 const area = derived(() => (id.value ? `app:${id.value}` : ""));
 
-const idError = computed(() =>
-    id.value && !PROJECT_ID.test(id.value) ? "Lower case, digits and dashes" : undefined,
-);
+const idError = computed(() => {
+    if (id.value) return PROJECT_ID.test(id.value) ? undefined : "Lower case, digits and dashes";
+    return draft.title.trim() ? "Type one: the title has no letters to make it from" : undefined;
+});
+
+const milestoneError = computed(() => {
+    const owner = data.value.projects.find(
+        ({ project }) => project.milestone === milestone.value.trim(),
+    );
+    return owner ? `Already ${owner.project.title}'s milestone` : undefined;
+});
 
 const template = computed(() => data.value.templates.find(({ id }) => id === draft.template));
 
@@ -343,7 +360,13 @@ const pick = (id: string) => {
 const ready = computed(() => {
     if (current.value.id === "template") return template.value !== undefined;
     if (current.value.id === "details") {
-        return Boolean(draft.title.trim() && id.value && !idError.value && milestone.value);
+        return Boolean(
+            draft.title.trim() &&
+            id.value &&
+            !idError.value &&
+            milestone.value &&
+            !milestoneError.value,
+        );
     }
     return true;
 });

@@ -8,7 +8,7 @@ import {
 } from "#layers/workflows/shared/workflows.ts";
 import CapabilityDetail from "./CapabilityDetail.vue";
 
-const capabilityWith = (issues: object[], optional = true): CapabilityView => {
+const capabilityWith = (issues: object[], optional = true, id = "comments"): CapabilityView => {
     const { template } = readTemplate({
         id: "t",
         title: "T",
@@ -48,7 +48,7 @@ const capabilityWith = (issues: object[], optional = true): CapabilityView => {
         noMilestone: [],
     });
 
-    return view.stages[0]!.capabilities.find(({ id }) => id === "comments")!;
+    return view.stages[0]!.capabilities.find((capability) => capability.id === id)!;
 };
 
 describe("CapabilityDetail", () => {
@@ -109,6 +109,24 @@ describe("CapabilityDetail", () => {
         });
 
         expect(wrapper.text()).toContain("Not fileable yet: it waits on Captcha");
+    });
+
+    it("gives the command that files a block nothing holds back", async () => {
+        const done = { number: 1, state: "closed", reason: "completed", caps: ["spam-protection"] };
+        const wrapper = await mountSuspended(CapabilityDetail, {
+            props: { capability: capabilityWith([done]), project: "p" },
+        });
+
+        expect(wrapper.text()).toContain("pnpm workflow:file p comments");
+    });
+
+    it("asks for an owner block's ticket before its close, since nothing is filed to close", async () => {
+        const wrapper = await mountSuspended(CapabilityDetail, {
+            props: { capability: capabilityWith([], false, "spam-protection"), project: "p" },
+        });
+
+        expect(wrapper.text()).toContain("file its ticket and close it");
+        expect(wrapper.text()).toContain("pnpm workflow:file p spam-protection");
     });
 
     it("opens a block it needs or unblocks from the panel, so the links can be walked", async () => {

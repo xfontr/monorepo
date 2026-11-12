@@ -54,13 +54,6 @@
                     <span v-if="waiting[capability.id]" class="text-xs text-muted">
                         waits on {{ waiting[capability.id] }}
                     </span>
-                    <span
-                        v-if="activityOf[capability.id]?.quiet"
-                        class="tone-warn flex items-center gap-1 text-xs"
-                    >
-                        <UIcon name="i-lucide-moon" class="size-3.5" />
-                        {{ activityOf[capability.id]?.quiet }}
-                    </span>
                     <span class="mt-auto -mr-5 flex flex-wrap items-end gap-1.5 pt-2">
                         <span
                             v-if="capability.issues.length > 0"
@@ -80,9 +73,6 @@
                                 :style="{ background: stateColor(ticketStatus(issue)) }"
                                 :title="`#${issue.number} ${issue.title} · ${ticketStatusLabel(ticketStatus(issue))}`"
                             />
-                        </span>
-                        <span v-if="capability.unblockCount > 0" class="text-xs text-muted">
-                            unblocks {{ capability.unblockCount }}
                         </span>
                         <ActivitySpark
                             v-if="activityOf[capability.id]?.weeks"
@@ -191,9 +181,6 @@ const activityOf = computed(() =>
                     {
                         weeks: found.days > 0 ? found.weeks : null,
                         label: `Active on ${found.days} days, last on ${found.lastDay ? calendarDay(found.lastDay) : "never"}`,
-                        quiet: found.quietSince
-                            ? `Quiet since ${calendarDay(found.quietSince)}`
-                            : null,
                     },
                 ],
             ];

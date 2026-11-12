@@ -44,12 +44,11 @@ const mount = (selected: string | null = null) =>
     });
 
 describe("StageCards", () => {
-    it("says what a blocked block waits on and how much a ready one unblocks", async () => {
+    it("says what a blocked block waits on", async () => {
         const wrapper = await mount();
-        const [kit, page] = wrapper.findAll("li button[aria-pressed]");
+        const [, page] = wrapper.findAll("li button[aria-pressed]");
 
         expect(page!.text()).toContain("waits on Kit");
-        expect(kit!.text()).toContain("unblocks 1");
     });
 
     it("shows the SP each block spends, and none on a block nobody estimated", async () => {

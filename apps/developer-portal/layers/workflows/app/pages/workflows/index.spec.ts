@@ -93,7 +93,7 @@ describe("workflows page", () => {
 
         const card = (await mountSuspended(Page, { global })).find("a[href='/workflows/p0']");
 
-        expect(card.text()).toContain("Now: 0 waiting on you · 1 ready · 1 in flight · 0 blocked");
+        expect(card.text()).toContain("Now: 1 ready · 1 in flight");
         expect(card.text()).toContain("0/2 capabilities · 2 tickets filed, 0 to file");
     });
 

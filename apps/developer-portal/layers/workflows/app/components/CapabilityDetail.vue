@@ -32,6 +32,11 @@
         <p v-if="why" class="text-muted">
             {{ why }}
         </p>
+        <code
+            v-if="fileCommand"
+            class="block rounded-md bg-elevated px-2 py-1 font-mono text-xs select-all"
+            >{{ fileCommand }}</code
+        >
 
         <section v-for="link in links" :key="link.title" class="flex flex-col gap-1.5">
             <h3 class="text-xs font-semibold tracking-wide text-dimmed uppercase">
@@ -120,6 +125,8 @@ import {
 
 interface Props {
     capability: CapabilityView;
+    /** The project id, so a block with nothing filed can show the command that files it. */
+    project?: string | null;
     /** Capability id to its title, for the blocks it needs and unblocks. */
     titles?: Record<string, string>;
     editable?: boolean;
@@ -130,6 +137,7 @@ interface Props {
 
 const {
     capability,
+    project = null,
     titles = {},
     editable = false,
     activity = null,
@@ -143,6 +151,12 @@ const kindText = computed(() =>
     capability.kind === "build" ? null : blockKindLabel(capability.kind),
 );
 const kindIconName = computed(() => blockKindIcon(capability.kind) ?? undefined);
+const unfiled = computed(() => capability.issues.every(({ reason }) => reason === "not_planned"));
+const fileCommand = computed(() =>
+    project && unfiled.value && ["can-file", "waiting-on-you"].includes(capability.state)
+        ? `pnpm workflow:file ${project} ${capability.id}`
+        : null,
+);
 /** Why it sits where it does, in the words a reader acts on. */
 const why = computed(() => {
     const waiting = capability.waitingOn.map((id) => titles[id] ?? id).join(", ");
@@ -157,7 +171,9 @@ const why = computed(() => {
         case "can-file":
             return "Nothing it needs is undecided, so its tickets can be filed now.";
         case "waiting-on-you":
-            return "Only you can close this, and everything after it waits.";
+            return unfiled.value
+                ? "Only you can approve this: file its ticket and close it, or settle it in the project file. Everything after it waits."
+                : "Only you can close this, and everything after it waits.";
         case "ready":
             return "Nothing open blocks it, so an agent can take it.";
         default:
@@ -197,11 +213,7 @@ const activitySummary = computed(() => {
     if (!activity || capability.issues.length === 0) return null;
     if (activity.commits === 0) return "No commit names its tickets yet.";
 
-    const summary = `${plural(activity.commits, "commit")} on ${plural(activity.days, "day")} across ${plural(activity.tickets, "ticket")}, last on ${calendarDay(activity.lastDay!)}.`;
-
-    return activity.quietSince
-        ? `${summary} Quiet since then, while the project moved on.`
-        : summary;
+    return `${plural(activity.commits, "commit")} on ${plural(activity.days, "day")} across ${plural(activity.tickets, "ticket")}, last on ${calendarDay(activity.lastDay!)}.`;
 });
 
 const reuseLabel = computed(() => (capability.reuse ? reusePlanLabel(capability.reuse.plan) : ""));

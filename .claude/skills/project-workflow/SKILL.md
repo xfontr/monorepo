@@ -22,7 +22,9 @@ hundred.
 ## 1. Starting a project
 
 1. Pick the template: `new-website` for a site started from nothing, `website-rebuild` when an
-   old site's content and URLs come along. Then ask for what the code can't tell you: the
+   old site's content and URLs come along, `custom` for anything else — a developer tool, a
+   package, an internal feature — and then draft its map under
+   [Drafting a map](#15-drafting-a-map-for-a-custom-project). Then ask for what the code can't tell you: the
    audience, the page readers land on first, which features are wanted, and the ticket size —
    `block` for agents in parallel, `stage` or `lean` for someone who wants few, big tickets. Ask about every feature the same way, the blog no differently from
    storybook; each one's `summary` and `lessons` in the template is the question, in plain words.
@@ -32,13 +34,32 @@ hundred.
    portal's new-project wizard, behind the plus card on the Workflows page, writes this same file, if the user would rather click through it.
    Put features only this project has under `extras`, each with its `dependsOn`. Set
    `ticketSize` unless it is `block`.
-3. GitHub side, after the user confirms. Each step writes to GitHub:
-   - create the milestone, `gh api repos/{owner}/{repo}/milestones -f title=<Milestone>`;
-   - create the area label if the app is new;
-   - create the `owner` label once if `gh label list` lacks it;
-   - create the `cap:<id>` label for every block that is on, unless it already exists. List
-     them with `gh label list --limit 300 --json name -q '.[].name' | grep '^cap:'`; `--search` is
-     fuzzy and has missed one.
+3. GitHub side: `pnpm workflow:setup <id>` prints the milestone and labels it would create. Show
+   the user, and only on their go run it with `--yes`, since it writes to GitHub. Run it again after
+   a feature is switched on, for the new blocks' `cap:` labels.
+
+## 1.5 Drafting a map for a custom project
+
+A `custom` project starts with no blocks; its map is the project file's `extras`, which you draft and
+the user checks. Read the repo first, then ask only what the code can't tell you: what it is for,
+who uses it, what done looks like, and what is still undecided.
+
+1. **One block per thing an agent can finish and a check can verify**, at most 13 points on the
+   [complexity scale](../../../docs/workflows/README.md#-complexity). Anything bigger gets suggested
+   `tickets` or becomes two blocks.
+2. **Every open question is a `spike`, and every call only the user can make is an `owner` block**,
+   such as scope, a provider or an API shape. Build blocks that depend on the answer go in
+   `dependsOn`, so filing waits for them.
+3. **Every block has `doneWhen`**, written as checks rather than tasks, and a `reuse` naming the
+   precedent to copy — a package, a script folder, a layer — with a path that exists.
+4. **Write lessons only from issues that happened**, with their numbers. Leave them out rather than
+   inventing any.
+5. **Stages are `plan`, `build` and `ship`.** End with an `owner` block in `ship` that needs every
+   other block, so the release is a decision too.
+
+Show the user the map in the portal at `/workflows/<id>` before running `workflow:setup`, and
+change the file until they agree with it. If a second project of the same kind turns up, its map
+becomes a template.
 
 ## 2. Filing a block
 

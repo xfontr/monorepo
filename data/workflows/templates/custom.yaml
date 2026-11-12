@@ -1,0 +1,25 @@
+# A project no template fits: its blocks are the project file's `extras`, drafted with the
+# project-workflow skill. Shape, rules and the GitHub contract: docs/workflows/README.md.
+id: custom
+title: Custom project
+summary: >-
+  Anything no other template fits, such as a developer tool, a package or an internal feature. It
+  starts with no blocks: Claude drafts them with you into the project file, and you check the map
+  here before anything is filed.
+
+stages:
+  - id: plan
+    title: Plan
+    goal: The open questions answered and the scope signed off, before any build ticket is filed.
+
+  - id: build
+    title: Build
+    goal: The change itself, in blocks an agent can take one at a time.
+
+  - id: ship
+    title: Ship
+    goal: Documented, released and used for real, with nothing left behind.
+
+groups: []
+
+capabilities: []

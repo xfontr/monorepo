@@ -1,32 +1,31 @@
 <template>
-    <figure class="flex flex-col gap-1.5">
+    <figure class="flex max-w-sm flex-col gap-1">
         <figcaption
             class="flex flex-wrap items-baseline justify-between gap-x-4 text-2xs text-dimmed"
             title="Capabilities moved per day, from commits tagged with a ticket number"
         >
             <span class="font-semibold text-muted">Activity</span>
-            <span class="tabular-nums">Last commit {{ lastCommit }}</span>
+            <span class="tabular-nums">{{ lastCommit }}</span>
         </figcaption>
 
-        <ol class="flex flex-col gap-0.75">
+        <ol class="flex h-6 items-end gap-px">
             <li
-                v-for="lane in lanes"
-                :key="lane.stage"
-                class="flex h-0.75 overflow-hidden rounded-full bg-accented/40"
-                :title="lane.title"
+                v-for="column in columns"
+                :key="column.day"
+                class="flex h-full min-w-0 flex-1 flex-col-reverse"
             >
                 <span
-                    v-for="day in lane.days"
-                    :key="day.day"
-                    class="min-w-0 flex-1"
-                    :style="day.moved > 0 && { background: lane.color, opacity: day.opacity }"
-                    :title="day.label"
+                    v-for="segment in column.segments"
+                    :key="segment.stage"
+                    class="segment w-full first:rounded-b-xs last:rounded-t-xs"
+                    :style="{ height: `${segment.share}%`, background: segment.color }"
+                    :title="segment.label"
                 />
             </li>
         </ol>
 
-        <ol class="flex text-2xs text-dimmed" aria-hidden="true">
-            <li v-for="column in months" :key="column.day" class="min-w-0 flex-1">
+        <ol class="flex gap-px text-2xs text-dimmed" aria-hidden="true">
+            <li v-for="column in columns" :key="column.day" class="min-w-0 flex-1">
                 <span v-if="column.month" class="whitespace-nowrap">{{ column.month }}</span>
             </li>
         </ol>
@@ -44,7 +43,9 @@ interface Props {
 
 const { activity, stages } = defineProps<Props>();
 
-const lastCommit = computed(() => calendarDay(activity.lastDay));
+const lastCommit = computed(() =>
+    activity.lastDay ? `Last commit ${calendarDay(activity.lastDay)}` : "No commits yet",
+);
 
 /** A month gets a label on its first day, or at the start when at least a week of it is shown. */
 const labelsMonth = (day: string, index: number): boolean => {
@@ -54,31 +55,35 @@ const labelsMonth = (day: string, index: number): boolean => {
     return activity.days.slice(0, 7).every((next) => next.slice(0, 7) === day.slice(0, 7));
 };
 
-const months = computed(() =>
+/** Segments stack bottom to top in stage order, so a day's colours run the way the stages do. */
+const columns = computed(() =>
     activity.days.map((day, index) => ({
         day,
         month: labelsMonth(day, index) ? calendarDay(day, "only") : null,
-    })),
-);
-
-/** Lanes run in stage order and share one scale, so a busy day reads the same in every lane. */
-const lanes = computed(() => {
-    const busiest = Math.max(1, ...activity.byStage.flat());
-
-    return stages.map((stage, stageIndex) => ({
-        stage: stage.id,
-        title: stage.title,
-        color: stageColor(stageIndex),
-        days: activity.days.map((day, index) => {
+        segments: stages.flatMap((stage, stageIndex) => {
             const moved = activity.byStage[index]?.[stageIndex] ?? 0;
 
-            return {
-                day,
-                moved,
-                opacity: 0.45 + 0.55 * (moved / busiest),
-                label: `${stage.title} · ${calendarDay(day)} · ${moved} ${moved === 1 ? "capability" : "capabilities"}`,
-            };
+            return moved === 0
+                ? []
+                : [
+                      {
+                          stage: stage.id,
+                          color: stageColor(stageIndex),
+                          share: (moved / activity.busiest) * 100,
+                          label: `${stage.title} · ${calendarDay(day)} · ${moved} ${moved === 1 ? "capability" : "capabilities"}`,
+                      },
+                  ];
         }),
-    }));
-});
+    })),
+);
 </script>
+
+<style scoped>
+.segment {
+    transition: filter 0.15s;
+}
+
+.segment:hover {
+    filter: brightness(1.2) saturate(1.2);
+}
+</style>

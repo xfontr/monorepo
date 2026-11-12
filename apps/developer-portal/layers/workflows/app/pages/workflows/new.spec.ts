@@ -155,6 +155,70 @@ describe("new project wizard", () => {
         expect(mapped()).toEqual(["Post page"]);
     });
 
+    it("follows the title again once the id is cleared, instead of sticking at empty", async () => {
+        const wrapper = await mountSuspended(Page, { global });
+
+        await button(wrapper, "Next")?.trigger("click");
+        await wrapper.find("input").setValue("Harbour Notes");
+        const id = wrapper.findAll("input")[1]!;
+        await id.setValue("typed");
+        await id.setValue("");
+
+        expect((id.element as HTMLInputElement).value).toBe("harbour-notes");
+    });
+
+    it("refuses another project's milestone on the details step, not at Create", async () => {
+        state.data = ref(
+            assembleWorkflows(
+                [{ file: "new-website.yaml", ok: true, value: TEMPLATE }],
+                [
+                    {
+                        file: "harbour.yaml",
+                        ok: true,
+                        value: {
+                            id: "harbour",
+                            title: "Harbour",
+                            template: "new-website",
+                            milestone: "Harbour Notes",
+                        },
+                    },
+                ],
+                {},
+            ),
+        );
+        const wrapper = await mountSuspended(Page, { global });
+
+        await button(wrapper, "Next")?.trigger("click");
+        await wrapper.find("input").setValue("Harbour Notes");
+
+        expect(wrapper.text()).toContain("Already Harbour's milestone");
+        expect(button(wrapper, "Next")?.attributes("disabled")).toBeDefined();
+    });
+
+    it("starts on a template with blocks, even when a blank one sorts first", async () => {
+        state.data = ref(
+            assembleWorkflows(
+                [
+                    {
+                        file: "custom.yaml",
+                        ok: true,
+                        value: {
+                            id: "custom",
+                            title: "Custom",
+                            stages: [{ id: "build", title: "Build" }],
+                        },
+                    },
+                    { file: "new-website.yaml", ok: true, value: TEMPLATE },
+                ],
+                [],
+                {},
+            ),
+        );
+        const wrapper = await mountSuspended(Page, { global });
+
+        expect(wrapper.find("[aria-checked='true']").text()).toContain("New website");
+    });
+
     it("won't move past the details until the project has a title", async () => {
         const wrapper = await mountSuspended(Page, { global });
 
