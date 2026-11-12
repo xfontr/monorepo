@@ -22,7 +22,13 @@
                     <p v-if="!collapsed" class="px-2 pt-3 text-xs font-semibold text-dimmed">
                         {{ group.label }}
                     </p>
-                    <UNavigationMenu :items="group.items" :collapsed orientation="vertical" />
+                    <UNavigationMenu
+                        :items="group.items"
+                        :collapsed
+                        orientation="vertical"
+                        trailing-trigger
+                        popover
+                    />
                 </div>
             </template>
 
@@ -76,6 +82,8 @@ interface NavLink {
     label: string;
     icon: string;
     to: string;
+    /** A route answering with the submenu, so every page's payload carries a few rows, not the feature's data. */
+    menu?: string;
 }
 
 /** A key no layer declares is skipped, so removing a layer drops its entry. */
@@ -95,14 +103,41 @@ const counts = computed<Record<string, number>>(() => ({
     deps: advisories.value,
 }));
 
+const menus = Object.fromEntries(
+    Object.entries(nav).flatMap(([key, link]) =>
+        link?.menu
+            ? [
+                  [
+                      key,
+                      useFetch<NavigationMenuItem[]>(link.menu, {
+                          key: `menu-${key}`,
+                          default: () => [],
+                      }).data,
+                  ],
+              ]
+            : [],
+    ),
+);
+
 const navGroups = computed<{ label: string; items: NavigationMenuItem[] }[]>(() =>
     GROUPS.map(({ label, items }) => ({
         label,
         items: items.flatMap((key) => {
             const link = nav[key];
             const count = counts.value[key] ?? 0;
+            const children = menus[key]?.value ?? [];
 
-            return link ? [{ ...link, badge: count === 0 ? undefined : String(count) }] : [];
+            return link
+                ? [
+                      {
+                          label: link.label,
+                          icon: link.icon,
+                          to: link.to,
+                          badge: count === 0 ? undefined : String(count),
+                          children: children.length === 0 ? undefined : children,
+                      },
+                  ]
+                : [];
         }),
     })),
 );

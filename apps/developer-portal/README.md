@@ -75,6 +75,9 @@ a relative import into it is what broke the prerendered build in
 
 Each layer lists its sidebar links under `nav` in its `app/app.config.ts`, and
 [`default.vue`](./app/layouts/default.vue) only arranges those keys, skipping one no layer declares.
+An entry with a `menu` names the layer's own route that answers its submenu — the decisions still
+to implement, the audits with open findings, the recent workflow projects — so every page's payload
+carries those few rows rather than the feature's data.
 
 ### Removing a feature
 

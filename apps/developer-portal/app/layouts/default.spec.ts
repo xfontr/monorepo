@@ -6,11 +6,14 @@ import Layout from "./default.vue";
 const state = vi.hoisted(() => ({
     issues: null as unknown,
     badges: null as unknown,
+    menus: {} as Record<string, unknown>,
     sections: null as unknown,
     execute: vi.fn(),
 }));
 mockNuxtImport("useIssues", () => () => ({ data: state.issues }));
-mockNuxtImport("useFetch", () => () => ({ data: state.badges }));
+mockNuxtImport("useFetch", () => (url: string) => ({
+    data: url === "/api/badges" ? state.badges : ref(state.menus[url] ?? []),
+}));
 mockNuxtImport("useAsyncData", () => () => ({
     data: state.sections,
     status: ref("idle"),
@@ -35,7 +38,7 @@ const global = {
         UNavigationMenu: {
             props: { items: Array },
             template:
-                "<nav><a v-for='item in items' :href='item.to'>{{ item.label }} {{ item.badge }}</a></nav>",
+                "<nav><template v-for='item in items'><a :href='item.to'>{{ item.label }} {{ item.badge }}</a><a v-for='child in item.children' class='child' :href='child.to'>{{ child.label }}</a></template></nav>",
         },
         UDashboardSearch: Search,
         NuxtLink: { props: { to: String }, template: "<a :href='to'><slot /></a>" },
@@ -52,6 +55,7 @@ const global = {
 beforeEach(() => {
     state.issues = ref({ issues: [], error: null });
     state.badges = ref({ advisories: 0 });
+    state.menus = {};
     state.sections = ref([]);
     state.execute.mockClear();
 });
@@ -81,6 +85,16 @@ describe("default layout", () => {
             ["Tooling usage", "/telemetry"],
             ["Dependencies", "/deps"],
         ]);
+    });
+
+    it("unfolds an entry into the rows its menu route answers, and leaves an empty one a plain link", async () => {
+        state.menus = {
+            "/api/decisions/menu": [{ label: "0036 Drop the UI kit", to: "/decisions/0036-ui" }],
+        };
+        const wrapper = await mountSuspended(Layout, { global });
+        expect(
+            wrapper.findAll("nav a.child").map((link) => [link.text(), link.attributes("href")]),
+        ).toEqual([["0036 Drop the UI kit", "/decisions/0036-ui"]]);
     });
 
     it("renders non-zero badges, uses the repository source link, and defers search data", async () => {
