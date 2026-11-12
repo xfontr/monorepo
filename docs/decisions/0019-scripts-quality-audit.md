@@ -93,7 +93,7 @@ Seven, none of them severe, ordered by what they cost:
 | 4 | Two different `currentBranch` implementations answering one question | [`issue/adapters/git.ts:15`](../../infrastructure/scripts/src/issue/adapters/git.ts) (`branch --show-current`) vs [`ship/adapters/git.ts:5`](../../infrastructure/scripts/src/ship/adapters/git.ts) (`rev-parse --abbrev-ref HEAD`) | They disagree on detached HEAD — `""` vs `"HEAD"`. 0004's adapter-naming rule licenses two `git.ts` files, not two answers |
 | 5 | Title-casing implemented twice | [`dev/domain/projects.ts:22-23`](../../infrastructure/scripts/src/dev/domain/projects.ts), [`drift/domain/detect.ts:50-54`](../../infrastructure/scripts/src/drift/domain/detect.ts) | The `drift` copy has no acronym list, so it would render "Ui" — the exact case the `dev` copy exists to avoid |
 | 6 | One prompt bypasses `orExit`, against the stated invariant that every prompt unwinds through it | [`issue/add.ts:106`](../../infrastructure/scripts/src/issue/add.ts) | Behaviour is correct; the inconsistency is the cost |
-| 7 | `parseManifest(before)` parsed three times in one function | [`review-version/main.ts:20,27,33`](../../infrastructure/scripts/src/review-version/main.ts) | Cosmetic |
+| 7 | `parseManifest(before)` parsed three times in one function | `review-version/main.ts:20,27,33` | Cosmetic |
 
 ### The command layer carries more logic than the domain layer, and none of it is tested
 

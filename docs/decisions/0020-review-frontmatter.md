@@ -16,7 +16,7 @@ deferred table rejects full MADR by name, and what a report carries above its H1
 frontmatter block. And the two directories already document opposite contracts: decision frontmatter exists
 because `status` and `decision` are "the one thing in the file expected to change after the report is
 written", while a review is a dated snapshot that
-[README.md](../reviews/README.md#-deliberately-deferred) says never to edit. So `status:` and
+`docs/reviews/README.md` says never to edit. So `status:` and
 `decision:` have no review analogue — the answer can't be "the same block".
 
 ## Result
@@ -30,8 +30,8 @@ That one field belongs in frontmatter. The scores do not.**
 
 | Fact | Where it lives | Read by |
 | --- | --- | --- |
-| Date, commit | The filename | `FILENAME` in [`collect/scorecards.ts`](../../apps/developer-portal/tools/collect/scorecards.ts) |
-| Seven scores, total, Δ, verdicts | The `## 🧮 Scores` table | [`parseScoresTable`](../../apps/developer-portal/tools/lib/scorecards.ts), guarded by `scorecardShapeProblems`, `compareScorecardShape`, a `parseError` field and a paragraph of [`SKILL.md`](../../.claude/skills/repo-review/SKILL.md) |
+| Date, commit | The filename | `FILENAME` in `collect/scorecards.ts` |
+| Seven scores, total, Δ, verdicts | The `## 🧮 Scores` table | `parseScoresTable`, guarded by `scorecardShapeProblems`, `compareScorecardShape`, a `parseError` field and a paragraph of `SKILL.md` |
 | Branch, **method version**, previous review | The opening line | Nothing |
 
 The scores half works. The regex is best-effort by design, a malformed table degrades to fewer cards
@@ -44,7 +44,7 @@ Measured, not argued:
 | Finding | Evidence |
 | --- | --- |
 | The opening line's own label drifted mid-corpus | `Rubric v1` on the three 09-04 → 09-10 reviews, `Method v2` on the two 09-15 ones. A regex keyed on either spelling silently misses the other half |
-| `METHOD.md` is at **version 6**; the newest review and the newest history row both say **v2** | Four bumps, each of which [`METHOD.md`](../reviews/METHOD.md#-bumping-it) says owes a calibration re-score "in the same pass". None was filed, and `pnpm review:version --check` passes anyway — it compares artifact digests, never a review |
+| `METHOD.md` is at **version 6**; the newest review and the newest history row both say **v2** | Four bumps, each of which `METHOD.md` says owes a calibration re-score "in the same pass". None was filed, and `pnpm review:version --check` passes anyway — it compares artifact digests, never a review |
 | The dashboard compares across methods | `scorecards.vue`'s History card lists 4.1 · 4.2 · 4.4 · 4.2 · 3.9 newest-first with no method shown — exactly the read `README.md` tells a human never to make |
 | The 45 numbers in the history table are checked by nobody | `compareReviewHistory` and `check-invariants.sh` both only substring-match the *filename*. Every row happens to agree with its review today; nothing keeps that true |
 
@@ -73,7 +73,7 @@ off disk anyway, never through a query.
 | # | File | Change |
 | --- | --- | --- |
 | 1 | The five dated reviews | Add the block — `method: 1` on `2026-09-04-c1025f3`, `2026-09-05-abcb17d` and `2026-09-10-bfd6da2`, `method: 2` on both `2026-09-15` files — and delete `· Rubric v1 ·` / `· Method v2 ·` from each opening line |
-| 2 | [`TEMPLATE.md`](../reviews/TEMPLATE.md) | The same block with `method: <n>`, the same deletion |
+| 2 | `TEMPLATE.md` | The same block with `method: <n>`, the same deletion |
 | 3 | `shared/types.ts` | `method: number \| null` on `ReviewScorecard`; null when the block is missing or unparseable, the absent-is-its-own-state the neighbouring `parseError` already uses |
 | 4 | `tools/collect/scorecards.ts` | Read it with `frontmatterFields`, imported from `tools/lib/decisions.ts` — leave that helper where it is |
 | 5 | `tools/lib/invariants.ts` | `compareReviewMethod`: a review's `method` against the `v<n>` in the last cell of its history row, wired into `collectInvariants` beside `compareReviewHistory` |

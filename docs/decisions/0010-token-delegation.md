@@ -88,7 +88,7 @@ the delegation round-trip plausibly costs more than it saves.
 **Reproducing the pattern needs no Portal, no wrapper and no second key — and that is what sinks it.**
 Claude Code delegates to a cheaper model natively: an agent definition carrying `model: haiku`, or a
 `model` override on the call. This repo already does it —
-[`repo-review-card.md`](../../.claude/agents/repo-review-card.md) pins `model: sonnet` — and
+`repo-review-card.md` pins `model: sonnet` — and
 delegation happened 89 times in the measured fortnight. So the cost of the
 mechanism is near zero, and the question collapses to whether delegating a single read can pay for
 the context a delegate has to stand up first.

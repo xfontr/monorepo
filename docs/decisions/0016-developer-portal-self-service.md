@@ -59,7 +59,7 @@ which is why no portal fits over the top of them:**
 | Docs | `@nuxt/content`, reading every tracked `*.md` in place at its own path |
 | Software catalog | The Nx project graph, collected into `.report/` — derived, so it cannot drift |
 | Component catalog | **Storybook 10 in `@monorepo/ui`**, with a `build-storybook` target writing `storybook-static` |
-| Scorecards | [`SCORECARDS.md`](../reviews/README.md) and the scorecards page |
+| Scorecards | `SCORECARDS.md` and the scorecards page |
 | Golden paths | `new-package`, `ui:new-component`, `scripts:new-script`, `nuxt-module-route`, `pnpm issue:pick` |
 | Action runner | GitHub Actions |
 

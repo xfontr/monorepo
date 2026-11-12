@@ -74,7 +74,7 @@ passes at a third-party boundary.
 **4. `no-unnecessary-condition` without that flag instructs you to delete correct code.** The rule
 is not in `recommendedTypeChecked`; adopting `strictTypeChecked` would add it, and it is that
 preset's second-largest contributor here at 34 findings. In
-[`scorecards.ts:49`](../../apps/developer-portal/tools/lib/scorecards.ts) it flags `match[1] ?? ""` as an
+`scorecards.ts:49` it flags `match[1] ?? ""` as an
 unnecessary `??`. Regex capture groups genuinely are `undefined` at runtime; the guard is right and
 the type is lying. Turning the flag on and re-measuring:
 

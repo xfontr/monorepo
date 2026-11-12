@@ -32,3 +32,12 @@ at,script,command,target,flags,area,caller,tty,exit,ms
 2026-11-11,map,,,check,dx,claude-code,0,0,199
 2026-11-11,map,,,,dx,claude-code,0,0,263
 2026-11-11,map,,,check,dx,claude-code,0,0,107
+2026-11-11,workflow,sync,,,dx,claude-code,0,1,707
+2026-11-11,map,,,,dx,claude-code,0,0,123
+2026-11-11,map,,,check,dx,claude-code,0,0,132
+2026-11-11,map,,,check,dx,claude-code,0,0,117
+2026-11-11,dev,,developer-portal,,dx,human,1,0,88039797
+2026-11-12,map,,,check,dx,claude-code,0,0,210
+2026-11-12,map,,,check,dx,claude-code,0,0,405
+2026-11-12,map,,,check,dx,claude-code,0,0,141
+2026-11-12,dev,,,,dx,human,1,0,1657862
