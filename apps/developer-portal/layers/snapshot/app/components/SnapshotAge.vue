@@ -23,11 +23,9 @@
             {{ artifact }} failed to collect: {{ status?.error }}
         </template>
 
-        <template v-else>
-            Collected {{ collected }} at
-            <code class="font-mono text-default">{{ manifest.commit }}</code> on
-            {{ manifest.branch }}
-        </template>
+        <span v-else :title="`At ${manifest.commit} on ${manifest.branch}`">
+            Collected {{ collected }}
+        </span>
     </div>
 </template>
 

@@ -82,3 +82,21 @@ button:not(:disabled) {
         @apply text-right tabular-nums;
     }
 }
+
+/* A dashboard in edit mode, the phone home-screen cue that widgets can now be moved. */
+@layer components {
+    .widget-wiggle {
+        @media (prefers-reduced-motion: no-preference) {
+            animation: widget-wiggle 0.3s ease-in-out infinite alternate;
+
+            &:nth-child(even) {
+                animation-delay: -0.15s;
+            }
+        }
+    }
+}
+
+@keyframes widget-wiggle {
+    from { rotate: -0.4deg; }
+    to { rotate: 0.4deg; }
+}

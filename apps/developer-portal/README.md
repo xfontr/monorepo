@@ -23,15 +23,16 @@ terms.
 | Understand how it works | Documentation, Architecture, Decisions and Audits |
 | Run or contribute | The first-hour guide and the repository documentation |
 
-Engineering health remains available after that introduction: the homepage places it below the featured
-projects, and the sidebar keeps it as the final group. Coverage, dependencies and
+Engineering health remains available after that introduction: the homepage is a grid of widgets,
+each health signal its own, which **Edit layout** lets a reader drag, resize, remove and add back.
+The layout is kept in that browser's `localStorage`, and the sidebar keeps health as the final group. Coverage, dependencies and
 work in progress remain directly addressable without creating a second application or navigation tree.
 
 ## 🗂 Structure
 
 | Path | What lives there |
 | --- | --- |
-| `app/` | The shell: the layout and its sidebar, the Overview page, and the parts every layer draws with — `StatTile`, `StatusPill`, `toneClass` and the date helpers |
+| `app/` | The shell: the layout and its sidebar, the Overview page, and the parts every layer draws with — `StatTile`, `StatusPill`, `DashboardGrid`, `toneClass` and the date helpers |
 | `layers/` | One Nuxt layer per capability — see [🧱 Layers](#-layers) |
 | `tools/collect/` | Builds the derived snapshot: graph, coverage, metrics, docs, usage |
 | `tools/lib/` | Node-only helpers — paths, the `git` allowlist, the invariant checks, and the remark plugin that rewrites a doc's links as it is parsed |
