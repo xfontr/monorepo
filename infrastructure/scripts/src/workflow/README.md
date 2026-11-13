@@ -42,8 +42,9 @@ working the ticket needs nothing from the template.
 
 A project with a `ticketSize` other than `block` files a block together with the others its size
 bundles it with; [the workflows README](../../../../docs/workflows/README.md#-ticket-size) has the
-grouping. Members that still wait are left out and printed, and the one ticket carries every
-member's `cap:` label, with one section per block in its body. Naming several blocks merges exactly
+grouping. A bundle files whole: if one member still waits, the command refuses and names it. The
+one ticket carries every member's `cap:` label, with one section per block in its body. An extra
+that names a template `type:` is read with that type's fields under its own. Naming several blocks merges exactly
 those instead. The portal's
 [`shared/ticketSize.ts`](../../../../apps/developer-portal/layers/workflows/shared/ticketSize.ts)
 groups the same way for its counts; the table below lists every rule written twice.

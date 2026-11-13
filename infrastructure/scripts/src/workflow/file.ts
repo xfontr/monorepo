@@ -29,10 +29,7 @@ export const file = ({ positionals }: Args): void => {
 
     const map = readMap(template, project);
     const { issues } = toSnapshot(map.milestone, milestoneIssues(map.milestone), [], new Map(), "");
-    const { ids, later } =
-        rest.length > 0
-            ? { ids: [capability, ...rest], later: [] }
-            : bundleFor(map, issues, capability);
+    const ids = rest.length > 0 ? [capability, ...rest] : bundleFor(map, issues, capability);
     const filing = planFiling(map, issues, ids);
 
     if (!filing.ok) throw new ExpectedError(`Not filed: ${filing.reason}.`);
@@ -53,7 +50,6 @@ export const file = ({ positionals }: Args): void => {
         out.success(`${createTicket({ ...ticket, milestone: map.milestone })}\n  ${ticket.title}`);
     }
 
-    for (const reason of later) out.note(`Left for a later ticket: ${reason}.`);
     if (!write) {
         out.note("Nothing was filed. Run it again with --yes to create these tickets.");
         return;
