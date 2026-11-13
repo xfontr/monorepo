@@ -79,6 +79,7 @@ beforeEach(() => {
             },
         }),
         metrics: ref({ metrics: { invariantFindings: [] } }),
+        usage: ref(null),
     };
     state.issues = ref({ issues: [], error: null, fetchedAt: "" });
 });
