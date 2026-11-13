@@ -350,7 +350,7 @@ const graphNote = computed(() => {
     if (!current || !view.value) return "";
 
     const chain = view.value.critical.map((capabilityId) => titles.value[capabilityId]).join(" → ");
-    const status = `${capabilityStateLabel(current.state)}. Its path stays lit; drag to move around.`;
+    const status = `${capabilityStateLabel(current.state)}. Its path stays lit; click an empty spot for the whole map.`;
 
     return chain ? `${status} Longest chain left: ${chain}.` : status;
 });

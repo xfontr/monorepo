@@ -37,6 +37,20 @@ describe("WorkflowGraph", () => {
         expect(block("Search").classList).toContain("opacity-25");
     });
 
+    it("shows the whole map on a click on an empty spot or on the selected block", async () => {
+        const wrapper = await mount("page");
+        const block = (title: string) => node(wrapper, title).element.parentElement!;
+
+        await wrapper.find("svg").trigger("click");
+        expect(block("Search").classList).not.toContain("opacity-25");
+
+        await node(wrapper, "Page").trigger("click");
+        expect(block("Search").classList).toContain("opacity-25");
+
+        await node(wrapper, "Page").trigger("click");
+        expect(block("Search").classList).not.toContain("opacity-25");
+    });
+
     it("leaves a switched-off block off the map instead of greying it", async () => {
         const wrapper = await mount(null);
 

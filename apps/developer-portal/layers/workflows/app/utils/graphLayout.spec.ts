@@ -22,4 +22,28 @@ describe("graphLayout", () => {
         expect(nodes.map(({ id }) => id)).toEqual(["page", "share"]);
         expect(edges.map(({ from, to }) => [from, to])).toEqual([["page", "share"]]);
     });
+
+    it("draws no shortcut link to a block already reached through another need", () => {
+        const { capabilities: withShortcut } = projectView(
+            project,
+            readTemplate({
+                id: "t",
+                title: "T",
+                stages: [{ id: "build", title: "Build" }],
+                capabilities: [
+                    { id: "kit", stage: "build", title: "Kit" },
+                    { id: "page", stage: "build", title: "Page", dependsOn: ["kit"] },
+                    { id: "share", stage: "build", title: "Share", dependsOn: ["kit", "page"] },
+                ],
+            }).template,
+            null,
+        );
+
+        const { edges } = graphLayout(withShortcut);
+
+        expect(edges.map(({ from, to }) => [from, to])).toEqual([
+            ["kit", "page"],
+            ["page", "share"],
+        ]);
+    });
 });
