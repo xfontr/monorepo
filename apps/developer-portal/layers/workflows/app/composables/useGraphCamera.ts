@@ -6,6 +6,8 @@ const MAX_ZOOM = 1.25;
 const READABLE_ZOOM = 0.75;
 /** A press that moves further than this is a drag, and doesn't select what it started on. */
 const DRAG_THRESHOLD = 4;
+/** A mouse notch reports a deltaY near 100, against a trackpad's handful per event. */
+const WHEEL_STEP = 25;
 
 /** Pan and zoom over a laid-out graph, framing whichever blocks `lit` returns. */
 export const useGraphCamera = (
@@ -65,13 +67,18 @@ export const useGraphCamera = (
         camera.k = k;
     };
 
-    /** Pinch on a trackpad arrives as a ctrl-wheel; a plain wheel keeps scrolling the page. */
-    const wheel = (event: WheelEvent) => {
-        if (!event.ctrlKey && !event.metaKey) return;
+    /** Pinch on a trackpad arrives as a ctrl-wheel; a plain wheel zooms only when `free`, since
+     * otherwise it scrolls the page. */
+    const wheel = (event: WheelEvent, free = false) => {
+        if (!free && !event.ctrlKey && !event.metaKey) return;
 
         event.preventDefault();
         const box = viewport.value!.getBoundingClientRect();
-        zoomBy(Math.exp(-event.deltaY * 0.01), event.clientX - box.left, event.clientY - box.top);
+        zoomBy(
+            Math.exp(-Math.max(-WHEEL_STEP, Math.min(WHEEL_STEP, event.deltaY)) * 0.01),
+            event.clientX - box.left,
+            event.clientY - box.top,
+        );
     };
 
     const dragging = ref(false);
