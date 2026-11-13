@@ -29,7 +29,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@nuxt/test-utils": "^4.3.2",
-    "@nx/eslint-plugin": "24.0.3",
+    "@nx/eslint-plugin": "24.0.4",
     "@playwright/test": "catalog:",
     "@types/node": "catalog:",
     "@vitest/eslint-plugin": "^1.6.18",
