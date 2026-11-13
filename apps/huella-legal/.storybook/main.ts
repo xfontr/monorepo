@@ -43,11 +43,13 @@ const config: StorybookConfig = {
         options: { docgen: false },
     },
     stories: [
-        ...componentDirs.toSorted().map((dir) => ({
-            directory: `../${dir}`,
-            files: "**/*.stories.ts",
-            titlePrefix: titlePrefix(dir),
-        })),
+        ...componentDirs
+            .toSorted((a, b) => a.localeCompare(b))
+            .map((dir) => ({
+                directory: `../${dir}`,
+                files: "**/*.stories.ts",
+                titlePrefix: titlePrefix(dir),
+            })),
     ],
     staticDirs: [{ from: "../public/favicon.ico", to: "/favicon.ico" }],
     core: {

@@ -39,18 +39,24 @@ const classify = (line: string): EnvLine | undefined => {
 };
 
 /** The index of the line an entry's value ends on, or the problem when a quote never closes. */
-const entryEnd = (raw: string[], start: number, key: string, value: string): number | string => {
+const entryEnd = (
+    raw: string[],
+    start: number,
+    key: string,
+    value: string,
+): { end: number } | { problem: string } => {
     const quote = value[0];
-    if (!quote || !QUOTES.has(quote)) return start;
+    if (!quote || !QUOTES.has(quote)) return { end: start };
 
     let index = start;
     let joined = value;
     while (!closes(joined, quote)) {
         index++;
-        if (index >= raw.length) return `${key} opens a ${quote} quote that never closes`;
+        if (index >= raw.length)
+            return { problem: `${key} opens a ${quote} quote that never closes` };
         joined += `\n${raw[index]}`;
     }
-    return index;
+    return { end: index };
 };
 
 /** Refuses anything it can't classify, so a file it doesn't understand is never rewritten. */
@@ -82,8 +88,9 @@ export const parseEnv = (text: string): Parsed => {
         if (seen.has(key)) return { problem: `${key} is set twice` };
         seen.add(key);
 
-        const end = entryEnd(raw, index, key, (entry[2] ?? "").trimStart());
-        if (typeof end === "string") return { problem: end };
+        const entryRange = entryEnd(raw, index, key, (entry[2] ?? "").trimStart());
+        if ("problem" in entryRange) return entryRange;
+        const { end } = entryRange;
 
         lines.push({ kind: "entry", key, lines: raw.slice(index, end + 1) });
         index = end + 1;

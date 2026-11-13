@@ -143,7 +143,7 @@ export const createStore = (root: string) => {
 
             await write(html, content);
 
-            if (Object.values(fields).some((value) => value !== undefined)) {
+            if (Object.values<string | undefined>(fields).some((value) => value !== undefined)) {
                 await write(json, stableJson(fields));
             } else await rm(json, { force: true });
         },
@@ -168,9 +168,8 @@ export const createStore = (root: string) => {
                 name.endsWith(".json"),
             );
             const runs = await Promise.all(
-                names
-                    .sort((a, b) => a.localeCompare(b))
-                    .reverse()
+                [...names]
+                    .sort((a, b) => b.localeCompare(a))
                     .map((name) => readJson<RunReport>(join(dir, name))),
             );
 

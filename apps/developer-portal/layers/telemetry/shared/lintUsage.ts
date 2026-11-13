@@ -63,7 +63,9 @@ export const summarizeLint = (
     for (const record of records) {
         const { at, rule } = record;
         if (!at || !rule) continue;
-        tally((rules[rule] ??= emptyRule(false)), record, since);
+        const usage = rules[rule] ?? emptyRule(false);
+        rules[rule] = usage;
+        tally(usage, record, since);
         if (!first || at < first) first = at;
     }
 

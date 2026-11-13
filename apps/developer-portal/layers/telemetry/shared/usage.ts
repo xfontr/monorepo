@@ -87,7 +87,9 @@ export const summarize = (
     for (const record of records) {
         const { at, script } = record;
         if (!at || !script) continue;
-        tally((scripts[script] ??= emptyUsage(at)), record, at, since);
+        const usage = scripts[script] ?? emptyUsage(at);
+        scripts[script] = usage;
+        tally(usage, record, at, since);
     }
 
     for (const usage of Object.values(scripts)) {

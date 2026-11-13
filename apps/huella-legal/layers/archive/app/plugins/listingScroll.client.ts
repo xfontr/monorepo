@@ -2,6 +2,7 @@ import type { RouterScrollBehavior } from "vue-router";
 
 // Manual fix for https://github.com/nuxt/nuxt/issues/24070
 export default defineNuxtPlugin(({ $router }) => {
+    // eslint-disable-next-line sonarjs/deprecation -- its replacement is still in vue-router/experimental
     let nuxtDefault = $router.options.scrollBehavior;
 
     const scrollBehavior: RouterScrollBehavior = (to, from, savedPosition) =>

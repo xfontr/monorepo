@@ -27,7 +27,7 @@ export interface WordpressTerm {
 
 // `avatar_urls` is left out on purpose: without an uploaded avatar it holds a default-Gravatar placeholder
 export interface WordpressUser {
-    id: number;
+    id?: number;
     name: string;
     slug: string;
     description?: string;
