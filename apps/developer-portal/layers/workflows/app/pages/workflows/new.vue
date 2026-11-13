@@ -151,15 +151,7 @@
                                     variant="outline"
                                     @click="download"
                                 />
-                                <UTooltip :text="LOCKED">
-                                    <span tabindex="0">
-                                        <UButton
-                                            label="Create project"
-                                            icon="i-lucide-check"
-                                            disabled
-                                        />
-                                    </span>
-                                </UTooltip>
+                                <UButton label="Create project" icon="i-lucide-check" disabled />
                             </span>
                         </footer>
 

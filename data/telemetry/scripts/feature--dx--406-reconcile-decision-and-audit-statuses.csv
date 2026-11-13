@@ -50,3 +50,4 @@ at,script,command,target,flags,area,caller,tty,exit,ms
 2026-11-13,map,,,check,dx,claude-code,0,0,208
 2026-11-13,map,,,check,dx,claude-code,0,0,117
 2026-11-13,map,,,check,dx,claude-code,0,0,122
+2026-11-13,dev,,developer-portal,,dx,human,1,0,3493312

@@ -12,7 +12,6 @@
                 @pointerup="cancelPress"
                 @pointercancel="cancelPress"
                 @pointerleave="cancelPress"
-                @click.capture="swallowAfterPress"
                 @contextmenu="swallowAfterPress"
             >
                 <div
@@ -181,17 +180,28 @@ const cancelPress = () => {
     press = null;
 };
 
+// The press that opened edit mode ends in a click, which would otherwise follow the widget's link.
+const swallowAfterPress = (event: Event) => {
+    if (!pressed) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.type === "click") pressed = false;
+};
+
 const startPress = (event: PointerEvent) => {
     if (editing.value || event.button !== 0) return;
 
     cancelPress();
     pressed = false;
+    const widget = event.currentTarget as HTMLElement;
     press = {
         x: event.clientX,
         y: event.clientY,
         timer: setTimeout(() => {
             pressed = true;
             press = null;
+            widget.addEventListener("click", swallowAfterPress, { capture: true, once: true });
             editing.value = true;
         }, LONG_PRESS_MS),
     };
@@ -200,15 +210,6 @@ const startPress = (event: PointerEvent) => {
 const movePress = (event: PointerEvent) => {
     if (!press) return;
     if (Math.hypot(event.clientX - press.x, event.clientY - press.y) > PRESS_SLOP_PX) cancelPress();
-};
-
-// The press that opened edit mode ends in a click, which would otherwise follow the widget's link.
-const swallowAfterPress = (event: Event) => {
-    if (!pressed) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-    if (event.type === "click") pressed = false;
 };
 
 onBeforeUnmount(cancelPress);

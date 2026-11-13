@@ -16,6 +16,7 @@
             @pointerup="release"
             @pointercancel="release"
             @click="clickMap"
+            @keydown="keydownMap"
             @wheel="wheel($event, expanded)"
         >
             <div
@@ -244,6 +245,11 @@ const details = (id: string) => {
 
 const expanded = ref(false);
 defineShortcuts({ escape: { usingInput: true, handler: () => (expanded.value = false) } });
+
+/** Full screen claims Escape to close, so only the inline map treats it as a click on empty space. */
+const keydownMap = (event: KeyboardEvent) => {
+    if (event.key === "Escape" && !expanded.value) overview.value = true;
+};
 
 onMounted(() => fit(false));
 watch(expanded, () => nextTick(() => fit(false)));
