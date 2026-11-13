@@ -127,6 +127,15 @@ describe("eslint factories", () => {
         expect(spec?.["no-nested-ternary"]).toBeUndefined();
     });
 
+    it("runs the SonarJS preset on source but not on specs", async () => {
+        const config = createNodeConfig();
+        const source = await resolve(config, "src/report.ts");
+        const spec = await resolve(config, "src/report.spec.ts");
+
+        expect(severity(source?.["sonarjs/cognitive-complexity"])).toBe(2);
+        expect(spec?.["sonarjs/cognitive-complexity"]).toBeUndefined();
+    });
+
     it("scopes Tailwind to the entry point the app passes", async () => {
         const config = [...createNuxtConfig(), tailwind("app/main.css")];
         const rules = await resolve(config, "app/App.vue");

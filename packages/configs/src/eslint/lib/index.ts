@@ -25,6 +25,7 @@ import regexp from "./regexp.ts";
 import awaitInLoop from "./awaitInLoop.ts";
 import ternaries from "./ternaries.ts";
 import sortCompare from "./sortCompare.ts";
+import sonarjs from "./sonarjs.ts";
 
 const shared: object[] = [
     format,
@@ -40,6 +41,7 @@ const shared: object[] = [
     awaitInLoop,
     ternaries,
     sortCompare,
+    sonarjs,
     noConsole,
     unsafeCode,
     e2eFixture,
