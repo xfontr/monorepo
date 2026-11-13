@@ -1,0 +1,7 @@
+at,script,command,target,flags,area,caller,tty,exit,ms
+2026-11-13,map,,,check,dx,claude-code,0,0,131
+2026-11-13,map,,,check,dx,claude-code,0,0,163
+2026-11-13,map,,,check,dx,claude-code,0,0,130
+2026-11-13,issue,pick,,title,repo,claude-code,0,1,1006
+2026-11-13,issue,pick,,project=developer-portal;title;type=fix,repo,claude-code,0,1,3574
+2026-11-13,map,,,check,developer-portal,claude-code,0,0,124

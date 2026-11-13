@@ -188,6 +188,10 @@ Node types even in a package that otherwise doesn't.
   [`0013`](../../docs/decisions/0013-linter-coverage.md) has the sweep. The preset leaves the
   quantifier-before-anchor shape (`\s*x$`, `-+$`) off, and all four quadratic regexes SonarCloud
   reported in #232 had it
+- `eslint-plugin-sonarjs` (`recommended`) everywhere but specs, from
+  [`lib/sonarjs.ts`](./src/eslint/lib/sonarjs.ts) — the same JS/TS rules SonarCloud analyses, so a
+  finding fails `pnpm check` and pre-push instead of the quality gate on the PR. Specs are exempt
+  because their fixtures — temp dirs, fake passwords, skipped tests — trip it by design
 - `no-await-in-loop` and `no-nested-ternary` everywhere but specs, from
   [`lib/awaitInLoop.ts`](./src/eslint/lib/awaitInLoop.ts) and
   [`lib/ternaries.ts`](./src/eslint/lib/ternaries.ts). Independent awaits go through `Promise.all`; a

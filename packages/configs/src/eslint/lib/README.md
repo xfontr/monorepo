@@ -31,6 +31,7 @@ different objects under one name meet on a file.
 | [`typeDefinitions.ts`](./typeDefinitions.ts) | `@typescript-eslint/consistent-type-definitions: interface`: `typeDefinitions` for `**/*.ts` and `typeDefinitionsVue` for `**/*.vue` (Vue configs only) |
 | [`useBeforeDefine.ts`](./useBeforeDefine.ts) | `@typescript-eslint/no-use-before-define`, types exempt: `useBeforeDefine` for `**/*.ts` and `useBeforeDefineVue` for `**/*.vue` (Vue configs only), so every module declares a helper above the code that calls it |
 | [`regexp.ts`](./regexp.ts) | `eslint-plugin-regexp`'s `flat/recommended` plus `regexp/no-super-linear-move`, which the preset leaves off and which is the shape of every quadratic regex SonarCloud has reported here |
+| [`sonarjs.ts`](./sonarjs.ts) | `eslint-plugin-sonarjs`'s `recommended` preset everywhere but specs, so the issues SonarCloud gates on fail lint first. Spec fixtures trip it by design |
 | [`awaitInLoop.ts`](./awaitInLoop.ts) | Core `no-await-in-loop` everywhere but specs. Independent awaits go through `Promise.all`; a loop that must stay sequential carries a block disable saying why |
 | [`ternaries.ts`](./ternaries.ts) | Core `no-nested-ternary` everywhere but specs |
 | [`sortCompare.ts`](./sortCompare.ts) | `@typescript-eslint/require-array-sort-compare` with string arrays included, for `.ts` outside specs, stories and `.storybook/` — the files every flavour type-checks |

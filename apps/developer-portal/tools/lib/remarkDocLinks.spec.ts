@@ -92,6 +92,27 @@ describe("remarkDocLinks", () => {
         expect(tree).toEqual({ type: "root", children: [{ type: "text", value: "a file" }] });
     });
 
+    it("replaces a link to a deleted file with its text, since @nuxt/content would turn it into a 404 route", () => {
+        const tree = {
+            type: "root",
+            children: [
+                {
+                    type: "link",
+                    url: "./gone/README.md#section",
+                    children: [{ type: "text", value: "gone" }],
+                },
+                { type: "link", url: "./gone.sh", children: [{ type: "text", value: "script" }] },
+            ],
+        };
+
+        transform(tree, sourcePath);
+
+        expect(tree.children).toEqual([
+            { type: "text", value: "gone" },
+            { type: "text", value: "script" },
+        ]);
+    });
+
     it("keeps non-owned links unchanged", () => {
         const tree = {
             type: "root",

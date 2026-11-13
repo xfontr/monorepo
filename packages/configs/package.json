@@ -39,6 +39,7 @@
     "eslint-plugin-jsonc": "^3.2.0",
     "eslint-plugin-prefer-arrow-functions": "^3.10.2",
     "eslint-plugin-regexp": "^3.3.0",
+    "eslint-plugin-sonarjs": "^4.2.2",
     "eslint-plugin-vue": "^10.9.1",
     "globals": "^17.6.0",
     "typescript": "catalog:",

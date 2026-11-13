@@ -1,5 +1,5 @@
 // GitHub's job logs spell the escape character as the two characters `^[`.
-// eslint-disable-next-line no-control-regex -- matching the escape character is the point
+// eslint-disable-next-line no-control-regex, sonarjs/no-control-regex -- matching the escape character is the point
 const ANSI = /(?:\u001b|\^\[)\[[0-9;?]*[A-Z]/gi;
 
 /** Lines every tool prints around a failure that never help fix it. */

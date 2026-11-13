@@ -2,6 +2,7 @@ import {
     addServerHandler,
     createResolver,
     defineNuxtModule,
+    // eslint-disable-next-line sonarjs/deprecation -- moving to moduleDependencies is its own change
     installModule,
     useLogger,
 } from "@nuxt/kit";
@@ -71,6 +72,7 @@ export default defineNuxtModule<TranslationsConfig>({
             });
         });
 
+        // eslint-disable-next-line sonarjs/deprecation -- moving to moduleDependencies is its own change
         await installModule("@nuxtjs/i18n");
     },
 });

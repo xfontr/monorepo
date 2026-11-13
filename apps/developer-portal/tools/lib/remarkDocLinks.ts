@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { relative, resolve } from "node:path";
-import { isPlaceholder, resolveDocLink } from "#layers/docs/shared/docLinks.ts";
+import { isPlaceholder, REPO_SCHEME, resolveDocLink } from "#layers/docs/shared/docLinks.ts";
 import { WORKSPACE_ROOT } from "./paths.ts";
 
 interface MarkdownNode {
@@ -46,6 +46,14 @@ const isPage = (repoPath: string): boolean => {
     return /\.mdx?$/i.test(repoPath) ? existsSync(absolute) : existsSync(`${absolute}.md`);
 };
 
+const isMissing = (url: string): boolean => {
+    if (!url.startsWith(REPO_SCHEME)) return false;
+
+    const [path = ""] = url.slice(REPO_SCHEME.length).split("#");
+
+    return !existsSync(resolve(WORKSPACE_ROOT, decodeURIComponent(path)));
+};
+
 /**
  * Remark, not rehype: the mdast-to-hast step strips `.md` from a relative href on its way through,
  * and that extension is the only thing distinguishing a page from a directory. Do not move this later.
@@ -62,7 +70,13 @@ export default function remarkDocLinks() {
             // A placeholder names no target, so it renders as text rather than as a dead route.
             if (isPlaceholder(href)) return link.children ?? [];
 
-            link.url = resolveDocLink(href, from, isPage) ?? href;
+            const url = resolveDocLink(href, from, isPage) ?? href;
+
+            // `@nuxt/content` rewrites a `repo:…/x.md` href to the relative route `…/x`, which the
+            // prerender crawler follows into a 404; the page's broken-links banner still names it.
+            if (isMissing(url)) return link.children ?? [];
+
+            link.url = url;
 
             return null;
         });

@@ -10,8 +10,9 @@ export const requireTerminal = (hint: string): void => {
     if (!isInteractive()) throw new ExpectedError(`No terminal to prompt in — ${hint}`);
 };
 
-const line = (stream: NodeJS.WriteStream, message: string): void =>
-    void stream.write(`${message}\n`);
+const line = (stream: NodeJS.WriteStream, message: string): void => {
+    stream.write(`${message}\n`);
+};
 
 /** Warnings and errors stay on stderr so check failures remain separate from stdout. */
 export const out = {

@@ -123,6 +123,7 @@ const layerBoundaries: Rule.RuleModule = {
         const appRoot = appRootOf(filename, kit);
         if (appRoot === undefined) return {};
 
+        // eslint-disable-next-line sonarjs/function-return-type -- Owner names the kit and shell as strings and a layer as an object
         const ownerOf = (path: string): Owner | undefined => {
             if (!path.startsWith(`${appRoot}/`)) return undefined;
             const relative = path.slice(appRoot.length + 1);
