@@ -2,13 +2,12 @@ import type { Workflows } from "#layers/workflows/shared/workflows.ts";
 
 const NONE: Workflows = { templates: [], projects: [], problems: [] };
 
-/** Baked at build like every server route here; under `nuxt dev` it re-reads `docs/workflows` on refresh. */
+/** Baked at build like every server route here; under `nuxt dev` it re-reads `data/workflows` on refresh. */
 export const useWorkflows = () =>
     useFetch<Workflows>("/api/workflows", { key: "workflows", default: () => NONE });
 
-/** Only `nuxt dev` has a server to write through, so the static build never shows a control that can't work. */
+/** Only `nuxt dev` has a server to write through; the static build offers the file as a download. */
 export const useWorkflowEdit = () => {
-    const { refresh } = useWorkflows();
     const toast = useToast();
 
     const editable = import.meta.dev;
@@ -16,7 +15,7 @@ export const useWorkflowEdit = () => {
     const edit = async (body: Record<string, unknown>): Promise<boolean> => {
         try {
             await $fetch("/api/workflows/edit", { method: "POST", body });
-            await refresh();
+            await refreshNuxtData("workflows");
             return true;
         } catch (cause) {
             const message =

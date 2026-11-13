@@ -13,7 +13,7 @@ export const missingReusePaths = (
     workspaceRoot: string,
 ): WorkflowProblem[] =>
     templates.flatMap((template) =>
-        template.capabilities.flatMap((capability) => {
+        [...template.capabilities, ...template.types].flatMap((capability) => {
             const from = capability.reuse?.from;
 
             if (!from || existsSync(resolve(workspaceRoot, from))) return [];

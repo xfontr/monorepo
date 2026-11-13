@@ -2,6 +2,8 @@
 export const REUSE_PLANS = ["package", "extract", "copy", "method", "new"] as const;
 export const KINDS = ["build", "spike", "owner"] as const;
 export const SETTLED_STATES = ["done", "skipped"] as const;
+/** How much a person oversees the code, which sets how many points a filed ticket may hold. */
+export const TICKET_SIZES = ["block", "supervised", "fast"] as const;
 export const CAPABILITY_STATES = [
     "off",
     "skipped",
@@ -25,6 +27,7 @@ export const TICKET_STATUSES = [
 export type ReusePlan = (typeof REUSE_PLANS)[number];
 export type Kind = (typeof KINDS)[number];
 export type SettledState = (typeof SETTLED_STATES)[number];
+export type TicketSize = (typeof TICKET_SIZES)[number];
 export type CapabilityState = (typeof CAPABILITY_STATES)[number];
 export type TicketStatus = (typeof TICKET_STATUSES)[number];
 
@@ -33,6 +36,9 @@ export const CAPABILITY_LABEL_PREFIX = "cap:";
 
 /** The GitHub label on a ticket only the project's owner can close: a decision, a credential, DNS. */
 export const OWNER_LABEL = "owner";
+
+/** The Fibonacci values a complexity estimate may take; anything bigger is a block to split. */
+export const COMPLEXITY_SCALE = [1, 2, 3, 5, 8, 13, 21] as const;
 
 export interface Lesson {
     text: string;
@@ -55,11 +61,15 @@ export interface Capability {
     optional: boolean;
     /** Whether an optional capability starts switched on; always true for a required one. */
     default: boolean;
+    /** No switch: in the map only while an extra depends on it, so a setup is paid for once. */
+    onDemand: boolean;
     dependsOn: string[];
     doneWhen: string[];
     reuse: { plan: ReusePlan; from: string | null } | null;
     lessons: Lesson[];
     tickets: SuggestedTicket[];
+    /** The whole block's estimate, used until its tickets carry their own. */
+    complexity: number | null;
 }
 
 /** A switchable bundle of capabilities, such as a blog, with no tickets or progress of its own. */
@@ -84,6 +94,8 @@ export interface Template {
     stages: Stage[];
     groups: Group[];
     capabilities: Capability[];
+    /** Blocks a project adds as many times as it needs, each an extra naming one with `type:`. */
+    types: Capability[];
 }
 
 export interface Project {
@@ -94,6 +106,7 @@ export interface Project {
     milestone: string;
     summary: string;
     switches: Record<string, boolean>;
+    ticketSize: TicketSize;
     /** `on` is the day it was settled, so a replay of an earlier day doesn't count it yet. */
     settled: Record<string, { status: SettledState; note: string; on: string | null }>;
     extras: Capability[];
@@ -116,7 +129,11 @@ export interface SnapshotIssue {
     blockedBy: { number: number; open: boolean; closedAt: string | null }[];
     /** A branch is linked on the issue, which is how `pnpm issue:pick` marks it as taken. */
     branch: boolean;
+    /** An open pull request would close it, so work started even without a linked branch. */
+    pr: boolean;
     owner: boolean;
+    /** The board's Complexity field; null when nobody estimated it. */
+    complexity: number | null;
 }
 
 export interface Snapshot {
@@ -147,11 +164,23 @@ export interface CapabilityView extends Capability {
     waitingOn: string[];
     /** Unfinished blocks behind it, directly or through others. */
     unblockCount: number;
+    points: Points;
 }
 
 export interface StageView extends Stage {
     capabilities: CapabilityView[];
     progress: Progress;
+    points: Points;
+}
+
+/** Complexity summed over filed tickets, and over the template's estimate for blocks not yet filed. */
+export interface Points {
+    done: number;
+    total: number;
+    /** How much of `total` is still the template's guess rather than tickets' own estimates. */
+    estimated: number;
+    /** Tickets or unfiled blocks with no figure at all, which `total` leaves out. */
+    unestimated: number;
 }
 
 export interface Progress {
@@ -171,10 +200,29 @@ export interface Feature {
     title: string;
     summary: string;
     enabled: boolean;
-    /** Titles of the blocks it brings in. */
-    blocks: string[];
+    /** The blocks it brings in, each with the template's estimate. */
+    blocks: { title: string; complexity: number | null }[];
+    /** The blocks' estimates summed. */
+    points: number;
     /** The feature it sits inside, which has to be on for this one to be. */
     within: string | null;
+}
+
+/** One line of a new project's estimate: the core, a feature switched on, or a page. */
+export interface ReceiptRow {
+    id: string;
+    label: string;
+    detail: string | null;
+    points: number;
+    /** A feature inside another, such as comments in the blog. */
+    nested: boolean;
+}
+
+export interface TicketCount {
+    /** Tickets in the milestone that carry a capability label, dropped ones left out. */
+    filed: number;
+    /** The tickets the blocks still to file would become, under each ticket size. */
+    toFile: Record<TicketSize, number>;
 }
 
 export interface ProjectView {
@@ -194,5 +242,7 @@ export interface ProjectView {
     critical: string[];
     unsorted: UnsortedIssue[];
     progress: Progress;
+    points: Points;
+    tickets: TicketCount;
     syncedAt: string | null;
 }

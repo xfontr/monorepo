@@ -1,25 +1,32 @@
 import type { LintRuleUsage, LintUsage } from "#layers/snapshot/shared/types.ts";
 import type { UsageRecord } from "./usage.ts";
 
-export type LintAlertKind = "fought" | "noisy" | "always-fixed";
-
-export interface LintAlert {
-    rule: string;
-    kind: LintAlertKind;
-    message: string;
-}
-
-export const MIN_HITS = 5;
 export const FOUGHT_DISABLES = 3;
 export const NOISY_SHARE = 0.3;
 
-const DIRECTIVE = /(?:\/\/|\/\*)\s*eslint-disable(?:-next-line|-line)?\s/;
+const DIRECTIVE = /(?:\/\/|\/\*|<!--)\s*eslint-disable(?:-next-line|-line)?\s/g;
 const RULE_ID = /^@?[\w-]+(?:\/[\w-]+)*$/;
+
+/** Whether the line's text up to here is still inside a string, where a `//` is only text. */
+const insideString = (before: string): boolean => {
+    let quote: string | null = null;
+
+    for (let index = 0; index < before.length; index += 1) {
+        const char = before[index]!;
+        if (char === "\\") index += 1;
+        else if (quote === char) quote = null;
+        else if (quote === null && (char === '"' || char === "'" || char === "`")) quote = char;
+    }
+
+    return quote !== null;
+};
 
 /** The rule IDs each `eslint-disable` comment in a file names; a bare directive names none. */
 export const parseDisables = (source: string): string[] =>
     source.split("\n").flatMap((line) => {
-        const match = DIRECTIVE.exec(line);
+        const match = [...line.matchAll(DIRECTIVE)].find(
+            ({ index }) => !insideString(line.slice(0, index)),
+        );
         if (!match) return [];
 
         const rest = line.slice(match.index + match[0].length);
@@ -43,9 +50,11 @@ const emptyRule = (enabled: boolean): LintRuleUsage => ({
 
 const tally = (usage: LintRuleUsage, { at = "", project, fixable }: UsageRecord, since: string) => {
     usage.hits += 1;
-    if (at >= since) usage.recent += 1;
-    if (fixable === "1") usage.fixable += 1;
     if (!usage.last || at > usage.last) usage.last = at;
+    if (at < since) return;
+
+    usage.recent += 1;
+    if (fixable === "1") usage.fixable += 1;
     if (project) usage.projects[project] = (usage.projects[project] ?? 0) + 1;
 };
 
@@ -84,33 +93,3 @@ export const neverFired = (lint: LintUsage): string[] =>
         .filter(([, usage]) => usage.enabled && usage.recent === 0 && usage.disabled === 0)
         .map(([rule]) => rule)
         .sort((a, b) => a.localeCompare(b));
-
-export const lintAlerts = (lint: LintUsage): LintAlert[] => {
-    const recentTotal = Object.values(lint.rules).reduce((sum, usage) => sum + usage.recent, 0);
-    const alerts: LintAlert[] = [];
-
-    for (const [rule, usage] of Object.entries(lint.rules)) {
-        if (usage.disabled >= FOUGHT_DISABLES)
-            alerts.push({
-                rule,
-                kind: "fought",
-                message: `Disabled inline ${usage.disabled} times. Either the rule or the code it keeps catching is wrong.`,
-            });
-
-        if (usage.recent >= MIN_HITS && usage.recent / recentTotal >= NOISY_SHARE)
-            alerts.push({
-                rule,
-                kind: "noisy",
-                message: `${Math.round((usage.recent / recentTotal) * 100)}% of recent hits. Worth saying in a CLAUDE.md, or a sign the rule is too broad.`,
-            });
-
-        if (usage.hits >= MIN_HITS && usage.fixable === usage.hits)
-            alerts.push({
-                rule,
-                kind: "always-fixed",
-                message: "Every hit was auto-fixed, so it costs agents nothing.",
-            });
-    }
-
-    return alerts;
-};

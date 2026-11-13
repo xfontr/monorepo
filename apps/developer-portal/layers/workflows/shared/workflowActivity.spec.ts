@@ -34,7 +34,9 @@ const issue = (
     activity,
     blockedBy: [],
     branch: false,
+    pr: false,
     owner: false,
+    complexity: null,
 });
 
 const activityOf = (issues: SnapshotIssue[]) =>
@@ -94,35 +96,45 @@ describe("projectActivity", () => {
         expect(activity?.peak).toBe(3);
     });
 
-    it("flags an open capability left three weeks behind the project's latest commit", () => {
-        const activity = activityOf([
-            issue(1, ["search"], ["2026-10-01"], "open"),
-            issue(2, ["search"], ["2026-10-02"]),
-            issue(3, ["seo"], ["2026-10-02"], "open"),
-            issue(4, ["seo"], ["2026-10-01"]),
-            issue(5, ["cutover"], ["2026-10-23"]),
-        ]);
+    it("keeps a replayed day on the synced timeline and scale, so the strip never stretches", () => {
+        const issues = [
+            issue(1, ["search"], ["2026-10-05", "2026-10-06", "2026-10-07"]),
+            issue(2, ["seo"], ["2026-10-06"]),
+            issue(3, ["cutover"], ["2026-10-20"]),
+        ];
+        const frame = activityOf(issues)!;
+        const replayed = projectActivity(
+            projectView(
+                project,
+                template,
+                { syncedAt: "", milestone: "P", issues, noMilestone: [] },
+                "2026-10-05",
+            ),
+            frame,
+        );
 
-        expect(activity?.capabilities.search?.quietSince).toBe("2026-10-02");
-        expect(activity?.capabilities.cutover?.quietSince).toBeNull();
+        expect(replayed?.days).toEqual(frame.days);
+        expect(replayed?.weeks).toEqual(frame.weeks);
+        expect(replayed).toMatchObject({ peak: 3, busiest: 2, lastDay: "2026-10-05" });
+        expect(replayed?.byStage.slice(0, 2)).toEqual([
+            [1, 0],
+            [0, 0],
+        ]);
     });
 
-    it("never calls an open capability quiet when it moved within the last three weeks", () => {
-        const activity = activityOf([
-            issue(1, ["search"], ["2026-10-03"], "open"),
-            issue(2, ["search"], ["2026-10-03"]),
-            issue(3, ["cutover"], ["2026-10-23"]),
-        ]);
+    it("still draws the synced timeline on a replayed day before the first commit", () => {
+        const issues = [issue(1, ["search"], ["2026-10-05", "2026-10-06"])];
+        const replayed = projectActivity(
+            projectView(
+                project,
+                template,
+                { syncedAt: "", milestone: "P", issues, noMilestone: [] },
+                "2026-10-01",
+            ),
+            activityOf(issues),
+        );
 
-        expect(activity?.capabilities.search?.quietSince).toBeNull();
-    });
-
-    it("never calls a delivered capability quiet, however long ago it finished", () => {
-        const activity = activityOf([
-            issue(1, ["search"], ["2026-09-01"]),
-            issue(2, ["cutover"], ["2026-10-23"]),
-        ]);
-
-        expect(activity?.capabilities.search?.quietSince).toBeNull();
+        expect(replayed?.days).toEqual(["2026-10-05", "2026-10-06"]);
+        expect(replayed?.lastDay).toBeNull();
     });
 });

@@ -8,7 +8,7 @@ import { WORKSPACE_ROOT } from "../lib/paths.ts";
 import { git } from "../lib/run.ts";
 
 /** One CSV per branch and log, written by `pnpm usage:flush` from the pre-commit hook. */
-const LOG_ROOT = resolve(WORKSPACE_ROOT, ".telemetry");
+const LOG_ROOT = resolve(WORKSPACE_ROOT, "data/telemetry");
 const SCRIPTS_DIR = resolve(WORKSPACE_ROOT, "infrastructure/scripts/src");
 
 /** `shared/` is what every script uses, and `usage/` is the flush, which never records itself. */
@@ -32,9 +32,12 @@ const knownScripts = async (): Promise<string[]> =>
         .map((entry) => entry.name)
         .sort((a, b) => a.localeCompare(b));
 
+/** Specs hold directives as test fixtures, and a file deleted but not yet committed has nothing to read. */
 const countDisables = async (files: string[]): Promise<Record<string, number>> => {
     const sources = await Promise.all(
-        files.map((file) => readFile(resolve(WORKSPACE_ROOT, file), "utf8")),
+        files
+            .filter((file) => !file.endsWith(".spec.ts"))
+            .map((file) => readFile(resolve(WORKSPACE_ROOT, file), "utf8").catch(() => "")),
     );
     const counts: Record<string, number> = {};
 

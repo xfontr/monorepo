@@ -18,9 +18,13 @@ interface RawGraph {
 }
 
 /** Nx auto-adds `npm:private`; the tag table only ever talks about `type:` and `scope:`. */
-const isDeclaredTag = (tag: string): boolean => tag.startsWith("type:") || tag.startsWith("scope:");
+export const isDeclaredTag = (tag: string): boolean =>
+    tag.startsWith("type:") || tag.startsWith("scope:");
 
-export const normalizeGraph = (raw: RawGraph, generatedAt: string): ProjectsArtifact => {
+export const normalizeGraph = (
+    raw: RawGraph,
+    generatedAt: string,
+): Omit<ProjectsArtifact, "retired"> => {
     const edges = Object.values(raw.graph.dependencies)
         .flat()
         .filter((edge) => edge.target in raw.graph.nodes);
@@ -46,7 +50,9 @@ export const normalizeGraph = (raw: RawGraph, generatedAt: string): ProjectsArti
     return { generatedAt, projects };
 };
 
-export const collectGraph = async (generatedAt: string): Promise<ProjectsArtifact> => {
+export const collectGraph = async (
+    generatedAt: string,
+): Promise<Omit<ProjectsArtifact, "retired">> => {
     const jsonPath = resolve(SNAPSHOT_DIR, "nx-graph.raw.json");
 
     // `nx graph --file` resolves a relative path against the workspace root, not cwd, and the JSON

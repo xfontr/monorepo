@@ -1,0 +1,31 @@
+id: marina-roustan
+title: Marina Roustan
+template: website-rebuild
+area: app:marina-roustan
+milestone: Marina Roustan
+ticketSize: fast
+summary: marinaroustan.com, a WordPress/Oxygen site for a clinical psychologist in Barcelona,
+  rebuilt as a Nuxt app with its content moved to Markdown.
+
+switches:
+  content-migration: true
+  search: false
+  newsletter: false
+  storybook: false
+  editorial-tooling: false
+  i18n: false
+
+# Guesses from the sitemap alone; the feature inventory replaces them.
+extras:
+  - id: blog-page
+    type: blog
+    title: Blog
+  - id: services-page
+    type: custom-page
+    title: Services page
+  - id: cancer-book-page
+    type: page-template
+    title: Cancer book page
+  - id: legal-notice-page
+    type: page-template
+    title: Legal notice page

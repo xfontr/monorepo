@@ -55,12 +55,17 @@ run at a time.
 
 | Stage | Who | Stops the run when |
 | --- | --- | --- |
-| Pick | `pnpm issue:pick`, then `pnpm issue:brief` | The tree is dirty or the pick fails |
+| Pick | The issue's labels, then `pnpm issue:pick` and `pnpm issue:brief` | The tree is dirty or the pick fails |
 | Plan | [`ticket-planner`](../../.claude/agents/ticket-planner.md) | The issue needs a structure with no precedent, or a choice the issue leaves open |
 | Implement | A general agent following the plan, then `pnpm check` | `check` is still red after two fixes |
 | Review | [`review-architecture`](../../.claude/agents/review-architecture.md), [`review-tests`](../../.claude/agents/review-tests.md) and [`review-correctness`](../../.claude/agents/review-correctness.md) in parallel, then a fixer | Blocking findings survive two fix rounds |
 | Polish | `comment-cleanup` and `doc-drift-check` | `check` goes red |
 | Ship | Conventional commits, then [`pnpm issue:ship`](../../infrastructure/scripts/src/ship/README.md) | The required checks fail after one repair, or the PR never merges |
+
+The labels decide the route before any branch is linked. An `owner` ticket is skipped and the run
+moves on, since the owner closes it and a linked branch would show it as taken. A `spike` ticket
+skips Plan, Review and Polish: one agent writes a decision report per `cap:` label on it, runs
+`pnpm check`, and ships. Running the pipeline on a spike is the request for those reports.
 
 The planner is the only stage that decides structure, and it decides nothing new: every file it
 plans names the existing path it copies, so an unattended run can't invent a convention. Reviewers

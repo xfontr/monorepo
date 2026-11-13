@@ -152,6 +152,51 @@
                             </div>
                         </div>
                     </UCard>
+
+                    <UCard
+                        v-for="project in retired"
+                        :key="project.name"
+                        :ui="{
+                            root: 'h-full flex flex-col opacity-70',
+                            body: 'flex-1 flex flex-col gap-4',
+                        }"
+                    >
+                        <template #header>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h2 class="font-semibold text-muted">{{ project.name }}</h2>
+                                <UBadge
+                                    label="Retired"
+                                    color="neutral"
+                                    variant="subtle"
+                                    size="sm"
+                                />
+                            </div>
+                        </template>
+
+                        <p class="text-sm text-muted">
+                            Deleted {{ project.deletedAt }} · {{ project.subject }}
+                        </p>
+
+                        <div class="mt-auto flex flex-col gap-3">
+                            <div v-if="repoUrl" class="flex flex-wrap gap-2">
+                                <UButton
+                                    :to="`${repoUrl}/commit/${project.commit}`"
+                                    label="Deleting commit"
+                                    icon="i-lucide-git-commit-horizontal"
+                                    size="xs"
+                                    variant="soft"
+                                    target="_blank"
+                                />
+                            </div>
+
+                            <div class="border-t border-default pt-3 text-sm text-muted">
+                                <p class="text-xs text-dimmed">Commits</p>
+                                <p class="font-semibold" aria-label="Commits">
+                                    {{ project.commits }}
+                                </p>
+                            </div>
+                        </div>
+                    </UCard>
                 </div>
             </div>
         </template>
@@ -173,6 +218,7 @@ const { data: readmes } = await useAsyncData("project-readmes", () =>
 );
 
 const projects = computed(() => snapshot.value?.projects?.projects ?? []);
+const retired = computed(() => snapshot.value?.projects?.retired ?? []);
 const metrics = computed(
     () =>
         new Map(

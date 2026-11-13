@@ -8,10 +8,8 @@ summary: huellalegal.com, a WordPress legal blog for students and general
 
 switches:
   storybook: true
-  comments: true
   editorial-tooling: true
   i18n: false
-  blog: true
 
 settled:
   ci-deploy:
@@ -64,6 +62,17 @@ settled:
     note: The redirect map landed inside the cutover ticket.
 
 extras:
+  # The blog's two blocks keep the ids its tickets are labelled with, from before it was a page type.
+  - id: article-page
+    type: blog-comments
+    title: Post page
+    complexity: 8
+  - id: listing-pages
+    stage: build
+    title: Listings and archives
+    complexity: 8
+    dependsOn: [ component-kit, ci-deploy ]
+    summary: The post index and its category, tag and date archives.
   - id: interest-calculator
     stage: build
     title: Interest calculator

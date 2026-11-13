@@ -19,6 +19,8 @@ const issue = (overrides: Partial<GhIssue>): GhIssue => ({
     closedAt: null,
     blockedBy: [],
     branches: 0,
+    pullRequests: 0,
+    complexity: null,
     ...overrides,
 });
 
@@ -82,6 +84,7 @@ describe("toSnapshot", () => {
                         { number: 4, state: "OPEN", closedAt: null },
                     ],
                     branches: 1,
+                    pullRequests: 1,
                 }),
             ],
             [],
@@ -95,8 +98,21 @@ describe("toSnapshot", () => {
                 { number: 9, open: false, closedAt: "2026-10-02T00:00:00Z" },
             ],
             branch: true,
+            pr: true,
             owner: true,
         });
+    });
+
+    it("keeps the board's complexity estimate and an unestimated ticket as null, never zero", () => {
+        const { issues } = toSnapshot(
+            "Site",
+            [issue({ number: 1, complexity: 5 }), issue({ number: 2 })],
+            [],
+            NO_ACTIVITY,
+            "",
+        );
+
+        expect(issues.map(({ complexity }) => complexity)).toEqual([5, null]);
     });
 
     it("orders issues by number so a re-sync with the same tickets produces the same file", () => {

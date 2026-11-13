@@ -38,7 +38,7 @@ the markup.
 | --- | --- |
 | [`layers/design/app/assets/main.css`](./layers/design/app/assets/main.css) | Every token: palettes, type scale, measure, Nuxt UI's semantic roles pointed at them, and the base focus ring any element without its own falls back to |
 | [`layers/design/app/app.config.ts`](./layers/design/app/app.config.ts) | Nuxt UI colour aliases and control defaults: 44 px minimum height, paper field surface, and a button theme that darkens on hover, rings outlines in ink and draws the 2 px focus ring |
-| `.hl-prose` in [`layers/reading/app/assets/prose.css`](./layers/reading/app/assets/prose.css) | Reading typography for that HTML: headings, drop cap, notes, quotes, quoted legislation, tables, figures. It styles plain elements and Gutenberg's own wrappers (`wp-block-table`), so production can reuse it on CMS HTML |
+| `.hl-prose` in [`layers/articles/app/assets/prose.css`](./layers/articles/app/assets/prose.css) | Reading typography for that HTML: headings, drop cap, notes, quotes, quoted legislation, tables, figures. It styles plain elements and Gutenberg's own wrappers (`wp-block-table`), so production can reuse it on CMS HTML |
 
 ## 🎨 Tokens
 

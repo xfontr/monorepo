@@ -158,6 +158,49 @@ describe("projects page", () => {
         void wrapper;
     });
 
+    it("lists a deleted project after every live one, linking its commit instead of dead docs", async () => {
+        state.projects = ref({
+            projects: {
+                projects: [
+                    {
+                        name: "@monorepo/zeta",
+                        root: "packages/zeta",
+                        tags: [],
+                        dependsOn: [],
+                        dependedOnBy: [],
+                    },
+                ],
+                retired: [
+                    {
+                        name: "@monorepo/old",
+                        root: "packages/old",
+                        tags: [],
+                        deletedAt: "2026-11-08",
+                        commit: "abc123",
+                        subject: "chore: delete the old package",
+                        commits: 12,
+                    },
+                ],
+            },
+            manifest: {},
+        });
+        useRuntimeConfig().public.repoUrl = "https://github.com/acme/repo";
+        const wrapper = await mountSuspended(Page, { global });
+        useRuntimeConfig().public.repoUrl = "";
+        const cards = wrapper.findAll("article");
+        const card = cards.at(-1)!;
+
+        expect(cards.map((article) => article.find("h2").text())).toEqual([
+            "@monorepo/zeta",
+            "@monorepo/old",
+        ]);
+        expect(card.text()).toContain("Retired");
+        expect(card.text()).toContain("Deleted 2026-11-08 · chore: delete the old package");
+        expect(card.find("[aria-label='Commits']").text()).toBe("12");
+        expect(card.find("a[href$='/commit/abc123']").exists()).toBe(true);
+        expect(card.find("a[href='/docs/packages/old/readme']").exists()).toBe(false);
+    });
+
     it("renders no misleading cards when the collected project groups are empty", async () => {
         state.projects = ref({ projects: { projects: [] }, manifest: {} });
         const wrapper = await mountSuspended(Page, { global });

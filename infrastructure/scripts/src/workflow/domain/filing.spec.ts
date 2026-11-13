@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { planFiling, readMap } from "./filing.ts";
+import { bundleFor, bundlesOf, planFiling, readMap, toFile } from "./filing.ts";
 import type { SnapshotIssue } from "./snapshot.ts";
 
 const TEMPLATE = {
@@ -23,6 +23,20 @@ const TEMPLATE = {
             dependsOn: ["article-page"],
             tickets: [{ title: "Build comments", criteria: ["Readers can post."] }],
         },
+        {
+            id: "spam-protection",
+            title: "Spam protection",
+            optional: true,
+            default: false,
+            dependsOn: ["design-approval", "component-kit"],
+        },
+        {
+            id: "contact-form",
+            title: "Contact form",
+            optional: true,
+            default: false,
+            dependsOn: ["spam-protection"],
+        },
     ],
 };
 
@@ -44,7 +58,9 @@ const ticket = (
     activity: [],
     blockedBy: [],
     branch: false,
+    pr: false,
     owner: false,
+    complexity: null,
     ...overrides,
 });
 
@@ -56,7 +72,7 @@ describe("planFiling", () => {
         const filing = planFiling(
             readMap(TEMPLATE, PROJECT),
             [ticket(1, "design-approval")],
-            "component-kit",
+            ["component-kit"],
         );
 
         expect(filing).toEqual({
@@ -69,7 +85,7 @@ describe("planFiling", () => {
         const filing = planFiling(
             readMap(TEMPLATE, PROJECT),
             [closed(1, "design-approval")],
-            "article-page",
+            ["article-page"],
         );
 
         expect(filing).toEqual({
@@ -82,7 +98,7 @@ describe("planFiling", () => {
         const filing = planFiling(
             readMap(TEMPLATE, PROJECT),
             [closed(1, "component-kit"), ticket(3, "component-kit"), ticket(2, "component-kit")],
-            "article-page",
+            ["article-page"],
         );
 
         expect(filing).toEqual({
@@ -93,13 +109,34 @@ describe("planFiling", () => {
                     body: "The page readers land on.\n\n**Acceptance criteria:**\n\n- [ ] It renders a real article.\n\nFiled from the workflow map, block `article-page`.",
                     labels: ["cap:article-page", "app:site", "enhancement"],
                     blockedBy: [2, 3],
+                    complexity: null,
                 },
             ],
         });
     });
 
+    it("carries the template's precedent and lessons into the ticket, where the agent reads them", () => {
+        const template = {
+            capabilities: [
+                {
+                    id: "design-tokens",
+                    title: "Design tokens",
+                    reuse: { plan: "copy", from: "apps/huella-legal/layers/design" },
+                    lessons: [{ text: "The raw-palette ban came after launch.", issues: [371] }],
+                },
+            ],
+        };
+        const filing = planFiling(readMap(template, PROJECT), [], ["design-tokens"]);
+
+        expect(filing.ok && filing.tickets[0]?.body).toBe(
+            "**Start from:** Copy and adapt `apps/huella-legal/layers/design`.\n\n" +
+                "**Lessons from earlier projects:**\n\n- The raw-palette ban came after launch. (#371)\n\n" +
+                "Filed from the workflow map, block `design-tokens`.",
+        );
+    });
+
     it("labels an owner block's ticket so it lands under Waiting on you", () => {
-        const filing = planFiling(readMap(TEMPLATE, PROJECT), [], "design-approval");
+        const filing = planFiling(readMap(TEMPLATE, PROJECT), [], ["design-approval"]);
 
         expect(filing.ok && filing.tickets[0]?.labels).toEqual([
             "cap:design-approval",
@@ -108,14 +145,37 @@ describe("planFiling", () => {
         ]);
     });
 
-    it("drops a need switched off with its group instead of waiting on it forever", () => {
+    it("waits on what a need switched off with its group needed, instead of skipping the chain", () => {
         const map = readMap(TEMPLATE, { ...PROJECT, switches: { blog: false, comments: true } });
 
-        expect(planFiling(map, [], "comments")).toMatchObject({ ok: true });
-        expect(planFiling(map, [], "article-page")).toEqual({
+        expect(planFiling(map, [], ["comments"])).toEqual({
+            ok: false,
+            reason: "`comments` waits on component-kit (nothing filed yet)",
+        });
+        expect(planFiling(map, [ticket(4, "component-kit")], ["comments"])).toMatchObject({
+            ok: true,
+            tickets: [{ blockedBy: [4] }],
+        });
+        expect(planFiling(map, [], ["article-page"])).toEqual({
             ok: false,
             reason: "`article-page` is switched off",
         });
+    });
+
+    it("holds a block behind the open decision a switched-off need of it needed", () => {
+        const map = readMap(TEMPLATE, { ...PROJECT, switches: { "contact-form": true } });
+
+        expect(planFiling(map, [ticket(1, "design-approval")], ["contact-form"])).toEqual({
+            ok: false,
+            reason: "`contact-form` waits on design-approval (owner, open: #1); component-kit (nothing filed yet)",
+        });
+        expect(
+            planFiling(
+                map,
+                [closed(1, "design-approval"), ticket(4, "component-kit")],
+                ["contact-form"],
+            ),
+        ).toMatchObject({ ok: true, tickets: [{ blockedBy: [4] }] });
     });
 
     it("refuses to file a block twice", () => {
@@ -123,11 +183,245 @@ describe("planFiling", () => {
             planFiling(
                 readMap(TEMPLATE, PROJECT),
                 [ticket(5, "design-approval")],
-                "design-approval",
+                ["design-approval"],
             ),
         ).toEqual({
             ok: false,
             reason: "`design-approval` already has #5",
         });
+    });
+});
+
+const STAGED = {
+    capabilities: [
+        { id: "audit", stage: "discovery", title: "Audit", kind: "spike" },
+        { id: "hosting", stage: "discovery", title: "Hosting", kind: "spike" },
+        {
+            id: "signoff",
+            stage: "discovery",
+            title: "Sign-off",
+            kind: "owner",
+            dependsOn: ["audit"],
+        },
+        { id: "tokens", stage: "design", title: "Tokens" },
+        { id: "lab", stage: "design", title: "Lab", dependsOn: ["tokens"] },
+        { id: "approval", stage: "design", title: "Approval", kind: "owner", dependsOn: ["lab"] },
+        { id: "inventory", stage: "design", title: "Inventory", dependsOn: ["approval"] },
+        {
+            id: "scaffold",
+            stage: "foundations",
+            title: "Scaffold",
+            summary: "An app that builds.",
+            doneWhen: ["It builds."],
+            complexity: 2,
+        },
+        {
+            id: "deploy",
+            stage: "foundations",
+            title: "Deploy",
+            summary: "Previews on every PR.",
+            dependsOn: ["scaffold", "signoff", "tokens"],
+            tickets: [{ title: "Wire deploys", criteria: ["A PR gets a preview."] }],
+            complexity: 3,
+        },
+    ],
+};
+
+const STAGED_BUNDLES = {
+    block: [
+        ["audit"],
+        ["hosting"],
+        ["signoff"],
+        ["tokens"],
+        ["lab"],
+        ["approval"],
+        ["inventory"],
+        ["scaffold"],
+        ["deploy"],
+    ],
+    supervised: [
+        ["audit"],
+        ["hosting"],
+        ["signoff"],
+        ["tokens", "lab"],
+        ["approval"],
+        ["inventory"],
+        ["scaffold"],
+        ["deploy"],
+    ],
+    fast: [
+        ["audit", "hosting"],
+        ["signoff"],
+        ["tokens", "lab"],
+        ["approval"],
+        ["inventory"],
+        ["scaffold"],
+        ["deploy"],
+    ],
+};
+
+const staged = (ticketSize: string) => readMap(STAGED, { ...PROJECT, ticketSize });
+
+describe("bundlesOf", () => {
+    it.each(["block", "supervised", "fast"] as const)(
+        "groups the staged map into the %s bundles the portal counts",
+        (size) => {
+            const map = staged(size);
+
+            expect(bundlesOf(toFile(map, []), map.ticketSize)).toEqual(STAGED_BUNDLES[size]);
+        },
+    );
+
+    it("keeps one ticket per block when the project sets no size", () => {
+        const map = readMap(STAGED, PROJECT);
+
+        expect(bundlesOf(toFile(map, []), map.ticketSize)).toEqual(STAGED_BUNDLES.block);
+    });
+});
+
+describe("bundlesOf widths", () => {
+    const HEAVY = {
+        capabilities: [
+            { id: "kit", stage: "build", title: "Kit", complexity: 8 },
+            { id: "home", stage: "build", title: "Home", complexity: 8, dependsOn: ["post"] },
+            { id: "post", stage: "build", title: "Post", complexity: 5 },
+        ],
+    };
+    const heavy = (ticketSize: string) => {
+        const map = readMap(HEAVY, { ...PROJECT, ticketSize });
+        return bundlesOf(toFile(map, []), map.ticketSize);
+    };
+
+    it("wraps onto a new ticket at the size's width, each block after the ones it needs", () => {
+        expect(heavy("supervised")).toEqual([["kit", "post"], ["home"]]);
+        expect(heavy("fast")).toEqual([["kit", "post", "home"]]);
+    });
+});
+
+describe("planFiling several blocks", () => {
+    it("drops a need filed in the same ticket and links only the ones outside it", () => {
+        const filing = planFiling(
+            staged("supervised"),
+            [closed(1, "signoff"), ticket(7, "tokens")],
+            ["scaffold", "deploy"],
+        );
+
+        expect(filing).toEqual({
+            ok: true,
+            tickets: [
+                {
+                    title: "Scaffold, Deploy",
+                    body: "### Scaffold\n\nAn app that builds.\n\n**Acceptance criteria:**\n\n- [ ] It builds.\n\n### Deploy\n\nPreviews on every PR.\n\n**Acceptance criteria:**\n\n- [ ] A PR gets a preview.\n\nFiled from the workflow map, blocks `scaffold`, `deploy`.",
+                    labels: ["cap:scaffold", "cap:deploy", "app:site", "enhancement"],
+                    blockedBy: [7],
+                    complexity: 5,
+                },
+            ],
+        });
+    });
+
+    it("estimates a block filed alone with the template's figure for the block", () => {
+        const filing = planFiling(
+            staged("block"),
+            [closed(1, "signoff"), ticket(7, "scaffold"), ticket(8, "tokens")],
+            ["deploy"],
+        );
+
+        expect(filing.ok && filing.tickets[0]?.complexity).toBe(3);
+    });
+
+    it("refuses to put a spike in the same ticket as build work", () => {
+        expect(planFiling(staged("supervised"), [], ["audit", "tokens"])).toEqual({
+            ok: false,
+            reason: "only build blocks share a ticket with each other, and spikes with spikes",
+        });
+    });
+});
+
+describe("bundlesOf waits", () => {
+    // Bundling scaffold with deploy would hold scaffold back until the sign-off deploy needs.
+    it("keeps a block out of a ticket that would make it wait on something it doesn't need", () => {
+        const map = staged("fast");
+
+        expect(bundlesOf(toFile(map, []), map.ticketSize)).toContainEqual(["scaffold"]);
+    });
+});
+
+describe("bundleFor", () => {
+    const CHAINED = {
+        capabilities: [
+            { id: "signoff", stage: "plan", title: "Sign-off", kind: "owner" },
+            { id: "form", stage: "build", title: "Form", dependsOn: ["signoff"] },
+            { id: "thanks", stage: "build", title: "Thanks page", dependsOn: ["form"] },
+        ],
+    };
+
+    it("files a bundle whole, so a member waiting on a decision holds the others back", () => {
+        const map = readMap(CHAINED, { ...PROJECT, ticketSize: "fast" });
+        const ids = bundleFor(map, [ticket(1, "signoff")], "thanks");
+
+        expect(ids).toEqual(["form", "thanks"]);
+        expect(planFiling(map, [ticket(1, "signoff")], ids)).toEqual({
+            ok: false,
+            reason: "`form` waits on signoff (owner, open: #1)",
+        });
+    });
+
+    it("keeps the bundles the portal counted once a sign-off between them is filed", () => {
+        const issues = [ticket(5, "lab"), closed(6, "approval")];
+
+        expect(bundleFor(staged("fast"), issues, "inventory")).toEqual(["inventory"]);
+    });
+});
+
+describe("readMap types", () => {
+    const TYPED = {
+        capabilities: [{ id: "page-layout", stage: "build", title: "Page layout" }],
+        types: [
+            {
+                id: "custom-page",
+                stage: "build",
+                title: "Custom page",
+                complexity: 5,
+                dependsOn: ["page-layout"],
+                doneWhen: ["It matches the approved design."],
+            },
+        ],
+    };
+
+    it("files an extra with its type's criteria and estimate, linked to the type's needs", () => {
+        const map = readMap(TYPED, {
+            ...PROJECT,
+            extras: [{ id: "services", type: "custom-page", title: "Services" }],
+        });
+        const filing = planFiling(map, [ticket(3, "page-layout")], ["services"]);
+
+        expect(filing.ok && filing.tickets[0]).toMatchObject({
+            title: "Services",
+            labels: ["cap:services", "app:site", "enhancement"],
+            blockedBy: [3],
+            complexity: 5,
+        });
+        expect(filing.ok && filing.tickets[0]?.body).toContain("It matches the approved design.");
+    });
+
+    const SETUP = {
+        capabilities: [{ id: "comments", stage: "build", title: "Comments setup", onDemand: true }],
+        types: [
+            { id: "blog", stage: "build", title: "Blog" },
+            {
+                id: "blog-comments",
+                stage: "build",
+                title: "Blog + comments",
+                dependsOn: ["comments"],
+            },
+        ],
+    };
+    const isOn = (extras: unknown[]) =>
+        readMap(SETUP, { ...PROJECT, extras }).isOn({ id: "comments", onDemand: true } as never);
+
+    it("files an on-demand setup only while a page needs it, as the portal maps it", () => {
+        expect(isOn([{ id: "news", type: "blog", title: "News" }])).toBe(false);
+        expect(isOn([{ id: "news", type: "blog-comments", title: "News" }])).toBe(true);
     });
 });

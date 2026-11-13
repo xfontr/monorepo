@@ -10,12 +10,18 @@
                 {{ stage.title }}
             </h2>
             <p class="text-sm text-muted tabular-nums">
-                {{ stage.progress.done }} of {{ stage.progress.total }}
+                {{ stage.progress.done }} of {{ stage.progress.total }} ·
+                {{ pointsText }}
             </p>
         </header>
 
         <ul class="cards grid gap-4">
-            <li v-for="capability in shown" :key="capability.id" class="relative flex">
+            <li
+                v-for="capability in shown"
+                :id="`block-${capability.id}`"
+                :key="capability.id"
+                class="relative flex scroll-mt-24 rounded-2xl"
+            >
                 <button
                     type="button"
                     class="relative flex min-h-24 flex-1 flex-col gap-1 overflow-hidden rounded-2xl border bg-elevated/50 py-4 pr-11 pl-6 text-left transition hover:-translate-y-0.5 hover:bg-elevated"
@@ -37,29 +43,36 @@
                         />
                         {{ capability.title }}
                     </span>
-                    <span class="text-xs font-semibold text-(--state)">{{
-                        capabilityStateLabel(capability.state)
-                    }}</span>
+                    <span class="text-xs font-semibold">
+                        <span class="text-(--state)">{{
+                            capabilityStateLabel(capability.state)
+                        }}</span>
+                        <span v-if="capability.points.total > 0" class="text-muted tabular-nums">
+                            · {{ formatPoints(capability.points.total) }} SP
+                        </span>
+                    </span>
                     <span v-if="waiting[capability.id]" class="text-xs text-muted">
                         waits on {{ waiting[capability.id] }}
                     </span>
-                    <span
-                        v-if="activityOf[capability.id]?.quiet"
-                        class="tone-warn flex items-center gap-1 text-xs"
-                    >
-                        <UIcon name="i-lucide-moon" class="size-3.5" />
-                        {{ activityOf[capability.id]?.quiet }}
-                    </span>
-                    <span class="mt-auto flex flex-wrap items-center gap-1.5 pt-2">
+                    <span class="mt-auto -mr-5 flex flex-wrap items-end gap-1.5 pt-2">
                         <span
-                            v-for="issue in capability.issues"
-                            :key="issue.number"
-                            class="size-2.5 rounded-full"
-                            :style="{ background: stateColor(ticketStatus(issue)) }"
-                            :title="`#${issue.number} ${issue.title} · ${ticketStatusLabel(ticketStatus(issue))}`"
-                        />
-                        <span v-if="capability.unblockCount > 0" class="text-xs text-muted">
-                            unblocks {{ capability.unblockCount }}
+                            v-if="capability.issues.length > 0"
+                            role="img"
+                            :aria-label="ticketSummary(capability.issues)"
+                            class="gap-1.5"
+                            :class="
+                                capability.issues.length > TWO_ROWS_FROM
+                                    ? 'grid grid-flow-col grid-rows-2'
+                                    : 'flex'
+                            "
+                        >
+                            <span
+                                v-for="issue in capability.issues"
+                                :key="issue.number"
+                                class="size-2.5 rounded-full"
+                                :style="{ background: stateColor(ticketStatus(issue)) }"
+                                :title="`#${issue.number} ${issue.title} · ${ticketStatusLabel(ticketStatus(issue))}`"
+                            />
                         </span>
                         <ActivitySpark
                             v-if="activityOf[capability.id]?.weeks"
@@ -87,7 +100,12 @@
 
 <script setup lang="ts">
 import type { CapabilityActivity } from "#layers/workflows/shared/workflowActivity.ts";
-import { ticketStatus, type StageView } from "#layers/workflows/shared/workflows.ts";
+import {
+    formatPoints,
+    ticketStatus,
+    type SnapshotIssue,
+    type StageView,
+} from "#layers/workflows/shared/workflows.ts";
 
 interface Props {
     stage: StageView;
@@ -112,7 +130,23 @@ const {
 } = defineProps<Props>();
 const emit = defineEmits<{ select: [capability: string]; details: [capability: string] }>();
 
+/** Past this many tickets the dots stack in two rows, so the activity line keeps their row. */
+const TWO_ROWS_FROM = 5;
+
 const color = computed(() => stageColor(index));
+const pointsText = computed(
+    () => `${formatPoints(stage.points.done)}/${formatPoints(stage.points.total)} SP`,
+);
+
+/** The dots' colours as words, so their meaning isn't left to hovering each one. */
+const ticketSummary = (issues: SnapshotIssue[]): string => {
+    const counts = new Map<string, number>();
+    for (const issue of issues) {
+        const label = ticketStatusLabel(ticketStatus(issue));
+        counts.set(label, (counts.get(label) ?? 0) + 1);
+    }
+    return [...counts].map(([label, count]) => `${count} ${label.toLowerCase()}`).join(", ");
+};
 
 /** A switched-off block isn't part of this project, so it has no card. */
 const shown = computed(() => stage.capabilities.filter(({ state }) => state !== "off"));
@@ -147,9 +181,6 @@ const activityOf = computed(() =>
                     {
                         weeks: found.days > 0 ? found.weeks : null,
                         label: `Active on ${found.days} days, last on ${found.lastDay ? calendarDay(found.lastDay) : "never"}`,
-                        quiet: found.quietSince
-                            ? `Quiet since ${calendarDay(found.quietSince)}`
-                            : null,
                     },
                 ],
             ];

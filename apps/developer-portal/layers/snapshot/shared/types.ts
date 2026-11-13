@@ -25,9 +25,22 @@ export interface ProjectNode {
     dependedOnBy: string[];
 }
 
+/** A project whose `package.json` was deleted, read back from git history. */
+export interface RetiredProject {
+    name: string;
+    root: string;
+    tags: string[];
+    deletedAt: string;
+    commit: string;
+    subject: string;
+    /** Commits that touched its root, the deleting one included. */
+    commits: number;
+}
+
 export interface ProjectsArtifact {
     generatedAt: string;
     projects: ProjectNode[];
+    retired: RetiredProject[];
 }
 
 export interface CoverageMetric {
@@ -172,7 +185,15 @@ export interface DepsArtifact {
     outdated: OutdatedPackage[] | null;
 }
 
-/** One script's runs, summed from the rows in `.telemetry/scripts/*.csv`. */
+/** One script's runs on one calendar day. */
+export interface DayUsage {
+    runs: number;
+    /** Runs whose caller is not `human`. */
+    agent: number;
+    failures: number;
+}
+
+/** One script's runs, summed from the rows in `data/telemetry/scripts/*.csv`. */
 export interface ScriptUsage {
     runs: number;
     /** Runs inside the last `UsageArtifact.windowDays`, so a script busy a year ago doesn't read as busy. */
@@ -192,14 +213,20 @@ export interface ScriptUsage {
     /** The `<area>` segment of the branch each run happened on, or `repo`. */
     areas: Record<string, number>;
     flags: Record<string, number>;
+    /**
+     * Keyed by `YYYY-MM-DD`, holding only days inside the window that had a run. Missing from a
+     * snapshot collected before per-day counts were kept.
+     */
+    days?: Record<string, DayUsage>;
 }
 
-/** One ESLint rule, from `.telemetry/lint/*.csv`. Only edits made by an agent are ever linted there. */
+/** One ESLint rule, from `data/telemetry/lint/*.csv`. Only edits made by an agent are ever linted there. */
 export interface LintRuleUsage {
     /** Switched on in at least one project's config. */
     enabled: boolean;
     /** Problems reported, counted again on every edit to a file that still has them. */
     hits: number;
+    /** Hits inside the window; `fixable` and `projects` count only these. */
     recent: number;
     fixable: number;
     last: string | null;

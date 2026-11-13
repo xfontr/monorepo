@@ -5,7 +5,7 @@ export const meta = {
     whenToUse:
         "The user asks to ship, build or run one or more issue numbers unattended, e.g. /ship-issue 340 341",
     phases: [
-        { title: "Pick", detail: "pnpm issue:pick and pnpm issue:brief" },
+        { title: "Pick", detail: "labels, then pnpm issue:pick and pnpm issue:brief" },
         { title: "Plan", detail: "ticket-planner maps the issue onto existing precedent" },
         { title: "Implement", detail: "code and specs, then pnpm check" },
         { title: "Review", detail: "architecture, tests and correctness reviewers, then fixes" },
@@ -30,6 +30,12 @@ const PICK_SCHEMA = {
     type: "object",
     properties: {
         ok: { type: "boolean" },
+        kind: { enum: ["build", "spike", "owner"] },
+        caps: {
+            type: "array",
+            items: { type: "string" },
+            description: "The issue's cap: labels, without the prefix",
+        },
         branch: { type: "string" },
         brief: { type: "string", description: "pnpm issue:brief output, verbatim" },
         error: { type: "string" },
@@ -159,10 +165,94 @@ const checkUntilGreen = (issue, task, label, phaseName) =>
         { label: `${label} #${issue}`, phase: phaseName, schema: CHECKED_SCHEMA },
     );
 
+/** Commits this run's paths, opens the PR, posts `reviewNote` once and waits for the merge. */
+const ship = async (issue, touched, reviewNote) => {
+    phase("Ship");
+    const shipPrompt = (extra, comment) =>
+        `The user ran the ship-issue workflow on issue #${issue}: that run is their explicit request to ` +
+        `commit, push, open a PR and merge it. ${extra}Stage only this run's paths, with ` +
+        `\`git add -- <path>\`, plus any file you change yourself in this step:\n${[...touched].join("\n")}\n` +
+        `If \`git status --porcelain\` then shows any other change, another session is working in this ` +
+        `checkout: commit nothing, leave those changes exactly as they are, and report them in blocked. ` +
+        `Otherwise commit as Conventional Commits, split by concern, lower-case type and subject (the ` +
+        `commit-msg hook adds the issue tag). ` +
+        `Then run \`pnpm issue:ship\` with the Bash timeout at 600000 ms; it pushes, opens or reuses the ` +
+        `PR, arms auto-merge and waits for the checks. If the timeout cuts it off, run it again: a re-run ` +
+        `reuses the PR. If it ends with "merge queued", poll \`gh pr view --json state\` for up to five ` +
+        `minutes, and once the state is MERGED run \`git checkout master && git pull --ff-only\`. ` +
+        (comment
+            ? `Once a PR exists, post this with \`gh pr comment\`, exactly once:\n\n${comment}`
+            : "The review summary is already on the PR; don't post it again.");
+
+    const foreign = (step) =>
+        halt(issue, "Ship", `Changes this run didn't make are in the checkout:\n${step.blocked}`);
+
+    let shipped = await agent(shipPrompt("", reviewNote), {
+        label: `ship #${issue}`,
+        phase: "Ship",
+        schema: SHIP_SCHEMA,
+    });
+    if (shipped?.blocked) return foreign(shipped);
+    if (shipped && !shipped.checksPassed) {
+        log(`#${issue}: a check failed, one repair attempt`);
+        shipped = await agent(
+            shipPrompt(
+                "A required check failed on the PR. Run `pnpm ci:failures`, fix what it reports, run " +
+                    "`pnpm check` alone with the Bash timeout at 600000 ms until it's green, and then: ",
+            ),
+            { label: `ci-fix #${issue}`, phase: "Ship", schema: SHIP_SCHEMA },
+        );
+        if (shipped?.blocked) return foreign(shipped);
+    }
+    if (!shipped?.checksPassed) {
+        return halt(issue, "Ship", shipped?.output ?? "No green checks after one repair attempt.");
+    }
+    if (!shipped.merged) {
+        return halt(issue, "Ship", `Checks passed but the PR never merged: ${shipped.pr ?? ""}`);
+    }
+
+    return { halted: false, pr: shipped.pr };
+};
+
+/**
+ * A spike's answer is a decision report per block it covers, not code, so it skips the planner, the
+ * code reviewers and the comment pass; running ship-issue on it is the ask for those reports.
+ */
+const shipSpike = async (issue, pick) => {
+    phase("Implement");
+    const blocks = pick.caps?.length ? pick.caps.join(", ") : `the question in #${issue}`;
+    const researched = await checkUntilGreen(
+        issue,
+        `Issue #${issue} is a spike. Answer it with the \`decision-report\` skill: the user running ` +
+            `ship-issue on it is their request for those reports. Write one report for each block it ` +
+            `covers (${blocks}), each answering that block's acceptance criteria, and change no code. ` +
+            `If a question can only be answered by the user, report checkPassed=false and say which.\n\n` +
+            `Brief:\n${pick.brief}`,
+        "research",
+        "Implement",
+    );
+    if (!researched?.checkPassed) {
+        return halt(issue, "Implement", researched?.failures ?? "The research never went green.");
+    }
+
+    const shipped = await ship(
+        issue,
+        new Set(researched.touched ?? []),
+        `Spike: answered in decision reports, with no code to review.`,
+    );
+    if (shipped.halted) return shipped;
+
+    return { issue, halted: false, pr: shipped.pr, fixed: 0, advisory: 0 };
+};
+
 const shipOne = async (issue) => {
     phase("Pick");
     const pick = await agent(
-        `Start issue #${issue}. First \`git status --porcelain\` must print nothing; if it doesn't, stop ` +
+        `Start issue #${issue}. First read its labels with \`gh issue view ${issue} --json labels\`. ` +
+            `Report kind=owner if one is \`owner\`, kind=spike if one is \`spike\`, and kind=build ` +
+            `otherwise, and list every \`cap:\` label in caps without the prefix. For kind=owner, stop ` +
+            `there with ok=true: the owner closes that ticket, and a linked branch would mark it as ` +
+            `taken. Otherwise \`git status --porcelain\` must print nothing; if it doesn't, stop ` +
             `and report ok=false with what's dirty. Then run \`git fetch origin master\` and ` +
             `\`pnpm issue:pick ${issue}\`, passing a short ` +
             `\`--title="…"\` if the issue title would make a long branch slug, then \`pnpm issue:brief\`. ` +
@@ -171,6 +261,11 @@ const shipOne = async (issue) => {
         { label: `pick #${issue}`, phase: "Pick", schema: PICK_SCHEMA, effort: "low" },
     );
     if (!pick?.ok) return halt(issue, "Pick", pick?.error ?? "The pick agent returned nothing.");
+    if (pick.kind === "owner") {
+        log(`#${issue} is the owner's to close; skipped.`);
+        return { issue, halted: false, skipped: "owner" };
+    }
+    if (pick.kind === "spike") return shipSpike(issue, pick);
 
     phase("Plan");
     const plan = await agent(`Plan issue #${issue}. Its brief:\n\n${pick.brief}`, {
@@ -274,53 +369,12 @@ const shipOne = async (issue) => {
         return halt(issue, "Polish", polished?.failures ?? "pnpm check failed after polish.");
     }
 
-    phase("Ship");
     const reviewNote =
         `Review summary for the PR comment:\n` +
         `Fixed (${fixed.length}):\n${formatFindings(fixed) || "- none"}\n` +
         `Advisory, left as is (${advisory.length}):\n${formatFindings(advisory) || "- none"}`;
-    const shipPrompt = (extra, comment) =>
-        `The user ran the ship-issue workflow on issue #${issue}: that run is their explicit request to ` +
-        `commit, push, open a PR and merge it. ${extra}Stage only this run's paths, with ` +
-        `\`git add -- <path>\`, plus any file you change yourself in this step:\n${[...touched].join("\n")}\n` +
-        `If \`git status --porcelain\` then shows any other change, another session is working in this ` +
-        `checkout: commit nothing, leave those changes exactly as they are, and report them in blocked. ` +
-        `Otherwise commit as Conventional Commits, split by concern, lower-case type and subject (the ` +
-        `commit-msg hook adds the issue tag). ` +
-        `Then run \`pnpm issue:ship\` with the Bash timeout at 600000 ms; it pushes, opens or reuses the ` +
-        `PR, arms auto-merge and waits for the checks. If the timeout cuts it off, run it again: a re-run ` +
-        `reuses the PR. If it ends with "merge queued", poll \`gh pr view --json state\` for up to five ` +
-        `minutes, and once the state is MERGED run \`git checkout master && git pull --ff-only\`. ` +
-        (comment
-            ? `Once a PR exists, post this with \`gh pr comment\`, exactly once:\n\n${comment}`
-            : "The review summary is already on the PR; don't post it again.");
-
-    const foreign = (step) =>
-        halt(issue, "Ship", `Changes this run didn't make are in the checkout:\n${step.blocked}`);
-
-    let shipped = await agent(shipPrompt("", reviewNote), {
-        label: `ship #${issue}`,
-        phase: "Ship",
-        schema: SHIP_SCHEMA,
-    });
-    if (shipped?.blocked) return foreign(shipped);
-    if (shipped && !shipped.checksPassed) {
-        log(`#${issue}: a check failed, one repair attempt`);
-        shipped = await agent(
-            shipPrompt(
-                "A required check failed on the PR. Run `pnpm ci:failures`, fix what it reports, run " +
-                    "`pnpm check` alone with the Bash timeout at 600000 ms until it's green, and then: ",
-            ),
-            { label: `ci-fix #${issue}`, phase: "Ship", schema: SHIP_SCHEMA },
-        );
-        if (shipped?.blocked) return foreign(shipped);
-    }
-    if (!shipped?.checksPassed) {
-        return halt(issue, "Ship", shipped?.output ?? "No green checks after one repair attempt.");
-    }
-    if (!shipped.merged) {
-        return halt(issue, "Ship", `Checks passed but the PR never merged: ${shipped.pr ?? ""}`);
-    }
+    const shipped = await ship(issue, touched, reviewNote);
+    if (shipped.halted) return shipped;
 
     return { issue, halted: false, pr: shipped.pr, fixed: fixed.length, advisory: advisory.length };
 };

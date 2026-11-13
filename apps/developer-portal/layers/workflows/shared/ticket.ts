@@ -26,6 +26,7 @@ export const issueAsOf = (
             open: blocker.closedAt ? day(blocker.closedAt) > asOf : blocker.open,
         })),
         branch: issue.branch && syncedOn !== null && asOf >= syncedOn,
+        pr: issue.pr && syncedOn !== null && asOf >= syncedOn,
     };
 };
 
@@ -41,7 +42,17 @@ export const replayRange = (snapshot: Snapshot | null): { first: string; last: s
 
 export const ticketStatus = (issue: SnapshotIssue): TicketStatus => {
     if (issue.state === "closed") return issue.reason === "not_planned" ? "dropped" : "done";
-    if (issue.branch || issue.activity.length > 0) return "in-flight";
+    if (issue.branch || issue.pr || issue.activity.length > 0) return "in-flight";
     if (issue.blockedBy.some(({ open }) => open)) return "blocked";
     return issue.owner ? "waiting-on-you" : "ready";
 };
+
+const UNTOUCHED: ReadonlySet<TicketStatus> = new Set(["ready", "blocked", "waiting-on-you"]);
+
+/** The tickets `pnpm workflow:drop` closes, and the ones it keeps because work started or ended. */
+export const dropPlan = (
+    issues: SnapshotIssue[],
+): { close: SnapshotIssue[]; keep: SnapshotIssue[] } => ({
+    close: issues.filter((issue) => UNTOUCHED.has(ticketStatus(issue))),
+    keep: issues.filter((issue) => !UNTOUCHED.has(ticketStatus(issue))),
+});

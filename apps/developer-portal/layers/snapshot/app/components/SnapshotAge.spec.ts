@@ -30,14 +30,14 @@ describe("SnapshotAge", () => {
         expect(wrapper.find(".tone-bad").exists()).toBe(true);
     });
 
-    it("uses an artifact timestamp while keeping commit and branch context", () => {
+    it("shows only the age, keeping commit and branch for the hover title", () => {
         vi.useFakeTimers();
         vi.setSystemTime(new Date("2026-09-20T12:00:00.000Z"));
         const wrapper = mount(SnapshotAge, { props: { manifest, artifact: "docs" } });
 
-        expect(wrapper.text()).toContain("1 hour ago");
-        expect(wrapper.text()).toContain("abc1234");
-        expect(wrapper.text()).toContain("master");
+        expect(wrapper.text()).toContain("Collected 1 hour ago");
+        expect(wrapper.text()).not.toContain("abc1234");
+        expect(wrapper.find("[title]").attributes("title")).toBe("At abc1234 on master");
     });
 
     it("falls back to the manifest timestamp when no artifact status exists", () => {

@@ -1,13 +1,16 @@
 import { cycleProblem, readCapability } from "./capability.ts";
+import { complexityOf } from "./complexity.ts";
 import { asText, isRecord, Reader } from "./reader.ts";
 import {
     SETTLED_STATES,
+    TICKET_SIZES,
     type Capability,
     type Feature,
     type Group,
     type Project,
     type SettledState,
     type Template,
+    type TicketSize,
 } from "./types.ts";
 
 const readSwitches = (reader: Reader, source: Record<string, unknown>): Project["switches"] => {
@@ -45,11 +48,53 @@ const readSettled = (reader: Reader, source: Record<string, unknown>): Project["
     return settled;
 };
 
+const readTicketSize = (reader: Reader, source: Record<string, unknown>): TicketSize => {
+    const size = reader.text(source, "ticketSize", "project", "block");
+
+    if ((TICKET_SIZES as readonly string[]).includes(size)) return size as TicketSize;
+
+    reader.problems.push(`\`ticketSize: ${size}\` isn't one of ${TICKET_SIZES.join(", ")}`);
+    return "block";
+};
+
+/** The raw fields a type gives an extra; nulls dropped, since the reader rejects an explicit null. */
+const fieldsOf = (type: Capability): Record<string, unknown> =>
+    Object.fromEntries(Object.entries(type).filter(([, value]) => value !== null));
+
+/** An extra naming a `type:`, with that type's fields under its own and both lists of needs. */
+const withType = (reader: Reader, raw: unknown, types: Capability[]): unknown => {
+    if (!isRecord(raw) || raw.type === undefined) return raw;
+
+    const name = asText(raw.type) ?? "";
+    const type = types.find((candidate) => candidate.id === name);
+
+    if (!type) {
+        reader.problems.push(
+            `extra \`${asText(raw.id) ?? "?"}\` names type \`${name}\`, which the template doesn't have`,
+        );
+        return raw;
+    }
+
+    const own: unknown[] = Array.isArray(raw.dependsOn) ? raw.dependsOn : [];
+
+    return { ...fieldsOf(type), ...raw, dependsOn: [...new Set([...type.dependsOn, ...own])] };
+};
+
+/** A page as the block its type makes it, as `readProject` reads an extra naming that type. */
+export const typedExtra = (type: Capability, page: { id: string; title: string }): Capability => ({
+    ...type,
+    id: page.id,
+    title: page.title,
+});
+
 /**
  * A project read from parsed YAML. Rules that need its template — a switch on a capability that
  * doesn't exist — live in `projectProblems`, because the template may be the broken file.
  */
-export const readProject = (raw: unknown): { project: Project; problems: string[] } => {
+export const readProject = (
+    raw: unknown,
+    types: Capability[] = [],
+): { project: Project; problems: string[] } => {
     const reader = new Reader();
     const source = isRecord(raw) ? raw : {};
 
@@ -66,7 +111,10 @@ export const readProject = (raw: unknown): { project: Project; problems: string[
     const settled = readSettled(reader, source);
     const extras = reader
         .list(source, "extras", "project")
-        .flatMap((capability, index) => readCapability(reader, capability, index) ?? []);
+        .flatMap(
+            (capability, index) =>
+                readCapability(reader, withType(reader, capability, types), index) ?? [],
+        );
 
     const project: Project = {
         id: reader.text(source, "id", "project"),
@@ -76,6 +124,7 @@ export const readProject = (raw: unknown): { project: Project; problems: string[
         milestone: reader.text(source, "milestone", "project"),
         summary: reader.text(source, "summary", "project", ""),
         switches,
+        ticketSize: readTicketSize(reader, source),
         settled,
         extras,
     };
@@ -96,8 +145,18 @@ export const isGroupEnabled = (
     return group ? switchedOn(group, project) : true;
 };
 
+const isDemanded = (capability: Capability, project: Project, template: Template): boolean =>
+    project.extras.some(
+        (extra) =>
+            extra.dependsOn.includes(capability.id) &&
+            isGroupEnabled(extra.group, project, template),
+    );
+
 export const isEnabled = (capability: Capability, project: Project, template: Template): boolean =>
-    isGroupEnabled(capability.group, project, template) && switchedOn(capability, project);
+    isGroupEnabled(capability.group, project, template) &&
+    (capability.onDemand
+        ? isDemanded(capability, project, template)
+        : switchedOn(capability, project));
 
 const switchProblems = (project: Project, template: Template): string[] =>
     Object.keys(project.switches).flatMap((id) => {
@@ -106,6 +165,9 @@ const switchProblems = (project: Project, template: Template): string[] =>
 
         if (!switchable)
             return [`switch \`${id}\` names no capability or group in \`${template.id}\``];
+        if (capability?.onDemand) {
+            return [`switch \`${id}\` is on a block that comes in with the pages that need it`];
+        }
         if (!switchable.optional) {
             return [`switch \`${id}\` is on a required ${capability ? "capability" : "group"}`];
         }
@@ -148,7 +210,10 @@ export const projectProblems = (project: Project, template: Template): string[] 
 };
 
 export const featuresOf = (project: Project, template: Template): Feature[] => {
-    const titles = (ids: Capability[]) => ids.map(({ title }) => title);
+    const priced = (capabilities: Capability[]) => ({
+        blocks: capabilities.map(({ title, complexity }) => ({ title, complexity })),
+        points: complexityOf(capabilities),
+    });
 
     return [
         ...template.groups
@@ -158,9 +223,7 @@ export const featuresOf = (project: Project, template: Template): Feature[] => {
                 title: group.title,
                 summary: group.summary,
                 enabled: isGroupEnabled(group.id, project, template),
-                blocks: titles(
-                    template.capabilities.filter((c) => c.group === group.id && !c.optional),
-                ),
+                ...priced(template.capabilities.filter((c) => c.group === group.id && !c.optional)),
                 within: null,
             })),
         ...template.capabilities
@@ -170,7 +233,7 @@ export const featuresOf = (project: Project, template: Template): Feature[] => {
                 title: capability.title,
                 summary: capability.summary,
                 enabled: switchedOn(capability, project),
-                blocks: [capability.title],
+                ...priced([capability]),
                 within: template.groups.some((g) => g.id === capability.group && g.optional)
                     ? capability.group
                     : null,

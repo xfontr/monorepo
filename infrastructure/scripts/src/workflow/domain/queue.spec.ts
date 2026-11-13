@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { describeQueue, ticketStatus, unblockCounts } from "./queue.ts";
+import { describeQueue, dropPlan, ticketStatus, unblockCounts } from "./queue.ts";
 import type { SnapshotIssue } from "./snapshot.ts";
 
 const open = (number: number, overrides: Partial<SnapshotIssue> = {}): SnapshotIssue => ({
@@ -14,27 +14,52 @@ const open = (number: number, overrides: Partial<SnapshotIssue> = {}): SnapshotI
     activity: [],
     blockedBy: [],
     branch: false,
+    pr: false,
     owner: false,
+    complexity: null,
     ...overrides,
 });
 
+/** The same rows as the portal's `shared/ticket.spec.ts`, so a change to one copy fails a spec. */
+const STATUSES = [
+    ["closed as completed", { state: "closed", reason: "completed" }, "done"],
+    ["closed as not planned", { state: "closed", reason: "not_planned" }, "dropped"],
+    [
+        "open on a linked branch, even if blocked",
+        { branch: true, blockedBy: [{ number: 2, open: true, closedAt: null }] },
+        "in-flight",
+    ],
+    ["open with an open pull request", { pr: true }, "in-flight"],
+    ["open with a tagged commit", { activity: ["2026-10-02"] }, "in-flight"],
+    [
+        "open behind an open blocker",
+        { blockedBy: [{ number: 2, open: true, closedAt: null }] },
+        "blocked",
+    ],
+    [
+        "open behind closed blockers only",
+        { blockedBy: [{ number: 2, open: false, closedAt: null }] },
+        "ready",
+    ],
+    ["open, unblocked and the owner's", { owner: true }, "waiting-on-you"],
+] as const;
+
 describe("ticketStatus", () => {
-    it.each([
-        [
-            "a linked branch, even behind an open blocker",
-            { branch: true, blockedBy: [{ number: 2, open: true, closedAt: null }] },
-            "in-flight",
-        ],
-        ["an open blocker", { blockedBy: [{ number: 2, open: true, closedAt: null }] }, "blocked"],
-        [
-            "only closed blockers",
-            { blockedBy: [{ number: 2, open: false, closedAt: null }] },
-            "ready",
-        ],
-        ["the owner label and nothing in the way", { owner: true }, "waiting-on-you"],
-        ["a not-planned close", { state: "closed", reason: "not_planned" }, "dropped"],
-    ] as const)("reads a ticket with %s as %s", (_, overrides, expected) => {
+    it.each(STATUSES)("reads a ticket %s as %s", (_, overrides, expected) => {
         expect(ticketStatus(open(1, overrides as Partial<SnapshotIssue>))).toBe(expected);
+    });
+});
+
+describe("dropPlan", () => {
+    it("closes only the tickets nobody started, so dropping a project never discards work", () => {
+        const { close, keep } = dropPlan(
+            STATUSES.map(([, overrides], index) =>
+                open(index + 1, overrides as Partial<SnapshotIssue>),
+            ),
+        );
+
+        expect(close.map(({ number }) => number)).toEqual([6, 7, 8]);
+        expect(keep.map(({ number }) => number)).toEqual([1, 2, 3, 4, 5]);
     });
 });
 

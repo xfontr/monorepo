@@ -84,7 +84,8 @@ far outside that is worth opening. The `comment-cleanup` skill runs the pass.
   `domain/`/`adapters/` split — and keeps its naming. A folder shape found nowhere in the repo
   needs the user's agreement first.
 - **Never write a decision report unprompted.** Only when the user asks for one; you may ask whether
-  they want one, but never write it on your own judgement.
+  they want one, but never write it on your own judgement. A `/ship-issue` run on a `spike` ticket
+  is that ask.
 
 ## 📦 Dependencies
 

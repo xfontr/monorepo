@@ -1,8 +1,14 @@
-/** Mirrors `CAPABILITY_LABEL_PREFIX` in apps/developer-portal/layers/workflows/shared/workflows.ts. */
+/** Mirrors `CAPABILITY_LABEL_PREFIX` in apps/developer-portal/layers/workflows/shared/types.ts. */
 export const CAPABILITY_LABEL_PREFIX = "cap:";
 
-/** Mirrors `OWNER_LABEL` in apps/developer-portal/layers/workflows/shared/workflows.ts. */
+/** Mirrors `OWNER_LABEL` in apps/developer-portal/layers/workflows/shared/types.ts. */
 export const OWNER_LABEL = "owner";
+
+/** The one GitHub Project board every issue sits on. */
+export const BOARD = "Monorepo";
+
+/** The board's Number field holding a ticket's Fibonacci complexity estimate. */
+export const COMPLEXITY_FIELD = "Complexity";
 
 /** One issue as `adapters/gh.ts` hands it over, its GraphQL connections already flattened. */
 export interface GhIssue {
@@ -17,6 +23,10 @@ export interface GhIssue {
     blockedBy: { number: number; state: string; closedAt: string | null }[];
     /** Branches linked on the issue's Development panel. */
     branches: number;
+    /** Open pull requests that would close the issue. */
+    pullRequests: number;
+    /** The board's Complexity value, null when nobody has estimated it. */
+    complexity: number | null;
 }
 
 export interface SnapshotIssue {
@@ -33,10 +43,13 @@ export interface SnapshotIssue {
     /** Each blocker's close date too, so the portal can replay a past day. */
     blockedBy: { number: number; open: boolean; closedAt: string | null }[];
     branch: boolean;
+    /** An open pull request would close it, so work started even without a linked branch. */
+    pr: boolean;
     owner: boolean;
+    complexity: number | null;
 }
 
-/** Read back by `readSnapshot` in apps/developer-portal/layers/workflows/shared/workflows.ts; change both together. */
+/** Read back by `readSnapshot` in apps/developer-portal/layers/workflows/shared/snapshot.ts; change both together. */
 export interface Snapshot {
     syncedAt: string;
     milestone: string;
@@ -89,7 +102,9 @@ const toIssue = (issue: GhIssue, activity: Map<number, string[]>): SnapshotIssue
         .map(({ number, state, closedAt }) => ({ number, open: state === "OPEN", closedAt }))
         .sort((a, b) => a.number - b.number),
     branch: issue.branches > 0,
+    pr: issue.pullRequests > 0,
     owner: issue.labels.some(({ name }) => name === OWNER_LABEL),
+    complexity: issue.complexity,
 });
 
 export const toSnapshot = (

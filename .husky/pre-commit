@@ -41,7 +41,7 @@ fi
 # modified in the real index afterwards, so those commits leave the rows for the next one.
 case "$GIT_INDEX_FILE" in
   *next-index*) ;;
-  *) pnpm --silent usage:flush && git add -- .telemetry 2>/dev/null || true ;;
+  *) pnpm --silent usage:flush && git add -- data/telemetry 2>/dev/null || true ;;
 esac
 
 echo ""

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { lintAlerts, neverFired, parseDisables, summarizeLint } from "./lintUsage.ts";
+import { neverFired, parseDisables, summarizeLint } from "./lintUsage.ts";
 import type { LintRuleUsage, LintUsage } from "#layers/snapshot/shared/types.ts";
 import type { UsageRecord } from "./usage.ts";
 
@@ -28,9 +28,6 @@ const rule = (overrides: Partial<LintRuleUsage> = {}): LintRuleUsage => ({
 
 const lint = (rules: Record<string, LintRuleUsage>): LintUsage => ({ since: "2026-11-01", rules });
 
-const kinds = (rules: Record<string, LintRuleUsage>): string[] =>
-    lintAlerts(lint(rules)).map((alert) => `${alert.rule}:${alert.kind}`);
-
 describe("parseDisables", () => {
     it("reads every rule a line, next-line or block directive names, without its reason", () => {
         const source = [
@@ -47,6 +44,16 @@ describe("parseDisables", () => {
         ]);
     });
 
+    it("reads a Vue template comment and ignores a directive quoted inside a string", () => {
+        const source = [
+            "<!-- eslint-disable-next-line vue/no-v-html -->",
+            'const fixture = "// eslint-disable-next-line no-console";',
+            'const quip = "it\'s"; // eslint-disable-line no-eval',
+        ].join("\n");
+
+        expect(parseDisables(source)).toEqual(["vue/no-v-html", "no-eval"]);
+    });
+
     it("counts nothing for a bare directive or prose that mentions one", () => {
         expect(parseDisables("/* eslint-disable */\n// see eslint-disable rules")).toEqual([]);
     });
@@ -60,9 +67,9 @@ describe("summarizeLint", () => {
         });
     });
 
-    it("counts hits, recent hits, fixes and projects, and dates the first hit", () => {
+    it("counts fixes and projects only inside the window, and dates the first hit ever", () => {
         const { since, rules } = summarizeLint(
-            [hit(), hit({ fixable: "1", project: "ui" }), hit({ at: "2026-01-01" })],
+            [hit(), hit({ fixable: "1", project: "ui" }), hit({ at: "2026-01-01", fixable: "1" })],
             ["no-console"],
             {},
             SINCE,
@@ -74,7 +81,7 @@ describe("summarizeLint", () => {
             recent: 2,
             fixable: 1,
             last: "2026-11-08",
-            projects: { scripts: 2, ui: 1 },
+            projects: { scripts: 1, ui: 1 },
         });
     });
 
@@ -102,27 +109,5 @@ describe("neverFired", () => {
 
     it("lists a rule whose only hits fell out of the window", () => {
         expect(neverFired(lint({ old: rule({ hits: 9, recent: 0 }) }))).toEqual(["old"]);
-    });
-});
-
-describe("lintAlerts", () => {
-    it("flags a rule disabled inline again and again", () => {
-        expect(kinds({ "no-console": rule({ disabled: 3 }) })).toEqual(["no-console:fought"]);
-    });
-
-    it("flags the rule behind most recent hits, but not below five", () => {
-        expect(kinds({ a: rule({ hits: 8, recent: 8 }), b: rule({ hits: 2, recent: 2 }) })).toEqual(
-            ["a:noisy"],
-        );
-        expect(kinds({ a: rule({ hits: 4, recent: 4 }) })).toEqual([]);
-    });
-
-    it("says a rule costs nothing only when every hit was auto-fixed", () => {
-        const found = kinds({
-            fixed: rule({ hits: 5, fixable: 5 }),
-            mixed: rule({ hits: 5, fixable: 4 }),
-        });
-
-        expect(found).toEqual(["fixed:always-fixed"]);
     });
 });

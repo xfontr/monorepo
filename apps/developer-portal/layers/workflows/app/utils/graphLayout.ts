@@ -27,14 +27,25 @@ export const graphLayout = (shown: CapabilityView[]) => {
     graph.setGraph({ rankdir: "LR", nodesep: 16, ranksep: 64, marginx: PADDING, marginy: PADDING });
     graph.setDefaultEdgeLabel(() => ({}));
 
-    const ids = new Set(shown.map(({ id }) => id));
+    const needs = new Map(shown.map(({ id }) => [id, [] as string[]]));
+    for (const { id, needs: list } of shown)
+        needs.get(id)!.push(...list.filter((need) => needs.has(need)));
     for (const { id } of shown) graph.setNode(id, { width: NODE_WIDTH, height: NODE_HEIGHT });
 
-    const links = shown.flatMap((capability) =>
-        capability.needs
-            .filter((need) => ids.has(need))
-            .map((need) => [need, capability.id] as const),
-    );
+    const reaches = (from: string, target: string, seen = new Set<string>()): boolean =>
+        (needs.get(from) ?? []).some(
+            (need) =>
+                need === target ||
+                (!seen.has(need) && (seen.add(need), reaches(need, target, seen))),
+        );
+
+    // A link a block already reaches through another of its needs adds a line, not information.
+    const links = shown.flatMap(({ id }) => {
+        const own = needs.get(id)!;
+        return own
+            .filter((need) => !own.some((other) => other !== need && reaches(other, need)))
+            .map((need) => [need, id] as const);
+    });
     for (const [from, to] of links) graph.setEdge(from, to);
 
     runLayout(graph);

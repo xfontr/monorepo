@@ -36,7 +36,14 @@ const readIssue = (reader: Reader, raw: unknown, where: string): SnapshotIssue |
                 : [],
         ),
         branch: raw.branch === true,
+        pr: raw.pr === true,
         owner: raw.owner === true,
+        complexity:
+            typeof raw.complexity === "number" &&
+            Number.isFinite(raw.complexity) &&
+            raw.complexity > 0
+                ? raw.complexity
+                : null,
     };
 };
 

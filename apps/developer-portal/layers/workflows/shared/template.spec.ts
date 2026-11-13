@@ -28,6 +28,18 @@ describe("readTemplate", () => {
         ]);
     });
 
+    it("rejects a complexity off the Fibonacci scale, which would make totals incomparable", () => {
+        const { template, problems } = readTemplate({
+            ...TEMPLATE,
+            capabilities: [{ id: "x", stage: "build", title: "X", complexity: 4 }],
+        });
+
+        expect(problems).toEqual([
+            "capability `x`: `complexity: 4` isn't one of 1, 2, 3, 5, 8, 13, 21",
+        ]);
+        expect(template.capabilities[0]?.complexity).toBeNull();
+    });
+
     it("catches a loop of dependsOn links, which no order could ever satisfy", () => {
         const { problems } = readTemplate({
             ...TEMPLATE,
@@ -65,6 +77,19 @@ describe("groups", () => {
         expect(problems).toEqual([
             "group `search` shares its id with a capability, so a switch can't tell them apart",
             "capability `feeds` names group `blog`, which the template doesn't have",
+        ]);
+    });
+
+    it("catches a type needing a block the template doesn't have, before any project adds it", () => {
+        const { problems } = readTemplate({
+            ...TEMPLATE,
+            types: [
+                { id: "custom-page", stage: "build", title: "Custom page", dependsOn: ["kit"] },
+            ],
+        });
+
+        expect(problems).toEqual([
+            "capability `custom-page` depends on `kit`, which the template doesn't have",
         ]);
     });
 });

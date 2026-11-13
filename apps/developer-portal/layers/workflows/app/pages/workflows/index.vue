@@ -14,13 +14,6 @@
                         variant="ghost"
                         size="xs"
                     />
-                    <UButton
-                        v-if="editable"
-                        label="New project"
-                        icon="i-lucide-plus"
-                        size="xs"
-                        @click="creating = true"
-                    />
                 </template>
             </UDashboardNavbar>
         </template>
@@ -57,39 +50,18 @@
                 <section class="flex flex-col gap-3">
                     <h2 class="font-semibold">Projects</h2>
 
-                    <div
-                        v-if="data.projects.length === 0"
-                        class="rounded-lg border border-dashed border-default p-8 text-center text-sm text-muted"
-                    >
+                    <p v-if="data.projects.length === 0" class="text-sm text-muted">
                         No project under
-                        <code class="font-mono">docs/workflows/projects/</code> yet.
-                    </div>
+                        <code class="font-mono">data/workflows/projects/</code> yet.
+                    </p>
 
-                    <div v-else class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                        <NuxtLink
-                            v-for="card in projectCards"
-                            :key="card.id"
-                            :to="`/workflows/${card.id}`"
-                            class="flex items-center gap-4 rounded-lg border border-default bg-default p-4 transition-colors hover:bg-elevated/50"
-                        >
-                            <ProgressRing :percent="card.percent" :size="64" />
-                            <div class="min-w-0 flex-1">
-                                <p class="truncate font-semibold">{{ card.title }}</p>
-                                <p class="truncate text-xs text-muted">{{ card.templateTitle }}</p>
-                                <p class="mt-1 text-xs tabular-nums">
-                                    <span class="text-dimmed">Now:</span> {{ card.now }}
-                                </p>
-                                <p class="text-xs text-dimmed tabular-nums">
-                                    {{ card.done }}/{{ card.total }} capabilities
-                                    <template v-if="card.unsorted > 0">
-                                        ·
-                                        <span class="tone-warn"
-                                            >{{ card.unsorted }} to organise</span
-                                        >
-                                    </template>
-                                </p>
-                            </div>
-                        </NuxtLink>
+                    <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                        <WorkflowCard
+                            v-for="view in data.projects"
+                            :key="view.project.id"
+                            :project="view"
+                        />
+                        <NewProjectCard />
                     </div>
                 </section>
 
@@ -100,6 +72,9 @@
                         <template #header>
                             <p class="font-semibold">{{ template.title }}</p>
                             <p class="text-xs text-muted">{{ template.summary }}</p>
+                            <p class="mt-1 text-xs text-dimmed tabular-nums">
+                                {{ templateCounts[template.id] }}
+                            </p>
                             <p class="mt-1 flex items-center gap-1 text-xs text-dimmed">
                                 <UIcon name="i-lucide-toggle-left" class="size-3.5" /> Optional:
                                 each project switches it on or off.
@@ -135,112 +110,29 @@
                     </UCard>
                 </section>
             </div>
-
-            <UModal v-model:open="creating" title="New project">
-                <template #body>
-                    <form class="flex flex-col gap-3" @submit.prevent="create">
-                        <UFormField label="Id" help="kebab-case; also the file name">
-                            <UInput
-                                v-model="draft.project"
-                                placeholder="marina-roustan"
-                                class="w-full"
-                            />
-                        </UFormField>
-                        <UFormField label="Title">
-                            <UInput
-                                v-model="draft.title"
-                                placeholder="Marina Roustan"
-                                class="w-full"
-                            />
-                        </UFormField>
-                        <UFormField label="Template">
-                            <USelect
-                                v-model="draft.template"
-                                :items="templateItems"
-                                value-key="value"
-                                class="w-full"
-                            />
-                        </UFormField>
-                        <UFormField label="Area label" help="The GitHub label its code lives under">
-                            <UInput
-                                v-model="draft.area"
-                                placeholder="app:marina-roustan"
-                                class="w-full"
-                            />
-                        </UFormField>
-                        <UFormField
-                            label="Milestone"
-                            help="Tickets in this milestone belong to the project"
-                        >
-                            <UInput
-                                v-model="draft.milestone"
-                                placeholder="Marina Roustan"
-                                class="w-full"
-                            />
-                        </UFormField>
-                        <UButton
-                            type="submit"
-                            label="Create"
-                            icon="i-lucide-plus"
-                            class="self-end"
-                        />
-                    </form>
-                </template>
-            </UModal>
         </template>
     </UDashboardPanel>
 </template>
 
 <script setup lang="ts">
-import type { Template } from "#layers/workflows/shared/workflows.ts";
+import { templateEstimate, type Template } from "#layers/workflows/shared/workflows.ts";
 
 useHead({ title: "Workflows" });
 
 const { data } = await useWorkflows();
-const { editable, edit } = useWorkflowEdit();
-
-const projectCards = computed(() =>
-    data.value.projects.map(({ project, template, counts, progress, unsorted }) => ({
-        id: project.id,
-        title: project.title,
-        templateTitle: template.title,
-        percent: progress.percent,
-        done: progress.done,
-        total: progress.total,
-        unsorted: unsorted.length,
-        now: [
-            `${counts["waiting-on-you"]} waiting on you`,
-            `${counts.ready} ready`,
-            `${counts["in-flight"]} in flight`,
-            `${counts.blocked} blocked`,
-        ].join(" · "),
-    })),
-);
 
 const capabilitiesOf = (template: Template, stage: string) =>
     template.capabilities.filter((capability) => capability.stage === stage);
 
-const templateItems = computed(() =>
-    data.value.templates.map((template) => ({ label: template.title, value: template.id })),
+const templateCounts = computed(() =>
+    Object.fromEntries(
+        data.value.templates.map((template) => {
+            const { blocks, tickets, points } = templateEstimate(template);
+            return [
+                template.id,
+                `${blocks} blocks by default · ${points} SP · ${tickets.block} tickets one per block, ${tickets.fast} fast`,
+            ];
+        }),
+    ),
 );
-
-const creating = ref(false);
-const blank = () => ({
-    project: "",
-    title: "",
-    template: data.value.templates[0]?.id ?? "",
-    area: "",
-    milestone: "",
-});
-const draft = reactive(blank());
-
-const create = async () => {
-    const id = draft.project;
-
-    if (await edit({ action: "create", ...draft })) {
-        creating.value = false;
-        Object.assign(draft, blank());
-        await navigateTo(`/workflows/${id}`);
-    }
-};
 </script>

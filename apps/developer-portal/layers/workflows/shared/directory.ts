@@ -1,4 +1,5 @@
 import { projectProblems, readProject } from "./project.ts";
+import { isRecord } from "./reader.ts";
 import { projectView } from "./projectView.ts";
 import { readSnapshot } from "./snapshot.ts";
 import { readTemplate } from "./template.ts";
@@ -14,11 +15,7 @@ export interface Workflows {
     problems: WorkflowProblem[];
 }
 
-/**
- * Every template and project, each project laid over its template and snapshot, keyed by project
- * id. The caller reads and parses the files; a broken one becomes a problem rather than a throw, so
- * one bad edit never blanks the page.
- */
+/** A broken file becomes a problem rather than a throw, so one bad edit never blanks the page. */
 export const assembleWorkflows = (
     templateFiles: ParsedFile[],
     projectFiles: ParsedFile[],
@@ -73,7 +70,11 @@ export const assembleWorkflows = (
             continue;
         }
 
-        const { project, problems: found } = readProject(parsed.value);
+        const named = isRecord(parsed.value) ? parsed.value.template : null;
+        const { project, problems: found } = readProject(
+            parsed.value,
+            templates.find((candidate) => candidate.id === named)?.types,
+        );
         problems.push(...found.map((message) => ({ file: where, message })));
 
         if (`${project.id}.yaml` !== parsed.file) {

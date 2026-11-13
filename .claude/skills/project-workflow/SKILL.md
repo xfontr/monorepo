@@ -1,6 +1,6 @@
 ---
 name: project-workflow
-description: Run a multi-ticket effort (a site rebuild, a launch) through docs/workflows — start a project from a template, file a block of the map as GitHub tickets with blocked-by links once nothing it needs is undecided, place unsorted tickets, sync, and answer "where are we" or "what can I take". Use when asked to start, plan, ticket, organise or report on a project tracked on the portal's Workflows page, or to redesign or rebuild an existing website.
+description: Run a multi-ticket effort (a site rebuild, a new site, a launch) through docs/workflows — start a project from a template, file a block of the map as GitHub tickets with blocked-by links once nothing it needs is undecided, place unsorted tickets, sync, and answer "where are we" or "what can I take". Use when asked to start, plan, ticket, organise or report on a project tracked on the portal's Workflows page, or to build a new website or redesign or rebuild an existing one.
 ---
 
 # Running a project through a workflow
@@ -21,20 +21,54 @@ hundred.
 
 ## 1. Starting a project
 
-1. Ask for what the code can't tell you: the audience, the page readers land on first, and which
-   features are wanted. Ask about every feature the same way, the blog no differently from
+1. Pick the template: `new-website` for a site started from nothing, `website-rebuild` when an
+   old site's content and URLs come along, `custom` for anything else — a developer tool, a
+   package, an internal feature — and then draft its map under
+   [Drafting a map](#15-drafting-a-map-for-a-custom-project). Then ask for what the code can't tell you: the
+   audience, the page readers land on first, which features are wanted, and the ticket size —
+   `block` when a person reviews every PR, `supervised` when AI builds it under a review pipeline, `fast` for an internal tool or experiment nobody will review. Ask about every feature the same way, search no differently from
    storybook; each one's `summary` and `lessons` in the template is the question, in plain words.
-2. Write `docs/workflows/projects/<id>.yaml` by copying [`huella-legal.yaml`](../../../docs/workflows/projects/huella-legal.yaml).
-   Set `switches` only where the answer differs from the template's default; a site with no blog is
-   `blog: false`. Features are set once; the portal's Features modal is for the rare change after.
-   Put features only this project has under `extras`, each with its `dependsOn`.
-3. GitHub side, after the user confirms. Each step writes to GitHub:
-   - create the milestone, `gh api repos/{owner}/{repo}/milestones -f title=<Milestone>`;
-   - create the area label if the app is new;
-   - create the `owner` label once if `gh label list` lacks it;
-   - create the `cap:<id>` label for every block that is on, unless it already exists. List
-     them with `gh label list --limit 300 --json name -q '.[].name' | grep '^cap:'`; `--search` is
-     fuzzy and has missed one.
+2. Write `data/workflows/projects/<id>.yaml` by copying [`huella-legal.yaml`](../../../data/workflows/projects/huella-legal.yaml).
+   Set `switches` only where the answer differs from the template's default; a rebuild without
+   search, which that template turns on, is `search: false`. A blog is a page, not a switch: see [Adding the pages](#14-adding-the-pages). Features are set once; the project's Settings page in the portal is for the rare change after. Under `pnpm dev` the
+   portal's new-project wizard, behind the plus card on the Workflows page, writes this same file, if the user would rather click through it.
+   Put features only this project has under `extras`, each with its `dependsOn`. Set
+   `ticketSize` unless it is `block`.
+3. GitHub side: `pnpm workflow:setup <id>` prints the milestone and labels it would create. Show
+   the user, and only on their go run it with `--yes`, since it writes to GitHub. Run it again after
+   a feature is switched on, for the new blocks' `cap:` labels.
+
+## 1.4 Adding the pages
+
+A feature inventory or site brief ends with every page in the project's `extras`, each naming a
+page type from the template: `page-template`, `custom-page`, `blog` or `blog-comments`. Comments
+are set up once, by the first blog that takes them, so a second one adds no comments work. Show the
+user the list before the scope sign-off closes, since each page becomes its own block and ticket
+cost. A page that fits no type is an ordinary extra with its own `dependsOn`, and a lesson for the
+template.
+
+## 1.5 Drafting a map for a custom project
+
+A `custom` project starts with no blocks; its map is the project file's `extras`, which you draft and
+the user checks. Read the repo first, then ask only what the code can't tell you: what it is for,
+who uses it, what done looks like, and what is still undecided.
+
+1. **One block per thing an agent can finish and a check can verify**, at most 13 points on the
+   [complexity scale](../../../docs/workflows/README.md#-complexity). Anything bigger gets suggested
+   `tickets` or becomes two blocks.
+2. **Every open question is a `spike`, and every call only the user can make is an `owner` block**,
+   such as scope, a provider or an API shape. Build blocks that depend on the answer go in
+   `dependsOn`, so filing waits for them.
+3. **Every block has `doneWhen`**, written as checks rather than tasks, and a `reuse` naming the
+   precedent to copy — a package, a script folder, a layer — with a path that exists.
+4. **Write lessons only from issues that happened**, with their numbers. Leave them out rather than
+   inventing any.
+5. **Stages are `plan`, `build` and `ship`.** End with an `owner` block in `ship` that needs every
+   other block, so the release is a decision too.
+
+Show the user the map in the portal at `/workflows/<id>` before running `workflow:setup`, and
+change the file until they agree with it. If a second project of the same kind turns up, its map
+becomes a template.
 
 ## 2. Filing a block
 
@@ -42,7 +76,8 @@ File what the map says can be filed, not a stage. In the portal a block that can
 *Can file now*; one that can't reads *Waits* and names what it waits on.
 
 1. `pnpm workflow:file <id> <block>` prints the tickets, their labels and their blocked-by links
-   without writing anything. It refuses a block still waiting on an open `spike` or `owner` block,
+   without writing anything. Under a `ticketSize` other than `block` it is one ticket for the
+   block and the others its size bundles it with, filed whole or not at all. It refuses a block still waiting on an open `spike` or `owner` block,
    because that decision can still change what the tickets say (#208, #242 → #299).
 2. When a block has no suggested `tickets` in the template, the command drafts one from its title
    and `doneWhen`. If that would be too thin for an agent to act on, add `tickets` to the template
@@ -78,6 +113,13 @@ When a project finds something the template didn't ask for (a late feature, a pr
 redo, a dependency nobody drew), add it to the template as a block, a `dependsOn` link or a
 `lessons` entry with the issue numbers. The next project learns it up front. That is the template's
 whole point.
+
+## 6. Abandoning a project
+
+When the user drops a project, run `pnpm workflow:drop <id>` and show them what closes and what
+stays. Only on their go, add `--yes`, then delete the project from its Settings page. In that order,
+because `drop` reads the milestone from the project file. It closes as not planned and never deletes;
+anything started or closed stays.
 
 ## 🎨 The design stage of a website rebuild
 

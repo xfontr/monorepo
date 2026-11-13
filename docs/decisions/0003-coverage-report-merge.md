@@ -43,7 +43,7 @@ directly. Five points make up the call:
    discovery and validation testable at all.
 5. **No thresholds and no single workspace percentage.** One number mixing
    [`apps/huella-legal`](../../apps/huella-legal/README.md) with
-   [`packages/ui`](../../packages/ui/README.md) isn't actionable; per-project thresholds belong in
+   `packages/ui` isn't actionable; per-project thresholds belong in
    each project's vitest config, where they can differ. The browsable merged HTML is the whole
    deliverable.
 

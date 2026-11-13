@@ -39,7 +39,9 @@ const issue = (number: number, caps: string[], overrides: Partial<SnapshotIssue>
         activity: [],
         blockedBy: [],
         branch: false,
+        pr: false,
         owner: false,
+        complexity: null,
         ...overrides,
     }) satisfies SnapshotIssue;
 
@@ -364,5 +366,104 @@ describe("replay", () => {
         expect(capabilityOf(view(project, [], [], REPLAYED, "2026-10-15"), "sign-off")?.state).toBe(
             "done",
         );
+    });
+});
+
+describe("complexity points", () => {
+    const ESTIMATED = {
+        ...TEMPLATE,
+        capabilities: [
+            { id: "content-audit", stage: "discovery", title: "Content audit", complexity: 5 },
+            { id: "article-page", stage: "build", title: "Article page", complexity: 8 },
+            { id: "comments", stage: "build", title: "Comments", optional: true, complexity: 8 },
+            { id: "search", stage: "build", title: "Search" },
+        ],
+    };
+
+    it("counts a block not yet filed at the template's estimate and a filed one at its tickets'", () => {
+        const result = view({}, [issue(1, ["content-audit"], { complexity: 3 })], [], ESTIMATED);
+
+        expect(capabilityOf(result, "content-audit")?.points).toEqual({
+            done: 3,
+            total: 3,
+            estimated: 0,
+            unestimated: 0,
+        });
+        expect(result.points).toEqual({ done: 3, total: 11, estimated: 8, unestimated: 1 });
+    });
+
+    it("leaves a switched-off or settled block out of the total instead of padding it", () => {
+        const result = view(
+            { settled: { "article-page": { status: "skipped", note: "Not needed." } } },
+            [],
+            [],
+            ESTIMATED,
+        );
+
+        expect(result.points.total).toBe(5);
+    });
+
+    it("splits a ticket shared by two blocks so the project total counts it once", () => {
+        const result = view(
+            {},
+            [open(1, ["content-audit", "article-page"], { complexity: 8 })],
+            [],
+            ESTIMATED,
+        );
+
+        expect(capabilityOf(result, "article-page")?.points.total).toBe(4);
+        expect(result.points.total).toBe(8);
+    });
+
+    it("counts an unestimated ticket rather than treating it as zero work silently", () => {
+        const result = view({}, [open(1, ["search"])], [], ESTIMATED);
+
+        expect(capabilityOf(result, "search")?.points.unestimated).toBe(1);
+    });
+
+    it("counts nothing for a settled block even when it has tickets", () => {
+        const result = view(
+            { settled: { "content-audit": { status: "done", note: "Done before the map." } } },
+            [issue(1, ["content-audit"], { complexity: 3 })],
+            [],
+            ESTIMATED,
+        );
+
+        expect(capabilityOf(result, "content-audit")?.points.total).toBe(0);
+        expect(result.points.total).toBe(8);
+    });
+
+    it("gives a shared ticket's whole estimate to the blocks it names, not to a group label", () => {
+        const result = view(
+            {},
+            [open(1, ["article-page", "blog"], { complexity: 8 })],
+            [],
+            ESTIMATED,
+        );
+
+        expect(capabilityOf(result, "article-page")?.points.total).toBe(8);
+    });
+
+    it("counts an unestimated ticket shared by two blocks once, not once per block", () => {
+        const result = view({}, [open(1, ["content-audit", "search"])], [], ESTIMATED);
+
+        expect(result.points.unestimated).toBe(1);
+    });
+});
+
+describe("tickets to file", () => {
+    it("counts only labelled, live tickets as filed and prices the rest at every size", () => {
+        const result = view(
+            {},
+            [
+                open(1, ["content-audit"]),
+                issue(2, ["article-page"], { reason: "not_planned" }),
+                open(3, []),
+            ],
+            [],
+        );
+
+        expect(result.tickets.filed).toBe(1);
+        expect(result.tickets.toFile).toEqual({ block: 2, supervised: 1, fast: 1 });
     });
 });

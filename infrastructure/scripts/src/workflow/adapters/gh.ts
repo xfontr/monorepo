@@ -1,7 +1,7 @@
 import { gh } from "../../shared/adapters/gh.ts";
 import { assertNotFlagLike } from "../../shared/adapters/exec.ts";
 import { ExpectedError } from "../../shared/errors.ts";
-import type { GhIssue } from "../domain/snapshot.ts";
+import { BOARD, COMPLEXITY_FIELD, type GhIssue } from "../domain/snapshot.ts";
 
 interface GraphIssue {
     number: number;
@@ -14,18 +14,28 @@ interface GraphIssue {
     labels: { nodes: { name: string }[] };
     blockedBy: { nodes: { number: number; state: string; closedAt?: string | null }[] };
     linkedBranches?: { totalCount: number };
+    closedByPullRequestsReferences?: { totalCount: number };
+    projectItems?: {
+        nodes: { project: { title: string }; complexity: { number?: number } | null }[];
+    };
 }
 
 const ISSUE_FIELDS = `number title url state stateReason createdAt closedAt
     labels(first: 50) { nodes { name } }
-    blockedBy(first: 50) { nodes { number state closedAt } }`;
+    blockedBy(first: 50) { nodes { number state closedAt } }
+    projectItems(first: 20) {
+      nodes {
+        project { title }
+        complexity: fieldValueByName(name: "${COMPLEXITY_FIELD}") { ... on ProjectV2ItemFieldNumberValue { number } }
+      }
+    }`;
 
 const MILESTONE_QUERY = `query($owner: String!, $name: String!, $number: Int!, $endCursor: String) {
   repository(owner: $owner, name: $name) {
     milestone(number: $number) {
       issues(first: 100, after: $endCursor, states: [OPEN, CLOSED]) {
         pageInfo { hasNextPage endCursor }
-        nodes { ${ISSUE_FIELDS} linkedBranches(first: 1) { totalCount } }
+        nodes { ${ISSUE_FIELDS} linkedBranches(first: 1) { totalCount } closedByPullRequestsReferences(first: 1, includeClosedPrs: false) { totalCount } }
       }
     }
   }
@@ -46,18 +56,48 @@ const toGhIssue = (issue: GraphIssue): GhIssue => ({
         closedAt: closedAt ?? null,
     })),
     branches: issue.linkedBranches?.totalCount ?? 0,
+    pullRequests: issue.closedByPullRequestsReferences?.totalCount ?? 0,
+    complexity:
+        issue.projectItems?.nodes.find(({ project }) => project.title === BOARD)?.complexity
+            ?.number ?? null,
 });
 
-const milestoneNumber = (title: string): number => {
+const findMilestone = (title: string): number | null => {
     const found = gh(
         "api",
+        "--paginate",
         "repos/{owner}/{repo}/milestones?state=all&per_page=100",
         "--jq",
         `.[] | select(.title == ${JSON.stringify(title)}) | .number`,
     ).trim();
 
-    if (!found) throw new ExpectedError(`No milestone called "${title}" on GitHub.`);
-    return Number(found);
+    return found ? Number(found.split("\n")[0]) : null;
+};
+
+const milestoneNumber = (title: string): number => {
+    const found = findMilestone(title);
+
+    if (found === null) {
+        throw new ExpectedError(
+            `No milestone called "${title}" on GitHub; \`pnpm workflow:setup\` creates it.`,
+        );
+    }
+    return found;
+};
+
+export const milestoneExists = (title: string): boolean => findMilestone(title) !== null;
+
+export const createMilestone = (title: string): void => {
+    gh("api", "repos/{owner}/{repo}/milestones", "-f", `title=${title}`);
+};
+
+export const labelNames = (): string[] =>
+    gh("label", "list", "--limit", "1000", "--json", "name", "--jq", ".[].name")
+        .split("\n")
+        .filter((name) => name.trim() !== "");
+
+export const createLabel = (name: string): void => {
+    gh("label", "create", assertNotFlagLike(name, "label"));
 };
 
 /** Every issue in the milestone with its blockers and linked branches, one paginated GraphQL read. */
@@ -107,17 +147,81 @@ export interface NewTicket {
     milestone: string;
     labels: string[];
     blockedBy: number[];
+    complexity: number | null;
 }
 
-/** Files one ticket and returns its URL; the blocked-by links are GitHub's own, not body text. */
-export const createTicket = ({ title, body, milestone, labels, blockedBy }: NewTicket): string =>
+const boardNumber = (owner: string): string => {
+    const found = gh(
+        "project",
+        "list",
+        "--owner",
+        owner,
+        "--format",
+        "json",
+        "--jq",
+        `.projects[] | select(.title == ${JSON.stringify(BOARD)}) | .number`,
+    ).trim();
+
+    if (!found) throw new ExpectedError(`No project board called "${BOARD}" for ${owner}.`);
+    return found;
+};
+
+const setComplexity = (url: string, complexity: number): void => {
+    const owner = gh("repo", "view", "--json", "owner", "--jq", ".owner.login").trim();
+
     gh(
+        "project",
+        "item-edit",
+        boardNumber(owner),
+        "--owner",
+        owner,
+        "--url",
+        url,
+        "--field",
+        COMPLEXITY_FIELD,
+        "--number",
+        String(complexity),
+    );
+};
+
+/** Files one ticket on the board and returns its URL; the blocked-by links are GitHub's own, not body text. */
+export const createTicket = ({
+    title,
+    body,
+    milestone,
+    labels,
+    blockedBy,
+    complexity,
+}: NewTicket): string => {
+    const url = gh(
         "issue",
         "create",
         // The `=` form keeps a value starting with `-`, such as a markdown checklist, from reading as a flag.
         `--title=${title}`,
         `--body=${body}`,
         `--milestone=${assertNotFlagLike(milestone, "milestone")}`,
+        "--project",
+        BOARD,
         ...labels.flatMap((label) => ["--label", assertNotFlagLike(label, "label")]),
         ...(blockedBy.length > 0 ? ["--blocked-by", blockedBy.join(",")] : []),
     ).trim();
+
+    if (complexity !== null) setComplexity(url, complexity);
+    return url;
+};
+
+/** Closes as not planned, which the snapshot reads back as `dropped`. */
+export const closeAsNotPlanned = (number: number): void => {
+    gh("issue", "close", String(number), "--reason", "not planned");
+};
+
+export const closeMilestone = (title: string): void => {
+    gh(
+        "api",
+        "--method",
+        "PATCH",
+        `repos/{owner}/{repo}/milestones/${milestoneNumber(title)}`,
+        "-f",
+        "state=closed",
+    );
+};

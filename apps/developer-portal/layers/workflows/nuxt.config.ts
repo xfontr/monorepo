@@ -5,6 +5,6 @@ export default defineNuxtConfig({
     css: [fileURLToPath(new URL("./app/assets/workflows.css", import.meta.url))],
 
     runtimeConfig: {
-        workflowsDir: resolve(import.meta.dirname, "../../../../docs/workflows"),
+        workflowsDir: resolve(import.meta.dirname, "../../../../data/workflows"),
     },
 });

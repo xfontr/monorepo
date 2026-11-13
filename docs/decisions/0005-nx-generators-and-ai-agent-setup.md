@@ -113,7 +113,7 @@ were built. What landed is [`.mcp.json`](../../.mcp.json) and the 23.2.0 bump in
 [`package.json`](../../package.json) with its lockfile: no new project, no new CI step, no new
 target.
 
-One loose end from the migrate half. [`renovate.json`](../../renovate.json) will bump `nx` and
+One loose end from the migrate half. `renovate.json` will bump `nx` and
 `@nx/*` as ordinary version bumps and skip their migrations entirely, which is the exact failure
 `nx migrate` exists to prevent. A `packageRule` handing those packages to `nx migrate` instead
 would make the habit stick; it isn't written yet.

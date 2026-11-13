@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { issueAsOf, replayRange, ticketStatus } from "./ticket.ts";
+import { dropPlan, issueAsOf, replayRange, ticketStatus } from "./ticket.ts";
 import type { SnapshotIssue } from "./types.ts";
 
 const issue = (number: number, caps: string[], overrides: Partial<SnapshotIssue> = {}) =>
@@ -15,35 +15,55 @@ const issue = (number: number, caps: string[], overrides: Partial<SnapshotIssue>
         activity: [],
         blockedBy: [],
         branch: false,
+        pr: false,
         owner: false,
+        complexity: null,
         ...overrides,
     }) satisfies SnapshotIssue;
 
 const open = (number: number, caps: string[], overrides: Partial<SnapshotIssue> = {}) =>
     issue(number, caps, { state: "open", reason: null, closedAt: null, ...overrides });
 
+/** The same rows as the scripts' `domain/queue.spec.ts`, so a change to one copy fails a spec. */
+const STATUSES = [
+    ["closed as completed", { state: "closed", reason: "completed" }, "done"],
+    ["closed as not planned", { state: "closed", reason: "not_planned" }, "dropped"],
+    [
+        "open on a linked branch, even if blocked",
+        { branch: true, blockedBy: [{ number: 2, open: true, closedAt: null }] },
+        "in-flight",
+    ],
+    ["open with an open pull request", { pr: true }, "in-flight"],
+    ["open with a tagged commit", { activity: ["2026-10-02"] }, "in-flight"],
+    [
+        "open behind an open blocker",
+        { blockedBy: [{ number: 2, open: true, closedAt: null }] },
+        "blocked",
+    ],
+    [
+        "open behind closed blockers only",
+        { blockedBy: [{ number: 2, open: false, closedAt: null }] },
+        "ready",
+    ],
+    ["open, unblocked and the owner's", { owner: true }, "waiting-on-you"],
+] as const;
+
 describe("ticketStatus", () => {
-    it.each([
-        ["closed as completed", issue(1, []), "done"],
-        ["closed as not planned", issue(1, [], { reason: "not_planned" }), "dropped"],
-        [
-            "open on a linked branch, even if blocked",
-            open(1, [], { branch: true, blockedBy: [{ number: 2, open: true, closedAt: null }] }),
-            "in-flight",
-        ],
-        [
-            "open behind an open blocker",
-            open(1, [], { blockedBy: [{ number: 2, open: true, closedAt: null }] }),
-            "blocked",
-        ],
-        [
-            "open behind closed blockers only",
-            open(1, [], { blockedBy: [{ number: 2, open: false, closedAt: null }] }),
-            "ready",
-        ],
-        ["open, unblocked and the owner's", open(1, [], { owner: true }), "waiting-on-you"],
-    ] as const)("reads a ticket %s as %s", (_, subject, expected) => {
-        expect(ticketStatus(subject)).toBe(expected);
+    it.each(STATUSES)("reads a ticket %s as %s", (_, overrides, expected) => {
+        expect(ticketStatus(open(1, [], overrides as Partial<SnapshotIssue>))).toBe(expected);
+    });
+});
+
+describe("dropPlan", () => {
+    it("closes only the tickets nobody started, the same split workflow:drop makes", () => {
+        const { close, keep } = dropPlan(
+            STATUSES.map(([, overrides], index) =>
+                open(index + 1, [], overrides as Partial<SnapshotIssue>),
+            ),
+        );
+
+        expect(close.map(({ number }) => number)).toEqual([6, 7, 8]);
+        expect(keep.map(({ number }) => number)).toEqual([1, 2, 3, 4, 5]);
     });
 });
 

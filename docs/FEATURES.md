@@ -35,9 +35,11 @@ and are documented once in the [root README](../README.md#-getting-started).
 | `pnpm package:check` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm usage:flush` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm env:sync` | [`package.json`](../package.json) | [`README.md`](../README.md) |
+| `pnpm workflow:setup` | [`package.json`](../package.json) | [`docs/workflows/README.md`](../docs/workflows/README.md) |
 | `pnpm workflow:sync` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm workflow:next` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm workflow:file` | [`package.json`](../package.json) | [`README.md`](../README.md) |
+| `pnpm workflow:drop` | [`package.json`](../package.json) | [`docs/workflows/README.md`](../docs/workflows/README.md) |
 | `pnpm release` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm release:dry` | [`package.json`](../package.json) | [`README.md`](../README.md) |
 | `pnpm exec nx nuxt-prepare @monorepo/developer-portal` | [`apps/developer-portal/package.json`](../apps/developer-portal/package.json) | [`apps/developer-portal/README.md`](../apps/developer-portal/README.md) |

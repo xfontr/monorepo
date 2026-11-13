@@ -2,8 +2,12 @@ import type { Ref } from "vue";
 
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 1.25;
+/** Below this a node's text is too small to read, so framing stops shrinking and pans instead. */
+const READABLE_ZOOM = 0.75;
 /** A press that moves further than this is a drag, and doesn't select what it started on. */
 const DRAG_THRESHOLD = 4;
+/** A mouse notch reports a deltaY near 100, against a trackpad's handful per event. */
+const WHEEL_STEP = 25;
 
 /** Pan and zoom over a laid-out graph, framing whichever blocks `lit` returns. */
 export const useGraphCamera = (
@@ -22,7 +26,7 @@ export const useGraphCamera = (
         if (animate) easeTimer = setTimeout(() => (easing.value = false), 500);
     };
 
-    /** Frames exactly the lit blocks: the selected path, or the whole map with nothing selected. */
+    /** Centres the lit blocks, the selected path or the whole map, as large as fits but never unreadable. */
     const fit = (animate: boolean) => {
         const box = viewport.value?.getBoundingClientRect();
         const nodes = lit();
@@ -33,9 +37,12 @@ export const useGraphCamera = (
         const right = Math.max(...nodes.map(({ x }) => x + NODE_WIDTH));
         const bottom = Math.max(...nodes.map(({ y }) => y + NODE_HEIGHT));
         const k = clampZoom(
-            Math.min(
-                (box.width - PADDING * 2) / (right - left),
-                (box.height - PADDING * 2) / (bottom - top),
+            Math.max(
+                READABLE_ZOOM,
+                Math.min(
+                    (box.width - PADDING * 2) / (right - left),
+                    (box.height - PADDING * 2) / (bottom - top),
+                ),
             ),
         );
 
@@ -60,13 +67,18 @@ export const useGraphCamera = (
         camera.k = k;
     };
 
-    /** Pinch on a trackpad arrives as a ctrl-wheel; a plain wheel keeps scrolling the page. */
-    const wheel = (event: WheelEvent) => {
-        if (!event.ctrlKey && !event.metaKey) return;
+    /** Pinch on a trackpad arrives as a ctrl-wheel; a plain wheel zooms only when `free`, since
+     * otherwise it scrolls the page. */
+    const wheel = (event: WheelEvent, free = false) => {
+        if (!free && !event.ctrlKey && !event.metaKey) return;
 
         event.preventDefault();
         const box = viewport.value!.getBoundingClientRect();
-        zoomBy(Math.exp(-event.deltaY * 0.01), event.clientX - box.left, event.clientY - box.top);
+        zoomBy(
+            Math.exp(-Math.max(-WHEEL_STEP, Math.min(WHEEL_STEP, event.deltaY)) * 0.01),
+            event.clientX - box.left,
+            event.clientY - box.top,
+        );
     };
 
     const dragging = ref(false);

@@ -1,10 +1,7 @@
-import type { CapabilityView, ProjectView } from "./workflows.ts";
+import type { ProjectView } from "./workflows.ts";
 
 const DAY_MS = 86_400_000;
 const WEEK_MS = 7 * DAY_MS;
-
-/** An open capability whose last commit is this far behind the project's latest is flagged quiet. */
-export const QUIET_DAYS = 21;
 
 export interface CapabilityActivity {
     /** Distinct days with a commit, per week of the project's timeline, so each value is 0–7. */
@@ -14,8 +11,6 @@ export interface CapabilityActivity {
     /** Tickets with at least one commit. */
     tickets: number;
     lastDay: string | null;
-    /** The last active day when the capability is still open and has gone quiet, else null. */
-    quietSince: string | null;
 }
 
 export interface ProjectActivity {
@@ -27,8 +22,11 @@ export interface ProjectActivity {
     days: string[];
     /** Capabilities with a commit, per day and stage, in the template's stage order. */
     byStage: number[][];
+    /** The most capabilities any one day moved across all stages, the shared top of the strip. */
+    busiest: number;
     capabilities: Record<string, CapabilityActivity>;
-    lastDay: string;
+    /** Null on a replayed day before the first commit. */
+    lastDay: string | null;
 }
 
 /** Calendar days are compared in UTC, so a day lands in the same week on the server and in the browser. */
@@ -41,31 +39,33 @@ const mondayOf = (day: string): number => {
 
 const isoDay = (at: number): string => new Date(at).toISOString().slice(0, 10);
 
-const OPEN_STATES = new Set<CapabilityView["state"]>([
-    "waiting-on-you",
-    "ready",
-    "in-flight",
-    "blocked",
-]);
-
-/** Commit activity over one shared timeline for a whole project; null when no commit names any of its tickets. */
-export const projectActivity = (view: ProjectView): ProjectActivity | null => {
+/**
+ * Commit activity over one shared timeline for a whole project; null when no commit names any of its tickets.
+ * A replayed view passes the synced project's activity as `frame`, so it keeps that timeline and scale.
+ */
+export const projectActivity = (
+    view: ProjectView,
+    frame: ProjectActivity | null = null,
+): ProjectActivity | null => {
     const all = view.stages.flatMap((stage) =>
         stage.capabilities.flatMap((capability) =>
             capability.issues.flatMap((issue) => issue.activity),
         ),
     );
 
-    if (all.length === 0) return null;
-
     const sorted = [...all].sort((a, b) => a.localeCompare(b));
-    const first = mondayOf(sorted[0]!);
-    const lastDay = sorted.at(-1)!;
-    const count = Math.round((mondayOf(lastDay) - first) / WEEK_MS) + 1;
+    const lastDay = sorted.at(-1) ?? null;
+    const start = frame?.days[0] ?? sorted[0];
+    const end = frame?.days.at(-1) ?? lastDay;
+
+    if (!start || !end) return null;
+
+    const first = mondayOf(start);
+    const count = Math.round((mondayOf(end) - first) / WEEK_MS) + 1;
     const weekOf = (day: string): number => Math.round((mondayOf(day) - first) / WEEK_MS);
 
-    const span = Math.round((time(lastDay) - time(sorted[0]!)) / DAY_MS) + 1;
-    const dayOf = (day: string): number => Math.round((time(day) - time(sorted[0]!)) / DAY_MS);
+    const span = Math.round((time(end) - time(start)) / DAY_MS) + 1;
+    const dayOf = (day: string): number => Math.round((time(day) - time(start)) / DAY_MS);
 
     const capabilities: Record<string, CapabilityActivity> = {};
     const byStage = Array.from({ length: span }, () => view.stages.map(() => 0));
@@ -81,28 +81,26 @@ export const projectActivity = (view: ProjectView): ProjectActivity | null => {
                 byStage[dayOf(day)]![stageIndex]! += 1;
             }
 
-            const last = days.at(-1) ?? null;
-            const quiet =
-                last !== null &&
-                OPEN_STATES.has(capability.state) &&
-                time(lastDay) - time(last) >= QUIET_DAYS * DAY_MS;
-
             capabilities[capability.id] = {
                 weeks,
                 commits: commits.length,
                 days: days.length,
                 tickets: capability.issues.filter((issue) => issue.activity.length > 0).length,
-                lastDay: last,
-                quietSince: quiet ? last : null,
+                lastDay: days.at(-1) ?? null,
             };
         }
     });
 
     return {
         weeks: Array.from({ length: count }, (_, week) => isoDay(first + week * WEEK_MS)),
-        peak: Math.max(1, ...Object.values(capabilities).flatMap(({ weeks }) => weeks)),
-        days: Array.from({ length: span }, (_, day) => isoDay(time(sorted[0]!) + day * DAY_MS)),
+        peak:
+            frame?.peak ??
+            Math.max(1, ...Object.values(capabilities).flatMap(({ weeks }) => weeks)),
+        days: Array.from({ length: span }, (_, day) => isoDay(time(start) + day * DAY_MS)),
         byStage,
+        busiest:
+            frame?.busiest ??
+            Math.max(1, ...byStage.map((day) => day.reduce((sum, moved) => sum + moved, 0))),
         capabilities,
         lastDay,
     };

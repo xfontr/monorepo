@@ -29,7 +29,7 @@
         "!{projectRoot}/**/*.test.ts",
         "!{projectRoot}/vitest.config.ts",
         "{workspaceRoot}/**/*.md",
-        "{workspaceRoot}/docs/workflows/**/*",
+        "{workspaceRoot}/data/workflows/**/*",
         {
           "runtime": "node apps/developer-portal/tools/lib/snapshotStamp.ts"
         }
@@ -43,6 +43,7 @@
     "@nuxt/ui": "^4.11.0",
     "nuxt": "catalog:",
     "vue": "catalog:",
+    "vue-draggable-plus": "^0.6.1",
     "yaml": "^2.9.1"
   },
   "devDependencies": {

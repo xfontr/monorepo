@@ -17,7 +17,7 @@ export default [
                 {
                     ignore: [
                         "^tone-(good|warn|bad)$",
-                        "^(data-table|numeric|embedded-report)$",
+                        "^(data-table|numeric|embedded-report|widget-wiggle)$",
                         "^(skyline|tower|cell|cards|segment|is-selected|is-highlighted)$",
                     ],
                 },

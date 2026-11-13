@@ -5,7 +5,9 @@ import LintUsage from "./LintUsage.vue";
 
 const global = {
     stubs: {
-        UCard: { template: "<article><slot name='header' /><slot /></article>" },
+        UCard: {
+            template: "<article><slot name='header' /><slot /><slot name='footer' /></article>",
+        },
         UAlert: {
             props: { title: String, description: String },
             template: "<div class='alert'>{{ title }} {{ description }}</div>",
@@ -25,7 +27,7 @@ const rule = (overrides: Partial<LintRuleUsage> = {}): LintRuleUsage => ({
 });
 
 const mount = (rules: Record<string, LintRuleUsage>, since: string | null = "2026-11-01") =>
-    mountSuspended(LintUsage, { props: { lint: { since, rules }, windowDays: 90 }, global });
+    mountSuspended(LintUsage, { props: { lint: { since, rules } }, global });
 
 describe("LintUsage", () => {
     it("says the counts only cover agent edits, so a quiet rule isn't read as unused by people", async () => {
@@ -47,10 +49,27 @@ describe("LintUsage", () => {
         ]);
     });
 
+    it("gives every project a rule fired in its own column, busiest first", async () => {
+        const wrapper = await mount({
+            prettier: rule({ hits: 9, recent: 9, projects: { ui: 2, portal: 7 } }),
+        });
+
+        const headers = wrapper.findAll("thead th").map((cell) => cell.text());
+
+        expect(headers.slice(1, 3)).toEqual(["portal", "ui"]);
+    });
+
     it("counts never-fired rules against how long they have been watched", async () => {
         const wrapper = await mount({ silent: rule(), busy: rule({ hits: 1, recent: 1 }) });
 
         expect(wrapper.text()).toContain("Never fired: 1 of 2 enabled rules");
         expect(wrapper.text()).toContain("Watching since 2026-11-01");
+    });
+
+    it("lists a rule whose hits all predate the window as never fired, not in the table", async () => {
+        const wrapper = await mount({ stale: rule({ hits: 40, last: "2026-01-01" }) });
+
+        expect(wrapper.find("tbody").text()).not.toContain("stale");
+        expect(wrapper.text()).toContain("Never fired: 1 of 1 enabled rules");
     });
 });

@@ -2,7 +2,7 @@ import { mountSuspended, mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { assembleWorkflows } from "#layers/workflows/shared/workflows.ts";
-import Page from "./[id].vue";
+import Page from "./index.vue";
 
 const state = vi.hoisted(() => ({
     data: null as unknown,
@@ -81,6 +81,7 @@ const global = {
             template:
                 "<input type='range' data-replay :max='max' :value='modelValue' @input=\"$emit('update:modelValue', Number($event.target.value))\" />",
         },
+        UPopover: { template: "<div><slot /><slot name='content' /></div>" },
         UIcon: true,
     },
 };
@@ -120,19 +121,59 @@ describe("workflow page", () => {
         expect(wrapper.text()).toContain("no cap: label");
     });
 
-    it("lights a block picked from What's left on its stage cards and on the graph", async () => {
+    it("asks for a map on a project with no blocks, instead of calling it done", async () => {
+        state.data = ref(
+            assembleWorkflows(
+                [
+                    {
+                        file: "custom.yaml",
+                        ok: true,
+                        value: {
+                            id: "custom",
+                            title: "Custom",
+                            stages: [{ id: "build", title: "Build" }],
+                        },
+                    },
+                ],
+                [
+                    {
+                        file: "blog.yaml",
+                        ok: true,
+                        value: { ...PROJECT, template: "custom", switches: {} },
+                    },
+                ],
+                {},
+            ),
+        );
+        const wrapper = await mountSuspended(Page, { global });
+
+        expect(wrapper.text()).toContain("This project has no blocks yet");
+        expect(wrapper.text()).not.toContain("Everything switched on is done");
+    });
+
+    it("lists every unfinished block under its state, not just the first few", async () => {
+        const wrapper = await mountSuspended(Page, { global });
+
+        expect(wrapper.find("ul[aria-label='ready blocks']").text()).toContain("Comments");
+        expect(wrapper.find("ul[aria-label='can file now blocks']").text()).toContain("Cutover");
+    });
+
+    it("lights a block picked from its state's list on its stage cards and on the graph", async () => {
         const wrapper = await mountSuspended(Page, { global });
 
         await wrapper
-            .findAll("button")
+            .findAll("ul[aria-label$=' blocks'] button")
             .find((button) => button.text().startsWith("Cutover"))
             ?.trigger("click");
 
         expect(wrapper.find("#stage-launch button[aria-pressed='true']").text()).toContain(
             "Cutover",
         );
-        expect(wrapper.find("[data-node='cutover']").attributes("aria-pressed")).toBe("true");
-        expect(wrapper.find("[data-node='comments']").text()).toContain("needed");
+        const graph = wrapper.findComponent({ name: "WorkflowGraph" });
+        expect(graph.find("button[aria-label^='Cutover,']").attributes("aria-pressed")).toBe(
+            "true",
+        );
+        expect(graph.find("button[aria-label^='Comments,']").text()).toContain("needed");
     });
 
     it("opens a block's details from its info button, selecting it on the way", async () => {
@@ -160,34 +201,27 @@ describe("workflow page", () => {
             },
         ]);
         const wrapper = await mountSuspended(Page, { global });
-        const comments = () => wrapper.find("[data-node='comments']").text();
+        const comments = () =>
+            wrapper
+                .findComponent({ name: "WorkflowGraph" })
+                .find("button[aria-label^='Comments,']")
+                .text();
 
         expect(comments()).toContain("Done");
 
         await wrapper.find("[data-replay]").setValue("0");
 
         expect(comments()).toContain("In flight");
-        expect(wrapper.text()).toContain("2 Nov");
+        expect(wrapper.find("output").text()).toContain("2 Nov");
     });
 
-    it("keeps features in a modal, switching one only under pnpm dev", async () => {
+    it("keeps features, ticket size and deleting behind Settings rather than on the page", async () => {
         state.editable = true;
         const wrapper = await mountSuspended(Page, { global });
+        const labels = wrapper.findAll("button").map((button) => button.text());
 
-        expect(wrapper.find("dialog").exists()).toBe(false);
-
-        await wrapper
-            .findAll("button")
-            .find((button) => button.text() === "Features")
-            ?.trigger("click");
-        await wrapper.find("dialog [role='switch']").trigger("click");
-
-        expect(state.edit).toHaveBeenCalledWith({
-            action: "switch",
-            project: "blog",
-            capability: "comments",
-            on: false,
-        });
+        expect(labels).toContain("Settings");
+        expect(labels.filter((label) => /delete|features|ticket size/i.test(label))).toEqual([]);
     });
 
     it("says so when the project doesn't exist instead of rendering an empty pipeline", async () => {

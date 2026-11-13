@@ -26,7 +26,9 @@ const ticket = (number: number, caps: string[]) => ({
     activity: [],
     blockedBy: [],
     branch: false,
+    pr: false,
     owner: false,
+    complexity: null,
 });
 const view = projectView(project, template, {
     syncedAt: "2026-11-09T00:00:00Z",
@@ -42,12 +44,48 @@ const mount = (selected: string | null = null) =>
     });
 
 describe("StageCards", () => {
-    it("says what a blocked block waits on and how much a ready one unblocks", async () => {
+    it("says what a blocked block waits on", async () => {
         const wrapper = await mount();
-        const [kit, page] = wrapper.findAll("li button[aria-pressed]");
+        const [, page] = wrapper.findAll("li button[aria-pressed]");
 
         expect(page!.text()).toContain("waits on Kit");
-        expect(kit!.text()).toContain("unblocks 1");
+    });
+
+    it("shows the SP each block spends, and none on a block nobody estimated", async () => {
+        const estimated = projectView(project, template, {
+            syncedAt: "2026-11-09T00:00:00Z",
+            milestone: "P",
+            issues: [{ ...ticket(1, ["kit"]), complexity: 5 }, ticket(2, ["page"])],
+            noMilestone: [],
+        });
+        const wrapper = await mountSuspended(StageCards, {
+            props: { stage: estimated.stages[0]!, index: 0 },
+            global: { stubs: { UIcon: true } },
+        });
+        const [kit, page] = wrapper.findAll("li button[aria-pressed]");
+
+        expect(kit!.text()).toContain("5 SP");
+        expect(page!.text()).not.toContain("SP");
+    });
+
+    it.each([
+        [5, false],
+        [6, true],
+    ])("stacks %i ticket dots in two rows: %s", async (count, stacked) => {
+        const crowded = projectView(project, template, {
+            syncedAt: "2026-11-09T00:00:00Z",
+            milestone: "P",
+            issues: Array.from({ length: count }, (_, index) => ticket(index + 1, ["kit"])),
+            noMilestone: [],
+        });
+        const wrapper = await mountSuspended(StageCards, {
+            props: { stage: crowded.stages[0]!, index: 0 },
+            global: { stubs: { UIcon: true } },
+        });
+        const dots = wrapper.find("[role='img']");
+
+        expect(dots.attributes("aria-label")).toMatch(new RegExp(`^${count} `));
+        expect(dots.classes().includes("grid-rows-2")).toBe(stacked);
     });
 
     it("gives a switched-off block no card, since it isn't part of the project", async () => {
