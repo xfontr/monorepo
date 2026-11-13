@@ -7,6 +7,7 @@ import {
     PROJECT_ID,
     projectYaml,
     TICKET_SIZES,
+    type NewPage,
     type Template,
     type TicketSize,
     type Workflows,
@@ -42,6 +43,34 @@ const switchProblem = (template: Template, switches: Record<string, unknown>): s
     }
 
     return null;
+};
+
+/** The pages a new project adds, each an extra naming one of the template's page types. */
+const readPages = (template: Template, raw: unknown): NewPage[] | string => {
+    if (raw === undefined) return [];
+    if (!Array.isArray(raw)) return "the pages are a list";
+
+    const taken = new Set(template.capabilities.map(({ id }) => id));
+    const pages: NewPage[] = [];
+
+    for (const entry of raw) {
+        const page = isRecord(entry) ? entry : {};
+        const [id = "", type = "", title = ""] = ["id", "type", "title"].map((key) =>
+            textOf(page[key]),
+        );
+
+        if (!title) return "a page needs a title";
+        if (!PROJECT_ID.test(id)) return `\`${id}\` isn't a kebab-case page id`;
+        if (taken.has(id)) return `\`${id}\` is already taken in ${template.id}`;
+        if (!template.types.some((candidate) => candidate.id === type)) {
+            return `\`${type || "(none)"}\` isn't a page type of ${template.id}`;
+        }
+
+        taken.add(id);
+        pages.push({ id, type, title });
+    }
+
+    return pages;
 };
 
 const milestoneProblem = (workflows: Workflows, id: string, milestone: string): string | null => {
@@ -82,6 +111,10 @@ const createProject = async (
 
     if (problem) return problem;
 
+    const extras = readPages(template, edit.extras);
+
+    if (typeof extras === "string") return extras;
+
     const project = {
         id,
         title,
@@ -90,6 +123,7 @@ const createProject = async (
         milestone,
         summary: summary ?? "",
         switches: switches as Record<string, boolean>,
+        extras,
     };
 
     try {

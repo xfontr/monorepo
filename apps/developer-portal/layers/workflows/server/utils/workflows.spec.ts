@@ -20,6 +20,11 @@ capabilities:
     group: posts
     title: Comments
     optional: true
+types:
+  - id: custom-page
+    stage: build
+    title: Custom page
+    complexity: 5
 `;
 
 const PROJECT = `# Kept: a person wrote this.
@@ -218,6 +223,58 @@ describe("applyEdit create", () => {
             ticketSize: "fast",
         });
     });
+
+    it("writes each page as an extra that takes its type's estimate", async () => {
+        await expect(
+            applyEdit({
+                action: "create",
+                project: "shop",
+                title: "Shop",
+                template: "site",
+                milestone: "Shop",
+                extras: [{ id: "services-page", type: "custom-page", title: "Services" }],
+            }),
+        ).resolves.toBeNull();
+
+        const { projects, problems } = await loadWorkflows();
+        const shop = projects.find(({ project }) => project.id === "shop")?.project;
+
+        expect(problems).toEqual([]);
+        expect(shop?.extras).toMatchObject([{ id: "services-page", complexity: 5 }]);
+    });
+
+    it.each([
+        [
+            [{ id: "services-page", type: "nope", title: "Services" }],
+            "`nope` isn't a page type of site",
+        ],
+        [
+            [{ id: "comments", type: "custom-page", title: "Comments" }],
+            "`comments` is already taken in site",
+        ],
+        [
+            [
+                { id: "a-page", type: "custom-page", title: "A" },
+                { id: "a-page", type: "custom-page", title: "A" },
+            ],
+            "`a-page` is already taken in site",
+        ],
+        [[{ id: "a-page", type: "custom-page", title: "" }], "a page needs a title"],
+    ])(
+        "refuses pages %j instead of writing a file the loader would flag",
+        async (extras, problem) => {
+            await expect(
+                applyEdit({
+                    action: "create",
+                    project: "shop",
+                    title: "Shop",
+                    template: "site",
+                    milestone: "Shop",
+                    extras,
+                }),
+            ).resolves.toBe(problem);
+        },
+    );
 
     it("refuses a switch on a block the template doesn't let a project turn off", async () => {
         await expect(

@@ -1,6 +1,13 @@
 import { parse } from "yaml";
 import { describe, expect, it } from "vitest";
-import { PROJECT_ID, projectSlug, projectYaml, type NewProject } from "./projectFile.ts";
+import {
+    pageId,
+    pageProblems,
+    PROJECT_ID,
+    projectSlug,
+    projectYaml,
+    type NewProject,
+} from "./projectFile.ts";
 
 const PROJECT: NewProject = {
     id: "harbour-notes",
@@ -11,6 +18,7 @@ const PROJECT: NewProject = {
     summary: "",
     switches: { search: true, blog: false },
     ticketSize: "fast",
+    extras: [{ id: "services-page", type: "custom-page", title: "Services" }],
 };
 
 describe("projectYaml", () => {
@@ -40,6 +48,39 @@ describe("projectYaml", () => {
 
     it("writes an empty switch map rather than a key with no value", () => {
         expect(parse(projectYaml({ ...PROJECT, switches: {} })).switches).toEqual({});
+    });
+
+    it("leaves `extras` out of a project with no pages, as a hand-written file would", () => {
+        expect(parse(projectYaml({ ...PROJECT, extras: [] }))).not.toHaveProperty("extras");
+    });
+});
+
+describe("pageId", () => {
+    it.each([
+        ["Services", "services-page"],
+        ["Services page", "services-page"],
+        ["Landing-page", "landing-page"],
+        ["!!", ""],
+    ])("turns %j into the block id an extra would carry", (title, id) => {
+        expect(pageId(title)).toBe(id);
+    });
+});
+
+describe("pageProblems", () => {
+    it("refuses an empty title, a template block's id and a second page with the same id", () => {
+        const pages = [
+            { title: "" },
+            { title: "Search" },
+            { title: "About" },
+            { title: "About page" },
+        ];
+
+        expect(pageProblems(pages, new Set(["search-page"]))).toEqual([
+            "Name the page, or remove it",
+            "`search-page` is already a block of the template",
+            null,
+            "Another page has this name",
+        ]);
     });
 });
 

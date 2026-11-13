@@ -9,14 +9,30 @@ const feature = (overrides: Partial<Feature>): Feature => ({
     summary: "",
     enabled: true,
     blocks: [],
+    points: 0,
     within: null,
     ...overrides,
 });
 
 const FEATURES = [
     feature({ id: "comments", title: "Comments", enabled: true, within: "blog" }),
-    feature({ id: "blog", title: "Blog", enabled: false, blocks: ["Post page", "Listings"] }),
-    feature({ id: "search", title: "Search", enabled: false, blocks: ["Search"] }),
+    feature({
+        id: "blog",
+        title: "Blog",
+        enabled: false,
+        blocks: [
+            { title: "Post page", complexity: 8 },
+            { title: "Listings", complexity: 5 },
+        ],
+        points: 13,
+    }),
+    feature({
+        id: "search",
+        title: "Search",
+        enabled: false,
+        blocks: [{ title: "Search", complexity: 3 }],
+        points: 3,
+    }),
 ];
 
 const mount = (editable: boolean) =>
@@ -37,6 +53,14 @@ describe("FeaturePicker", () => {
 
         expect(comments?.attributes("disabled")).toBeDefined();
         expect(comments?.text()).toContain("Needs Blog");
+    });
+
+    it("prices a feature and each of its blocks, so a reader sees what switching it on costs", async () => {
+        const blog = (await mount(true)).findAll("[role='switch']")[0]?.text();
+
+        expect(blog).toContain("13 SP");
+        expect(blog).toContain("Post page · 8 SP");
+        expect(blog).toContain("Listings · 5 SP");
     });
 
     it("toggles a feature from anywhere on its card", async () => {

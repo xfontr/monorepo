@@ -77,13 +77,19 @@
                             <button type="submit" hidden />
                         </form>
 
-                        <div
+                        <FeaturePicker
                             v-else-if="current.id === 'features' && template"
-                            class="flex flex-col gap-6"
-                        >
-                            <FeaturePicker :features editable @toggle="toggle" />
-                            <RequiredBlocks :template />
-                        </div>
+                            :features
+                            editable
+                            @toggle="toggle"
+                        />
+
+                        <PagePicker
+                            v-else-if="current.id === 'pages' && template"
+                            v-model="draft.pages"
+                            :template
+                            :errors="pageErrors"
+                        />
 
                         <div v-else class="flex flex-col gap-6">
                             <dl class="divide-y divide-default rounded-xl border border-default">
@@ -175,7 +181,7 @@
                             </p>
                             <div class="mt-4 flex gap-6 tabular-nums">
                                 <div>
-                                    <p class="text-2xl font-semibold">{{ blocks.length }}</p>
+                                    <p class="text-2xl font-semibold">{{ blockCount }}</p>
                                     <p class="text-xs text-muted">blocks</p>
                                 </div>
                                 <div>
@@ -189,6 +195,12 @@
                                     <p class="text-xs text-muted">SP</p>
                                 </div>
                             </div>
+                            <EstimateReceipt
+                                v-if="receipt.length > 0"
+                                :rows="receipt"
+                                :total="points"
+                                class="mt-4 border-t border-default pt-4"
+                            />
                             <div class="mt-4 border-t border-default pt-4">
                                 <p class="mb-2 text-xs font-medium text-muted">Ticket size</p>
                                 <TicketSizePicker
@@ -226,16 +238,20 @@
 
 <script setup lang="ts">
 import {
-    blocksOn,
-    complexityOf,
     draftProject,
+    estimateOf,
     featuresOf,
+    pageId,
+    pageProblems,
     PROJECT_ID,
     projectSlug,
     projectView,
     projectYaml,
+    receiptOf,
     TICKET_SIZE_LABELS,
-    ticketsToFile,
+    typedExtra,
+    type Capability,
+    type NewPage,
     type TicketSize,
 } from "#layers/workflows/shared/workflows.ts";
 
@@ -260,6 +276,13 @@ const STEPS = [
         hint: "The id, milestone and area label follow the title until you change them.",
     },
     {
+        id: "pages",
+        title: "Pages",
+        icon: "i-lucide-files",
+        question: "Which pages does it have?",
+        hint: "Add each page by the work it takes; each becomes a block with its own estimate and waits on what its type needs.",
+    },
+    {
         id: "features",
         title: "Features",
         icon: "i-lucide-layers",
@@ -275,9 +298,7 @@ const STEPS = [
     },
 ] as const;
 
-const steps = STEPS.map(({ title, icon }) => ({ title, icon }));
 const step = ref(0);
-const current = computed(() => STEPS[step.value] ?? STEPS[0]);
 
 const draft = reactive({
     // Files load in name order, so a blank template such as `custom` would otherwise come first.
@@ -289,6 +310,7 @@ const draft = reactive({
     title: "",
     summary: "",
     switches: {} as Record<string, boolean>,
+    pages: [] as { key: number; type: string; title: string }[],
     ticketSize: "block" as TicketSize,
 });
 
@@ -321,10 +343,33 @@ const milestoneError = computed(() => {
 
 const template = computed(() => data.value.templates.find(({ id }) => id === draft.template));
 
+/** Only a template with page types asks for pages. */
+const shown = computed(() =>
+    STEPS.filter(({ id }) => id !== "pages" || (template.value?.types.length ?? 0) > 0),
+);
+const steps = computed(() => shown.value.map(({ title, icon }) => ({ title, icon })));
+const current = computed(() => shown.value[step.value] ?? STEPS[0]);
+
 const pickTemplate = (templateId: string) => {
-    if (templateId !== draft.template) draft.switches = {};
+    if (templateId !== draft.template) {
+        draft.switches = {};
+        draft.pages = [];
+    }
     draft.template = templateId;
 };
+
+const pages = computed<NewPage[]>(() =>
+    draft.pages.map(({ type, title }) => ({ id: pageId(title), type, title: title.trim() })),
+);
+const pageErrors = computed(() =>
+    pageProblems(draft.pages, new Set(template.value?.capabilities.map(({ id }) => id))),
+);
+const extras = computed<Capability[]>(() =>
+    pages.value.flatMap((page) => {
+        const type = template.value?.types.find(({ id }) => id === page.type);
+        return type ? [typedExtra(type, page)] : [];
+    }),
+);
 
 const features = computed(() =>
     template.value ? featuresOf(draftProject(template.value, draft.switches), template.value) : [],
@@ -333,14 +378,21 @@ const toggle = (feature: string, on: boolean) => {
     draft.switches = { ...draft.switches, [feature]: on };
 };
 
-const blocks = computed(() => (template.value ? blocksOn(template.value, draft.switches) : []));
-const tickets = computed(() => ticketsToFile(blocks.value));
-const points = computed(() => complexityOf(blocks.value));
+const estimate = computed(() =>
+    template.value ? estimateOf(template.value, draft.switches, extras.value) : null,
+);
+const receipt = computed(() =>
+    template.value ? receiptOf(template.value, draft.switches, pages.value) : [],
+);
+
+const blockCount = computed(() => estimate.value?.blocks ?? 0);
+const tickets = computed(() => estimate.value?.tickets ?? { block: 0, supervised: 0, fast: 0 });
+const points = computed(() => estimate.value?.points ?? 0);
 
 const preview = computed(() =>
     template.value
         ? projectView(
-              draftProject(template.value, draft.switches, draft.ticketSize),
+              draftProject(template.value, draft.switches, draft.ticketSize, extras.value),
               template.value,
               null,
           )
@@ -362,12 +414,22 @@ const ready = computed(() => {
             !milestoneError.value,
         );
     }
+    if (current.value.id === "pages") return pageErrors.value.every((error) => error === null);
     return true;
 });
 
 const next = () => {
-    if (ready.value && step.value < STEPS.length - 1) step.value += 1;
+    if (ready.value && step.value < steps.value.length - 1) step.value += 1;
 };
+
+const pageList = computed(() =>
+    pages.value
+        .map(({ title, type }) => {
+            const typeTitle = template.value?.types.find(({ id }) => id === type)?.title;
+            return `${title} (${typeTitle ?? type})`;
+        })
+        .join(", "),
+);
 
 const review = computed(() => {
     const on = features.value.filter(({ enabled }) => enabled).map(({ title }) => title);
@@ -382,9 +444,12 @@ const review = computed(() => {
         { label: "Area label", value: area.value || "—" },
         { label: "Features on", value: on.join(", ") || "None" },
         { label: "Left out", value: off.join(", ") || "None" },
+        ...(shown.value.some(({ id }) => id === "pages")
+            ? [{ label: "Pages", value: pageList.value || "None" }]
+            : []),
         {
             label: "Tickets",
-            value: `${TICKET_SIZE_LABELS[draft.ticketSize].title}, ${tickets.value[draft.ticketSize]} for ${blocks.value.length} blocks`,
+            value: `${TICKET_SIZE_LABELS[draft.ticketSize].title}, ${tickets.value[draft.ticketSize]} for ${blockCount.value} blocks`,
         },
         { label: "Complexity", value: `${points.value} SP` },
     ];
@@ -400,6 +465,7 @@ const fields = () => ({
     area: area.value.trim(),
     switches: draft.switches,
     ticketSize: draft.ticketSize,
+    extras: pages.value,
 });
 
 const untouched = JSON.stringify(draft);

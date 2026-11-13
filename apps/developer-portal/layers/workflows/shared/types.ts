@@ -61,6 +61,8 @@ export interface Capability {
     optional: boolean;
     /** Whether an optional capability starts switched on; always true for a required one. */
     default: boolean;
+    /** No switch: in the map only while an extra depends on it, so a setup is paid for once. */
+    onDemand: boolean;
     dependsOn: string[];
     doneWhen: string[];
     reuse: { plan: ReusePlan; from: string | null } | null;
@@ -92,6 +94,8 @@ export interface Template {
     stages: Stage[];
     groups: Group[];
     capabilities: Capability[];
+    /** Blocks a project adds as many times as it needs, each an extra naming one with `type:`. */
+    types: Capability[];
 }
 
 export interface Project {
@@ -196,10 +200,22 @@ export interface Feature {
     title: string;
     summary: string;
     enabled: boolean;
-    /** Titles of the blocks it brings in. */
-    blocks: string[];
+    /** The blocks it brings in, each with the template's estimate. */
+    blocks: { title: string; complexity: number | null }[];
+    /** The blocks' estimates summed. */
+    points: number;
     /** The feature it sits inside, which has to be on for this one to be. */
     within: string | null;
+}
+
+/** One line of a new project's estimate: the core, a feature switched on, or a page. */
+export interface ReceiptRow {
+    id: string;
+    label: string;
+    detail: string | null;
+    points: number;
+    /** A feature inside another, such as comments in the blog. */
+    nested: boolean;
 }
 
 export interface TicketCount {

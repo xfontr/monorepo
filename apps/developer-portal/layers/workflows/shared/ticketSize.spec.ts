@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
+import { typedExtra } from "./project.ts";
 import { readTemplate } from "./template.ts";
-import { bundlesOf, blocksOn, templateEstimate, ticketsToFile } from "./ticketSize.ts";
+import {
+    bundlesOf,
+    blocksOn,
+    estimateOf,
+    pageCosts,
+    receiptOf,
+    templateEstimate,
+    ticketsToFile,
+} from "./ticketSize.ts";
 
 const { template } = readTemplate({
     id: "site",
@@ -87,7 +96,8 @@ const STAGED_BUNDLES = {
         ["tokens", "lab"],
         ["approval"],
         ["inventory"],
-        ["scaffold", "deploy"],
+        ["scaffold"],
+        ["deploy"],
     ],
     fast: [
         ["audit", "hosting"],
@@ -95,7 +105,8 @@ const STAGED_BUNDLES = {
         ["tokens", "lab"],
         ["approval"],
         ["inventory"],
-        ["scaffold", "deploy"],
+        ["scaffold"],
+        ["deploy"],
     ],
 };
 
@@ -137,9 +148,136 @@ describe("ticketsToFile", () => {
     });
 });
 
+describe("ticketsToFile after filing", () => {
+    it("counts a bundle with filed members as one ticket for the rest, not as new bundles", () => {
+        const filed = new Set(["audit", "tokens"]);
+
+        expect(ticketsToFile(blocksOn(staged), undefined, filed)).toEqual({
+            block: 7,
+            supervised: 7,
+            fast: 7,
+        });
+    });
+});
+
 describe("blocksOn", () => {
     it("leaves out an optional block that is off by default", () => {
         expect(blocksOn(template).map(({ id }) => id)).not.toContain("search");
+    });
+});
+
+describe("estimateOf", () => {
+    it("counts a project's pages as blocks with their type's points", () => {
+        const page = {
+            ...template.capabilities.find(({ id }) => id === "home")!,
+            id: "services-page",
+            title: "Services",
+            complexity: 5,
+        };
+        const without = estimateOf(template);
+
+        expect(estimateOf(template, {}, [page])).toMatchObject({
+            blocks: without.blocks + 1,
+            points: without.points + 5,
+        });
+    });
+});
+
+describe("receiptOf", () => {
+    const { template: priced } = readTemplate({
+        id: "priced",
+        title: "Priced",
+        stages: [{ id: "build", title: "Build" }],
+        groups: [{ id: "blog", title: "Blog", optional: true, default: true }],
+        types: [{ id: "custom-page", stage: "build", title: "Custom page", complexity: 5 }],
+        capabilities: [
+            { id: "kit", stage: "build", title: "Kit", complexity: 8 },
+            { id: "post", stage: "build", group: "blog", title: "Post", complexity: 5 },
+            {
+                id: "comments",
+                stage: "build",
+                group: "blog",
+                title: "Comments",
+                complexity: 3,
+                optional: true,
+                default: true,
+            },
+            { id: "search", stage: "build", title: "Search", complexity: 2, optional: true },
+        ],
+    });
+    const pages = [{ id: "services-page", type: "custom-page", title: "Services" }];
+
+    it("lists the core, each feature on with what sits inside it, and each page", () => {
+        expect(
+            receiptOf(priced, {}, pages).map(({ label, detail, points, nested }) => [
+                label,
+                detail,
+                points,
+                nested,
+            ]),
+        ).toEqual([
+            ["Core build", null, 8, false],
+            ["Blog", null, 5, false],
+            ["Comments", null, 3, true],
+            ["Services", "Custom page", 5, false],
+        ]);
+    });
+
+    it("adds up to the estimate's points, so the receipt never disagrees with the total", () => {
+        const sum = (switches: Record<string, boolean>) =>
+            receiptOf(priced, switches).reduce((total, { points }) => total + points, 0);
+
+        expect(sum({})).toBe(estimateOf(priced).points);
+        expect(sum({ blog: false, search: true })).toBe(
+            estimateOf(priced, { blog: false, search: true }).points,
+        );
+    });
+});
+
+describe("receiptOf setups", () => {
+    const { template: blogs } = readTemplate({
+        id: "blogs",
+        title: "Blogs",
+        stages: [{ id: "build", title: "Build" }],
+        capabilities: [
+            {
+                id: "comments",
+                stage: "build",
+                title: "Comments setup",
+                complexity: 8,
+                onDemand: true,
+            },
+        ],
+        types: [
+            {
+                id: "blog-comments",
+                stage: "build",
+                title: "Blog + comments",
+                complexity: 13,
+                dependsOn: ["comments"],
+            },
+        ],
+    });
+    const pages = [
+        { id: "news-page", type: "blog-comments", title: "News" },
+        { id: "notes-page", type: "blog-comments", title: "Notes" },
+    ];
+
+    it("charges the setup to the first page that needs it and nothing to the next", () => {
+        expect(pageCosts(blogs, pages).map(({ points }) => points)).toEqual([21, 13]);
+        expect(pageCosts(blogs, pages.slice(1)).map(({ points }) => points)).toEqual([21]);
+    });
+
+    it("adds up to the estimate's points, setup counted once", () => {
+        const rows = receiptOf(blogs, {}, pages);
+        const extras = pages.map((page) => typedExtra(blogs.types[0]!, page));
+
+        expect(rows.map(({ detail, points }) => [detail, points])).toEqual([
+            [null, 0],
+            ["Blog + comments, with Comments setup", 21],
+            ["Blog + comments", 13],
+        ]);
+        expect(estimateOf(blogs, {}, extras).points).toBe(34);
     });
 });
 
@@ -147,7 +285,7 @@ describe("templateEstimate", () => {
     it("prices the staged map's defaults in blocks, tickets at each size and points", () => {
         expect(templateEstimate(staged)).toEqual({
             blocks: 9,
-            tickets: { block: 9, supervised: 7, fast: 6 },
+            tickets: { block: 9, supervised: 8, fast: 7 },
             points: 5,
         });
     });

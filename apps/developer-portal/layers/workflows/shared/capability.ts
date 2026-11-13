@@ -16,7 +16,14 @@ export const readCapability = (reader: Reader, raw: unknown, index: number): Cap
 
     const id = reader.text(raw, "id", `capability #${index + 1}`);
     const where = `capability \`${id || index + 1}\``;
+    const onDemand = raw.onDemand === true;
     const optional = raw.optional === true;
+
+    if (onDemand && optional) {
+        reader.problems.push(
+            `${where}: an \`onDemand\` block has no switch, so it can't be \`optional\``,
+        );
+    }
 
     let reuse: Capability["reuse"] = null;
 
@@ -60,6 +67,7 @@ export const readCapability = (reader: Reader, raw: unknown, index: number): Cap
         kind: (KINDS as readonly string[]).includes(kind) ? (kind as Kind) : "build",
         optional,
         default: optional ? raw.default === true : true,
+        onDemand,
         dependsOn: reader.texts(raw, "dependsOn", where),
         doneWhen: reader.texts(raw, "doneWhen", where),
         reuse,
@@ -118,6 +126,28 @@ export const dependencyCycle = (capabilities: Capability[]): string[] | null => 
     }
 
     return null;
+};
+
+/** What each block needs once switched-off blocks are taken out: their own needs take their place. */
+export const routedNeeds = (
+    all: Capability[],
+    isOn: (capability: Capability) => boolean,
+): Map<string, string[]> => {
+    const byId = new Map(all.map((capability) => [capability.id, capability]));
+
+    const needsOf = (id: string, seen: Set<string>): string[] =>
+        (byId.get(id)?.dependsOn ?? []).flatMap((need) => {
+            const dependency = byId.get(need);
+            if (!dependency || seen.has(need)) return [];
+            return isOn(dependency) ? [need] : needsOf(need, new Set([...seen, need]));
+        });
+
+    return new Map(
+        all.map((capability) => [
+            capability.id,
+            isOn(capability) ? [...new Set(needsOf(capability.id, new Set([capability.id])))] : [],
+        ]),
+    );
 };
 
 export const cycleProblem = (capabilities: Capability[]): string[] => {

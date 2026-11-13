@@ -24,7 +24,16 @@
                     <UIcon :name="card.icon" class="size-5" />
                 </span>
                 <span class="min-w-0 flex-1">
-                    <span class="block font-semibold">{{ card.title }}</span>
+                    <span class="flex items-center gap-2">
+                        <span class="font-semibold">{{ card.title }}</span>
+                        <UBadge
+                            :label="`${card.points} SP`"
+                            color="neutral"
+                            variant="subtle"
+                            size="sm"
+                            class="tabular-nums"
+                        />
+                    </span>
                     <span class="block text-sm text-muted">{{ card.summary }}</span>
                 </span>
                 <UIcon
@@ -33,18 +42,21 @@
                     :class="card.enabled ? 'text-primary' : 'text-dimmed'"
                 />
             </span>
-            <span class="flex flex-wrap items-center gap-1.5 text-xs text-muted">
+            <span
+                v-if="card.blocks.length > 1 || card.needs"
+                class="flex flex-wrap items-center gap-1.5 text-xs text-muted"
+            >
                 <template v-if="card.blocks.length > 1">
                     <UBadge
                         v-for="block in card.blocks"
-                        :key="block"
-                        :label="block"
+                        :key="block.title"
+                        :label="`${block.title} · ${block.complexity ?? 0} SP`"
                         color="neutral"
                         variant="subtle"
                         size="sm"
                     />
                 </template>
-                <span>{{ card.note }}</span>
+                <span v-if="card.needs">Needs {{ card.needs }}</span>
             </span>
         </button>
     </div>
@@ -69,16 +81,12 @@ const cards = computed(() =>
         .map((feature) => {
             const parent = features.find(({ id }) => id === feature.within);
             const needs = parent && !parent.enabled ? parent.title : null;
-            const count = feature.blocks.length;
 
             return {
                 ...feature,
                 needs,
                 parent: features.some(({ within }) => within === feature.id),
-                icon: count > 1 ? "i-lucide-layers" : "i-lucide-puzzle",
-                note: needs
-                    ? `Needs ${needs}`
-                    : `${count} ${count === 1 ? "block" : "blocks"} ${feature.enabled ? "in the map" : "left out"}`,
+                icon: feature.blocks.length > 1 ? "i-lucide-layers" : "i-lucide-puzzle",
             };
         }),
 );

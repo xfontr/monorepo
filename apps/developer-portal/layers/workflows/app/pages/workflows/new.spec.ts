@@ -95,9 +95,45 @@ describe("new project wizard", () => {
             area: "app:harbour-notes",
             switches: { search: true },
             ticketSize: "fast",
+            extras: [],
         });
         expect(state.navigateTo).toHaveBeenCalledWith("/workflows/harbour-notes");
         expect(state.leaveGuard?.({ fullPath: "/workflows/harbour-notes" })).toBe(true);
+    });
+
+    it("asks for pages on a template with page types and writes each as an extra of its type", async () => {
+        const types = [{ id: "custom-page", stage: "build", title: "Custom page", complexity: 5 }];
+        state.data = ref(
+            assembleWorkflows(
+                [{ file: "new-website.yaml", ok: true, value: { ...TEMPLATE, types } }],
+                [],
+                {},
+            ),
+        );
+        const wrapper = await mountSuspended(Page, { global });
+
+        await button(wrapper, "Next")?.trigger("click");
+        await wrapper.find("input").setValue("Harbour Notes");
+        await button(wrapper, "Next")?.trigger("click");
+        await button(wrapper, "Custom page · 5 SP")?.trigger("click");
+        const name = wrapper.find("input[aria-label='Custom page name']");
+        await name.setValue("Services");
+        await name.trigger("keydown", { key: "Enter" });
+
+        expect(wrapper.find("[aria-label='Estimate breakdown']").text()).toMatch(
+            /Services · Custom page\s*5 SP/,
+        );
+
+        await button(wrapper, "Next")?.trigger("click");
+        expect(wrapper.find("[role='switch']").exists()).toBe(true);
+        await button(wrapper, "Next")?.trigger("click");
+        await button(wrapper, "Create project")?.trigger("click");
+
+        expect(state.edit).toHaveBeenCalledWith(
+            expect.objectContaining({
+                extras: [{ id: "services-page", type: "custom-page", title: "Services" }],
+            }),
+        );
     });
 
     it("holds a navigation away from a started wizard until the user leaves anyway", async () => {

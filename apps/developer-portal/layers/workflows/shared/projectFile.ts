@@ -1,5 +1,12 @@
 import type { TicketSize } from "./types.ts";
 
+/** A page the project adds once, as an extra naming one of its template's page types. */
+export interface NewPage {
+    id: string;
+    type: string;
+    title: string;
+}
+
 export interface NewProject {
     id: string;
     title: string;
@@ -9,6 +16,7 @@ export interface NewProject {
     summary: string;
     switches: Record<string, boolean>;
     ticketSize: TicketSize;
+    extras: NewPage[];
 }
 
 /** Also the file name, so nothing that could climb out of `projects/` gets through. */
@@ -22,6 +30,26 @@ export const projectSlug = (title: string): string =>
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-|-$/g, "");
+
+/** A page's block id from its title, ending in `-page` like the hand-written extras do. */
+export const pageId = (title: string): string => {
+    const slug = projectSlug(title);
+    return !slug || /(?:^|-)page$/.test(slug) ? slug : `${slug}-page`;
+};
+
+/** Why each page can't be written yet, or null; `taken` are the template's own block ids. */
+export const pageProblems = (pages: { title: string }[], taken: Set<string>): (string | null)[] =>
+    pages.map(({ title }, index) => {
+        const id = pageId(title);
+
+        if (!title.trim()) return "Name the page, or remove it";
+        if (!id) return "The title has no letters to make an id from";
+        if (taken.has(id)) return `\`${id}\` is already a block of the template`;
+        if (pages.slice(0, index).some((other) => pageId(other.title) === id)) {
+            return "Another page has this name";
+        }
+        return null;
+    });
 
 const PLAIN = /^[A-Z][\w.,()/-]*(?:[ :][\w.,()/-]+)*$/i;
 
@@ -37,6 +65,11 @@ export const projectYaml = (project: NewProject): string => {
         (key) => `${key}: ${scalar(project[key])}`,
     );
     const switches = Object.entries(project.switches).map(([key, on]) => `  ${scalar(key)}: ${on}`);
+    const extras = project.extras.flatMap(({ id, type, title }) => [
+        `  - id: ${scalar(id)}`,
+        `    type: ${scalar(type)}`,
+        `    title: ${scalar(title)}`,
+    ]);
 
     return [
         ...lines,
@@ -44,6 +77,7 @@ export const projectYaml = (project: NewProject): string => {
         switches.length > 0 ? ["switches:", ...switches].join("\n") : "switches: {}",
         "",
         `ticketSize: ${project.ticketSize}`,
+        ...(extras.length > 0 ? ["", "extras:", ...extras] : []),
         "",
     ].join("\n");
 };

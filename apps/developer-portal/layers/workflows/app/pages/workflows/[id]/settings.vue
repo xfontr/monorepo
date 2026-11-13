@@ -89,10 +89,12 @@
                             </p>
                         </div>
 
-                        <div v-else-if="section.id === 'features'" class="flex flex-col gap-6">
-                            <FeaturePicker :features :editable @toggle="toggle" />
-                            <RequiredBlocks :template="base.template" />
-                        </div>
+                        <FeaturePicker
+                            v-else-if="section.id === 'features'"
+                            :features
+                            :editable
+                            @toggle="toggle"
+                        />
 
                         <TicketSizePicker
                             v-else-if="section.id === 'tickets'"
