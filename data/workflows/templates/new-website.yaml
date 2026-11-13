@@ -36,12 +36,58 @@ stages:
     title: After launch
     goal: Close the effort; what is left is ordinary maintenance.
 
-groups:
+# A project adds one extra per page, naming one of these with `type:`; the site brief lists them.
+types:
+  - id: page-template
+    stage: build
+    title: Page template
+    complexity: 2
+    dependsOn: [standard-pages]
+    summary: A page on the shared page template, its content from the content source.
+    reuse: { plan: method, from: apps/huella-legal/layers/reading }
+    doneWhen:
+      - It renders from the content source on the shared page template, on a preview deploy.
+
+  - id: custom-page
+    stage: build
+    title: Custom page
+    complexity: 5
+    dependsOn: [component-kit, ci-deploy]
+    summary: A page with a layout of its own, built from the kit to its approved design.
+    reuse: { plan: new }
+    doneWhen:
+      - It matches its approved design at 390, 768 and 1280 px on a preview deploy.
+      - It is built from kit components, with no one-off component that repeats one.
+
   - id: blog
+    stage: build
     title: Blog
-    optional: true
-    default: true
-    summary: Posts and their listings.
+    complexity: 13
+    dependsOn: [component-kit, ci-deploy]
+    summary: Posts on a post page, built at 390 px first, and their paginated listings.
+    reuse: { plan: method, from: apps/huella-legal/layers/articles }
+    doneWhen:
+      - A real post renders on a preview deploy at 390, 768 and 1280 px, from the real content source.
+      - The post index and each category or tag listing paginate over real content.
+      - An unknown category or tag answers 404, not an empty listing.
+    lessons:
+      - text: The post page was built first, at 390 px first, because readers arrive from search.
+        issues: [240]
+
+  - id: blog-comments
+    stage: build
+    title: Blog + comments
+    complexity: 13
+    dependsOn: [component-kit, ci-deploy, comments]
+    summary: A blog whose posts take comments through the shared comments setup.
+    reuse: { plan: method, from: apps/huella-legal/layers/articles }
+    doneWhen:
+      - A real post renders on a preview deploy at 390, 768 and 1280 px, from the real content source.
+      - The post index and each category or tag listing paginate over real content.
+      - Readers can read and post comments on its posts, through the shared comments setup.
+    lessons:
+      - text: The post page was built first, at 390 px first, because readers arrive from search.
+        issues: [240]
 
 capabilities:
   # ── Plan ───────────────────────────────────────────────────────────────────────────────────────
@@ -55,6 +101,7 @@ capabilities:
     doneWhen:
       - The audience, and the page they land on most, are written down.
       - Every page and feature is listed, each mapped to a capability or marked out of scope.
+      - Every page names its page type, as an extra in the project file.
     lessons:
       - text: Comments, the about page and the subscription-confirmed page were all found late, some after launch.
         issues: [324, 328, 400]
@@ -208,7 +255,7 @@ capabilities:
     complexity: 8
     dependsOn: [app-scaffold]
     summary: Every host and key from env vars, checked at startup.
-    reuse: { plan: copy, from: apps/huella-legal/modules/requiredEnv.ts }
+    reuse: { plan: method, from: apps/huella-legal/modules/requiredEnv.ts }
     doneWhen:
       - The app refuses to start with a required variable missing, and no host is a literal.
     lessons:
@@ -221,7 +268,7 @@ capabilities:
     complexity: 8
     dependsOn: [app-scaffold]
     summary: Vitest, Playwright at 390/768/1280 and fixture content for e2e.
-    reuse: { plan: copy, from: apps/huella-legal/e2e }
+    reuse: { plan: method, from: apps/huella-legal/e2e }
     doneWhen:
       - E2E runs against fixture content at three widths.
 
@@ -233,7 +280,7 @@ capabilities:
     summary: Components in light and dark, published beside the developer portal.
     optional: true
     default: false
-    reuse: { plan: copy, from: apps/huella-legal/.storybook }
+    reuse: { plan: method, from: apps/huella-legal/.storybook }
     doneWhen:
       - Every component in the kit has a story in light and dark.
       - The Storybook build runs in CI and publishes beside the developer portal without breaking its deploy.
@@ -274,7 +321,7 @@ capabilities:
     complexity: 13
     dependsOn: [ci-deploy]
     summary: Which routes prerender, which cache at the edge, and how an edit reaches readers.
-    reuse: { plan: copy, from: apps/huella-legal/modules/rendering.ts }
+    reuse: { plan: method, from: apps/huella-legal/modules/rendering.ts }
     doneWhen:
       - Every route has a rendering rule, and an edit's path to readers is written down.
     lessons:
@@ -289,7 +336,7 @@ capabilities:
     summary: Previews behind a login so they aren't indexed or shared.
     optional: true
     default: true
-    reuse: { plan: copy, from: apps/huella-legal/modules/stagingGate.ts }
+    reuse: { plan: method, from: apps/huella-legal/modules/stagingGate.ts }
     doneWhen:
       - A preview URL asks for a login and sends noindex.
       - Production hosts never ask for the login.
@@ -344,7 +391,7 @@ capabilities:
     complexity: 5
     dependsOn: [content-source, scope-signoff]
     summary: Responsive images through Nuxt Image and a CDN.
-    reuse: { plan: copy, from: apps/huella-legal/server/plugins/cdn.ts }
+    reuse: { plan: method, from: apps/huella-legal/server/plugins/cdn.ts }
     doneWhen:
       - Content images are served responsive through the CDN, with width and height set.
       - The image provider matches the host signed off in scope.
@@ -352,39 +399,13 @@ capabilities:
       - text: The image provider changed with the host.
         issues: [312]
 
-  - id: article-page
-    stage: build
-    group: blog
-    title: Post page
-    complexity: 8
-    dependsOn: [component-kit, ci-deploy]
-    summary: The page most readers land on, built first and at 390 px first.
-    reuse: { plan: copy, from: apps/huella-legal/layers/articles }
-    doneWhen:
-      - A real post renders on a preview deploy at 390, 768 and 1280 px, from the real content source.
-    lessons:
-      - text: Built first, at 390 px first, because readers arrive from search.
-        issues: [240]
-
-  - id: listing-pages
-    stage: build
-    group: blog
-    title: Listings
-    complexity: 8
-    dependsOn: [component-kit, ci-deploy]
-    summary: The post index and its category or tag listings.
-    reuse: { plan: copy, from: apps/huella-legal/layers/archive }
-    doneWhen:
-      - The post index and each category or tag listing paginate over real content.
-      - An unknown category or tag answers 404, not an empty listing.
-
   - id: standard-pages
     stage: build
     title: Standard pages
     complexity: 5
     dependsOn: [component-kit, ci-deploy]
     summary: The about page, the legal pages, the error pages and any landing a form sends readers to.
-    reuse: { plan: copy, from: apps/huella-legal/layers/reading }
+    reuse: { plan: method, from: apps/huella-legal/layers/reading }
     doneWhen:
       - Every page the site brief lists renders inside the shell, confirmation landings included.
       - The 404 and error pages render inside the shell.
@@ -396,7 +417,7 @@ capabilities:
     stage: build
     title: Home page
     complexity: 3
-    dependsOn: [article-page, listing-pages, standard-pages, navigation-shell]
+    dependsOn: [standard-pages, navigation-shell]
     summary: Built last of the core pages, from their parts.
     reuse: { plan: new }
     doneWhen:
@@ -427,7 +448,7 @@ capabilities:
     optional: true
     default: false
     summary: Turnstile and a honeypot behind every public form.
-    reuse: { plan: copy, from: apps/huella-legal/layers/forms }
+    reuse: { plan: method, from: apps/huella-legal/layers/forms }
     doneWhen:
       - Every public form checks the captcha on the server and rejects a filled honeypot.
       - It ships as its own ticket, before the first form.
@@ -440,7 +461,7 @@ capabilities:
     optional: true
     default: false
     summary: A contact form that sends email, with consent and clear errors.
-    reuse: { plan: copy, from: apps/huella-legal/layers/contact }
+    reuse: { plan: method, from: apps/huella-legal/layers/contact }
     doneWhen:
       - A submission arrives as email at the address the owner named, with consent recorded.
       - Failure states are shown to the reader in plain words.
@@ -453,7 +474,7 @@ capabilities:
     optional: true
     default: false
     summary: Signup form, provider adapter and the confirmation landing.
-    reuse: { plan: copy, from: apps/huella-legal/layers/newsletter }
+    reuse: { plan: method, from: apps/huella-legal/layers/newsletter }
     doneWhen:
       - A signup reaches the provider named at sign-off, and the confirmation landing exists.
       - Every failure is shown to the reader in plain words.
@@ -462,24 +483,22 @@ capabilities:
     stage: build
     title: Search
     complexity: 8
-    dependsOn: [listing-pages]
+    dependsOn: [component-kit, ci-deploy]
     optional: true
     default: false
     summary: Site search, as a page or a dialog.
-    reuse: { plan: copy, from: apps/huella-legal/layers/search }
+    reuse: { plan: method, from: apps/huella-legal/layers/search }
     doneWhen:
       - A query returns real results from the content source, with an empty state.
 
   - id: comments
     stage: build
-    group: blog
-    title: Comments
+    title: Comments setup
+    onDemand: true
     complexity: 8
-    dependsOn: [spam-protection, article-page]
-    optional: true
-    default: false
-    summary: Read and post comments, with moderation.
-    reuse: { plan: copy, from: apps/huella-legal/layers/comments }
+    dependsOn: [spam-protection, component-kit]
+    summary: Read and post comments, with moderation, set up once for every blog that takes them.
+    reuse: { plan: method, from: apps/huella-legal/layers/comments }
     doneWhen:
       - Readers can read and post comments on a post, and a new comment waits for moderation.
       - Posting goes through the captcha and the honeypot.
@@ -492,7 +511,7 @@ capabilities:
     optional: true
     default: false
     summary: A consent banner, trackers loaded only after consent, typed events.
-    reuse: { plan: copy, from: apps/huella-legal/layers/tracking }
+    reuse: { plan: method, from: apps/huella-legal/layers/tracking }
     doneWhen:
       - No tracker loads before consent, pinned by an e2e spec.
       - Declining is one click, as accepting is, and every tracked event has a typed name.
@@ -539,7 +558,7 @@ capabilities:
     complexity: 5
     dependsOn: [home-page]
     summary: Canonicals, sitemap, robots, structured data, RSS and llms.txt.
-    reuse: { plan: copy, from: apps/huella-legal/nuxt.config.ts }
+    reuse: { plan: method, from: apps/huella-legal/nuxt.config.ts }
     doneWhen:
       - Every page has a canonical URL and structured data that validates.
       - The sitemap, robots.txt, RSS feed and llms.txt answer on a preview deploy.
@@ -566,7 +585,7 @@ capabilities:
     complexity: 5
     dependsOn: [component-kit]
     summary: Axe on every page in e2e, keyboard paths and 44 px targets.
-    reuse: { plan: copy, from: apps/huella-legal/e2e }
+    reuse: { plan: method, from: apps/huella-legal/e2e }
     doneWhen:
       - Axe is clean on every page at 390 and 1280 px.
     lessons:
@@ -579,7 +598,7 @@ capabilities:
     complexity: 8
     dependsOn: [ci-deploy]
     summary: Field caps, security headers, rate limits, crawler rules, dependency and secret scans.
-    reuse: { plan: copy, from: apps/huella-legal/e2e/security.spec.ts }
+    reuse: { plan: method, from: apps/huella-legal/e2e/security.spec.ts }
     doneWhen:
       - Security headers are pinned by an e2e spec on a preview deploy, and every form field has a length cap.
       - Public endpoints are rate limited, and the dependency and secret scans are clean in CI.

@@ -14,6 +14,8 @@ export interface Block {
     kind: Kind;
     optional: boolean;
     default: boolean;
+    /** No switch: on only while an extra depends on it, as the portal reads it. */
+    onDemand: boolean;
     group: string | null;
     dependsOn: string[];
     doneWhen: string[];
@@ -55,6 +57,7 @@ const toBlock = (raw: unknown): Block => {
         kind: block.kind === "spike" || block.kind === "owner" ? block.kind : "build",
         optional,
         default: optional ? block.default === true : true,
+        onDemand: block.onDemand === true,
         group: text(block.group) || null,
         dependsOn: texts(block.dependsOn),
         doneWhen: texts(block.doneWhen),
@@ -79,6 +82,20 @@ const toBlock = (raw: unknown): Block => {
     };
 };
 
+/** An extra naming a template `type:`, with that type's fields under its own and both lists of needs. */
+const withType = (extra: unknown, types: Raw[]): unknown => {
+    const raw = record(extra);
+    const type = types.find((candidate) => text(candidate.id) === text(raw.type));
+
+    if (raw.type === undefined || !type) return extra;
+
+    return {
+        ...type,
+        ...raw,
+        dependsOn: [...new Set([...texts(type.dependsOn), ...texts(raw.dependsOn)])],
+    };
+};
+
 /** A parsed template and project file as one map of blocks, with the project's switches applied. */
 export const readMap = (template: unknown, project: unknown): WorkflowMap => {
     const source = record(project);
@@ -99,8 +116,20 @@ export const readMap = (template: unknown, project: unknown): WorkflowMap => {
             : true;
     };
 
+    const blocks = [
+        ...list(record(template).capabilities),
+        ...list(source.extras).map((extra) =>
+            withType(extra, list(record(template).types).map(record)),
+        ),
+    ].map(toBlock);
+    const demanded = new Set(
+        blocks
+            .filter((block) => extras.has(block.id) && groupOn(block.group))
+            .flatMap((block) => block.dependsOn),
+    );
+
     return {
-        blocks: [...list(record(template).capabilities), ...list(source.extras)].map(toBlock),
+        blocks,
         milestone: text(source.milestone),
         area: text(source.area) || null,
         ticketSize: (TICKET_SIZES as readonly string[]).includes(size)
@@ -108,7 +137,10 @@ export const readMap = (template: unknown, project: unknown): WorkflowMap => {
             : "block",
         isOn: (block) =>
             groupOn(block.group) &&
-            (extras.has(block.id) || switchedOn(block.id, block.optional, block.default)),
+            (extras.has(block.id) ||
+                (block.onDemand
+                    ? demanded.has(block.id)
+                    : switchedOn(block.id, block.optional, block.default))),
         settled: new Set(Object.keys(record(source.settled))),
     };
 };
@@ -316,13 +348,13 @@ export const planFiling = (map: WorkflowMap, issues: SnapshotIssue[], ids: strin
 export const TICKET_WIDTH = { supervised: 13, fast: 21 } as const;
 
 /** Puts each block after the ones it needs from the same group, keeping template order otherwise. */
-const inDependencyOrder = (group: Block[]): Block[] => {
+const inDependencyOrder = (group: Block[], needs: Map<string, string[]>): Block[] => {
     const left = [...group];
     const order: Block[] = [];
 
     while (left.length > 0) {
-        const ready = left.findIndex(({ dependsOn }) =>
-            dependsOn.every((need) => !left.some(({ id }) => id === need)),
+        const ready = left.findIndex(({ id }) =>
+            (needs.get(id) ?? []).every((need) => !left.some((other) => other.id === need)),
         );
         order.push(...left.splice(Math.max(0, ready), 1));
     }
@@ -330,32 +362,90 @@ const inDependencyOrder = (group: Block[]): Block[] => {
     return order;
 };
 
-/** Fills a ticket with blocks until the next one would pass `width`, then starts another. */
-const wrap = (group: Block[], width: number): string[][] => {
-    const lines: string[][] = [];
-    let points = 0;
+/** Every block each one waits on, directly or through others, among the blocks being bundled. */
+const ancestorsOf = (ids: string[], needs: Map<string, string[]>): Map<string, Set<string>> => {
+    const known = new Set(ids);
+    const ancestors = new Map<string, Set<string>>();
 
-    for (const block of inDependencyOrder(group)) {
+    const walk = (id: string, seen: Set<string>): Set<string> => {
+        const cached = ancestors.get(id);
+        if (cached) return cached;
+
+        const found = new Set<string>();
+        for (const need of needs.get(id) ?? []) {
+            if (!known.has(need) || seen.has(need)) continue;
+            found.add(need);
+            for (const further of walk(need, new Set([...seen, need]))) found.add(further);
+        }
+
+        ancestors.set(id, found);
+        return found;
+    };
+
+    for (const id of ids) walk(id, new Set([id]));
+    return ancestors;
+};
+
+/** Whether every member would wait on exactly what the ticket waits on, so none inherits a wait. */
+const sharesWaits = (members: string[], ancestors: Map<string, Set<string>>): boolean => {
+    const inside = new Set(members);
+    const outside = (id: string) =>
+        [...(ancestors.get(id) ?? [])]
+            .filter((need) => !inside.has(need))
+            .sort((a, b) => a.localeCompare(b))
+            .join(",");
+    const [first, ...rest] = members.map(outside);
+
+    return rest.every((waits) => waits === first);
+};
+
+/** Puts each block in the first ticket it fits, by width and by waits, or starts another. */
+const pack = (
+    group: Block[],
+    width: number,
+    needs: Map<string, string[]>,
+    ancestors: Map<string, Set<string>>,
+): string[][] => {
+    const lines: { members: string[]; points: number }[] = [];
+
+    for (const block of inDependencyOrder(group, needs)) {
         const weight = block.complexity ?? 0;
-        const line = lines.at(-1);
+        const line = lines.find(
+            ({ members, points }) =>
+                points + weight <= width && sharesWaits([...members, block.id], ancestors),
+        );
 
-        if (line && points + weight <= width) {
-            line.push(block.id);
-            points += weight;
+        if (line) {
+            line.members.push(block.id);
+            line.points += weight;
         } else {
-            lines.push([block.id]);
-            points = weight;
+            lines.push({ members: [block.id], points: weight });
         }
     }
 
-    return lines;
+    return lines.map(({ members }) => members);
 };
 
-/** Mirrored by `bundlesOf` in the portal's `shared/ticketSize.ts`; change both together. */
-export const bundlesOf = (blocks: Block[], size: TicketSize): string[][] => {
-    if (size === "block") return blocks.map(({ id }) => [id]);
+const directNeeds = (blocks: Block[]): Map<string, string[]> => {
+    const known = new Set(blocks.map(({ id }) => id));
+    return new Map(
+        blocks.map(({ id, dependsOn }) => [id, dependsOn.filter((need) => known.has(need))]),
+    );
+};
 
-    const byId = new Map(blocks.map((block) => [block.id, block]));
+/**
+ * Mirrored by `bundlesOf` in the portal's `shared/ticketSize.ts`; change both together. `pool` is
+ * every block that is on and unsettled, filed or not, so the bundles never shift as tickets are filed.
+ */
+export const bundlesOf = (
+    pool: Block[],
+    size: TicketSize,
+    needs: Map<string, string[]> = directNeeds(pool),
+): string[][] => {
+    if (size === "block") return pool.map(({ id }) => [id]);
+
+    const byId = new Map(pool.map((block) => [block.id, block]));
+    const ancestors = ancestorsOf([...byId.keys()], needs);
     const levels = new Map<string, number>();
 
     const levelOf = (id: string, walking: Set<string>): number => {
@@ -367,7 +457,7 @@ export const bundlesOf = (blocks: Block[], size: TicketSize): string[][] => {
 
         const level = Math.max(
             0,
-            ...block.dependsOn.flatMap((need) => {
+            ...(needs.get(id) ?? []).flatMap((need) => {
                 const dependency = byId.get(need);
                 if (!dependency || dependency.stage !== block.stage || walking.has(need)) return [];
 
@@ -388,13 +478,15 @@ export const bundlesOf = (blocks: Block[], size: TicketSize): string[][] => {
         return `build:${block.stage}:${levelOf(block.id, new Set([block.id]))}`;
     };
 
-    const bundles = new Map<string, Block[]>();
-    for (const block of blocks) {
+    const groups = new Map<string, Block[]>();
+    for (const block of pool) {
         const key = keyOf(block);
-        bundles.set(key, [...(bundles.get(key) ?? []), block]);
+        groups.set(key, [...(groups.get(key) ?? []), block]);
     }
 
-    return [...bundles.values()].flatMap((group) => wrap(group, TICKET_WIDTH[size]));
+    return [...groups.values()].flatMap((group) =>
+        pack(group, TICKET_WIDTH[size], needs, ancestors),
+    );
 };
 
 /** The blocks of the map still to file: on, unsettled and with no live ticket. */
@@ -406,36 +498,20 @@ export const toFile = (map: WorkflowMap, issues: SnapshotIssue[]): Block[] =>
             liveTickets(issues, block.id).length === 0,
     );
 
-export interface Bundle {
-    ids: string[];
-    /** Members of the size's bundle that can't be filed yet, each with why. */
-    later: string[];
-}
-
 /**
- * The blocks the project's ticket size files together with `id`: its bundle, less the members
- * that still wait. `id` itself is always kept, so `planFiling` reports why it can't go yet.
+ * The blocks the project's ticket size files together with `id`: the unfiled members of its bundle,
+ * which file together or not at all. `id` itself is always kept, so `planFiling` reports why not.
  */
-export const bundleFor = (map: WorkflowMap, issues: SnapshotIssue[], id: string): Bundle => {
-    const bundle = bundlesOf(toFile(map, issues), map.ticketSize).find((ids) => ids.includes(id));
-    let ids = bundle ?? [id];
-    const later: string[] = [];
+export const bundleFor = (map: WorkflowMap, issues: SnapshotIssue[], id: string): string[] => {
+    const pool = map.blocks.filter((block) => map.isOn(block) && !map.settled.has(block.id));
+    const needs = new Map(
+        pool.map((block) => [
+            block.id,
+            needsOf(map, block, new Set([block.id])).map((need) => need.id),
+        ]),
+    );
+    const unfiled = new Set(toFile(map, issues).map((block) => block.id));
+    const bundle = bundlesOf(pool, map.ticketSize, needs).find((ids) => ids.includes(id)) ?? [id];
 
-    for (let changed = true; changed;) {
-        changed = false;
-        const inside = new Set(ids);
-
-        for (const member of ids) {
-            const check = checkBlock(map, issues, member, inside);
-
-            if (member !== id && !check.ok) {
-                later.push(check.reason);
-                ids = ids.filter((kept) => kept !== member);
-                changed = true;
-                break;
-            }
-        }
-    }
-
-    return { ids, later };
+    return bundle.filter((member) => member === id || unfiled.has(member));
 };

@@ -246,7 +246,8 @@ const STAGED_BUNDLES = {
         ["tokens", "lab"],
         ["approval"],
         ["inventory"],
-        ["scaffold", "deploy"],
+        ["scaffold"],
+        ["deploy"],
     ],
     fast: [
         ["audit", "hosting"],
@@ -254,7 +255,8 @@ const STAGED_BUNDLES = {
         ["tokens", "lab"],
         ["approval"],
         ["inventory"],
-        ["scaffold", "deploy"],
+        ["scaffold"],
+        ["deploy"],
     ],
 };
 
@@ -336,11 +338,90 @@ describe("planFiling several blocks", () => {
     });
 });
 
+describe("bundlesOf waits", () => {
+    // Bundling scaffold with deploy would hold scaffold back until the sign-off deploy needs.
+    it("keeps a block out of a ticket that would make it wait on something it doesn't need", () => {
+        const map = staged("fast");
+
+        expect(bundlesOf(toFile(map, []), map.ticketSize)).toContainEqual(["scaffold"]);
+    });
+});
+
 describe("bundleFor", () => {
-    it("leaves a member out while the decision it needs is open, instead of refusing the bundle", () => {
-        expect(bundleFor(staged("supervised"), [ticket(1, "signoff")], "scaffold")).toEqual({
-            ids: ["scaffold"],
-            later: ["`deploy` waits on signoff (owner, open: #1); tokens (nothing filed yet)"],
+    const CHAINED = {
+        capabilities: [
+            { id: "signoff", stage: "plan", title: "Sign-off", kind: "owner" },
+            { id: "form", stage: "build", title: "Form", dependsOn: ["signoff"] },
+            { id: "thanks", stage: "build", title: "Thanks page", dependsOn: ["form"] },
+        ],
+    };
+
+    it("files a bundle whole, so a member waiting on a decision holds the others back", () => {
+        const map = readMap(CHAINED, { ...PROJECT, ticketSize: "fast" });
+        const ids = bundleFor(map, [ticket(1, "signoff")], "thanks");
+
+        expect(ids).toEqual(["form", "thanks"]);
+        expect(planFiling(map, [ticket(1, "signoff")], ids)).toEqual({
+            ok: false,
+            reason: "`form` waits on signoff (owner, open: #1)",
         });
+    });
+
+    it("keeps the bundles the portal counted once a sign-off between them is filed", () => {
+        const issues = [ticket(5, "lab"), closed(6, "approval")];
+
+        expect(bundleFor(staged("fast"), issues, "inventory")).toEqual(["inventory"]);
+    });
+});
+
+describe("readMap types", () => {
+    const TYPED = {
+        capabilities: [{ id: "page-layout", stage: "build", title: "Page layout" }],
+        types: [
+            {
+                id: "custom-page",
+                stage: "build",
+                title: "Custom page",
+                complexity: 5,
+                dependsOn: ["page-layout"],
+                doneWhen: ["It matches the approved design."],
+            },
+        ],
+    };
+
+    it("files an extra with its type's criteria and estimate, linked to the type's needs", () => {
+        const map = readMap(TYPED, {
+            ...PROJECT,
+            extras: [{ id: "services", type: "custom-page", title: "Services" }],
+        });
+        const filing = planFiling(map, [ticket(3, "page-layout")], ["services"]);
+
+        expect(filing.ok && filing.tickets[0]).toMatchObject({
+            title: "Services",
+            labels: ["cap:services", "app:site", "enhancement"],
+            blockedBy: [3],
+            complexity: 5,
+        });
+        expect(filing.ok && filing.tickets[0]?.body).toContain("It matches the approved design.");
+    });
+
+    const SETUP = {
+        capabilities: [{ id: "comments", stage: "build", title: "Comments setup", onDemand: true }],
+        types: [
+            { id: "blog", stage: "build", title: "Blog" },
+            {
+                id: "blog-comments",
+                stage: "build",
+                title: "Blog + comments",
+                dependsOn: ["comments"],
+            },
+        ],
+    };
+    const isOn = (extras: unknown[]) =>
+        readMap(SETUP, { ...PROJECT, extras }).isOn({ id: "comments", onDemand: true } as never);
+
+    it("files an on-demand setup only while a page needs it, as the portal maps it", () => {
+        expect(isOn([{ id: "news", type: "blog", title: "News" }])).toBe(false);
+        expect(isOn([{ id: "news", type: "blog-comments", title: "News" }])).toBe(true);
     });
 });

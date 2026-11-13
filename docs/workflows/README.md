@@ -26,10 +26,10 @@ data/workflows/
 
 | Noun | Is | Lives in |
 | --- | --- | --- |
-| Block | One thing the project needs — a content audit, comments, a cutover, a sign-off. Required, or optional with a default. The code calls it a capability | The template, or a project's `extras` for something only it has |
+| Block | One thing the project needs — a content audit, comments, a cutover, a sign-off. Required, optional with a default, or `onDemand`: no switch, in the map only while a page depends on it. The code calls it a capability | The template, or a project's `extras` for something only it has |
 | Need | A `dependsOn` link from one block to another it can't start without | The block |
 | Stage | A colour and a label for a family of blocks — discovery, design, launch. It orders nothing | The template |
-| Feature | One switch in the plan: an optional block such as storybook, or a `groups` entry bundling several, such as the blog. None is special; switching one off takes its blocks out of the map, and whatever needed them waits on what they needed instead | The template's `optional` blocks and `groups`; the project's `switches` |
+| Feature | One switch in the plan: an optional block such as storybook, or a `groups` entry bundling several. None is special; switching one off takes its blocks out of the map, and whatever needed them waits on what they needed instead | The template's `optional` blocks and `groups`; the project's `switches` |
 | Ticket | A GitHub issue in the project's milestone with a `cap:<block>` label, or several when blocks share it | GitHub |
 | Ticket size | How closely a person oversees the code, which sets how many points a filed ticket holds: `block`, `supervised` or `fast` | The project's `ticketSize` |
 | Complexity | A Fibonacci estimate of how much a person has to understand, decide and check, whoever writes the code | The template's `complexity` per block; the board's `Complexity` field per ticket |
@@ -53,6 +53,36 @@ data/workflows/
 A gate is an `owner` block. `scope-signoff`, `design-approval` and `go-live` hold back only the
 blocks that need them, and closing the ticket is the approval. Nothing else waits.
 
+## 📄 Page types
+
+A site's pages aren't known until its feature inventory lists them, and each needs different work. A
+template's `types` are blocks a project adds once per page, under `extras`, by naming one with
+`type:`. The extra takes the type's stage, estimate, criteria and needs; its own fields win, and its
+`dependsOn` adds to the type's.
+
+```yaml
+extras:
+  - { id: services-page, type: custom-page, title: Services page }
+  - { id: legal-notice-page, type: page-template, title: Legal notice page }
+```
+
+Both website templates have the same four types, and the new-project wizard adds pages as these
+extras. A site can have several blogs, each with or without comments.
+
+| Type | For | SP | Needs |
+| --- | --- | --- | --- |
+| `page-template` | A page on the shared page template, its content from the content source | 2 | `standard-pages` |
+| `custom-page` | A page with a layout of its own, built from the kit to its approved design | 5 | `component-kit`, `ci-deploy` |
+| `blog` | Posts and their paginated listings | 13 | `component-kit`, `ci-deploy` |
+| `blog-comments` | A blog whose posts take comments | 13 | `component-kit`, `ci-deploy`, `comments` |
+
+`comments` is the comments setup, 8 SP, and `onDemand`: the first blog with comments brings it into
+the map, and every later one costs nothing more for it.
+
+`standard-pages` is the shared layout, the error pages and the confirmation landings that every
+page template sits on. The template's `reuse` paths into Huella Legal are `method`: an example to
+follow, not code to copy into a site that isn't a legal blog.
+
 ## 🤝 The contract with GitHub
 
 The map seeds the plan, and filing writes it to GitHub. **After that, GitHub wins**: change a
@@ -71,9 +101,10 @@ dependency on the issue, never in the file.
 ## 🎟 Ticket size
 
 A new site has 33 blocks, and a rebuild 41. Filing one ticket each is the right grain when a person
-reviews every PR, and too fine when AI builds the project in big chunks. Shared tickets fill like a
-wrapping flex row: blocks go in, each after the ones it needs, until the next would pass the size's
-width in points, and then a new ticket starts. A block wider than the line is a ticket alone.
+reviews every PR, and too fine when AI builds the project in big chunks. Shared tickets fill
+first-fit: each block, after the ones it needs, joins the first ticket that has room in the size's
+width in points and that it can share without waiting longer, or starts a new one. A block wider
+than the line is a ticket alone.
 The project's `ticketSize` changes how many tickets filing creates, never the map: a ticket with
 several `cap:` labels counts under each of those blocks, and closing it finishes all of them.
 The size is fixed once the milestone holds one live ticket with a `cap:` label, however it was
@@ -83,8 +114,8 @@ filed, so every block filed later, a feature switched on midway included, is gro
 | `ticketSize` | Who checks the code | A ticket holds | `new-website` | `website-rebuild` |
 | --- | --- | --- | --- | --- |
 | `block` (the default) | A person reviews every PR | One block, or each of its suggested tickets | 35 | 43 |
-| `supervised` | AI builds it; each ticket runs plan, checks and adversarial review | A stage's build blocks, up to 13 SP | 30 | 33 |
-| `fast` | Nobody closely; internal tools and experiments | Up to 21 SP, with the spikes together | 23 | 23 |
+| `supervised` | AI builds it; each ticket runs plan, checks and adversarial review | A stage's build blocks, up to 13 SP | 31 | 36 |
+| `fast` | Nobody closely; internal tools and experiments | Up to 21 SP, with the spikes together | 26 | 26 |
 
 The portal warns when `supervised` or `fast` is picked, since neither puts a person on each block.
 The widths are `TICKET_WIDTH` in both copies of `bundlesOf`.
@@ -96,8 +127,12 @@ Counts are with each template's defaults switched on. Merging never breaks a rul
 - **A stage splits where an owner or spike block inside it sits between its build blocks.** In
   `website-rebuild`, the design lab and the component inventory are two tickets, because design
   approval comes between them.
-- **A block still waiting is left out** and files later in a ticket of its own stage. That is why
-  the portal's counts say *about*.
+- **Blocks share a ticket only when they wait on exactly the same blocks** outside it. Otherwise one
+  would inherit a wait it doesn't have: a contact form bundled with the home page would sit behind
+  the article page the home page needs.
+- **A bundle files whole or not at all.** Bundles are worked out over every block that is on and
+  unsettled, filed or not, so filing one never reshuffles the rest, and the tickets filed are
+  exactly the ones the portal counts.
 - **Needs inside the ticket are dropped; needs outside it become its blocked-by links.**
 
 `pnpm workflow:file <id> <a> <b> <c>` merges exactly the blocks named, under the same rules, for a
@@ -229,7 +264,7 @@ a commit. A commit without `[#N]` counts nowhere, and neither does work that lef
 | Abandon a project's tickets: close every untouched one as not planned, keep anything started or closed | `pnpm workflow:drop <id>` to see it, `--yes` to do it, then delete the project |
 | Create a project | The plus card after the projects on the Workflows page under `pnpm dev developer-portal`, or after the workflows on the dashboard: a wizard through the template, the details and the features, with the blocks every project gets listed beside them and the ticket size in a side panel that prices each size as you switch. It writes the project file and nothing else; on the deployed portal Create is locked and the same file comes as a download to add in a PR. Tickets are filed with `workflow:file` |
 | Switch a feature, set the ticket size, edit or delete a project | The project's **Settings** page under `pnpm dev`, which writes the project file keeping its comments. Deleting sits at the bottom behind typing the id, and removes the project file and its snapshot; nothing on GitHub changes, so run `workflow:drop` first when the tickets should go too. The template can't change, since the switches and settled blocks belong to it. The deployed portal shows Settings read-only |
-| Settle a block without a ticket, add an extra | Edit `projects/<id>.yaml`; give a settlement `on: YYYY-MM-DD` so the replay counts it from that day |
+| Settle a block without a ticket, add an extra or a page | Edit `projects/<id>.yaml`; give a settlement `on: YYYY-MM-DD` so the replay counts it from that day |
 | Change the generic map | Edit the template. Every block names the issues its lessons came from |
 
 `workflow:file` uses the block's suggested `tickets`, or one ticket from its title and `doneWhen`

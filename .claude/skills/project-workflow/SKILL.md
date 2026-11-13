@@ -26,17 +26,26 @@ hundred.
    package, an internal feature — and then draft its map under
    [Drafting a map](#15-drafting-a-map-for-a-custom-project). Then ask for what the code can't tell you: the
    audience, the page readers land on first, which features are wanted, and the ticket size —
-   `block` when a person reviews every PR, `supervised` when AI builds it under a review pipeline, `fast` for an internal tool or experiment nobody will review. Ask about every feature the same way, the blog no differently from
+   `block` when a person reviews every PR, `supervised` when AI builds it under a review pipeline, `fast` for an internal tool or experiment nobody will review. Ask about every feature the same way, search no differently from
    storybook; each one's `summary` and `lessons` in the template is the question, in plain words.
 2. Write `data/workflows/projects/<id>.yaml` by copying [`huella-legal.yaml`](../../../data/workflows/projects/huella-legal.yaml).
-   Set `switches` only where the answer differs from the template's default; a site with no blog is
-   `blog: false`. Features are set once; the project's Settings page in the portal is for the rare change after. Under `pnpm dev` the
+   Set `switches` only where the answer differs from the template's default; a rebuild without
+   search, which that template turns on, is `search: false`. A blog is a page, not a switch: see [Adding the pages](#14-adding-the-pages). Features are set once; the project's Settings page in the portal is for the rare change after. Under `pnpm dev` the
    portal's new-project wizard, behind the plus card on the Workflows page, writes this same file, if the user would rather click through it.
    Put features only this project has under `extras`, each with its `dependsOn`. Set
    `ticketSize` unless it is `block`.
 3. GitHub side: `pnpm workflow:setup <id>` prints the milestone and labels it would create. Show
    the user, and only on their go run it with `--yes`, since it writes to GitHub. Run it again after
    a feature is switched on, for the new blocks' `cap:` labels.
+
+## 1.4 Adding the pages
+
+A feature inventory or site brief ends with every page in the project's `extras`, each naming a
+page type from the template: `page-template`, `custom-page`, `blog` or `blog-comments`. Comments
+are set up once, by the first blog that takes them, so a second one adds no comments work. Show the
+user the list before the scope sign-off closes, since each page becomes its own block and ticket
+cost. A page that fits no type is an ordinary extra with its own `dependsOn`, and a lesson for the
+template.
 
 ## 1.5 Drafting a map for a custom project
 
@@ -68,7 +77,7 @@ File what the map says can be filed, not a stage. In the portal a block that can
 
 1. `pnpm workflow:file <id> <block>` prints the tickets, their labels and their blocked-by links
    without writing anything. Under a `ticketSize` other than `block` it is one ticket for the
-   block and the others its size bundles it with, and it names any member left for later. It refuses a block still waiting on an open `spike` or `owner` block,
+   block and the others its size bundles it with, filed whole or not at all. It refuses a block still waiting on an open `spike` or `owner` block,
    because that decision can still change what the tickets say (#208, #242 → #299).
 2. When a block has no suggested `tickets` in the template, the command drafts one from its title
    and `doneWhen`. If that would be too thin for an agent to act on, add `tickets` to the template
