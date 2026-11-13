@@ -1,4 +1,5 @@
 import { projectProblems, readProject } from "./project.ts";
+import { isRecord } from "./reader.ts";
 import { projectView } from "./projectView.ts";
 import { readSnapshot } from "./snapshot.ts";
 import { readTemplate } from "./template.ts";
@@ -69,7 +70,11 @@ export const assembleWorkflows = (
             continue;
         }
 
-        const { project, problems: found } = readProject(parsed.value);
+        const named = isRecord(parsed.value) ? parsed.value.template : null;
+        const { project, problems: found } = readProject(
+            parsed.value,
+            templates.find((candidate) => candidate.id === named)?.types,
+        );
         problems.push(...found.map((message) => ({ file: where, message })));
 
         if (`${project.id}.yaml` !== parsed.file) {

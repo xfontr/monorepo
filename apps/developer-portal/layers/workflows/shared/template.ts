@@ -34,7 +34,7 @@ const referenceProblems = (
     return problems;
 };
 
-const templateRuleProblems = ({ stages, groups, capabilities }: Template): string[] => {
+const templateRuleProblems = ({ stages, groups, capabilities, types }: Template): string[] => {
     const problems: string[] = [];
     const stageIds = new Set(stages.map((stage) => stage.id));
     const groupIds = new Set(groups.map((group) => group.id));
@@ -60,11 +60,21 @@ const templateRuleProblems = ({ stages, groups, capabilities }: Template): strin
         problems.push(`capability \`${id}\` is declared twice`);
     }
 
+    for (const id of duplicates(types.map((type) => type.id))) {
+        problems.push(`type \`${id}\` is declared twice`);
+    }
+
+    for (const type of types.filter(({ id }) => capabilityIds.has(id))) {
+        problems.push(`type \`${type.id}\` shares its id with a capability`);
+    }
+
     const known = { stageIds, groupIds, capabilityIds };
 
     return [
         ...problems,
-        ...capabilities.flatMap((capability) => referenceProblems(capability, known)),
+        ...[...capabilities, ...types].flatMap((capability) =>
+            referenceProblems(capability, known),
+        ),
         ...cycleProblem(capabilities),
     ];
 };
@@ -119,6 +129,10 @@ export const readTemplate = (raw: unknown): { template: Template; problems: stri
         .list(source, "capabilities", "template")
         .flatMap((capability, index) => readCapability(reader, capability, index) ?? []);
 
+    const types = reader
+        .list(source, "types", "template")
+        .flatMap((type, index) => readCapability(reader, type, index) ?? []);
+
     const template: Template = {
         id: reader.text(source, "id", "template"),
         title: reader.text(source, "title", "template"),
@@ -126,6 +140,7 @@ export const readTemplate = (raw: unknown): { template: Template; problems: stri
         stages,
         groups,
         capabilities,
+        types,
     };
 
     return { template, problems: [...reader.problems, ...templateRuleProblems(template)] };

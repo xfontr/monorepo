@@ -1,3 +1,4 @@
+import { routedNeeds } from "./capability.ts";
 import { featuresOf, isEnabled, isGroupEnabled } from "./project.ts";
 import { day, issueAsOf, ticketStatus } from "./ticket.ts";
 import { ticketsToFile } from "./ticketSize.ts";
@@ -78,15 +79,7 @@ export const projectView = (
         ]),
     );
 
-    // A switched-off block leaves the map, and whatever needed it waits on what it needed instead.
-    const needsOf = (id: string, seen: Set<string>): string[] =>
-        (byId.get(id)?.dependsOn ?? []).flatMap((need) => {
-            if (!byId.has(need) || seen.has(need)) return [];
-            return enabled.get(need) ? [need] : needsOf(need, new Set([...seen, need]));
-        });
-    const needs = new Map(
-        all.map(({ id }) => [id, enabled.get(id) ? [...new Set(needsOf(id, new Set([id])))] : []]),
-    );
+    const needs = routedNeeds(all, ({ id }) => enabled.get(id) === true);
     const dependents = new Map(all.map(({ id }) => [id, [] as string[]]));
     for (const [id, list] of needs) for (const need of list) dependents.get(need)?.push(id);
 
@@ -295,13 +288,14 @@ export const projectView = (
               }))
             : [];
 
-    const toFile = all.filter(
-        ({ id }) => enabled.get(id) && !settledFor(id) && (live.get(id) ?? []).length === 0,
+    const pool = all.filter(({ id }) => enabled.get(id) && !settledFor(id));
+    const filedIds = new Set(
+        pool.flatMap(({ id }) => ((live.get(id) ?? []).length > 0 ? [id] : [])),
     );
     const tickets = {
         filed: issues.filter((issue) => issue.caps.length > 0 && issue.reason !== "not_planned")
             .length,
-        toFile: ticketsToFile(toFile),
+        toFile: ticketsToFile(pool, needs, filedIds),
     };
 
     return {
