@@ -1,3 +1,22 @@
+## 0.0.19 (2026-11-13)
+
+### 🚀 Features
+
+- **i18n:** [#283] read vendors through content's HttpClient contract ([#283](https://github.com/xfontr/monorepo/issues/283))
+
+### 🩹 Fixes
+
+- [#283] let a vendor without options be built, and give huella's prerender a base url ([#283](https://github.com/xfontr/monorepo/issues/283))
+- [#312] patch 60 audited vulnerabilities and upgrade nuxt to 4.6.3 ([#312](https://github.com/xfontr/monorepo/issues/312))
+
+### 🧱 Updated Dependencies
+
+- Updated @monorepo/configs to 0.0.18
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.18 (2026-10-28)
 
 ### 🚀 Features

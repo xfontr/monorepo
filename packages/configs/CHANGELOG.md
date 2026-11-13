@@ -1,3 +1,32 @@
+## 0.0.18 (2026-11-13)
+
+### 🚀 Features
+
+- **configs:** [#426] lint with the sonarjs recommended preset outside specs ([#426](https://github.com/xfontr/monorepo/issues/426))
+- **configs:** [#411] check the kit and keep shared layers apart in layer-boundaries ([#411](https://github.com/xfontr/monorepo/issues/411))
+- **configs:** [#413] add a layer-boundaries lint rule for nuxt layers ([#413](https://github.com/xfontr/monorepo/issues/413))
+- **configs:** [#232] type-check a Nuxt app's scripts and require a sort comparator ([#232](https://github.com/xfontr/monorepo/issues/232))
+- **configs:** [#232] lint quadratic regexes, nested ternaries and awaits in loops ([#232](https://github.com/xfontr/monorepo/issues/232))
+- **configs:** [#232] require a name on a default-exported function or class ([#232](https://github.com/xfontr/monorepo/issues/232))
+- **configs:** [#279] flag props reactivity loss in vue setup ([#279](https://github.com/xfontr/monorepo/issues/279))
+- **configs:** [#231] move in-house lint rules into src/eslint/rules ([#231](https://github.com/xfontr/monorepo/issues/231))
+- **configs:** [#362] ban eval, script urls and raw html sinks outside specs ([#362](https://github.com/xfontr/monorepo/issues/362))
+- [#301] require route meta below the handler ([#301](https://github.com/xfontr/monorepo/issues/301))
+- [#308] performance tweaks ([#308](https://github.com/xfontr/monorepo/issues/308))
+- [#326] lint tailwind classes through an opt-in eslint config ([#326](https://github.com/xfontr/monorepo/issues/326))
+- [#324] add a lint rule requiring route meta on every api route ([#324](https://github.com/xfontr/monorepo/issues/324))
+
+### 🩹 Fixes
+
+- **configs:** [#413] let feature pages render other features' components ([#413](https://github.com/xfontr/monorepo/issues/413))
+- [#232] address the SonarQube findings reported on master ([#232](https://github.com/xfontr/monorepo/issues/232))
+- [#341] silence nuxt-seo-utils' ssr warning when nx boots the vitest config ([#341](https://github.com/xfontr/monorepo/issues/341))
+- [#312] patch 60 audited vulnerabilities and upgrade nuxt to 4.6.3 ([#312](https://github.com/xfontr/monorepo/issues/312))
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.17 (2026-10-28)
 
 ### 🚀 Features

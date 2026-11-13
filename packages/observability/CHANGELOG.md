@@ -1,3 +1,17 @@
+## 0.0.14 (2026-11-13)
+
+### 🚀 Features
+
+- **configs:** [#231] move in-house lint rules into src/eslint/rules ([#231](https://github.com/xfontr/monorepo/issues/231))
+
+### 🧱 Updated Dependencies
+
+- Updated @monorepo/configs to 0.0.18
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.13 (2026-10-28)
 
 ### 🧱 Updated Dependencies

@@ -1,3 +1,25 @@
+## 0.0.13 (2026-11-13)
+
+### 🚀 Features
+
+- **content:** [#283] hoist baseURL and options into the vendor contract ([#283](https://github.com/xfontr/monorepo/issues/283))
+- [#343] show each article's publication number ([#343](https://github.com/xfontr/monorepo/issues/343))
+- [#248] add the article search route ([#248](https://github.com/xfontr/monorepo/issues/248))
+
+### 🩹 Fixes
+
+- [#283] let a vendor without options be built, and give huella's prerender a base url ([#283](https://github.com/xfontr/monorepo/issues/283))
+- **content:** [#375] fail a read whose body is not json ([#375](https://github.com/xfontr/monorepo/issues/375))
+- [#312] patch 60 audited vulnerabilities and upgrade nuxt to 4.6.3 ([#312](https://github.com/xfontr/monorepo/issues/312))
+
+### 🧱 Updated Dependencies
+
+- Updated @monorepo/configs to 0.0.18
+
+### ❤️ Thank You
+
+- Xifré Font @xfontr
+
 ## 0.0.12 (2026-10-28)
 
 ### 🚀 Features
