@@ -15,6 +15,81 @@ export interface Workflows {
     problems: WorkflowProblem[];
 }
 
+const report = (problems: WorkflowProblem[], file: string, messages: string[]): void => {
+    problems.push(...messages.map((message) => ({ file, message })));
+};
+
+const snapshotOf = (
+    problems: WorkflowProblem[],
+    parsed: ParsedFile | undefined,
+): Snapshot | null => {
+    if (!parsed) return null;
+
+    const where = `projects/${parsed.file}`;
+
+    if (!parsed.ok) {
+        report(problems, where, [parsed.error]);
+        return null;
+    }
+
+    const { snapshot, problems: found } = readSnapshot(parsed.value);
+
+    report(problems, where, found);
+    return snapshot;
+};
+
+const templateOf = (problems: WorkflowProblem[], parsed: ParsedFile): Template | null => {
+    const where = `templates/${parsed.file}`;
+
+    if (!parsed.ok) {
+        report(problems, where, [parsed.error]);
+        return null;
+    }
+
+    const { template, problems: found } = readTemplate(parsed.value);
+
+    report(problems, where, found);
+    if (`${template.id}.yaml` !== parsed.file) {
+        report(problems, where, [`\`id: ${template.id}\` doesn't match the filename`]);
+    }
+    return template.id ? template : null;
+};
+
+const projectOf = (
+    problems: WorkflowProblem[],
+    templates: Template[],
+    parsed: ParsedFile,
+    snapshotFiles: Record<string, ParsedFile>,
+): ProjectView | null => {
+    const where = `projects/${parsed.file}`;
+
+    if (!parsed.ok) {
+        report(problems, where, [parsed.error]);
+        return null;
+    }
+
+    const named = isRecord(parsed.value) ? parsed.value.template : null;
+    const { project, problems: found } = readProject(
+        parsed.value,
+        templates.find((candidate) => candidate.id === named)?.types,
+    );
+    report(problems, where, found);
+
+    if (`${project.id}.yaml` !== parsed.file) {
+        report(problems, where, [`\`id: ${project.id}\` doesn't match the filename`]);
+    }
+
+    const template = templates.find((candidate) => candidate.id === project.template);
+
+    if (!template) {
+        report(problems, where, [`\`template: ${project.template}\` names no template`]);
+        return null;
+    }
+
+    report(problems, where, projectProblems(project, template));
+    return projectView(project, template, snapshotOf(problems, snapshotFiles[project.id]));
+};
+
 /** A broken file becomes a problem rather than a throw, so one bad edit never blanks the page. */
 export const assembleWorkflows = (
     templateFiles: ParsedFile[],
@@ -22,83 +97,10 @@ export const assembleWorkflows = (
     snapshotFiles: Record<string, ParsedFile>,
 ): Workflows => {
     const problems: WorkflowProblem[] = [];
-    const templates: Template[] = [];
-
-    const snapshotOf = (parsed: ParsedFile | undefined): Snapshot | null => {
-        if (!parsed) return null;
-
-        const where = `projects/${parsed.file}`;
-
-        if (!parsed.ok) {
-            problems.push({ file: where, message: parsed.error });
-            return null;
-        }
-
-        const { snapshot, problems: found } = readSnapshot(parsed.value);
-
-        problems.push(...found.map((message) => ({ file: where, message })));
-        return snapshot;
-    };
-
-    for (const parsed of templateFiles) {
-        const where = `templates/${parsed.file}`;
-
-        if (!parsed.ok) {
-            problems.push({ file: where, message: parsed.error });
-            continue;
-        }
-
-        const { template, problems: found } = readTemplate(parsed.value);
-
-        problems.push(...found.map((message) => ({ file: where, message })));
-        if (`${template.id}.yaml` !== parsed.file) {
-            problems.push({
-                file: where,
-                message: `\`id: ${template.id}\` doesn't match the filename`,
-            });
-        }
-        if (template.id) templates.push(template);
-    }
-
-    const projects: ProjectView[] = [];
-
-    for (const parsed of projectFiles) {
-        const where = `projects/${parsed.file}`;
-
-        if (!parsed.ok) {
-            problems.push({ file: where, message: parsed.error });
-            continue;
-        }
-
-        const named = isRecord(parsed.value) ? parsed.value.template : null;
-        const { project, problems: found } = readProject(
-            parsed.value,
-            templates.find((candidate) => candidate.id === named)?.types,
-        );
-        problems.push(...found.map((message) => ({ file: where, message })));
-
-        if (`${project.id}.yaml` !== parsed.file) {
-            problems.push({
-                file: where,
-                message: `\`id: ${project.id}\` doesn't match the filename`,
-            });
-        }
-
-        const template = templates.find((candidate) => candidate.id === project.template);
-
-        if (!template) {
-            problems.push({
-                file: where,
-                message: `\`template: ${project.template}\` names no template`,
-            });
-            continue;
-        }
-
-        problems.push(
-            ...projectProblems(project, template).map((message) => ({ file: where, message })),
-        );
-        projects.push(projectView(project, template, snapshotOf(snapshotFiles[project.id])));
-    }
+    const templates = templateFiles.flatMap((parsed) => templateOf(problems, parsed) ?? []);
+    const projects = projectFiles.flatMap(
+        (parsed) => projectOf(problems, templates, parsed, snapshotFiles) ?? [],
+    );
 
     return { templates, projects, problems };
 };

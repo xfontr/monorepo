@@ -8,6 +8,22 @@ import {
     type ReusePlan,
 } from "./types.ts";
 
+const readReuse = (reader: Reader, raw: unknown, where: string): Capability["reuse"] => {
+    if (raw === undefined) return null;
+
+    const rawReuse = isRecord(raw) ? raw : {};
+    const plan = asText(rawReuse.plan) ?? "";
+
+    if ((REUSE_PLANS as readonly string[]).includes(plan)) {
+        return { plan: plan as ReusePlan, from: asText(rawReuse.from) };
+    }
+
+    reader.problems.push(
+        `${where}: \`reuse.plan: ${plan || "(missing)"}\` isn't one of ${REUSE_PLANS.join(", ")}`,
+    );
+    return null;
+};
+
 export const readCapability = (reader: Reader, raw: unknown, index: number): Capability | null => {
     if (!isRecord(raw)) {
         reader.problems.push(`capability #${index + 1} isn't a mapping`);
@@ -25,21 +41,7 @@ export const readCapability = (reader: Reader, raw: unknown, index: number): Cap
         );
     }
 
-    let reuse: Capability["reuse"] = null;
-
-    if (raw.reuse !== undefined) {
-        const rawReuse = isRecord(raw.reuse) ? raw.reuse : {};
-        const plan = asText(rawReuse.plan) ?? "";
-
-        if ((REUSE_PLANS as readonly string[]).includes(plan)) {
-            reuse = { plan: plan as ReusePlan, from: asText(rawReuse.from) };
-        } else {
-            reader.problems.push(
-                `${where}: \`reuse.plan: ${plan || "(missing)"}\` isn't one of ${REUSE_PLANS.join(", ")}`,
-            );
-        }
-    }
-
+    const reuse = readReuse(reader, raw.reuse, where);
     const complexity =
         typeof raw.complexity === "number" &&
         (COMPLEXITY_SCALE as readonly number[]).includes(raw.complexity)
