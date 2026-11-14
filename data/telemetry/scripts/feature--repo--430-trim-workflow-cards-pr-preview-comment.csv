@@ -1,0 +1,6 @@
+at,script,command,target,flags,area,caller,tty,exit,ms
+2026-11-13,workflow,next,huella-legal,,repo,claude-code,0,0,2996
+2026-11-13,map,,,check,repo,claude-code,0,0,97
+2026-11-13,map,,,check,repo,claude-code,0,0,88
+2026-11-13,dev,,,,repo,human,1,0,61263395
+2026-11-14,issue,pick,,title,repo,claude-code,0,0,12791

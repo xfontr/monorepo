@@ -71,16 +71,17 @@ runs one `netlify deploy` with the Netlify CLI, which builds and then uploads. I
 `netlify build` and `deploy --no-build`, because that upload drops the config the build writes, so
 the image CDN rejects every WordPress image. The build command,
 the publish directory and the env vars all come from the Netlify project, so the repo holds no copy
-of them. It then records a GitHub Deployment, so the URL shows on the repo's Deployments page
-alongside `developer-portal`. Netlify's own git builds stay stopped (**Project configuration →
+of them. A production deploy then records a GitHub Deployment, so the URL shows on the repo's
+Deployments page alongside `developer-portal`. A PR deploy instead posts the preview link as one
+comment on the PR, edited in place on every later deploy. Netlify's own git builds stay stopped (**Project configuration →
 Build & deploy → Stop builds**). A CLI deploy goes through either way, but a running git
 integration would build every commit a second time.
 
-| Trigger | Deploys | Environment |
+| Trigger | Deploys | Reported as |
 | --- | --- | --- |
-| Push to `master` | Production, then warms the cache ([Rendering](#-rendering)) | `huella-legal` |
-| Pull request | A draft at `pr-<number>--<project>.netlify.app` | `huella-legal-preview` |
-| Monday 05:00 UTC, or run by hand | Production, whatever changed | `huella-legal` |
+| Push to `master` | Production, then warms the cache ([Rendering](#-rendering)) | The `huella-legal` Deployment |
+| Pull request | A draft at `pr-<number>--<project>.netlify.app` | A comment on the PR |
+| Monday 05:00 UTC, or run by hand | Production, whatever changed | The `huella-legal` Deployment |
 
 The job is called `huella-legal`, and it is the PR check `master`'s ruleset requires. It always runs
 and passes when there's nothing to deploy, because a required check that never reports blocks the

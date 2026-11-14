@@ -65,50 +65,68 @@
                     </div>
                 </section>
 
-                <section class="flex flex-col gap-3">
-                    <h2 class="font-semibold">Templates</h2>
+                <UCollapsible as="section" class="flex flex-col gap-3">
+                    <UButton
+                        label="Templates"
+                        color="neutral"
+                        variant="ghost"
+                        trailing-icon="i-lucide-chevron-down"
+                        class="group self-start px-0 font-semibold"
+                        :ui="{
+                            trailingIcon: 'transition-transform group-data-[state=open]:rotate-180',
+                        }"
+                    />
 
-                    <UCard v-for="template in data.templates" :key="template.id">
-                        <template #header>
-                            <p class="font-semibold">{{ template.title }}</p>
-                            <p class="text-xs text-muted">{{ template.summary }}</p>
-                            <p class="mt-1 text-xs text-dimmed tabular-nums">
-                                {{ templateCounts[template.id] }}
-                            </p>
-                            <p class="mt-1 flex items-center gap-1 text-xs text-dimmed">
-                                <UIcon name="i-lucide-toggle-left" class="size-3.5" /> Optional:
-                                each project switches it on or off.
-                            </p>
-                        </template>
+                    <template #content>
+                        <div class="flex flex-col gap-3">
+                            <UCard v-for="template in data.templates" :key="template.id">
+                                <template #header>
+                                    <p class="font-semibold">{{ template.title }}</p>
+                                    <p class="text-xs text-muted">{{ template.summary }}</p>
+                                    <p class="mt-1 text-xs text-dimmed tabular-nums">
+                                        {{ templateCounts[template.id] }}
+                                    </p>
+                                    <p class="mt-1 flex items-center gap-1 text-xs text-dimmed">
+                                        <UIcon name="i-lucide-toggle-left" class="size-3.5" />
+                                        Optional: each project switches it on or off.
+                                    </p>
+                                </template>
 
-                        <ol class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                            <li v-for="(stage, index) in template.stages" :key="stage.id">
-                                <p class="text-sm font-medium">
-                                    {{ index + 1 }}. {{ stage.title }}
-                                </p>
-                                <p class="text-xs text-muted">{{ stage.goal }}</p>
-                                <ul class="mt-1 flex flex-wrap gap-1">
-                                    <li
-                                        v-for="capability in capabilitiesOf(template, stage.id)"
-                                        :key="capability.id"
-                                    >
-                                        <UBadge
-                                            :label="capability.title"
-                                            :icon="
-                                                capability.optional
-                                                    ? 'i-lucide-toggle-left'
-                                                    : undefined
-                                            "
-                                            :variant="capability.optional ? 'outline' : 'subtle'"
-                                            color="neutral"
-                                            size="sm"
-                                        />
+                                <ol class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                    <li v-for="(stage, index) in template.stages" :key="stage.id">
+                                        <p class="text-sm font-medium">
+                                            {{ index + 1 }}. {{ stage.title }}
+                                        </p>
+                                        <p class="text-xs text-muted">{{ stage.goal }}</p>
+                                        <ul class="mt-1 flex flex-wrap gap-1">
+                                            <li
+                                                v-for="capability in capabilitiesOf(
+                                                    template,
+                                                    stage.id,
+                                                )"
+                                                :key="capability.id"
+                                            >
+                                                <UBadge
+                                                    :label="capability.title"
+                                                    :icon="
+                                                        capability.optional
+                                                            ? 'i-lucide-toggle-left'
+                                                            : undefined
+                                                    "
+                                                    :variant="
+                                                        capability.optional ? 'outline' : 'subtle'
+                                                    "
+                                                    color="neutral"
+                                                    size="sm"
+                                                />
+                                            </li>
+                                        </ul>
                                     </li>
-                                </ul>
-                            </li>
-                        </ol>
-                    </UCard>
-                </section>
+                                </ol>
+                            </UCard>
+                        </div>
+                    </template>
+                </UCollapsible>
             </div>
         </template>
     </UDashboardPanel>
