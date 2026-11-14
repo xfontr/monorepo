@@ -23,6 +23,24 @@
                     :description="finding.detail"
                 />
 
+                <UCard variant="flush">
+                    <template #header>
+                        <div>
+                            <h2 class="font-semibold">Detailed Nx graph</h2>
+                            <p class="text-xs text-muted">
+                                Nx's own graph client, vendored in by the collector rather than
+                                redrawn.
+                            </p>
+                        </div>
+                    </template>
+
+                    <iframe
+                        :src="graphEmbed"
+                        class="embedded-report h-130"
+                        title="Nx project graph"
+                    />
+                </UCard>
+
                 <section class="flex flex-col gap-3">
                     <div>
                         <h2 class="text-xl font-semibold">How the pieces fit</h2>
@@ -98,24 +116,6 @@
                         </UCard>
                     </div>
                 </section>
-
-                <UCard variant="flush">
-                    <template #header>
-                        <div>
-                            <h2 class="font-semibold">Detailed Nx graph</h2>
-                            <p class="text-xs text-muted">
-                                Nx's own graph client, vendored in by the collector rather than
-                                redrawn.
-                            </p>
-                        </div>
-                    </template>
-
-                    <iframe
-                        :src="graphEmbed"
-                        class="embedded-report h-130"
-                        title="Nx project graph"
-                    />
-                </UCard>
 
                 <UCard variant="flush">
                     <template #header>

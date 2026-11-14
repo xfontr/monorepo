@@ -7,16 +7,7 @@
         <div class="min-w-0 flex-1">
             <p class="truncate font-semibold">{{ card.title }}</p>
             <p class="truncate text-xs text-muted">{{ card.templateTitle }}</p>
-            <p class="mt-1 text-xs tabular-nums">
-                <span class="text-dimmed">Now:</span> {{ card.now }}
-            </p>
-            <p class="text-xs text-dimmed tabular-nums">{{ card.points }}</p>
-            <p class="text-xs text-dimmed tabular-nums">
-                {{ card.progress }}
-                <template v-if="card.unsorted > 0">
-                    · <span class="tone-warn">{{ card.unsorted }} to organise</span>
-                </template>
-            </p>
+            <p class="mt-1 text-xs text-dimmed tabular-nums">{{ card.done }}</p>
         </div>
     </NuxtLink>
 </template>

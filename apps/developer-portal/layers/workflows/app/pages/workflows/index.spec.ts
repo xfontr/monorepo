@@ -54,7 +54,7 @@ beforeEach(() => {
 });
 
 describe("workflows page", () => {
-    it("puts each count on the project's own card, never swapped or summed", async () => {
+    it("puts the project's own done count on its card, never another's", async () => {
         const ticket = { title: "T", url: "", reason: null, closedAt: null, activity: [] };
         state.data = ref(
             workflows(
@@ -93,8 +93,7 @@ describe("workflows page", () => {
 
         const card = (await mountSuspended(Page, { global })).find("a[href='/workflows/p0']");
 
-        expect(card.text()).toContain("Now: 1 ready · 1 in flight");
-        expect(card.text()).toContain("0/2 capabilities · 2 tickets filed, 0 to file");
+        expect(card.text()).toContain("0 of 2 done");
     });
 
     it("offers a new project on the static site too, where the wizard ends in a download", async () => {

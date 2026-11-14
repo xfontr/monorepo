@@ -14,7 +14,7 @@ describe("activeProjects", () => {
 });
 
 describe("projectCard", () => {
-    it("counts the blocks to file, so a project with nothing filed doesn't read as idle", () => {
+    it("counts done blocks over the blocks that are on, so a switched-off one isn't owed", () => {
         const { template } = readTemplate({
             id: "t",
             title: "T",
@@ -22,27 +22,17 @@ describe("projectCard", () => {
             capabilities: [
                 { id: "scaffold", stage: "build", title: "Scaffold" },
                 { id: "pages", stage: "build", title: "Pages", dependsOn: ["scaffold"] },
+                { id: "extra", stage: "build", title: "Extra", optional: true, default: false },
             ],
-        });
-        const { project } = readProject({ id: "p", title: "P", template: "t", milestone: "P" });
-
-        expect(projectCard(projectView(project, template, null)).now).toBe("1 to file");
-    });
-
-    it("says a project has no blocks yet rather than nothing left, so a fresh map isn't read as done", () => {
-        const { template } = readTemplate({
-            id: "custom",
-            title: "Custom",
-            stages: [{ id: "build", title: "Build" }],
-            capabilities: [],
         });
         const { project } = readProject({
             id: "p",
             title: "P",
-            template: "custom",
+            template: "t",
             milestone: "P",
+            settled: { scaffold: { status: "done", note: "Shipped." } },
         });
 
-        expect(projectCard(projectView(project, template, null)).now).toBe("no blocks yet");
+        expect(projectCard(projectView(project, template, null)).done).toBe("1 of 2 done");
     });
 });

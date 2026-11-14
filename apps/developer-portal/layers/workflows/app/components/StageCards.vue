@@ -51,9 +51,6 @@
                             · {{ formatPoints(capability.points.total) }} SP
                         </span>
                     </span>
-                    <span v-if="waiting[capability.id]" class="text-xs text-muted">
-                        waits on {{ waiting[capability.id] }}
-                    </span>
                     <span class="mt-auto -mr-5 flex flex-wrap items-end gap-1.5 pt-2">
                         <span
                             v-if="capability.issues.length > 0"
@@ -112,22 +109,13 @@ interface Props {
     /** The stage's place in the template, which picks its colour. */
     index: number;
     selected?: string | null;
-    /** Capability id to its title, for the blocks a card waits on. */
-    titles?: Record<string, string>;
     /** Keyed by capability id; absent when no commit names any of the project's tickets. */
     activity?: Record<string, CapabilityActivity> | null;
     /** The busiest week any capability had, so every card's line shares one scale. */
     activityPeak?: number;
 }
 
-const {
-    stage,
-    index,
-    selected = null,
-    titles = {},
-    activity = null,
-    activityPeak = 1,
-} = defineProps<Props>();
+const { stage, index, selected = null, activity = null, activityPeak = 1 } = defineProps<Props>();
 const emit = defineEmits<{ select: [capability: string]; details: [capability: string] }>();
 
 /** Past this many tickets the dots stack in two rows, so the activity line keeps their row. */
@@ -153,19 +141,6 @@ const shown = computed(() => stage.capabilities.filter(({ state }) => state !== 
 
 const kindIcons = computed(() =>
     Object.fromEntries(shown.value.map(({ id, kind }) => [id, blockKindIcon(kind)])),
-);
-
-const waiting = computed(() =>
-    Object.fromEntries(
-        shown.value
-            .filter(
-                ({ state, waitingOn }) => ["blocked", "waits"].includes(state) && waitingOn.length,
-            )
-            .map(({ id, waitingOn }) => [
-                id,
-                waitingOn.map((need) => titles[need] ?? need).join(", "),
-            ]),
-    ),
 );
 
 /** Only a capability with tickets gets a line, so an unstarted one stays quiet. */

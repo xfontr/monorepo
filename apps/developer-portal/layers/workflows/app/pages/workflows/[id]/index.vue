@@ -231,7 +231,6 @@
                     :stage="activeStage"
                     :index="activeIndex"
                     :selected="selectedId"
-                    :titles
                     :activity="activity?.capabilities"
                     :activity-peak="activity?.peak"
                     @select="select"

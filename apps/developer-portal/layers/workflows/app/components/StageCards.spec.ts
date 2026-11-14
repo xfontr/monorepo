@@ -39,16 +39,16 @@ const view = projectView(project, template, {
 
 const mount = (selected: string | null = null) =>
     mountSuspended(StageCards, {
-        props: { stage: view.stages[0]!, index: 0, selected, titles: { kit: "Kit" } },
+        props: { stage: view.stages[0]!, index: 0, selected },
         global: { stubs: { UIcon: true } },
     });
 
 describe("StageCards", () => {
-    it("says what a blocked block waits on", async () => {
+    it("leaves what a blocked block waits on to its details, keeping the card an overview", async () => {
         const wrapper = await mount();
         const [, page] = wrapper.findAll("li button[aria-pressed]");
 
-        expect(page!.text()).toContain("waits on Kit");
+        expect(page!.text()).not.toContain("Kit");
     });
 
     it("shows the SP each block spends, and none on a block nobody estimated", async () => {

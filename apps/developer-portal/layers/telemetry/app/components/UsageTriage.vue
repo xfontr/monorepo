@@ -96,10 +96,11 @@ const rules = computed(() => ruleQuadrants(usage.lint));
 const idle = computed(() => rows.value.filter((row) => row.runs === 0));
 const idleList = computed(() =>
     idle.value
-        .map(
-            (row) =>
-                `${row.name} (${row.last ? `last run ${row.last.slice(0, 10)}` : "never run"})`,
-        )
+        .map((row) => {
+            const when = row.last ? `last run ${row.last.slice(0, 10)}` : "never run";
+
+            return `${row.name} (${when})`;
+        })
         .join(" · "),
 );
 </script>

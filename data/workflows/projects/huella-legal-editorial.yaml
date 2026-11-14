@@ -1,0 +1,92 @@
+id: huella-legal-editorial
+title: Huella Legal editorial
+template: custom
+area: app:huella-legal
+milestone: Huella Legal editorial
+summary: The editorial work after the relaunch of huellalegal.com — the published posts tidied, the
+  archive drafts finished, the legal terms brought up to date and the readers written to again.
+
+extras:
+  - id: archive-index
+    stage: plan
+    title: Index the research archive
+    complexity: 5
+    summary: The 2019–2022 research folder searchable by term, and every source the drafts cite
+      catalogued with the file and page it is in.
+    reuse: { plan: method, from: infrastructure/scripts }
+    doneWhen:
+      - Every PDF in the archive is searchable page by page, scanned ones included.
+      - Each short citation in the drafts resolves to a full reference with its file and page, or
+        is listed as unresolved.
+      - The archive and its index stay outside the repo; only env var names are committed.
+
+  - id: bibliography-format
+    stage: build
+    title: Unify the bibliography format
+    complexity: 8
+    summary: Every published post's bibliography in one format, through a wp-editor changeset.
+    reuse: { plan: method, from: apps/wp-editor }
+    doneWhen:
+      - The format is written down once, with an example per kind of source.
+      - Every published post's bibliography follows it, as reviewed proposals in one changeset.
+      - No entry gains, loses or changes a reference; only its format changes.
+
+  - id: placeholder-images
+    stage: build
+    title: Remove the placeholder images
+    complexity: 3
+    dependsOn: [bibliography-format]
+    summary: Posts that only carry the generic placeholder image lose it, through a second
+      wp-editor changeset.
+    reuse: { plan: method, from: apps/wp-editor }
+    doneWhen:
+      - Every post whose image is the generic placeholder has it removed, and no other image is
+        touched.
+      - A post without an image renders cleanly on its page and in every listing.
+
+  - id: legal-terms
+    stage: build
+    title: Update the legal terms
+    complexity: 3
+    summary: The legal notice, privacy and cookie pages describe the site as it runs today.
+    reuse: { plan: method, from: apps/huella-legal/layers/reading }
+    doneWhen:
+      - Every service the site sends reader data to is named, with what it receives and why.
+      - The cookie page lists the cookies the live site actually sets.
+      - The owner approved the wording before it went live.
+
+  - id: archive-drafts
+    stage: build
+    title: Finish the archive drafts
+    complexity: 13
+    dependsOn: [archive-index, bibliography-format]
+    summary: The unpublished drafts from the archive finished one at a time, most complete first,
+      each reaching WordPress as a draft for review.
+    reuse: { plan: method, from: apps/wp-editor }
+    doneWhen:
+      - Every draft is published, merged into another, parked or marked not to publish.
+      - Every bibliography entry names the file and page it came from, in the unified format.
+      - Nothing is published without the owner's review.
+
+  - id: legacy-inbox
+    stage: build
+    kind: owner
+    title: Clear the legacy inbox
+    complexity: 3
+    summary: Years of mail on the site's addresses sorted, and every message that still deserves
+      a reply answered.
+    doneWhen:
+      - Every old message is answered, archived or deleted.
+      - Subscribers who wrote in by mail are in the newsletter list.
+
+  - id: newsletter-issue
+    stage: ship
+    kind: owner
+    title: Send a newsletter issue
+    complexity: 2
+    dependsOn: [bibliography-format, placeholder-images, legal-terms]
+    summary: The first issue to subscribers since the relaunch, drafted in Kit and sent by the
+      owner.
+    doneWhen:
+      - A broadcast drafted in Kit links the posts published since the relaunch.
+      - The owner sent it.

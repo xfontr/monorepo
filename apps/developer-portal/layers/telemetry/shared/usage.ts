@@ -58,7 +58,8 @@ const isAgent = ({ caller }: UsageRecord): boolean => caller !== HUMAN;
 
 /** Older rows carry a full timestamp in `at`, newer ones only the day. */
 const tallyDay = (usage: ScriptUsage, record: UsageRecord, at: string): void => {
-    const day = ((usage.days ??= {})[at.slice(0, 10)] ??= { runs: 0, agent: 0, failures: 0 });
+    usage.days ??= {};
+    const day = (usage.days[at.slice(0, 10)] ??= { runs: 0, agent: 0, failures: 0 });
     day.runs += 1;
     if (isAgent(record)) day.agent += 1;
     if (isFailure(record)) day.failures += 1;

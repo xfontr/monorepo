@@ -24,6 +24,7 @@ jobs:
         runs-on: ubuntu-latest
         permissions:
             deployments: write
+            pull-requests: write
         env:
             NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
             NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
@@ -115,33 +116,56 @@ jobs:
                           throw new Error(`Netlify API returned ${response.status}: ${await response.text()}`);
                       }
                       const site = await response.json();
-                      const preview = context.eventName === "pull_request";
-                      const environment = preview ? "huella-legal-preview" : "huella-legal";
-                      const url = preview
-                          ? `https://pr-${context.payload.pull_request.number}--${site.name}.netlify.app`
-                          : process.env.NETLIFY_PRODUCTION_URL || site.ssl_url;
 
+                      if (context.eventName === "pull_request") {
+                          const { number, head } = context.payload.pull_request;
+                          const marker = "<!-- huella-legal-preview -->";
+                          const body = [
+                              marker,
+                              `**Huella Legal preview:** https://pr-${number}--${site.name}.netlify.app`,
+                              "",
+                              `Built from ${head.sha.slice(0, 7)}.`,
+                          ].join("\n");
+                          const comments = await github.paginate(github.rest.issues.listComments, {
+                              ...context.repo,
+                              issue_number: number,
+                          });
+                          const existing = comments.find(
+                              (comment) =>
+                                  comment.user.type === "Bot" && comment.body.startsWith(marker)
+                          );
+                          if (existing) {
+                              await github.rest.issues.updateComment({
+                                  ...context.repo,
+                                  comment_id: existing.id,
+                                  body,
+                              });
+                          } else {
+                              await github.rest.issues.createComment({
+                                  ...context.repo,
+                                  issue_number: number,
+                                  body,
+                              });
+                          }
+                          return;
+                      }
+
+                      const url = process.env.NETLIFY_PRODUCTION_URL || site.ssl_url;
                       const { data: deployment } = await github.rest.repos.createDeployment({
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
-                          ref: preview ? context.payload.pull_request.head.sha : context.sha,
-                          environment,
+                          ...context.repo,
+                          ref: context.sha,
+                          environment: "huella-legal",
                           auto_merge: false,
                           required_contexts: [],
-                          production_environment: !preview,
-                          transient_environment: preview,
+                          production_environment: true,
                       });
-
                       await github.rest.repos.createDeploymentStatus({
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
+                          ...context.repo,
                           deployment_id: deployment.id,
                           state: "success",
-                          environment,
+                          environment: "huella-legal",
                           environment_url: url,
                       });
-
-                      if (preview) return;
 
                       // A deploy empties the CDN, and a cold listing render pages through every
                       // WordPress post, so the runner pays for it once and the durable cache serves
