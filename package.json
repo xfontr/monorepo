@@ -42,12 +42,12 @@
     "devDependencies": {
         "@commitlint/cli": "^21.2.4",
         "@commitlint/config-conventional": "^21.2.4",
-        "@nx/eslint": "24.0.5",
-        "@nx/js": "24.0.5",
-        "@nx/nuxt": "24.0.5",
-        "@nx/vite": "24.0.5",
-        "@nx/vitest": "24.0.5",
+        "@nx/eslint": "24.0.6",
+        "@nx/js": "24.0.6",
+        "@nx/nuxt": "24.0.6",
+        "@nx/vite": "24.0.6",
+        "@nx/vitest": "24.0.6",
         "husky": "^9.1.7",
-        "nx": "24.0.5"
+        "nx": "24.0.6"
     }
 }
