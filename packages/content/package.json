@@ -36,7 +36,7 @@
     ]
   },
   "dependencies": {
-    "entities": "^8.1.0",
+    "entities": "^9.0.0",
     "ofetch": "^1.5.1",
     "ohash": "^2.0.11"
   },
